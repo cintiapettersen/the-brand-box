@@ -29,6 +29,7 @@ export default function Home() {
   const [selectedPaleta, setSelectedPaleta] = useState(null);
   const [selectedTipo, setSelectedTipo] = useState(null);
   const [customStep, setCustomStep] = useState('tipo'); // Controle do carrossel da visualização
+  const [showPediatriaModal, setShowPediatriaModal] = useState(false);
 
   const fetchVariacoes = async () => {
     const id = resultadoFinal?.estiloId || 1;
@@ -339,24 +340,86 @@ export default function Home() {
             </motion.div>
           )}
 
-          {/* MOODBOARD GERAL + PLANOS DE COMPRA (Etapa 10) */}
+          {/* A GRANDE REVELAÇÃO: O MOODBOARD PURO (Etapa 10) */}
           {step === 10 && (
             <motion.div 
               key="step10" variants={variants} initial="initial" animate="animate" exit="exit" transition={{ duration: 0.5 }}
+              style={{ position: 'absolute', width: '100%', height: '100%', display: 'flex', flexDirection: 'column', background: '#ffffff', borderRadius: '24px', overflow: 'hidden', border: '1px solid var(--border)' }}
+            >
+              <div style={{ padding: '1.5rem', textAlign: 'center', borderBottom: '1px solid var(--border)', zIndex: 10, background: '#fff' }}>
+                 <p style={{ color: 'var(--text-secondary)', textTransform: 'uppercase', fontSize: '0.75rem', letterSpacing: '2px', fontWeight: 'bold' }}>Sua Nova Era Visual</p>
+                 <h2 style={{ fontSize: '1.8rem', color: 'var(--accent-magenta)' }}>{resultadoFinal?.estiloNome}</h2>
+              </div>
+              
+              <div style={{ flex: 1, overflowY: 'auto', padding: '15px', display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '10px', background: '#fafafa' }}>
+                  
+                  {/* MANIFESTO AUTOMÁTICO */}
+                  <div style={{ gridColumn: 'span 3', background: '#fcfbf9', border: '1px solid var(--border)', color: 'var(--text-primary)', borderRadius: '12px', padding: '25px', textAlign: 'center', marginBottom: '10px', boxShadow: '0 4px 20px rgba(0,0,0,0.03)' }}>
+                     <h3 style={{ fontSize: '0.85rem', marginBottom: '12px', letterSpacing: '2px', textTransform: 'uppercase', color: 'var(--text-secondary)' }}>M/A — O Seu Manifesto</h3>
+                     <p style={{ fontSize: '1.2rem', fontStyle: 'italic', lineHeight: 1.6, color: 'var(--text-primary)' }}>
+                        "Uma identidade cirurgicamente desenhada para inspirar <b>{formData.sentimentos.join(' e ')}</b>, 
+                        traduzindo toda a essência da {formData.marca || 'sua marca'} em conexões visuais perfeitas."
+                     </p>
+                  </div>
+
+                  {/* Tipografia em destaque */}
+                  {selectedTipo && tipografias.find(t => t.id === selectedTipo) && (
+                     <div style={{ gridColumn: 'span 3', background: '#fff', borderRadius: '12px', padding: '10px', border: '1px solid var(--border)' }}>
+                        <p style={{ fontSize: '0.8rem', color: 'var(--text-secondary)', marginBottom: '5px', fontWeight: 600 }}>Suas Tipografias Oficiais</p>
+                        <img src={tipografias.find(t => t.id === selectedTipo).image_url} style={{ width: '100%', height: '140px', objectFit: 'contain', borderRadius: '8px' }} />
+                     </div>
+                  )}
+
+                  {/* Paleta Escolhida */}
+                  {selectedPaleta && paletas.find(p => p.id === selectedPaleta) && (
+                     <div style={{ gridColumn: 'span 3', background: '#fff', borderRadius: '12px', padding: '10px', border: '1px solid var(--border)' }}>
+                        <p style={{ fontSize: '0.8rem', color: 'var(--text-secondary)', marginBottom: '5px', fontWeight: 600 }}>Sua Cartela de Cores</p>
+                        <img src={paletas.find(p => p.id === selectedPaleta).image_url} style={{ width: '100%', height: '80px', objectFit: 'cover', borderRadius: '8px' }} />
+                     </div>
+                  )}
+
+                  {/* Moodboard Mosaico com Pinterest Style */}
+                  <div style={{ gridColumn: 'span 3', columnCount: 2, columnGap: '10px', position: 'relative' }}>
+                     <p style={{ columnSpan: 'all', fontSize: '0.8rem', color: 'var(--text-secondary)', marginBottom: '10px', fontWeight: 600, textAlign: 'center' }}>Elementos & Atmosfera (Inspiração)</p>
+                     {moodboards.map(m => (
+                        <div key={m.id} style={{ breakInside: 'avoid', marginBottom: '10px', width: '100%' }}>
+                           <img src={m.image_url} style={{ width: '100%', borderRadius: '6px', objectFit: 'cover' }} />
+                        </div>
+                     ))}
+                     
+                     {/* DISCLAIMER DE PROTEÇÃO / AVISO */}
+                     <div style={{ columnSpan: 'all', marginTop: '10px', padding: '12px', borderTop: '1px dashed var(--border)', breakInside: 'avoid' }}>
+                        <p style={{ fontSize: '0.75rem', color: 'var(--text-secondary)', textAlign: 'center', lineHeight: 1.5 }}>
+                           <b>Nota de Design:</b> Este moodboard apresenta sugestões inspiracionais. O seu projeto será inédito e desenhado sob medida a partir desta exata essência visual.
+                        </p>
+                     </div>
+                  </div>
+              </div>
+
+              <div style={{ padding: '1.5rem', background: '#fff', borderTop: '1px solid var(--border)', zIndex: 10 }}>
+                 <button onClick={() => setStep(11)} className="btn-primary" style={{ width: '100%', background: 'var(--accent-turquoise)' }}>Tornar essa Marca Minha 🤍</button>
+              </div>
+            </motion.div>
+          )}
+
+          {/* PLANOS DE COMPRA E CHECKOUT MÁGICO (Etapa 11) */}
+          {step === 11 && (
+            <motion.div 
+              key="step11" variants={variants} initial="initial" animate="animate" exit="exit" transition={{ duration: 0.5 }}
               style={{ position: 'absolute', width: '100%', height: '100%', display: 'flex', flexDirection: 'column', background: '#f7f9fa', borderRadius: '24px', overflow: 'hidden', border: '1px solid var(--border)' }}
             >
-              {/* Painel Mural/Moodboard de Fundo */}
-              <div style={{ position: 'absolute', width: '100%', height: '100%', display: 'flex', flexWrap: 'wrap', gap: '8px', padding: '8px', opacity: 0.25, overflow: 'hidden', pointerEvents: 'none' }}>
+              {/* Painel Mural/Moodboard de Fundo focado */}
+              <div style={{ position: 'absolute', width: '100%', height: '100%', display: 'flex', flexWrap: 'wrap', gap: '8px', padding: '8px', opacity: 0.15, overflow: 'hidden', pointerEvents: 'none' }}>
                   {moodboards.map(m => (
                      <div key={m.id} style={{ width: 'calc(33% - 8px)', height: '140px', background: `url(${m.image_url}) center/cover no-repeat`, borderRadius: '6px' }} />
                   ))}
               </div>
 
-              {/* Camada Vitrine */}
+              {/* Camada Vitrine Escura */}
               <div style={{ position: 'relative', zIndex: 10, padding: '2.5rem 1.5rem', height: '100%', display: 'flex', flexDirection: 'column', overflowY: 'auto' }}>
-                 <p style={{ color: 'var(--text-secondary)', textAlign: 'center', textTransform: 'uppercase', fontSize: '0.8rem', letterSpacing: '2px', fontWeight: 'bold' }}>Identidade Visual Pronta</p>
-                 <h2 style={{ fontSize: '2rem', marginBottom: '0.5rem', color: 'var(--accent-magenta)', textAlign: 'center' }}>{resultadoFinal?.estiloNome}</h2>
-                 <p style={{ textAlign: 'center', marginBottom: '2rem', color: 'var(--text-primary)', fontSize: '0.95rem' }}>O conceito da sua marca {formData.marca || ''} foi desenhado e aprovado.<br/>Selecione como deseja receber os seus arquivos:</p>
+                 <p style={{ color: 'var(--text-secondary)', textAlign: 'center', textTransform: 'uppercase', fontSize: '0.8rem', letterSpacing: '2px', fontWeight: 'bold' }}>Invista no seu Negócio</p>
+                 <h2 style={{ fontSize: '2rem', marginBottom: '0.5rem', color: 'var(--accent-magenta)', textAlign: 'center' }}>Escolha o seu Pacote</h2>
+                 <p style={{ textAlign: 'center', marginBottom: '2rem', color: 'var(--text-primary)', fontSize: '0.95rem' }}>A essência visual da <b>{formData.marca || 'sua marca'}</b> foi aprovada por você!<br/>Selecione como deseja receber a papelaria e arquivos:</p>
 
                  <div style={{ display: 'flex', flexDirection: 'column', gap: '15px' }}>
                     {/* PACOTE BASE */}
@@ -371,7 +434,7 @@ export default function Home() {
                           <li>Guia de Uso da Marca (PDF)</li>
                           <li>Cartão de Visita Interativo</li>
                        </ul>
-                       <button className="btn-secondary" style={{ width: '100%', padding: '12px' }}>Quero este</button>
+                       <button className="btn-secondary" style={{ width: '100%', padding: '12px' }}>Quero este pacote</button>
                     </motion.div>
 
                     {/* PACOTE COMPLETO */}
@@ -382,7 +445,16 @@ export default function Home() {
                        </div>
                        <ul style={{ fontSize: '0.9rem', margin: '0 0 15px 0', paddingLeft: '20px', display: 'flex', flexDirection: 'column', gap: '6px' }}>
                           <li>Tudo do Pacote Base</li>
-                          <li>Papelaria Focada {formData.atuacao !== 'Outra área' && formData.atuacao !== '' ? `para ${formData.atuacao}` : 'Exclusiva'}</li>
+                          
+                          {/* LÓGICA DE BÔNUS DE PEDIATRIA */}
+                          {formData.atuacao.includes('Pediatria') ? (
+                             <li style={{ background: 'rgba(255,255,255,0.2)', padding: '10px', borderRadius: '8px', cursor: 'pointer', fontWeight: 600, listStyle: 'none', marginLeft: '-20px' }} onClick={() => setShowPediatriaModal(true)}>
+                                🎁 <span style={{ textDecoration: 'underline' }}>EXCLUSIVO PEDIATRIA: Ver Papelaria Integrada (15 Itens)</span>
+                             </li>
+                          ) : (
+                             <li>Papelaria Focada {formData.atuacao !== 'Outra área' && formData.atuacao !== '' ? `para ${formData.atuacao}` : 'Exclusiva'}</li>
+                          )}
+
                           <li>Templates Editáveis para Instagram</li>
                           <li>Adesivos / Mockups / Avatares</li>
                        </ul>
@@ -393,6 +465,47 @@ export default function Home() {
             </motion.div>
           )}
 
+        </AnimatePresence>
+
+        {/* MODAL DE BÔNUS - PEDIATRIA */}
+        <AnimatePresence>
+           {showPediatriaModal && (
+              <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} style={{ position: 'fixed', top: 0, left: 0, width: '100vw', height: '100vh', background: 'rgba(0,0,0,0.6)', zIndex: 9999, display: 'flex', justifyContent: 'center', alignItems: 'center', padding: '20px' }}>
+                 <motion.div initial={{ y: 50 }} animate={{ y: 0 }} exit={{ y: 50 }} style={{ background: '#fff', width: '100%', maxWidth: '800px', height: '85vh', borderRadius: '24px', display: 'flex', flexDirection: 'column', overflow: 'hidden', boxShadow: '0 20px 40px rgba(0,0,0,0.2)' }}>
+                    
+                    <div style={{ padding: '20px', background: 'var(--accent-magenta)', color: '#fff', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                       <div>
+                          <h2 style={{ fontSize: '1.5rem', marginBottom: '5px' }}>Bônus: Papelaria Clínica</h2>
+                          <p style={{ opacity: 0.8, fontSize: '0.9rem' }}>Os clientes do Pacote Completo têm direito a 15 itens à escolha!</p>
+                       </div>
+                       <button onClick={() => setShowPediatriaModal(false)} style={{ background: 'transparent', border: 'none', color: '#fff', fontSize: '2rem', cursor: 'pointer' }}>×</button>
+                    </div>
+
+                    <div style={{ padding: '20px', flex: 1, overflowY: 'auto', display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(250px, 1fr))', gap: '10px', background: '#fcfcfc' }}>
+                       {[
+                         "Cartão de Visita", "Receituário Padrão", "Atestado Médico", "Cartão de Retorno", "Pasta A4 Exclusiva",
+                         "Envelope", "Recibo", "Receituário de Controle Especial", "Dicas de Introdução Alimentar",
+                         "Guia de Vacina c/ Calendário", "Ficha de Acompanhamento", "Orientação Pré-Natal",
+                         "Cartão de Exames", "Checklist Maternidade", "Guia do Sono", "Orientações p/ Recém Nascidos",
+                         "Prontuário Médico", "Receita de Alta", "Ficha de Cadastro",
+                         "Certificado de Coragem", "Quadro de Incentivo", "Cartão de Aniversário Exclusivo",
+                         "Arte para Caneca/Brindes", "Gráfico de Crescimento", "Diário do Xixi", "Card de Orientação de Sono",
+                         "Meu Pratinho", "Guia de Amamentação", "Fundo de Tira Dúvidas Instagram"
+                       ].map(item => (
+                          <label key={item} style={{ display: 'flex', alignItems: 'center', gap: '10px', padding: '12px', background: '#fff', border: '1px solid var(--border)', borderRadius: '8px', cursor: 'pointer', fontSize: '0.9rem', transition: 'all 0.2s', boxShadow: '0 2px 5px rgba(0,0,0,0.02)' }}>
+                             <input type="checkbox" style={{ width: '18px', height: '18px', accentColor: 'var(--accent-magenta)' }} />
+                             {item}
+                          </label>
+                       ))}
+                    </div>
+
+                    <div style={{ padding: '20px', background: '#fff', borderTop: '1px solid var(--border)', textAlign: 'center' }}>
+                       <button onClick={() => setShowPediatriaModal(false)} className="btn-primary" style={{ background: 'var(--accent-magenta)', width: '250px' }}>Salvar Minhas Escolhas</button>
+                    </div>
+
+                 </motion.div>
+              </motion.div>
+           )}
         </AnimatePresence>
 
       </div>
