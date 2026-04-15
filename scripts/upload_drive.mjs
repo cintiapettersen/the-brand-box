@@ -50,20 +50,34 @@ function cleanName(filename) {
 async function run() {
     console.log(`🚀 Iniciando Upload Mágico para o estilo: ${ESTILO_NOME}`);
     
-    // Limpando antigos
-    await supabase.from('estilos').delete().eq('folder_name', FOLDER_KEY);
+    // Verificar se o estilo já existe no banco
+    const { data: existente } = await supabase.from('estilos').select('id').eq('folder_name', FOLDER_KEY).single();
     
-    // Cadastrar estilo no banco
-    const { data: estiloData, error: estiloError } = await supabase.from('estilos').insert([
-        { nome_estilo: ESTILO_NOME, descricao_afetiva: DESCRICAO, folder_name: FOLDER_KEY }
-    ]).select('*').single();
+    let estilo_id;
     
-    if (estiloError) {
-         console.error("Erro Criando Estilo:", estiloError);
-         return;
+    if (existente) {
+        // REUSAR o ID existente! Só atualiza nome e descrição
+        estilo_id = existente.id;
+        await supabase.from('estilos').update({ nome_estilo: ESTILO_NOME, descricao_afetiva: DESCRICAO }).eq('id', estilo_id);
+        
+        // Limpar só as variações e moodboards antigos (o estilo fica intacto com o mesmo ID)
+        await supabase.from('variacoes_curadas').delete().eq('estilo_id', estilo_id);
+        await supabase.from('moodboards').delete().eq('estilo_id', estilo_id);
+        
+        console.log(`♻️  Estilo já existia! Reusando ID: ${estilo_id} (variações e moodboards limpos)`);
+    } else {
+        // Criar novo estilo
+        const { data: estiloData, error: estiloError } = await supabase.from('estilos').insert([
+            { nome_estilo: ESTILO_NOME, descricao_afetiva: DESCRICAO, folder_name: FOLDER_KEY }
+        ]).select('*').single();
+        
+        if (estiloError) {
+             console.error("Erro Criando Estilo:", estiloError);
+             return;
+        }
+        estilo_id = estiloData.id;
+        console.log(`✅ Estilo NOVO cadastrado! ID Genuíno no Banco: ${estilo_id}`);
     }
-    const estilo_id = estiloData.id;
-    console.log(`✅ Estilo cadastrado! ID Genuíno no Banco: ${estilo_id}`);
 
     if(!fs.existsSync(MAC_PATH)){
         console.log("Pasta não encontrada no Mac:", MAC_PATH);

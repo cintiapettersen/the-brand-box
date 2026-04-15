@@ -23,22 +23,28 @@ export async function POST(req) {
     - Se atende Crianças/Bebês (publico) ou marcou 'Brincalhona, colorida', aumente a "LUDICIDADE".
     
     ESTILOS DISPONÍVEIS (IDs do Banco de Dados oficial):
-    1: Poético Navegante (Delicado, acolhedor. Ludicidade base. Bom para infanto-maternal afetuoso).
-    2: Jardim Encantado (Floral, vibrante, cores intensas como rosa/amarelo. Muita ludicidade. Forte e alegre. Fantástico para lojas de roupas ou marcas infantis fortes).
-    3: Escandinavo Acolhedor (Minimalista, tons quentes, neutro/unissex. Transmite confiança elegante. EXTREMAMENTE recomendado para pediatras homens ou clínicas que focam na maturidade e elegância).
+    ID = 1: "Jardim Encantado" (Essência: alegria leve + natureza lúdica + estética moderna infantil. Lúdico contemporâneo + colorido inteligente. NÃO é fantasia mágica pesada, NÃO é infantil bebê. Público Principal: roupas infantis criativas, papelaria infantil, brinquedos educativos, ateliês criativos. Público Secundário: marcas femininas jovens, criativos modernos, confeitaria, marcas autorais. NÃO INDICAR PARA: marcas clínicas tradicionais, estéticas multissegmentadas, negócios corporativos. Personalidade: alegre, criativa, espontânea, afetuosa, divertida sem exagero, moderna. Tem energia mas não é caótica).
+    ID = 3: "Escandinavo Acolhedor" (Essência: minimalismo + afeto + neutralidade. Não chama atenção pelo excesso, conquista pelo conforto visual. Sensação: calma, segurança, cuidado silencioso. Personalidade: discreto, confiável, acolhedor, leve, moderno, neutro sem gênero forte. Público Principal: pediatras homens, clínicas mais tradicionais, profissionais que querem ser acolhedores sem parecer infantil demais. Público Secundário: maternidades minimalistas, marcas de bebê premium, mães que gostam de estética clean. NÃO INDICAR PARA: marcas muito criativas/divertidas, identidade infantil colorida, propostas muito lúdicas. Resolve o problema específico: cliente quer pediatria mas tem medo de parecer infantil demais — entrega equilíbrio perfeito entre profissional e acolhedor).
+    ID = 8: "Doce Encantamento" (Público Principal: pediatria, materno, infantil, marcas criativas infantis. Público Secundário: negócios femininos criativos, educação infantil, criadores de conteúdo. NÃO INDICAR PARA: clínico técnico, corporativo, jurídico, institucional tradicional. Traz design Romântico, Clássico, Nostálgico, super delicado e com pureza).
+    ID = 5: "Essência Atemporal" (Público Principal: profissionais liberais femininas, estética/beleza/autoestima, terapeutas, psicólogas, marcas autorais femininas, consultorias. ESPECIALMENTE INDICADO PARA: Saúde da Mulher (Obstetrícia/Ginecologia) que busca um atendimento humanizado, empático e sofisticado. Público Secundário: arquitetura, design de interiores, moda slow/living, marcas premium & luxuosas. Emoção: calmo, sofisticado, equilibrado, seguro. Sensação final: "confiança silenciosa", "beleza que não precisa chamar atenção", "marca que parece cara sem ser óbvia". Estilo minimalista, orgânico, elegante e atemporal. NÃO INDICAR PARA: público infantil, marcas divertidas/coloridas, corporativo rígido).
+    ID = 6: "Raízes & Cuidado" (Público Principal: Cosméticos naturais, skincare artesanal, marcas veganas, produtos orgânicos, alimentação saudável, marcas sustentáveis, Bem-estar consciente. Público Secundário: papelaria autoral, marcas femininas conscientes, terapias naturais, produtos handmade. Emoção: natural, acolhedor, leve, consciente. Estilo orgânico, artesanal, ilustrado, texturizado. Ludicidade: média. NÃO INDICAR PARA: corporativo, tecnológico, luxo ostensivo, público infantil puro).
+    ID = 10: "Estético Editorial" (Sub-estilos: Clínico Elegante, Sofisticado Natural, Minimal Orgânico, Confiança Moderna, Institucional Contemporâneo. Público Principal: médicos de áreas técnicas (clinica geral adulta, cirurgiões, intensivistas), clínicas premium institucionais, dermatologia de alto padrão, odontologia sofisticada, consultorias executivas, arquitetos de grandes obras. Composição limpa, espaços em branco, formas orgânicas sutis, tons neutros e terrosos. Transmite autoridade, profissionalismo e elegância. REGRAS: Se o foco for "Saúde da Mulher" com tom acolhedor, use ID 5. Se for um hospital ou clínica técnica de grande porte, use ID 10. NÃO INDICAR PARA: público infantil, marcas lúdicas).
     
+    REGRA DE OURO: Para "Saúde da Mulher" atendendo "Mulheres Adultas", prefira sempre Essência Atemporal (ID 5), a menos que o briefing peça explicitamente algo muito "Clean/Institucional".
+
     DADOS DA CLIENTE:
     Nome: ${body.nome}
     Área de Atuação: ${body.atuacao} - ${body.atuacaoOutra}
     Público Alvo: ${body.publico}
     Sensações desejadas: ${body.sentimentos.join(", ")}
+    Elementos Visuais exigidos na arte: ${body.elementosVisuais ? body.elementosVisuais.join(", ") : "Nenhum específico"}
     
-    Aja como uma consultora mágica. Identifique o melhor estilo (número de 1 a 5) com base nestas regras.
+    Aja como uma consultora mágica. Identifique o melhor estilo com base nestas regras.
     Responda EXCLUSIVAMENTE num formato JSON estruturado com 'estiloId' (numero), 'estiloNome' (string) e 'mensagem' (string).
     {
-       "estiloId": 1,
-       "estiloNome": "Poético Navegante",
-       "mensagem": "Olá [Nome], após analisar o seu trabalho com [Público] focado em [Sensação]..."
+       "estiloId": 5,
+       "estiloNome": "Essência Atemporal",
+       "mensagem": "Olá [Nome], para o seu trabalho com Saúde da Mulher, selecionamos o estilo Essência Atemporal..."
     }
     `;
 

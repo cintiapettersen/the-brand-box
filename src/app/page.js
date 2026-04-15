@@ -13,14 +13,23 @@ export default function Home() {
   const [resultadoFinal, setResultadoFinal] = useState(null);
   
   const [formData, setFormData] = useState({
-    nome: '',
-    email: '',
-    marca: '',
-    atuacao: '',
-    atuacaoOutra: '',
-    publico: '',
-    sentimentos: []
+    nome: '', email: '', marca: '', atuacao: '', atuacaoOutra: '', publico: '', sentimentos: [], elementosVisuais: []
   });
+
+  const elementosDesc = [
+    "Cores vibrantes", "Universo Lúdico (Fadas, Princesas)", "Bichinhos / Animais Fofos", 
+    "Aquarela Clássica", "Minimalismo e Traços Limpos", "Tons Quentes / Linho Orgânico", 
+    "Clássico e Nostálgico", "Clean / Tipografia Pura"
+  ];
+  
+  const toggleElemento = (val) => {
+    setFormData(prev => ({
+      ...prev,
+      elementosVisuais: prev.elementosVisuais.includes(val)
+        ? prev.elementosVisuais.filter(item => item !== val)
+        : (prev.elementosVisuais.length < 3 ? [...prev.elementosVisuais, val] : prev.elementosVisuais)
+    }));
+  };
 
   const [paletas, setPaletas] = useState([]);
   const [tipografias, setTipografias] = useState([]);
@@ -43,11 +52,10 @@ export default function Home() {
 
     // Buscar imagens do moodboard daquela raiz
     const { data: moodData } = await supabase.from('moodboards').select('*').eq('estilo_id', id);
-    if(moodData) {
-       setMoodboards(moodData);
-    }
-
-    setStep(9);
+    setMoodboards(moodData || []);
+    setSelectedTipo(null);
+    setSelectedPaleta(null);
+    setStep(10);
   };
 
   const nextStep = () => setStep((s) => s + 1);
@@ -80,7 +88,7 @@ export default function Home() {
 
   // Aqui é onde ativamos a Mágica
   const callMatchmaker = async () => {
-    setStep(7); // Vai para a tela de loading automático
+    setStep(8); // Vai para a tela de loading automático
     
     try {
       const response = await fetch('/api/matchmaker', {
@@ -93,15 +101,15 @@ export default function Home() {
       
       if (data.estiloNome) {
         setResultadoFinal(data);
-        setStep(8); // Tela de Resultado Triunfal
+        setStep(9); // Tela de Resultado Triunfal
       } else {
         alert("Ops, deu um pequeno tilt na IA. Refaça por favor!");
-        setStep(6);
+        setStep(7);
       }
-    } catch (e) {
-      console.error(e);
-      alert("Demorou muito ou falhou. Teste novamente!");
-      setStep(6);
+    } catch (error) {
+      console.error(error);
+      alert("Erro na conexão com o servidor mágico.");
+      setStep(7);
     }
   };
 
@@ -111,6 +119,7 @@ export default function Home() {
     "Clínica / Saúde geral adulta",
     "Terapia / Saúde mental",
     "Estética / Bem-estar / Nutrição",
+    "Cosméticos Naturais / Bem-estar Consciente",
     "Loja de Roupas / Marcas Infantis",
     "Outra área"
   ];
@@ -161,6 +170,12 @@ export default function Home() {
   return (
     <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '100vh', padding: '2rem', background: '#ffffff' }}>
       <div style={{ width: '100%', maxWidth: '700px', position: 'relative', height: '85vh' }}>
+
+        {step > 1 && step <= 7 && (
+           <button onClick={() => setStep(s => s - 1)} style={{ position: 'absolute', top: '10px', left: '10px', background: 'var(--bg-soft)', border: '1px solid var(--border)', borderRadius: '30px', padding: '6px 14px', color: 'var(--text-secondary)', cursor: 'pointer', zIndex: 100, fontSize: '0.85rem', fontWeight: 500, transition: 'all 0.2s ease', display: 'flex', alignItems: 'center', gap: '5px' }}>
+             ← Voltar
+           </button>
+        )}
         
         <AnimatePresence mode="wait">
           
@@ -260,7 +275,7 @@ export default function Home() {
                 })}
               </div>
               <p style={{fontSize: '0.9rem', color: 'var(--text-secondary)', marginBottom: '1.5rem', fontWeight: 500}}>Selecionadas: {formData.sentimentos.length}/3</p>
-              <button onClick={callMatchmaker} className="btn-primary" style={{ opacity: formData.sentimentos.length > 0 ? 1 : 0.5, pointerEvents: formData.sentimentos.length > 0 ? 'auto' : 'none' }}>Descobrir Essência ✨</button>
+              <button onClick={nextStep} className="btn-primary" style={{ opacity: formData.sentimentos.length > 0 ? 1 : 0.5, pointerEvents: formData.sentimentos.length > 0 ? 'auto' : 'none' }}>Avançar</button>
             </motion.div>
           )}
 
@@ -269,16 +284,40 @@ export default function Home() {
               key="step7" variants={variants} initial="initial" animate="animate" exit="exit" transition={{ duration: 0.5 }}
               style={{ position: 'absolute', width: '100%', height: '100%', display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', textAlign: 'center', background: '#ffffff', borderRadius: '24px', padding: '3rem', border: '1px solid var(--border)' }}
             >
-              <h2 style={{ fontSize: '3rem', marginBottom: '1rem' }}>✨</h2>
-              <h2 style={{ fontSize: '2rem', marginBottom: '0.5rem', color: 'var(--accent-turquoise)' }}>Conectando com o Gemini...</h2>
-              <p style={{ fontSize: '1rem', color: 'var(--text-secondary)' }}>Nossa IA está cruzando seus dados de Sofisticação e Ludicidade com o banco de estilos ativos da Sonho de Papel.</p>
+              <div style={{ position: 'absolute', top: '3rem', left: '3rem', right: '3rem', height: '4px', background: 'var(--border)', borderRadius: '4px' }}><div style={{ height: '100%', background: 'var(--accent-turquoise)', width: '95%', borderRadius: '4px', transition: 'width 0.5s' }} /></div>
+              <h2 style={{ fontSize: '2rem', marginBottom: '0.5rem' }}>O que não pode faltar no layout?</h2>
+              <p style={{ fontSize: '1rem', color: 'var(--text-secondary)', marginBottom: '1.5rem' }}>Quais elementos visuais e temáticos são vitais para você? (Escolha até 3)</p>
+              <div style={{ width: '100%', marginBottom: '1.5rem', display: 'flex', flexWrap: 'wrap', gap: '10px', justifyContent: 'center' }}>
+                {elementosDesc.map(s => {
+                  const isSelected = formData.elementosVisuais.includes(s);
+                  return (
+                    <button key={s} onClick={() => toggleElemento(s)} style={{ background: isSelected ? 'var(--accent-turquoise)' : '#fff', color: isSelected ? '#fff' : 'var(--text-secondary)', border: `1.5px solid ${isSelected ? 'var(--accent-turquoise)' : 'var(--border)'}`, padding: '10px 20px', borderRadius: '30px', cursor: 'pointer', transition: 'all 0.2s ease', fontSize: '1rem', fontWeight: isSelected ? 500 : 400 }}>{s}</button>
+                  )
+                })}
+              </div>
+              <button onClick={callMatchmaker} className="btn-primary" style={{ opacity: formData.elementosVisuais.length > 0 ? 1 : 0.5, pointerEvents: formData.elementosVisuais.length > 0 ? 'auto' : 'none' }}>Ativar Casamenteira ✨</button>
+            </motion.div>
+          )}
+
+          {step === 8 && (
+            <motion.div 
+              key="step8" variants={variants} initial="initial" animate="animate" exit="exit" transition={{ duration: 0.5 }}
+              style={{ position: 'absolute', width: '100%', height: '100%', display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', textAlign: 'center', background: '#ffffff', borderRadius: '24px', padding: '3rem', border: '1px solid var(--border)' }}
+            >
+              <motion.div
+                animate={{ rotate: 360 }}
+                transition={{ duration: 3, repeat: Infinity, ease: 'linear' }}
+                style={{ fontSize: '3.5rem', marginBottom: '1.5rem' }}
+              >✦</motion.div>
+              <h2 style={{ fontSize: '1.8rem', marginBottom: '0.8rem', color: 'var(--accent-turquoise)' }}>Encontrando a sua essência visual...</h2>
+              <p style={{ fontSize: '1rem', color: 'var(--text-secondary)', lineHeight: 1.6, maxWidth: '320px' }}>Nosso motor criativo está analisando o seu perfil para encontrar a combinação perfeita para você.</p>
             </motion.div>
           )}
 
           {/* O GLORIOSO RESULTADO */}
-          {step === 8 && resultadoFinal && (
+          {step === 9 && resultadoFinal && (
             <motion.div 
-              key="step8" variants={variants} initial="initial" animate="animate" exit="exit" transition={{ duration: 0.5 }}
+              key="step9" variants={variants} initial="initial" animate="animate" exit="exit" transition={{ duration: 0.5 }}
               style={{ position: 'absolute', width: '100%', height: '100%', display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', textAlign: 'center', background: '#ffffff', borderRadius: '24px', padding: '3rem', border: '1px solid var(--border)', boxShadow: '0 20px 40px rgba(0,0,0,0.08)' }}
             >
               <p style={{ fontSize: '0.9rem', color: 'var(--text-secondary)', marginBottom: '0.5rem', textTransform: 'uppercase', letterSpacing: '2px', fontWeight: 600 }}>O MATCH PERFEITO PARA {formData.marca || "SUA MARCA"}</p>
@@ -294,9 +333,9 @@ export default function Home() {
             </motion.div>
           )}
 
-          {step === 9 && (
+          {step === 10 && (
             <motion.div 
-              key="step9" variants={variants} initial="initial" animate="animate" exit="exit" transition={{ duration: 0.5 }}
+              key="step10" variants={variants} initial="initial" animate="animate" exit="exit" transition={{ duration: 0.5 }}
               style={{ position: 'absolute', width: '100%', height: '100%', display: 'flex', flexDirection: 'column', background: '#ffffff', borderRadius: '24px', padding: '2rem', border: '1px solid var(--border)', overflowY: 'hidden' }}
             >
               <h2 style={{ fontSize: '1.8rem', marginBottom: '0.5rem', textAlign: 'center' }}>Refinamento Visual</h2>
@@ -313,8 +352,7 @@ export default function Home() {
                      <motion.div key="ctipo" variants={slideVariants} initial="initial" animate="animate" exit="exit" transition={{ duration: 0.3 }} style={{ position: 'absolute', width: '100%', height: '100%', display: 'grid', gridTemplateColumns: 'minmax(0, 1fr) minmax(0, 1fr)', gap: '15px', overflowY: 'auto', paddingBottom: '2rem' }}>
                         {tipografias.map(t => (
                           <div key={t.id} onClick={() => selectTipoItem(t.id)} style={{ border: selectedTipo === t.id ? '2px solid var(--accent-turquoise)' : '1px solid var(--border)', borderRadius: '12px', padding: '10px', cursor: 'pointer', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-                             <img src={t.image_url} alt={t.nome_variacao} style={{ width: '100%', height: '120px', objectFit: 'contain', borderRadius: '8px', marginBottom: '10px', background: '#f9f9f9' }} />
-                             <p style={{ fontSize: '0.9rem', fontWeight: selectedTipo === t.id ? 600 : 400, textAlign: 'center' }}>{t.nome_variacao}</p>
+                             <img src={`${t.image_url}?t=${Date.now()}`} alt={t.nome_variacao} style={{ width: '100%', height: '120px', objectFit: 'contain', borderRadius: '8px', background: '#f9f9f9' }} />
                           </div>
                         ))}
                      </motion.div>
@@ -324,8 +362,7 @@ export default function Home() {
                      <motion.div key="cpaleta" variants={slideVariants} initial="initial" animate="animate" exit="exit" transition={{ duration: 0.3 }} style={{ position: 'absolute', width: '100%', height: '100%', display: 'grid', gridTemplateColumns: 'minmax(0, 1fr) minmax(0, 1fr)', gap: '15px', overflowY: 'auto', paddingBottom: '2rem' }}>
                         {paletas.map(p => (
                           <div key={p.id} onClick={() => setSelectedPaleta(p.id)} style={{ border: selectedPaleta === p.id ? '2px solid var(--accent-magenta)' : '1px solid var(--border)', borderRadius: '12px', padding: '10px', cursor: 'pointer', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-                             <img src={p.image_url} alt={p.nome_variacao} style={{ width: '100%', height: '120px', objectFit: 'cover', borderRadius: '8px', marginBottom: '10px', background: '#f9f9f9' }} />
-                             <p style={{ fontSize: '0.9rem', fontWeight: selectedPaleta === p.id ? 600 : 400, textAlign: 'center' }}>{p.nome_variacao}</p>
+                             <img src={`${p.image_url}?t=${Date.now()}`} alt={p.nome_variacao} style={{ width: '100%', height: '120px', objectFit: 'cover', borderRadius: '8px', background: '#f9f9f9' }} />
                           </div>
                         ))}
                      </motion.div>
@@ -335,15 +372,15 @@ export default function Home() {
               
               <div style={{ marginTop: 'auto', display: 'flex', justifyContent: 'space-between', gap: '10px' }}>
                  {customStep === 'paleta' && <button onClick={() => setCustomStep('tipo')} className="btn-secondary" style={{ padding: '14px 20px', flex: 0.3 }}>Voltar</button>}
-                 <button onClick={() => setStep(10)} className="btn-primary" style={{ flex: 1, background: (selectedTipo && selectedPaleta) ? 'var(--accent-turquoise)' : '#ccc', pointerEvents: (selectedTipo && selectedPaleta) ? 'auto' : 'none' }}>Gerar Meu Moodboard Final</button>
+                 <button onClick={() => setStep(11)} className="btn-primary" style={{ flex: 1, background: (selectedTipo && selectedPaleta) ? 'var(--accent-turquoise)' : '#ccc', pointerEvents: (selectedTipo && selectedPaleta) ? 'auto' : 'none' }}>Gerar Meu Moodboard Final</button>
               </div>
             </motion.div>
           )}
 
-          {/* A GRANDE REVELAÇÃO: O MOODBOARD PURO (Etapa 10) */}
-          {step === 10 && (
+          {/* A GRANDE REVELAÇÃO: O MOODBOARD PURO (Etapa 11) */}
+          {step === 11 && (
             <motion.div 
-              key="step10" variants={variants} initial="initial" animate="animate" exit="exit" transition={{ duration: 0.5 }}
+              key="step11" variants={variants} initial="initial" animate="animate" exit="exit" transition={{ duration: 0.5 }}
               style={{ position: 'absolute', width: '100%', height: '100%', display: 'flex', flexDirection: 'column', background: '#ffffff', borderRadius: '24px', overflow: 'hidden', border: '1px solid var(--border)' }}
             >
               <div style={{ padding: '1.5rem', textAlign: 'center', borderBottom: '1px solid var(--border)', zIndex: 10, background: '#fff' }}>
@@ -362,19 +399,31 @@ export default function Home() {
                      </p>
                   </div>
 
-                  {/* Tipografia em destaque */}
-                  {selectedTipo && tipografias.find(t => t.id === selectedTipo) && (
-                     <div style={{ gridColumn: 'span 3', background: '#fff', borderRadius: '12px', padding: '10px', border: '1px solid var(--border)' }}>
-                        <p style={{ fontSize: '0.8rem', color: 'var(--text-secondary)', marginBottom: '5px', fontWeight: 600 }}>Suas Tipografias Oficiais</p>
-                        <img src={tipografias.find(t => t.id === selectedTipo).image_url} style={{ width: '100%', height: '140px', objectFit: 'contain', borderRadius: '8px' }} />
+                  {/* Tipografia Principal e Secundária (Lado a Lado) */}
+                  <div style={{ gridColumn: 'span 3', display: 'grid', gridTemplateColumns: '2fr 1fr', gap: '10px' }}>
+                     {/* Tipografia Primária (Logo) */}
+                     {selectedTipo && tipografias.find(t => t.id === selectedTipo) && (
+                        <div style={{ background: '#fff', borderRadius: '12px', padding: '10px', border: '1px solid var(--border)' }}>
+                           <p style={{ fontSize: '0.8rem', color: 'var(--text-secondary)', marginBottom: '5px', fontWeight: 600 }}>Tipografia em Destaque (Logotipo)</p>
+                           <img src={`${tipografias.find(t => t.id === selectedTipo).image_url}?t=${Date.now()}`} style={{ width: '100%', height: '140px', objectFit: 'contain', borderRadius: '8px' }} />
+                        </div>
+                     )}
+
+                     {/* Tipografia Secundária (Texto) via CSS Pura */}
+                     <div style={{ background: '#fff', borderRadius: '12px', padding: '15px', border: '1px solid var(--border)', display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
+                        <p style={{ fontSize: '0.8rem', color: 'var(--text-secondary)', marginBottom: '10px', fontWeight: 600 }}>Tipografia de Textos (Apoio)</p>
+                        <div style={{ padding: '10px', background: 'var(--bg-soft)', borderRadius: '8px', flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', textAlign: 'center' }}>
+                           <span style={{ fontFamily: 'Inter, sans-serif', fontSize: '2.5rem', fontWeight: 600, color: 'var(--text-primary)', letterSpacing: '-1px' }}>Aa</span>
+                           <span style={{ fontFamily: 'Inter, sans-serif', fontSize: '0.85rem', color: 'var(--text-secondary)', marginTop: '8px' }}>Google Fonts: Inter</span>
+                        </div>
                      </div>
-                  )}
+                  </div>
 
                   {/* Paleta Escolhida */}
                   {selectedPaleta && paletas.find(p => p.id === selectedPaleta) && (
                      <div style={{ gridColumn: 'span 3', background: '#fff', borderRadius: '12px', padding: '10px', border: '1px solid var(--border)' }}>
                         <p style={{ fontSize: '0.8rem', color: 'var(--text-secondary)', marginBottom: '5px', fontWeight: 600 }}>Sua Cartela de Cores</p>
-                        <img src={paletas.find(p => p.id === selectedPaleta).image_url} style={{ width: '100%', height: '80px', objectFit: 'cover', borderRadius: '8px' }} />
+                        <img src={`${paletas.find(p => p.id === selectedPaleta).image_url}?t=${Date.now()}`} style={{ width: '100%', height: '80px', objectFit: 'cover', borderRadius: '8px' }} />
                      </div>
                   )}
 
@@ -383,7 +432,7 @@ export default function Home() {
                      <p style={{ columnSpan: 'all', fontSize: '0.8rem', color: 'var(--text-secondary)', marginBottom: '10px', fontWeight: 600, textAlign: 'center' }}>Elementos & Atmosfera (Inspiração)</p>
                      {moodboards.map(m => (
                         <div key={m.id} style={{ breakInside: 'avoid', marginBottom: '10px', width: '100%' }}>
-                           <img src={m.image_url} style={{ width: '100%', borderRadius: '6px', objectFit: 'cover' }} />
+                           <img src={`${m.image_url}?t=${Date.now()}`} style={{ width: '100%', borderRadius: '6px', objectFit: 'cover' }} />
                         </div>
                      ))}
                      
@@ -397,15 +446,15 @@ export default function Home() {
               </div>
 
               <div style={{ padding: '1.5rem', background: '#fff', borderTop: '1px solid var(--border)', zIndex: 10 }}>
-                 <button onClick={() => setStep(11)} className="btn-primary" style={{ width: '100%', background: 'var(--accent-turquoise)' }}>Tornar essa Marca Minha 🤍</button>
+                 <button onClick={() => setStep(12)} className="btn-primary" style={{ width: '100%', background: 'var(--accent-turquoise)' }}>Tornar essa Marca Minha 🤍</button>
               </div>
             </motion.div>
           )}
 
-          {/* PLANOS DE COMPRA E CHECKOUT MÁGICO (Etapa 11) */}
-          {step === 11 && (
+          {/* PLANOS DE COMPRA E CHECKOUT MÁGICO (Etapa 12) */}
+          {step === 12 && (
             <motion.div 
-              key="step11" variants={variants} initial="initial" animate="animate" exit="exit" transition={{ duration: 0.5 }}
+              key="step12" variants={variants} initial="initial" animate="animate" exit="exit" transition={{ duration: 0.5 }}
               style={{ position: 'absolute', width: '100%', height: '100%', display: 'flex', flexDirection: 'column', background: '#f7f9fa', borderRadius: '24px', overflow: 'hidden', border: '1px solid var(--border)' }}
             >
               {/* Painel Mural/Moodboard de Fundo focado */}
