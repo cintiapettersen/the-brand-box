@@ -80,9 +80,9 @@ async function sync() {
     await supabase.from('variacoes_curadas').delete().eq('estilo_id', STYLE_ID);
 
     const config = [
-        { folder: 'paleta', type: 'palette' },
-        { folder: 'Tipografias', type: 'tipografia' },
-        { folder: 'Moodboard', type: 'moodboard' }
+        { folder: 'paleta', type: 'PALETA' },
+        { folder: 'Tipografias', type: 'TIPOGRAFIA' },
+        { folder: 'Moodboard', type: 'MOODBOARD' }
     ];
 
     for (const item of config) {
@@ -99,7 +99,7 @@ async function sync() {
 
             if (publicUrl) {
                 let cores = null;
-                if (item.type === 'palette') {
+                if (item.type === 'PALETA') {
                     console.log(`  🔍 Analisando cores de ${file}...`);
                     cores = await getColorsFromImage(fileBuffer);
                     if (cores) console.log(`  ✨ Cores extraídas: ${cores.join(', ')}`);
