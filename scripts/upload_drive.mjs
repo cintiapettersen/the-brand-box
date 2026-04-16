@@ -1,4 +1,5 @@
 import { createClient } from '@supabase/supabase-js';
+import { GoogleGenerativeAI } from '@google/generative-ai';
 import fs from 'fs';
 import path from 'path';
 
@@ -11,19 +12,46 @@ if(args.length < 4) {
 
 const [ESTILO_NOME, FOLDER_KEY, MAC_PATH, DESCRICAO] = args;
 
-// 1. Process as chaves
+// 1. Carregamento robusto do ambiente (Lê .env.local diretamente)
 const envStr = fs.readFileSync('.env.local', 'utf8');
 const envVars = {};
 envStr.split('\n').forEach(line => {
    if(line.includes('=')) {
-      const parts = line.split('=');
-      envVars[parts[0].trim()] = parts[1].trim().replace(/"/g, '');
+      const [key, ...valueParts] = line.split('=');
+      envVars[key.trim()] = valueParts.join('=').trim().replace(/"/g, '').replace(/'/g, '');
    }
 });
 
 const supabaseUrl = envVars['NEXT_PUBLIC_SUPABASE_URL'];
 const supabaseKey = envVars['SUPABASE_SERVICE_ROLE_KEY'];
+const geminiKey = envVars['GEMINI_API_KEY'];
+
+if (!supabaseUrl || !supabaseKey) {
+    console.error("❌ ERRO: Chaves do Supabase não encontradas no .env.local");
+    process.exit(1);
+}
+
 const supabase = createClient(supabaseUrl, supabaseKey);
+const genAI = new GoogleGenerativeAI(geminiKey);
+
+async function getColorsFromImage(fileBuffer) {
+    try {
+        const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash" });
+        const prompt = "Analise esta paleta de cores e retorne EXCLUSIVAMENTE um array JSON com os 5 principais códigos HEX encontrados. Ex: ['#HEX1', '#HEX2', '#HEX3', '#HEX4', '#HEX5']";
+        
+        const result = await model.generateContent([
+            prompt,
+            { inlineData: { data: fileBuffer.toString("base64"), mimeType: "image/png" } }
+        ]);
+
+        const text = result.response.text();
+        const hexMatch = text.match(/#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})/g);
+        return hexMatch ? hexMatch.slice(0, 5) : null;
+    } catch (err) {
+        console.error("  ⚠️ Erro na IA:", err.message);
+        return null;
+    }
+}
 
 async function uploadFile(filePath, bucketPath) {
     const fileContent = fs.readFileSync(filePath);
@@ -48,7 +76,7 @@ function cleanName(filename) {
 }
 
 async function run() {
-    console.log(`🚀 Iniciando Upload Mágico para o estilo: ${ESTILO_NOME}`);
+    console.log(`🚀 Iniciando Upload Mágico Inteligente para: ${ESTILO_NOME}`);
     
     // Verificar se o estilo já existe no banco
     const { data: existente } = await supabase.from('estilos').select('id').eq('folder_name', FOLDER_KEY).single();
@@ -56,17 +84,12 @@ async function run() {
     let estilo_id;
     
     if (existente) {
-        // REUSAR o ID existente! Só atualiza nome e descrição
         estilo_id = existente.id;
         await supabase.from('estilos').update({ nome_estilo: ESTILO_NOME, descricao_afetiva: DESCRICAO }).eq('id', estilo_id);
-        
-        // Limpar só as variações e moodboards antigos (o estilo fica intacto com o mesmo ID)
         await supabase.from('variacoes_curadas').delete().eq('estilo_id', estilo_id);
         await supabase.from('moodboards').delete().eq('estilo_id', estilo_id);
-        
-        console.log(`♻️  Estilo já existia! Reusando ID: ${estilo_id} (variações e moodboards limpos)`);
+        console.log(`♻️  Estilo já existia! Reusando ID: ${estilo_id}`);
     } else {
-        // Criar novo estilo
         const { data: estiloData, error: estiloError } = await supabase.from('estilos').insert([
             { nome_estilo: ESTILO_NOME, descricao_afetiva: DESCRICAO, folder_name: FOLDER_KEY }
         ]).select('*').single();
@@ -76,7 +99,7 @@ async function run() {
              return;
         }
         estilo_id = estiloData.id;
-        console.log(`✅ Estilo NOVO cadastrado! ID Genuíno no Banco: ${estilo_id}`);
+        console.log(`✅ Estilo NOVO cadastrado! ID: ${estilo_id}`);
     }
 
     if(!fs.existsSync(MAC_PATH)){
@@ -103,12 +126,17 @@ async function run() {
            const remotePath = `${FOLDER_KEY}/${normalizedSub}/${file.replace(/\s+/g, '_')}`;
            
            console.log(`⬆️  Subindo ${file}...`);
+           const fileBuffer = fs.readFileSync(filePath);
            const publicUrl = await uploadFile(filePath, remotePath);
 
            if(normalizedSub === 'paleta' || normalizedSub === 'paletas') {
+               console.log(`  🔍 Extraindo cores de ${file}...`);
+               const cores = await getColorsFromImage(fileBuffer);
+               
                await supabase.from('variacoes_curadas').insert([{
-                   estilo_id, tipo: 'PALETA', nome_variacao: rawName, image_url: publicUrl
+                   estilo_id, tipo: 'PALETA', nome_variacao: rawName, image_url: publicUrl, paleta_hex: cores
                }]);
+               if(cores) console.log(`  ✨ Cores: ${cores.join(', ')}`);
            } else if(normalizedSub === 'tipografias' || normalizedSub === 'tipografia' || normalizedSub === 'tipo') {
                await supabase.from('variacoes_curadas').insert([{
                    estilo_id, tipo: 'TIPOGRAFIA', nome_variacao: rawName, image_url: publicUrl
@@ -120,7 +148,7 @@ async function run() {
            }
         }
     }
-    console.log(`✨ BOOOM! ${ESTILO_NOME} 100% ONLINE na plataforma!`);
+    console.log(`✨ BOOOM! ${ESTILO_NOME} está 100% ONLINE e inteligente!`);
 }
 
 run().catch(console.error);
