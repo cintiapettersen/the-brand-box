@@ -1,5 +1,4 @@
 import { NextResponse } from 'next/server';
-import fs from 'fs';
 
 export async function POST(request) {
   try {
@@ -45,22 +44,13 @@ export async function POST(request) {
       const errData = await response.text();
       console.error("Erro na API do Gemini:", errData);
       
-      // FALLBACK MÁGICO PARA 429 (QUOTA EXCEEDED)
+      // FALLBACK PARA 429 (QUOTA EXCEEDED)
       if (response.status === 429 || errData.includes('Quota exceeded')) {
-         console.log("Ativando Modo Demo do Atelier! O plano gratuito da Google bateu no teto.");
-         try {
-             // Caminho da imagem que a Antigravity gerou 
-             const imgPath = "/Users/cintiapettersen/.gemini/antigravity/brain/cc7b0b13-ba96-4b1c-ba80-f36eb59d641f/aquarela_raposinha_1776132495377.png";
-             const imgBuffer = fs.readFileSync(imgPath);
-             const base64Fall = imgBuffer.toString('base64');
-             return NextResponse.json({ 
-                base64: base64Fall, 
-                success: true, 
-                alertaDemo: "Você superou a Cota 0 do plano gratuito do Google! Mas para não parar sua mágica, eu interceptei o erro e te enviei uma Raposinha Encantada gerada pelo meu motor interno pra você testar seu Illustrator!" 
-             });
-         } catch(e) {
-             console.log("Falhou até no fallback", e);
-         }
+         console.log("Cota da API do Google atingida.");
+         return NextResponse.json({
+            error: "cota_atingida",
+            alertaDemo: "Você superou a cota do plano gratuito do Google! Aguarde alguns instantes e tente novamente."
+         }, { status: 429 });
       }
       
       throw new Error(`Recusa da API do Google: ${errData}`);

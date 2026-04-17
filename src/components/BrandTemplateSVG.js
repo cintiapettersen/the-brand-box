@@ -3,6 +3,7 @@ import React from 'react';
 const BrandTemplateSVG = ({ data, color, side = 'frente', hideBackground = false }) => {
   const { marca, tagline, whatsapp, instagram } = data;
   const activeColor = color || '#d22f5a';
+  const brandFont = data.fontFamily || 'Playfair Display';
 
   // O viewBox original é 0 0 1502.53 1082.02
   // Frente e Verso estão em posições diferentes no canvas do Illustrator
@@ -27,10 +28,10 @@ const BrandTemplateSVG = ({ data, color, side = 'frente', hideBackground = false
     >
       <defs>
         <style>{`
-          .st1 { fill: ${activeColor}; font-family: 'Playfair Display', serif; font-weight: bold; }
+          .st1 { fill: ${activeColor}; font-family: '${brandFont}', 'Playfair Display', serif; font-weight: bold; }
           .st2 { fill: #010101; font-family: 'Montserrat', sans-serif; letter-spacing: 0.1em; }
           .st3 { fill: ${activeColor}; opacity: 0.15; }
-          .st4 { fill: #010101; font-family: 'Playfair Display', serif; font-weight: 800; text-transform: uppercase; }
+          .st4 { fill: #010101; font-family: '${brandFont}', 'Playfair Display', serif; font-weight: 800; text-transform: uppercase; }
           .st5 { fill: #f2f2f2; stroke: ${activeColor}; stroke-width: 25px; }
           .st6 { fill: none; stroke: ${activeColor}; stroke-width: 45px; }
           .st7 { fill: ${activeColor}; }
@@ -58,7 +59,7 @@ const BrandTemplateSVG = ({ data, color, side = 'frente', hideBackground = false
                 x="447" y={startY} 
                 textAnchor="middle" 
                 className="st4" 
-                style={{ fontSize, fill: hideBackground ? activeColor : '#000' }}
+                style={{ fontSize, fill: hideBackground ? activeColor : '#000', fontFamily: `'${brandFont}', 'Playfair Display', serif`, fontWeight: 800 }}
               >
                 {words.map((word, idx) => (
                   <tspan key={idx} x="447" dy={idx === 0 ? 0 : `${lineHeight}em`}>
@@ -69,15 +70,24 @@ const BrandTemplateSVG = ({ data, color, side = 'frente', hideBackground = false
             );
           })()}
 
-          {/* TAGLINE DINAMICA (Ajustada para o logo empilhado) */}
-          <text 
-            x="447" y="600" 
-            textAnchor="middle" 
-            className="st2" 
-            style={{ fontSize: '24px', textTransform: 'uppercase', fill: hideBackground ? '#666' : '#010101' }}
-          >
-            {tagline || 'Tagline pra você'}
-          </text>
+          {/* TAGLINE DINAMICA (colada logo abaixo do logo) */}
+          {(() => {
+            const words = (marca || 'SUA MARCA').toUpperCase().split(' ');
+            const fontSize = words.length > 1 ? (marca.length > 15 ? 45 : 55) : 75;
+            const lineHeightPx = fontSize * 1.1;
+            const logoStartY = 440 - ((words.length - 1) * 30);
+            const taglineY = logoStartY + ((words.length - 1) * lineHeightPx) + 35;
+            return (
+              <text
+                x="447" y={taglineY}
+                textAnchor="middle"
+                className="st2"
+                style={{ fontSize: '16px', textTransform: 'uppercase', letterSpacing: '2px', fill: hideBackground ? '#666' : '#010101' }}
+              >
+                {tagline || 'Identidade Visual'}
+              </text>
+            );
+          })()}
         </g>
       )}
 

@@ -1,28 +1,77 @@
 import React from 'react';
 import BrandTemplateSVG from './BrandTemplateSVG';
 
-const getColorName = (hex) => {
-  // Uma lógica simples de "batismo" de cores baseada em tons aproximados
-  const names = {
-    '#4EB0B5': 'Azul Turquesa',
-    '#C03B66': 'Rosa Fandango',
-    '#F2CBDC': 'Rosa Suave',
-    '#FBDA86': 'Amarelo Ouro',
-    '#9AD1A0': 'Verde Menta',
-    // Fallback dinâmico para outras cores (simulação)
-  };
+// Dicionário de cores afetivas: [R, G, B, NomeBonito]
+const COLOR_PALETTE = [
+  [255, 198, 37,  'Sol de Verão'],
+  [255, 223, 186, 'Pêssego Suave'],
+  [255, 182, 193, 'Rosa Algodão'],
+  [255, 105, 120, 'Framboesa'],
+  [220, 20,  60,  'Carmim Intenso'],
+  [255, 0,   100, 'Dose de Amor'],
+  [180, 0,   60,  'Amora Selvagem'],
+  [255, 140, 0,   'Âmbar Quente'],
+  [230, 100, 30,  'Terracota'],
+  [210, 140, 100, 'Adobe Rosado'],
+  [188, 143, 143, 'Rosewood Suave'],
+  [205, 170, 125, 'Linho Dourado'],
+  [245, 222, 179, 'Baunilha'],
+  [250, 240, 227, 'Creme Delicado'],
+  [144, 238, 144, 'Verde Menta'],
+  [102, 204, 102, 'Musgo Vivo'],
+  [60,  140, 60,  'Folha Densa'],
+  [34,  100, 34,  'Floresta'],
+  [143, 188, 143, 'Salvia'],
+  [176, 224, 230, 'Névoa Matinal'],
+  [135, 206, 250, 'Céu Aberto'],
+  [100, 180, 230, 'Azul Serenidade'],
+  [70,  130, 180, 'Azul Aço'],
+  [25,  90,  180, 'Índigo Profundo'],
+  [100, 149, 237, 'Azul Lavanda'],
+  [60,  100, 200, 'Safira'],
+  [0,   70,  140, 'Azul Marinho'],
+  [200, 162, 200, 'Lavanda Rosa'],
+  [186, 130, 200, 'Malva Seda'],
+  [148, 103, 189, 'Ametista'],
+  [102, 51,  153, 'Violeta Real'],
+  [80,  0,   120, 'Roxo Profundo'],
+  [255, 228, 225, 'Misty Rose'],
+  [255, 192, 203, 'Blush Seda'],
+  [240, 200, 220, 'Quartzo Rosa'],
+  [220, 180, 200, 'Rosé Antigo'],
+  [190, 150, 170, 'Borgonha Suave'],
+  [245, 245, 245, 'Branco Algodão'],
+  [220, 220, 220, 'Prata Suave'],
+  [180, 180, 180, 'Cinza Névoa'],
+  [120, 120, 120, 'Granito'],
+  [60,  60,  60,  'Carvão'],
+  [30,  30,  30,  'Noite Profunda'],
+  [255, 250, 200, 'Limão Docinho'],
+  [200, 230, 170, 'Pistache'],
+  [170, 220, 200, 'Água Turquesa'],
+  [64,  190, 172, 'Verde Jade'],
+  [0,   150, 136, 'Esmeralda Serena'],
+  [255, 87,  51,  'Coral Vivo'],
+  [255, 160, 122, 'Salmão'],
+  [210, 105, 30,  'Canela'],
+];
 
-  if (names[hex.toUpperCase()]) return names[hex.toUpperCase()];
-  
-  // Se não tiver no mapa, gera um nome afetivo baseado no tom
-  const r = parseInt(hex.slice(1,3), 16);
-  const g = parseInt(hex.slice(3,5), 16);
-  const b = parseInt(hex.slice(5,7), 16);
-  
-  if (r > 200 && g < 150) return 'Dose de Amor';
-  if (b > 200) return 'Céu Sereno';
-  if (g > 180) return 'Folha Fresca';
-  return 'Tom Especial';
+const getColorName = (hex) => {
+  if (!hex || hex.length < 7) return 'Cor Especial';
+  const r = parseInt(hex.slice(1, 3), 16);
+  const g = parseInt(hex.slice(3, 5), 16);
+  const b = parseInt(hex.slice(5, 7), 16);
+
+  let minDist = Infinity;
+  let bestName = 'Tom Especial';
+  for (const [cr, cg, cb, name] of COLOR_PALETTE) {
+    const dist = Math.sqrt((r - cr) ** 2 + (g - cg) ** 2 + (b - cb) ** 2);
+    if (dist < minDist) {
+      minDist = dist;
+      bestName = name;
+    }
+  }
+  return bestName;
 };
 
 const SectionHeader = ({ title }) => (
@@ -35,7 +84,7 @@ const SectionHeader = ({ title }) => (
   </div>
 );
 
-const BrandBoard = ({ data, palette, color }) => {
+const BrandBoard = ({ data, palette, color, patternImage }) => {
   const { marca, tagline } = data;
   const activeColor = color || '#d22f5a';
 
@@ -57,9 +106,66 @@ const BrandBoard = ({ data, palette, color }) => {
 
       {/* LOGO PRINCIPAL */}
       <SectionHeader title="Logomarca Principal" />
-      <div style={{ height: '180px', width: '300px' }}>
-         <BrandTemplateSVG data={data} color={color} side="frente" hideBackground={true} />
-      </div>
+      {(() => {
+        const isScript = data.fontStyle === 'script';
+        const rawWords = (marca || 'SUA MARCA').split(' ');
+        // Script: Title Case manual. Outras: uppercase
+        const formatWord = (w) => isScript 
+          ? w.charAt(0).toUpperCase() + w.slice(1).toLowerCase() 
+          : w.toUpperCase();
+        const words = rawWords.map(formatWord);
+        // Tamanho adaptável
+        let baseFontSize = 2.4;
+        if (words.length === 2) baseFontSize = 2.2;
+        if (words.length >= 3) baseFontSize = (marca || '').length > 20 ? 1.3 : 1.6;
+        if (marca && marca.length > 15 && words.length <= 2) baseFontSize = 1.8;
+        // Aplicar sizeBoost para fontes que renderizam menor (ex: Vellary)
+        const sizeBoost = data.fontSizeBoost || 1;
+        const fontSize = `${(baseFontSize * sizeBoost).toFixed(1)}rem`;
+        
+        return (
+          <div style={{ height: '180px', width: '350px', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
+            {words.length === 2 ? (
+              <div style={{ textAlign: 'center' }}>
+                {words.map((word, i) => (
+                  <h1 key={i} style={{ 
+                    fontFamily: `'${data.fontFamily || 'Playfair Display'}', serif`, 
+                    fontWeight: data.fontWeight || 700, 
+                    fontSize,
+                    color: activeColor, 
+                    lineHeight: isScript ? 0.85 : 1.1,
+                    letterSpacing: data.fontLetterSpacing || (isScript ? '0px' : '1px')
+                  }}>
+                    {word}
+                  </h1>
+                ))}
+              </div>
+            ) : (
+              <h1 style={{ 
+                fontFamily: `'${data.fontFamily || 'Playfair Display'}', serif`, 
+                fontWeight: data.fontWeight || 700, 
+                fontSize,
+                color: activeColor, 
+                textAlign: 'center', 
+                lineHeight: 1.15,
+                letterSpacing: isScript ? '0px' : '1px'
+              }}>
+                {words.join(' ')}
+              </h1>
+            )}
+            <p style={{ 
+              fontFamily: "'Montserrat', sans-serif", 
+              fontSize: '0.6rem', 
+              letterSpacing: '3px', 
+              textTransform: 'uppercase', 
+              color: '#666',
+              marginTop: '8px'
+            }}>
+              {tagline || 'Identidade Visual'}
+            </p>
+          </div>
+        );
+      })()}
 
       {/* PALETA DE CORES */}
       <SectionHeader title="Paleta de Cores" />
@@ -74,19 +180,19 @@ const BrandBoard = ({ data, palette, color }) => {
          ))}
       </div>
 
-      {/* TIPOGRAFIA / SUBMARCA */}
+      {/* TIPOGRAFIA */}
       <SectionHeader title="Tipografia" />
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '30px', width: '100%', marginTop: '10px' }}>
          <div style={{ textAlign: 'center', borderRight: '1px solid #eee' }}>
-            <h5 style={{ fontFamily: "'Playfair Display', serif", fontSize: '1rem', marginBottom: '10px' }}>Playfair Display</h5>
-            <p style={{ fontFamily: "'Playfair Display', serif", fontSize: '0.65rem', lineHeight: '1.4', color: '#666' }}>
-               abcdefghijklm<br/>nopqrstuvxzA<br/>BCDEFGHIJKLM<br/>NOPQRSTUVXZ
+            <h5 style={{ fontFamily: `'${data.fontFamily || 'Playfair Display'}', serif`, fontSize: `${(1.4 * (data.fontSizeBoost || 1)).toFixed(1)}rem`, marginBottom: '10px', fontWeight: data.fontWeight || 400 }}>{data.fontFamily || 'Playfair Display'}</h5>
+            <p style={{ fontFamily: `'${data.fontFamily || 'Playfair Display'}', serif`, fontSize: `${(0.8 * (data.fontSizeBoost || 1)).toFixed(1)}rem`, lineHeight: '1.4', color: '#666', fontWeight: data.fontWeight || 400 }}>
+               Aa Bb Cc Dd<br/>Ee Ff Gg Hh<br/>1234567890
             </p>
          </div>
          <div style={{ textAlign: 'center' }}>
-            <h5 style={{ fontSize: '0.9rem', fontWeight: 800, marginBottom: '10px' }}>Montserrat</h5>
-            <p style={{ fontSize: '0.6rem', lineHeight: '1.4', color: '#666', fontWeight: 600 }}>
-               abcdefghijklm<br/>nopqrstuvxzA<br/>BCDEFGHIJKLM<br/>NOPQRSTUVXZ
+            <h5 style={{ fontSize: '1.2rem', fontWeight: 600, marginBottom: '10px', fontFamily: "'Montserrat', sans-serif" }}>Montserrat</h5>
+            <p style={{ fontSize: '0.75rem', lineHeight: '1.4', color: '#666', fontWeight: 500, fontFamily: "'Montserrat', sans-serif" }}>
+               Aa Bb Cc Dd<br/>Ee Ff Gg Hh<br/>1234567890
             </p>
          </div>
       </div>
@@ -96,14 +202,25 @@ const BrandBoard = ({ data, palette, color }) => {
          <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
             <SectionHeader title="Submarca" />
             <div style={{ width: '130px', height: '130px' }}>
-               <BrandTemplateSVG data={data} color={color} side="verso" hideBackground={true} />
+               <BrandTemplateSVG 
+                 data={data.fontStyle === 'script' ? { ...data, fontFamily: 'Montserrat', fontWeight: 700 } : data} 
+                 color={color} 
+                 side="verso" 
+                 hideBackground={true} 
+               />
             </div>
          </div>
          <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
             <SectionHeader title="Estampa" />
-            <div style={{ width: '100%', height: '100px', background: '#f9f9f9', borderRadius: '8px', border: '1px dashed #ddd', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-               <span style={{ fontSize: '0.5rem', color: '#999' }}>EM BREVE: SUA ESTAMPA EXCLUSIVA</span>
-            </div>
+            {patternImage ? (
+              <div style={{ width: '130px', height: '130px', borderRadius: '8px', overflow: 'hidden', border: '1px solid #eee' }}>
+                <img src={patternImage} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+              </div>
+            ) : (
+              <div style={{ width: '130px', height: '130px', background: '#f9f9f9', borderRadius: '8px', border: '1px dashed #ddd', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                <span style={{ fontSize: '0.5rem', color: '#999', textAlign: 'center', padding: '10px' }}>ESTAMPA EXCLUSIVA</span>
+              </div>
+            )}
          </div>
       </div>
 

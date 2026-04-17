@@ -1,4 +1,98 @@
+/* Google Fonts - UI + Brand Fonts */
 @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400;500;600;700&family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,400&family=Montserrat:wght@300;400;500;600;700;800&family=Noto+Sans:wght@300;400;500;600&family=Raleway:wght@300;400;500;600&family=Nunito:wght@300;400;500;600;700&family=Allura&family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&family=Manrope:wght@300;400;500;600;700;800&family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;1,400&family=Poppins:wght@300;400;500;600&family=Quicksand:wght@300;400;500;600;700&family=Josefin+Sans:wght@300;400;500;600&family=DM+Sans:wght@300;400;500;600&family=Julius+Sans+One&display=swap');
+
+/* ============================================ */
+/* SELF-HOSTED FONTS (custom/purchased)         */
+/* ============================================ */
+
+@font-face {
+  font-family: 'Aberforth';
+  src: url('/fonts/Aberforth Demo.ttf') format('truetype');
+  font-weight: 400;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Dokyo';
+  src: url('/fonts/DOKYO___.TTF') format('truetype');
+  font-weight: 400;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Vellary';
+  src: url('/fonts/Vellary.otf') format('opentype');
+  font-weight: 400;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Amelie';
+  src: url('/fonts/Amelie.otf') format('opentype');
+  font-weight: 400;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Celina';
+  src: url('/fonts/Celina-Regular Done.ttf') format('truetype');
+  font-weight: 400;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'LittleFriend';
+  src: url('/fonts/LittleFriend.otf') format('opentype');
+  font-weight: 400;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Cafigine';
+  src: url('/fonts/cafigine.otf') format('opentype');
+  font-weight: 400;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'JulietaProGota';
+  src: url('/fonts/Latinotype - JulietaProGota.otf') format('opentype');
+  font-weight: 400;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'TuttiFrutti';
+  src: url('/fonts/TuttiFrutti Regular.ttf') format('truetype');
+  font-weight: 400;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'GoldenBlast';
+  src: url('/fonts/GoldenBlast-YzaVL 2.ttf') format('truetype');
+  font-weight: 400;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Solea';
+  src: url('/fonts/Solea-Light.ttf') format('truetype');
+  font-weight: 300;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Solea';
+  src: url('/fonts/Solea-Bold.ttf') format('truetype');
+  font-weight: 700;
+  font-display: swap;
+}
+
+/* ============================================ */
+/* GLOBAL STYLES                                */
+/* ============================================ */
 
 :root {
   --bg-color: #FFFFFF;
@@ -80,4 +174,9 @@ button {
 .btn-secondary:hover {
     background: var(--accent-magenta);
     color: #fff;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
 }

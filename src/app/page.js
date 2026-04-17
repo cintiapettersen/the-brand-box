@@ -1,12 +1,13 @@
 'use client';
 
-import { useState, useRef } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import html2canvas from 'html2canvas';
 import { jsPDF } from 'jspdf';
 import BrandTemplateSVG from '../components/BrandTemplateSVG';
 import BrandBoard from '../components/BrandBoard';
 import { createClient } from '@supabase/supabase-js';
+import FONT_MAP from '../lib/fontMap';
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
 const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
@@ -15,10 +16,55 @@ const supabase = createClient(supabaseUrl, supabaseKey);
 export default function Home() {
   const [step, setStep] = useState(1);
   const [resultadoFinal, setResultadoFinal] = useState(null);
+  const [selectedTagline, setSelectedTagline] = useState('');
+  const [customTagline, setCustomTagline] = useState('');
   
   const [formData, setFormData] = useState({
     nome: '', email: '', marca: '', atuacao: '', atuacaoOutra: '', publico: '', sentimentos: [], elementosVisuais: []
   });
+
+  // Sugestões de tagline agrupadas por categoria
+  const TAGLINES_BY_ATUACAO = {
+    'Pediatria / Saúde infantil': [
+      { emoji: '💛', label: 'Afetivas', options: ['Cuidando com amor', 'Amor e carinho em cada detalhe', 'Crescendo com cuidado e afeto', 'Acompanhando cada fase com carinho', 'Desenvolvendo com amor e atenção'] },
+      { emoji: '🌸', label: 'Delicadas', options: ['Feito com carinho para momentos especiais', 'Onde cada detalhe importa', 'Delicadeza em cada escolha'] },
+    ],
+    'Loja de Roupas / Marcas Infantis': [
+      { emoji: '✨', label: 'Modernas', options: ['Pensado para cada fase da vida', 'Mais do que um produto, uma história', 'Estilo e afeto em cada peça'] },
+      { emoji: '💛', label: 'Afetivas', options: ['Vestindo com carinho', 'Cada detalhe feito com amor'] },
+    ],
+    'Obstetrícia / Saúde da mulher': [
+      { emoji: '🌸', label: 'Delicadas', options: ['Feito com carinho para momentos especiais', 'Transformando cuidado em experiência', 'Delicadeza em cada escolha'] },
+      { emoji: '🧠', label: 'Profissionais', options: ['Cuidado com responsabilidade e atenção', 'Compromisso com o seu bem-estar', 'Excelência em cada detalhe'] },
+    ],
+    'Clínica / Saúde geral adulta': [
+      { emoji: '🧠', label: 'Profissionais', options: ['Cuidado com responsabilidade e atenção', 'Confiança em cada etapa', 'Compromisso com o seu bem-estar', 'Excelência em cada detalhe'] },
+      { emoji: '✨', label: 'Modernas', options: ['Cuidado que acompanha você', 'Simples, humano e essencial', 'Mais do que um serviço, uma experiência'] },
+    ],
+    'Terapia / Saúde mental': [
+      { emoji: '💛', label: 'Afetivas', options: ['Cuidando com amor', 'Acompanhando cada fase com carinho'] },
+      { emoji: '✨', label: 'Modernas', options: ['Simples, humano e essencial', 'Mais do que um serviço, uma experiência', 'Cuidado que acompanha você'] },
+    ],
+    'Estética / Bem-estar / Nutrição': [
+      { emoji: '🌸', label: 'Delicadas', options: ['Transformando cuidado em experiência', 'Onde cada detalhe importa', 'Delicadeza em cada escolha'] },
+      { emoji: '✨', label: 'Modernas', options: ['Pensado para cada fase da vida', 'Simples, humano e essencial'] },
+    ],
+    'Cosméticos Naturais / Bem-estar Consciente': [
+      { emoji: '🌸', label: 'Naturais', options: ['Beleza que nasce da natureza', 'Cuidado consciente em cada detalhe', 'Ingredientes puros, resultados reais'] },
+      { emoji: '✨', label: 'Modernas', options: ['Simples, humano e essencial', 'Mais do que um produto, um ritual'] },
+    ],
+    'default': [
+      { emoji: '💛', label: 'Afetivas', options: ['Cuidando com amor', 'Amor e carinho em cada detalhe'] },
+      { emoji: '🌸', label: 'Delicadas', options: ['Transformando cuidado em experiência', 'Delicadeza em cada escolha'] },
+      { emoji: '🧠', label: 'Profissionais', options: ['Confiança em cada etapa', 'Excelência em cada detalhe'] },
+      { emoji: '✨', label: 'Modernas', options: ['Simples, humano e essencial', 'Mais do que um serviço, uma experiência'] },
+    ]
+  };
+
+  const getTaglineSuggestions = () => {
+    const atuacao = formData.atuacao || 'default';
+    return TAGLINES_BY_ATUACAO[atuacao] || TAGLINES_BY_ATUACAO['default'];
+  };
 
   const elementosDesc = [
     "Cores vibrantes", "Universo Lúdico (Fadas, Princesas)", "Bichinhos / Animais Fofos", 
@@ -38,22 +84,51 @@ export default function Home() {
   const [paletas, setPaletas] = useState([]);
   const [tipografias, setTipografias] = useState([]);
   const [moodboards, setMoodboards] = useState([]);
+  const [estampas, setEstampas] = useState([]);
+  const [generatedPatterns, setGeneratedPatterns] = useState([]);
+  const [selectedPattern, setSelectedPattern] = useState(null);
+  const [patternLoading, setPatternLoading] = useState(false);
   
   const [selectedPaleta, setSelectedPaleta] = useState(null);
   const [selectedTipo, setSelectedTipo] = useState(null);
-  const [customStep, setCustomStep] = useState('tipo'); // 'tipo' ou 'paleta'
+  const [customStep, setCustomStep] = useState('tipo');
   const [editData, setEditData] = useState({
     marca: '',
-    tagline: 'Design de Interiores', // Valor padrão inicial
+    tagline: 'Design de Interiores',
     whatsapp: '',
     instagram: '',
     corAtiva: '',
-    itemSelecionado: 'cartao', // 'cartao' ou 'tag'
-    viewType: 'itens' // 'itens' ou 'placa'
+    itemSelecionado: 'cartao',
+    viewType: 'itens'
   });
   
   const [showPediatriaModal, setShowPediatriaModal] = useState(false);
   const brandBoardRef = useRef(null);
+
+  // Restaura progresso salvo ao montar
+  useEffect(() => {
+    try {
+      const saved = localStorage.getItem('brandbox_progress');
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        if (parsed.step) setStep(parsed.step);
+        if (parsed.formData) setFormData(parsed.formData);
+        if (parsed.selectedTagline) setSelectedTagline(parsed.selectedTagline);
+        if (parsed.customTagline) setCustomTagline(parsed.customTagline);
+        if (parsed.editData) setEditData(prev => ({ ...prev, ...parsed.editData }));
+      }
+    } catch(e) { /* ignora dados corrompidos */ }
+  }, []);
+
+  // Salva progresso automaticamente
+  useEffect(() => {
+    try {
+      localStorage.setItem('brandbox_progress', JSON.stringify({
+        step, formData, selectedTagline, customTagline,
+        editData: { marca: editData.marca, tagline: editData.tagline, whatsapp: editData.whatsapp, instagram: editData.instagram }
+      }));
+    } catch(e) {}
+  }, [step, formData, selectedTagline, customTagline, editData]);
 
   const downloadBrandBoard = async () => {
     if (brandBoardRef.current) {
@@ -188,6 +263,7 @@ export default function Home() {
     if(varData) {
        setPaletas(varData.filter(d => d.tipo === 'PALETA'));
        setTipografias(varData.filter(d => d.tipo === 'TIPOGRAFIA'));
+       setEstampas(varData.filter(d => d.tipo === 'ESTAMPA'));
     }
 
     // Buscar imagens do moodboard daquela raiz
@@ -206,6 +282,45 @@ export default function Home() {
         whatsapp: '(11) 99999-9999'
       }));
     }
+  };
+
+  const generatePatterns = async () => {
+    setPatternLoading(true);
+    setGeneratedPatterns([]);
+    try {
+      const sel = paletas.find(p => p.id === selectedPaleta);
+      const cores = sel?.paleta_hex || sel?.cores_hex || [];
+      
+      // Selecionar 2 estampas aleatórias diferentes como referência
+      const shuffled = [...estampas].sort(() => Math.random() - 0.5);
+      const refs = shuffled.slice(0, 2).map(e => e.image_url);
+      console.log('🎨 Referências de estampa:', refs);
+      console.log('🎨 Total estampas no banco:', estampas.length);
+      
+      const res = await fetch('/api/generate-pattern', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          paleta: cores,
+          estiloNome: resultadoFinal?.estiloNome || 'Elegante',
+          marca: formData.marca || 'Marca',
+          descricao: resultadoFinal?.mensagem || '',
+          referenceUrls: refs
+        })
+      });
+      
+      const data = await res.json();
+      if (data.success && data.images) {
+        setGeneratedPatterns(data.images);
+      } else {
+        console.error('Erro na geração:', data.error);
+        alert('Ops! Não conseguimos gerar as estampas. Tente novamente.');
+      }
+    } catch (err) {
+      console.error('Erro chamando API:', err);
+      alert('Erro de conexão. Verifique se o servidor está rodando.');
+    }
+    setPatternLoading(false);
   };
 
   const nextStep = () => setStep((s) => s + 1);
@@ -233,7 +348,21 @@ export default function Home() {
 
   const selectTipoItem = (id) => {
      setSelectedTipo(id);
-     setTimeout(() => setCustomStep('paleta'), 300); // Auto avanço chic
+     const tipo = tipografias.find(t => t.id === id);
+     if (tipo) {
+       const fontInfo = FONT_MAP[tipo.nome_variacao];
+       if (fontInfo) {
+         setEditData(prev => ({ 
+           ...prev, 
+           fontFamily: fontInfo.fontFamily, 
+           fontWeight: fontInfo.weight || 400,
+           fontStyle: fontInfo.style || 'serif',
+           fontSizeBoost: fontInfo.sizeBoost || 1,
+           fontLetterSpacing: fontInfo.letterSpacing || '0px'
+         }));
+       }
+     }
+     setTimeout(() => setCustomStep('paleta'), 300);
   }
 
   // Aqui é onde ativamos a Mágica
@@ -340,6 +469,31 @@ export default function Home() {
               <p style={{ fontSize: '1.05rem', color: 'var(--text-secondary)', marginBottom: '2.5rem', lineHeight: 1.7, maxWidth: '85%', fontWeight: 500 }}>Sua marca já existe dentro de você.</p>
               <p style={{ fontSize: '1.05rem', color: 'var(--text-secondary)', marginBottom: '2.5rem', lineHeight: 1.7, maxWidth: '85%' }}>A gente só ajuda ela a aparecer.<br/>Uma experiência guiada que transforma a essência do seu negócio em identidade visual — sem precisar saber nada de design.</p>
               <button onClick={nextStep} className="btn-primary">CRIAR MINHA MARCA AGORA</button>
+
+              {/* DEV SHORTCUTS - só aparece em desenvolvimento */}
+              {process.env.NODE_ENV === 'development' && (
+                <div style={{ marginTop: '20px', padding: '15px', background: '#fff3cd', borderRadius: '12px', width: '100%' }}>
+                  <p style={{ fontSize: '0.65rem', fontWeight: 700, color: '#856404', marginBottom: '8px', letterSpacing: '1px' }}>⚡ ATALHO DEV (sem gastar crédito)</p>
+                  <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px', justifyContent: 'center' }}>
+                    {[
+                      { id: 2, nome: 'Jardim Encantado' },
+                      { id: 3, nome: 'Escandinavo Acolhedor' },
+                      { id: 5, nome: 'Essência Atemporal' },
+                      { id: 6, nome: 'Raízes & Cuidado' },
+                      { id: 8, nome: 'Doce Encantamento' },
+                      { id: 10, nome: 'Estético Editorial' },
+                    ].map(e => (
+                      <button key={e.id} onClick={() => {
+                        setFormData(prev => ({ ...prev, marca: prev.marca || 'Minha Marca', nome: prev.nome || 'Dev' }));
+                        setResultadoFinal({ estiloId: e.id, estiloNome: e.nome, mensagem: `Teste direto do estilo ${e.nome}` });
+                        setStep(9);
+                      }} style={{ padding: '5px 10px', fontSize: '0.65rem', borderRadius: '8px', border: '1px solid #856404', background: '#fff', color: '#856404', cursor: 'pointer' }}>
+                        {e.nome}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              )}
             </motion.div>
           )}
 
@@ -492,32 +646,152 @@ export default function Home() {
               style={{ position: 'absolute', width: '100%', height: '100%', display: 'flex', flexDirection: 'column', background: '#ffffff', borderRadius: '24px', padding: '2rem', border: '1px solid var(--border)', overflowY: 'hidden' }}
             >
               <h2 style={{ fontSize: '1.8rem', marginBottom: '0.5rem', textAlign: 'center' }}>Refinamento Visual</h2>
-              <p style={{ fontSize: '1rem', color: 'var(--text-secondary)', marginBottom: '2rem', textAlign: 'center' }}>{customStep === 'tipo' ? '1. Escolha a sua Tipografia ideal' : '2. Defina sua Paleta de Cores'}</p>
+              <p style={{ fontSize: '1rem', color: 'var(--text-secondary)', marginBottom: '2rem', textAlign: 'center' }}>
+                {customStep === 'tipo' ? '1. Escolha a sua Tipografia ideal' : customStep === 'paleta' ? '2. Defina sua Paleta de Cores' : '3. Qual cor será o destaque da sua marca?'}
+              </p>
               
-              <div style={{ display: 'flex', gap: '10px', justifyContent: 'center', marginBottom: '20px' }}>
-                 <div onClick={() => setCustomStep('tipo')} style={{ height: '6px', width: '40%', borderRadius: '4px', cursor: 'pointer', background: customStep === 'tipo' ? 'var(--accent-turquoise)' : 'var(--border)', transition: 'background 0.3s' }} />
-                 <div onClick={() => setCustomStep('paleta')} style={{ height: '6px', width: '40%', borderRadius: '4px', cursor: 'pointer', background: customStep === 'paleta' ? 'var(--accent-magenta)' : 'var(--border)', transition: 'background 0.3s' }} />
+              <div style={{ display: 'flex', gap: '8px', justifyContent: 'center', marginBottom: '20px' }}>
+                 <div onClick={() => setCustomStep('tipo')} style={{ height: '6px', width: '30%', borderRadius: '4px', cursor: 'pointer', background: customStep === 'tipo' ? 'var(--accent-turquoise)' : (selectedTipo ? 'var(--accent-turquoise)' : 'var(--border)'), opacity: customStep === 'tipo' ? 1 : 0.4, transition: 'all 0.3s' }} />
+                 <div onClick={() => selectedTipo ? setCustomStep('paleta') : null} style={{ height: '6px', width: '30%', borderRadius: '4px', cursor: selectedTipo ? 'pointer' : 'default', background: customStep === 'paleta' ? 'var(--accent-magenta)' : (selectedPaleta ? 'var(--accent-magenta)' : 'var(--border)'), opacity: customStep === 'paleta' ? 1 : 0.4, transition: 'all 0.3s' }} />
+                 <div onClick={() => selectedPaleta ? setCustomStep('cor') : null} style={{ height: '6px', width: '30%', borderRadius: '4px', cursor: selectedPaleta ? 'pointer' : 'default', background: customStep === 'cor' ? 'var(--accent-magenta)' : (editData.corAtiva ? 'var(--accent-magenta)' : 'var(--border)'), opacity: customStep === 'cor' ? 1 : 0.4, transition: 'all 0.3s' }} />
               </div>
 
               <div style={{ flex: 1, position: 'relative', overflow: 'hidden' }}>
                 <AnimatePresence mode="wait">
                   {customStep === 'tipo' && (
                      <motion.div key="ctipo" variants={slideVariants} initial="initial" animate="animate" exit="exit" transition={{ duration: 0.3 }} style={{ position: 'absolute', width: '100%', height: '100%', display: 'grid', gridTemplateColumns: 'minmax(0, 1fr) minmax(0, 1fr)', gap: '15px', overflowY: 'auto', paddingBottom: '2rem' }}>
-                        {tipografias.map(t => (
-                          <div key={t.id} onClick={() => selectTipoItem(t.id)} style={{ border: selectedTipo === t.id ? '2px solid var(--accent-turquoise)' : '1px solid var(--border)', borderRadius: '12px', padding: '10px', cursor: 'pointer', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-                             <img src={`${t.image_url}?t=${Date.now()}`} alt={t.nome_variacao} style={{ width: '100%', height: '120px', objectFit: 'contain', borderRadius: '8px', background: '#f9f9f9' }} />
-                          </div>
-                        ))}
+                        {tipografias.map(t => {
+                          const fontInfo = FONT_MAP[t.nome_variacao];
+                          const fontFamily = fontInfo?.fontFamily || 'Outfit';
+                          const fontWeight = fontInfo?.weight || 400;
+                          const isScript = fontInfo?.style === 'script';
+                          const sizeBoost = fontInfo?.sizeBoost || 1;
+                          const extraSpacing = fontInfo?.letterSpacing || '0px';
+                          const isPrimary = t.nome_variacao.includes('principal') || t.nome_variacao.includes('primaria') || t.nome_variacao.includes('destaque');
+                          // Mostrar o nome da marca no estilo da fonte
+                          const brandName = formData.marca || 'Sua Marca';
+                          const displayName = isScript 
+                            ? brandName.split(' ').map(w => w.charAt(0).toUpperCase() + w.slice(1).toLowerCase()).join(' ')
+                            : brandName.toUpperCase();
+                          const baseSize = isPrimary ? 1.3 : 1.15;
+                          const finalSize = `${(baseSize * sizeBoost).toFixed(2)}rem`;
+                          return (
+                            <div key={t.id} onClick={() => selectTipoItem(t.id)} style={{ 
+                              border: selectedTipo === t.id ? '3px solid var(--accent-turquoise)' : '1px solid var(--border)', 
+                              borderRadius: '12px', padding: '15px 10px', cursor: 'pointer', 
+                              display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
+                              minHeight: '110px', background: selectedTipo === t.id ? 'rgba(60,204,191,0.05)' : '#fafafa',
+                              transition: 'all 0.2s ease',
+                              boxShadow: selectedTipo === t.id ? '0 4px 15px rgba(60,204,191,0.2)' : 'none'
+                            }}>
+                              <p style={{ fontFamily: `'${fontFamily}', serif`, fontWeight, fontSize: finalSize, textAlign: 'center', lineHeight: 1.2, color: '#333', letterSpacing: extraSpacing }}>
+                                {displayName}
+                              </p>
+                              <p style={{ fontSize: '0.5rem', color: '#aaa', marginTop: '8px', textTransform: 'uppercase', letterSpacing: '1.5px', fontFamily: "'Outfit', sans-serif" }}>
+                                {fontFamily}
+                              </p>
+                            </div>
+                          );
+                        })}
                      </motion.div>
                   )}
 
                   {customStep === 'paleta' && (
-                     <motion.div key="cpaleta" variants={slideVariants} initial="initial" animate="animate" exit="exit" transition={{ duration: 0.3 }} style={{ position: 'absolute', width: '100%', height: '100%', display: 'grid', gridTemplateColumns: 'minmax(0, 1fr) minmax(0, 1fr)', gap: '15px', overflowY: 'auto', paddingBottom: '2rem' }}>
-                        {paletas.map(p => (
-                          <div key={p.id} onClick={() => setSelectedPaleta(p.id)} style={{ border: selectedPaleta === p.id ? '2px solid var(--accent-magenta)' : '1px solid var(--border)', borderRadius: '12px', padding: '10px', cursor: 'pointer', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-                             <img src={`${p.image_url}?t=${Date.now()}`} alt={p.nome_variacao} style={{ width: '100%', height: '120px', objectFit: 'cover', borderRadius: '8px', background: '#f9f9f9' }} />
-                          </div>
-                        ))}
+                     <motion.div key="cpaleta" variants={slideVariants} initial="initial" animate="animate" exit="exit" transition={{ duration: 0.3 }} style={{ position: 'absolute', width: '100%', height: '100%', display: 'grid', gridTemplateColumns: 'minmax(0, 1fr) minmax(0, 1fr)', gap: '12px', overflowY: 'auto', paddingBottom: '2rem' }}>
+                        {paletas.map((p, pi) => {
+                          const cores = p.paleta_hex || p.cores_hex || [];
+                          const blobShapes = [
+                            '60% 40% 55% 45% / 50% 60% 40% 50%',
+                            '45% 55% 50% 50% / 55% 45% 55% 45%',
+                            '50% 50% 40% 60% / 45% 55% 50% 50%',
+                            '55% 45% 60% 40% / 50% 50% 45% 55%',
+                            '40% 60% 50% 50% / 60% 40% 55% 45%',
+                          ];
+                          const row1 = cores.slice(0, 3);
+                          const row2 = cores.slice(3, 5);
+                          return (
+                            <div key={p.id} onClick={() => { setSelectedPaleta(p.id); setTimeout(() => setCustomStep('cor'), 300); }} style={{ 
+                              border: selectedPaleta === p.id ? '2px solid var(--accent-magenta)' : '1px solid var(--border)', 
+                              borderRadius: '16px', padding: '20px 12px', cursor: 'pointer', 
+                              display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
+                              background: selectedPaleta === p.id ? 'rgba(210,47,90,0.03)' : '#fafafa',
+                              transition: 'all 0.2s ease',
+                              boxShadow: selectedPaleta === p.id ? '0 4px 15px rgba(210,47,90,0.15)' : 'none'
+                            }}>
+                              {cores.length > 0 ? (
+                                <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '8px' }}>
+                                  <div style={{ display: 'flex', gap: '10px', justifyContent: 'center' }}>
+                                    {row1.map((hex, ci) => (
+                                      <div key={ci} style={{
+                                        width: ci === 0 ? '58px' : '50px',
+                                        height: ci === 0 ? '58px' : '50px',
+                                        backgroundColor: hex,
+                                        borderRadius: blobShapes[(ci + pi) % blobShapes.length],
+                                        boxShadow: `0 3px 10px ${hex}35`,
+                                      }} />
+                                    ))}
+                                  </div>
+                                  {row2.length > 0 && (
+                                    <div style={{ display: 'flex', gap: '10px', justifyContent: 'center' }}>
+                                      {row2.map((hex, ci) => (
+                                        <div key={ci} style={{
+                                          width: '46px',
+                                          height: '46px',
+                                          backgroundColor: hex,
+                                          borderRadius: blobShapes[(ci + 3 + pi) % blobShapes.length],
+                                          boxShadow: `0 3px 10px ${hex}35`,
+                                        }} />
+                                      ))}
+                                    </div>
+                                  )}
+                                </div>
+                              ) : (
+                                <img src={`${p.image_url}?t=${Date.now()}`} alt={p.nome_variacao} style={{ width: '100%', height: '100px', objectFit: 'cover', borderRadius: '8px' }} />
+                              )}
+                            </div>
+                          );
+                        })}
+                     </motion.div>
+                  )}
+
+                  {customStep === 'cor' && (
+                     <motion.div key="ccor" variants={slideVariants} initial="initial" animate="animate" exit="exit" transition={{ duration: 0.3 }} style={{ position: 'absolute', width: '100%', height: '100%', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: '25px', paddingBottom: '2rem' }}>
+                        <p style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', textAlign: 'center', maxWidth: '320px', lineHeight: 1.5 }}>
+                          Essa cor será usada no logo, submarca e nos elementos de destaque da sua identidade visual.
+                        </p>
+                        <div style={{ display: 'flex', gap: '15px', flexWrap: 'wrap', justifyContent: 'center' }}>
+                          {(() => {
+                            const sel = paletas.find(p => p.id === selectedPaleta);
+                            console.log('🎯 Cor picker - selectedPaleta:', selectedPaleta, 'sel:', sel);
+                            console.log('🎯 Todas paletas:', paletas.map(p => ({ id: p.id, hex: p.paleta_hex, cores: p.cores_hex })));
+                            // Tenta: paleta_hex da selecionada > cores_hex > qualquer paleta com hex
+                            let cores = sel?.paleta_hex || sel?.cores_hex || [];
+                            if (cores.length === 0) {
+                              const qualquer = paletas.find(p => (p.paleta_hex?.length > 0) || (p.cores_hex?.length > 0));
+                              cores = qualquer?.paleta_hex || qualquer?.cores_hex || [];
+                            }
+                            if (cores.length === 0) return <p style={{ color: '#999', fontSize: '0.8rem' }}>Nenhuma cor encontrada. Rode o upload_drive.mjs para este estilo.</p>;
+                            return cores.map((hex, i) => (
+                              <div
+                                key={i}
+                                onClick={() => setEditData(prev => ({ ...prev, corAtiva: hex }))}
+                                style={{
+                                  width: '60px', height: '60px', borderRadius: '50%',
+                                  background: hex, cursor: 'pointer',
+                                  border: editData.corAtiva === hex ? '4px solid #333' : '3px solid #fff',
+                                  boxShadow: editData.corAtiva === hex ? '0 0 0 2px #333, 0 4px 15px rgba(0,0,0,0.2)' : '0 4px 15px rgba(0,0,0,0.15)',
+                                  transition: 'all 0.2s ease',
+                                  transform: editData.corAtiva === hex ? 'scale(1.15)' : 'scale(1)'
+                                }}
+                              />
+                            ));
+                          })()}
+                        </div>
+                        {editData.corAtiva && (
+                          <p style={{ fontSize: '0.8rem', color: 'var(--text-secondary)', fontWeight: 600 }}>
+                            Cor selecionada: <span style={{ color: editData.corAtiva, fontWeight: 800 }}>{editData.corAtiva}</span>
+                          </p>
+                        )}
                      </motion.div>
                   )}
                 </AnimatePresence>
@@ -525,7 +799,8 @@ export default function Home() {
               
               <div style={{ marginTop: 'auto', display: 'flex', justifyContent: 'space-between', gap: '10px' }}>
                  {customStep === 'paleta' && <button onClick={() => setCustomStep('tipo')} className="btn-secondary" style={{ padding: '14px 20px', flex: 0.3 }}>Voltar</button>}
-                 <button onClick={() => setStep(11)} className="btn-primary" style={{ flex: 1, background: (selectedTipo && selectedPaleta) ? 'var(--accent-turquoise)' : '#ccc', pointerEvents: (selectedTipo && selectedPaleta) ? 'auto' : 'none' }}>Visualizar Minha Marca ✨</button>
+                 {customStep === 'cor' && <button onClick={() => setCustomStep('paleta')} className="btn-secondary" style={{ padding: '14px 20px', flex: 0.3 }}>Voltar</button>}
+                 <button onClick={() => setStep(11)} className="btn-primary" style={{ flex: 1, background: (selectedTipo && selectedPaleta && editData.corAtiva) ? 'var(--accent-turquoise)' : '#ccc', pointerEvents: (selectedTipo && selectedPaleta && editData.corAtiva) ? 'auto' : 'none' }}>Ver Minha Inspiração ✨</button>
               </div>
             </motion.div>
           )}
@@ -549,6 +824,13 @@ export default function Home() {
                      </p>
                   </div>
 
+                  {/* Nota explicativa */}
+                  <div style={{ gridColumn: 'span 3', textAlign: 'center', padding: '8px 15px', marginBottom: '5px' }}>
+                     <p style={{ fontSize: '0.8rem', color: 'var(--text-secondary)', lineHeight: 1.5, fontStyle: 'italic' }}>
+                        ✨ As imagens abaixo são <strong>referências visuais</strong> que servirão de inspiração para criar a identidade da sua marca. Elas não farão parte do material final — são o ponto de partida do seu universo visual.
+                     </p>
+                  </div>
+
                   {/* Mosaico Pinterest Estilo Original */}
                   <div style={{ gridColumn: 'span 3', columnCount: 2, columnGap: '10px' }}>
                      {moodboards.map(m => (
@@ -560,189 +842,257 @@ export default function Home() {
               </div>
 
               <div style={{ padding: '1.5rem', background: '#fff', borderTop: '1px solid var(--border)', zIndex: 10 }}>
-                 <button onClick={() => setStep(12)} className="btn-primary" style={{ width: '100%', background: 'var(--accent-turquoise)' }}>Ver Minha Placa da Marca ✨</button>
+                 <button onClick={() => { setSelectedTagline(''); setCustomTagline(''); setStep(11.5); }} className="btn-primary" style={{ width: '100%', background: 'var(--accent-turquoise)' }}>Criar meu Slogan ✨</button>
               </div>
             </motion.div>
           )}
 
-          {/* STEP 12: BRAND BOARD TÉCNICO + PERSONALIZADOR (EDOITOR) */}
-          {step === 12 && (
-            <motion.div 
-              key="step12" variants={variants} initial="initial" animate="animate" exit="exit" transition={{ duration: 0.5 }}
+          {/* STEP 11.5: ESCOLHA SEU SLOGAN */}
+          {step === 11.5 && (
+            <motion.div
+              key="step115" variants={variants} initial="initial" animate="animate" exit="exit" transition={{ duration: 0.5 }}
               style={{ position: 'absolute', width: '100%', height: '100%', display: 'flex', flexDirection: 'column', background: '#ffffff', borderRadius: '24px', overflow: 'hidden', border: '1px solid var(--border)' }}
             >
-              <div style={{ flex: 1, overflowY: 'auto', display: 'flex', flexDirection: 'column' }}>
-                {/* PREVIEW DA PLACA (Área de Visualização) */}
-                <div 
-                  ref={brandBoardRef}
-                  style={{ background: '#fff', padding: '35px', borderBottom: '1px solid #eee' }}
-                >
-                  {/* Cabeçalho dinâmico com a cor editada */}
-                  <div style={{ textAlign: 'center', marginBottom: '35px' }}>
-                    <p style={{ color: 'var(--text-secondary)', textTransform: 'uppercase', fontSize: '0.6rem', letterSpacing: '4px', fontWeight: 700, marginBottom: '8px' }}>brand box editor • live preview</p>
-                    <h2 style={{ fontSize: '2.4rem', color: 'var(--text-primary)', fontFamily: "'Georgia', serif", fontStyle: 'italic', margin: '8px 0' }}>{editData.marca}</h2>
-                    <div style={{ width: '40px', height: '1.5px', background: editData.corAtiva || 'var(--accent-magenta)', margin: '0 auto' }}></div>
-                  </div>
+              <div style={{ padding: '1.5rem', textAlign: 'center', borderBottom: '1px solid var(--border)', background: '#fff', zIndex: 10 }}>
+                <p style={{ color: 'var(--text-secondary)', textTransform: 'uppercase', fontSize: '0.7rem', letterSpacing: '3px', fontWeight: 700, marginBottom: '4px' }}>Sua Voz de Marca</p>
+                <h2 style={{ fontSize: '1.6rem', color: 'var(--text-primary)' }}>Qual o seu slogan?</h2>
+                <p style={{ fontSize: '0.9rem', color: 'var(--text-secondary)', marginTop: '4px' }}>Escolha uma sugestão ou escreva do seu jeito</p>
+              </div>
 
-                  {/* Logotipo Circular Dinâmico */}
-                  <div style={{ display: 'flex', justifyContent: 'center', marginBottom: '35px' }}>
-                    <svg viewBox="0 0 100 100" style={{ width: '100px', height: '100px', animation: 'spin 20s linear infinite' }}>
-                      <path id="boardPath" d="M 50, 50 m -37, 0 a 37,37 0 1,1 74,0 a 37,37 0 1,1 -74,0" fill="transparent" />
-                      <text style={{ fontSize: '8.5px', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '1px', fill: editData.corAtiva || 'var(--accent-magenta)' }}>
-                        <textPath xlinkHref="#boardPath">
-                          {editData.marca} • {editData.marca} • {editData.marca} • 
-                        </textPath>
-                      </text>
-                      <circle cx="50" cy="50" r="4" fill={editData.corAtiva || 'var(--accent-magenta)'} />
-                    </svg>
-                  </div>
-
-                  {/* VISUALIZADOR DE IMPRESSÃO (FRENTE E VERSO LADO A LADO) */}
-                  <div style={{ background: '#f8f8f8', padding: '40px 20px', borderRadius: '20px', textAlign: 'center', marginBottom: '35px', boxShadow: 'inset 0 0 20px rgba(0,0,0,0.02)' }}>
-                     <p style={{ fontSize: '0.65rem', color: 'var(--text-secondary)', textTransform: 'uppercase', fontWeight: 700, letterSpacing: '2px', marginBottom: '25px' }}>Visualização para Gráfica (1:1)</p>
-                     
-                     <div style={{ display: 'flex', gap: '15px', justifyContent: 'center', marginBottom: '25px' }}>
-                        <button 
-                           onClick={() => setEditData(prev => ({ ...prev, viewType: 'itens' }))}
-                           style={{ padding: '6px 14px', borderRadius: '20px', fontSize: '0.65rem', fontWeight: 800, background: editData.viewType === 'itens' ? 'var(--dark-charcoal)' : '#eee', color: editData.viewType === 'itens' ? '#fff' : '#666', border: 'none', cursor: 'pointer', letterSpacing: '1px' }}>
-                           📄 ITENS
+              <div style={{ flex: 1, overflowY: 'auto', padding: '20px', display: 'flex', flexDirection: 'column', gap: '20px' }}>
+                {getTaglineSuggestions().map((grupo) => (
+                  <div key={grupo.label}>
+                    <p style={{ fontSize: '0.75rem', fontWeight: 700, letterSpacing: '2px', textTransform: 'uppercase', color: 'var(--text-secondary)', marginBottom: '10px' }}>
+                      {grupo.emoji} {grupo.label}
+                    </p>
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                      {grupo.options.map((opt) => (
+                        <button
+                          key={opt}
+                          onClick={() => { setSelectedTagline(opt); setCustomTagline(''); }}
+                          style={{
+                            padding: '12px 18px',
+                            borderRadius: '12px',
+                            border: selectedTagline === opt ? '2px solid var(--accent-turquoise)' : '1px solid var(--border)',
+                            background: selectedTagline === opt ? 'rgba(78,176,181,0.08)' : '#fff',
+                            color: selectedTagline === opt ? 'var(--accent-turquoise)' : 'var(--text-primary)',
+                            textAlign: 'left',
+                            cursor: 'pointer',
+                            fontSize: '0.95rem',
+                            fontWeight: selectedTagline === opt ? 600 : 400,
+                            transition: 'all 0.2s ease'
+                          }}
+                        >
+                          {selectedTagline === opt ? '✓ ' : ''}{opt}
                         </button>
-                        <button 
-                           onClick={() => setEditData(prev => ({ ...prev, viewType: 'placa' }))}
-                           style={{ padding: '6px 14px', borderRadius: '20px', fontSize: '0.65rem', fontWeight: 800, background: editData.viewType === 'placa' ? 'var(--dark-charcoal)' : '#eee', color: editData.viewType === 'placa' ? '#fff' : '#666', border: 'none', cursor: 'pointer', letterSpacing: '1px' }}>
-                           📕 PLACA DA MARCA
-                        </button>
-                     </div>
-
-                     <div style={{ 
-                        display: 'flex', 
-                        flexDirection: editData.itemSelecionado === 'cartao' ? 'column' : 'row',
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                        gap: '25px',
-                        flexWrap: 'wrap'
-                     }}>
-                        {editData.viewType === 'placa' ? (
-                           <div style={{ transform: 'scale(0.85)', transformOrigin: 'top center', width: '100%', display: 'flex', justifyContent: 'center' }}>
-                              <BrandBoard 
-                                 data={editData} 
-                                 palette={paletas.find(p => p.id === selectedPaleta)?.paleta_hex || resultadoFinal?.paleta || []} 
-                                 color={editData.corAtiva} 
-                              />
-                           </div>
-                        ) : (
-                           <>
-                              <div style={{ textAlign: 'center' }}>
-                                 <p style={{ fontSize: '0.6rem', color: '#999', marginBottom: '8px', textTransform: 'uppercase', letterSpacing: '1px' }}>Frente</p>
-                                 <div style={{ 
-                                    width: editData.itemSelecionado === 'cartao' ? '300px' : '180px', 
-                                    height: editData.itemSelecionado === 'cartao' ? '180px' : '280px', 
-                                    borderRadius: '12px',
-                                    overflow: 'hidden',
-                                    display: 'flex',
-                                    alignItems: 'center',
-                                    justifyContent: 'center',
-                                    filter: 'drop-shadow(0 15px 35px rgba(0,0,0,0.1))'
-                                 }}>
-                                    <BrandTemplateSVG data={editData} color={editData.corAtiva} side="frente" />
-                                 </div>
-                              </div>
-
-                              <div style={{ textAlign: 'center' }}>
-                                 <p style={{ fontSize: '0.6rem', color: '#999', marginBottom: '8px', textTransform: 'uppercase', letterSpacing: '1px' }}>Verso</p>
-                                 <div style={{ 
-                                    width: editData.itemSelecionado === 'cartao' ? '300px' : '180px', 
-                                    height: editData.itemSelecionado === 'cartao' ? '180px' : '280px', 
-                                    borderRadius: '12px',
-                                    overflow: 'hidden',
-                                    display: 'flex',
-                                    alignItems: 'center',
-                                    justifyContent: 'center',
-                                    filter: 'drop-shadow(0 15px 35px rgba(0,0,0,0.1))'
-                                 }}>
-                                    <BrandTemplateSVG data={editData} color={editData.corAtiva} side="verso" />
-                                 </div>
-                              </div>
-                           </>
-                        )}
-                     </div>
-                  </div>
-                </div>
-
-                {/* PAINEL DE PERSONALIZAÇÃO (O EDITOR) */}
-                <div style={{ padding: '25px', background: '#fcfcfc', flex: 1 }}>
-                  <h3 style={{ fontSize: '1rem', color: 'var(--text-primary)', marginBottom: '15px' }}>Personalize seus Itens ✨</h3>
-                  
-                  <div style={{ display: 'flex', flexDirection: 'column', gap: '15px' }}>
-                    {/* Escolha do Item */}
-                    <div style={{ display: 'flex', gap: '10px' }}>
-                       <button onClick={() => setEditData({...editData, itemSelecionado: 'cartao'})} style={{ flex: 1, padding: '10px', borderRadius: '8px', border: editData.itemSelecionado === 'cartao' ? '2px solid var(--accent-turquoise)' : '1px solid #ddd', background: '#fff', fontSize: '0.8rem' }}>Cartão (85x55)</button>
-                       <button onClick={() => setEditData({...editData, itemSelecionado: 'tag'})} style={{ flex: 1, padding: '10px', borderRadius: '8px', border: editData.itemSelecionado === 'tag' ? '2px solid var(--accent-turquoise)' : '1px solid #ddd', background: '#fff', fontSize: '0.8rem' }}>Tag (40x80)</button>
-                    </div>
-
-                    {/* Inputs de Texto */}
-                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px' }}>
-                       <div>
-                          <label style={{ fontSize: '0.65rem', textTransform: 'uppercase', color: '#999', fontWeight: 600 }}>Nome no Item</label>
-                          <input 
-                            className="form-input" value={editData.marca} 
-                            onChange={(e) => setEditData({...editData, marca: e.target.value})}
-                            style={{ marginTop: '5px', padding: '8px 12px' }}
-                          />
-                       </div>
-                       <div>
-                          <label style={{ fontSize: '0.65rem', textTransform: 'uppercase', color: '#999', fontWeight: 600 }}>Tagline (Slogan)</label>
-                          <input 
-                            className="form-input" value={editData.tagline} 
-                            onChange={(e) => setEditData({...editData, tagline: e.target.value})}
-                            style={{ marginTop: '5px', padding: '8px 12px' }}
-                          />
-                       </div>
-                    </div>
-
-                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px' }}>
-                       <div>
-                          <label style={{ fontSize: '0.65rem', textTransform: 'uppercase', color: '#999', fontWeight: 600 }}>WhatsApp</label>
-                          <input 
-                            className="form-input" value={editData.whatsapp} 
-                            onChange={(e) => setEditData({...editData, whatsapp: e.target.value})}
-                            style={{ marginTop: '5px', padding: '8px 12px' }}
-                          />
-                       </div>
-                       <div>
-                          <label style={{ fontSize: '0.65rem', textTransform: 'uppercase', color: '#999', fontWeight: 600 }}>Instagram</label>
-                          <input 
-                            className="form-input" value={editData.instagram} 
-                            onChange={(e) => setEditData({...editData, instagram: e.target.value})}
-                            style={{ marginTop: '5px', padding: '8px 12px' }}
-                          />
-                       </div>
-                    </div>
-
-                    {/* Escolha da Cor de Destaque (Baseado na Paleta) */}
-                    <div>
-                       <label style={{ fontSize: '0.65rem', textTransform: 'uppercase', color: '#999', fontWeight: 600, marginBottom: '8px', display: 'block' }}>Cor de Destaque da Marca</label>
-                       <div style={{ display: 'flex', gap: '12px' }}>
-                          {/* Botões de Cores (Cores padrão para o teste se não houver hex no banco) */}
-                          {['#f06292', '#4db6ac', '#81c784', '#e1a6ad', '#b8a18b'].map(color => (
-                             <div 
-                               key={color} 
-                               onClick={() => setEditData({...editData, corAtiva: color})}
-                               style={{ width: '28px', height: '28px', borderRadius: '50%', background: color, cursor: 'pointer', border: editData.corAtiva === color ? '2px solid #000' : 'none', boxShadow: '0 2px 5px rgba(0,0,0,0.1)' }}
-                             ></div>
-                          ))}
-                       </div>
+                      ))}
                     </div>
                   </div>
+                ))}
+
+                {/* Campo Aberto */}
+                <div>
+                  <p style={{ fontSize: '0.75rem', fontWeight: 700, letterSpacing: '2px', textTransform: 'uppercase', color: 'var(--text-secondary)', marginBottom: '10px' }}>🖊️ Escreva do seu jeito</p>
+                  <textarea
+                    placeholder="Ex: Cuidado que transforma vidas..."
+                    value={customTagline}
+                    onChange={(e) => { setCustomTagline(e.target.value); setSelectedTagline(''); }}
+                    rows={2}
+                    style={{ width: '100%', padding: '12px 16px', borderRadius: '12px', border: customTagline ? '2px solid var(--accent-magenta)' : '1px solid var(--border)', fontSize: '0.95rem', resize: 'none', fontFamily: 'inherit', outline: 'none', boxSizing: 'border-box' }}
+                  />
                 </div>
               </div>
 
-              <div style={{ padding: '1.5rem', background: '#fff', borderTop: '1px solid var(--border)', zIndex: 10, display: 'flex', flexDirection: 'column', gap: '10px' }}>
-                 <div style={{ display: 'flex', gap: '10px' }}>
-                    <button onClick={downloadBrandBoard} className="btn-secondary" style={{ flex: 1 }}>📥 Baixar Placa</button>
-                    <button onClick={generatePrintPDF} className="btn-primary" style={{ flex: 1, background: 'var(--accent-turquoise)' }}>📄 Baixar PDF do {editData.itemSelecionado === 'cartao' ? 'Cartão' : 'Tag'}</button>
-                 </div>
-                 <button onClick={() => setStep(13)} className="btn-secondary" style={{ width: '100%', border: 'none', color: '#999', fontSize: '0.8rem' }}>Próximo Passo: Checkout →</button>
+              <div style={{ padding: '1.5rem', background: '#fff', borderTop: '1px solid var(--border)', zIndex: 10, display: 'flex', gap: '10px' }}>
+                <button onClick={() => setStep(11)} className="btn-secondary" style={{ padding: '14px 20px', flex: 0.3 }}>Voltar</button>
+                <button
+                  onClick={() => {
+                    const tagline = customTagline.trim() || selectedTagline;
+                    setEditData(prev => ({ ...prev, tagline: tagline || 'Identidade Visual' }));
+                    setStep(11.7);
+                  }}
+                  className="btn-primary"
+                  style={{ flex: 1, background: (selectedTagline || customTagline.trim()) ? 'var(--accent-magenta)' : '#ccc', pointerEvents: (selectedTagline || customTagline.trim()) ? 'auto' : 'none' }}
+                >
+                  Criar Minha Estampa ✨
+                </button>
+              </div>
+            </motion.div>
+          )}
+          {/* STEP 11.7: GERAÇÃO DE ESTAMPA COM IA */}
+          {step === 11.7 && (
+            <motion.div 
+              key="step117" variants={variants} initial="initial" animate="animate" exit="exit" transition={{ duration: 0.5 }}
+              style={{ position: 'absolute', width: '100%', height: '100%', display: 'flex', flexDirection: 'column', background: '#ffffff', borderRadius: '24px', overflow: 'hidden', border: '1px solid var(--border)' }}
+            >
+              <div style={{ padding: '2rem 2rem 0.5rem', textAlign: 'center' }}>
+                <p style={{ fontSize: '0.65rem', fontWeight: 600, letterSpacing: '3px', textTransform: 'uppercase', color: 'var(--accent-magenta)', marginBottom: '8px' }}>THE BRAND BOX</p>
+                <h2 style={{ fontSize: '1.6rem', marginBottom: '0.5rem' }}>Sua Estampa Exclusiva</h2>
+              </div>
+
+              <div style={{ flex: 1, overflowY: 'auto', padding: '0 2rem', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '15px' }}>
+                
+                {/* Estado inicial: botão gerar */}
+                {generatedPatterns.length === 0 && !patternLoading && (
+                  <div style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: '20px' }}>
+                    <p style={{ fontSize: '0.9rem', color: 'var(--text-secondary)', textAlign: 'center', maxWidth: '320px', lineHeight: 1.6 }}>
+                      Agora a mágica acontece! ✨<br/>
+                      <span style={{ fontSize: '0.8rem' }}>A <strong>The Brand Box</strong> vai criar uma estampa que traduz a essência da sua marca em cada detalhe.</span>
+                    </p>
+                    {estampas.length > 0 && (
+                      <div style={{ display: 'flex', gap: '8px', justifyContent: 'center', flexWrap: 'wrap' }}>
+                        {estampas.slice(0, 3).map(e => (
+                          <img key={e.id} src={`${e.image_url}?t=1`} style={{ width: '55px', height: '55px', borderRadius: '10px', objectFit: 'cover', border: '1px solid var(--border)', opacity: 0.7 }} />
+                        ))}
+                        <p style={{ width: '100%', textAlign: 'center', fontSize: '0.6rem', color: '#bbb', marginTop: '2px' }}>Referências do seu universo visual</p>
+                      </div>
+                    )}
+                    <button onClick={generatePatterns} className="btn-primary" style={{ background: 'linear-gradient(135deg, var(--accent-magenta), var(--accent-turquoise))', padding: '16px 40px', fontSize: '1rem' }}>
+                      ✨ Criar Minha Estampa
+                    </button>
+                  </div>
+                )}
+
+                {/* Loading */}
+                {patternLoading && (
+                  <div style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: '20px' }}>
+                    <div style={{ width: '50px', height: '50px', border: '4px solid var(--border)', borderTop: '4px solid var(--accent-magenta)', borderRadius: '50%', animation: 'spin 1s linear infinite' }} />
+                    <p style={{ fontSize: '1.1rem', color: 'var(--text-primary)', fontWeight: 600 }}>Desenhando com carinho...</p>
+                    <p style={{ fontSize: '0.8rem', color: 'var(--text-secondary)', textAlign: 'center', lineHeight: 1.5 }}>
+                      A <strong>The Brand Box</strong> está criando<br/>padrões únicos com as cores da sua paleta 🎨
+                    </p>
+                  </div>
+                )}
+
+                {/* Resultado: 2 cartões mockup */}
+                {generatedPatterns.length > 0 && !patternLoading && (
+                  <>
+                    <p style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', textAlign: 'center' }}>
+                      Toque no cartão que mais combina com a sua marca
+                    </p>
+                    <div style={{ display: 'flex', gap: '20px', width: '100%', justifyContent: 'center' }}>
+                      {generatedPatterns.slice(0, 2).map((p, i) => (
+                        <div
+                          key={i}
+                          onClick={() => setSelectedPattern(i)}
+                          style={{
+                            width: '45%', aspectRatio: '0.6', borderRadius: '12px', overflow: 'hidden', cursor: 'pointer',
+                            position: 'relative',
+                            border: selectedPattern === i ? '3px solid var(--accent-magenta)' : '2px solid var(--border)',
+                            boxShadow: selectedPattern === i ? '0 8px 25px rgba(210,47,90,0.3)' : '0 4px 15px rgba(0,0,0,0.1)',
+                            transform: selectedPattern === i ? 'scale(1.03)' : 'scale(1)',
+                            transition: 'all 0.2s ease'
+                          }}
+                        >
+                          <img 
+                            src={`data:${p.mimeType};base64,${p.base64}`}
+                            style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }}
+                          />
+                          <div style={{
+                            position: 'absolute', bottom: '15%', left: '10%', right: '10%',
+                            background: 'rgba(255,255,255,0.92)', borderRadius: '6px',
+                            padding: '12px 10px', textAlign: 'center',
+                            backdropFilter: 'blur(4px)'
+                          }}>
+                            {(() => {
+                              const isScript = editData.fontStyle === 'script';
+                              const raw = formData.marca || 'SUA MARCA';
+                              const name = isScript 
+                                ? raw.split(' ').map(w => w.charAt(0).toUpperCase() + w.slice(1).toLowerCase()).join(' ')
+                                : raw.toUpperCase();
+                              return (
+                                <p style={{ fontSize: '1.1rem', fontWeight: 800, letterSpacing: editData.fontLetterSpacing || '1px', color: editData.corAtiva || '#333', lineHeight: 1.2, fontFamily: editData.fontFamily ? `'${editData.fontFamily}', serif` : 'inherit' }}>
+                                  {name}
+                                </p>
+                              );
+                            })()}
+                            <p style={{ fontSize: '0.45rem', color: '#888', marginTop: '4px', letterSpacing: '1px', textTransform: 'uppercase' }}>
+                              {editData.tagline || ''}
+                            </p>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                    <button onClick={generatePatterns} style={{ fontSize: '0.75rem', color: 'var(--accent-magenta)', background: 'none', border: 'none', cursor: 'pointer', textDecoration: 'underline', marginTop: '5px' }}>
+                      🔄 Gerar novas opções
+                    </button>
+                  </>
+                )}
+              </div>
+
+              <div style={{ padding: '1.2rem', background: '#fff', borderTop: '1px solid var(--border)', zIndex: 10, display: 'flex', gap: '10px' }}>
+                <button onClick={() => setStep(11.5)} className="btn-secondary" style={{ padding: '14px 20px', flex: 0.3 }}>Voltar</button>
+                <button 
+                  onClick={() => setStep(12)} 
+                  className="btn-primary" 
+                  style={{ flex: 1, background: selectedPattern !== null ? 'var(--accent-magenta)' : '#ccc', pointerEvents: selectedPattern !== null ? 'auto' : 'none' }}
+                >
+                  Ver Minha Placa da Marca ✨
+                </button>
+              </div>
+            </motion.div>
+          )}
+
+          {/* STEP 12: PLACA DA MARCA (SOMENTE A PLACA - sem editor) */}
+          {step === 12 && (
+            <motion.div 
+              key="step12" variants={variants} initial="initial" animate="animate" exit="exit" transition={{ duration: 0.5 }}
+              style={{ position: 'absolute', width: '100%', height: '100%', display: 'flex', flexDirection: 'column', background: '#fafafa', borderRadius: '24px', overflow: 'hidden', border: '1px solid var(--border)' }}
+            >
+              <div style={{ padding: '1.2rem', textAlign: 'center', borderBottom: '1px solid var(--border)', background: '#fff', zIndex: 10 }}>
+                <p style={{ color: 'var(--text-secondary)', textTransform: 'uppercase', fontSize: '0.7rem', letterSpacing: '3px', fontWeight: 700, marginBottom: '4px' }}>Identidade Visual</p>
+                <h2 style={{ fontSize: '1.5rem', color: 'var(--text-primary)' }}>Sua Placa da Marca</h2>
+              </div>
+
+              <div style={{ flex: 1, overflowY: 'auto', display: 'flex', justifyContent: 'center', alignItems: 'flex-start', padding: '20px' }}>
+                <div ref={brandBoardRef} style={{ transform: 'scale(0.82)', transformOrigin: 'top center' }}>
+                  {(() => { console.log('🎨 paletas state:', paletas.map(p => ({ id: p.id, nome: p.nome_variacao, hex: p.paleta_hex }))); return null; })()}
+                  <BrandBoard 
+                    data={editData} 
+                    palette={(() => {
+                      // Prioridade: paleta selecionada > primeira paleta com hex > fallback
+                      const sel = paletas.find(p => p.id === selectedPaleta);
+                      if (sel?.paleta_hex?.length > 0) return sel.paleta_hex;
+                      // Busca a primeira paleta que tenha paleta_hex preenchido
+                      const comHex = paletas.find(p => p.paleta_hex && p.paleta_hex.length > 0);
+                      if (comHex) return comHex.paleta_hex;
+                      // Fallback: se nenhuma paleta tem hex, tenta montar do campo cores_hex
+                      const comCores = paletas.find(p => p.cores_hex && p.cores_hex.length > 0);
+                      if (comCores) return comCores.cores_hex;
+                      return ['#eee','#ddd','#ccc','#bbb','#aaa'];
+                    })()} 
+                    color={editData.corAtiva || '#d22f5a'}
+                    patternImage={selectedPattern !== null && generatedPatterns[selectedPattern] ? `data:${generatedPatterns[selectedPattern].mimeType};base64,${generatedPatterns[selectedPattern].base64}` : null}
+                  />
+                </div>
+              </div>
+
+              {/* Seletor de cor ao vivo */}
+              <div style={{ padding: '10px 20px', background: '#fff', borderTop: '1px solid #f0f0f0', display: 'flex', alignItems: 'center', gap: '12px', justifyContent: 'center' }}>
+                <p style={{ fontSize: '0.65rem', color: 'var(--text-secondary)', textTransform: 'uppercase', letterSpacing: '1px', fontWeight: 600, whiteSpace: 'nowrap' }}>Cor Principal:</p>
+                {(() => {
+                  const sel = paletas.find(p => p.id === selectedPaleta);
+                  const cores = sel?.paleta_hex || sel?.cores_hex || [];
+                  const todasCores = cores.length > 0 ? cores : (paletas.find(p => p.paleta_hex?.length > 0)?.paleta_hex || []);
+                  return todasCores.map((hex, i) => (
+                    <div
+                      key={i}
+                      onClick={() => setEditData(prev => ({ ...prev, corAtiva: hex }))}
+                      style={{
+                        width: '28px', height: '28px', borderRadius: '50%',
+                        background: hex, cursor: 'pointer',
+                        border: editData.corAtiva === hex ? '3px solid #333' : '2px solid #fff',
+                        boxShadow: editData.corAtiva === hex ? '0 0 0 1px #333' : '0 2px 6px rgba(0,0,0,0.15)',
+                        transition: 'all 0.15s ease',
+                        transform: editData.corAtiva === hex ? 'scale(1.2)' : 'scale(1)'
+                      }}
+                    />
+                  ));
+                })()}
+              </div>
+
+              <div style={{ padding: '1.2rem', background: '#fff', borderTop: '1px solid var(--border)', zIndex: 10, display: 'flex', flexDirection: 'column', gap: '10px' }}>
+                 <button onClick={() => setStep(13)} className="btn-primary" style={{ width: '100%', background: 'var(--accent-magenta)' }}>Continuar para o Checkout ✨</button>
               </div>
             </motion.div>
           )}
@@ -822,7 +1172,21 @@ export default function Home() {
                   </motion.div>
 
                   {/* Micro copy final */}
-                  <p style={{ textAlign: 'center', color: 'var(--text-secondary)', fontSize: '0.82rem', padding: '0.5rem 1rem 1.5rem', lineHeight: 1.6 }}>Não precisa saber por onde começar.<br/>Eu te guio em cada etapa.</p>
+                  <p style={{ textAlign: 'center', color: 'var(--text-secondary)', fontSize: '0.82rem', padding: '0.5rem 1rem 0.5rem', lineHeight: 1.6 }}>Não precisa saber por onde começar.<br/>Eu te guio em cada etapa.</p>
+
+                  <button
+                    onClick={() => {
+                      localStorage.removeItem('brandbox_progress');
+                      setStep(1);
+                      setFormData({ nome: '', email: '', marca: '', atuacao: '', atuacaoOutra: '', publico: '', sentimentos: [], elementosVisuais: [] });
+                      setResultadoFinal(null);
+                      setSelectedTagline('');
+                      setCustomTagline('');
+                    }}
+                    style={{ background: 'none', border: 'none', color: 'var(--text-secondary)', fontSize: '0.8rem', cursor: 'pointer', textDecoration: 'underline', textAlign: 'center', paddingBottom: '1.5rem' }}
+                  >
+                    Recomeçar do zero
+                  </button>
 
                 </div>
               </div>

@@ -141,6 +141,11 @@ async function run() {
                await supabase.from('variacoes_curadas').insert([{
                    estilo_id, tipo: 'TIPOGRAFIA', nome_variacao: rawName, image_url: publicUrl
                }]);
+           } else if(normalizedSub === 'estampas' || normalizedSub === 'estampa') {
+               await supabase.from('variacoes_curadas').insert([{
+                   estilo_id, tipo: 'ESTAMPA', nome_variacao: rawName, image_url: publicUrl
+               }]);
+               console.log(`  🎨 Estampa de referência salva: ${rawName}`);
            } else {
                await supabase.from('moodboards').insert([{
                    estilo_id, image_url: publicUrl, alt_text: rawName
