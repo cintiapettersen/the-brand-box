@@ -103,6 +103,11 @@ export default function Home() {
   });
   
   const [showPediatriaModal, setShowPediatriaModal] = useState(false);
+  const [patternGenerationCount, setPatternGenerationCount] = useState(0);
+  const [showRefazerModal, setShowRefazerModal] = useState(false);
+  const [refazerAttempts, setRefazerAttempts] = useState(0);
+  const [approvalChecked, setApprovalChecked] = useState(false);
+  const [marcaSugestaoAceita, setMarcaSugestaoAceita] = useState(false);
   const brandBoardRef = useRef(null);
 
   // Restaura progresso salvo ao montar
@@ -116,6 +121,8 @@ export default function Home() {
         if (parsed.selectedTagline) setSelectedTagline(parsed.selectedTagline);
         if (parsed.customTagline) setCustomTagline(parsed.customTagline);
         if (parsed.editData) setEditData(prev => ({ ...prev, ...parsed.editData }));
+        if (parsed.patternGenerationCount) setPatternGenerationCount(parsed.patternGenerationCount);
+        if (parsed.refazerAttempts) setRefazerAttempts(parsed.refazerAttempts);
       }
     } catch(e) { /* ignora dados corrompidos */ }
   }, []);
@@ -125,7 +132,8 @@ export default function Home() {
     try {
       localStorage.setItem('brandbox_progress', JSON.stringify({
         step, formData, selectedTagline, customTagline,
-        editData: { marca: editData.marca, tagline: editData.tagline, whatsapp: editData.whatsapp, instagram: editData.instagram }
+        editData: { marca: editData.marca, tagline: editData.tagline, whatsapp: editData.whatsapp, instagram: editData.instagram },
+        patternGenerationCount, refazerAttempts
       }));
     } catch(e) {}
   }, [step, formData, selectedTagline, customTagline, editData]);
@@ -284,7 +292,14 @@ export default function Home() {
     }
   };
 
+  const MAX_PATTERN_GENERATIONS = 3;
+
   const generatePatterns = async () => {
+    if (patternGenerationCount >= MAX_PATTERN_GENERATIONS) {
+      alert('Você atingiu o limite de 3 gerações de estampa. Tente novamente amanhã!');
+      return;
+    }
+    setPatternGenerationCount(c => c + 1);
     setPatternLoading(true);
     setGeneratedPatterns([]);
     try {
@@ -394,13 +409,13 @@ export default function Home() {
 
   const areas = [
     "Pediatria / Saúde infantil",
-    "Loja de Roupas / Marcas Infantis",
     "Obstetrícia / Saúde da mulher",
     "Clínica / Saúde geral adulta",
     "Terapia / Saúde mental",
     "Estética / Bem-estar / Nutrição",
     "Cosméticos Naturais / Bem-estar Consciente",
-    "Outra área"
+    "Marca Pessoal / Profissional Liberal",
+    "Loja de Roupas / Moda Infantil"
   ];
 
   const publicos = [
@@ -520,11 +535,69 @@ export default function Home() {
             >
               <div style={{ position: 'absolute', top: '3rem', left: '3rem', right: '3rem', height: '4px', background: 'var(--border)', borderRadius: '4px' }}><div style={{ height: '100%', background: 'var(--accent-turquoise)', width: '30%', borderRadius: '4px', transition: 'width 0.5s' }} /></div>
               <h2 style={{ fontSize: '2rem', marginBottom: '0.5rem' }}>E a sua marca?</h2>
-              <p style={{ fontSize: '1rem', color: 'var(--text-secondary)', marginBottom: '2rem' }}>Qual o nome dela? Pode ser um nome provisório.</p>
-              <div style={{ width: '100%', marginBottom: '2rem' }}>
-                <input name="marca" value={formData.marca} onChange={handleInput} placeholder="Ex: Clínica Sonho Meu..." />
+              <p style={{ fontSize: '1rem', color: 'var(--text-secondary)', marginBottom: '2rem' }}>Este nome vai guiar toda a sua identidade visual.</p>
+              <div style={{ width: '100%', marginBottom: '0.75rem' }}>
+                <input name="marca" value={formData.marca} onChange={e => { handleInput(e); setMarcaSugestaoAceita(false); }} placeholder="Ex: Clínica Sonho Meu..." />
               </div>
-              <button onClick={nextStep} className="btn-secondary" style={{ opacity: formData.marca ? 1 : 0.5, pointerEvents: formData.marca ? 'auto' : 'none' }}>Avançar 🤍</button>
+
+              {/* Contador de palavras */}
+              {formData.marca && (() => {
+                const palavras = formData.marca.trim().split(/\s+/).filter(Boolean);
+                const count = palavras.length;
+                const ok = count <= 3;
+                return (
+                  <p style={{ fontSize: '0.78rem', color: ok ? '#3cccbf' : '#e07a30', fontWeight: 600, marginBottom: '0.75rem', transition: 'color 0.3s' }}>
+                    {ok ? `${count} palavra${count > 1 ? 's' : ''} — ótimo para uma logo bonita ✓` : `${count} palavras — veja a dica abaixo`}
+                  </p>
+                );
+              })()}
+
+              {/* Confirmação de sugestão aceita */}
+              {marcaSugestaoAceita && (
+                <motion.div initial={{ opacity: 0, y: -8 }} animate={{ opacity: 1, y: 0 }} style={{ background: '#f0fdf4', border: '1px solid #86efac', borderRadius: '12px', padding: '10px 14px', marginBottom: '1rem', textAlign: 'left', width: '100%' }}>
+                  <p style={{ fontSize: '0.82rem', color: '#166534', lineHeight: 1.5 }}>
+                    ✅ Nome atualizado! Ficou muito mais elegante para a logo.
+                  </p>
+                </motion.div>
+              )}
+
+              {/* Dica para nomes longos */}
+              {!marcaSugestaoAceita && formData.marca && formData.marca.trim().split(/\s+/).filter(Boolean).length >= 4 && (() => {
+                const palavras = formData.marca.trim().split(/\s+/).filter(Boolean);
+                const temTitulo = /^(dra?\.?|dr\.?)$/i.test(palavras[0]);
+                const nomesSemTitulo = temTitulo ? palavras.slice(1) : palavras;
+                let sugestao = '';
+                if (nomesSemTitulo.length >= 3) {
+                  const abreviados = nomesSemTitulo.slice(1, -1).map(n => n.charAt(0).toUpperCase() + '.');
+                  sugestao = (temTitulo ? palavras[0] + ' ' : '') + nomesSemTitulo[0] + ' ' + abreviados.join(' ') + ' ' + nomesSemTitulo[nomesSemTitulo.length - 1];
+                }
+                return (
+                  <motion.div initial={{ opacity: 0, y: -8 }} animate={{ opacity: 1, y: 0 }} style={{ background: '#fff8f0', border: '1px solid #f5d9b8', borderRadius: '12px', padding: '12px 14px', marginBottom: '1rem', textAlign: 'left', width: '100%' }}>
+                    <p style={{ fontSize: '0.82rem', color: '#7a4a1e', lineHeight: 1.6, marginBottom: sugestao ? '8px' : '0' }}>
+                      💡 <strong>Dica visual:</strong> nomes longos ficam difíceis de ler na logo. Abreviar o nome do meio mantém a elegância sem perder a identidade.
+                    </p>
+                    {sugestao && (
+                      <button
+                        onClick={() => { setFormData(prev => ({ ...prev, marca: sugestao })); setMarcaSugestaoAceita(true); }}
+                        style={{ fontSize: '0.8rem', color: '#e07a30', background: 'rgba(224,122,48,0.08)', border: '1px solid rgba(224,122,48,0.3)', borderRadius: '20px', padding: '4px 12px', cursor: 'pointer', fontWeight: 600 }}
+                      >
+                        Usar "{sugestao}"
+                      </button>
+                    )}
+                  </motion.div>
+                );
+              })()}
+
+              {/* Dica sobre título Dra./Dr. */}
+              {formData.marca && /^(dra?\.?|dr\.?)\s/i.test(formData.marca.trim()) && (
+                <motion.div initial={{ opacity: 0, y: -8 }} animate={{ opacity: 1, y: 0 }} style={{ background: '#f0f7ff', border: '1px solid #c0d8f5', borderRadius: '12px', padding: '10px 14px', marginBottom: '1rem', textAlign: 'left', width: '100%' }}>
+                  <p style={{ fontSize: '0.8rem', color: '#2a5a8a', lineHeight: 1.6 }}>
+                    👩‍⚕️ Quer manter o título <strong>Dra.</strong> na logo? Fica lindo em alguns estilos! Pode deixar — a gente vai usar na identidade visual.
+                  </p>
+                </motion.div>
+              )}
+
+              <button onClick={nextStep} className="btn-secondary" style={{ opacity: formData.marca ? 1 : 0.5, pointerEvents: formData.marca ? 'auto' : 'none', marginTop: '0.5rem' }}>Avançar 🤍</button>
             </motion.div>
           )}
 
@@ -535,16 +608,31 @@ export default function Home() {
             >
               <div style={{ position: 'absolute', top: '3rem', left: '3rem', right: '3rem', height: '4px', background: 'var(--border)', borderRadius: '4px' }}><div style={{ height: '100%', background: 'var(--accent-turquoise)', width: '50%', borderRadius: '4px', transition: 'width 0.5s' }} /></div>
               <h2 style={{ fontSize: '2rem', marginBottom: '0.5rem' }}>Qual é a sua área de atuação?</h2>
-              <p style={{ fontSize: '1rem', color: 'var(--text-secondary)', marginBottom: '1.5rem' }}>Para entendermos melhor o seu mercado.</p>
-              <div style={{ width: '100%', marginBottom: '1.5rem', display: 'flex', flexDirection: 'column', gap: '10px', alignItems: 'center', overflowY: 'auto', maxHeight: '40vh', padding: '10px 5px' }}>
-                {areas.map(a => (<button key={a} onClick={() => setSingleChoice('atuacao', a)} style={chipStyle(formData.atuacao === a)}>{a}</button>))}
-                <AnimatePresence>
-                  {formData.atuacao === 'Outra área' && (
-                    <motion.div initial={{ height: 0, opacity: 0 }} animate={{ height: 'auto', opacity: 1 }} exit={{ height: 0, opacity: 0 }} style={{ width: '100%', overflow: 'hidden' }}>
-                      <input name="atuacaoOutra" value={formData.atuacaoOutra} onChange={handleInput} placeholder="Descreva sua área..." style={{ marginTop: '10px' }} />
-                    </motion.div>
-                  )}
-                </AnimatePresence>
+              <p style={{ fontSize: '1rem', color: 'var(--text-secondary)', marginBottom: '1.5rem' }}>Escolha a que mais combina com o seu negócio.</p>
+              <div style={{ width: '100%', marginBottom: '1rem', overflowY: 'auto', maxHeight: '45vh' }}>
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px', padding: '4px' }}>
+                  {areas.map(a => (
+                    <button
+                      key={a}
+                      onClick={() => setSingleChoice('atuacao', a)}
+                      style={{
+                        padding: '14px 10px',
+                        borderRadius: '14px',
+                        border: formData.atuacao === a ? '2px solid var(--accent-turquoise)' : '1.5px solid var(--border)',
+                        background: formData.atuacao === a ? 'rgba(60,204,191,0.08)' : '#fafafa',
+                        color: formData.atuacao === a ? 'var(--accent-turquoise)' : 'var(--text-primary)',
+                        fontWeight: formData.atuacao === a ? 700 : 500,
+                        fontSize: '0.82rem',
+                        lineHeight: 1.4,
+                        cursor: 'pointer',
+                        transition: 'all 0.2s',
+                        textAlign: 'center',
+                      }}
+                    >
+                      {a}
+                    </button>
+                  ))}
+                </div>
               </div>
               <button onClick={nextStep} className="btn-secondary" style={{ opacity: (formData.atuacao !== '' && (formData.atuacao !== 'Outra área' || formData.atuacaoOutra !== '')) ? 1 : 0.5, pointerEvents: (formData.atuacao !== '' && (formData.atuacao !== 'Outra área' || formData.atuacaoOutra !== '')) ? 'auto' : 'none' }}>Avançar</button>
             </motion.div>
@@ -637,8 +725,68 @@ export default function Home() {
               </div>
 
               <button onClick={fetchVariacoes} className="btn-primary" style={{ background: 'var(--accent-turquoise)', boxShadow: 'none' }}>Personalizar minha Identidade</button>
+
+              {refazerAttempts < 2 ? (
+                <button
+                  onClick={() => setShowRefazerModal(true)}
+                  style={{ marginTop: '12px', background: 'none', border: 'none', color: 'var(--text-secondary)', fontSize: '0.82rem', cursor: 'pointer', textDecoration: 'underline' }}
+                >
+                  Refazer o questionário ({2 - refazerAttempts} tentativa{2 - refazerAttempts !== 1 ? 's' : ''} restante{2 - refazerAttempts !== 1 ? 's' : ''})
+                </button>
+              ) : (
+                <p style={{ marginTop: '12px', fontSize: '0.78rem', color: '#bbb', textAlign: 'center' }}>
+                  Limite de tentativas atingido.
+                </p>
+              )}
             </motion.div>
           )}
+
+          {/* MODAL REFAZER */}
+          <AnimatePresence>
+            {showRefazerModal && (
+              <motion.div
+                initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+                style={{ position: 'fixed', top: 0, left: 0, width: '100vw', height: '100vh', background: 'rgba(0,0,0,0.6)', zIndex: 9999, display: 'flex', justifyContent: 'center', alignItems: 'center', padding: '20px' }}
+              >
+                <motion.div
+                  initial={{ scale: 0.9, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} exit={{ scale: 0.9, opacity: 0 }}
+                  style={{ background: '#fff', borderRadius: '20px', padding: '2rem', maxWidth: '360px', width: '100%', textAlign: 'center', boxShadow: '0 20px 40px rgba(0,0,0,0.15)' }}
+                >
+                  <p style={{ fontSize: '2rem', marginBottom: '0.5rem' }}>⚠️</p>
+                  <h3 style={{ fontSize: '1.2rem', color: 'var(--text-primary)', marginBottom: '0.75rem' }}>Tem certeza?</h3>
+                  <p style={{ fontSize: '0.88rem', color: 'var(--text-secondary)', lineHeight: 1.6, marginBottom: '1.5rem' }}>
+                    Você perderá o modelo gerado e <strong>não poderá recuperá-lo</strong>.<br/>
+                    Após refazer, você terá mais <strong>{1 - refazerAttempts} tentativa{1 - refazerAttempts !== 1 ? 's' : ''}</strong> restante{1 - refazerAttempts !== 1 ? 's' : ''}.
+                  </p>
+                  <div style={{ display: 'flex', gap: '10px' }}>
+                    <button
+                      onClick={() => setShowRefazerModal(false)}
+                      className="btn-secondary"
+                      style={{ flex: 1, padding: '12px' }}
+                    >
+                      Cancelar
+                    </button>
+                    <button
+                      onClick={() => {
+                        setShowRefazerModal(false);
+                        setRefazerAttempts(a => a + 1);
+                        setResultadoFinal(null);
+                        setGeneratedPatterns([]);
+                        setSelectedPattern(null);
+                        setSelectedPaleta(null);
+                        setSelectedTipo(null);
+                        setStep(1);
+                      }}
+                      className="btn-primary"
+                      style={{ flex: 1, padding: '12px', background: 'var(--accent-magenta)' }}
+                    >
+                      Sim, refazer
+                    </button>
+                  </div>
+                </motion.div>
+              </motion.div>
+            )}
+          </AnimatePresence>
 
           {step === 10 && (
             <motion.div 
@@ -1092,7 +1240,70 @@ export default function Home() {
               </div>
 
               <div style={{ padding: '1.2rem', background: '#fff', borderTop: '1px solid var(--border)', zIndex: 10, display: 'flex', flexDirection: 'column', gap: '10px' }}>
-                 <button onClick={() => setStep(13)} className="btn-primary" style={{ width: '100%', background: 'var(--accent-magenta)' }}>Continuar para o Checkout ✨</button>
+                 <button onClick={() => { setApprovalChecked(false); setStep(12.8); }} className="btn-primary" style={{ width: '100%', background: 'var(--accent-magenta)' }}>Continuar para o Checkout ✨</button>
+              </div>
+            </motion.div>
+          )}
+
+          {/* TELA DE APROVAÇÃO PRÉ-PAGAMENTO (Etapa 12.8) */}
+          {step === 12.8 && (
+            <motion.div
+              key="step12_8" variants={variants} initial="initial" animate="animate" exit="exit" transition={{ duration: 0.5 }}
+              style={{ position: 'absolute', width: '100%', height: '100%', display: 'flex', flexDirection: 'column', background: '#faf9f7', borderRadius: '24px', overflow: 'hidden', border: '1px solid var(--border)' }}
+            >
+              <div style={{ padding: '2rem 1.5rem', height: '100%', display: 'flex', flexDirection: 'column', overflowY: 'auto', gap: '1.2rem' }}>
+                <div style={{ textAlign: 'center' }}>
+                  <p style={{ color: 'var(--text-secondary)', textTransform: 'uppercase', fontSize: '0.72rem', letterSpacing: '3px', fontWeight: 600, marginBottom: '0.5rem' }}>antes de continuar</p>
+                  <h2 style={{ fontSize: '1.5rem', color: 'var(--text-primary)', lineHeight: 1.3 }}>Confirme sua identidade visual</h2>
+                </div>
+
+                {/* Resumo do que foi criado */}
+                <div style={{ background: '#fff', borderRadius: '16px', padding: '1.2rem', border: '1px solid var(--border)' }}>
+                  <p style={{ fontSize: '0.7rem', color: 'var(--text-secondary)', textTransform: 'uppercase', letterSpacing: '2px', fontWeight: 600, marginBottom: '0.75rem' }}>Sua marca</p>
+                  <p style={{ fontSize: '1.3rem', fontWeight: 700, color: 'var(--text-primary)', marginBottom: '0.25rem' }}>{formData.marca || 'Sua Marca'}</p>
+                  <p style={{ fontSize: '0.85rem', color: 'var(--text-secondary)' }}>Estilo: <strong>{resultadoFinal?.estiloNome || '—'}</strong></p>
+                  {editData.tagline ? <p style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', marginTop: '4px' }}>Slogan: <strong>{editData.tagline}</strong></p> : null}
+                  {editData.corAtiva ? (
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginTop: '10px' }}>
+                      <div style={{ width: '20px', height: '20px', borderRadius: '50%', background: editData.corAtiva, border: '1px solid #ddd' }} />
+                      <span style={{ fontSize: '0.82rem', color: 'var(--text-secondary)' }}>Cor principal: <strong>{editData.corAtiva}</strong></span>
+                    </div>
+                  ) : null}
+                </div>
+
+                {/* Aviso importante */}
+                <div style={{ background: '#fff8f0', borderRadius: '14px', padding: '1rem 1.2rem', border: '1px solid #f5d9b8' }}>
+                  <p style={{ fontSize: '0.82rem', color: '#7a4a1e', lineHeight: 1.6 }}>
+                    ⚠️ <strong>Atenção:</strong> o modelo visual acima foi gerado com base nas suas respostas. Ao prosseguir, você confirma que aprova esta base como ponto de partida para a sua marca.
+                  </p>
+                </div>
+
+                {/* Checkbox de aprovação */}
+                <label style={{ display: 'flex', alignItems: 'flex-start', gap: '12px', cursor: 'pointer', background: '#fff', borderRadius: '14px', padding: '1rem 1.2rem', border: `2px solid ${approvalChecked ? 'var(--accent-turquoise)' : 'var(--border)'}`, transition: 'border-color 0.2s' }}>
+                  <input
+                    type="checkbox"
+                    checked={approvalChecked}
+                    onChange={e => setApprovalChecked(e.target.checked)}
+                    style={{ width: '18px', height: '18px', marginTop: '2px', accentColor: 'var(--accent-turquoise)', flexShrink: 0 }}
+                  />
+                  <span style={{ fontSize: '0.88rem', color: 'var(--text-primary)', lineHeight: 1.6 }}>
+                    Aprovo o modelo gerado e entendo que os próximos passos dependem do plano escolhido.
+                  </span>
+                </label>
+
+                <div style={{ marginTop: 'auto', display: 'flex', flexDirection: 'column', gap: '10px', paddingTop: '0.5rem' }}>
+                  <button
+                    onClick={() => setStep(13)}
+                    disabled={!approvalChecked}
+                    className="btn-primary"
+                    style={{ width: '100%', background: approvalChecked ? 'var(--accent-magenta)' : '#ccc', pointerEvents: approvalChecked ? 'auto' : 'none', transition: 'background 0.2s' }}
+                  >
+                    Escolher meu plano ✨
+                  </button>
+                  <button onClick={() => setStep(12)} style={{ background: 'none', border: 'none', color: 'var(--text-secondary)', fontSize: '0.82rem', cursor: 'pointer', textAlign: 'center' }}>
+                    ← Voltar e ajustar
+                  </button>
+                </div>
               </div>
             </motion.div>
           )}
@@ -1114,48 +1325,51 @@ export default function Home() {
 
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
 
-                  {/* PLANO 1 — Experience (leve) */}
+                  {/* PLANO 1 — Experience */}
                   <motion.div whileHover={{ scale: 1.01 }} style={{ background: '#ffffff', borderRadius: '16px', padding: '20px', border: '1px solid var(--border)', boxShadow: '0 2px 10px rgba(0,0,0,0.04)' }}>
-                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '12px' }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '8px' }}>
                       <div>
                         <p style={{ fontSize: '0.7rem', color: 'var(--text-secondary)', letterSpacing: '2px', textTransform: 'uppercase', fontWeight: 600, marginBottom: '2px' }}>brand box</p>
                         <h3 style={{ color: 'var(--text-primary)', fontSize: '1.2rem', fontWeight: 600 }}>Experience</h3>
-                        <p style={{ color: 'var(--text-secondary)', fontSize: '0.82rem', marginTop: '4px', lineHeight: 1.5 }}>Crie sua marca com uma experiência guiada,<br/>mesmo sem saber nada de design.</p>
                       </div>
                       <span style={{ fontWeight: 700, color: 'var(--text-primary)', fontSize: '1.3rem', whiteSpace: 'nowrap' }}>R$ 497</span>
                     </div>
-                    <ul style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', margin: '0 0 15px 0', paddingLeft: '0', display: 'flex', flexDirection: 'column', gap: '5px', listStyle: 'none' }}>
-                      {['Logo principal + variações', 'Paleta de cores + tipografia', 'Guia simples de uso da marca', 'Cartão de visita interativo'].map(i => <li key={i} style={{ display: 'flex', alignItems: 'center', gap: '8px' }}><span style={{ color: 'var(--accent-turquoise)', fontWeight: 700 }}>✔</span>{i}</li>)}
+                    <span style={{ display: 'inline-block', background: '#e8f7f5', color: '#1a7a6e', fontSize: '0.7rem', fontWeight: 700, borderRadius: '20px', padding: '3px 10px', letterSpacing: '0.5px', marginBottom: '10px' }}>Apenas logo tipográfica</span>
+                    <ul style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', margin: '0 0 12px 0', paddingLeft: '0', display: 'flex', flexDirection: 'column', gap: '5px', listStyle: 'none' }}>
+                      {['Logo tipográfica + variações', 'Paleta de cores + tipografia', 'Guia simples de uso da marca', 'Cartão de visita interativo'].map(i => <li key={i} style={{ display: 'flex', alignItems: 'center', gap: '8px' }}><span style={{ color: 'var(--accent-turquoise)', fontWeight: 700 }}>✔</span>{i}</li>)}
                     </ul>
+                    <div style={{ background: '#f7f9ff', borderRadius: '10px', padding: '10px 12px', marginBottom: '12px', fontSize: '0.8rem', color: '#3a5a8a', lineHeight: 1.5 }}>
+                      Após o pagamento, você recebe os arquivos da sua marca imediatamente por e-mail.
+                    </div>
                     <button className="btn-secondary" style={{ width: '100%', padding: '12px', fontSize: '0.9rem' }}>Começar minha marca</button>
                   </motion.div>
 
-                  {/* FRASE ENTRE PLANOS */}
                   <p style={{ textAlign: 'center', color: 'var(--text-secondary)', fontSize: '0.85rem', fontStyle: 'italic', padding: '0 1rem', lineHeight: 1.6 }}>Você pode seguir sozinha —<br/>ou ter alguém criando com você.</p>
 
                   {/* PLANO 2 — Complete (DESTAQUE) */}
                   <motion.div whileHover={{ scale: 1.01 }} style={{ background: '#f5d6e8', borderRadius: '16px', padding: '20px', color: '#3a1a2e', boxShadow: '0 8px 30px rgba(220,52,149,0.1)', position: 'relative', overflow: 'hidden' }}>
                     <div style={{ position: 'absolute', top: '12px', right: '12px', background: 'rgba(220,52,149,0.15)', borderRadius: '20px', padding: '3px 10px', fontSize: '0.7rem', fontWeight: 700, letterSpacing: '1px', color: 'var(--accent-magenta)' }}>MAIS ESCOLHIDO</div>
-                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '12px', paddingRight: '80px' }}>
-                      <div>
-                        <p style={{ fontSize: '0.7rem', color: 'var(--accent-magenta)', letterSpacing: '2px', textTransform: 'uppercase', fontWeight: 600, marginBottom: '2px' }}>brand box</p>
-                        <h3 style={{ color: '#3a1a2e', fontSize: '1.2rem', fontWeight: 700 }}>Complete</h3>
-                        <p style={{ color: '#6b3d5a', fontSize: '0.82rem', marginTop: '4px', lineHeight: 1.5 }}>Uma imersão completa para transformar sua marca<br/>em uma presença forte e encantadora.</p>
-                      </div>
+                    <div style={{ marginBottom: '8px', paddingRight: '90px' }}>
+                      <p style={{ fontSize: '0.7rem', color: 'var(--accent-magenta)', letterSpacing: '2px', textTransform: 'uppercase', fontWeight: 600, marginBottom: '2px' }}>brand box</p>
+                      <h3 style={{ color: '#3a1a2e', fontSize: '1.2rem', fontWeight: 700 }}>Complete</h3>
                     </div>
-                    <span style={{ fontWeight: 700, fontSize: '1.4rem', display: 'block', marginBottom: '12px', color: '#3a1a2e' }}>R$ 897</span>
-                    <ul style={{ fontSize: '0.85rem', margin: '0 0 15px 0', paddingLeft: '0', display: 'flex', flexDirection: 'column', gap: '5px', listStyle: 'none' }}>
-                      {['Tudo do Brand Box Experience', 'Papelaria personalizada para sua marca', 'Templates editáveis para Instagram', 'Elementos visuais (mockups, ícones, avatares)', '✨ Manifesto da sua marca', '✨ Tom de voz e comunicação da marca', '✨ Direção para seu conteúdo', '✨ Sugestão de bio e posicionamento'].map(i => (
+                    <span style={{ display: 'inline-block', background: 'rgba(220,52,149,0.12)', color: 'var(--accent-magenta)', fontSize: '0.7rem', fontWeight: 700, borderRadius: '20px', padding: '3px 10px', letterSpacing: '0.5px', marginBottom: '10px' }}>Logo tipográfica ou com ilustração</span>
+                    <span style={{ fontWeight: 700, fontSize: '1.4rem', display: 'block', marginBottom: '10px', color: '#3a1a2e' }}>R$ 897</span>
+                    <ul style={{ fontSize: '0.85rem', margin: '0 0 12px 0', paddingLeft: '0', display: 'flex', flexDirection: 'column', gap: '5px', listStyle: 'none' }}>
+                      {['Tudo do Brand Box Experience', 'Papelaria personalizada para sua marca', 'Templates editáveis para Instagram', 'Elementos visuais (mockups, ícones, avatares)', '✨ Manifesto da sua marca', '✨ Tom de voz e comunicação da marca'].map(i => (
                         <li key={i} style={{ display: 'flex', alignItems: 'center', gap: '8px', color: '#4a1f3a' }}>
                           {!i.startsWith('✨') && <span style={{ color: 'var(--accent-magenta)', fontWeight: 700 }}>✔</span>}
                           {i}
                         </li>
                       ))}
                     </ul>
+                    <div style={{ background: 'rgba(255,255,255,0.6)', borderRadius: '10px', padding: '10px 12px', marginBottom: '12px', fontSize: '0.8rem', color: '#5a2a4a', lineHeight: 1.5 }}>
+                      Após o pagamento, entraremos em contato em até <strong>2 dias úteis</strong> pelo e-mail cadastrado para iniciar a criação da sua marca.
+                    </div>
                     <button className="btn-primary" style={{ width: '100%', padding: '12px', background: 'var(--accent-magenta)', color: '#fff', fontWeight: 700, fontSize: '0.9rem' }}>Quero minha marca completa</button>
                   </motion.div>
 
-                  {/* PLANO 3 — Signature (clean e elegante) */}
+                  {/* PLANO 3 — Signature */}
                   <motion.div whileHover={{ scale: 1.01 }} style={{ background: '#1a1a1a', borderRadius: '16px', padding: '20px', border: '1px solid #333', boxShadow: '0 4px 20px rgba(0,0,0,0.12)' }}>
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '12px' }}>
                       <div>
@@ -1165,10 +1379,16 @@ export default function Home() {
                       </div>
                       <span style={{ fontWeight: 700, color: '#fff', fontSize: '1rem', whiteSpace: 'nowrap', opacity: 0.8 }}>A partir de<br/>R$ 2.900</span>
                     </div>
-                    <ul style={{ fontSize: '0.85rem', color: 'rgba(255,255,255,0.7)', margin: '0 0 15px 0', paddingLeft: '0', display: 'flex', flexDirection: 'column', gap: '5px', listStyle: 'none' }}>
+                    <ul style={{ fontSize: '0.85rem', color: 'rgba(255,255,255,0.7)', margin: '0 0 12px 0', paddingLeft: '0', display: 'flex', flexDirection: 'column', gap: '5px', listStyle: 'none' }}>
                       {['Direção criativa personalizada', 'Ajustes e refinamentos exclusivos', 'Aplicações pensadas para o seu negócio', 'Acompanhamento próximo durante o processo'].map(i => <li key={i} style={{ display: 'flex', alignItems: 'center', gap: '8px' }}><span style={{ color: 'rgba(255,255,255,0.4)', fontWeight: 700 }}>✔</span>{i}</li>)}
                     </ul>
-                    <button style={{ width: '100%', padding: '12px', background: 'transparent', color: '#fff', border: '1px solid rgba(255,255,255,0.3)', borderRadius: '30px', cursor: 'pointer', fontSize: '0.9rem', fontWeight: 600, letterSpacing: '0.5px', transition: 'all 0.2s' }}>Quero criar com você</button>
+                    <a
+                      href={`https://wa.me/4793630746?text=Olá!%20Quero%20saber%20mais%20sobre%20o%20Brand%20Box%20Signature%20para%20a%20marca%20${encodeURIComponent(formData.marca || '')}`}
+                      target="_blank" rel="noopener noreferrer"
+                      style={{ display: 'block', width: '100%', padding: '12px', background: '#25D366', color: '#fff', border: 'none', borderRadius: '30px', cursor: 'pointer', fontSize: '0.9rem', fontWeight: 700, letterSpacing: '0.5px', textAlign: 'center', textDecoration: 'none' }}
+                    >
+                      Falar no WhatsApp
+                    </a>
                   </motion.div>
 
                   {/* Micro copy final */}
