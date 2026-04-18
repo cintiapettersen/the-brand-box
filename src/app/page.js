@@ -80,6 +80,8 @@ export default function Home() {
   const [refazerAttempts, setRefazerAttempts] = useState(0);
   const [approvalChecked, setApprovalChecked] = useState(false);
   const [marcaSugestaoAceita, setMarcaSugestaoAceita] = useState(false);
+  const [showResumePrompt, setShowResumePrompt] = useState(false);
+  const [savedProgress, setSavedProgress] = useState(null);
   const brandBoardRef = useRef(null);
 
   // Restaura progresso salvo ao montar
@@ -88,16 +90,23 @@ export default function Home() {
       const saved = localStorage.getItem('brandbox_progress');
       if (saved) {
         const parsed = JSON.parse(saved);
-        if (parsed.step) setStep(parsed.step);
-        if (parsed.formData) setFormData(parsed.formData);
-        if (parsed.selectedTagline) setSelectedTagline(parsed.selectedTagline);
-        if (parsed.customTagline) setCustomTagline(parsed.customTagline);
-        if (parsed.editData) setEditData(prev => ({ ...prev, ...parsed.editData }));
-        if (parsed.patternGenerationCount) setPatternGenerationCount(parsed.patternGenerationCount);
-        if (parsed.refazerAttempts) setRefazerAttempts(parsed.refazerAttempts);
+        if (parsed.step && parsed.step > 1 && parsed.formData?.nome) {
+          setSavedProgress(parsed);
+          setShowResumePrompt(true);
+        }
       }
     } catch(e) { /* ignora dados corrompidos */ }
   }, []);
+
+  const restoreProgress = (parsed) => {
+    if (parsed.step) setStep(parsed.step);
+    if (parsed.formData) setFormData(parsed.formData);
+    if (parsed.selectedTagline) setSelectedTagline(parsed.selectedTagline);
+    if (parsed.customTagline) setCustomTagline(parsed.customTagline);
+    if (parsed.editData) setEditData(prev => ({ ...prev, ...parsed.editData }));
+    if (parsed.patternGenerationCount) setPatternGenerationCount(parsed.patternGenerationCount);
+    if (parsed.refazerAttempts) setRefazerAttempts(parsed.refazerAttempts);
+  };
 
   // Salva progresso automaticamente
   useEffect(() => {
@@ -1379,6 +1388,52 @@ export default function Home() {
             </motion.div>
           )}
 
+        </AnimatePresence>
+
+        {/* MODAL DE RETOMADA DE SESSÃO */}
+        <AnimatePresence>
+          {showResumePrompt && savedProgress && (
+            <motion.div
+              initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+              style={{ position: 'fixed', top: 0, left: 0, width: '100vw', height: '100vh', background: 'rgba(0,0,0,0.55)', zIndex: 9999, display: 'flex', justifyContent: 'center', alignItems: 'center', padding: '20px' }}
+            >
+              <motion.div
+                initial={{ scale: 0.92, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} exit={{ scale: 0.92, opacity: 0 }}
+                style={{ background: '#fff', borderRadius: '24px', padding: '2rem', maxWidth: '360px', width: '100%', textAlign: 'center', boxShadow: '0 20px 50px rgba(0,0,0,0.15)' }}
+              >
+                <p style={{ fontSize: '2rem', marginBottom: '0.5rem' }}>✨</p>
+                <h3 style={{ fontSize: '1.3rem', color: 'var(--text-primary)', marginBottom: '0.5rem' }}>Você tem um progresso salvo!</h3>
+                {savedProgress.formData?.marca && (
+                  <p style={{ fontSize: '0.9rem', color: 'var(--accent-magenta)', fontWeight: 600, marginBottom: '0.25rem' }}>
+                    {savedProgress.formData.marca}
+                  </p>
+                )}
+                <p style={{ fontSize: '0.82rem', color: 'var(--text-secondary)', marginBottom: '1.75rem', lineHeight: 1.5 }}>
+                  Quer continuar de onde parou ou começar uma nova marca?
+                </p>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+                  <button
+                    onClick={() => { restoreProgress(savedProgress); setShowResumePrompt(false); }}
+                    className="btn-primary"
+                    style={{ width: '100%', background: 'var(--accent-turquoise)' }}
+                  >
+                    Continuar de onde parei
+                  </button>
+                  <button
+                    onClick={() => {
+                      localStorage.removeItem('brandbox_progress');
+                      setShowResumePrompt(false);
+                      setSavedProgress(null);
+                    }}
+                    className="btn-secondary"
+                    style={{ width: '100%' }}
+                  >
+                    Começar do zero
+                  </button>
+                </div>
+              </motion.div>
+            </motion.div>
+          )}
         </AnimatePresence>
 
         {/* MODAL DE BÔNUS - PEDIATRIA */}
