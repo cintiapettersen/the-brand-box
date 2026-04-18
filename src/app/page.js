@@ -24,46 +24,18 @@ export default function Home() {
   });
 
   // Sugestões de tagline agrupadas por categoria
-  const TAGLINES_BY_ATUACAO = {
-    'Pediatria / Saúde infantil': [
-      { emoji: '💛', label: 'Afetivas', options: ['Cuidando com amor', 'Amor e carinho em cada detalhe', 'Crescendo com cuidado e afeto', 'Acompanhando cada fase com carinho', 'Desenvolvendo com amor e atenção'] },
-      { emoji: '🌸', label: 'Delicadas', options: ['Feito com carinho para momentos especiais', 'Onde cada detalhe importa', 'Delicadeza em cada escolha'] },
-    ],
-    'Loja de Roupas / Marcas Infantis': [
-      { emoji: '✨', label: 'Modernas', options: ['Pensado para cada fase da vida', 'Mais do que um produto, uma história', 'Estilo e afeto em cada peça'] },
-      { emoji: '💛', label: 'Afetivas', options: ['Vestindo com carinho', 'Cada detalhe feito com amor'] },
-    ],
-    'Obstetrícia / Saúde da mulher': [
-      { emoji: '🌸', label: 'Delicadas', options: ['Feito com carinho para momentos especiais', 'Transformando cuidado em experiência', 'Delicadeza em cada escolha'] },
-      { emoji: '🧠', label: 'Profissionais', options: ['Cuidado com responsabilidade e atenção', 'Compromisso com o seu bem-estar', 'Excelência em cada detalhe'] },
-    ],
-    'Clínica / Saúde geral adulta': [
-      { emoji: '🧠', label: 'Profissionais', options: ['Cuidado com responsabilidade e atenção', 'Confiança em cada etapa', 'Compromisso com o seu bem-estar', 'Excelência em cada detalhe'] },
-      { emoji: '✨', label: 'Modernas', options: ['Cuidado que acompanha você', 'Simples, humano e essencial', 'Mais do que um serviço, uma experiência'] },
-    ],
-    'Terapia / Saúde mental': [
-      { emoji: '💛', label: 'Afetivas', options: ['Cuidando com amor', 'Acompanhando cada fase com carinho'] },
-      { emoji: '✨', label: 'Modernas', options: ['Simples, humano e essencial', 'Mais do que um serviço, uma experiência', 'Cuidado que acompanha você'] },
-    ],
-    'Estética / Bem-estar / Nutrição': [
-      { emoji: '🌸', label: 'Delicadas', options: ['Transformando cuidado em experiência', 'Onde cada detalhe importa', 'Delicadeza em cada escolha'] },
-      { emoji: '✨', label: 'Modernas', options: ['Pensado para cada fase da vida', 'Simples, humano e essencial'] },
-    ],
-    'Cosméticos Naturais / Bem-estar Consciente': [
-      { emoji: '🌸', label: 'Naturais', options: ['Beleza que nasce da natureza', 'Cuidado consciente em cada detalhe', 'Ingredientes puros, resultados reais'] },
-      { emoji: '✨', label: 'Modernas', options: ['Simples, humano e essencial', 'Mais do que um produto, um ritual'] },
-    ],
-    'default': [
-      { emoji: '💛', label: 'Afetivas', options: ['Cuidando com amor', 'Amor e carinho em cada detalhe'] },
-      { emoji: '🌸', label: 'Delicadas', options: ['Transformando cuidado em experiência', 'Delicadeza em cada escolha'] },
-      { emoji: '🧠', label: 'Profissionais', options: ['Confiança em cada etapa', 'Excelência em cada detalhe'] },
-      { emoji: '✨', label: 'Modernas', options: ['Simples, humano e essencial', 'Mais do que um serviço, uma experiência'] },
-    ]
+  const TAGLINES_BY_ESTILO = {
+    'Jardim Encantado':       ['Onde cada detalhe floresce com amor', 'Cuidado que encanta, saúde que transforma', 'Pequenos sonhos, grandes cuidados'],
+    'Escandinavo Acolhedor':  ['Simples, humano e essencial', 'Cuidado com presença e leveza', 'O cuidado que você merece'],
+    'Essência Atemporal':     ['Elegância que cuida, confiança que permanece', 'Sofisticação com propósito', 'Cuidado que não precisa se explicar'],
+    'Doce Encantamento':      ['Delicadeza em cada detalhe', 'Feito com carinho para momentos especiais', 'Amor e cuidado em cada encontro'],
+    'Raízes & Cuidado':       ['Da natureza para o seu cuidado', 'Natural, consciente e verdadeiro', 'Raízes que nutrem, cuidado que transforma'],
+    'Estético Editorial':     ['Precisão, cuidado e resultado', 'Onde ciência encontra beleza', 'Excelência que você vê e sente'],
   };
 
   const getTaglineSuggestions = () => {
-    const atuacao = formData.atuacao || 'default';
-    return TAGLINES_BY_ATUACAO[atuacao] || TAGLINES_BY_ATUACAO['default'];
+    const estilo = resultadoFinal?.estiloNome || '';
+    return TAGLINES_BY_ESTILO[estilo] || TAGLINES_BY_ESTILO['Essência Atemporal'];
   };
 
   const elementosDesc = [
@@ -960,19 +932,13 @@ export default function Home() {
               style={{ position: 'absolute', width: '100%', height: '100%', display: 'flex', flexDirection: 'column', background: '#ffffff', borderRadius: '24px', overflow: 'hidden', border: '1px solid var(--border)' }}
             >
               <div style={{ padding: '1.5rem', textAlign: 'center', borderBottom: '1px solid var(--border)', zIndex: 10, background: '#fff' }}>
-                 <p style={{ color: 'var(--text-secondary)', textTransform: 'uppercase', fontSize: '0.75rem', letterSpacing: '2px', fontWeight: 'bold' }}>Universo Visual de {formData.marca}</p>
+                 <p style={{ color: 'var(--text-secondary)', textTransform: 'uppercase', fontSize: '0.75rem', letterSpacing: '3px', fontWeight: 700, marginBottom: '2px' }}>Moodboard</p>
+                 <p style={{ color: 'var(--text-secondary)', fontSize: '0.72rem', letterSpacing: '1px' }}>Universo Visual de {formData.marca}</p>
                  <h2 style={{ fontSize: '1.8rem', color: 'var(--accent-magenta)' }}>{resultadoFinal?.estiloNome}</h2>
               </div>
-              
-              <div style={{ flex: 1, overflowY: 'auto', padding: '15px', display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '10px', background: '#fafafa' }}>
-                  {/* Manifesto na própria tela de Moodboard para impacto */}
-                  <div style={{ gridColumn: 'span 3', background: '#fff', border: '1px solid var(--border)', borderRadius: '12px', padding: '25px', textAlign: 'center', marginBottom: '10px' }}>
-                     <p style={{ fontSize: '1.15rem', fontStyle: 'italic', lineHeight: 1.6, color: 'var(--text-primary)' }}>
-                        "{resultadoFinal.mensagem}"
-                     </p>
-                  </div>
 
-                  {/* Nota explicativa */}
+              <div style={{ flex: 1, overflowY: 'auto', padding: '15px', display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '10px', background: '#fafafa' }}>
+                  {/* Nota sobre referências visuais */}
                   <div style={{ gridColumn: 'span 3', textAlign: 'center', padding: '8px 15px', marginBottom: '5px' }}>
                      <p style={{ fontSize: '0.8rem', color: 'var(--text-secondary)', lineHeight: 1.5, fontStyle: 'italic' }}>
                         ✨ As imagens abaixo são <strong>referências visuais</strong> que servirão de inspiração para criar a identidade da sua marca. Elas não farão parte do material final — são o ponto de partida do seu universo visual.
@@ -1007,47 +973,47 @@ export default function Home() {
                 <p style={{ fontSize: '0.9rem', color: 'var(--text-secondary)', marginTop: '4px' }}>Escolha uma sugestão ou escreva do seu jeito</p>
               </div>
 
-              <div style={{ flex: 1, overflowY: 'auto', padding: '20px', display: 'flex', flexDirection: 'column', gap: '20px' }}>
-                {getTaglineSuggestions().map((grupo) => (
-                  <div key={grupo.label}>
-                    <p style={{ fontSize: '0.75rem', fontWeight: 700, letterSpacing: '2px', textTransform: 'uppercase', color: 'var(--text-secondary)', marginBottom: '10px' }}>
-                      {grupo.emoji} {grupo.label}
-                    </p>
-                    <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-                      {grupo.options.map((opt) => (
-                        <button
-                          key={opt}
-                          onClick={() => { setSelectedTagline(opt); setCustomTagline(''); }}
-                          style={{
-                            padding: '12px 18px',
-                            borderRadius: '12px',
-                            border: selectedTagline === opt ? '2px solid var(--accent-turquoise)' : '1px solid var(--border)',
-                            background: selectedTagline === opt ? 'rgba(78,176,181,0.08)' : '#fff',
-                            color: selectedTagline === opt ? 'var(--accent-turquoise)' : 'var(--text-primary)',
-                            textAlign: 'left',
-                            cursor: 'pointer',
-                            fontSize: '0.95rem',
-                            fontWeight: selectedTagline === opt ? 600 : 400,
-                            transition: 'all 0.2s ease'
-                          }}
-                        >
-                          {selectedTagline === opt ? '✓ ' : ''}{opt}
-                        </button>
-                      ))}
-                    </div>
-                  </div>
+              <div style={{ flex: 1, overflowY: 'auto', padding: '24px 20px', display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                <p style={{ fontSize: '0.72rem', fontWeight: 700, letterSpacing: '2px', textTransform: 'uppercase', color: 'var(--text-secondary)', marginBottom: '4px' }}>
+                  Sugestões para o estilo {resultadoFinal?.estiloNome}
+                </p>
+
+                {getTaglineSuggestions().map((opt) => (
+                  <button
+                    key={opt}
+                    onClick={() => { setSelectedTagline(opt); setCustomTagline(''); }}
+                    style={{
+                      padding: '16px 18px',
+                      borderRadius: '14px',
+                      border: selectedTagline === opt ? '2px solid var(--accent-turquoise)' : '1.5px solid var(--border)',
+                      background: selectedTagline === opt ? 'rgba(60,204,191,0.07)' : '#fafafa',
+                      color: selectedTagline === opt ? 'var(--accent-turquoise)' : 'var(--text-primary)',
+                      textAlign: 'left',
+                      cursor: 'pointer',
+                      fontSize: '1rem',
+                      fontWeight: selectedTagline === opt ? 600 : 400,
+                      transition: 'all 0.2s ease',
+                      lineHeight: 1.4,
+                    }}
+                  >
+                    {selectedTagline === opt ? '✓  ' : ''}{opt}
+                  </button>
                 ))}
 
-                {/* Campo Aberto */}
-                <div>
-                  <p style={{ fontSize: '0.75rem', fontWeight: 700, letterSpacing: '2px', textTransform: 'uppercase', color: 'var(--text-secondary)', marginBottom: '10px' }}>🖊️ Escreva do seu jeito</p>
+                <div style={{ borderTop: '1px solid var(--border)', paddingTop: '16px', marginTop: '4px' }}>
+                  <p style={{ fontSize: '0.72rem', fontWeight: 700, letterSpacing: '2px', textTransform: 'uppercase', color: 'var(--text-secondary)', marginBottom: '10px' }}>
+                    Ou escreva o seu
+                  </p>
                   <textarea
-                    placeholder="Ex: Cuidado que transforma vidas..."
+                    placeholder="Ex: Cuidado que transforma vidas · Pediatria Integrativa · Saúde da Mulher"
                     value={customTagline}
                     onChange={(e) => { setCustomTagline(e.target.value); setSelectedTagline(''); }}
                     rows={2}
-                    style={{ width: '100%', padding: '12px 16px', borderRadius: '12px', border: customTagline ? '2px solid var(--accent-magenta)' : '1px solid var(--border)', fontSize: '0.95rem', resize: 'none', fontFamily: 'inherit', outline: 'none', boxSizing: 'border-box' }}
+                    style={{ width: '100%', padding: '14px 16px', borderRadius: '12px', border: customTagline ? '2px solid var(--accent-magenta)' : '1.5px solid var(--border)', fontSize: '0.95rem', resize: 'none', fontFamily: 'inherit', outline: 'none', boxSizing: 'border-box', color: 'var(--text-primary)' }}
                   />
+                  <p style={{ fontSize: '0.72rem', color: 'var(--text-secondary)', marginTop: '6px', lineHeight: 1.5 }}>
+                    Pode ser um slogan, sua especialidade ou uma frase que representa você.
+                  </p>
                 </div>
               </div>
 
