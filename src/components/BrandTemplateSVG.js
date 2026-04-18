@@ -103,7 +103,7 @@ const BrandTemplateSVG = ({ data, color, side = 'frente', hideBackground = false
 
           {/* SELO CIRCULAR DINAMICO — fundo orgânico */}
           <g transform="translate(1076.6, 318.42)">
-            <path className="st-selo-bg" d="M 5,-128 C 60,-148 145,-80 125,-20 C 110,25 120,95 60,130 C 15,155 -55,140 -100,105 C -145,70 -148,-10 -120,-60 C -95,-105 -45,-140 5,-128 Z" />
+            <path className="st-selo-bg" d="M 5,-129 C 74,-135 135,-72 130,5 C 126,72 72,133 -3,129 C -72,126 -132,68 -128,-3 C -124,-70 -68,-132 5,-129 Z" />
             {iconRender && (
               <g transform="scale(5)">
                 {iconRender('white')}
