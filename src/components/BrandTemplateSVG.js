@@ -110,13 +110,19 @@ const BrandTemplateSVG = ({ data, color, side = 'frente', hideBackground = false
               </g>
             )}
           </g>
-          <text>
-            <textPath xlinkHref="#circlePath" startOffset="0%">
-                <tspan className="st-selo-text">
-                    {(marca || 'SUA MARCA').toUpperCase()} • {(marca || 'SUA MARCA').toUpperCase()} • 
-                </tspan>
-            </textPath>
-          </text>
+          {(() => {
+            const circumference = 2 * Math.PI * 91.64;
+            const nameWithSep = (marca || 'SUA MARCA').toUpperCase() + ' • ';
+            const reps = Math.max(2, Math.ceil(circumference / (nameWithSep.length * 17)));
+            const fullText = nameWithSep.repeat(reps);
+            return (
+              <text>
+                <textPath xlinkHref="#circlePath" startOffset="0%" textLength={circumference} lengthAdjust="spacing">
+                  <tspan className="st-selo-text">{fullText}</tspan>
+                </textPath>
+              </text>
+            );
+          })()}
 
           {/* CONTATOS DINAMICOS */}
           {!hideBackground && (
