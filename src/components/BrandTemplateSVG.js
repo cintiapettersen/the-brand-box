@@ -36,7 +36,7 @@ const BrandTemplateSVG = ({ data, color, side = 'frente', hideBackground = false
           .st6 { fill: none; stroke: ${activeColor}; stroke-width: 45px; }
           .st7 { fill: ${activeColor}; }
           .st-selo-bg { fill: ${activeColor}; }
-          .st-selo-text { fill: #fff; font-family: 'Montserrat', sans-serif; font-size: 32px; font-weight: bold; }
+          .st-selo-text { fill: #fff; font-family: '${brandFont}', 'Playfair Display', serif; font-size: 32px; font-weight: bold; }
           .st-contact { fill: #333; font-family: 'Montserrat', sans-serif; font-size: 26px; font-weight: 600; }
         `}</style>
         <path id="circlePath" d="M1165.99,316.18c0,50.61-40.39,91.64-90.21,91.64s-90.21-41.03-90.21-91.64,40.39-91.64,90.21-91.64,90.21,41.03,90.21,91.64Z"/>
@@ -101,13 +101,15 @@ const BrandTemplateSVG = ({ data, color, side = 'frente', hideBackground = false
             </>
           )}
 
-          {/* SELO CIRCULAR DINAMICO */}
-          <circle className="st-selo-bg" cx="1076.6" cy="318.42" r="130.26"/>
-          {iconRender && (
-            <g transform="translate(1076.6, 318.42) scale(5)">
-              {iconRender('white')}
-            </g>
-          )}
+          {/* SELO CIRCULAR DINAMICO — fundo orgânico */}
+          <g transform="translate(1076.6, 318.42)">
+            <path className="st-selo-bg" d="M 5,-128 C 60,-148 145,-80 125,-20 C 110,25 120,95 60,130 C 15,155 -55,140 -100,105 C -145,70 -148,-10 -120,-60 C -95,-105 -45,-140 5,-128 Z" />
+            {iconRender && (
+              <g transform="scale(5)">
+                {iconRender('white')}
+              </g>
+            )}
+          </g>
           <text>
             <textPath xlinkHref="#circlePath" startOffset="0%">
                 <tspan className="st-selo-text">
