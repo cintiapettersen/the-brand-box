@@ -27,7 +27,7 @@ export default function Home() {
   // Sugestões de tagline agrupadas por categoria
   const TAGLINES_BY_ESTILO = {
     'Jardim Encantado':       ['Onde cada detalhe floresce com amor', 'Cuidado que encanta, saúde que transforma', 'Pequenos sonhos, grandes cuidados'],
-    'Escandinavo Acolhedor':  ['Simples, humano e essencial', 'Cuidado com presença e leveza', 'O cuidado que você merece'],
+    'Escandinavo Acolhedor':  ['Cuidado gentil para os primeiros anos', 'Onde o amor encontra o cuidado', 'Cuidado que nutre e acolhe'],
     'Essência Atemporal':     ['Elegância que cuida, confiança que permanece', 'Sofisticação com propósito', 'Cuidado que não precisa se explicar'],
     'Doce Encantamento':      ['Delicadeza em cada detalhe', 'Feito com carinho para momentos especiais', 'Amor e cuidado em cada encontro'],
     'Raízes & Cuidado':       ['Da natureza para o seu cuidado', 'Natural, consciente e verdadeiro', 'Raízes que nutrem, cuidado que transforma'],
