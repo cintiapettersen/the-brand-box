@@ -117,7 +117,7 @@ const BrandTemplateSVG = ({ data, color, side = 'frente', hideBackground = false
             const fullText = nameWithSep.repeat(reps);
             return (
               <text>
-                <textPath xlinkHref="#circlePath" startOffset="0%" textLength={circumference} lengthAdjust="spacing">
+                <textPath xlinkHref="#circlePath" startOffset="25%" textLength={circumference} lengthAdjust="spacing">
                   <tspan className="st-selo-text">{fullText}</tspan>
                 </textPath>
               </text>
