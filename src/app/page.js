@@ -8,6 +8,7 @@ import BrandTemplateSVG from '../components/BrandTemplateSVG';
 import BrandBoard from '../components/BrandBoard';
 import { createClient } from '@supabase/supabase-js';
 import FONT_MAP from '../lib/fontMap';
+import { STYLE_ICONS, getIconById } from '../lib/styleIcons';
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
 const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
@@ -80,6 +81,7 @@ export default function Home() {
   const [refazerAttempts, setRefazerAttempts] = useState(0);
   const [approvalChecked, setApprovalChecked] = useState(false);
   const [marcaSugestaoAceita, setMarcaSugestaoAceita] = useState(false);
+  const [selectedIcon, setSelectedIcon] = useState(null);
   const [showResumePrompt, setShowResumePrompt] = useState(false);
   const [savedProgress, setSavedProgress] = useState(null);
   const brandBoardRef = useRef(null);
@@ -122,6 +124,7 @@ export default function Home() {
       if (parsed.selectedPaleta) setSelectedPaleta(parsed.selectedPaleta);
       if (parsed.selectedTipo) setSelectedTipo(parsed.selectedTipo);
     }
+    if (parsed.selectedIcon) setSelectedIcon(parsed.selectedIcon);
   };
 
   // Salva progresso automaticamente
@@ -131,7 +134,7 @@ export default function Home() {
         step, formData, selectedTagline, customTagline,
         editData: { marca: editData.marca, tagline: editData.tagline, whatsapp: editData.whatsapp, instagram: editData.instagram },
         patternGenerationCount, refazerAttempts,
-        resultadoFinal, selectedPaleta, selectedTipo
+        resultadoFinal, selectedPaleta, selectedTipo, selectedIcon
       }));
     } catch(e) {}
   }, [step, formData, selectedTagline, customTagline, editData]);
@@ -1203,6 +1206,7 @@ export default function Home() {
                     })()} 
                     color={editData.corAtiva || '#d22f5a'}
                     patternImage={selectedPattern !== null && generatedPatterns[selectedPattern] ? `data:${generatedPatterns[selectedPattern].mimeType};base64,${generatedPatterns[selectedPattern].base64}` : null}
+                    iconRender={getIconById(resultadoFinal?.estiloNome, selectedIcon)?.render || null}
                   />
                 </div>
               </div>
@@ -1230,6 +1234,51 @@ export default function Home() {
                   ));
                 })()}
               </div>
+
+              {/* Seletor de ícone da submarca */}
+              {(() => {
+                const styleIcons = STYLE_ICONS[resultadoFinal?.estiloNome] || [];
+                if (styleIcons.length === 0) return null;
+                const activeColor = editData.corAtiva || '#d22f5a';
+                return (
+                  <div style={{ padding: '10px 20px', background: '#fff', borderTop: '1px solid #f0f0f0', display: 'flex', alignItems: 'center', gap: '10px', justifyContent: 'center' }}>
+                    <p style={{ fontSize: '0.65rem', color: 'var(--text-secondary)', textTransform: 'uppercase', letterSpacing: '1px', fontWeight: 600, whiteSpace: 'nowrap' }}>Ícone:</p>
+                    {/* opção nenhum */}
+                    <div
+                      onClick={() => setSelectedIcon(null)}
+                      title="Nenhum"
+                      style={{
+                        width: '38px', height: '38px', borderRadius: '50%', cursor: 'pointer',
+                        background: selectedIcon === null ? activeColor : '#f5f5f5',
+                        border: selectedIcon === null ? `3px solid #333` : '2px solid #ddd',
+                        display: 'flex', alignItems: 'center', justifyContent: 'center',
+                        transition: 'all 0.15s ease', flexShrink: 0,
+                        fontSize: '0.55rem', color: selectedIcon === null ? '#fff' : '#aaa', fontWeight: 700, letterSpacing: '0.5px'
+                      }}
+                    >—</div>
+                    {styleIcons.map(icon => (
+                      <div
+                        key={icon.id}
+                        onClick={() => setSelectedIcon(icon.id)}
+                        title={icon.label}
+                        style={{
+                          width: '38px', height: '38px', borderRadius: '50%', cursor: 'pointer',
+                          background: selectedIcon === icon.id ? activeColor : '#f5f5f5',
+                          border: selectedIcon === icon.id ? '3px solid #333' : '2px solid #ddd',
+                          display: 'flex', alignItems: 'center', justifyContent: 'center',
+                          transition: 'all 0.15s ease', flexShrink: 0,
+                          transform: selectedIcon === icon.id ? 'scale(1.15)' : 'scale(1)',
+                          boxShadow: selectedIcon === icon.id ? '0 0 0 1px #333' : 'none'
+                        }}
+                      >
+                        <svg viewBox="-13 -13 26 26" width="22" height="22">
+                          {icon.render(selectedIcon === icon.id ? 'white' : activeColor)}
+                        </svg>
+                      </div>
+                    ))}
+                  </div>
+                );
+              })()}
 
               <div style={{ padding: '1.2rem', background: '#fff', borderTop: '1px solid var(--border)', zIndex: 10, display: 'flex', flexDirection: 'column', gap: '10px' }}>
                  <button onClick={() => { setApprovalChecked(false); setStep(12.8); }} className="btn-primary" style={{ width: '100%', background: 'var(--accent-magenta)' }}>Continuar para o Checkout ✨</button>

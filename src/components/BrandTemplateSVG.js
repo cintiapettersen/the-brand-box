@@ -1,6 +1,6 @@
 import React from 'react';
 
-const BrandTemplateSVG = ({ data, color, side = 'frente', hideBackground = false }) => {
+const BrandTemplateSVG = ({ data, color, side = 'frente', hideBackground = false, iconRender = null }) => {
   const { marca, tagline, whatsapp, instagram } = data;
   const activeColor = color || '#d22f5a';
   const brandFont = data.fontFamily || 'Playfair Display';
@@ -103,6 +103,11 @@ const BrandTemplateSVG = ({ data, color, side = 'frente', hideBackground = false
 
           {/* SELO CIRCULAR DINAMICO */}
           <circle className="st-selo-bg" cx="1076.6" cy="318.42" r="130.26"/>
+          {iconRender && (
+            <g transform="translate(1076.6, 318.42) scale(5)">
+              {iconRender('white')}
+            </g>
+          )}
           <text>
             <textPath xlinkHref="#circlePath" startOffset="0%">
                 <tspan className="st-selo-text">
