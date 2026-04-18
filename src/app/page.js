@@ -98,7 +98,7 @@ export default function Home() {
     } catch(e) { /* ignora dados corrompidos */ }
   }, []);
 
-  const restoreProgress = (parsed) => {
+  const restoreProgress = async (parsed) => {
     if (parsed.step) setStep(parsed.step);
     if (parsed.formData) setFormData(parsed.formData);
     if (parsed.selectedTagline) setSelectedTagline(parsed.selectedTagline);
@@ -106,6 +106,22 @@ export default function Home() {
     if (parsed.editData) setEditData(prev => ({ ...prev, ...parsed.editData }));
     if (parsed.patternGenerationCount) setPatternGenerationCount(parsed.patternGenerationCount);
     if (parsed.refazerAttempts) setRefazerAttempts(parsed.refazerAttempts);
+    if (parsed.resultadoFinal) setResultadoFinal(parsed.resultadoFinal);
+
+    // Re-busca paletas/tipografias do Supabase se estava em etapa avançada
+    if (parsed.resultadoFinal?.estiloId && parsed.step >= 10) {
+      const id = parsed.resultadoFinal.estiloId;
+      const { data: varData } = await supabase.from('variacoes_curadas').select('*').eq('estilo_id', id);
+      if (varData) {
+        setPaletas(varData.filter(d => d.tipo === 'PALETA'));
+        setTipografias(varData.filter(d => d.tipo === 'TIPOGRAFIA'));
+        setEstampas(varData.filter(d => d.tipo === 'ESTAMPA'));
+      }
+      const { data: moodData } = await supabase.from('moodboards').select('*').eq('estilo_id', id);
+      setMoodboards(moodData || []);
+      if (parsed.selectedPaleta) setSelectedPaleta(parsed.selectedPaleta);
+      if (parsed.selectedTipo) setSelectedTipo(parsed.selectedTipo);
+    }
   };
 
   // Salva progresso automaticamente
@@ -114,7 +130,8 @@ export default function Home() {
       localStorage.setItem('brandbox_progress', JSON.stringify({
         step, formData, selectedTagline, customTagline,
         editData: { marca: editData.marca, tagline: editData.tagline, whatsapp: editData.whatsapp, instagram: editData.instagram },
-        patternGenerationCount, refazerAttempts
+        patternGenerationCount, refazerAttempts,
+        resultadoFinal, selectedPaleta, selectedTipo
       }));
     } catch(e) {}
   }, [step, formData, selectedTagline, customTagline, editData]);

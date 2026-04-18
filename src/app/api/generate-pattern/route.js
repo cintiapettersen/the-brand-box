@@ -25,10 +25,21 @@ export async function POST(req) {
 
     const results = [];
 
+    // Micro-direção por estilo (20% do prompt — o resto vem da imagem de referência)
+    const styleHints = {
+      'Jardim Encantado':      'whimsical, playful, illustrated, lúdico',
+      'Escandinavo Acolhedor': 'minimal, nordic softness, playful and lúdico',
+      'Essência Atemporal':    'organic shapes, timeless, elegant abstraction',
+      'Doce Encantamento':     'delicate, dreamy, lúdico, playful and soft',
+      'Raízes & Cuidado':      'botanical, earthy, handcrafted naturalism',
+      'Estético Editorial':    'clean, structured geometry, clinical precision',
+    };
+    const hint = styleHints[estiloNome] || 'elegant and delicate';
+
     // Gerar 2 variações, cada uma com uma referência diferente
     const variationPrompts = [
-      `Create a seamless tileable pattern inspired by the reference image style. Use ONLY these colors: ${coresStr}. Keep the same artistic feel but create a NEW composition. White or very light background. Absolutely NO text, NO letters, NO numbers, NO words, NO hex codes anywhere in the image.`,
-      `Based on the reference pattern style, design a different seamless pattern variation. Colors: ONLY ${coresStr}. Same delicate style but different arrangement of elements. Clean background. CRITICAL: Do NOT include ANY text, labels, numbers, or color codes in the image.`,
+      `Follow the reference image as closely as possible — same technique, same elements, same artistic feel. Create a seamless tileable pattern in that exact style. Subtle direction: ${hint}. Use ONLY these colors: ${coresStr}. White or very light background. Absolutely NO text, NO letters, NO numbers, NO words, NO hex codes anywhere in the image.`,
+      `Follow the reference image very closely — replicate the technique and visual elements, but create a new composition. Seamless tileable pattern. Subtle direction: ${hint}. Colors: ONLY ${coresStr}. Clean background. CRITICAL: Do NOT include ANY text, labels, numbers, or color codes in the image.`,
     ];
 
     for (let i = 0; i < 2; i++) {
