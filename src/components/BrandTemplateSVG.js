@@ -109,7 +109,7 @@ const BrandTemplateSVG = ({ data, color, side = 'frente', hideBackground = false
                 href={iconPath}
                 x={-65} y={-65}
                 width={130} height={130}
-                style={{ filter: 'brightness(0) invert(1)' }}
+                style={{ filter: 'brightness(0) invert(1) opacity(0.85)' }}
               />
             )}
           </g>
