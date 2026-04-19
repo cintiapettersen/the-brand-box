@@ -203,7 +203,7 @@ const BrandBoard = ({ data, palette, color, patternImage, iconPath }) => {
             <SectionHeader title="Submarca" />
             <div style={{ width: '130px', height: '130px' }}>
                <BrandTemplateSVG
-                 data={data.fontStyle === 'script' ? { ...data, fontFamily: 'Montserrat', fontWeight: 700 } : data}
+                 data={data}
                  color={color}
                  side="verso"
                  hideBackground={true}
