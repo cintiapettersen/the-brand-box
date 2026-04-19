@@ -40,10 +40,6 @@ const BrandTemplateSVG = ({ data, color, side = 'frente', hideBackground = false
           .st-contact { fill: #333; font-family: 'Montserrat', sans-serif; font-size: 26px; font-weight: 600; }
         `}</style>
         <path id="circlePath" d="M1165.99,316.18c0,50.61-40.39,91.64-90.21,91.64s-90.21-41.03-90.21-91.64,40.39-91.64,90.21-91.64,90.21,41.03,90.21,91.64Z"/>
-        <filter id="icon-white" x="0%" y="0%" width="100%" height="100%">
-          <feFlood floodColor="white" result="white"/>
-          <feComposite in="white" in2="SourceGraphic" operator="in"/>
-        </filter>
       </defs>
 
       {/* LADO A: FRENTE (Fundo Colorido + Logo + Tagline) */}
@@ -113,7 +109,7 @@ const BrandTemplateSVG = ({ data, color, side = 'frente', hideBackground = false
                 href={iconPath}
                 x={-65} y={-65}
                 width={130} height={130}
-                filter="url(#icon-white)"
+                style={{ mixBlendMode: 'multiply' }}
               />
             )}
           </g>
