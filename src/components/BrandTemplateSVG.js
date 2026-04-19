@@ -110,20 +110,20 @@ const BrandTemplateSVG = ({ data, color, side = 'frente', hideBackground = false
             {iconPath && (
               <image
                 href={iconPath}
-                x={-50} y={-50}
-                width={100} height={100}
+                x={-65} y={-65}
+                width={130} height={130}
                 filter="url(#icon-white)"
               />
             )}
           </g>
           {(() => {
             const circumference = 2 * Math.PI * 91.64;
-            const nameWithSep = (marca || 'SUA MARCA').toUpperCase() + ' • ';
-            const reps = Math.max(2, Math.ceil(circumference / (nameWithSep.length * 17)));
+            const nameWithSep = (marca || 'SUA MARCA').toUpperCase() + '  •  ';
+            const reps = Math.max(2, Math.ceil(circumference / (nameWithSep.length * 24)));
             const fullText = nameWithSep.repeat(reps);
             return (
-              <text>
-                <textPath xlinkHref="#circlePath" startOffset="0%" textLength={circumference} lengthAdjust="spacing">
+              <text letterSpacing="4">
+                <textPath xlinkHref="#circlePath" startOffset="0%" textLength={circumference} lengthAdjust="spacingAndGlyphs">
                   <tspan className="st-selo-text">{fullText}</tspan>
                 </textPath>
               </text>
