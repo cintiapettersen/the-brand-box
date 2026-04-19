@@ -122,7 +122,8 @@ const BrandTemplateSVG = ({ data, color, side = 'frente', hideBackground = false
           </g>
           {(() => {
             const circumference = 2 * Math.PI * 91.64;
-            const nameWithSep = (marca || 'SUA MARCA').toUpperCase() + '  •  ';
+            const toTitleCase = (str) => str.replace(/\w\S*/g, w => w.charAt(0).toUpperCase() + w.slice(1).toLowerCase());
+            const nameWithSep = toTitleCase(marca || 'Sua Marca') + '  •  ';
             const reps = Math.max(2, Math.ceil(circumference / (nameWithSep.length * 24)));
             const fullText = nameWithSep.repeat(reps);
             return (
