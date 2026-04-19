@@ -5,6 +5,7 @@ export const STYLE_ICONS = {
     { id: 'flor-ludico',      label: 'Flor Lúdica',   path: '/icons/icon-flor-ludico_divertido.png' },
     { id: 'flor-simples',     label: 'Flor Feliz',    path: '/icons/icon-flor-simplicidade_feliz.png' },
     { id: 'passaro-jardim',   label: 'Passarinho',    path: '/icons/icon-passaro-fofura_amigavel.png' },
+    { id: 'flor-tulips',      label: 'Tulipa',        path: '/icons/icon-flor-de-tulips.png' },
   ],
   'Escandinavo Acolhedor': [
     { id: 'baleia',    label: 'Baleia',      path: '/icons/icon-scandi-baleia-minimal.png' },
