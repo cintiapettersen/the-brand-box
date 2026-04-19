@@ -36,7 +36,7 @@ const BrandTemplateSVG = ({ data, color, side = 'frente', hideBackground = false
           .st6 { fill: none; stroke: ${activeColor}; stroke-width: 45px; }
           .st7 { fill: ${activeColor}; }
           .st-selo-bg { fill: ${activeColor}; }
-          .st-selo-text { fill: #fff; font-family: '${brandFont}', 'Playfair Display', serif; font-size: 32px; font-weight: bold; }
+          .st-selo-text { fill: #fff; font-family: '${brandFont}', 'Playfair Display', serif; font-size: 26px; font-weight: bold; }
           .st-contact { fill: #333; font-family: 'Montserrat', sans-serif; font-size: 26px; font-weight: 600; }
         `}</style>
         <path id="circlePath" d="M1165.99,316.18c0,50.61-40.39,91.64-90.21,91.64s-90.21-41.03-90.21-91.64,40.39-91.64,90.21-91.64,90.21,41.03,90.21,91.64Z"/>
@@ -127,7 +127,7 @@ const BrandTemplateSVG = ({ data, color, side = 'frente', hideBackground = false
             const reps = Math.max(2, Math.ceil(circumference / (nameWithSep.length * 24)));
             const fullText = nameWithSep.repeat(reps);
             return (
-              <text letterSpacing="4">
+              <text letterSpacing="7">
                 <textPath xlinkHref="#circlePath" startOffset="0%" textLength={circumference} lengthAdjust="spacingAndGlyphs">
                   <tspan className="st-selo-text">{fullText}</tspan>
                 </textPath>
