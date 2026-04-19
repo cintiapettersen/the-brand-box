@@ -41,7 +41,11 @@ const BrandTemplateSVG = ({ data, color, side = 'frente', hideBackground = false
         `}</style>
         <path id="circlePath" d="M1165.99,316.18c0,50.61-40.39,91.64-90.21,91.64s-90.21-41.03-90.21-91.64,40.39-91.64,90.21-91.64,90.21,41.03,90.21,91.64Z"/>
         <filter id="icon-white" x="0%" y="0%" width="100%" height="100%">
-          <feColorMatrix type="matrix" values="0 0 0 0 1  0 0 0 0 1  0 0 0 0 1  0 0 0 1 0"/>
+          <feColorMatrix type="matrix"
+            values="0 0 0 0 1
+                    0 0 0 0 1
+                    0 0 0 0 1
+                   -0.299 -0.587 -0.114 0 1"/>
         </filter>
       </defs>
 

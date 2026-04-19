@@ -132,7 +132,7 @@ export default function Home() {
     try {
       localStorage.setItem('brandbox_progress', JSON.stringify({
         step, formData, selectedTagline, customTagline,
-        editData: { marca: editData.marca, tagline: editData.tagline, whatsapp: editData.whatsapp, instagram: editData.instagram },
+        editData: { marca: editData.marca, tagline: editData.tagline, whatsapp: editData.whatsapp, instagram: editData.instagram, fontFamily: editData.fontFamily, fontStyle: editData.fontStyle, fontWeight: editData.fontWeight, fontSizeBoost: editData.fontSizeBoost, fontLetterSpacing: editData.fontLetterSpacing, corAtiva: editData.corAtiva },
         patternGenerationCount, refazerAttempts,
         resultadoFinal, selectedPaleta, selectedTipo, selectedIcon
       }));
