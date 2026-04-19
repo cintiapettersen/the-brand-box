@@ -84,7 +84,7 @@ const SectionHeader = ({ title }) => (
   </div>
 );
 
-const BrandBoard = ({ data, palette, color, patternImage, iconRender }) => {
+const BrandBoard = ({ data, palette, color, patternImage, iconPath }) => {
   const { marca, tagline } = data;
   const activeColor = color || '#d22f5a';
 
@@ -207,7 +207,7 @@ const BrandBoard = ({ data, palette, color, patternImage, iconRender }) => {
                  color={color}
                  side="verso"
                  hideBackground={true}
-                 iconRender={iconRender}
+                 iconPath={iconPath}
                />
             </div>
          </div>

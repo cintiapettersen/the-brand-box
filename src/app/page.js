@@ -1206,7 +1206,7 @@ export default function Home() {
                     })()} 
                     color={editData.corAtiva || '#d22f5a'}
                     patternImage={selectedPattern !== null && generatedPatterns[selectedPattern] ? `data:${generatedPatterns[selectedPattern].mimeType};base64,${generatedPatterns[selectedPattern].base64}` : null}
-                    iconRender={getIconById(resultadoFinal?.estiloNome, selectedIcon)?.render || null}
+                    iconPath={getIconById(resultadoFinal?.estiloNome, selectedIcon)?.path || null}
                   />
                 </div>
               </div>
@@ -1271,9 +1271,9 @@ export default function Home() {
                           boxShadow: selectedIcon === icon.id ? '0 0 0 1px #333' : 'none'
                         }}
                       >
-                        <svg viewBox="-13 -13 26 26" width="22" height="22">
-                          {icon.render(selectedIcon === icon.id ? 'white' : activeColor)}
-                        </svg>
+                        <img src={icon.path} alt={icon.label}
+                          style={{ width: '22px', height: '22px', objectFit: 'contain',
+                            filter: selectedIcon === icon.id ? 'brightness(0) invert(1)' : 'none' }} />
                       </div>
                     ))}
                   </div>
