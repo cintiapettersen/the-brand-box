@@ -9,12 +9,10 @@ export const STYLE_ICONS = {
   ],
   'Escandinavo Acolhedor': [
     { id: 'baleia',    label: 'Baleia',      path: '/icons/icon-scandi-baleia-minimal.png' },
-    { id: 'barco',     label: 'Barco',       path: '/icons/icon-scandi-barco-minimal.png' },
+    { id: 'barco',     label: 'Barco',       path: '/icons/icon-_icon-scandi-barco-minimal.png' },
     { id: 'casa',      label: 'Casa',        path: '/icons/icon-scandi-casa-minimal.png' },
-    { id: 'heart',     label: 'Coração',     path: '/icons/icon-scandi-heart-minimal.png' },
-    { id: 'lua',       label: 'Lua',         path: '/icons/icon-scandi-lua-minimal.png' },
-    { id: 'passaro',   label: 'Passarinho',  path: '/icons/icon-scandi-passarro-minimal.png' },
-    { id: 'pato',      label: 'Patinho',     path: '/icons/icon-scandi-pato-minimal.png' },
+    { id: 'heart',     label: 'Coração',     path: '/icons/icon-_icon-scandi-heart-minimal.png' },
+    { id: 'passaro',   label: 'Passarinho',  path: '/icons/icon-_icon-scandi-passarro-minimal.png' },
   ],
   'Essência Atemporal': [
     { id: 'concha',      label: 'Concha',      path: '/icons/icon-essencia-concha.png' },
