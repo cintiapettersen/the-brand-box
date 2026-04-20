@@ -54,7 +54,10 @@ for f in "$DESTINO"/*.png "$DESTINO"/*.svg; do
       elif [[ "$acao" == "2" ]]; then
         echo ""
         echo "   Ícones atuais de $estilo:"
-        mapfile -t ICONS_RAW < <(node "$PROJETO/scripts/list-icons.mjs" "$estilo")
+        ICONS_RAW=()
+        while IFS= read -r line; do
+          ICONS_RAW+=("$line")
+        done < <(node "$PROJETO/scripts/list-icons.mjs" "$estilo")
 
         for line in "${ICONS_RAW[@]}"; do
           num="${line%%|*}"
