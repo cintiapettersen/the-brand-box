@@ -184,8 +184,8 @@ function EntregaContent({ brand }) {
             )}
           </div>
 
-          {/* Fundo */}
-          <div>
+          {/* Fundo (só na logo) */}
+          {step === 'logo' && <div>
             <SectionLabel>Fundo</SectionLabel>
             <div style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
               {BG_OPTIONS.map(opt => (
@@ -197,7 +197,7 @@ function EntregaContent({ brand }) {
                 />
               ))}
             </div>
-          </div>
+          </div>}
 
           {/* Ícone da submarca (só aparece na etapa submarca) */}
           {step === 'submarca' && styleIcons.length > 0 && (
