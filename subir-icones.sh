@@ -17,7 +17,6 @@ done
 
 cd "$PROJETO"
 
-# Detecta ícones que ainda não estão mapeados no styleIcons.js
 ESTILOS=("Jardim Encantado" "Escandinavo Acolhedor" "Essência Atemporal" "Doce Encantamento" "Raízes & Cuidado" "Estético Editorial")
 MAPEOU=false
 
@@ -30,21 +29,63 @@ for f in "$DESTINO"/*.png "$DESTINO"/*.svg; do
     echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
     echo "🆕 Ícone novo: $filename"
     echo ""
-    echo "   Qual estilo esse ícone pertence?"
+    echo "   Qual estilo?"
     for i in "${!ESTILOS[@]}"; do
       echo "     $((i+1)). ${ESTILOS[$i]}"
     done
-    echo "     0. Pular (não mapear agora)"
+    echo "     0. Pular"
     echo ""
     read -p "   Número: " estilo_num
 
     if [[ "$estilo_num" -ge 1 && "$estilo_num" -le ${#ESTILOS[@]} ]]; then
       estilo="${ESTILOS[$((estilo_num-1))]}"
-      read -p "   Nome bonito (ex: Tulipa, Abelhinha): " label
-      node "$PROJETO/scripts/add-icon.mjs" "$filename" "$estilo" "$label"
-      MAPEOU=true
-    else
-      echo "   ⏭️  Pulado."
+      echo ""
+      echo "   O que fazer?"
+      echo "     1. Adicionar como ícone novo"
+      echo "     2. Substituir um ícone existente"
+      echo ""
+      read -p "   Opção: " acao
+
+      if [[ "$acao" == "1" ]]; then
+        read -p "   Nome bonito (ex: Tulipa): " label
+        node "$PROJETO/scripts/add-icon.mjs" add "$filename" "$estilo" "$label"
+        MAPEOU=true
+
+      elif [[ "$acao" == "2" ]]; then
+        echo ""
+        echo "   Ícones atuais de $estilo:"
+        # Extrai ids e labels do estilo no styleIcons.js
+        IFS=$'\n' read -r -d '' -a ICONS_RAW < <(node --input-type=module <<NODEEOF && printf '\0'
+import fs from 'fs';
+const c = fs.readFileSync('${STYLE_ICONS}', 'utf8');
+const estilo = '${estilo}';
+const block = c.split("'" + estilo + "': [")[1]?.split(']')[0] || '';
+const matches = [...block.matchAll(/id: '([^']+)', label: '([^']*)'/g)];
+matches.forEach((m, i) => console.log((i+1) + '|' + m[1] + '|' + m[2]));
+NODEEOF
+        )
+
+        for line in "${ICONS_RAW[@]}"; do
+          num="${line%%|*}"
+          rest="${line#*|}"
+          id="${rest%%|*}"
+          lbl="${rest#*|}"
+          echo "     $num. $lbl ($id)"
+        done
+
+        echo ""
+        read -p "   Número do ícone a substituir: " icon_num
+        icon_line="${ICONS_RAW[$((icon_num-1))]}"
+        old_id="${icon_line#*|}"
+        old_id="${old_id%%|*}"
+        old_label="${icon_line##*|}"
+
+        read -p "   Nome bonito [Enter para manter '$old_label']: " label
+        [ -z "$label" ] && label="$old_label"
+
+        node "$PROJETO/scripts/add-icon.mjs" replace "$filename" "$estilo" "$old_id" "$label"
+        MAPEOU=true
+      fi
     fi
     echo ""
   fi
@@ -64,7 +105,7 @@ CHANGED=$(git diff --cached --name-only | wc -l | tr -d ' ')
 if [ "$CHANGED" -eq "0" ]; then
   echo "✅ Nenhum ícone novo — tudo já estava atualizado!"
 else
-  git diff --cached --name-only | head -15
+  git diff --cached --name-only | head -10
   git commit -m "atualiza icones ($CHANGED arquivo(s) alterado(s))"
   git push
   echo ""
