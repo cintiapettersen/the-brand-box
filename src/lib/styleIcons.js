@@ -1,47 +1,47 @@
 export const STYLE_ICONS = {
-  'Jardim Encantado': [
-    { id: 'flor-amor',        label: 'Flor Amor',     path: '/icons/icon-flor-amor_infantil.png' },
-    { id: 'flor-delicadeza',  label: 'Flor Suave',    path: '/icons/icon-flor-delicadeza_suave.png' },
-    { id: '62998870CE5E4F49', label: 'Flor Lúdica', path: '/icons/62998870CE5E4F49.png' },
-    { id: 'flor-simples',     label: 'Flor Feliz',    path: '/icons/icon-flor-simplicidade_feliz.png' },
-    { id: '62998870CE5E4F4A', label: 'Passarinho', path: '/icons/62998870CE5E4F4A.png' },
-    { id: 'flor-tulips',      label: 'Tulipa',        path: '/icons/icon-flor-de-tulips.png' },
+  'Doce Encantamento': [
+    { id: 'icon-doce-bee', label: 'doce bee', path: '/icons/icon-doce-bee.png' },
+    { id: 'icon-doce-bird', label: 'doce bird', path: '/icons/icon-doce-bird.png' },
+    { id: 'icon-doce-rainbow', label: 'doce rainbow', path: '/icons/icon-doce-rainbow.png' },
+    { id: 'icon-doce-sol', label: 'doce sol', path: '/icons/icon-doce-sol.png' },
   ],
   'Escandinavo Acolhedor': [
-    { id: 'baleia',    label: 'Baleia',      path: '/icons/icon-scandi-baleia-minimal.png' },
-    { id: 'barco',     label: 'Barco',       path: '/icons/icon-_icon-scandi-barco-minimal.png' },
-    { id: 'casa',      label: 'Casa',        path: '/icons/icon-scandi-casa-minimal.png' },
-    { id: 'heart',     label: 'Coração',     path: '/icons/icon-_icon-scandi-heart-minimal.png' },
-    { id: 'passaro',   label: 'Passarinho',  path: '/icons/icon-_icon-scandi-passarro-minimal.png' },
+    { id: 'icon-_icon-scandi-baleia-minimal', label: 'scandi baleia minimal', path: '/icons/icon-_icon-scandi-baleia-minimal.png' },
+    { id: 'icon-_icon-scandi-barco-minimal', label: 'scandi barco minimal', path: '/icons/icon-_icon-scandi-barco-minimal.png' },
+    { id: 'icon-_icon-scandi-casa-minimal', label: 'scandi casa minimal', path: '/icons/icon-_icon-scandi-casa-minimal.png' },
+    { id: 'icon-_icon-scandi-heart-minimal', label: 'scandi heart minimal', path: '/icons/icon-_icon-scandi-heart-minimal.png' },
+    { id: 'icon-_icon-scandi-passarro-minimal', label: 'scandi passarro minimal', path: '/icons/icon-_icon-scandi-passarro-minimal.png' },
   ],
   'Essência Atemporal': [
-    { id: 'concha',      label: 'Concha',      path: '/icons/icon-essencia-concha.png' },
-    { id: 'floral-mar',  label: 'Floral Mar',  path: '/icons/icon-essencia-floral-do-mar.png' },
-    { id: 'floral-fem',  label: 'Floral',      path: '/icons/icon-essencia-floral-feminino.png' },
-    { id: 'flor-sal',    label: 'Flor de Sal', path: '/icons/icon-essencia-florr-de-sal.png' },
-    { id: 'trevo',       label: 'Trevo',       path: '/icons/icon-essencia-folhas-trevo.png' },
-    { id: 'organico',    label: 'Orgânico',    path: '/icons/icon-essencia-organico-feminine.png' },
-  ],
-  'Doce Encantamento': [
-    { id: 'bee',      label: 'Abelhinha',  path: '/icons/icon-doce-bee.png' },
-    { id: 'bird',     label: 'Passarinho', path: '/icons/icon-doce-bird.png' },
-    { id: 'rainbow',  label: 'Arco-íris',  path: '/icons/icon-doce-rainbow.png' },
-    { id: 'sol',      label: 'Sol',        path: '/icons/icon-doce-sol.png' },
-  ],
-  'Raízes & Cuidado': [
-    { id: 'raiz-flor-sal',  label: 'Flor de Sal', path: '/icons/icon-raiz-naturral-flor-de-sal.png' },
-    { id: 'raiz-abstrato',  label: 'Abstrato',    path: '/icons/icon-raiz-naturral-organico-abstratoo.png' },
-    { id: 'raiz-caule',     label: 'Caule',       path: '/icons/icon-raiz-naturral-organico-caule.png' },
-    { id: 'raiz-circular',  label: 'Circular',    path: '/icons/icon-raiz-naturral-organico-circular.png' },
-    { id: 'raiz-flor-bold', label: 'Flor Bold',   path: '/icons/icon-raiz-naturral-organico-flor-mdoerno-bold.png' },
-    { id: 'raiz-horizonte', label: 'Horizonte',   path: '/icons/icon-raiz-naturral-organico-horiznte.png' },
+    { id: 'icon-_icon-essencia-concha', label: 'essencia concha', path: '/icons/icon-_icon-essencia-concha.png' },
+    { id: 'icon-_icon-essencia-floral-do-mar', label: 'essencia floral do mar', path: '/icons/icon-_icon-essencia-floral-do-mar.png' },
+    { id: 'icon-_icon-essencia-floral-feminino', label: 'essencia floral feminino', path: '/icons/icon-_icon-essencia-floral-feminino.png' },
+    { id: 'icon-_icon-essencia-florr-de-sal', label: 'essencia florr de sal', path: '/icons/icon-_icon-essencia-florr-de-sal.png' },
+    { id: 'icon-_icon-essencia-folhas-trevo', label: 'essencia folhas trevo', path: '/icons/icon-_icon-essencia-folhas-trevo.png' },
+    { id: 'icon-_icon-essencia-organico-feminine', label: 'essencia organico feminine', path: '/icons/icon-_icon-essencia-organico-feminine.png' },
   ],
   'Estético Editorial': [
-    { id: 'flexibilidade',   label: 'Flexibilidade', path: '/icons/icon-estetico-flexibilidade.png' },
-    { id: 'flexibilidade-2', label: 'Flex. 2',       path: '/icons/icon-estetico-flexibilidade-2.png' },
-    { id: 'igualidade',      label: 'Igualdade',     path: '/icons/icon-estetico-igualidade.png' },
-    { id: 'paridade',        label: 'Paridade',      path: '/icons/icon-estetico-paridade.png' },
-    { id: 'uniao',           label: 'União',         path: '/icons/icon-estetico-uniao.png' },
+    { id: 'icon-estetico-flexibilidade-2', label: 'estetico flexibilidade 2', path: '/icons/icon-estetico-flexibilidade-2.png' },
+    { id: 'icon-estetico-flexibilidade', label: 'estetico flexibilidade', path: '/icons/icon-estetico-flexibilidade.png' },
+    { id: 'icon-estetico-igualidade', label: 'estetico igualidade', path: '/icons/icon-estetico-igualidade.png' },
+    { id: 'icon-estetico-paridade', label: 'estetico paridade', path: '/icons/icon-estetico-paridade.png' },
+    { id: 'icon-estetico-uniao', label: 'estetico uniao', path: '/icons/icon-estetico-uniao.png' },
+  ],
+  'Jardim Encantado': [
+    { id: 'icon-_icon-flor-amor_infantil', label: 'flor amor infantil', path: '/icons/icon-_icon-flor-amor_infantil.png' },
+    { id: 'icon-_icon-flor-de-tulips', label: 'flor de tulips', path: '/icons/icon-_icon-flor-de-tulips.png' },
+    { id: 'icon-_icon-flor-delicadeza_suave', label: 'flor delicadeza suave', path: '/icons/icon-_icon-flor-delicadeza_suave.png' },
+    { id: 'icon-_icon-flor-ludico_divertido', label: 'flor ludico divertido', path: '/icons/icon-_icon-flor-ludico_divertido.png' },
+    { id: 'icon-_icon-flor-simplicidade_feliz', label: 'flor simplicidade feliz', path: '/icons/icon-_icon-flor-simplicidade_feliz.png' },
+    { id: 'icon-_icon-passaro-fofura_amigavel', label: 'passaro fofura amigavel', path: '/icons/icon-_icon-passaro-fofura_amigavel.png' },
+  ],
+  'Raízes & Cuidado': [
+    { id: 'icon-raiz-naturral-flor-de-sal', label: 'raiz naturral flor de sal', path: '/icons/icon-raiz-naturral-flor-de-sal.png' },
+    { id: 'icon-raiz-naturral-organico-abstratoo', label: 'raiz naturral organico abstratoo', path: '/icons/icon-raiz-naturral-organico-abstratoo.png' },
+    { id: 'icon-raiz-naturral-organico-caule', label: 'raiz naturral organico caule', path: '/icons/icon-raiz-naturral-organico-caule.png' },
+    { id: 'icon-raiz-naturral-organico-circular', label: 'raiz naturral organico circular', path: '/icons/icon-raiz-naturral-organico-circular.png' },
+    { id: 'icon-raiz-naturral-organico-flor-mdoerno-bold', label: 'raiz naturral organico flor mdoerno bold', path: '/icons/icon-raiz-naturral-organico-flor-mdoerno-bold.png' },
+    { id: 'icon-raiz-naturral-organico-horiznte', label: 'raiz naturral organico horiznte', path: '/icons/icon-raiz-naturral-organico-horiznte.png' },
   ],
 };
 
@@ -49,3 +49,4 @@ export const getIconById = (estiloNome, iconId) => {
   const icons = STYLE_ICONS[estiloNome] || [];
   return icons.find(i => i.id === iconId) || null;
 };
+
