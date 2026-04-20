@@ -13,12 +13,12 @@ echo "📂 Copiando ícones (somente arquivos icon-*)..."
 for pasta in "$ORIGEM"/*/;
   src_icons="$pasta/icons"
   if [ -d "$src_icons" ]; then
-    count=$(ls "$src_icons"/icon-*.png "$src_icons"/icon-*.svg 2>/dev/null | wc -l | tr -d ' ')
-    if [ "$count" -gt "0" ]; then
-      echo "  → $(basename "$pasta") ($count ícones)"
-      cp "$src_icons"/icon-*.png "$DESTINO"/ 2>/dev/null
-      cp "$src_icons"/icon-*.svg "$DESTINO"/ 2>/dev/null
-    fi
+    # Copia apenas icon-[letra]* (exclui icon-_icon-* e similares)
+    count=0
+    for f in "$src_icons"/icon-[a-z]*.png "$src_icons"/icon-[a-z]*.svg; do
+      [ -f "$f" ] && cp "$f" "$DESTINO"/ && count=$((count+1))
+    done
+    [ "$count" -gt "0" ] && echo "  → $(basename "$pasta") ($count ícones)"
   fi
 done
 
