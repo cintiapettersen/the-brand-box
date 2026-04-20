@@ -5,8 +5,12 @@ DESTINO="/Users/cintiapettersen/.gemini/antigravity/scratch/next-app/public/icon
 PROJETO="/Users/cintiapettersen/.gemini/antigravity/scratch/next-app"
 STYLE_ICONS="$PROJETO/src/lib/styleIcons.js"
 
+echo "🧹 Removendo arquivos inválidos da pasta de ícones..."
+find "$DESTINO" -name "*.png" -not -name "icon-[a-z]*" -delete 2>/dev/null
+find "$DESTINO" -name "*.svg" -not -name "icon-[a-z]*" -delete 2>/dev/null
+
 echo "📂 Copiando ícones (somente arquivos icon-*)..."
-for pasta in "$ORIGEM"/*/; do
+for pasta in "$ORIGEM"/*/;
   src_icons="$pasta/icons"
   if [ -d "$src_icons" ]; then
     count=$(ls "$src_icons"/icon-*.png "$src_icons"/icon-*.svg 2>/dev/null | wc -l | tr -d ' ')
