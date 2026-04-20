@@ -36,12 +36,12 @@ export const STYLE_ICONS = {
     { id: 'icon-_icon-passaro-fofura_amigavel', label: 'passaro fofura amigavel', path: '/icons/icon-_icon-passaro-fofura_amigavel.png' },
   ],
   'Raízes & Cuidado': [
-    { id: 'icon-raiz-naturral-flor-de-sal', label: 'raiz naturral flor de sal', path: '/icons/icon-raiz-naturral-flor-de-sal.png' },
-    { id: 'icon-raiz-naturral-organico-abstratoo', label: 'raiz naturral organico abstratoo', path: '/icons/icon-raiz-naturral-organico-abstratoo.png' },
-    { id: 'icon-raiz-naturral-organico-caule', label: 'raiz naturral organico caule', path: '/icons/icon-raiz-naturral-organico-caule.png' },
-    { id: 'icon-raiz-naturral-organico-circular', label: 'raiz naturral organico circular', path: '/icons/icon-raiz-naturral-organico-circular.png' },
-    { id: 'icon-raiz-naturral-organico-flor-mdoerno-bold', label: 'raiz naturral organico flor mdoerno bold', path: '/icons/icon-raiz-naturral-organico-flor-mdoerno-bold.png' },
-    { id: 'icon-raiz-naturral-organico-horiznte', label: 'raiz naturral organico horiznte', path: '/icons/icon-raiz-naturral-organico-horiznte.png' },
+    { id: 'icon-_icon-raiz-naturral-flor-de-sal', label: 'raiz naturral flor de sal', path: '/icons/icon-_icon-raiz-naturral-flor-de-sal.png' },
+    { id: 'icon-_icon-raiz-naturral-organico-abstratoo', label: 'raiz naturral organico abstratoo', path: '/icons/icon-_icon-raiz-naturral-organico-abstratoo.png' },
+    { id: 'icon-_icon-raiz-naturral-organico-caule', label: 'raiz naturral organico caule', path: '/icons/icon-_icon-raiz-naturral-organico-caule.png' },
+    { id: 'icon-_icon-raiz-naturral-organico-circular', label: 'raiz naturral organico circular', path: '/icons/icon-_icon-raiz-naturral-organico-circular.png' },
+    { id: 'icon-_icon-raiz-naturral-organico-flor-mdoerno-bold', label: 'raiz naturral organico flor mdoerno bold', path: '/icons/icon-_icon-raiz-naturral-organico-flor-mdoerno-bold.png' },
+    { id: 'icon-_icon-raiz-naturral-organico-horiznte', label: 'raiz naturral organico horiznte', path: '/icons/icon-_icon-raiz-naturral-organico-horiznte.png' },
   ],
 };
 
