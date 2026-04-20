@@ -133,8 +133,9 @@ const BrandBoard = ({ data, palette, color, patternImage, iconPath }) => {
                     fontWeight: data.fontWeight || 700, 
                     fontSize,
                     color: activeColor, 
-                    lineHeight: isScript ? 0.85 : 1.1,
-                    letterSpacing: data.fontLetterSpacing || (isScript ? '0px' : '1px')
+                    lineHeight: data.fontLineHeight || (isScript ? 0.85 : 1.1),
+                    letterSpacing: data.fontLetterSpacing || (isScript ? '0px' : '1px'),
+                    fontFeatureSettings: data.fontFeatureSettings
                   }}>
                     {word}
                   </h1>
@@ -147,8 +148,9 @@ const BrandBoard = ({ data, palette, color, patternImage, iconPath }) => {
                 fontSize,
                 color: activeColor, 
                 textAlign: 'center', 
-                lineHeight: 1.15,
-                letterSpacing: isScript ? '0px' : '1px'
+                lineHeight: data.fontLineHeight || 1.15,
+                letterSpacing: isScript ? '0px' : '1px',
+                fontFeatureSettings: data.fontFeatureSettings
               }}>
                 {words.join(' ')}
               </h1>

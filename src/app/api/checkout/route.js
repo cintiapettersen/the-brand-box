@@ -1,7 +1,7 @@
 import Stripe from 'stripe';
 
-const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
-
+// The Stripe instance will be created inside the POST handler 
+// to avoid breaking the Vercel build if the env var is missing during build time.
 const PLANOS = {
   experience: {
     name: 'Brand Box Experience',
@@ -18,6 +18,7 @@ const PLANOS = {
 export async function POST(request) {
   try {
     const { plano, marca, email } = await request.json();
+    const stripe = new Stripe(process.env.STRIPE_SECRET_KEY || 'dummy_key_for_build');
 
     const planoData = PLANOS[plano];
     if (!planoData) {
@@ -27,7 +28,7 @@ export async function POST(request) {
     const origin = request.headers.get('origin') || 'http://localhost:3000';
 
     const session = await stripe.checkout.sessions.create({
-      payment_method_types: ['card'],
+      payment_method_types: ['card', 'pix'],
       line_items: [
         {
           price_data: {
