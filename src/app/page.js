@@ -477,7 +477,12 @@ export default function Home() {
 
   return (
     <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '100vh', padding: '2rem', background: '#ffffff' }}>
-      <div style={{ width: '100%', maxWidth: '700px', position: 'relative', height: '85vh' }}>
+      {devMode && (
+        <div style={{ position: 'fixed', top: 0, left: 0, right: 0, background: '#1a1a1a', color: '#f90', textAlign: 'center', fontSize: '0.7rem', fontWeight: 700, padding: '4px', zIndex: 9999, letterSpacing: '1px' }}>
+          ⚡ MODO DEV ATIVO — estampas não consomem créditos
+        </div>
+      )}
+      <div style={{ width: '100%', maxWidth: '700px', position: 'relative', height: '85vh', marginTop: devMode ? '22px' : 0 }}>
 
         {step > 1 && step <= 7 && (
            <button onClick={() => setStep(s => s - 1)} style={{ position: 'absolute', top: '10px', left: '10px', background: 'var(--bg-soft)', border: '1px solid var(--border)', borderRadius: '30px', padding: '6px 14px', color: 'var(--text-secondary)', cursor: 'pointer', zIndex: 100, fontSize: '0.85rem', fontWeight: 500, transition: 'all 0.2s ease', display: 'flex', alignItems: 'center', gap: '5px' }}>
@@ -1106,6 +1111,11 @@ export default function Home() {
                     <button onClick={generatePatterns} className="btn-primary" style={{ background: 'linear-gradient(135deg, var(--accent-magenta), var(--accent-turquoise))', padding: '16px 40px', fontSize: '1rem' }}>
                       ✨ Criar Minha Estampa
                     </button>
+                    {devMode && (
+                      <button onClick={() => setStep(12)} style={{ fontSize: '0.7rem', color: '#f90', background: '#1a1a1a', border: '1px solid #f90', borderRadius: '6px', padding: '6px 14px', cursor: 'pointer', fontWeight: 700 }}>
+                        ⚡ DEV: Pular estampa
+                      </button>
+                    )}
                   </div>
                 )}
 
