@@ -123,16 +123,52 @@ function EntregaContent({ brand }) {
           <div>
             <p style={{ fontSize: '0.62rem', color: '#bbb', letterSpacing: '2px', textTransform: 'uppercase', fontWeight: 700, marginBottom: '2px' }}>brand box</p>
             <h1 style={{ fontSize: '1.4rem', fontWeight: 700, color: '#1a1a1a', lineHeight: 1.2 }}>
-              {step === 'logo' ? 'Sua Logo' : 'Sua Submarca'}
+              {step === 'logo' ? 'Sua Logo' : step === 'submarca' ? 'Sua Submarca' : 'Sua Estampa'}
             </h1>
           </div>
           <span style={{ fontSize: '0.75rem', color: '#ccc', fontWeight: 600 }}>
-            {step === 'logo' ? '1' : '2'} / 2
+            {step === 'logo' ? '1' : step === 'submarca' ? '2' : '3'} / 3
           </span>
         </div>
 
+        {/* Área da estampa */}
+        {step === 'estampa' && (() => {
+          const patternSrc = brand.pattern ? `data:${brand.pattern.mimeType};base64,${brand.pattern.base64}` : null;
+          const downloadEstampa = () => {
+            if (!patternSrc) return;
+            const link = document.createElement('a');
+            link.download = `${marca || 'estampa'}-padrao.png`;
+            link.href = patternSrc;
+            link.click();
+          };
+          return (
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '1.2rem' }}>
+              {patternSrc ? (
+                <div style={{
+                  width: '100%', aspectRatio: '1 / 1', borderRadius: '16px', overflow: 'hidden',
+                  boxShadow: '0 8px 40px rgba(0,0,0,0.10)',
+                  backgroundImage: `url(${patternSrc})`,
+                  backgroundSize: '50%',
+                  backgroundRepeat: 'repeat',
+                }} />
+              ) : (
+                <div style={{ width: '100%', aspectRatio: '1/1', borderRadius: '16px', background: '#f5f5f5', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#aaa', fontSize: '0.9rem' }}>
+                  Estampa não disponível
+                </div>
+              )}
+              <button
+                onClick={downloadEstampa}
+                disabled={!patternSrc}
+                style={{ width: '100%', padding: '13px', background: accentColor, color: '#fff', border: 'none', borderRadius: '30px', fontWeight: 700, fontSize: '0.9rem', cursor: 'pointer' }}
+              >
+                ⬇ Baixar estampa
+              </button>
+            </div>
+          );
+        })()}
+
         {/* Área da logo */}
-        <div
+        {step !== 'estampa' && <div
           ref={logoRef}
           style={{
             width: '100%', aspectRatio: '1 / 1',
@@ -153,9 +189,10 @@ function EntregaContent({ brand }) {
               iconPath={step === 'submarca' ? currentIconPath : undefined}
             />
           </div>
-        </div>
+        </div>}
 
         {/* Controles */}
+        {step !== 'estampa' &&
         <div style={{ marginTop: '1.4rem', display: 'flex', flexDirection: 'column', gap: '1rem' }}>
 
           {/* Editar texto */}
@@ -250,7 +287,7 @@ function EntregaContent({ brand }) {
               </div>
             </div>
           )}
-        </div>
+        </div>}
 
         {/* Botões */}
         <div style={{ marginTop: '1.6rem', display: 'flex', flexDirection: 'column', gap: '10px' }}>
@@ -271,25 +308,26 @@ function EntregaContent({ brand }) {
             </button>
           </div>
 
-          {step === 'logo' ? (
-            <button
-              onClick={() => setStep('submarca')}
-              style={{ width: '100%', padding: '13px', background: 'none', color: '#888', border: '1px solid #e0e0e0', borderRadius: '30px', fontWeight: 600, fontSize: '0.9rem', cursor: 'pointer' }}
-            >
+          {step === 'logo' && (
+            <button onClick={() => setStep('submarca')} style={{ width: '100%', padding: '13px', background: 'none', color: '#888', border: '1px solid #e0e0e0', borderRadius: '30px', fontWeight: 600, fontSize: '0.9rem', cursor: 'pointer' }}>
               Próximo: Submarca →
             </button>
-          ) : (
-            <button
-              onClick={() => setStep('logo')}
-              style={{
-                width: '100%', padding: '13px',
-                background: 'none', color: '#888',
-                border: '1px solid #e0e0e0',
-                borderRadius: '30px', fontWeight: 600,
-                fontSize: '0.9rem', cursor: 'pointer',
-              }}
-            >
-              ← Voltar para a logo
+          )}
+          {step === 'submarca' && (
+            <>
+              {brand.pattern && (
+                <button onClick={() => setStep('estampa')} style={{ width: '100%', padding: '13px', background: 'none', color: '#888', border: '1px solid #e0e0e0', borderRadius: '30px', fontWeight: 600, fontSize: '0.9rem', cursor: 'pointer' }}>
+                  Próximo: Estampa →
+                </button>
+              )}
+              <button onClick={() => setStep('logo')} style={{ width: '100%', padding: '13px', background: 'none', color: '#bbb', border: 'none', borderRadius: '30px', fontWeight: 600, fontSize: '0.85rem', cursor: 'pointer' }}>
+                ← Voltar para a logo
+              </button>
+            </>
+          )}
+          {step === 'estampa' && (
+            <button onClick={() => setStep('submarca')} style={{ width: '100%', padding: '13px', background: 'none', color: '#bbb', border: 'none', borderRadius: '30px', fontWeight: 600, fontSize: '0.85rem', cursor: 'pointer' }}>
+              ← Voltar para a submarca
             </button>
           )}
         </div>
