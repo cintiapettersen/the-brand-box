@@ -10,7 +10,7 @@ find "$DESTINO" -name "*.png" -not -name "icon-[a-z]*" -delete 2>/dev/null
 find "$DESTINO" -name "*.svg" -not -name "icon-[a-z]*" -delete 2>/dev/null
 
 echo "📂 Copiando ícones (somente arquivos icon-*)..."
-for pasta in "$ORIGEM"/*/;
+for pasta in "$ORIGEM"/*/; do
   src_icons="$pasta/icons"
   if [ -d "$src_icons" ]; then
     # Copia apenas icon-[letra]* (exclui icon-_icon-* e similares)
