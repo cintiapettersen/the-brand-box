@@ -1,9 +1,11 @@
 export const STYLE_ICONS = {
   'Doce Encantamento': [
-    { id: 'icon-doce-bee', label: 'doce bee', path: '/icons/icon-doce-bee.png' },
-    { id: 'icon-doce-bird', label: 'doce bird', path: '/icons/icon-doce-bird.png' },
-    { id: 'icon-doce-rainbow', label: 'doce rainbow', path: '/icons/icon-doce-rainbow.png' },
-    { id: 'icon-doce-sol', label: 'doce sol', path: '/icons/icon-doce-sol.png' },
+    { id: 'icon--51', label: ' 51', path: '/icons/icon--51.png' },
+    { id: 'icon-_icon-doce-bee', label: 'doce bee', path: '/icons/icon-_icon-doce-bee.png' },
+    { id: 'icon-_icon-doce-bird-47', label: 'doce bird 47', path: '/icons/icon-_icon-doce-bird-47.png' },
+    { id: 'icon-_icon-doce-bird-50', label: 'doce bird 50', path: '/icons/icon-_icon-doce-bird-50.png' },
+    { id: 'icon-_icon-doce-rainbow', label: 'doce rainbow', path: '/icons/icon-_icon-doce-rainbow.png' },
+    { id: 'icon-_icon-doce-sol', label: 'doce sol', path: '/icons/icon-_icon-doce-sol.png' },
   ],
   'Escandinavo Acolhedor': [
     { id: 'icon-_icon-scandi-baleia-minimal', label: 'scandi baleia minimal', path: '/icons/icon-_icon-scandi-baleia-minimal.png' },
