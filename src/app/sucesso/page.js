@@ -2,6 +2,7 @@
 import { useSearchParams } from 'next/navigation';
 import { Suspense, useState, useEffect, useRef } from 'react';
 import BrandTemplateSVG from '../../components/BrandTemplateSVG';
+import { STYLE_ICONS } from '../../lib/styleIcons';
 import html2canvas from 'html2canvas';
 
 
@@ -43,7 +44,12 @@ function EntregaContent({ brand }) {
   const [tagline, setTagline] = useState(brand.editData?.tagline || '');
   const logoRef = useRef(null);
 
-  const { paletas, iconPath } = brand;
+  const { paletas } = brand;
+  const estiloNome = brand.resultadoFinal?.estiloNome || '';
+  const styleIcons = STYLE_ICONS[estiloNome] || [];
+  const [selectedIcon, setSelectedIcon] = useState(brand.selectedIcon || null);
+  const currentIconPath = styleIcons.find(i => i.id === selectedIcon)?.path || null;
+
   const editData = { ...brand.editData, marca, tagline };
   const seloData = editData.fontStyle === 'script'
     ? { ...editData, fontFamily: 'Montserrat', fontWeight: 700, fontStyle: 'display' }
@@ -144,7 +150,7 @@ function EntregaContent({ brand }) {
               color={logoColor}
               side={step === 'logo' ? 'frente' : 'verso'}
               hideBackground={true}
-              iconPath={step === 'verso' ? iconPath : undefined}
+              iconPath={step === 'submarca' ? currentIconPath : undefined}
             />
           </div>
         </div>
@@ -192,6 +198,46 @@ function EntregaContent({ brand }) {
               ))}
             </div>
           </div>
+
+          {/* Ícone da submarca (só aparece na etapa submarca) */}
+          {step === 'submarca' && styleIcons.length > 0 && (
+            <div>
+              <SectionLabel>Ícone</SectionLabel>
+              <div style={{ display: 'flex', gap: '10px', alignItems: 'center', flexWrap: 'wrap' }}>
+                <div
+                  onClick={() => setSelectedIcon(null)}
+                  style={{
+                    width: 38, height: 38, borderRadius: '50%', cursor: 'pointer',
+                    background: selectedIcon === null ? logoColor : '#f5f5f5',
+                    border: selectedIcon === null ? '3px solid #333' : '2px solid #ddd',
+                    display: 'flex', alignItems: 'center', justifyContent: 'center',
+                    fontSize: '0.6rem', color: selectedIcon === null ? '#fff' : '#aaa', fontWeight: 700,
+                    flexShrink: 0, transition: 'all 0.15s ease',
+                    transform: selectedIcon === null ? 'scale(1.15)' : 'scale(1)',
+                  }}
+                >—</div>
+                {styleIcons.map(icon => (
+                  <div
+                    key={icon.id}
+                    onClick={() => setSelectedIcon(icon.id)}
+                    title={icon.label}
+                    style={{
+                      width: 38, height: 38, borderRadius: '50%', cursor: 'pointer',
+                      background: selectedIcon === icon.id ? logoColor : '#f5f5f5',
+                      border: selectedIcon === icon.id ? '3px solid #333' : '2px solid #ddd',
+                      display: 'flex', alignItems: 'center', justifyContent: 'center',
+                      flexShrink: 0, transition: 'all 0.15s ease',
+                      transform: selectedIcon === icon.id ? 'scale(1.15)' : 'scale(1)',
+                    }}
+                  >
+                    <img src={icon.path} alt={icon.label}
+                      style={{ width: 22, height: 22, objectFit: 'contain',
+                        filter: selectedIcon === icon.id ? 'brightness(0) invert(1)' : 'none' }} />
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
 
           {/* Cor da logo */}
           {paletteColors.length > 0 && (
