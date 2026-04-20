@@ -45,6 +45,9 @@ function EntregaContent({ brand }) {
 
   const { paletas, iconPath } = brand;
   const editData = { ...brand.editData, marca, tagline };
+  const seloData = editData.fontStyle === 'script'
+    ? { ...editData, fontFamily: 'Montserrat', fontWeight: 700, fontStyle: 'display' }
+    : editData;
 
   const paletteColors = (() => {
     const sel = paletas?.find(p => p.id === brand.selectedPaleta);
@@ -137,7 +140,7 @@ function EntregaContent({ brand }) {
         >
           <div style={{ width: '68%', height: '68%' }}>
             <BrandTemplateSVG
-              data={editData}
+              data={step === 'submarca' ? seloData : editData}
               color={logoColor}
               side={step === 'logo' ? 'frente' : 'verso'}
               hideBackground={true}
