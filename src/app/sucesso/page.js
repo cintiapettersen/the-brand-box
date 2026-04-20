@@ -38,9 +38,13 @@ function EntregaContent({ brand }) {
   const [bgColor, setBgColor] = useState('#ffffff');
   const [logoColor, setLogoColor] = useState(brand.activeColor || '#dc3495');
   const [downloading, setDownloading] = useState(false);
+  const [showEdit, setShowEdit] = useState(false);
+  const [marca, setMarca] = useState(brand.editData?.marca || '');
+  const [tagline, setTagline] = useState(brand.editData?.tagline || '');
   const logoRef = useRef(null);
 
-  const { editData, paletas, iconPath } = brand;
+  const { paletas, iconPath } = brand;
+  const editData = { ...brand.editData, marca, tagline };
 
   const paletteColors = (() => {
     const sel = paletas?.find(p => p.id === brand.selectedPaleta);
@@ -60,15 +64,27 @@ function EntregaContent({ brand }) {
 
   const downloadPDF = async () => {
     if (!logoRef.current) return;
-    setDownloading(true);
+    setDownloading('pdf');
     try {
-      const canvas = await html2canvas(logoRef.current, {
-        scale: 4, useCORS: true, backgroundColor: bgColor,
-      });
+      const canvas = await html2canvas(logoRef.current, { scale: 4, useCORS: true, backgroundColor: bgColor });
       const imgData = canvas.toDataURL('image/png');
       const pdf = new jsPDF({ orientation: 'portrait', unit: 'mm', format: [100, 100] });
       pdf.addImage(imgData, 'PNG', 0, 0, 100, 100);
-      pdf.save(`${editData.marca || 'logo'}-${bgColor === '#ffffff' ? 'branco' : bgColor === '#1a1a1a' ? 'escuro' : 'cor'}.pdf`);
+      pdf.save(`${marca || 'logo'}-com-fundo.pdf`);
+    } finally {
+      setDownloading(false);
+    }
+  };
+
+  const downloadTransparent = async () => {
+    if (!logoRef.current) return;
+    setDownloading('png');
+    try {
+      const canvas = await html2canvas(logoRef.current, { scale: 4, useCORS: true, backgroundColor: null });
+      const link = document.createElement('a');
+      link.download = `${marca || 'logo'}-sem-fundo.png`;
+      link.href = canvas.toDataURL('image/png');
+      link.click();
     } finally {
       setDownloading(false);
     }
@@ -126,13 +142,39 @@ function EntregaContent({ brand }) {
         {/* Controles */}
         <div style={{ marginTop: '1.4rem', display: 'flex', flexDirection: 'column', gap: '1rem' }}>
 
+          {/* Editar texto */}
+          <div>
+            <button
+              onClick={() => setShowEdit(v => !v)}
+              style={{ background: 'none', border: 'none', padding: 0, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '6px' }}
+            >
+              <SectionLabel>✏️ Editar texto {showEdit ? '▲' : '▼'}</SectionLabel>
+            </button>
+            {showEdit && (
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', marginTop: '6px' }}>
+                <input
+                  value={marca}
+                  onChange={e => setMarca(e.target.value)}
+                  placeholder="Nome da marca"
+                  style={{ width: '100%', padding: '10px 14px', borderRadius: '10px', border: '1px solid #e0e0e0', fontSize: '0.9rem', fontFamily: 'Montserrat, sans-serif', boxSizing: 'border-box' }}
+                />
+                <input
+                  value={tagline}
+                  onChange={e => setTagline(e.target.value)}
+                  placeholder="Tagline / frase da marca"
+                  style={{ width: '100%', padding: '10px 14px', borderRadius: '10px', border: '1px solid #e0e0e0', fontSize: '0.9rem', fontFamily: 'Montserrat, sans-serif', boxSizing: 'border-box' }}
+                />
+              </div>
+            )}
+          </div>
+
           {/* Fundo */}
           <div>
             <SectionLabel>Fundo</SectionLabel>
             <div style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
               {BG_OPTIONS.map(opt => (
                 <ColorDot
-                  key={opt.color}
+                  key={opt.label}
                   color={opt.color}
                   selected={bgColor === opt.color}
                   onClick={() => setBgColor(opt.color)}
@@ -147,12 +189,7 @@ function EntregaContent({ brand }) {
               <SectionLabel>Cor da logo</SectionLabel>
               <div style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
                 {paletteColors.map((hex, i) => (
-                  <ColorDot
-                    key={i}
-                    color={hex}
-                    selected={logoColor === hex}
-                    onClick={() => setLogoColor(hex)}
-                  />
+                  <ColorDot key={i} color={hex} selected={logoColor === hex} onClick={() => setLogoColor(hex)} />
                 ))}
               </div>
             </div>
@@ -162,31 +199,24 @@ function EntregaContent({ brand }) {
         {/* Botões */}
         <div style={{ marginTop: '1.6rem', display: 'flex', flexDirection: 'column', gap: '10px' }}>
           <button
-            onClick={downloadPDF}
-            disabled={downloading}
-            style={{
-              width: '100%', padding: '13px',
-              background: accentColor,
-              color: '#fff', border: 'none',
-              borderRadius: '30px', fontWeight: 700,
-              fontSize: '0.9rem', cursor: 'pointer',
-              opacity: downloading ? 0.6 : 1,
-              letterSpacing: '0.3px',
-            }}
+            onClick={downloadTransparent}
+            disabled={!!downloading}
+            style={{ width: '100%', padding: '13px', background: accentColor, color: '#fff', border: 'none', borderRadius: '30px', fontWeight: 700, fontSize: '0.9rem', cursor: 'pointer', opacity: downloading === 'png' ? 0.6 : 1 }}
           >
-            {downloading ? 'Gerando PDF...' : '⬇ Baixar logo em PDF'}
+            {downloading === 'png' ? 'Gerando...' : '⬇ Baixar PNG sem fundo'}
+          </button>
+          <button
+            onClick={downloadPDF}
+            disabled={!!downloading}
+            style={{ width: '100%', padding: '13px', background: 'none', color: accentColor, border: `1.5px solid ${accentColor}`, borderRadius: '30px', fontWeight: 700, fontSize: '0.9rem', cursor: 'pointer', opacity: downloading === 'pdf' ? 0.6 : 1 }}
+          >
+            {downloading === 'pdf' ? 'Gerando...' : '⬇ Baixar PDF com fundo'}
           </button>
 
           {step === 'logo' ? (
             <button
               onClick={() => setStep('submarca')}
-              style={{
-                width: '100%', padding: '13px',
-                background: 'none', color: '#888',
-                border: '1px solid #e0e0e0',
-                borderRadius: '30px', fontWeight: 600,
-                fontSize: '0.9rem', cursor: 'pointer',
-              }}
+              style={{ width: '100%', padding: '13px', background: 'none', color: '#888', border: '1px solid #e0e0e0', borderRadius: '30px', fontWeight: 600, fontSize: '0.9rem', cursor: 'pointer' }}
             >
               Próximo: Submarca →
             </button>
