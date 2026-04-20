@@ -1432,6 +1432,8 @@ export default function Home() {
                             ? { mimeType: generatedPatterns[selectedPattern].mimeType, base64: generatedPatterns[selectedPattern].base64 }
                             : null,
                           iconPath: getIconById(resultadoFinal?.estiloNome, selectedIcon)?.path || null,
+                          patternGenerationCount,
+                          estampas,
                         };
                         localStorage.setItem('brandbox_delivery', JSON.stringify(brandState));
                         const res = await fetch('/api/checkout', {
@@ -1489,6 +1491,8 @@ export default function Home() {
                             ? { mimeType: generatedPatterns[selectedPattern].mimeType, base64: generatedPatterns[selectedPattern].base64 }
                             : null,
                           iconPath: getIconById(resultadoFinal?.estiloNome, selectedIcon)?.path || null,
+                          patternGenerationCount,
+                          estampas,
                         };
                         localStorage.setItem('brandbox_delivery', JSON.stringify(brandState));
                         const res = await fetch('/api/checkout', {

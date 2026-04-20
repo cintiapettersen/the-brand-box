@@ -34,6 +34,120 @@ function SectionLabel({ children }) {
   );
 }
 
+const MAX_GENERATIONS = 3;
+
+function EstampaStep({ brand, accentColor, marca }) {
+  const [genCount, setGenCount] = useState(brand.patternGenerationCount || 0);
+  const [generating, setGenerating] = useState(false);
+  const [selectedIdx, setSelectedIdx] = useState(0);
+  const [patterns, setPatterns] = useState(brand.pattern ? [brand.pattern] : []);
+
+  const remaining = MAX_GENERATIONS - genCount;
+  const patternSrc = patterns[selectedIdx]
+    ? `data:${patterns[selectedIdx].mimeType};base64,${patterns[selectedIdx].base64}`
+    : null;
+
+  const generate = async () => {
+    if (genCount >= MAX_GENERATIONS) return;
+    setGenerating(true);
+    try {
+      const paletas = brand.paletas || [];
+      const sel = paletas.find(p => p.id === brand.selectedPaleta);
+      const cores = sel?.paleta_hex || sel?.cores_hex || [];
+      const estampas = brand.estampas || [];
+      const refs = estampas.slice(0, 2).map(e => e.image_url).filter(Boolean);
+
+      const res = await fetch('/api/generate-pattern', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          paleta: cores,
+          estiloNome: brand.resultadoFinal?.estiloNome || '',
+          marca: marca || brand.formData?.marca || '',
+          descricao: brand.resultadoFinal?.mensagem || '',
+          referenceUrls: refs,
+        }),
+      });
+      const data = await res.json();
+      const novos = (data.patterns || []).filter(p => p.base64);
+      if (novos.length > 0) {
+        setPatterns(prev => [...prev, ...novos]);
+        setSelectedIdx(patterns.length);
+        setGenCount(c => c + 1);
+      }
+    } catch (e) {
+      console.error(e);
+    } finally {
+      setGenerating(false);
+    }
+  };
+
+  const download = () => {
+    if (!patternSrc) return;
+    const link = document.createElement('a');
+    link.download = `${marca || 'estampa'}-padrao.png`;
+    link.href = patternSrc;
+    link.click();
+  };
+
+  return (
+    <div style={{ display: 'flex', flexDirection: 'column', gap: '1.2rem' }}>
+      {patternSrc ? (
+        <>
+          <div style={{
+            width: '100%', aspectRatio: '1 / 1', borderRadius: '16px',
+            boxShadow: '0 8px 40px rgba(0,0,0,0.10)',
+            backgroundImage: `url(${patternSrc})`,
+            backgroundSize: '50%', backgroundRepeat: 'repeat',
+          }} />
+          {patterns.length > 1 && (
+            <div style={{ display: 'flex', gap: '8px', justifyContent: 'center' }}>
+              {patterns.map((p, i) => (
+                <div
+                  key={i}
+                  onClick={() => setSelectedIdx(i)}
+                  style={{
+                    width: 44, height: 44, borderRadius: '8px', cursor: 'pointer',
+                    backgroundImage: `url(data:${p.mimeType};base64,${p.base64})`,
+                    backgroundSize: 'cover',
+                    border: selectedIdx === i ? `3px solid ${accentColor}` : '2px solid #e0e0e0',
+                    boxShadow: selectedIdx === i ? `0 0 0 1px ${accentColor}` : 'none',
+                  }}
+                />
+              ))}
+            </div>
+          )}
+        </>
+      ) : (
+        <div style={{ width: '100%', aspectRatio: '1/1', borderRadius: '16px', background: '#f5f5f5', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: '8px', color: '#bbb' }}>
+          <span style={{ fontSize: '2rem' }}>✨</span>
+          <span style={{ fontSize: '0.9rem' }}>Nenhuma estampa gerada ainda</span>
+        </div>
+      )}
+
+      <div style={{ display: 'flex', gap: '8px' }}>
+        {patternSrc && (
+          <button onClick={download} style={{ flex: 1, padding: '13px 8px', background: accentColor, color: '#fff', border: 'none', borderRadius: '30px', fontWeight: 700, fontSize: '0.82rem', cursor: 'pointer' }}>
+            ⬇ Baixar
+          </button>
+        )}
+        {remaining > 0 && (
+          <button
+            onClick={generate}
+            disabled={generating}
+            style={{ flex: 1, padding: '13px 8px', background: 'none', color: accentColor, border: `1.5px solid ${accentColor}`, borderRadius: '30px', fontWeight: 700, fontSize: '0.82rem', cursor: 'pointer', opacity: generating ? 0.6 : 1 }}
+          >
+            {generating ? 'Gerando...' : `✨ ${patternSrc ? 'Gerar nova' : 'Gerar estampa'}`}
+          </button>
+        )}
+      </div>
+      <p style={{ textAlign: 'center', fontSize: '0.72rem', color: '#bbb' }}>
+        {remaining > 0 ? `${remaining} geração${remaining > 1 ? 'ões' : ''} restante${remaining > 1 ? 's' : ''}` : 'Limite de gerações atingido'}
+      </p>
+    </div>
+  );
+}
+
 function EntregaContent({ brand }) {
   const [step, setStep] = useState('logo');
   const [bgColor, setBgColor] = useState('#ffffff');
@@ -132,40 +246,7 @@ function EntregaContent({ brand }) {
         </div>
 
         {/* Área da estampa */}
-        {step === 'estampa' && (() => {
-          const patternSrc = brand.pattern ? `data:${brand.pattern.mimeType};base64,${brand.pattern.base64}` : null;
-          const downloadEstampa = () => {
-            if (!patternSrc) return;
-            const link = document.createElement('a');
-            link.download = `${marca || 'estampa'}-padrao.png`;
-            link.href = patternSrc;
-            link.click();
-          };
-          return (
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '1.2rem' }}>
-              {patternSrc ? (
-                <div style={{
-                  width: '100%', aspectRatio: '1 / 1', borderRadius: '16px', overflow: 'hidden',
-                  boxShadow: '0 8px 40px rgba(0,0,0,0.10)',
-                  backgroundImage: `url(${patternSrc})`,
-                  backgroundSize: '50%',
-                  backgroundRepeat: 'repeat',
-                }} />
-              ) : (
-                <div style={{ width: '100%', aspectRatio: '1/1', borderRadius: '16px', background: '#f5f5f5', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#aaa', fontSize: '0.9rem' }}>
-                  Estampa não disponível
-                </div>
-              )}
-              <button
-                onClick={downloadEstampa}
-                disabled={!patternSrc}
-                style={{ width: '100%', padding: '13px', background: accentColor, color: '#fff', border: 'none', borderRadius: '30px', fontWeight: 700, fontSize: '0.9rem', cursor: 'pointer' }}
-              >
-                ⬇ Baixar estampa
-              </button>
-            </div>
-          );
-        })()}
+        {step === 'estampa' && <EstampaStep brand={brand} accentColor={accentColor} marca={marca} />}
 
         {/* Área da logo */}
         {step !== 'estampa' && <div
