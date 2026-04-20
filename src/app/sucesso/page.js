@@ -315,11 +315,9 @@ function EntregaContent({ brand }) {
           )}
           {step === 'submarca' && (
             <>
-              {brand.pattern && (
-                <button onClick={() => setStep('estampa')} style={{ width: '100%', padding: '13px', background: 'none', color: '#888', border: '1px solid #e0e0e0', borderRadius: '30px', fontWeight: 600, fontSize: '0.9rem', cursor: 'pointer' }}>
-                  Próximo: Estampa →
-                </button>
-              )}
+              <button onClick={() => setStep('estampa')} style={{ width: '100%', padding: '13px', background: 'none', color: '#888', border: '1px solid #e0e0e0', borderRadius: '30px', fontWeight: 600, fontSize: '0.9rem', cursor: 'pointer' }}>
+                Próximo: Estampa →
+              </button>
               <button onClick={() => setStep('logo')} style={{ width: '100%', padding: '13px', background: 'none', color: '#bbb', border: 'none', borderRadius: '30px', fontWeight: 600, fontSize: '0.85rem', cursor: 'pointer' }}>
                 ← Voltar para a logo
               </button>
