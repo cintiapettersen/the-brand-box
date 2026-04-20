@@ -69,7 +69,7 @@ function EstampaStep({ brand, accentColor, marca }) {
         }),
       });
       const data = await res.json();
-      const novos = (data.images || []).filter(p => p.base64);
+      const novos = (data.images || []).filter(p => p.base64).slice(0, 1);
       if (novos.length > 0) {
         setPatterns(prev => {
           setSelectedIdx(prev.length);
@@ -374,22 +374,24 @@ function EntregaContent({ brand }) {
 
         {/* Botões */}
         <div style={{ marginTop: '1.6rem', display: 'flex', flexDirection: 'column', gap: '10px' }}>
-          <div style={{ display: 'flex', gap: '8px' }}>
-            <button
-              onClick={downloadTransparent}
-              disabled={!!downloading}
-              style={{ flex: 1, padding: '13px 8px', background: accentColor, color: '#fff', border: 'none', borderRadius: '30px', fontWeight: 700, fontSize: '0.82rem', cursor: 'pointer', opacity: downloading === 'png' ? 0.6 : 1 }}
-            >
-              {downloading === 'png' ? '...' : '⬇ Sem fundo'}
-            </button>
-            <button
-              onClick={downloadComFundo}
-              disabled={!!downloading}
-              style={{ flex: 1, padding: '13px 8px', background: 'none', color: accentColor, border: `1.5px solid ${accentColor}`, borderRadius: '30px', fontWeight: 700, fontSize: '0.82rem', cursor: 'pointer', opacity: downloading === 'fundo' ? 0.6 : 1 }}
-            >
-              {downloading === 'fundo' ? '...' : '⬇ Com fundo'}
-            </button>
-          </div>
+          {step !== 'estampa' && (
+            <div style={{ display: 'flex', gap: '8px' }}>
+              <button
+                onClick={downloadTransparent}
+                disabled={!!downloading}
+                style={{ flex: 1, padding: '13px 8px', background: accentColor, color: '#fff', border: 'none', borderRadius: '30px', fontWeight: 700, fontSize: '0.82rem', cursor: 'pointer', opacity: downloading === 'png' ? 0.6 : 1 }}
+              >
+                {downloading === 'png' ? '...' : '⬇ Sem fundo'}
+              </button>
+              <button
+                onClick={downloadComFundo}
+                disabled={!!downloading}
+                style={{ flex: 1, padding: '13px 8px', background: 'none', color: accentColor, border: `1.5px solid ${accentColor}`, borderRadius: '30px', fontWeight: 700, fontSize: '0.82rem', cursor: 'pointer', opacity: downloading === 'fundo' ? 0.6 : 1 }}
+              >
+                {downloading === 'fundo' ? '...' : '⬇ Com fundo'}
+              </button>
+            </div>
+          )}
 
           {step === 'logo' && (
             <button onClick={() => setStep('submarca')} style={{ width: '100%', padding: '13px', background: 'none', color: '#888', border: '1px solid #e0e0e0', borderRadius: '30px', fontWeight: 600, fontSize: '0.9rem', cursor: 'pointer' }}>
