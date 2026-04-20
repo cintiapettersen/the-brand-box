@@ -16,9 +16,18 @@ const supabase = createClient(supabaseUrl, supabaseKey);
 
 export default function Home() {
   const [devMode, setDevMode] = useState(false);
+  const [devTapCount, setDevTapCount] = useState(0);
   useEffect(() => {
     setDevMode(new URLSearchParams(window.location.search).get('dev') === '1');
   }, []);
+  const handleDevTap = () => {
+    const next = devTapCount + 1;
+    setDevTapCount(next);
+    if (next >= 5) {
+      setDevMode(d => !d);
+      setDevTapCount(0);
+    }
+  };
 
   const [step, setStep] = useState(1);
   const [resultadoFinal, setResultadoFinal] = useState(null);
@@ -1087,7 +1096,7 @@ export default function Home() {
               style={{ position: 'absolute', width: '100%', height: '100%', display: 'flex', flexDirection: 'column', background: '#ffffff', borderRadius: '24px', overflow: 'hidden', border: '1px solid var(--border)' }}
             >
               <div style={{ padding: '2rem 2rem 0.5rem', textAlign: 'center' }}>
-                <p style={{ fontSize: '0.65rem', fontWeight: 600, letterSpacing: '3px', textTransform: 'uppercase', color: 'var(--accent-magenta)', marginBottom: '8px' }}>THE BRAND BOX</p>
+                <p onClick={handleDevTap} style={{ fontSize: '0.65rem', fontWeight: 600, letterSpacing: '3px', textTransform: 'uppercase', color: 'var(--accent-magenta)', marginBottom: '8px', cursor: 'default', userSelect: 'none' }}>THE BRAND BOX</p>
                 <h2 style={{ fontSize: '1.6rem', marginBottom: '0.5rem' }}>Sua Estampa Exclusiva</h2>
               </div>
 
