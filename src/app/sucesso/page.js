@@ -3,7 +3,7 @@ import { useSearchParams } from 'next/navigation';
 import { Suspense, useState, useEffect, useRef } from 'react';
 import BrandTemplateSVG from '../../components/BrandTemplateSVG';
 import html2canvas from 'html2canvas';
-import { jsPDF } from 'jspdf';
+
 
 function ColorDot({ color, selected, onClick, size = 32 }) {
   return (
@@ -62,21 +62,16 @@ function EntregaContent({ brand }) {
     { color: '#f0ece6', label: 'Neutro' },
   ];
 
-  const downloadPDF = async () => {
+  const downloadComFundo = async () => {
     if (!logoRef.current) return;
-    setDownloading('pdf');
+    setDownloading('fundo');
     const el = logoRef.current;
-    const prev = el.style.background;
     try {
-      el.style.background = '#ffffff';
-      const canvas = await html2canvas(el, { scale: 4, useCORS: true, backgroundColor: '#ffffff' });
-      el.style.background = prev;
-      const imgData = canvas.toDataURL('image/png');
-      const pdf = new jsPDF({ orientation: 'portrait', unit: 'mm', format: [100, 100] });
-      pdf.addImage(imgData, 'PNG', 0, 0, 100, 100);
-      pdf.save(`${marca || 'logo'}-branco.pdf`);
-    } catch {
-      el.style.background = prev;
+      const canvas = await html2canvas(el, { scale: 4, useCORS: true, backgroundColor: bgColor });
+      const link = document.createElement('a');
+      link.download = `${marca || 'logo'}-com-fundo.png`;
+      link.href = canvas.toDataURL('image/png');
+      link.click();
     } finally {
       setDownloading(false);
     }
@@ -210,20 +205,22 @@ function EntregaContent({ brand }) {
 
         {/* Botões */}
         <div style={{ marginTop: '1.6rem', display: 'flex', flexDirection: 'column', gap: '10px' }}>
-          <button
-            onClick={downloadTransparent}
-            disabled={!!downloading}
-            style={{ width: '100%', padding: '13px', background: accentColor, color: '#fff', border: 'none', borderRadius: '30px', fontWeight: 700, fontSize: '0.9rem', cursor: 'pointer', opacity: downloading === 'png' ? 0.6 : 1 }}
-          >
-            {downloading === 'png' ? 'Gerando...' : '⬇ Baixar PNG sem fundo'}
-          </button>
-          <button
-            onClick={downloadPDF}
-            disabled={!!downloading}
-            style={{ width: '100%', padding: '13px', background: 'none', color: accentColor, border: `1.5px solid ${accentColor}`, borderRadius: '30px', fontWeight: 700, fontSize: '0.9rem', cursor: 'pointer', opacity: downloading === 'pdf' ? 0.6 : 1 }}
-          >
-            {downloading === 'pdf' ? 'Gerando...' : '⬇ Baixar PDF com fundo'}
-          </button>
+          <div style={{ display: 'flex', gap: '8px' }}>
+            <button
+              onClick={downloadTransparent}
+              disabled={!!downloading}
+              style={{ flex: 1, padding: '13px 8px', background: accentColor, color: '#fff', border: 'none', borderRadius: '30px', fontWeight: 700, fontSize: '0.82rem', cursor: 'pointer', opacity: downloading === 'png' ? 0.6 : 1 }}
+            >
+              {downloading === 'png' ? '...' : '⬇ Sem fundo'}
+            </button>
+            <button
+              onClick={downloadComFundo}
+              disabled={!!downloading}
+              style={{ flex: 1, padding: '13px 8px', background: 'none', color: accentColor, border: `1.5px solid ${accentColor}`, borderRadius: '30px', fontWeight: 700, fontSize: '0.82rem', cursor: 'pointer', opacity: downloading === 'fundo' ? 0.6 : 1 }}
+            >
+              {downloading === 'fundo' ? '...' : '⬇ Com fundo'}
+            </button>
+          </div>
 
           {step === 'logo' ? (
             <button
