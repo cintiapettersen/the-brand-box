@@ -65,12 +65,18 @@ function EntregaContent({ brand }) {
   const downloadPDF = async () => {
     if (!logoRef.current) return;
     setDownloading('pdf');
+    const el = logoRef.current;
+    const prev = el.style.background;
     try {
-      const canvas = await html2canvas(logoRef.current, { scale: 4, useCORS: true, backgroundColor: bgColor });
+      el.style.background = '#ffffff';
+      const canvas = await html2canvas(el, { scale: 4, useCORS: true, backgroundColor: '#ffffff' });
+      el.style.background = prev;
       const imgData = canvas.toDataURL('image/png');
       const pdf = new jsPDF({ orientation: 'portrait', unit: 'mm', format: [100, 100] });
       pdf.addImage(imgData, 'PNG', 0, 0, 100, 100);
-      pdf.save(`${marca || 'logo'}-com-fundo.pdf`);
+      pdf.save(`${marca || 'logo'}-branco.pdf`);
+    } catch {
+      el.style.background = prev;
     } finally {
       setDownloading(false);
     }
@@ -79,12 +85,18 @@ function EntregaContent({ brand }) {
   const downloadTransparent = async () => {
     if (!logoRef.current) return;
     setDownloading('png');
+    const el = logoRef.current;
+    const prev = el.style.background;
     try {
-      const canvas = await html2canvas(logoRef.current, { scale: 4, useCORS: true, backgroundColor: null });
+      el.style.background = 'transparent';
+      const canvas = await html2canvas(el, { scale: 4, useCORS: true, backgroundColor: null });
+      el.style.background = prev;
       const link = document.createElement('a');
       link.download = `${marca || 'logo'}-sem-fundo.png`;
       link.href = canvas.toDataURL('image/png');
       link.click();
+    } catch {
+      el.style.background = prev;
     } finally {
       setDownloading(false);
     }
