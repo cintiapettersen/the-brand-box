@@ -45,7 +45,7 @@ export default function Home() {
     'Essência Atemporal':     ['Elegância que cuida, confiança que permanece', 'Sofisticação com propósito', 'Cuidado que não precisa se explicar'],
     'Doce Encantamento':      ['Delicadeza em cada detalhe', 'Feito com carinho para momentos especiais', 'Amor e cuidado em cada encontro'],
     'Raízes & Cuidado':       ['Da natureza para o seu cuidado', 'Natural, consciente e verdadeiro', 'Raízes que nutrem, cuidado que transforma'],
-    'Estético Editorial':     ['Precisão, cuidado e resultado', 'Onde ciência encontra beleza', 'Excelência que você vê e sente'],
+    'Estético Editorial':     ['Excelência e precisão em cada detalhe', 'A estética da autoridade', 'Projetando resultados de alto padrão', 'Técnica, elegância e exclusividade', 'A sofisticação de ser referência'],
   };
 
   const getTaglineSuggestions = () => {
@@ -396,7 +396,9 @@ export default function Home() {
            fontWeight: fontInfo.weight || 400,
            fontStyle: fontInfo.style || 'serif',
            fontSizeBoost: fontInfo.sizeBoost || 1,
-           fontLetterSpacing: fontInfo.letterSpacing || '0px'
+           fontLetterSpacing: fontInfo.letterSpacing || '0px',
+           fontLineHeight: fontInfo.lineHeight,
+           fontFeatureSettings: fontInfo.featureSettings
          }));
        }
      }
@@ -524,7 +526,7 @@ export default function Home() {
                       { id: 5, nome: 'Essência Atemporal' },
                       { id: 6, nome: 'Raízes & Cuidado' },
                       { id: 8, nome: 'Doce Encantamento' },
-                      { id: 10, nome: 'Estético Editorial' },
+                      { id: 11, nome: 'Estético Editorial' },
                     ].map(e => (
                       <button key={e.id} onClick={() => {
                         setFormData(prev => ({ ...prev, marca: prev.marca || 'Minha Marca', nome: prev.nome || 'Dev' }));
@@ -860,7 +862,7 @@ export default function Home() {
                               transition: 'all 0.2s ease',
                               boxShadow: selectedTipo === t.id ? '0 4px 15px rgba(60,204,191,0.2)' : 'none'
                             }}>
-                              <p style={{ fontFamily: `'${fontFamily}', serif`, fontWeight, fontSize: finalSize, textAlign: 'center', lineHeight: 1.2, color: '#333', letterSpacing: extraSpacing }}>
+                              <p style={{ fontFamily: `'${fontFamily}', serif`, fontWeight, fontSize: finalSize, textAlign: 'center', lineHeight: fontInfo?.lineHeight || 1.2, color: '#333', letterSpacing: extraSpacing, fontFeatureSettings: fontInfo?.featureSettings }}>
                                 {displayName}
                               </p>
                               <p style={{ fontSize: '0.5rem', color: '#aaa', marginTop: '8px', textTransform: 'uppercase', letterSpacing: '1.5px', fontFamily: "'Outfit', sans-serif" }}>
@@ -1179,7 +1181,7 @@ export default function Home() {
                                 ? raw.split(' ').map(w => w.charAt(0).toUpperCase() + w.slice(1).toLowerCase()).join(' ')
                                 : raw.toUpperCase();
                               return (
-                                <p style={{ fontSize: '1.1rem', fontWeight: 800, letterSpacing: editData.fontLetterSpacing || '1px', color: editData.corAtiva || '#333', lineHeight: 1.2, fontFamily: editData.fontFamily ? `'${editData.fontFamily}', serif` : 'inherit' }}>
+                                <p style={{ fontSize: '1.1rem', fontWeight: 800, letterSpacing: editData.fontLetterSpacing || '1px', color: editData.corAtiva || '#333', lineHeight: editData.fontLineHeight || 1.2, fontFamily: editData.fontFamily ? `'${editData.fontFamily}', serif` : 'inherit', fontFeatureSettings: editData.fontFeatureSettings }}>
                                   {name}
                                 </p>
                               );
@@ -1412,12 +1414,24 @@ export default function Home() {
                     </div>
                     <span style={{ display: 'inline-block', background: '#e8f7f5', color: '#1a7a6e', fontSize: '0.7rem', fontWeight: 700, borderRadius: '20px', padding: '3px 10px', letterSpacing: '0.5px', marginBottom: '10px' }}>Apenas logo tipográfica</span>
                     <ul style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', margin: '0 0 12px 0', paddingLeft: '0', display: 'flex', flexDirection: 'column', gap: '5px', listStyle: 'none' }}>
-                      {['Logo tipográfica + variações', 'Paleta de cores + tipografia', 'Guia simples de uso da marca', 'Cartão de visita interativo'].map(i => <li key={i} style={{ display: 'flex', alignItems: 'center', gap: '8px' }}><span style={{ color: 'var(--accent-turquoise)', fontWeight: 700 }}>✔</span>{i}</li>)}
+                      {['Logo tipográfica + variações', 'Estampa personalizada da marca', 'Paleta de cores + tipografia', 'Guia simples de uso da marca', 'Cartão de visita interativo'].map(i => <li key={i} style={{ display: 'flex', alignItems: 'center', gap: '8px' }}><span style={{ color: 'var(--accent-turquoise)', fontWeight: 700 }}>✔</span>{i}</li>)}
                     </ul>
                     <div style={{ background: '#f7f9ff', borderRadius: '10px', padding: '10px 12px', marginBottom: '12px', fontSize: '0.8rem', color: '#3a5a8a', lineHeight: 1.5 }}>
                       Após o pagamento, você recebe os arquivos da sua marca imediatamente por e-mail.
                     </div>
-                    <button className="btn-secondary" style={{ width: '100%', padding: '12px', fontSize: '0.9rem' }}>Começar minha marca</button>
+                    <button
+                      className="btn-secondary"
+                      style={{ width: '100%', padding: '12px', fontSize: '0.9rem' }}
+                      onClick={async () => {
+                        const res = await fetch('/api/checkout', {
+                          method: 'POST',
+                          headers: { 'Content-Type': 'application/json' },
+                          body: JSON.stringify({ plano: 'experience', marca: formData.marca, email: formData.email }),
+                        });
+                        const data = await res.json();
+                        if (data.url) window.location.href = data.url;
+                      }}
+                    >Começar minha marca</button>
                   </motion.div>
 
                   <p style={{ textAlign: 'center', color: 'var(--text-secondary)', fontSize: '0.85rem', fontStyle: 'italic', padding: '0 1rem', lineHeight: 1.6 }}>Você pode seguir sozinha —<br/>ou ter alguém criando com você.</p>
@@ -1432,7 +1446,7 @@ export default function Home() {
                     <span style={{ display: 'inline-block', background: 'rgba(220,52,149,0.12)', color: 'var(--accent-magenta)', fontSize: '0.7rem', fontWeight: 700, borderRadius: '20px', padding: '3px 10px', letterSpacing: '0.5px', marginBottom: '10px' }}>Logo tipográfica ou com ilustração</span>
                     <span style={{ fontWeight: 700, fontSize: '1.4rem', display: 'block', marginBottom: '10px', color: '#3a1a2e' }}>R$ 897</span>
                     <ul style={{ fontSize: '0.85rem', margin: '0 0 12px 0', paddingLeft: '0', display: 'flex', flexDirection: 'column', gap: '5px', listStyle: 'none' }}>
-                      {['Tudo do Brand Box Experience', 'Papelaria personalizada para sua marca', 'Templates editáveis para Instagram', 'Elementos visuais (mockups, ícones, avatares)', '✨ Manifesto da sua marca', '✨ Tom de voz e comunicação da marca'].map(i => (
+                      {['Tudo do Brand Box Experience', 'Papelaria personalizada para sua marca', 'Templates editáveis para Instagram', 'Elementos visuais (mockups, ícones, avatares)', '✨ Manifesto da sua marca', '✨ Tom de voz e comunicação da marca', '✨ Estampa exclusiva da marca'].map(i => (
                         <li key={i} style={{ display: 'flex', alignItems: 'center', gap: '8px', color: '#4a1f3a' }}>
                           {!i.startsWith('✨') && <span style={{ color: 'var(--accent-magenta)', fontWeight: 700 }}>✔</span>}
                           {i}
@@ -1442,7 +1456,19 @@ export default function Home() {
                     <div style={{ background: 'rgba(255,255,255,0.6)', borderRadius: '10px', padding: '10px 12px', marginBottom: '12px', fontSize: '0.8rem', color: '#5a2a4a', lineHeight: 1.5 }}>
                       Após o pagamento, entraremos em contato em até <strong>2 dias úteis</strong> pelo e-mail cadastrado para iniciar a criação da sua marca.
                     </div>
-                    <button className="btn-primary" style={{ width: '100%', padding: '12px', background: 'var(--accent-magenta)', color: '#fff', fontWeight: 700, fontSize: '0.9rem' }}>Quero minha marca completa</button>
+                    <button
+                      className="btn-primary"
+                      style={{ width: '100%', padding: '12px', background: 'var(--accent-magenta)', color: '#fff', fontWeight: 700, fontSize: '0.9rem' }}
+                      onClick={async () => {
+                        const res = await fetch('/api/checkout', {
+                          method: 'POST',
+                          headers: { 'Content-Type': 'application/json' },
+                          body: JSON.stringify({ plano: 'complete', marca: formData.marca, email: formData.email }),
+                        });
+                        const data = await res.json();
+                        if (data.url) window.location.href = data.url;
+                      }}
+                    >Quero minha marca completa</button>
                   </motion.div>
 
                   {/* PLANO 3 — Signature */}
