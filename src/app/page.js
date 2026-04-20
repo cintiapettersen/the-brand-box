@@ -1423,6 +1423,17 @@ export default function Home() {
                       className="btn-secondary"
                       style={{ width: '100%', padding: '12px', fontSize: '0.9rem' }}
                       onClick={async () => {
+                        const brandState = {
+                          editData, formData, resultadoFinal,
+                          selectedPaleta, selectedIcon, selectedTipo,
+                          paletas, tipografias,
+                          activeColor: editData.corAtiva,
+                          pattern: selectedPattern !== null && generatedPatterns[selectedPattern] && !generatedPatterns[selectedPattern]._devPlaceholder
+                            ? { mimeType: generatedPatterns[selectedPattern].mimeType, base64: generatedPatterns[selectedPattern].base64 }
+                            : null,
+                          iconPath: getIconById(resultadoFinal?.estiloNome, selectedIcon)?.path || null,
+                        };
+                        localStorage.setItem('brandbox_delivery', JSON.stringify(brandState));
                         const res = await fetch('/api/checkout', {
                           method: 'POST',
                           headers: { 'Content-Type': 'application/json' },
@@ -1446,12 +1457,21 @@ export default function Home() {
                     <span style={{ display: 'inline-block', background: 'rgba(220,52,149,0.12)', color: 'var(--accent-magenta)', fontSize: '0.7rem', fontWeight: 700, borderRadius: '20px', padding: '3px 10px', letterSpacing: '0.5px', marginBottom: '10px' }}>Logo tipográfica ou com ilustração</span>
                     <span style={{ fontWeight: 700, fontSize: '1.4rem', display: 'block', marginBottom: '10px', color: '#3a1a2e' }}>R$ 897</span>
                     <ul style={{ fontSize: '0.85rem', margin: '0 0 12px 0', paddingLeft: '0', display: 'flex', flexDirection: 'column', gap: '5px', listStyle: 'none' }}>
-                      {['Tudo do Brand Box Experience', 'Papelaria personalizada para sua marca', 'Templates editáveis para Instagram', 'Elementos visuais (mockups, ícones, avatares)', '✨ Manifesto da sua marca', '✨ Tom de voz e comunicação da marca', '✨ Estampa exclusiva da marca'].map(i => (
-                        <li key={i} style={{ display: 'flex', alignItems: 'center', gap: '8px', color: '#4a1f3a' }}>
-                          {!i.startsWith('✨') && <span style={{ color: 'var(--accent-magenta)', fontWeight: 700 }}>✔</span>}
-                          {i}
-                        </li>
-                      ))}
+                      {['Tudo do Brand Box Experience', 'Papelaria personalizada para sua marca', 'Templates editáveis para Instagram', 'Elementos visuais (mockups, ícones, avatares)', '✨ Manifesto da sua marca', '✨ Tom de voz e comunicação da marca', '✨ Estampa exclusiva da marca'].map(i => {
+                        const isPapelaria = i === 'Papelaria personalizada para sua marca';
+                        const isSaude = ['Pediatria / Saúde infantil', 'Obstetrícia / Saúde da mulher', 'Clínica / Saúde geral adulta', 'Terapia / Saúde mental', 'Estética / Bem-estar / Nutrição'].includes(formData.atuacao);
+                        return (
+                          <li key={i} style={{ display: 'flex', alignItems: 'center', gap: '8px', color: '#4a1f3a', flexWrap: 'wrap' }}>
+                            {!i.startsWith('✨') && <span style={{ color: 'var(--accent-magenta)', fontWeight: 700 }}>✔</span>}
+                            <span>{i}</span>
+                            {isPapelaria && isSaude && (
+                              <button onClick={() => setShowPediatriaModal(true)} style={{ background: 'rgba(220,52,149,0.1)', color: 'var(--accent-magenta)', border: 'none', padding: '3px 8px', borderRadius: '10px', fontSize: '0.7rem', fontWeight: 700, cursor: 'pointer', marginLeft: 'auto' }}>
+                                👀 Ver 29 opções de bônus
+                              </button>
+                            )}
+                          </li>
+                        );
+                      })}
                     </ul>
                     <div style={{ background: 'rgba(255,255,255,0.6)', borderRadius: '10px', padding: '10px 12px', marginBottom: '12px', fontSize: '0.8rem', color: '#5a2a4a', lineHeight: 1.5 }}>
                       Após o pagamento, entraremos em contato em até <strong>2 dias úteis</strong> pelo e-mail cadastrado para iniciar a criação da sua marca.
@@ -1460,6 +1480,17 @@ export default function Home() {
                       className="btn-primary"
                       style={{ width: '100%', padding: '12px', background: 'var(--accent-magenta)', color: '#fff', fontWeight: 700, fontSize: '0.9rem' }}
                       onClick={async () => {
+                        const brandState = {
+                          editData, formData, resultadoFinal,
+                          selectedPaleta, selectedIcon, selectedTipo,
+                          paletas, tipografias,
+                          activeColor: editData.corAtiva,
+                          pattern: selectedPattern !== null && generatedPatterns[selectedPattern] && !generatedPatterns[selectedPattern]._devPlaceholder
+                            ? { mimeType: generatedPatterns[selectedPattern].mimeType, base64: generatedPatterns[selectedPattern].base64 }
+                            : null,
+                          iconPath: getIconById(resultadoFinal?.estiloNome, selectedIcon)?.path || null,
+                        };
+                        localStorage.setItem('brandbox_delivery', JSON.stringify(brandState));
                         const res = await fetch('/api/checkout', {
                           method: 'POST',
                           headers: { 'Content-Type': 'application/json' },
