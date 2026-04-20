@@ -54,16 +54,7 @@ for f in "$DESTINO"/*.png "$DESTINO"/*.svg; do
       elif [[ "$acao" == "2" ]]; then
         echo ""
         echo "   Ícones atuais de $estilo:"
-        # Extrai ids e labels do estilo no styleIcons.js
-        IFS=$'\n' read -r -d '' -a ICONS_RAW < <(node --input-type=module <<NODEEOF && printf '\0'
-import fs from 'fs';
-const c = fs.readFileSync('${STYLE_ICONS}', 'utf8');
-const estilo = '${estilo}';
-const block = c.split("'" + estilo + "': [")[1]?.split(']')[0] || '';
-const matches = [...block.matchAll(/id: '([^']+)', label: '([^']*)'/g)];
-matches.forEach((m, i) => console.log((i+1) + '|' + m[1] + '|' + m[2]));
-NODEEOF
-        )
+        mapfile -t ICONS_RAW < <(node "$PROJETO/scripts/list-icons.mjs" "$estilo")
 
         for line in "${ICONS_RAW[@]}"; do
           num="${line%%|*}"
