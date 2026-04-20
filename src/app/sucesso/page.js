@@ -41,6 +41,7 @@ function EstampaStep({ brand, accentColor, marca }) {
   const [generating, setGenerating] = useState(false);
   const [selectedIdx, setSelectedIdx] = useState(0);
   const [patterns, setPatterns] = useState(brand.pattern ? [brand.pattern] : []);
+  const [showMockup, setShowMockup] = useState(false);
 
   const remaining = MAX_GENERATIONS - genCount;
   const patternSrc = patterns[selectedIdx]
@@ -94,28 +95,51 @@ function EstampaStep({ brand, accentColor, marca }) {
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '1.2rem' }}>
+      {patternSrc && (
+        <div style={{ display: 'flex', background: '#f0f0ee', borderRadius: '30px', padding: '3px', gap: '2px' }}>
+          {['Estampa', 'No consultório'].map(label => (
+            <button key={label} onClick={() => setShowMockup(label === 'No consultório')}
+              style={{ flex: 1, padding: '8px', borderRadius: '26px', border: 'none', cursor: 'pointer', fontSize: '0.8rem', fontWeight: 600, fontFamily: 'Montserrat, sans-serif',
+                background: (label === 'No consultório') === showMockup ? '#fff' : 'transparent',
+                color: (label === 'No consultório') === showMockup ? '#1a1a1a' : '#aaa',
+                boxShadow: (label === 'No consultório') === showMockup ? '0 1px 4px rgba(0,0,0,0.10)' : 'none',
+                transition: 'all 0.15s ease' }}>
+              {label}
+            </button>
+          ))}
+        </div>
+      )}
+
       {patternSrc ? (
         <>
-          <div style={{
-            width: '100%', aspectRatio: '1 / 1', borderRadius: '16px',
-            boxShadow: '0 8px 40px rgba(0,0,0,0.10)',
-            backgroundImage: `url(${patternSrc})`,
-            backgroundSize: '50%', backgroundRepeat: 'repeat',
-          }} />
+          {showMockup ? (
+            <div style={{ width: '100%', aspectRatio: '1 / 1', borderRadius: '16px', overflow: 'hidden', boxShadow: '0 8px 40px rgba(0,0,0,0.12)', position: 'relative' }}>
+              <img src="/mockups/clinica.jpg" alt="consultório" style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }} />
+              <div style={{
+                position: 'absolute', inset: 0,
+                backgroundImage: `url(${patternSrc})`,
+                backgroundSize: '28%', backgroundRepeat: 'repeat',
+                mixBlendMode: 'multiply',
+                opacity: 0.55,
+              }} />
+            </div>
+          ) : (
+            <div style={{
+              width: '100%', aspectRatio: '1 / 1', borderRadius: '16px',
+              boxShadow: '0 8px 40px rgba(0,0,0,0.10)',
+              backgroundImage: `url(${patternSrc})`,
+              backgroundSize: '50%', backgroundRepeat: 'repeat',
+            }} />
+          )}
           {patterns.length > 1 && (
             <div style={{ display: 'flex', gap: '8px', justifyContent: 'center' }}>
               {patterns.map((p, i) => (
-                <div
-                  key={i}
-                  onClick={() => setSelectedIdx(i)}
-                  style={{
-                    width: 44, height: 44, borderRadius: '8px', cursor: 'pointer',
+                <div key={i} onClick={() => setSelectedIdx(i)}
+                  style={{ width: 44, height: 44, borderRadius: '8px', cursor: 'pointer',
                     backgroundImage: `url(data:${p.mimeType};base64,${p.base64})`,
                     backgroundSize: 'cover',
                     border: selectedIdx === i ? `3px solid ${accentColor}` : '2px solid #e0e0e0',
-                    boxShadow: selectedIdx === i ? `0 0 0 1px ${accentColor}` : 'none',
-                  }}
-                />
+                    boxShadow: selectedIdx === i ? `0 0 0 1px ${accentColor}` : 'none' }} />
               ))}
             </div>
           )}
