@@ -5,103 +5,55 @@ DESTINO="/Users/cintiapettersen/.gemini/antigravity/scratch/next-app/public/icon
 PROJETO="/Users/cintiapettersen/.gemini/antigravity/scratch/next-app"
 STYLE_ICONS="$PROJETO/src/lib/styleIcons.js"
 
-echo "📂 Copiando ícones de todas as pastas de estilo..."
+echo "📂 Copiando ícones (somente arquivos icon-*)..."
 for pasta in "$ORIGEM"/*/; do
   src_icons="$pasta/icons"
   if [ -d "$src_icons" ]; then
-    echo "  → $(basename "$pasta")"
-    cp "$src_icons"/*.png "$DESTINO"/ 2>/dev/null
-    cp "$src_icons"/*.svg "$DESTINO"/ 2>/dev/null
+    count=$(ls "$src_icons"/icon-*.png "$src_icons"/icon-*.svg 2>/dev/null | wc -l | tr -d ' ')
+    if [ "$count" -gt "0" ]; then
+      echo "  → $(basename "$pasta") ($count ícones)"
+      cp "$src_icons"/icon-*.png "$DESTINO"/ 2>/dev/null
+      cp "$src_icons"/icon-*.svg "$DESTINO"/ 2>/dev/null
+    fi
   fi
 done
 
 cd "$PROJETO"
+git add public/icons/ 2>/dev/null
 
-ESTILOS=("Jardim Encantado" "Escandinavo Acolhedor" "Essência Atemporal" "Doce Encantamento" "Raízes & Cuidado" "Estético Editorial")
-MAPEOU=false
+CHANGED=$(git diff --cached --name-only public/icons/ | wc -l | tr -d ' ')
+
+if [ "$CHANGED" -eq "0" ]; then
+  echo ""
+  echo "✅ Nenhum ícone novo — tudo já está atualizado!"
+  exit 0
+fi
 
 echo ""
-for f in "$DESTINO"/*.png "$DESTINO"/*.svg; do
-  [ -f "$f" ] || continue
+echo "📦 Arquivos alterados:"
+git diff --cached --name-only public/icons/ | sed 's|public/icons/||'
+
+# Avisa sobre ícones sem mapeamento
+SEM_MAPA=()
+for f in $(git diff --cached --name-only public/icons/); do
   filename=$(basename "$f")
-
   if ! grep -qF "$filename" "$STYLE_ICONS"; then
-    echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
-    echo "🆕 Ícone novo: $filename"
-    echo ""
-    echo "   Qual estilo?"
-    for i in "${!ESTILOS[@]}"; do
-      echo "     $((i+1)). ${ESTILOS[$i]}"
-    done
-    echo "     0. Pular"
-    echo ""
-    read -p "   Número: " estilo_num
-
-    if [[ "$estilo_num" -ge 1 && "$estilo_num" -le ${#ESTILOS[@]} ]]; then
-      estilo="${ESTILOS[$((estilo_num-1))]}"
-      echo ""
-      echo "   O que fazer?"
-      echo "     1. Adicionar como ícone novo"
-      echo "     2. Substituir um ícone existente"
-      echo ""
-      read -p "   Opção: " acao
-
-      if [[ "$acao" == "1" ]]; then
-        read -p "   Nome bonito (ex: Tulipa): " label
-        node "$PROJETO/scripts/add-icon.mjs" add "$filename" "$estilo" "$label"
-        MAPEOU=true
-
-      elif [[ "$acao" == "2" ]]; then
-        echo ""
-        echo "   Ícones atuais de $estilo:"
-        ICONS_RAW=()
-        while IFS= read -r line; do
-          ICONS_RAW+=("$line")
-        done < <(node "$PROJETO/scripts/list-icons.mjs" "$estilo")
-
-        for line in "${ICONS_RAW[@]}"; do
-          num="${line%%|*}"
-          rest="${line#*|}"
-          id="${rest%%|*}"
-          lbl="${rest#*|}"
-          echo "     $num. $lbl ($id)"
-        done
-
-        echo ""
-        read -p "   Número do ícone a substituir: " icon_num
-        icon_line="${ICONS_RAW[$((icon_num-1))]}"
-        old_id="${icon_line#*|}"
-        old_id="${old_id%%|*}"
-        old_label="${icon_line##*|}"
-
-        read -p "   Nome bonito [Enter para manter '$old_label']: " label
-        [ -z "$label" ] && label="$old_label"
-
-        node "$PROJETO/scripts/add-icon.mjs" replace "$filename" "$estilo" "$old_id" "$label"
-        MAPEOU=true
-      fi
-    fi
-    echo ""
+    SEM_MAPA+=("$filename")
   fi
 done
 
-echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
-echo "📦 Subindo para o GitHub..."
+git commit -m "atualiza icones ($CHANGED arquivo(s))"
+git push
 
-if [ "$MAPEOU" = true ]; then
-  git add public/icons/ src/lib/styleIcons.js
-else
-  git add public/icons/
-fi
+echo ""
+echo "🚀 Publicado no Vercel!"
 
-CHANGED=$(git diff --cached --name-only | wc -l | tr -d ' ')
-
-if [ "$CHANGED" -eq "0" ]; then
-  echo "✅ Nenhum ícone novo — tudo já estava atualizado!"
-else
-  git diff --cached --name-only | head -10
-  git commit -m "atualiza icones ($CHANGED arquivo(s) alterado(s))"
-  git push
+if [ ${#SEM_MAPA[@]} -gt 0 ]; then
   echo ""
-  echo "🚀 Pronto! $CHANGED arquivo(s) publicado(s) no Vercel."
+  echo "⚠️  Estes ícones ainda precisam ser mapeados no styleIcons.js:"
+  for f in "${SEM_MAPA[@]}"; do
+    echo "     → $f"
+  done
+  echo ""
+  echo "   Abra src/lib/styleIcons.js e adicione a linha do ícone no estilo correto."
 fi
