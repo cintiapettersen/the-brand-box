@@ -15,6 +15,11 @@ const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
 const supabase = createClient(supabaseUrl, supabaseKey);
 
 export default function Home() {
+  const [devMode, setDevMode] = useState(false);
+  useEffect(() => {
+    setDevMode(new URLSearchParams(window.location.search).get('dev') === '1');
+  }, []);
+
   const [step, setStep] = useState(1);
   const [resultadoFinal, setResultadoFinal] = useState(null);
   const [selectedTagline, setSelectedTagline] = useState('');
@@ -296,6 +301,14 @@ export default function Home() {
   const MAX_PATTERN_GENERATIONS = 3;
 
   const generatePatterns = async () => {
+    if (devMode) {
+      setGeneratedPatterns([
+        { base64: null, mimeType: null, _devPlaceholder: true },
+        { base64: null, mimeType: null, _devPlaceholder: true },
+        { base64: null, mimeType: null, _devPlaceholder: true },
+      ]);
+      return;
+    }
     if (patternGenerationCount >= MAX_PATTERN_GENERATIONS) {
       alert('Você atingiu o limite de 3 gerações de estampa. Tente novamente amanhã!');
       return;
@@ -1127,10 +1140,13 @@ export default function Home() {
                             transition: 'all 0.2s ease'
                           }}
                         >
-                          <img 
-                            src={`data:${p.mimeType};base64,${p.base64}`}
-                            style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }}
-                          />
+                          {p._devPlaceholder ? (
+                            <div style={{ width: '100%', height: '100%', background: `hsl(${i * 60 + 200}, 30%, 85%)`, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                              <span style={{ fontSize: '0.65rem', color: '#666', fontWeight: 700 }}>DEV PLACEHOLDER {i + 1}</span>
+                            </div>
+                          ) : (
+                            <img src={`data:${p.mimeType};base64,${p.base64}`} style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }} />
+                          )}
                           <div style={{
                             position: 'absolute', bottom: '15%', left: '10%', right: '10%',
                             background: 'rgba(255,255,255,0.92)', borderRadius: '6px',
@@ -1205,7 +1221,7 @@ export default function Home() {
                       return ['#eee','#ddd','#ccc','#bbb','#aaa'];
                     })()} 
                     color={editData.corAtiva || '#d22f5a'}
-                    patternImage={selectedPattern !== null && generatedPatterns[selectedPattern] ? `data:${generatedPatterns[selectedPattern].mimeType};base64,${generatedPatterns[selectedPattern].base64}` : null}
+                    patternImage={selectedPattern !== null && generatedPatterns[selectedPattern] && !generatedPatterns[selectedPattern]._devPlaceholder ? `data:${generatedPatterns[selectedPattern].mimeType};base64,${generatedPatterns[selectedPattern].base64}` : null}
                     iconPath={getIconById(resultadoFinal?.estiloNome, selectedIcon)?.path || null}
                   />
                 </div>
