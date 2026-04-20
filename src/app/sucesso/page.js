@@ -69,10 +69,12 @@ function EstampaStep({ brand, accentColor, marca }) {
         }),
       });
       const data = await res.json();
-      const novos = (data.patterns || []).filter(p => p.base64);
+      const novos = (data.images || []).filter(p => p.base64);
       if (novos.length > 0) {
-        setPatterns(prev => [...prev, ...novos]);
-        setSelectedIdx(patterns.length);
+        setPatterns(prev => {
+          setSelectedIdx(prev.length);
+          return [...prev, ...novos];
+        });
         setGenCount(c => c + 1);
       }
     } catch (e) {
@@ -142,7 +144,7 @@ function EstampaStep({ brand, accentColor, marca }) {
         )}
       </div>
       <p style={{ textAlign: 'center', fontSize: '0.72rem', color: '#bbb' }}>
-        {remaining > 0 ? `${remaining} geração${remaining > 1 ? 'ões' : ''} restante${remaining > 1 ? 's' : ''}` : 'Limite de gerações atingido'}
+        {remaining > 0 ? `${remaining} ${remaining > 1 ? 'gerações restantes' : 'geração restante'}` : 'Limite de gerações atingido'}
       </p>
     </div>
   );
