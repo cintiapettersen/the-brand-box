@@ -2,9 +2,9 @@ export const STYLE_ICONS = {
   'Jardim Encantado': [
     { id: 'flor-amor',        label: 'Flor Amor',     path: '/icons/icon-flor-amor_infantil.png' },
     { id: 'flor-delicadeza',  label: 'Flor Suave',    path: '/icons/icon-flor-delicadeza_suave.png' },
-    { id: 'flor-ludico',      label: 'Flor Lúdica',   path: '/icons/icon-flor-ludico_divertido.png' },
+    { id: '62998870CE5E4F49', label: 'Flor Lúdica', path: '/icons/62998870CE5E4F49.png' },
     { id: 'flor-simples',     label: 'Flor Feliz',    path: '/icons/icon-flor-simplicidade_feliz.png' },
-    { id: 'passaro-jardim',   label: 'Passarinho',    path: '/icons/icon-passaro-fofura_amigavel.png' },
+    { id: '62998870CE5E4F4A', label: 'Passarinho', path: '/icons/62998870CE5E4F4A.png' },
     { id: 'flor-tulips',      label: 'Tulipa',        path: '/icons/icon-flor-de-tulips.png' },
   ],
   'Escandinavo Acolhedor': [
