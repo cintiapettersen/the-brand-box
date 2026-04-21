@@ -192,7 +192,7 @@ function buildLink(key, value) {
   } catch { return null; }
 }
 
-function CartaoStep({ brand, accentColor, paletteColors, marca, estampaPatterns, slogan, setSlogan, contacts, setContacts, qrLink, setQrLink, showQR, setShowQR }) {
+function CartaoStep({ brand, accentColor, paletteColors, marca, estampaPatterns, contacts, setContacts, qrLink, setQrLink, showQR, setShowQR }) {
   const editData = brand.editData || {};
 
   const setContact = (key, val) => setContacts(prev => ({ ...prev, [key]: val }));
@@ -229,7 +229,7 @@ function CartaoStep({ brand, accentColor, paletteColors, marca, estampaPatterns,
       ${editData.tagline ? `<p style="font-size:0.7rem;color:#aaa;text-transform:uppercase;letter-spacing:2px;margin-top:4px;">${editData.tagline}</p>` : ''}
     </div>
     <div style="width:50%;height:1px;background:#eee;"></div>
-    ${slogan ? `<p style="text-align:center;font-size:1.1rem;font-style:italic;color:#444;font-family:'${editData.fontFamily || 'Playfair Display'}',serif;line-height:1.6;">${slogan}</p>` : ''}
+    <p style="text-align:center;font-size:0.72rem;color:#aaa;font-family:'Montserrat',sans-serif;letter-spacing:0.5px;">Como prefere entrar em contato?</p>
     ${activeContacts.length > 0 ? `<div style="display:flex;flex-wrap:wrap;gap:8px;justify-content:flex-start;width:100%;margin-top:4px;">${iconsHtml}</div>` : ''}
     ${qrHtml}
   </div>
@@ -267,11 +267,9 @@ function CartaoStep({ brand, accentColor, paletteColors, marca, estampaPatterns,
             <BrandTemplateSVG data={editData} color={accentColor} side='frente' hideBackground={true} />
           </div>
           <div style={{ width: '50%', height: '1px', background: '#eee' }} />
-          {slogan && (
-            <p style={{ margin: 0, textAlign: 'center', fontSize: '1.65rem', fontStyle: 'italic', color: '#444', fontFamily: `'${editData.fontFamily || 'Playfair Display'}', serif`, lineHeight: 1.4 }}>
-              {slogan}
-            </p>
-          )}
+          <p style={{ margin: 0, textAlign: 'center', fontSize: '0.72rem', color: '#aaa', fontFamily: 'Montserrat, sans-serif', letterSpacing: '0.5px' }}>
+            Como prefere entrar em contato?
+          </p>
           {activeContacts.length > 0 && (
             <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px', justifyContent: 'flex-start', width: '100%', marginTop: '4px' }}>
               {activeContacts.map((f, i) => {
@@ -289,8 +287,8 @@ function CartaoStep({ brand, accentColor, paletteColors, marca, estampaPatterns,
               })}
             </div>
           )}
-          {activeContacts.length === 0 && !slogan && (
-            <p style={{ color: '#ccc', fontSize: '0.8rem', textAlign: 'center' }}>Preencha os campos abaixo para montar seu cartão</p>
+          {activeContacts.length === 0 && (
+            <p style={{ color: '#ccc', fontSize: '0.8rem', textAlign: 'center' }}>Preencha os contatos abaixo</p>
           )}
         </div>
       </div>
@@ -313,8 +311,6 @@ function CartaoStep({ brand, accentColor, paletteColors, marca, estampaPatterns,
 
       {/* Campos editáveis */}
       <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
-        <SectionLabel>Slogan / Frase (opcional)</SectionLabel>
-        <input value={slogan} onChange={e => setSlogan(e.target.value)} placeholder="Ex: Cuidado com amor desde o primeiro olhar" style={inputStyle} />
         <SectionLabel>Contatos</SectionLabel>
         {CONTACT_FIELDS.map(f => (
           <input key={f.key} value={contacts[f.key]} onChange={e => setContact(f.key, e.target.value)} placeholder={f.label} style={inputStyle} />
@@ -761,7 +757,6 @@ function EntregaContent({ brand }) {
   const [estampaSelectedIdx, setEstampaSelectedIdx] = useState(0);
   const coresRef = useRef(null);
   const [downloadingCores, setDownloadingCores] = useState(false);
-  const [cartaoSlogan, setCartaoSlogan] = useState(brand.editData?.tagline || '');
   const [cartaoContacts, setCartaoContacts] = useState({ telefone: '', whatsapp: '', email: '', site: '', instagram: '', endereco: '' });
   const [cartaoQrLink, setCartaoQrLink] = useState('');
   const [cartaoShowQR, setCartaoShowQR] = useState(false);
@@ -876,7 +871,7 @@ function EntregaContent({ brand }) {
         {step === 'cores' && <CoresStep paletteColors={paletteColors} accentColor={accentColor} paletaNome={paletas?.find(p => p.id === brand.selectedPaleta)?.nome_variacao} coresRef={coresRef} />}
 
         {/* Cartão digital */}
-        {step === 'cartao' && <CartaoStep brand={brand} accentColor={accentColor} paletteColors={paletteColors} marca={marca} estampaPatterns={estampaPatterns} slogan={cartaoSlogan} setSlogan={setCartaoSlogan} contacts={cartaoContacts} setContacts={setCartaoContacts} qrLink={cartaoQrLink} setQrLink={setCartaoQrLink} showQR={cartaoShowQR} setShowQR={setCartaoShowQR} />}
+        {step === 'cartao' && <CartaoStep brand={brand} accentColor={accentColor} paletteColors={paletteColors} marca={marca} estampaPatterns={estampaPatterns} contacts={cartaoContacts} setContacts={setCartaoContacts} qrLink={cartaoQrLink} setQrLink={setCartaoQrLink} showQR={cartaoShowQR} setShowQR={setCartaoShowQR} />}
 
         {/* Guia da marca */}
         {step === 'guia' && <GuiaStep brand={brand} accentColor={accentColor} paletteColors={paletteColors} marca={marca} tagline={tagline} estampaPatterns={estampaPatterns} editData={editData} />}
