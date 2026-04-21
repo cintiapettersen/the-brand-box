@@ -745,14 +745,8 @@ function GuiaStep({ brand, accentColor, paletteColors, marca, tagline, estampaPa
 }
 
 function EntregaContent({ brand }) {
-  const CARTAO_KEY = 'brandbox_cartao';
-  const STEP_KEY = 'brandbox_step';
-
-  const savedCartao = (() => { try { return JSON.parse(localStorage.getItem(CARTAO_KEY) || '{}'); } catch { return {}; } })();
-  const savedStep = (() => { try { return localStorage.getItem(STEP_KEY) || 'logo'; } catch { return 'logo'; } })();
-
-  const [step, setStepState] = useState(savedStep);
-  const setStep = (s) => { setStepState(s); try { localStorage.setItem(STEP_KEY, s); } catch {} };
+  const [step, setStepState] = useState(() => { try { return localStorage.getItem('brandbox_step') || 'logo'; } catch { return 'logo'; } });
+  const setStep = (s) => { setStepState(s); try { localStorage.setItem('brandbox_step', s); } catch {} };
 
   const [bgColor, setBgColor] = useState('#ffffff');
   const [logoColor, setLogoColor] = useState(brand.activeColor || '#dc3495');
@@ -765,27 +759,13 @@ function EntregaContent({ brand }) {
   const [estampaSelectedIdx, setEstampaSelectedIdx] = useState(0);
   const coresRef = useRef(null);
   const [downloadingCores, setDownloadingCores] = useState(false);
-  const [cartaoContacts, setCartaoContactsState] = useState(savedCartao.contacts || { telefone: '', whatsapp: '', email: '', site: '', instagram: '', endereco: '' });
-  const [cartaoQrLink, setCartaoQrLinkState] = useState(savedCartao.qrLink || '');
-  const [cartaoShowQR, setCartaoShowQRState] = useState(savedCartao.showQR || false);
+  const [cartaoContacts, setCartaoContacts] = useState(() => { try { return JSON.parse(localStorage.getItem('brandbox_cartao') || '{}').contacts || { telefone: '', whatsapp: '', email: '', site: '', instagram: '', endereco: '' }; } catch { return { telefone: '', whatsapp: '', email: '', site: '', instagram: '', endereco: '' }; } });
+  const [cartaoQrLink, setCartaoQrLink] = useState(() => { try { return JSON.parse(localStorage.getItem('brandbox_cartao') || '{}').qrLink || ''; } catch { return ''; } });
+  const [cartaoShowQR, setCartaoShowQR] = useState(() => { try { return JSON.parse(localStorage.getItem('brandbox_cartao') || '{}').showQR || false; } catch { return false; } });
 
-  const persistCartao = (patch) => {
-    try {
-      const cur = JSON.parse(localStorage.getItem(CARTAO_KEY) || '{}');
-      localStorage.setItem(CARTAO_KEY, JSON.stringify({ ...cur, ...patch }));
-    } catch {}
-  };
-  const setCartaoContacts = (fn) => setCartaoContactsState(prev => {
-    const next = typeof fn === 'function' ? fn(prev) : fn;
-    persistCartao({ contacts: next });
-    return next;
-  });
-  const setCartaoQrLink = (v) => { setCartaoQrLinkState(v); persistCartao({ qrLink: v }); };
-  const setCartaoShowQR = (fn) => setCartaoShowQRState(prev => {
-    const next = typeof fn === 'function' ? fn(prev) : fn;
-    persistCartao({ showQR: next });
-    return next;
-  });
+  useEffect(() => {
+    try { localStorage.setItem('brandbox_cartao', JSON.stringify({ contacts: cartaoContacts, qrLink: cartaoQrLink, showQR: cartaoShowQR })); } catch {}
+  }, [cartaoContacts, cartaoQrLink, cartaoShowQR]);
 
   const downloadCoresPNG = async () => {
     if (!coresRef.current) return;
