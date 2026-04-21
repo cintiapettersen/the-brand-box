@@ -183,14 +183,43 @@ button {
 /* ============================================ */
 /* MOBILE RESPONSIVE UTILITIES                  */
 /* ============================================ */
+.wizard-step {
+  padding: 3rem;
+  justify-content: center;
+}
+
+.brand-board-wrapper {
+  transform: scale(0.82);
+  transform-origin: top center;
+  margin-bottom: -15%;
+}
+
 @media (max-width: 768px) {
-  .mobile-col {
-    flex-direction: column !important;
+  .mobile-col { flex-direction: column !important; }
+  .mobile-wrap { flex-wrap: wrap !important; }
+  .mobile-font-sm { font-size: 0.95rem !important; }
+  
+  .wizard-step {
+    padding: 5rem 1.5rem 2rem 1.5rem !important;
+    justify-content: flex-start !important;
+    overflow-y: auto !important;
   }
-  .mobile-wrap {
-    flex-wrap: wrap !important;
+  
+  .brand-board-wrapper {
+    transform: scale(0.42) !important;
+    transform-origin: top left !important;
+    margin-bottom: -55% !important;
   }
-  .mobile-font-sm {
-    font-size: 0.85rem !important;
+  
+  /* Flexbox fix for the cropped BrandBoard on Mobile Safari */
+  .brand-board-container {
+    justify-content: flex-start !important;
+    padding-left: 5vw !important; /* Visual centering against scaled item */
+  }
+}
+@media (max-width: 400px) {
+  .brand-board-wrapper {
+    transform: scale(0.38) !important;
+    margin-bottom: -60% !important;
   }
 }
