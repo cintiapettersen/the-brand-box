@@ -1323,7 +1323,7 @@ export default function Home() {
               })()}
 
               <div style={{ padding: '1.2rem', background: '#fff', borderTop: '1px solid var(--border)', zIndex: 10, display: 'flex', flexDirection: 'column', gap: '10px' }}>
-                 <button onClick={() => { setApprovalChecked(false); setStep(12.8); }} className="btn-primary" style={{ width: '100%', background: 'var(--accent-magenta)' }}>Continuar para o Checkout ✨</button>
+                 <button onClick={() => { setApprovalChecked(false); setStep(12.8); }} className="btn-primary" style={{ width: '100%', background: 'var(--accent-magenta)' }}>Ver pacotes disponíveis ✨</button>
               </div>
             </motion.div>
           )}
