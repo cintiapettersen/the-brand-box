@@ -36,11 +36,302 @@ function SectionLabel({ children }) {
 
 const MAX_GENERATIONS = 3;
 
-function EstampaStep({ brand, accentColor, marca }) {
-  const [genCount, setGenCount] = useState(brand.patternGenerationCount || 0);
+function hexToRgb(hex) {
+  const h = hex.replace('#', '');
+  return [parseInt(h.slice(0,2),16), parseInt(h.slice(2,4),16), parseInt(h.slice(4,6),16)];
+}
+
+function tint(hex, amount) {
+  const [r,g,b] = hexToRgb(hex);
+  const t = v => Math.round(v + (255-v)*amount).toString(16).padStart(2,'0');
+  return `#${t(r)}${t(g)}${t(b)}`;
+}
+
+// Mesmo dicionário afetivo do BrandBoard — garante consistência
+const COLOR_PALETTE_AFETIVA = [
+  [255,198,37,'Sol de Verão'],[255,223,186,'Pêssego Suave'],[255,182,193,'Rosa Algodão'],
+  [255,105,120,'Framboesa'],[220,20,60,'Carmim Intenso'],[255,0,100,'Dose de Amor'],
+  [180,0,60,'Amora Selvagem'],[255,140,0,'Âmbar Quente'],[230,100,30,'Terracota'],
+  [210,140,100,'Adobe Rosado'],[188,143,143,'Rosewood Suave'],[205,170,125,'Linho Dourado'],
+  [245,222,179,'Baunilha'],[250,240,227,'Creme Delicado'],[144,238,144,'Verde Menta'],
+  [102,204,102,'Musgo Vivo'],[60,140,60,'Folha Densa'],[34,100,34,'Floresta'],
+  [143,188,143,'Salvia'],[176,224,230,'Névoa Matinal'],[135,206,250,'Céu Aberto'],
+  [100,180,230,'Azul Serenidade'],[70,130,180,'Azul Aço'],[25,90,180,'Índigo Profundo'],
+  [100,149,237,'Azul Lavanda'],[60,100,200,'Safira'],[0,70,140,'Azul Marinho'],
+  [200,162,200,'Lavanda Rosa'],[186,130,200,'Malva Seda'],[148,103,189,'Ametista'],
+  [102,51,153,'Violeta Real'],[80,0,120,'Roxo Profundo'],[255,228,225,'Misty Rose'],
+  [255,192,203,'Blush Seda'],[240,200,220,'Quartzo Rosa'],[220,180,200,'Rosé Antigo'],
+  [190,150,170,'Borgonha Suave'],[245,245,245,'Branco Algodão'],[220,220,220,'Prata Suave'],
+  [180,180,180,'Cinza Névoa'],[120,120,120,'Granito'],[60,60,60,'Carvão'],
+  [30,30,30,'Noite Profunda'],[255,250,200,'Limão Docinho'],[200,230,170,'Pistache'],
+  [170,220,200,'Água Turquesa'],[64,190,172,'Verde Jade'],[0,150,136,'Esmeralda Serena'],
+  [255,87,51,'Coral Vivo'],[255,160,122,'Salmão'],[210,105,30,'Canela'],
+];
+
+function colorNamePT(hex) {
+  if (!hex || hex.length < 7) return 'Cor Especial';
+  const [r,g,b] = hexToRgb(hex);
+  let minDist = Infinity, bestName = 'Tom Especial';
+  for (const [cr,cg,cb,name] of COLOR_PALETTE_AFETIVA) {
+    const dist = Math.sqrt((r-cr)**2+(g-cg)**2+(b-cb)**2);
+    if (dist < minDist) { minDist = dist; bestName = name; }
+  }
+  return bestName;
+}
+
+function CopyHex({ hex, accent }) {
+  const [copied, setCopied] = useState(false);
+  const copy = () => {
+    navigator.clipboard.writeText(hex);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 1500);
+  };
+  return (
+    <button onClick={copy} style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 0, display: 'flex', alignItems: 'center', gap: '4px' }}>
+      <span style={{ fontSize: '0.72rem', color: '#888', fontFamily: 'monospace', letterSpacing: '0.5px' }}>{hex}</span>
+      <span style={{ fontSize: '0.6rem', color: copied ? accent : '#ccc', fontWeight: 700, transition: 'color 0.2s' }}>{copied ? '✓' : '⎘'}</span>
+    </button>
+  );
+}
+
+function formatPaletaNome(nome) {
+  if (!nome) return '';
+  return nome.split('-')
+    .filter(w => w && !/^\d+$/.test(w) && w.toLowerCase() !== 'paleta')
+    .map(w => w.charAt(0).toUpperCase() + w.slice(1).toLowerCase())
+    .join(' ');
+}
+
+function CoresStep({ paletteColors, accentColor, paletaNome, coresRef }) {
+  const tints = [0.25, 0.50, 0.72, 0.88];
+  const roleLabels = ['Principal', 'Secundária', 'Terciária', 'Complementar', 'Apoio'];
+
+  return (
+    <div ref={coresRef} style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+      {paletaNome && (
+        <p style={{ margin: 0, fontSize: '0.72rem', color: '#aaa', textTransform: 'uppercase', letterSpacing: '2px', fontWeight: 700 }}>
+          {formatPaletaNome(paletaNome)}
+        </p>
+      )}
+      {paletteColors.map((hex, ci) => (
+        <div key={ci} style={{ borderRadius: '16px', overflow: 'hidden', boxShadow: '0 4px 20px rgba(0,0,0,0.08)', background: '#fff' }}>
+          {/* Swatch principal */}
+          <div style={{ background: hex, height: '100px', padding: '14px 16px', display: 'flex', flexDirection: 'column', justifyContent: 'flex-end' }}>
+            <p style={{ margin: 0, fontSize: '0.62rem', color: 'rgba(255,255,255,0.7)', textTransform: 'uppercase', letterSpacing: '1.5px', fontWeight: 700 }}>
+              {roleLabels[ci] || 'Cor'}
+            </p>
+            <p style={{ margin: 0, fontSize: '1rem', fontWeight: 700, color: '#fff', textShadow: '0 1px 4px rgba(0,0,0,0.2)' }}>
+              {colorNamePT(hex)}
+            </p>
+          </div>
+          {/* Hex principal */}
+          <div style={{ padding: '8px 16px 6px', borderBottom: '1px solid #f0f0f0', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+            <span style={{ fontSize: '0.62rem', color: '#bbb', textTransform: 'uppercase', letterSpacing: '1px', fontWeight: 700 }}>cor paleta principal</span>
+            <CopyHex hex={hex} accent={accentColor} />
+          </div>
+          {/* Tints */}
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)' }}>
+            {tints.map((amount, ti) => {
+              const tHex = tint(hex, amount);
+              return (
+                <div key={ti} style={{ borderRight: ti < 3 ? '1px solid #f0f0f0' : 'none' }}>
+                  <div style={{ background: tHex, height: '54px' }} />
+                  <div style={{ padding: '6px 8px', borderTop: '1px solid #f0f0f0' }}>
+                    <p style={{ margin: '0 0 2px', fontSize: '0.55rem', color: '#ccc', textTransform: 'uppercase', letterSpacing: '0.8px', fontWeight: 700 }}>tom {ti+1}</p>
+                    <CopyHex hex={tHex} accent={accentColor} />
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      ))}
+    </div>
+  );
+}
+
+const ICON_PATHS = {
+  endereco: 'M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z',
+  telefone: 'M6.62 10.79c1.44 2.83 3.76 5.14 6.59 6.59l2.2-2.2c.27-.27.67-.36 1.02-.24 1.12.37 2.33.57 3.57.57.55 0 1 .45 1 1V20c0 .55-.45 1-1 1-9.39 0-17-7.61-17-17 0-.55.45-1 1-1h3.5c.55 0 1 .45 1 1 0 1.25.2 2.45.57 3.57.11.35.03.74-.25 1.02l-2.2 2.2z',
+  whatsapp: 'M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z',
+  email: 'M20 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 4l-8 5-8-5V6l8 5 8-5v2z',
+  site: 'M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 17.93c-3.95-.49-7-3.85-7-7.93 0-.62.08-1.21.21-1.79L9 15v1c0 1.1.9 2 2 2v1.93zm6.9-2.54c-.26-.81-1-1.39-1.9-1.39h-1v-3c0-.55-.45-1-1-1H8v-2h2c.55 0 1-.45 1-1V7h2c1.1 0 2-.9 2-2v-.41c2.93 1.19 5 4.06 5 7.41 0 2.08-.8 3.97-2.1 5.39z',
+  instagram: 'M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zM12 0C8.741 0 8.333.014 7.053.072 2.695.272.273 2.69.073 7.052.014 8.333 0 8.741 0 12c0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98C8.333 23.986 8.741 24 12 24c3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98C15.668.014 15.259 0 12 0zm0 5.838a6.162 6.162 0 100 12.324 6.162 6.162 0 000-12.324zM12 16a4 4 0 110-8 4 4 0 010 8zm6.406-11.845a1.44 1.44 0 100 2.881 1.44 1.44 0 000-2.881z',
+};
+
+const CONTACT_FIELDS = [
+  { key: 'telefone',  label: '📞 Telefone',  placeholder: '(11) 99999-9999' },
+  { key: 'whatsapp', label: '💬 WhatsApp',  placeholder: '(11) 99999-9999' },
+  { key: 'email',    label: '✉️ E-mail',     placeholder: 'contato@suamarca.com' },
+  { key: 'site',     label: '🌐 Site',       placeholder: 'https://suamarca.com' },
+  { key: 'instagram',label: '📸 Instagram', placeholder: '@suamarca' },
+  { key: 'endereco', label: '📍 Endereço',   placeholder: 'Rua, número — Cidade' },
+];
+
+function buildLink(key, value) {
+  if (!value) return null;
+  try {
+    switch (key) {
+      case 'telefone': return `tel:+55${value.replace(/\D/g, '')}`;
+      case 'whatsapp': {
+        // Se começa com +, já é formato internacional — usa direto
+        if (value.trim().startsWith('+')) {
+          return `https://wa.me/${value.replace(/\D/g, '')}`;
+        }
+        const digits = value.replace(/\D/g, '');
+        // 12+ dígitos sem + = já tem código de país; senão adiciona Brasil (55)
+        const num = digits.length >= 12 ? digits : `55${digits}`;
+        return `https://wa.me/${num}`;
+      }
+      case 'email': return value.includes('@') ? `mailto:${value}` : null;
+      case 'site': return value.startsWith('http') ? value : `https://${value}`;
+      case 'instagram': return `https://instagram.com/${value.replace('@', '')}`;
+      case 'endereco': return `https://maps.google.com/?q=${encodeURIComponent(value)}`;
+      default: return null;
+    }
+  } catch { return null; }
+}
+
+function CartaoStep({ brand, accentColor, paletteColors, marca, estampaPatterns, slogan, setSlogan, contacts, setContacts, qrLink, setQrLink, showQR, setShowQR }) {
+  const editData = brand.editData || {};
+
+  const setContact = (key, val) => setContacts(prev => ({ ...prev, [key]: val }));
+  const patternSrc = estampaPatterns?.[0] ? `data:${estampaPatterns[0].mimeType};base64,${estampaPatterns[0].base64}` : null;
+  const colors = paletteColors.length ? paletteColors : [accentColor];
+  const activeContacts = CONTACT_FIELDS.filter(f => contacts[f.key]);
+  const inputStyle = { width: '100%', padding: '10px 14px', borderRadius: '10px', border: '1px solid #e0e0e0', fontSize: '0.9rem', fontFamily: 'Montserrat, sans-serif', boxSizing: 'border-box', background: '#fff', textAlign: 'left' };
+
+  const downloadHTML = (returnOnly = false) => {
+    const iconsHtml = activeContacts.map((f, i) => {
+      const link = buildLink(f.key, contacts[f.key]);
+      const color = colors[i % colors.length];
+      return `<a href="${link || '#'}" target="_blank" rel="noopener" style="width:54px;height:54px;border-radius:12px;background:${color};display:inline-flex;align-items:center;justify-content:center;text-decoration:none;box-shadow:0 2px 10px rgba(0,0,0,0.15);transition:transform 0.15s;" onmouseover="this.style.transform='scale(1.08)'" onmouseout="this.style.transform='scale(1)'">
+        <svg viewBox="0 0 24 24" width="26" height="26" fill="white"><path d="${ICON_PATHS[f.key]}"/></svg>
+      </a>`;
+    }).join('');
+    const qrHtml = showQR && qrLink ? `<img src="https://api.qrserver.com/v1/create-qr-code/?size=120x120&data=${encodeURIComponent(qrLink)}&bgcolor=ffffff" width="100" height="100" style="border-radius:8px;margin-top:8px;" />` : '';
+    const patternStyle = patternSrc ? `background-image:url(${patternSrc});background-size:22%;background-repeat:repeat;` : 'background:#f5f5f5;';
+    const fontUrl = `https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700&family=${encodeURIComponent(editData.fontFamily || 'Playfair Display')}:ital,wght@0,400;1,400&display=swap`;
+
+    const html = `<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>${marca || 'Cartão Digital'}</title>
+<link href="${fontUrl}" rel="stylesheet">
+<style>*{box-sizing:border-box;margin:0;padding:0;}body{min-height:100vh;display:flex;align-items:center;justify-content:center;background:#f0ece6;font-family:'Montserrat',sans-serif;padding:20px;}</style>
+</head>
+<body>
+<div style="border-radius:20px;overflow:hidden;${patternStyle}padding:14px;box-shadow:0 8px 40px rgba(0,0,0,0.13);max-width:480px;width:100%;">
+  <div style="background:#fff;border-radius:12px;padding:28px 20px 24px;display:flex;flex-direction:column;align-items:center;gap:14px;">
+    <div style="text-align:center;">
+      <p style="font-family:'Montserrat',sans-serif;font-size:1.8rem;font-weight:800;color:${accentColor};text-transform:uppercase;letter-spacing:3px;">${marca || ''}</p>
+      ${editData.tagline ? `<p style="font-size:0.7rem;color:#aaa;text-transform:uppercase;letter-spacing:2px;margin-top:4px;">${editData.tagline}</p>` : ''}
+    </div>
+    <div style="width:50%;height:1px;background:#eee;"></div>
+    ${slogan ? `<p style="text-align:center;font-size:1.1rem;font-style:italic;color:#444;font-family:'${editData.fontFamily || 'Playfair Display'}',serif;line-height:1.6;">${slogan}</p>` : ''}
+    ${activeContacts.length > 0 ? `<div style="display:flex;flex-wrap:wrap;gap:8px;justify-content:flex-start;width:100%;margin-top:4px;">${iconsHtml}</div>` : ''}
+    ${qrHtml}
+  </div>
+</div>
+</body>
+</html>`;
+    if (returnOnly) return html;
+    const blob = new Blob([html], { type: 'text/html' });
+    const a = document.createElement('a');
+    a.download = `${marca || 'marca'}-cartao-digital.html`;
+    a.href = URL.createObjectURL(blob);
+    a.click();
+    URL.revokeObjectURL(a.href);
+  };
+
+  return (
+    <div style={{ display: 'flex', flexDirection: 'column', gap: '1.4rem' }}>
+      {/* Preview interativo */}
+      <div style={{
+        borderRadius: '20px', overflow: 'hidden',
+        boxShadow: '0 8px 40px rgba(0,0,0,0.13)',
+        backgroundImage: patternSrc ? `url(${patternSrc})` : undefined,
+        background: patternSrc ? undefined : '#f5f5f5',
+        backgroundSize: '22%', backgroundRepeat: 'repeat',
+        padding: '14px',
+      }}>
+        <div style={{ background: '#fff', borderRadius: '12px', padding: '20px', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '14px', position: 'relative' }}>
+          {/* QR discreto no canto superior direito */}
+          {showQR && qrLink && (
+            <div style={{ position: 'absolute', top: '12px', right: '12px' }}>
+              <img src={`https://api.qrserver.com/v1/create-qr-code/?size=60x60&data=${encodeURIComponent(qrLink)}&bgcolor=ffffff&color=555555`} alt="QR" width={42} height={42} style={{ borderRadius: '5px', display: 'block' }} crossOrigin="anonymous" />
+            </div>
+          )}
+          <div style={{ width: '70%', maxWidth: '210px' }}>
+            <BrandTemplateSVG data={editData} color={accentColor} side='frente' hideBackground={true} />
+          </div>
+          <div style={{ width: '50%', height: '1px', background: '#eee' }} />
+          {slogan && (
+            <p style={{ margin: 0, textAlign: 'center', fontSize: '1.65rem', fontStyle: 'italic', color: '#444', fontFamily: `'${editData.fontFamily || 'Playfair Display'}', serif`, lineHeight: 1.4 }}>
+              {slogan}
+            </p>
+          )}
+          {activeContacts.length > 0 && (
+            <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px', justifyContent: 'flex-start', width: '100%', marginTop: '4px' }}>
+              {activeContacts.map((f, i) => {
+                const link = buildLink(f.key, contacts[f.key]);
+                return (
+                  <a key={f.key} href={link || undefined} target="_blank" rel="noopener noreferrer"
+                    onClick={e => { if (!link) e.preventDefault(); }}
+                    style={{ width: 54, height: 54, borderRadius: '12px', background: colors[i % colors.length], display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, textDecoration: 'none', boxShadow: '0 2px 10px rgba(0,0,0,0.15)', transition: 'transform 0.15s', cursor: link ? 'pointer' : 'default' }}
+                  >
+                    <svg viewBox="0 0 24 24" width="26" height="26" fill="white">
+                      <path d={ICON_PATHS[f.key]} />
+                    </svg>
+                  </a>
+                );
+              })}
+            </div>
+          )}
+          {activeContacts.length === 0 && !slogan && (
+            <p style={{ color: '#ccc', fontSize: '0.8rem', textAlign: 'center' }}>Preencha os campos abaixo para montar seu cartão</p>
+          )}
+        </div>
+      </div>
+
+      <div style={{ display: 'flex', gap: '8px' }}>
+        <button onClick={async () => {
+          const html = downloadHTML(true);
+          const file = new File([new Blob([html], { type: 'text/html' })], `${marca || 'marca'}-cartao-digital.html`, { type: 'text/html' });
+          if (navigator.canShare?.({ files: [file] })) {
+            try { await navigator.share({ files: [file], title: `Cartão Digital — ${marca || 'Marca'}` }); return; } catch {}
+          }
+          downloadHTML();
+        }} style={{ flex: 1, padding: '13px', background: accentColor, color: '#fff', border: 'none', borderRadius: '30px', fontWeight: 700, fontSize: '0.82rem', cursor: 'pointer', fontFamily: 'Montserrat, sans-serif' }}>
+          ↑ Compartilhar
+        </button>
+        <button onClick={downloadHTML} style={{ flex: 1, padding: '13px', background: 'none', color: accentColor, border: `1.5px solid ${accentColor}`, borderRadius: '30px', fontWeight: 700, fontSize: '0.82rem', cursor: 'pointer', fontFamily: 'Montserrat, sans-serif' }}>
+          ⬇ Baixar HTML
+        </button>
+      </div>
+
+      {/* Campos editáveis */}
+      <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+        <SectionLabel>Slogan / Frase (opcional)</SectionLabel>
+        <input value={slogan} onChange={e => setSlogan(e.target.value)} placeholder="Ex: Cuidado com amor desde o primeiro olhar" style={inputStyle} />
+        <SectionLabel>Contatos</SectionLabel>
+        {CONTACT_FIELDS.map(f => (
+          <input key={f.key} value={contacts[f.key]} onChange={e => setContact(f.key, e.target.value)} placeholder={f.label} style={inputStyle} />
+        ))}
+        <button onClick={() => setShowQR(v => !v)} style={{ padding: '10px', background: showQR ? accentColor : 'none', color: showQR ? '#fff' : accentColor, border: `1.5px solid ${accentColor}`, borderRadius: '30px', fontWeight: 700, fontSize: '0.8rem', fontFamily: 'Montserrat, sans-serif', cursor: 'pointer' }}>
+          {showQR ? '✓ QR Code ativo' : '+ QR Code'}
+        </button>
+        {showQR && (
+          <input value={qrLink} onChange={e => setQrLink(e.target.value)} placeholder="Link para o QR Code (site, WhatsApp...)" style={inputStyle} />
+        )}
+      </div>
+    </div>
+  );
+}
+
+function EstampaStep({ brand, accentColor, marca, patterns, setPatterns, genCount, setGenCount, selectedIdx, setSelectedIdx }) {
   const [generating, setGenerating] = useState(false);
-  const [selectedIdx, setSelectedIdx] = useState(0);
-  const [patterns, setPatterns] = useState(brand.pattern ? [brand.pattern] : []);
   const [showMockup, setShowMockup] = useState(false);
 
   const remaining = MAX_GENERATIONS - genCount;
@@ -119,8 +410,14 @@ function EstampaStep({ brand, accentColor, marca }) {
                 position: 'absolute', inset: 0,
                 backgroundImage: `url(${patternSrc})`,
                 backgroundSize: '28%', backgroundRepeat: 'repeat',
-                mixBlendMode: 'multiply',
-                opacity: 0.55,
+                mixBlendMode: 'normal',
+                opacity: 0.52,
+                WebkitMaskImage: 'url(/mockups/clinica-mask.svg)',
+                WebkitMaskSize: 'cover',
+                WebkitMaskRepeat: 'no-repeat',
+                maskImage: 'url(/mockups/clinica-mask.svg)',
+                maskSize: 'cover',
+                maskRepeat: 'no-repeat',
               }} />
             </div>
           ) : (
@@ -174,6 +471,280 @@ function EstampaStep({ brand, accentColor, marca }) {
   );
 }
 
+const TONE_MAP = {
+  'Romântico': ['Afetivo','Acolhedor','Delicado','Elegante','Emotivo'],
+  'Minimalista': ['Limpo','Objetivo','Sofisticado','Atemporal','Preciso'],
+  'Clássico': ['Tradicional','Confiável','Elegante','Sólido','Respeitável'],
+  'Moderno': ['Inovador','Ousado','Dinâmico','Atual','Direto'],
+  'Divertido': ['Alegre','Criativo','Espontâneo','Colorido','Vibrante'],
+  'Luxo': ['Exclusivo','Refinado','Premium','Sofisticado','Elevado'],
+  'Natural': ['Orgânico','Autêntico','Gentil','Consciente','Leve'],
+  'Infantil': ['Lúdico','Carinhoso','Colorido','Imaginativo','Seguro'],
+};
+
+function deriveTone(estiloNome) {
+  for (const [key, words] of Object.entries(TONE_MAP)) {
+    if (estiloNome?.toLowerCase().includes(key.toLowerCase())) return words;
+  }
+  return ['Autêntico','Único','Memorável','Confiável','Acolhedor'];
+}
+
+function buildGuiaHTML({ marca, tagline, accentColor, paletteColors, fontFamily, fontWeight, patternSrc, estiloNome, mensagem, isScript }) {
+  const fontEnc = encodeURIComponent(fontFamily);
+  const fontUrl = `https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;600;700;800&family=${fontEnc}:ital,wght@0,400;0,700;1,400&display=swap`;
+  const roleLabels = ['Principal','Secundária','Terciária','Complementar','Apoio'];
+  const toneWords = deriveTone(estiloNome);
+
+  const colorsHtml = paletteColors.map((hex, i) => {
+    const [r,g,b] = [parseInt(hex.slice(1,3),16), parseInt(hex.slice(3,5),16), parseInt(hex.slice(5,7),16)];
+    let minDist = Infinity, bestName = 'Tom Especial';
+    for (const [cr,cg,cb,name] of COLOR_PALETTE_AFETIVA) {
+      const d = Math.sqrt((r-cr)**2+(g-cg)**2+(b-cb)**2);
+      if (d < minDist) { minDist = d; bestName = name; }
+    }
+    return `<div style="border-radius:12px;overflow:hidden;box-shadow:0 2px 12px rgba(0,0,0,0.07);">
+      <div style="height:110px;background:${hex};"></div>
+      <div style="padding:10px 10px 12px;background:#fafafa;border:1px solid #f0f0f0;border-top:none;border-radius:0 0 12px 12px;">
+        <p style="font-size:0.62rem;font-weight:800;color:#444;margin-bottom:3px;font-family:Montserrat,sans-serif;">${bestName}</p>
+        <p style="font-size:0.6rem;font-family:monospace;color:#888;">${hex.toUpperCase()}</p>
+        <p style="font-size:0.55rem;font-weight:700;color:#bbb;letter-spacing:1px;text-transform:uppercase;margin-top:4px;font-family:Montserrat,sans-serif;">${roleLabels[i]||'Cor'}</p>
+      </div>
+    </div>`;
+  }).join('');
+
+  const patternHtml = patternSrc
+    ? `<div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:16px;align-items:center;">
+        <div style="height:160px;border-radius:12px;background-image:url(${patternSrc});background-size:40%;border:1px solid #f0f0f0;"></div>
+        <div>
+          <p style="font-size:0.8rem;color:#555;line-height:1.7;font-family:Montserrat,sans-serif;">A estampa é aplicada em embalagens, papelaria, tecidos e papel de parede.</p>
+          <p style="font-size:0.75rem;color:#999;margin-top:10px;font-family:Montserrat,sans-serif;">Para gráficas: solicite arquivo PNG em alta resolução (300 dpi). A estampa é repetível — informe o padrão de repetição ao fornecedor.</p>
+        </div>
+      </div>`
+    : `<p style="font-size:0.8rem;color:#bbb;margin-top:16px;font-family:Montserrat,sans-serif;">Estampa não gerada.</p>`;
+
+  const keywordsHtml = toneWords.map((w, i) =>
+    `<span style="padding:8px 18px;border-radius:20px;font-size:0.78rem;font-weight:600;font-family:Montserrat,sans-serif;${i % 2 === 0 ? `background:${accentColor};color:#fff;` : `border:1.5px solid ${accentColor};color:${accentColor};background:transparent;`}">${w}</span>`
+  ).join('');
+
+  const marcaDisplay = isScript
+    ? (marca || 'Sua Marca').split(' ').map(w => w.charAt(0).toUpperCase() + w.slice(1).toLowerCase()).join(' ')
+    : (marca || 'SUA MARCA').toUpperCase();
+
+  return `<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Guia de Marca — ${marca || 'Marca'}</title>
+<link href="${fontUrl}" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:'Montserrat',sans-serif;background:#f0ece6;color:#1a1a1a;}
+.page{width:794px;background:#fff;margin:0 auto 32px;padding:60px 64px;min-height:1000px;position:relative;}
+.divider{height:1px;background:#efefef;margin:32px 0;}
+.sec-label{font-size:0.58rem;font-weight:800;letter-spacing:3px;text-transform:uppercase;color:#ccc;display:flex;align-items:center;gap:14px;margin-bottom:20px;}
+.sec-label::before,.sec-label::after{content:'';flex:1;height:1px;background:#efefef;}
+.print-btn{position:fixed;bottom:30px;right:30px;padding:14px 28px;background:${accentColor};color:#fff;border:none;border-radius:30px;font-weight:700;font-size:0.95rem;cursor:pointer;font-family:'Montserrat',sans-serif;box-shadow:0 4px 20px rgba(0,0,0,0.2);z-index:999;}
+@media print{
+  body{background:white;}
+  .page{margin:0;padding:50px 56px;page-break-after:always;min-height:auto;}
+  .print-btn{display:none;}
+  @page{size:A4;margin:0;}
+}
+</style>
+</head>
+<body>
+<button class="print-btn" onclick="window.print()">⬇ Salvar como PDF</button>
+
+<!-- CAPA -->
+<div class="page" style="display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:1100px;text-align:center;">
+  <div style="width:50px;height:2px;background:${accentColor};margin:0 auto 48px;"></div>
+  <p style="font-size:0.58rem;letter-spacing:6px;text-transform:uppercase;color:#ccc;margin-bottom:64px;">Guia de Identidade Visual</p>
+  <h1 style="font-family:'${fontFamily}',serif;font-weight:${fontWeight};font-size:4rem;color:${accentColor};letter-spacing:${isScript ? '0px' : '2px'};line-height:1;margin-bottom:14px;">${marcaDisplay}</h1>
+  ${tagline ? `<p style="font-size:0.68rem;letter-spacing:4px;text-transform:uppercase;color:#aaa;margin-bottom:64px;">${tagline}</p>` : '<div style="height:64px;"></div>'}
+  <div style="width:50px;height:1px;background:#e0e0e0;margin:0 auto 24px;"></div>
+  <p style="font-size:0.55rem;letter-spacing:5px;text-transform:uppercase;color:#ddd;">The Brand Box</p>
+</div>
+
+<!-- PALETA DE CORES -->
+<div class="page">
+  <div class="sec-label">Paleta de Cores</div>
+  <div style="display:grid;grid-template-columns:repeat(${paletteColors.length},1fr);gap:10px;">
+    ${colorsHtml}
+  </div>
+  <div class="divider"></div>
+  <p style="font-size:0.75rem;color:#888;line-height:1.7;">Use a cor <strong style="color:#444;">${colorNamePT(paletteColors[0] || accentColor)}</strong> como principal — ela deve predominar em todas as comunicações. As demais cores funcionam como apoio e devem ser utilizadas com equilíbrio.</p>
+</div>
+
+<!-- TIPOGRAFIA -->
+<div class="page">
+  <div class="sec-label">Tipografia</div>
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:32px;align-items:start;">
+    <div>
+      <p style="font-size:0.6rem;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:#bbb;margin-bottom:12px;">Fonte Principal</p>
+      <p style="font-family:'${fontFamily}',serif;font-weight:${fontWeight};font-size:2.6rem;color:${accentColor};line-height:1;margin-bottom:10px;">${fontFamily}</p>
+      <p style="font-family:'${fontFamily}',serif;font-size:1.1rem;color:#666;line-height:1.6;margin-bottom:6px;">Aa Bb Cc Dd Ee Ff Gg</p>
+      <p style="font-family:'${fontFamily}',serif;font-size:0.9rem;color:#999;line-height:1.6;">1 2 3 4 5 6 7 8 9 0</p>
+    </div>
+    <div>
+      <p style="font-size:0.6rem;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:#bbb;margin-bottom:12px;">Fonte de Apoio</p>
+      <p style="font-family:'Montserrat',sans-serif;font-weight:600;font-size:2.2rem;color:#444;line-height:1;margin-bottom:10px;">Montserrat</p>
+      <p style="font-family:'Montserrat',sans-serif;font-size:1.1rem;color:#666;line-height:1.6;margin-bottom:6px;">Aa Bb Cc Dd Ee Ff Gg</p>
+      <p style="font-family:'Montserrat',sans-serif;font-size:0.9rem;color:#999;line-height:1.6;">1 2 3 4 5 6 7 8 9 0</p>
+    </div>
+  </div>
+  <div class="divider"></div>
+  <p style="font-size:0.75rem;color:#888;line-height:1.7;">Use <strong style="color:#444;">${fontFamily}</strong> em títulos, logomarca e destaques. Use <strong style="color:#444;">Montserrat</strong> em textos corridos, legendas e informações de apoio.</p>
+</div>
+
+<!-- ESTAMPA -->
+<div class="page">
+  <div class="sec-label">Estampa Exclusiva</div>
+  ${patternHtml}
+</div>
+
+<!-- DICAS PRÁTICAS -->
+<div class="page">
+  <div class="sec-label">Dicas Práticas de Uso</div>
+  <div style="display:flex;flex-direction:column;gap:14px;">
+    <div style="padding:20px 22px;border-radius:14px;background:#fafafa;border:1px solid #f0f0f0;display:flex;gap:16px;align-items:flex-start;">
+      <span style="font-size:1.4rem;flex-shrink:0;">📁</span>
+      <div>
+        <h4 style="font-size:0.72rem;font-weight:800;color:#333;margin-bottom:6px;font-family:Montserrat,sans-serif;">Arquivos da logo</h4>
+        <p style="font-size:0.78rem;color:#666;line-height:1.6;font-family:Montserrat,sans-serif;">Use o arquivo <strong>PNG sem fundo</strong> em materiais digitais e sobre fundos coloridos. Use o <strong>PNG com fundo branco</strong> para impressão simples (banners, folhetos, camisetas). Nunca envie foto da tela para uma gráfica.</p>
+      </div>
+    </div>
+    <div style="padding:20px 22px;border-radius:14px;background:#fafafa;border:1px solid #f0f0f0;display:flex;gap:16px;align-items:flex-start;">
+      <span style="font-size:1.4rem;flex-shrink:0;">🎨</span>
+      <div>
+        <h4 style="font-size:0.72rem;font-weight:800;color:#333;margin-bottom:6px;font-family:Montserrat,sans-serif;">Cores</h4>
+        <p style="font-size:0.78rem;color:#666;line-height:1.6;font-family:Montserrat,sans-serif;">Use sempre os códigos hexadecimais desta paleta. No Canva, cole o código da cor no campo de cor personalizada. Nunca substitua por cores similares — pequenas variações quebram a consistência da marca.</p>
+      </div>
+    </div>
+    <div style="padding:20px 22px;border-radius:14px;background:#fafafa;border:1px solid #f0f0f0;display:flex;gap:16px;align-items:flex-start;">
+      <span style="font-size:1.4rem;flex-shrink:0;">🌀</span>
+      <div>
+        <h4 style="font-size:0.72rem;font-weight:800;color:#333;margin-bottom:6px;font-family:Montserrat,sans-serif;">Estampa para gráficas e fornecedores</h4>
+        <p style="font-size:0.78rem;color:#666;line-height:1.6;font-family:Montserrat,sans-serif;">Solicite o arquivo PNG em <strong>alta resolução (300 dpi)</strong>. Informe ao fornecedor que é uma estampa repetível — ele deve aplicar no modo <em>tile</em> ou <em>repeat</em>. Serve para papel de parede, tecido, embalagens e adesivos.</p>
+      </div>
+    </div>
+    <div style="padding:20px 22px;border-radius:14px;background:#fafafa;border:1px solid #f0f0f0;display:flex;gap:16px;align-items:flex-start;">
+      <span style="font-size:1.4rem;flex-shrink:0;">📱</span>
+      <div>
+        <h4 style="font-size:0.72rem;font-weight:800;color:#333;margin-bottom:6px;font-family:Montserrat,sans-serif;">Redes sociais</h4>
+        <p style="font-size:0.78rem;color:#666;line-height:1.6;font-family:Montserrat,sans-serif;">Use a logo sempre sobre fundo branco, creme ou da cor principal da marca. Mantenha a mesma paleta de cores e o mesmo estilo de edição nos posts para criar identidade visual consistente.</p>
+      </div>
+    </div>
+    <div style="padding:20px 22px;border-radius:14px;background:#fafafa;border:1px solid #f0f0f0;display:flex;gap:16px;align-items:flex-start;">
+      <span style="font-size:1.4rem;flex-shrink:0;">✍️</span>
+      <div>
+        <h4 style="font-size:0.72rem;font-weight:800;color:#333;margin-bottom:6px;font-family:Montserrat,sans-serif;">Fontes</h4>
+        <p style="font-size:0.78rem;color:#666;line-height:1.6;font-family:Montserrat,sans-serif;">Use <strong>Montserrat</strong> para textos do dia a dia (disponível grátis no Google Fonts). Canva, Word e Google Apresentações aceitam fontes do Google Fonts — busque por Montserrat para instalá-la.</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- TOM DE VOZ -->
+<div class="page">
+  <div class="sec-label">Tom de Voz</div>
+  ${mensagem ? `<p style="font-size:0.82rem;color:#666;line-height:1.8;margin-bottom:28px;">${mensagem}</p>` : ''}
+  <p style="font-size:0.6rem;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:#bbb;margin-bottom:16px;">Palavras-chave da personalidade</p>
+  <div style="display:flex;flex-wrap:wrap;gap:10px;margin-bottom:32px;">
+    ${keywordsHtml}
+  </div>
+  <div class="divider"></div>
+  <p style="font-size:0.75rem;color:#888;line-height:1.7;">Sua comunicação deve sempre refletir esses valores. Seja nas redes sociais, embalagens, atendimento ou conteúdo: a identidade visual e o tom de voz devem caminhar juntos.</p>
+  <div style="margin-top:40px;padding-top:32px;border-top:1px solid #f0f0f0;text-align:center;">
+    <p style="font-size:0.55rem;letter-spacing:4px;text-transform:uppercase;color:#ddd;">The Brand Box • Identidade Visual Profissional</p>
+  </div>
+</div>
+
+</body>
+</html>`;
+}
+
+function GuiaStep({ brand, accentColor, paletteColors, marca, tagline, estampaPatterns, editData }) {
+  const patternSrc = estampaPatterns?.[0]
+    ? `data:${estampaPatterns[0].mimeType};base64,${estampaPatterns[0].base64}`
+    : null;
+  const estiloNome = brand.resultadoFinal?.estiloNome || '';
+  const mensagem = brand.resultadoFinal?.mensagem || '';
+  const fontFamily = editData.fontFamily || 'Playfair Display';
+  const fontWeight = editData.fontWeight || 700;
+  const isScript = editData.fontStyle === 'script';
+  const toneWords = deriveTone(estiloNome);
+
+  const marcaFormatted = isScript
+    ? (marca || 'Sua Marca').split(' ').map(w => w.charAt(0).toUpperCase() + w.slice(1).toLowerCase()).join(' ')
+    : (marca || 'SUA MARCA').toUpperCase();
+
+  const openPrint = () => {
+    const html = buildGuiaHTML({ marca, tagline, accentColor, paletteColors, fontFamily, fontWeight, patternSrc, estiloNome, mensagem, isScript });
+    const win = window.open('', '_blank');
+    if (!win) return;
+    win.document.write(html);
+    win.document.close();
+  };
+
+  return (
+    <div style={{ display: 'flex', flexDirection: 'column', gap: '1.2rem' }}>
+      {/* Preview compacto */}
+      <div style={{ background: '#fff', borderRadius: '16px', overflow: 'hidden', boxShadow: '0 4px 20px rgba(0,0,0,0.08)' }}>
+        {/* Capa mini */}
+        <div style={{ background: accentColor, padding: '28px 24px', textAlign: 'center' }}>
+          <p style={{ fontSize: '0.52rem', letterSpacing: '4px', textTransform: 'uppercase', color: 'rgba(255,255,255,0.6)', marginBottom: '8px' }}>Guia de Identidade Visual</p>
+          <h2 style={{ fontFamily: `'${fontFamily}', serif`, fontWeight, fontSize: '1.8rem', color: '#fff', letterSpacing: isScript ? '0px' : '1px', lineHeight: 1 }}>{marcaFormatted}</h2>
+          {tagline && <p style={{ fontSize: '0.6rem', letterSpacing: '2px', textTransform: 'uppercase', color: 'rgba(255,255,255,0.6)', marginTop: '6px' }}>{tagline}</p>}
+        </div>
+
+        {/* Paleta */}
+        <div style={{ padding: '16px 20px', borderBottom: '1px solid #f5f5f5' }}>
+          <p style={{ fontSize: '0.55rem', fontWeight: 700, letterSpacing: '2px', textTransform: 'uppercase', color: '#bbb', marginBottom: '10px' }}>Paleta de Cores</p>
+          <div style={{ display: 'flex', gap: '6px' }}>
+            {paletteColors.map((hex, i) => (
+              <div key={i} style={{ flex: 1, borderRadius: '8px', overflow: 'hidden' }}>
+                <div style={{ background: hex, height: '40px' }} />
+                <p style={{ fontSize: '0.48rem', textAlign: 'center', color: '#aaa', padding: '3px 0', fontFamily: 'monospace' }}>{hex.toUpperCase()}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* Tipografia */}
+        <div style={{ padding: '16px 20px', borderBottom: '1px solid #f5f5f5', display: 'flex', gap: '16px' }}>
+          <div style={{ flex: 1 }}>
+            <p style={{ fontSize: '0.55rem', fontWeight: 700, letterSpacing: '2px', textTransform: 'uppercase', color: '#bbb', marginBottom: '6px' }}>Fonte Principal</p>
+            <p style={{ fontFamily: `'${fontFamily}', serif`, fontWeight, fontSize: '1.2rem', color: accentColor }}>{fontFamily}</p>
+          </div>
+          <div style={{ flex: 1 }}>
+            <p style={{ fontSize: '0.55rem', fontWeight: 700, letterSpacing: '2px', textTransform: 'uppercase', color: '#bbb', marginBottom: '6px' }}>Apoio</p>
+            <p style={{ fontFamily: 'Montserrat, sans-serif', fontWeight: 600, fontSize: '1.1rem', color: '#888' }}>Montserrat</p>
+          </div>
+        </div>
+
+        {/* Tom de voz */}
+        <div style={{ padding: '16px 20px' }}>
+          <p style={{ fontSize: '0.55rem', fontWeight: 700, letterSpacing: '2px', textTransform: 'uppercase', color: '#bbb', marginBottom: '10px' }}>Tom de Voz</p>
+          <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px' }}>
+            {toneWords.map((w, i) => (
+              <span key={w} style={{ padding: '5px 12px', borderRadius: '16px', fontSize: '0.7rem', fontWeight: 600, background: i % 2 === 0 ? accentColor : 'transparent', color: i % 2 === 0 ? '#fff' : accentColor, border: `1.5px solid ${accentColor}` }}>{w}</span>
+            ))}
+          </div>
+        </div>
+      </div>
+
+      {/* Botão */}
+      <button
+        onClick={openPrint}
+        style={{ width: '100%', padding: '15px', background: accentColor, color: '#fff', border: 'none', borderRadius: '30px', fontWeight: 700, fontSize: '0.9rem', cursor: 'pointer', fontFamily: 'Montserrat, sans-serif' }}
+      >
+        ⬇ Baixar Guia em PDF
+      </button>
+      <p style={{ textAlign: 'center', fontSize: '0.7rem', color: '#bbb' }}>Uma nova aba abrirá — use "Salvar como PDF" no menu de impressão</p>
+    </div>
+  );
+}
+
 function EntregaContent({ brand }) {
   const [step, setStep] = useState('logo');
   const [bgColor, setBgColor] = useState('#ffffff');
@@ -182,6 +753,29 @@ function EntregaContent({ brand }) {
   const [showEdit, setShowEdit] = useState(false);
   const [marca, setMarca] = useState(brand.editData?.marca || '');
   const [tagline, setTagline] = useState(brand.editData?.tagline || '');
+  const [estampaPatterns, setEstampaPatterns] = useState(brand.pattern ? [brand.pattern] : []);
+  const [estampaGenCount, setEstampaGenCount] = useState(brand.patternGenerationCount || 0);
+  const [estampaSelectedIdx, setEstampaSelectedIdx] = useState(0);
+  const coresRef = useRef(null);
+  const [downloadingCores, setDownloadingCores] = useState(false);
+  const [cartaoSlogan, setCartaoSlogan] = useState(brand.editData?.tagline || '');
+  const [cartaoContacts, setCartaoContacts] = useState({ telefone: '', whatsapp: '', email: '', site: '', instagram: '', endereco: '' });
+  const [cartaoQrLink, setCartaoQrLink] = useState('');
+  const [cartaoShowQR, setCartaoShowQR] = useState(false);
+
+  const downloadCoresPNG = async () => {
+    if (!coresRef.current) return;
+    setDownloadingCores(true);
+    try {
+      const canvas = await html2canvas(coresRef.current, { scale: 3, useCORS: true, backgroundColor: '#faf9f7' });
+      const link = document.createElement('a');
+      link.download = `${marca || 'marca'}-paleta-cores.png`;
+      link.href = canvas.toDataURL('image/png');
+      link.click();
+    } finally {
+      setDownloadingCores(false);
+    }
+  };
   const logoRef = useRef(null);
 
   const { paletas } = brand;
@@ -263,19 +857,28 @@ function EntregaContent({ brand }) {
           <div>
             <p style={{ fontSize: '0.62rem', color: '#bbb', letterSpacing: '2px', textTransform: 'uppercase', fontWeight: 700, marginBottom: '2px' }}>brand box</p>
             <h1 style={{ fontSize: '1.4rem', fontWeight: 700, color: '#1a1a1a', lineHeight: 1.2 }}>
-              {step === 'logo' ? 'Sua Logo' : step === 'submarca' ? 'Sua Submarca' : 'Sua Estampa'}
+              {step === 'logo' ? 'Sua Logo' : step === 'submarca' ? 'Sua Submarca' : step === 'estampa' ? 'Sua Estampa' : step === 'cores' ? 'Suas Cores' : step === 'cartao' ? 'Cartão Digital' : 'Guia da Marca'}
             </h1>
           </div>
           <span style={{ fontSize: '0.75rem', color: '#ccc', fontWeight: 600 }}>
-            {step === 'logo' ? '1' : step === 'submarca' ? '2' : '3'} / 3
+            {step === 'logo' ? '1' : step === 'submarca' ? '2' : step === 'estampa' ? '3' : step === 'cores' ? '4' : step === 'cartao' ? '5' : '6'} / 6
           </span>
         </div>
 
         {/* Área da estampa */}
-        {step === 'estampa' && <EstampaStep brand={brand} accentColor={accentColor} marca={marca} />}
+        {step === 'estampa' && <EstampaStep brand={brand} accentColor={accentColor} marca={marca} patterns={estampaPatterns} setPatterns={setEstampaPatterns} genCount={estampaGenCount} setGenCount={setEstampaGenCount} selectedIdx={estampaSelectedIdx} setSelectedIdx={setEstampaSelectedIdx} />}
+
+        {/* Área das cores */}
+        {step === 'cores' && <CoresStep paletteColors={paletteColors} accentColor={accentColor} paletaNome={paletas?.find(p => p.id === brand.selectedPaleta)?.nome_variacao} coresRef={coresRef} />}
+
+        {/* Cartão digital */}
+        {step === 'cartao' && <CartaoStep brand={brand} accentColor={accentColor} paletteColors={paletteColors} marca={marca} estampaPatterns={estampaPatterns} slogan={cartaoSlogan} setSlogan={setCartaoSlogan} contacts={cartaoContacts} setContacts={setCartaoContacts} qrLink={cartaoQrLink} setQrLink={setCartaoQrLink} showQR={cartaoShowQR} setShowQR={setCartaoShowQR} />}
+
+        {/* Guia da marca */}
+        {step === 'guia' && <GuiaStep brand={brand} accentColor={accentColor} paletteColors={paletteColors} marca={marca} tagline={tagline} estampaPatterns={estampaPatterns} editData={editData} />}
 
         {/* Área da logo */}
-        {step !== 'estampa' && <div
+        {step !== 'estampa' && step !== 'cores' && step !== 'cartao' && step !== 'guia' && <div
           ref={logoRef}
           style={{
             width: '100%', aspectRatio: '1 / 1',
@@ -299,7 +902,7 @@ function EntregaContent({ brand }) {
         </div>}
 
         {/* Controles */}
-        {step !== 'estampa' &&
+        {step !== 'estampa' && step !== 'cores' && step !== 'cartao' && step !== 'guia' &&
         <div style={{ marginTop: '1.4rem', display: 'flex', flexDirection: 'column', gap: '1rem' }}>
 
           {/* Editar texto */}
@@ -398,7 +1001,7 @@ function EntregaContent({ brand }) {
 
         {/* Botões */}
         <div style={{ marginTop: '1.6rem', display: 'flex', flexDirection: 'column', gap: '10px' }}>
-          {step !== 'estampa' && (
+          {step !== 'estampa' && step !== 'cores' && step !== 'cartao' && step !== 'guia' && (
             <div style={{ display: 'flex', gap: '8px' }}>
               <button
                 onClick={downloadTransparent}
@@ -433,8 +1036,41 @@ function EntregaContent({ brand }) {
             </>
           )}
           {step === 'estampa' && (
-            <button onClick={() => setStep('submarca')} style={{ width: '100%', padding: '13px', background: 'none', color: '#bbb', border: 'none', borderRadius: '30px', fontWeight: 600, fontSize: '0.85rem', cursor: 'pointer' }}>
-              ← Voltar para a submarca
+            <>
+              <button onClick={() => setStep('cores')} style={{ width: '100%', padding: '13px', background: 'none', color: '#888', border: '1px solid #e0e0e0', borderRadius: '30px', fontWeight: 600, fontSize: '0.9rem', cursor: 'pointer' }}>
+                Próximo: Cores →
+              </button>
+              <button onClick={() => setStep('submarca')} style={{ width: '100%', padding: '13px', background: 'none', color: '#bbb', border: 'none', borderRadius: '30px', fontWeight: 600, fontSize: '0.85rem', cursor: 'pointer' }}>
+                ← Voltar para a submarca
+              </button>
+            </>
+          )}
+          {step === 'cores' && (
+            <>
+              <button onClick={downloadCoresPNG} disabled={downloadingCores} style={{ width: '100%', padding: '13px', background: accentColor, color: '#fff', border: 'none', borderRadius: '30px', fontWeight: 700, fontSize: '0.82rem', cursor: 'pointer', opacity: downloadingCores ? 0.6 : 1 }}>
+                {downloadingCores ? '...' : '⬇ Baixar paleta PNG'}
+              </button>
+              <button onClick={() => setStep('cartao')} style={{ width: '100%', padding: '13px', background: 'none', color: '#888', border: '1px solid #e0e0e0', borderRadius: '30px', fontWeight: 600, fontSize: '0.9rem', cursor: 'pointer' }}>
+                Próximo: Cartão Digital →
+              </button>
+              <button onClick={() => setStep('estampa')} style={{ width: '100%', padding: '13px', background: 'none', color: '#bbb', border: 'none', borderRadius: '30px', fontWeight: 600, fontSize: '0.85rem', cursor: 'pointer' }}>
+                ← Voltar para a estampa
+              </button>
+            </>
+          )}
+          {step === 'cartao' && (
+            <>
+              <button onClick={() => setStep('guia')} style={{ width: '100%', padding: '13px', background: 'none', color: '#888', border: '1px solid #e0e0e0', borderRadius: '30px', fontWeight: 600, fontSize: '0.9rem', cursor: 'pointer' }}>
+                Próximo: Guia da Marca →
+              </button>
+              <button onClick={() => setStep('cores')} style={{ width: '100%', padding: '13px', background: 'none', color: '#bbb', border: 'none', borderRadius: '30px', fontWeight: 600, fontSize: '0.85rem', cursor: 'pointer' }}>
+                ← Voltar para as cores
+              </button>
+            </>
+          )}
+          {step === 'guia' && (
+            <button onClick={() => setStep('cartao')} style={{ width: '100%', padding: '13px', background: 'none', color: '#bbb', border: 'none', borderRadius: '30px', fontWeight: 600, fontSize: '0.85rem', cursor: 'pointer' }}>
+              ← Voltar para o cartão
             </button>
           )}
         </div>

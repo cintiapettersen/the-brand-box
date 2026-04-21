@@ -118,7 +118,6 @@ body {
   background-color: var(--bg-color);
   color: var(--text-primary);
   min-height: 100vh;
-  overflow: hidden;
 }
 
 input {
