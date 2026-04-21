@@ -754,9 +754,18 @@ function EntregaContent({ brand }) {
   const [showEdit, setShowEdit] = useState(false);
   const [marca, setMarca] = useState(brand.editData?.marca || '');
   const [tagline, setTagline] = useState(brand.editData?.tagline || '');
-  const [estampaPatterns, setEstampaPatterns] = useState(brand.pattern ? [brand.pattern] : []);
+  const [estampaPatterns, setEstampaPatterns] = useState(() => {
+    if (brand.pattern) return [brand.pattern];
+    try { const p = JSON.parse(localStorage.getItem('brandbox_pattern') || 'null'); if (p) return [p]; } catch {}
+    return [];
+  });
   const [estampaGenCount, setEstampaGenCount] = useState(brand.patternGenerationCount || 0);
   const [estampaSelectedIdx, setEstampaSelectedIdx] = useState(0);
+
+  useEffect(() => {
+    const pat = estampaPatterns[estampaSelectedIdx];
+    if (pat) try { localStorage.setItem('brandbox_pattern', JSON.stringify(pat)); } catch {}
+  }, [estampaPatterns, estampaSelectedIdx]);
   const coresRef = useRef(null);
   const [downloadingCores, setDownloadingCores] = useState(false);
   const [cartaoContacts, setCartaoContacts] = useState(() => { try { return JSON.parse(localStorage.getItem('brandbox_cartao') || '{}').contacts || { telefone: '', whatsapp: '', email: '', site: '', instagram: '', endereco: '' }; } catch { return { telefone: '', whatsapp: '', email: '', site: '', instagram: '', endereco: '' }; } });
