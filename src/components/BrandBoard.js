@@ -163,7 +163,9 @@ const BrandBoard = ({ data, palette, color, patternImage, iconPath }) => {
               letterSpacing: '3px', 
               textTransform: 'uppercase', 
               color: '#666',
-              marginTop: '8px'
+              marginTop: '8px',
+              textAlign: 'center',
+              lineHeight: 1.4
             }}>
               {tagline || 'Identidade Visual'}
             </p>
