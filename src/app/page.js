@@ -350,6 +350,7 @@ export default function Home() {
       const data = await res.json();
       if (data.success && data.images) {
         setGeneratedPatterns(data.images);
+        setSelectedPattern(0);
       } else {
         console.error('Erro na geração:', data.error);
         alert('Ops! Não conseguimos gerar as estampas. Tente novamente.');
