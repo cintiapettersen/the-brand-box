@@ -1079,6 +1079,16 @@ function EntregaContent({ brand }) {
           )}
         </div>
 
+        {/* Link de reset para testes */}
+        <div style={{ marginTop: '3rem', textAlign: 'center' }}>
+          <button
+            onClick={() => { localStorage.removeItem('brandbox_delivery'); window.location.href = '/'; }}
+            style={{ background: 'none', border: 'none', fontSize: '0.62rem', color: '#ddd', cursor: 'pointer', letterSpacing: '1px' }}
+          >
+            reiniciar teste
+          </button>
+        </div>
+
       </div>
     </div>
   );
@@ -1091,6 +1101,11 @@ function SucessoContent() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    if (params.get('reset') === '1') {
+      localStorage.removeItem('brandbox_delivery');
+      window.location.href = '/';
+      return;
+    }
     try {
       const saved = localStorage.getItem('brandbox_delivery');
       if (saved) setBrand(JSON.parse(saved));
