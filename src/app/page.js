@@ -64,7 +64,7 @@ export default function Home() {
       ...prev,
       elementosVisuais: prev.elementosVisuais.includes(val)
         ? prev.elementosVisuais.filter(item => item !== val)
-        : (prev.elementosVisuais.length < 2 ? [...prev.elementosVisuais, val] : prev.elementosVisuais)
+        : (prev.elementosVisuais.length < 1 ? [...prev.elementosVisuais, val] : prev.elementosVisuais)
     }));
   };
 
@@ -711,7 +711,7 @@ export default function Home() {
             >
               <div style={{ position: 'absolute', top: '3rem', left: '3rem', right: '3rem', height: '4px', background: 'var(--border)', borderRadius: '4px' }}><div style={{ height: '100%', background: 'var(--accent-turquoise)', width: '95%', borderRadius: '4px', transition: 'width 0.5s' }} /></div>
               <h2 style={{ fontSize: '2rem', marginBottom: '0.5rem' }}>O que não pode faltar no layout?</h2>
-              <p style={{ fontSize: '1rem', color: 'var(--text-secondary)', marginBottom: '1.5rem' }}>Quais elementos visuais e temáticos são vitais para você? (Escolha até 2)</p>
+              <p style={{ fontSize: '1rem', color: 'var(--text-secondary)', marginBottom: '1.5rem' }}>Quais elementos visuais e temáticos são vitais para você? (Escolha 1 opção)</p>
               <div style={{ width: '100%', marginBottom: '1.5rem', display: 'flex', flexWrap: 'wrap', gap: '10px', justifyContent: 'center' }}>
                 {elementosDesc.map(s => {
                   const isSelected = formData.elementosVisuais.includes(s);
@@ -720,7 +720,7 @@ export default function Home() {
                   )
                 })}
               </div>
-              <button onClick={callMatchmaker} className="btn-primary" style={{ opacity: formData.elementosVisuais.length > 0 ? 1 : 0.5, pointerEvents: formData.elementosVisuais.length > 0 ? 'auto' : 'none' }}>Ativar Casamenteira ✨</button>
+              <button onClick={callMatchmaker} className="btn-primary" style={{ opacity: formData.elementosVisuais.length > 0 ? 1 : 0.5, pointerEvents: formData.elementosVisuais.length > 0 ? 'auto' : 'none' }}>Descobrir meu Estilo Ideal ✨</button>
             </motion.div>
           )}
 
