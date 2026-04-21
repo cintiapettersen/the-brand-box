@@ -36,7 +36,7 @@ const FONT_MAP = {
     fontFamily: "Sacramento", googleFont: true, weight: 400, style: "script", sizeBoost: 1.5,
   },
   "tipografia principal-caligrafia": {
-    fontFamily: "JulietaProGota", fontFile: "/fonts/Latinotype - JulietaProGota.otf", weight: 400, style: "display", sizeBoost: 0.9, lineHeight: 0.9, featureSettings: '"swsh" 1, "salt" 1'
+    fontFamily: "Outfit", googleFont: true, weight: 700, style: "display", sizeBoost: 1.0,
   },
   "tipografia principal-caligrafia 3": {
     fontFamily: "Vellary", fontFile: "/fonts/Vellary.otf", weight: 400, style: "script", sizeBoost: 1.6,
@@ -134,7 +134,7 @@ const FONT_MAP = {
     fontFamily: "Amelie", fontFile: "/fonts/Amelie.otf", weight: 400, style: "script", sizeBoost: 1.1,
   },
   "tipografia principal handrwritem-julieta": {
-    fontFamily: "JulietaProGota", fontFile: "/fonts/Latinotype - JulietaProGota.otf", weight: 400, style: "display", sizeBoost: 1.2, letterSpacing: '2px', lineHeight: 0.9, featureSettings: '"swsh" 1, "salt" 1'
+    fontFamily: "Outfit", googleFont: true, weight: 800, style: "display", sizeBoost: 1.0, letterSpacing: '3px',
   },
   "tipografia principal script delicada-assinatura-faustiine": {
     fontFamily: "Vellary", fontFile: "/fonts/Vellary.otf", weight: 400, style: "script", sizeBoost: 1.6,
