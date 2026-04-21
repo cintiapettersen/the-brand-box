@@ -189,9 +189,8 @@ button {
 }
 
 .brand-board-wrapper {
-  transform: scale(0.82);
-  transform-origin: top center;
-  margin-bottom: -15%;
+  zoom: 0.82;
+  margin: 0 auto;
 }
 
 @media (max-width: 768px) {
@@ -206,20 +205,16 @@ button {
   }
   
   .brand-board-wrapper {
-    transform: scale(0.42) !important;
-    transform-origin: top left !important;
-    margin-bottom: -55% !important;
+    zoom: 0.42;
   }
   
-  /* Flexbox fix for the cropped BrandBoard on Mobile Safari */
   .brand-board-container {
-    justify-content: flex-start !important;
-    padding-left: 5vw !important; /* Visual centering against scaled item */
+    justify-content: center !important;
+    padding-left: 0 !important;
   }
 }
 @media (max-width: 400px) {
   .brand-board-wrapper {
-    transform: scale(0.38) !important;
-    margin-bottom: -60% !important;
+    zoom: 0.38;
   }
 }
