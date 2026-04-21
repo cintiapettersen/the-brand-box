@@ -745,7 +745,15 @@ function GuiaStep({ brand, accentColor, paletteColors, marca, tagline, estampaPa
 }
 
 function EntregaContent({ brand }) {
-  const [step, setStep] = useState('logo');
+  const CARTAO_KEY = 'brandbox_cartao';
+  const STEP_KEY = 'brandbox_step';
+
+  const savedCartao = (() => { try { return JSON.parse(localStorage.getItem(CARTAO_KEY) || '{}'); } catch { return {}; } })();
+  const savedStep = (() => { try { return localStorage.getItem(STEP_KEY) || 'logo'; } catch { return 'logo'; } })();
+
+  const [step, setStepState] = useState(savedStep);
+  const setStep = (s) => { setStepState(s); try { localStorage.setItem(STEP_KEY, s); } catch {} };
+
   const [bgColor, setBgColor] = useState('#ffffff');
   const [logoColor, setLogoColor] = useState(brand.activeColor || '#dc3495');
   const [downloading, setDownloading] = useState(false);
@@ -757,9 +765,27 @@ function EntregaContent({ brand }) {
   const [estampaSelectedIdx, setEstampaSelectedIdx] = useState(0);
   const coresRef = useRef(null);
   const [downloadingCores, setDownloadingCores] = useState(false);
-  const [cartaoContacts, setCartaoContacts] = useState({ telefone: '', whatsapp: '', email: '', site: '', instagram: '', endereco: '' });
-  const [cartaoQrLink, setCartaoQrLink] = useState('');
-  const [cartaoShowQR, setCartaoShowQR] = useState(false);
+  const [cartaoContacts, setCartaoContactsState] = useState(savedCartao.contacts || { telefone: '', whatsapp: '', email: '', site: '', instagram: '', endereco: '' });
+  const [cartaoQrLink, setCartaoQrLinkState] = useState(savedCartao.qrLink || '');
+  const [cartaoShowQR, setCartaoShowQRState] = useState(savedCartao.showQR || false);
+
+  const persistCartao = (patch) => {
+    try {
+      const cur = JSON.parse(localStorage.getItem(CARTAO_KEY) || '{}');
+      localStorage.setItem(CARTAO_KEY, JSON.stringify({ ...cur, ...patch }));
+    } catch {}
+  };
+  const setCartaoContacts = (fn) => setCartaoContactsState(prev => {
+    const next = typeof fn === 'function' ? fn(prev) : fn;
+    persistCartao({ contacts: next });
+    return next;
+  });
+  const setCartaoQrLink = (v) => { setCartaoQrLinkState(v); persistCartao({ qrLink: v }); };
+  const setCartaoShowQR = (fn) => setCartaoShowQRState(prev => {
+    const next = typeof fn === 'function' ? fn(prev) : fn;
+    persistCartao({ showQR: next });
+    return next;
+  });
 
   const downloadCoresPNG = async () => {
     if (!coresRef.current) return;
@@ -1077,7 +1103,7 @@ function EntregaContent({ brand }) {
         {/* Link de reset para testes */}
         <div style={{ marginTop: '3rem', textAlign: 'center' }}>
           <button
-            onClick={() => { localStorage.removeItem('brandbox_delivery'); window.location.href = '/'; }}
+            onClick={() => { localStorage.removeItem('brandbox_delivery'); localStorage.removeItem('brandbox_cartao'); localStorage.removeItem('brandbox_step'); window.location.href = '/'; }}
             style={{ background: 'none', border: 'none', fontSize: '0.62rem', color: '#ddd', cursor: 'pointer', letterSpacing: '1px' }}
           >
             reiniciar teste
