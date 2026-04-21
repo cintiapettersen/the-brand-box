@@ -140,7 +140,7 @@ const FONT_MAP = {
     fontFamily: "Vellary", fontFile: "/fonts/Vellary.otf", weight: 400, style: "script", sizeBoost: 1.6,
   },
   "tipografia principal script delicada-tuttifruti": {
-    fontFamily: "TuttiFrutti", fontFile: "/fonts/TuttiFrutti Regular.ttf", weight: 400, style: "display", sizeBoost: 0.85,
+    fontFamily: "Quicksand", googleFont: true, weight: 500, style: "display", sizeBoost: 1.0,
   },
 
   // ============================================================
