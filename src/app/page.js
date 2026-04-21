@@ -1225,7 +1225,7 @@ export default function Home() {
               </div>
 
               <div style={{ flex: 1, overflowY: 'auto', display: 'flex', justifyContent: 'center', alignItems: 'flex-start', padding: '20px' }}>
-                <div ref={brandBoardRef} style={{ transform: 'scale(0.82)', transformOrigin: 'top center' }}>
+                <div ref={brandBoardRef} style={{ transform: 'scale(clamp(0.40, calc(100vw / 950), 0.82))', transformOrigin: 'top center', marginBottom: '-50%' }}>
                   {(() => { console.log('🎨 paletas state:', paletas.map(p => ({ id: p.id, nome: p.nome_variacao, hex: p.paleta_hex }))); return null; })()}
                   <BrandBoard 
                     data={editData} 

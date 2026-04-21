@@ -711,7 +711,7 @@ function GuiaStep({ brand, accentColor, paletteColors, marca, tagline, estampaPa
         </div>
 
         {/* Tipografia */}
-        <div style={{ padding: '16px 20px', borderBottom: '1px solid #f5f5f5', display: 'flex', gap: '16px' }}>
+        <div className="mobile-wrap" style={{ padding: '16px 20px', borderBottom: '1px solid #f5f5f5', display: 'flex', gap: '16px' }}>
           <div style={{ flex: 1 }}>
             <p style={{ fontSize: '0.55rem', fontWeight: 700, letterSpacing: '2px', textTransform: 'uppercase', color: '#bbb', marginBottom: '6px' }}>Fonte Principal</p>
             <p style={{ fontFamily: `'${fontFamily}', serif`, fontWeight, fontSize: '1.2rem', color: accentColor }}>{fontFamily}</p>
@@ -740,7 +740,10 @@ function GuiaStep({ brand, accentColor, paletteColors, marca, tagline, estampaPa
       >
         ⬇ Baixar Guia em PDF
       </button>
-      <p style={{ textAlign: 'center', fontSize: '0.7rem', color: '#bbb' }}>Uma nova aba abrirá — use "Salvar como PDF" no menu de impressão</p>
+      <p style={{ textAlign: 'center', fontSize: '0.7rem', color: '#bbb' }}>
+        Uma nova aba abrirá — use "Salvar como PDF" no menu de impressão.<br/>
+        <span style={{ fontSize: '0.62rem', color: '#ccc' }}>(Se não abrir, verifique se seu navegador bloqueou Pop-ups)</span>
+      </p>
     </div>
   );
 }
@@ -846,8 +849,9 @@ function EntregaContent({ brand }) {
     <div style={{ minHeight: '100vh', background: '#faf9f7', fontFamily: 'Montserrat, sans-serif', paddingBottom: '3rem' }}>
 
       {/* Banner topo */}
-      <div style={{ background: '#e8f7f5', padding: '10px 20px', textAlign: 'center', fontSize: '0.78rem', color: '#1a7a6e', fontWeight: 600, letterSpacing: '0.3px' }}>
-        🎉 Pagamento confirmado! Aqui está sua marca.
+      <div className="mobile-col" style={{ background: '#e8f7f5', padding: '10px 20px', textAlign: 'center', fontSize: '0.78rem', color: '#1a7a6e', fontWeight: 600, letterSpacing: '0.3px', display: 'flex', justifyContent: 'center', gap: '6px', alignItems: 'center' }}>
+        <span>🎉 Pagamento confirmado! Aqui está sua marca.</span>
+        <span style={{ fontSize: '0.7rem', color: '#115048' }}>Faça o download dos arquivos neste dispositivo atual por segurança.</span>
       </div>
 
       <div style={{ maxWidth: '480px', margin: '0 auto', padding: '1.5rem 1.4rem 0' }}>
