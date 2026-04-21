@@ -128,31 +128,33 @@ const BrandBoard = ({ data, palette, color, patternImage, iconPath }) => {
             {words.length === 2 ? (
               <div style={{ textAlign: 'center' }}>
                 {words.map((word, i) => (
-                  <h1 key={i} style={{ 
-                    fontFamily: `'${data.fontFamily || 'Playfair Display'}', serif`, 
-                    fontWeight: data.fontWeight || 700, 
+                  <h1 key={i} style={{
+                    fontFamily: `'${data.fontFamily || 'Playfair Display'}', serif`,
+                    fontWeight: data.fontWeight || 700,
                     fontSize,
-                    color: activeColor, 
+                    color: activeColor,
                     lineHeight: data.fontLineHeight || (isScript ? 0.85 : 1.1),
                     letterSpacing: data.fontLetterSpacing || (isScript ? '0px' : '1px'),
-                    fontFeatureSettings: data.fontFeatureSettings
                   }}>
-                    {word}
+                    {data.fontFeatureSettings && i === 0 ? (
+                      <><span style={{ fontFeatureSettings: data.fontFeatureSettings }}>{word[0]}</span><span style={{ fontFeatureSettings: 'normal' }}>{word.slice(1)}</span></>
+                    ) : word}
                   </h1>
                 ))}
               </div>
             ) : (
-              <h1 style={{ 
-                fontFamily: `'${data.fontFamily || 'Playfair Display'}', serif`, 
-                fontWeight: data.fontWeight || 700, 
+              <h1 style={{
+                fontFamily: `'${data.fontFamily || 'Playfair Display'}', serif`,
+                fontWeight: data.fontWeight || 700,
                 fontSize,
-                color: activeColor, 
-                textAlign: 'center', 
+                color: activeColor,
+                textAlign: 'center',
                 lineHeight: data.fontLineHeight || 1.15,
                 letterSpacing: isScript ? '0px' : '1px',
-                fontFeatureSettings: data.fontFeatureSettings
               }}>
-                {words.join(' ')}
+                {data.fontFeatureSettings ? (
+                  <><span style={{ fontFeatureSettings: data.fontFeatureSettings }}>{words.join(' ')[0]}</span><span style={{ fontFeatureSettings: 'normal' }}>{words.join(' ').slice(1)}</span></>
+                ) : words.join(' ')}
               </h1>
             )}
             <p style={{ 

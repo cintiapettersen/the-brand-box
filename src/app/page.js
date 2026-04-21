@@ -748,8 +748,8 @@ export default function Home() {
               <p style={{ fontSize: '0.9rem', color: 'var(--text-secondary)', marginBottom: '0.5rem', textTransform: 'uppercase', letterSpacing: '2px', fontWeight: 600 }}>O MATCH PERFEITO PARA {formData.marca || "SUA MARCA"}</p>
               <h2 style={{ fontSize: '2.5rem', marginBottom: '1.5rem', color: 'var(--accent-magenta)', fontWeight: 600 }}>{resultadoFinal.estiloNome}</h2>
               
-              <div style={{ background: 'var(--bg-soft)', padding: '2rem', borderRadius: '16px', marginBottom: '2rem', border: '1px solid var(--border)' }}>
-                <p style={{ fontSize: '1.15rem', color: 'var(--text-primary)', lineHeight: 1.6, fontStyle: 'italic' }}>
+              <div style={{ background: 'var(--bg-soft)', padding: '1.5rem', borderRadius: '16px', marginBottom: '2rem', border: '1px solid var(--border)' }}>
+                <p className="mobile-font-sm" style={{ fontSize: '1.15rem', color: 'var(--text-primary)', lineHeight: 1.5, fontStyle: 'italic' }}>
                   "{resultadoFinal.mensagem}"
                 </p>
               </div>
@@ -862,8 +862,10 @@ export default function Home() {
                               transition: 'all 0.2s ease',
                               boxShadow: selectedTipo === t.id ? '0 4px 15px rgba(60,204,191,0.2)' : 'none'
                             }}>
-                              <p style={{ fontFamily: `'${fontFamily}', serif`, fontWeight, fontSize: finalSize, textAlign: 'center', lineHeight: fontInfo?.lineHeight || 1.2, color: '#333', letterSpacing: extraSpacing, fontFeatureSettings: fontInfo?.featureSettings }}>
-                                {displayName}
+                              <p style={{ fontFamily: `'${fontFamily}', serif`, fontWeight, fontSize: finalSize, textAlign: 'center', lineHeight: fontInfo?.lineHeight || 1.2, color: '#333', letterSpacing: extraSpacing }}>
+                                {fontInfo?.featureSettings ? (
+                                  <><span style={{ fontFeatureSettings: fontInfo.featureSettings }}>{displayName[0]}</span><span style={{ fontFeatureSettings: 'normal' }}>{displayName.slice(1)}</span></>
+                                ) : displayName}
                               </p>
                               <p style={{ fontSize: '0.5rem', color: '#aaa', marginTop: '8px', textTransform: 'uppercase', letterSpacing: '1.5px', fontFamily: "'Outfit', sans-serif" }}>
                                 {fontFamily}
@@ -898,23 +900,24 @@ export default function Home() {
                             }}>
                               {cores.length > 0 ? (
                                 <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '8px' }}>
-                                  <div style={{ display: 'flex', gap: '10px', justifyContent: 'center' }}>
+                                  <div style={{ display: 'flex', gap: '6px', justifyContent: 'center' }}>
                                     {row1.map((hex, ci) => (
                                       <div key={ci} style={{
-                                        width: ci === 0 ? '58px' : '50px',
-                                        height: ci === 0 ? '58px' : '50px',
+                                        width: ci === 0 ? '45px' : '38px',
+                                        height: ci === 0 ? '45px' : '38px',
                                         backgroundColor: hex,
                                         borderRadius: blobShapes[(ci + pi) % blobShapes.length],
                                         boxShadow: `0 3px 10px ${hex}35`,
+                                        flexShrink: 0
                                       }} />
                                     ))}
                                   </div>
                                   {row2.length > 0 && (
-                                    <div style={{ display: 'flex', gap: '10px', justifyContent: 'center' }}>
+                                    <div style={{ display: 'flex', gap: '6px', justifyContent: 'center' }}>
                                       {row2.map((hex, ci) => (
                                         <div key={ci} style={{
-                                          width: '46px',
-                                          height: '46px',
+                                          width: '36px',
+                                          height: '36px',
                                           backgroundColor: hex,
                                           borderRadius: blobShapes[(ci + 3 + pi) % blobShapes.length],
                                           boxShadow: `0 3px 10px ${hex}35`,
@@ -1181,8 +1184,10 @@ export default function Home() {
                                 ? raw.split(' ').map(w => w.charAt(0).toUpperCase() + w.slice(1).toLowerCase()).join(' ')
                                 : raw.toUpperCase();
                               return (
-                                <p style={{ fontSize: '1.1rem', fontWeight: 800, letterSpacing: editData.fontLetterSpacing || '1px', color: editData.corAtiva || '#333', lineHeight: editData.fontLineHeight || 1.2, fontFamily: editData.fontFamily ? `'${editData.fontFamily}', serif` : 'inherit', fontFeatureSettings: editData.fontFeatureSettings }}>
-                                  {name}
+                                <p style={{ fontSize: '1.1rem', fontWeight: 800, letterSpacing: editData.fontLetterSpacing || '1px', color: editData.corAtiva || '#333', lineHeight: editData.fontLineHeight || 1.2, fontFamily: editData.fontFamily ? `'${editData.fontFamily}', serif` : 'inherit' }}>
+                                  {editData.fontFeatureSettings ? (
+                                    <><span style={{ fontFeatureSettings: editData.fontFeatureSettings }}>{name[0]}</span><span style={{ fontFeatureSettings: 'normal' }}>{name.slice(1)}</span></>
+                                  ) : name}
                                 </p>
                               );
                             })()}
