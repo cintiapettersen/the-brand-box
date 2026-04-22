@@ -1194,33 +1194,19 @@ function EntregaContent({ brand, plano }) {
     ? { ...editData, fontFamily: 'Montserrat', fontWeight: 700, fontStyle: 'display' }
     : editData;
 
-  // Carrega a fonte da marca dinamicamente e espera ela estar pronta
+  // Espera a fonte da marca estar disponível antes de renderizar o logo
   const [fontReady, setFontReady] = useState(false);
   useEffect(() => {
     const fontName = editData?.fontFamily;
+    const fontWeight = editData?.fontWeight || 400;
     if (!fontName) { setFontReady(true); return; }
-
-    const linkId = 'dynamic-brand-font';
-    const loadFont = async () => {
-      if (!document.getElementById(linkId)) {
-        const link = document.createElement('link');
-        link.id = linkId;
-        link.rel = 'stylesheet';
-        link.href = `https://fonts.googleapis.com/css2?family=${fontName.replace(/ /g, '+')}:ital,wght@0,400;0,700;0,800;1,400&display=swap`;
-        document.head.appendChild(link);
-        // Aguarda o CSS ser parseado antes de checar a fonte
-        await new Promise(r => setTimeout(r, 100));
-      }
-      try {
-        await Promise.race([
-          document.fonts.load(`700 16px '${fontName}'`),
-          new Promise(r => setTimeout(r, 3000)), // timeout de 3s
-        ]);
-      } catch {}
-      setFontReady(true);
-    };
-    loadFont();
-  }, [editData?.fontFamily]);
+    let cancelled = false;
+    const t = setTimeout(() => { if (!cancelled) setFontReady(true); }, 3000);
+    document.fonts.load(`${fontWeight} 16px '${fontName}'`)
+      .then(() => { if (!cancelled) setFontReady(true); })
+      .catch(() => { if (!cancelled) setFontReady(true); });
+    return () => { cancelled = true; clearTimeout(t); };
+  }, [editData?.fontFamily, editData?.fontWeight]);
 
   const paletteColors = (() => {
     const sel = paletas?.find(p => p.id === brand.selectedPaleta);
