@@ -11,6 +11,37 @@ const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
 );
 
+function LogoPreviewHTML({ editData, color }) {
+  const isScript = editData?.fontStyle === 'script';
+  const sizeBoost = editData?.fontSizeBoost || 1;
+  const marca = editData?.marca || '';
+  const words = marca.split(' ').map(w =>
+    isScript ? w.charAt(0).toUpperCase() + w.slice(1).toLowerCase() : w.toUpperCase()
+  );
+  const baseSize = words.length >= 3 ? (marca.length > 15 ? 1.4 : 1.7) : words.length === 2 ? 2.0 : 2.6;
+  const fontSize = `${(baseSize * sizeBoost).toFixed(1)}rem`;
+  return (
+    <div style={{ width: '100%', height: '100%', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
+      <div style={{
+        fontFamily: `'${editData?.fontFamily || 'Playfair Display'}', serif`,
+        fontWeight: editData?.fontWeight || 700,
+        fontSize,
+        color: color,
+        textAlign: 'center',
+        lineHeight: editData?.fontLineHeight || (isScript ? 0.9 : 1.1),
+        letterSpacing: editData?.fontLetterSpacing || (isScript ? '0px' : '1px'),
+      }}>
+        {words.map((word, i) => <div key={i}>{word}</div>)}
+      </div>
+      {editData?.tagline && (
+        <div style={{ fontFamily: "'Montserrat', sans-serif", fontSize: '0.5rem', letterSpacing: '2.5px', textTransform: 'uppercase', color: '#999', marginTop: '8px' }}>
+          {editData.tagline}
+        </div>
+      )}
+    </div>
+  );
+}
+
 function ColorDot({ color, selected, onClick, size = 32 }) {
   return (
     <div
@@ -1317,14 +1348,17 @@ function EntregaContent({ brand, plano }) {
             transition: 'background 0.2s ease',
           }}
         >
-          <div style={{ width: '68%', height: '68%', opacity: fontReady ? 1 : 0, transition: 'opacity 0.3s ease' }}>
-            <BrandTemplateSVG
-              data={step === 'submarca' ? seloData : editData}
-              color={logoColor}
-              side={step === 'logo' ? 'frente' : 'verso'}
-              hideBackground={true}
-              iconPath={step === 'submarca' ? currentIconPath : undefined}
-            />
+          <div style={{ width: '68%', height: '68%', opacity: step === 'submarca' ? (fontReady ? 1 : 0) : 1, transition: 'opacity 0.3s ease' }}>
+            {step === 'logo'
+              ? <LogoPreviewHTML editData={editData} color={logoColor} />
+              : <BrandTemplateSVG
+                  data={seloData}
+                  color={logoColor}
+                  side="verso"
+                  hideBackground={true}
+                  iconPath={currentIconPath}
+                />
+            }
           </div>
         </div>}
 
