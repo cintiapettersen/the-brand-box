@@ -1593,6 +1593,7 @@ function SucessoContent() {
   const params = useSearchParams();
   const [brand, setBrand] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [showWelcome, setShowWelcome] = useState(false);
   const [plano, setPlano] = useState(() => {
     try {
       const stored = localStorage.getItem('brandbox_plano');
@@ -1660,6 +1661,7 @@ function SucessoContent() {
               }
             }
 
+            setShowWelcome(true);
             setLoading(false);
             return;
           }
@@ -1706,6 +1708,7 @@ function SucessoContent() {
         const saved = localStorage.getItem('brandbox_delivery');
         if (saved) setBrand(JSON.parse(saved));
       } catch {}
+      if (planoParam) setShowWelcome(true);
       setLoading(false);
     };
 
@@ -1714,6 +1717,68 @@ function SucessoContent() {
 
 
   if (loading) return null;
+
+  if (showWelcome) {
+    const nomeCliente = brand?.formData?.nome || brand?.editData?.marca || '';
+    return (
+      <div style={{
+        minHeight: '100vh', display: 'flex', flexDirection: 'column',
+        alignItems: 'center', justifyContent: 'center',
+        background: 'linear-gradient(160deg, #fff5fb 0%, #f0f9ff 100%)',
+        padding: '2rem', textAlign: 'center', fontFamily: 'Montserrat, sans-serif',
+        position: 'relative', overflow: 'hidden',
+      }}>
+        {/* Fundo decorativo */}
+        <div style={{ position: 'absolute', top: '-80px', right: '-80px', width: '320px', height: '320px', borderRadius: '50%', background: 'rgba(220,52,149,0.06)', pointerEvents: 'none' }} />
+        <div style={{ position: 'absolute', bottom: '-60px', left: '-60px', width: '240px', height: '240px', borderRadius: '50%', background: 'rgba(60,204,191,0.07)', pointerEvents: 'none' }} />
+
+        <div style={{ maxWidth: '480px', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '1.5rem' }}>
+          {/* Ícone */}
+          <div style={{ fontSize: '3.5rem', lineHeight: 1 }}>✨</div>
+
+          {/* Título */}
+          <div>
+            <p style={{ fontSize: '0.7rem', letterSpacing: '3px', textTransform: 'uppercase', color: '#dc3495', fontWeight: 700, marginBottom: '0.75rem' }}>
+              The Brand Box
+            </p>
+            <h1 style={{ fontSize: '2rem', fontWeight: 800, color: '#1a1a1a', lineHeight: 1.2, margin: 0 }}>
+              {nomeCliente ? `${nomeCliente}, sua marca` : 'Sua marca'}<br />
+              <span style={{ color: '#dc3495' }}>está nascendo agora.</span>
+            </h1>
+          </div>
+
+          {/* Mensagem emocional */}
+          <p style={{ fontSize: '1.05rem', color: '#555', lineHeight: 1.8, margin: 0 }}>
+            Esse é o começo de algo lindo. Nós vamos te guiar, passo a passo, para você construir a <strong>marca dos seus sonhos</strong> — com a sua essência, do seu jeito.
+          </p>
+
+          {/* Separador */}
+          <div style={{ width: '40px', height: '2px', background: 'linear-gradient(90deg, #dc3495, #3cccbf)', borderRadius: '2px' }} />
+
+          {/* CTA */}
+          <button
+            onClick={() => setShowWelcome(false)}
+            style={{
+              background: 'linear-gradient(135deg, #dc3495, #c42d84)',
+              color: '#fff', border: 'none', borderRadius: '50px',
+              padding: '1rem 2.5rem', fontSize: '1rem', fontWeight: 700,
+              cursor: 'pointer', letterSpacing: '0.3px',
+              boxShadow: '0 10px 30px rgba(220,52,149,0.3)',
+              transition: 'transform 0.2s ease',
+            }}
+            onMouseEnter={e => e.currentTarget.style.transform = 'translateY(-2px)'}
+            onMouseLeave={e => e.currentTarget.style.transform = 'translateY(0)'}
+          >
+            Vamos construir minha marca →
+          </button>
+
+          <p style={{ fontSize: '0.75rem', color: '#bbb', margin: 0 }}>
+            Pagamento confirmado · {plano === 'complete' ? 'Brand Box Complete' : 'Brand Box Experience'}
+          </p>
+        </div>
+      </div>
+    );
+  }
 
   if (!brand) {
     return (
