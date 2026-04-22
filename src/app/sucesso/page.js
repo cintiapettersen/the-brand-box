@@ -1614,6 +1614,7 @@ function SucessoContent() {
       localStorage.removeItem('brandbox_papelaria');
       localStorage.removeItem('brandbox_plano');
       localStorage.removeItem('brandbox_session');
+      localStorage.removeItem('brandbox_email_sent');
       window.location.href = '/sucesso';
       return;
     }
@@ -1667,7 +1668,23 @@ function SucessoContent() {
         }
       }
 
-      // 2. Fallback: lê do localStorage (dev/teste)
+      // 2. Fallback: lê do localStorage (sem sessão Supabase)
+      // Se veio do Stripe (tem planoParam) e email ainda não foi enviado, dispara agora
+      if (planoParam && !localStorage.getItem('brandbox_email_sent')) {
+        try {
+          const delivery = JSON.parse(localStorage.getItem('brandbox_delivery') || '{}');
+          const emailToSend = delivery.formData?.email;
+          const marcaToSend = delivery.formData?.marca || delivery.editData?.marca;
+          if (emailToSend) {
+            fetch('/api/send-email', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ email: emailToSend, marca: marcaToSend, sessionId: 'no-session', plano: planoParam }),
+            }).then(() => localStorage.setItem('brandbox_email_sent', '1')).catch(() => {});
+          }
+        } catch {}
+      }
+
       if (planoParam) {
         localStorage.setItem('brandbox_plano', planoParam);
         setPlano(planoParam);
