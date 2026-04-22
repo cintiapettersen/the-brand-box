@@ -17,7 +17,7 @@ const PLANOS = {
 
 export async function POST(request) {
   try {
-    const { plano, marca, email } = await request.json();
+    const { plano, marca, email, extrasCount = 0 } = await request.json();
     const stripe = new Stripe(process.env.STRIPE_SECRET_KEY || 'dummy_key_for_build');
 
     const planoData = PLANOS[plano];
@@ -27,21 +27,37 @@ export async function POST(request) {
 
     const origin = request.headers.get('origin') || 'http://localhost:3000';
 
+    const line_items = [
+      {
+        price_data: {
+          currency: 'brl',
+          product_data: {
+            name: planoData.name,
+            description: planoData.description,
+          },
+          unit_amount: planoData.amount,
+        },
+        quantity: 1,
+      },
+    ];
+
+    if (plano === 'complete' && extrasCount > 0) {
+      line_items.push({
+        price_data: {
+          currency: 'brl',
+          product_data: {
+            name: 'Gabaritos Extras de Papelaria',
+            description: `${extrasCount} itens avulsos de papelaria padrão-gráfica.`,
+          },
+          unit_amount: 3000, // R$ 30,00 em centavos
+        },
+        quantity: extrasCount,
+      });
+    }
+
     const session = await stripe.checkout.sessions.create({
       payment_method_types: ['card', 'pix'],
-      line_items: [
-        {
-          price_data: {
-            currency: 'brl',
-            product_data: {
-              name: planoData.name,
-              description: planoData.description,
-            },
-            unit_amount: planoData.amount,
-          },
-          quantity: 1,
-        },
-      ],
+      line_items,
       mode: 'payment',
       customer_email: email || undefined,
       metadata: { plano, marca: marca || '' },

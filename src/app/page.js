@@ -10,6 +10,23 @@ import { createClient } from '@supabase/supabase-js';
 import FONT_MAP from '../lib/fontMap';
 import { STYLE_ICONS, getIconById } from '../lib/styleIcons';
 
+const PAPELARIA_CLINICA = [
+  "Cartão de Visita", "Receituário Padrão", "Atestado Médico", "Cartão de Retorno", "Pasta A4 Exclusiva",
+  "Envelope", "Recibo", "Receituário de Controle Especial", "Dicas de Introdução Alimentar",
+  "Guia de Vacina c/ Calendário", "Ficha de Acompanhamento", "Orientação Pré-Natal",
+  "Cartão de Exames", "Checklist Maternidade", "Guia do Sono", "Orientações p/ Recém Nascidos",
+  "Prontuário Médico", "Receita de Alta", "Ficha de Cadastro",
+  "Certificado de Coragem", "Quadro de Incentivo", "Cartão de Aniversário Exclusivo",
+  "Arte para Caneca/Brindes", "Gráfico de Crescimento", "Diário do Xixi", "Card de Orientação de Sono",
+  "Meu Pratinho", "Guia de Amamentação", "Fundo de Tira Dúvidas Instagram"
+];
+
+const PAPELARIA_INSTITUCIONAL = [
+  "Cartão de Visita", "Pasta A4 Exclusiva", "Envelope Saco", "Papel Timbrado", 
+  "Cartão de Agradecimento (10x15cm)", "Etiqueta para Correios", "Recibo Comercial",
+  "Cartão de Retorno/Fidelidade", "Assinatura de E-mail", "Tag para Sacola"
+];
+
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
 const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
 const supabase = createClient(supabaseUrl, supabaseKey);
@@ -89,7 +106,11 @@ export default function Home() {
     viewType: 'itens'
   });
   
+  const atuacoesSaude = ['Pediatria / Saúde infantil', 'Obstetrícia / Saúde da mulher', 'Clínica / Saúde geral adulta', 'Terapia / Saúde mental', 'Estética / Bem-estar / Nutrição'];
+  const isSaude = atuacoesSaude.includes(formData.atuacao);
+
   const [showPediatriaModal, setShowPediatriaModal] = useState(false);
+  const [papelariaSelecionada, setPapelariaSelecionada] = useState([]);
   const [patternGenerationCount, setPatternGenerationCount] = useState(0);
   const [showRefazerModal, setShowRefazerModal] = useState(false);
   const [refazerAttempts, setRefazerAttempts] = useState(0);
@@ -1463,18 +1484,20 @@ export default function Home() {
                       <h3 style={{ color: '#3a1a2e', fontSize: '1.2rem', fontWeight: 700 }}>Complete</h3>
                     </div>
                     <span style={{ display: 'inline-block', background: 'rgba(220,52,149,0.12)', color: 'var(--accent-magenta)', fontSize: '0.7rem', fontWeight: 700, borderRadius: '20px', padding: '3px 10px', letterSpacing: '0.5px', marginBottom: '10px' }}>Logo tipográfica ou com ilustração</span>
-                    <span style={{ fontWeight: 700, fontSize: '1.4rem', display: 'block', marginBottom: '10px', color: '#3a1a2e' }}>R$ 897</span>
+                    <span style={{ fontWeight: 700, fontSize: '1.4rem', display: 'block', marginBottom: '10px', color: '#3a1a2e' }}>
+                      R$ {897 + Math.max(0, papelariaSelecionada.length - 5) * 30}
+                      {papelariaSelecionada.length > 5 && <span style={{ fontSize: '0.8rem', color: 'var(--accent-magenta)', fontWeight: 700, marginLeft: '8px' }}>(+ adicionais)</span>}
+                    </span>
                     <ul style={{ fontSize: '0.85rem', margin: '0 0 12px 0', paddingLeft: '0', display: 'flex', flexDirection: 'column', gap: '5px', listStyle: 'none' }}>
                       {['Tudo do Brand Box Experience', 'Papelaria personalizada para sua marca', 'Templates editáveis para Instagram', 'Elementos visuais (mockups, ícones, avatares)', '✨ Manifesto da sua marca', '✨ Tom de voz e comunicação da marca', '✨ Estampa exclusiva da marca'].map(i => {
                         const isPapelaria = i === 'Papelaria personalizada para sua marca';
-                        const isSaude = ['Pediatria / Saúde infantil', 'Obstetrícia / Saúde da mulher', 'Clínica / Saúde geral adulta', 'Terapia / Saúde mental', 'Estética / Bem-estar / Nutrição'].includes(formData.atuacao);
                         return (
                           <li key={i} style={{ display: 'flex', alignItems: 'center', gap: '8px', color: '#4a1f3a', flexWrap: 'wrap' }}>
                             {!i.startsWith('✨') && <span style={{ color: 'var(--accent-magenta)', fontWeight: 700 }}>✔</span>}
                             <span>{i}</span>
-                            {isPapelaria && isSaude && (
+                            {isPapelaria && (
                               <button onClick={() => setShowPediatriaModal(true)} style={{ background: 'rgba(220,52,149,0.1)', color: 'var(--accent-magenta)', border: 'none', padding: '3px 8px', borderRadius: '10px', fontSize: '0.7rem', fontWeight: 700, cursor: 'pointer', marginLeft: 'auto' }}>
-                                👀 Ver 29 opções de bônus
+                                👀 Selecionar itens
                               </button>
                             )}
                           </li>
@@ -1499,13 +1522,15 @@ export default function Home() {
                           iconPath: getIconById(resultadoFinal?.estiloNome, selectedIcon)?.path || null,
                           patternGenerationCount,
                           estampas,
+                          papelariaSelecionada,
                         };
                         localStorage.setItem('brandbox_delivery', JSON.stringify(brandState));
                         if (brandState.pattern) try { localStorage.setItem('brandbox_pattern', JSON.stringify(brandState.pattern)); } catch {}
+                        const extrasCount = Math.max(0, papelariaSelecionada.length - 5);
                         const res = await fetch('/api/checkout', {
                           method: 'POST',
                           headers: { 'Content-Type': 'application/json' },
-                          body: JSON.stringify({ plano: 'complete', marca: formData.marca, email: formData.email }),
+                          body: JSON.stringify({ plano: 'complete', marca: formData.marca, email: formData.email, extrasCount, papelaria: papelariaSelecionada }),
                         });
                         const data = await res.json();
                         if (data.url) window.location.href = data.url;
@@ -1613,32 +1638,33 @@ export default function Home() {
                     
                     <div style={{ padding: '20px', background: 'var(--accent-magenta)', color: '#fff', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                        <div>
-                          <h2 style={{ fontSize: '1.5rem', marginBottom: '5px' }}>Bônus: Papelaria Clínica</h2>
-                          <p style={{ opacity: 0.8, fontSize: '0.9rem' }}>Os clientes do Pacote Completo têm direito a 15 itens à escolha!</p>
+                          <h2 style={{ fontSize: '1.5rem', marginBottom: '5px' }}>Bônus: Papelaria Completa</h2>
+                          <p style={{ opacity: 0.8, fontSize: '0.9rem' }}>Escolha seus 5 itens gratuitos. Itens adicionais saem por R$30 cada!</p>
                        </div>
                        <button onClick={() => setShowPediatriaModal(false)} style={{ background: 'transparent', border: 'none', color: '#fff', fontSize: '2rem', cursor: 'pointer' }}>×</button>
                     </div>
 
                     <div style={{ padding: '20px', flex: 1, overflowY: 'auto', display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(250px, 1fr))', gap: '10px', background: '#fcfcfc' }}>
-                       {[
-                         "Cartão de Visita", "Receituário Padrão", "Atestado Médico", "Cartão de Retorno", "Pasta A4 Exclusiva",
-                         "Envelope", "Recibo", "Receituário de Controle Especial", "Dicas de Introdução Alimentar",
-                         "Guia de Vacina c/ Calendário", "Ficha de Acompanhamento", "Orientação Pré-Natal",
-                         "Cartão de Exames", "Checklist Maternidade", "Guia do Sono", "Orientações p/ Recém Nascidos",
-                         "Prontuário Médico", "Receita de Alta", "Ficha de Cadastro",
-                         "Certificado de Coragem", "Quadro de Incentivo", "Cartão de Aniversário Exclusivo",
-                         "Arte para Caneca/Brindes", "Gráfico de Crescimento", "Diário do Xixi", "Card de Orientação de Sono",
-                         "Meu Pratinho", "Guia de Amamentação", "Fundo de Tira Dúvidas Instagram"
-                       ].map(item => (
-                          <label key={item} style={{ display: 'flex', alignItems: 'center', gap: '10px', padding: '12px', background: '#fff', border: '1px solid var(--border)', borderRadius: '8px', cursor: 'pointer', fontSize: '0.9rem', transition: 'all 0.2s', boxShadow: '0 2px 5px rgba(0,0,0,0.02)' }}>
-                             <input type="checkbox" style={{ width: '18px', height: '18px', accentColor: 'var(--accent-magenta)' }} />
-                             {item}
-                          </label>
-                       ))}
+                       {(isSaude ? PAPELARIA_CLINICA : PAPELARIA_INSTITUCIONAL).map(item => {
+                          const selecionado = papelariaSelecionada.includes(item);
+                          return (
+                            <label key={item} style={{ display: 'flex', alignItems: 'center', gap: '10px', padding: '12px', background: selecionado ? '#fff0f8' : '#fff', border: `1px solid ${selecionado ? 'var(--accent-magenta)' : 'var(--border)'}`, borderRadius: '8px', cursor: 'pointer', fontSize: '0.9rem', transition: 'all 0.2s', boxShadow: selecionado ? '0 2px 8px rgba(220,52,149,0.1)' : '0 2px 5px rgba(0,0,0,0.02)' }}>
+                               <input type="checkbox" checked={selecionado} onChange={(e) => {
+                                 if (e.target.checked) setPapelariaSelecionada([...papelariaSelecionada, item]);
+                                 else setPapelariaSelecionada(papelariaSelecionada.filter(i => i !== item));
+                               }} style={{ width: '18px', height: '18px', accentColor: 'var(--accent-magenta)' }} />
+                               {item}
+                            </label>
+                          );
+                       })}
                     </div>
 
-                    <div style={{ padding: '20px', background: '#fff', borderTop: '1px solid var(--border)', textAlign: 'center' }}>
-                       <button onClick={() => setShowPediatriaModal(false)} className="btn-primary" style={{ background: 'var(--accent-magenta)', width: '250px' }}>Salvar Minhas Escolhas</button>
+                    <div style={{ padding: '20px', background: '#fff', borderTop: '1px solid var(--border)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                       <div style={{ textAlign: 'left' }}>
+                         <span style={{ fontWeight: 700, color: 'var(--text-primary)' }}>Selecionados: {papelariaSelecionada.length} de 5 grátis</span>
+                         {papelariaSelecionada.length > 5 && <div style={{ fontSize: '0.8rem', color: 'var(--accent-magenta)', fontWeight: 700, marginTop: '2px' }}>+{papelariaSelecionada.length - 5} extras (+R$ {(papelariaSelecionada.length - 5)*30})</div>}
+                       </div>
+                       <button onClick={() => setShowPediatriaModal(false)} className="btn-primary" style={{ background: 'var(--accent-magenta)', width: '250px' }}>Salvar Escolhas</button>
                     </div>
 
                  </motion.div>

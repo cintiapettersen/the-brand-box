@@ -744,7 +744,119 @@ function GuiaStep({ brand, accentColor, paletteColors, marca, tagline, estampaPa
   );
 }
 
-function EntregaContent({ brand }) {
+function PapelariaStep({ brand, accentColor, paletteColors, estampaPatterns, cartaoContacts, logoRef, plano }) {
+  const itens = brand.papelariaSelecionada || [];
+  
+  if (plano !== 'complete' || itens.length === 0) {
+     return <div style={{ textAlign: 'center', padding: '2rem 0', color: '#888' }}>Nenhuma papelaria inclusa no seu pacote.</div>;
+  }
+
+  const openGabarito = (item) => {
+    const patternSrc = estampaPatterns?.[0] ? `data:${estampaPatterns[0].mimeType};base64,${estampaPatterns[0].base64}` : null;
+    const logoHtml = logoRef?.current?.innerHTML || '';
+    
+    let sizeCSS = '@page { size: A4 portrait; margin: 0; }';
+    let containerStyle = 'width: 210mm; height: 297mm;';
+    
+    if (item.includes('Cartão de Visita') || item.includes('Tag') || item.includes('Agradecimento')) {
+       sizeCSS = '@page { size: 90mm 50mm; margin: 0; }';
+       containerStyle = 'width: 90mm; height: 50mm;';
+    } else if (item.includes('Receituário') || item.includes('Timbrado')) {
+       sizeCSS = '@page { size: A4 portrait; margin: 0; }';
+       containerStyle = 'width: 210mm; height: 297mm;';
+    } else if (item.includes('Envelope')) {
+       sizeCSS = '@page { size: 240mm 340mm; margin: 0; }';
+       containerStyle = 'width: 240mm; height: 340mm;';
+    }
+
+    const { endereco, whatsapp, telefone, instagram } = cartaoContacts;
+    const mainPhone = whatsapp || telefone || '';
+    const footerHtml = (endereco || mainPhone || instagram) ? `
+      <div style="position: absolute; bottom: 0; left: 0; width: 100%; background: ${accentColor}; color: #fff; padding: 12mm; display: flex; justify-content: space-between; align-items: center; font-size: 10pt; font-family: 'Montserrat', sans-serif;">
+        <div style="max-width: 60%;">${endereco || 'Espaço reservado para endereço'}</div>
+        <div style="display: flex; gap: 15px;">
+           ${instagram ? `<span>${instagram}</span>` : ''}
+           ${mainPhone ? `<strong>${mainPhone}</strong>` : ''}
+        </div>
+      </div>
+    ` : '';
+
+    const html = `<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<title>Gabarito - ${item}</title>
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: #555; display: flex; justify-content: center; padding: 20px; font-family: 'Montserrat', sans-serif; }
+  .gabarito { 
+    background: #fff; 
+    position: relative; 
+    ${containerStyle}
+    box-shadow: 0 0 20px rgba(0,0,0,0.5);
+    overflow: hidden;
+  }
+  @media print {
+    body { background: #fff; padding: 0; display: block; }
+    .gabarito { box-shadow: none; page-break-after: always; }
+    .print-btn, .print-helper { display: none !important; }
+    ${sizeCSS}
+  }
+  .print-btn { position: fixed; bottom: 30px; right: 30px; padding: 15px 30px; background: #dc3495; color: #fff; border:none; border-radius: 30px; font-weight: bold; cursor: pointer; z-index: 999; box-shadow: 0 4px 15px rgba(0,0,0,0.2); }
+  .print-helper { position: fixed; top: 0; left: 0; width: 100%; background: #ffeb3b; color: #333; text-align: center; padding: 8px; font-size: 12px; font-weight: 600; z-index: 999; }
+</style>
+</head>
+<body>
+  <div class="print-helper">Atenção: Ao clicar em gerar PDF, certifique-se de que a opção "Gráficos de plano de fundo" (Background graphics) esteja MARCADAS, e as margens definidas como "Nenhuma".</div>
+  <button class="print-btn" onclick="window.print()">🖨️ Salvar PDF Padrão Gráfica</button>
+  <div class="gabarito">
+     <!-- Fundo com Estampa -->
+     <div style="position: absolute; top:0; left:0; width: 100%; height: 100%; 
+                 ${patternSrc ? `background-image: url(${patternSrc}); background-size: 60mm; background-repeat: repeat; mix-blend-mode: multiply; opacity: 0.1;` : ''}">
+     </div>
+     
+     <!-- Logo Topo -->
+     <div style="position: absolute; top: 15mm; left: 50%; transform: translateX(-50%); width: 50mm; height: 50mm; display: flex; justify-content: center; align-items: center;">
+        ${logoHtml}
+     </div>
+
+     <!-- Footer -->
+     ${footerHtml}
+  </div>
+</body>
+</html>`;
+
+    const win = window.open('', '_blank');
+    if (win) {
+      win.document.write(html);
+      win.document.close();
+    }
+  };
+
+  return (
+    <div style={{ display: 'flex', flexDirection: 'column', gap: '1.2rem' }}>
+       <div style={{ background: '#e8f7f5', color: '#115048', padding: '16px', borderRadius: '12px', fontSize: '0.85rem', lineHeight: 1.6 }}>
+         <span style={{ fontWeight: 700 }}>Dica para gráficas:</span> Os arquivos aqui gerados já possuem o tamanho milimétrico correto. Salve-os em PDF habilitando "Cores/Gráficos de Fundo" e retirando todas as margens do navegador.
+       </div>
+       
+       <div style={{ display: 'grid', gap: '10px' }}>
+         {itens.map(item => (
+            <button 
+              key={item} 
+              onClick={() => openGabarito(item)}
+              style={{ background: '#fff', border: '1px solid #e0e0e0', padding: '16px 20px', borderRadius: '12px', textAlign: 'left', display: 'flex', alignItems: 'center', justifyContent: 'space-between', cursor: 'pointer', fontFamily: 'Montserrat, sans-serif', boxShadow: '0 2px 10px rgba(0,0,0,0.02)' }}
+            >
+               <span style={{ fontWeight: 600, color: '#333' }}>{item}</span>
+               <span style={{ fontSize: '0.8rem', color: accentColor, fontWeight: 700 }}>Exportar arquivo →</span>
+            </button>
+         ))}
+       </div>
+    </div>
+  );
+}
+
+function EntregaContent({ brand, plano }) {
   const [step, setStepState] = useState(() => { try { return localStorage.getItem('brandbox_step') || 'logo'; } catch { return 'logo'; } });
   const setStep = (s) => { setStepState(s); try { localStorage.setItem('brandbox_step', s); } catch {} };
 
@@ -871,11 +983,11 @@ function EntregaContent({ brand }) {
           <div>
             <p style={{ fontSize: '0.62rem', color: '#bbb', letterSpacing: '2px', textTransform: 'uppercase', fontWeight: 700, marginBottom: '2px' }}>brand box</p>
             <h1 style={{ fontSize: '1.4rem', fontWeight: 700, color: '#1a1a1a', lineHeight: 1.2 }}>
-              {step === 'logo' ? 'Sua Logo' : step === 'submarca' ? 'Sua Submarca' : step === 'estampa' ? 'Sua Estampa' : step === 'cores' ? 'Suas Cores' : step === 'cartao' ? 'Cartão Digital' : 'Guia da Marca'}
+              {step === 'logo' ? 'Sua Logo' : step === 'submarca' ? 'Sua Submarca' : step === 'estampa' ? 'Sua Estampa' : step === 'cores' ? 'Suas Cores' : step === 'cartao' ? 'Cartão Digital' : step === 'guia' ? 'Guia da Marca' : 'Gabaritos'}
             </h1>
           </div>
           <span style={{ fontSize: '0.75rem', color: '#ccc', fontWeight: 600 }}>
-            {step === 'logo' ? '1' : step === 'submarca' ? '2' : step === 'estampa' ? '3' : step === 'cores' ? '4' : step === 'cartao' ? '5' : '6'} / 6
+            {step === 'logo' ? '1' : step === 'submarca' ? '2' : step === 'estampa' ? '3' : step === 'cores' ? '4' : step === 'cartao' ? '5' : step === 'guia' ? '6' : '7'} / {plano === 'complete' ? '7' : '6'}
           </span>
         </div>
 
@@ -891,8 +1003,11 @@ function EntregaContent({ brand }) {
         {/* Guia da marca */}
         {step === 'guia' && <GuiaStep brand={brand} accentColor={accentColor} paletteColors={paletteColors} marca={marca} tagline={tagline} estampaPatterns={estampaPatterns} editData={editData} />}
 
+        {/* Papelaria / Gabaritos */}
+        {step === 'papelaria' && <PapelariaStep brand={brand} accentColor={accentColor} paletteColors={paletteColors} estampaPatterns={estampaPatterns} cartaoContacts={cartaoContacts} logoRef={logoRef} plano={plano} />}
+
         {/* Área da logo */}
-        {step !== 'estampa' && step !== 'cores' && step !== 'cartao' && step !== 'guia' && <div
+        {step !== 'estampa' && step !== 'cores' && step !== 'cartao' && step !== 'guia' && step !== 'papelaria' && <div
           ref={logoRef}
           style={{
             width: '100%', aspectRatio: '1 / 1',
@@ -916,7 +1031,7 @@ function EntregaContent({ brand }) {
         </div>}
 
         {/* Controles */}
-        {step !== 'estampa' && step !== 'cores' && step !== 'cartao' && step !== 'guia' &&
+        {step !== 'estampa' && step !== 'cores' && step !== 'cartao' && step !== 'guia' && step !== 'papelaria' &&
         <div style={{ marginTop: '1.4rem', display: 'flex', flexDirection: 'column', gap: '1rem' }}>
 
           {/* Editar texto */}
@@ -1083,8 +1198,20 @@ function EntregaContent({ brand }) {
             </>
           )}
           {step === 'guia' && (
-            <button onClick={() => setStep('cartao')} style={{ width: '100%', padding: '13px', background: 'none', color: '#bbb', border: 'none', borderRadius: '30px', fontWeight: 600, fontSize: '0.85rem', cursor: 'pointer' }}>
-              ← Voltar para o cartão
+            <>
+              {plano === 'complete' && (
+                <button onClick={() => setStep('papelaria')} style={{ width: '100%', padding: '13px', background: 'none', color: '#888', border: '1px solid #e0e0e0', borderRadius: '30px', fontWeight: 600, fontSize: '0.9rem', cursor: 'pointer' }}>
+                  Próximo: Meus Gabaritos Gráficos →
+                </button>
+              )}
+              <button onClick={() => setStep('cartao')} style={{ width: '100%', padding: '13px', background: 'none', color: '#bbb', border: 'none', borderRadius: '30px', fontWeight: 600, fontSize: '0.85rem', cursor: 'pointer' }}>
+                ← Voltar para o cartão
+              </button>
+            </>
+          )}
+          {step === 'papelaria' && (
+            <button onClick={() => setStep('guia')} style={{ width: '100%', padding: '13px', background: 'none', color: '#bbb', border: 'none', borderRadius: '30px', fontWeight: 600, fontSize: '0.85rem', cursor: 'pointer' }}>
+              ← Voltar para o guia
             </button>
           )}
         </div>
@@ -1142,7 +1269,7 @@ function SucessoContent() {
     );
   }
 
-  return <EntregaContent brand={brand} />;
+  return <EntregaContent brand={brand} plano={plano} />;
 }
 
 export default function Sucesso() {
