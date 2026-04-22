@@ -4,7 +4,12 @@ import { Suspense, useState, useEffect, useRef } from 'react';
 import BrandTemplateSVG from '../../components/BrandTemplateSVG';
 import { STYLE_ICONS } from '../../lib/styleIcons';
 import html2canvas from 'html2canvas';
+import { createClient } from '@supabase/supabase-js';
 
+const supabase = createClient(
+  process.env.NEXT_PUBLIC_SUPABASE_URL,
+  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
+);
 
 function ColorDot({ color, selected, onClick, size = 32 }) {
   return (
@@ -748,7 +753,7 @@ function CartaoDeVisitaPreview({ accentColor, patternSrc, cartaoContacts, crmLin
   const brandFont = `'${editData?.fontFamily || 'Playfair Display'}', serif`;
   // CRM substitui tagline dentro do BrandTemplateSVG
   const displayData = crmLine ? { ...editData, tagline: crmLine } : editData;
-  const { endereco, whatsapp, telefone, instagram, email } = cartaoContacts || {};
+  const { endereco, whatsapp, telefone, telefone2, instagram, email } = cartaoContacts || {};
   const mainPhone = whatsapp || telefone || '';
 
   const toggleStyle = (active) => ({
@@ -799,6 +804,7 @@ function CartaoDeVisitaPreview({ accentColor, patternSrc, cartaoContacts, crmLin
             {crmLine && <div style={{ fontFamily: "'Montserrat',sans-serif", fontSize: '6px', color: '#888', letterSpacing: '1px', textTransform: 'uppercase', marginBottom: '4px' }}>{crmLine}</div>}
             {endereco && <div style={{ fontFamily: "'Montserrat',sans-serif", fontSize: '7px', color: '#444', lineHeight: 1.5 }}>{endereco}</div>}
             {mainPhone && <div style={{ fontFamily: "'Montserrat',sans-serif", fontSize: '8px', fontWeight: 700, color: '#222', marginTop: '3px' }}>{mainPhone}</div>}
+            {telefone2 && !whatsapp && <div style={{ fontFamily: "'Montserrat',sans-serif", fontSize: '7px', color: '#444', marginTop: '1px' }}>{telefone2}</div>}
             {instagram && <div style={{ fontFamily: "'Montserrat',sans-serif", fontSize: '7px', color: '#666', marginTop: '2px' }}>{instagram}</div>}
             {email && <div style={{ fontFamily: "'Montserrat',sans-serif", fontSize: '7px', color: '#666' }}>{email}</div>}
             {!clinicaNome && !crmLine && !endereco && !mainPhone && !instagram && !email && <div style={{ fontFamily: "'Montserrat',sans-serif", fontSize: '7px', color: '#aaa', fontStyle: 'italic' }}>Preencha seus dados no Cartão Digital</div>}
@@ -824,7 +830,7 @@ function GenericItemPreview({ item, marca, accentColor, patternSrc, editData, lo
   );
 }
 
-function PapelariaStep({ brand, accentColor, paletteColors, estampaPatterns, cartaoContacts, plano, isSaude, crmData, setCrmData, marca, editData, logoColor }) {
+function PapelariaStep({ brand, accentColor, paletteColors, estampaPatterns, cartaoContacts, setCartaoContacts, plano, isSaude, crmData, setCrmData, marca, editData, logoColor }) {
   const itens = brand.papelariaSelecionada || [];
   const [idx, setIdx] = useState(0);
   const [comBorda, setComBordaState] = useState(() => { try { return JSON.parse(localStorage.getItem('brandbox_papelaria') || '{}').comBorda ?? true; } catch { return true; } });
@@ -832,6 +838,8 @@ function PapelariaStep({ brand, accentColor, paletteColors, estampaPatterns, car
   const persistPapelaria = (updates) => { try { const cur = JSON.parse(localStorage.getItem('brandbox_papelaria') || '{}'); localStorage.setItem('brandbox_papelaria', JSON.stringify({ ...cur, ...updates })); } catch {} };
   const setComBorda = (v) => { setComBordaState(v); persistPapelaria({ comBorda: v }); };
   const setClinicaNome = (v) => { setClinicaNomeState(v); persistPapelaria({ clinicaNome: v }); };
+  const [crmOpen, setCrmOpen] = useState(!crmData?.crm);
+  const [contactOpen, setContactOpen] = useState(false);
 
   if (plano !== 'complete' || itens.length === 0) {
      return <div style={{ textAlign: 'center', padding: '2rem 0', color: '#888' }}>Nenhuma papelaria inclusa no seu pacote.</div>;
@@ -847,7 +855,7 @@ function PapelariaStep({ brand, accentColor, paletteColors, estampaPatterns, car
   const openGabarito = (item) => {
     const patternSrc = estampaPatterns?.[0] ? `data:${estampaPatterns[0].mimeType};base64,${estampaPatterns[0].base64}` : null;
     const logoHtml = logoRef?.current?.innerHTML || '';
-    const { endereco, whatsapp, telefone, instagram, email, site } = cartaoContacts;
+    const { endereco, whatsapp, telefone, telefone2, instagram, email, site } = cartaoContacts;
     const mainPhone = whatsapp || telefone || '';
 
     const crmLine = isSaude && crmData.crm
@@ -885,6 +893,7 @@ function PapelariaStep({ brand, accentColor, paletteColors, estampaPatterns, car
         crmLine ? `<div style="font-family:'Montserrat',sans-serif;font-size:4pt;color:#666;letter-spacing:1px;text-transform:uppercase;margin-bottom:2mm;">${crmLine}</div>` : '',
         endereco ? `<div style="font-size:5.5pt;color:#444;line-height:1.5;">${endereco}</div>` : '',
         mainPhone ? `<div style="font-size:6pt;font-weight:700;color:#222;margin-top:1mm;">${mainPhone}</div>` : '',
+        (telefone2 && !whatsapp) ? `<div style="font-size:5.5pt;color:#444;">${telefone2}</div>` : '',
         instagram ? `<div style="font-size:5pt;color:#666;">${instagram}</div>` : '',
         email ? `<div style="font-size:5pt;color:#666;">${email}</div>` : '',
         site ? `<div style="font-size:5pt;color:#666;">${site}</div>` : '',
@@ -996,29 +1005,38 @@ ${fontImports}
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '1.2rem' }}>
 
-      {/* Form CRM/RQE — só para área de saúde, colapsável após preenchido */}
+      {/* Form CRM/RQE — colapsável */}
       {isSaude && (
-        <div style={{ background: '#fdf0f7', border: '1px solid #f0c0dc', borderRadius: '12px', padding: '14px', display: 'flex', flexDirection: 'column', gap: '8px' }}>
-          <p style={{ fontWeight: 700, fontSize: '0.82rem', color: '#8a1a50' }}>Dados do Conselho (obrigatório em materiais médicos)</p>
-          <div style={{ display: 'flex', gap: '8px', alignItems: 'center', flexWrap: 'wrap' }}>
-            <span style={{ fontSize: '0.78rem', fontWeight: 600, color: '#555', whiteSpace: 'nowrap' }}>CRM /</span>
-            <input value={crmData.uf} onChange={e => setCrmData(d => ({ ...d, uf: e.target.value.toUpperCase().slice(0, 2) }))} placeholder="UF"
-              style={{ width: '48px', padding: '7px', fontSize: '0.82rem', border: '1px solid #e0c0d0', borderRadius: '8px', textAlign: 'center', outline: 'none' }} />
-            <input value={crmData.crm} onChange={e => setCrmData(d => ({ ...d, crm: e.target.value }))} placeholder="Número"
-              style={{ flex: 1, minWidth: '90px', padding: '7px', fontSize: '0.82rem', border: '1px solid #e0c0d0', borderRadius: '8px', outline: 'none' }} />
-          </div>
-          {crmData.rqe.map((r, i) => (
-            <div key={i} style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
-              <span style={{ fontSize: '0.78rem', fontWeight: 600, color: '#555' }}>RQE</span>
-              <input value={r} onChange={e => setCrmData(d => { const rqe = [...d.rqe]; rqe[i] = e.target.value; return { ...d, rqe }; })} placeholder="Número"
-                style={{ flex: 1, padding: '7px', fontSize: '0.82rem', border: '1px solid #e0c0d0', borderRadius: '8px', outline: 'none' }} />
-              <button onClick={() => setCrmData(d => ({ ...d, rqe: d.rqe.filter((_, j) => j !== i) }))} style={{ background: 'none', border: 'none', color: '#c00', fontSize: '1rem', cursor: 'pointer' }}>×</button>
-            </div>
-          ))}
-          <button onClick={() => setCrmData(d => ({ ...d, rqe: [...d.rqe, ''] }))} style={{ background: 'none', border: '1px dashed #d090b8', color: '#a0408a', borderRadius: '8px', padding: '5px 10px', fontSize: '0.75rem', cursor: 'pointer', alignSelf: 'flex-start' }}>
-            + Adicionar RQE
+        <div style={{ background: '#fdf0f7', border: '1px solid #f0c0dc', borderRadius: '12px', overflow: 'hidden' }}>
+          <button onClick={() => setCrmOpen(o => !o)} style={{ width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '10px 14px', background: 'none', border: 'none', cursor: 'pointer' }}>
+            <span style={{ fontWeight: 700, fontSize: '0.78rem', color: '#8a1a50' }}>
+              {crmData.crm ? `CRM/${crmData.uf || 'UF'} ${crmData.crm}${crmData.rqe.filter(Boolean).length > 0 ? ' · RQE ' + crmData.rqe.filter(Boolean).join(' / ') : ''}` : 'CRM / RQE (materiais médicos)'}
+            </span>
+            <span style={{ fontSize: '0.7rem', color: '#c080b0' }}>{crmOpen ? '▲' : '▼'}</span>
           </button>
-          {crmData.crm && <p style={{ fontSize: '0.72rem', color: '#8a1a50', fontWeight: 600 }}>Aparecerá como: CRM/{crmData.uf || 'UF'} {crmData.crm}{crmData.rqe.length > 0 ? ' · RQE ' + crmData.rqe.filter(Boolean).join(' / RQE ') : ''}</p>}
+          {crmOpen && (
+            <div style={{ padding: '0 14px 12px', display: 'flex', flexDirection: 'column', gap: '7px' }}>
+              <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+                <span style={{ fontSize: '0.75rem', fontWeight: 600, color: '#555', whiteSpace: 'nowrap' }}>CRM /</span>
+                <input value={crmData.uf} onChange={e => setCrmData(d => ({ ...d, uf: e.target.value.toUpperCase().slice(0, 2) }))} placeholder="UF"
+                  style={{ width: '44px', padding: '6px', fontSize: '0.8rem', border: '1px solid #e0c0d0', borderRadius: '8px', textAlign: 'center', outline: 'none' }} />
+                <input value={crmData.crm} onChange={e => setCrmData(d => ({ ...d, crm: e.target.value }))} placeholder="Número"
+                  style={{ flex: 1, padding: '6px', fontSize: '0.8rem', border: '1px solid #e0c0d0', borderRadius: '8px', outline: 'none' }} />
+              </div>
+              {crmData.rqe.map((r, i) => (
+                <div key={i} style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+                  <span style={{ fontSize: '0.75rem', fontWeight: 600, color: '#555' }}>RQE</span>
+                  <input value={r} onChange={e => setCrmData(d => { const rqe = [...d.rqe]; rqe[i] = e.target.value; return { ...d, rqe }; })} placeholder="Número"
+                    style={{ flex: 1, padding: '6px', fontSize: '0.8rem', border: '1px solid #e0c0d0', borderRadius: '8px', outline: 'none' }} />
+                  <button onClick={() => setCrmData(d => ({ ...d, rqe: d.rqe.filter((_, j) => j !== i) }))} style={{ background: 'none', border: 'none', color: '#c00', fontSize: '1rem', cursor: 'pointer' }}>×</button>
+                </div>
+              ))}
+              <button onClick={() => setCrmData(d => ({ ...d, rqe: [...d.rqe, ''] }))} style={{ background: 'none', border: '1px dashed #d090b8', color: '#a0408a', borderRadius: '8px', padding: '4px 10px', fontSize: '0.72rem', cursor: 'pointer', alignSelf: 'flex-start' }}>
+                + Adicionar RQE
+              </button>
+              {crmData.crm && <button onClick={() => setCrmOpen(false)} style={{ background: accentColor, border: 'none', color: '#fff', borderRadius: '8px', padding: '6px 14px', fontSize: '0.75rem', cursor: 'pointer', alignSelf: 'flex-end', fontWeight: 700 }}>Salvar</button>}
+            </div>
+          )}
         </div>
       )}
 
@@ -1036,12 +1054,44 @@ ${fontImports}
       <div style={{ fontWeight: 700, fontSize: '1.1rem', color: '#1a1a1a' }}>{currentItem}</div>
 
       {/* Preview inline */}
-      <div style={{ display: 'flex', justifyContent: 'center' }}>
+      <div style={{ display: 'flex', justifyContent: 'center', paddingTop: '8px', paddingBottom: '8px' }}>
         {currentItem === 'Cartão de Visita'
           ? <CartaoDeVisitaPreview accentColor={accentColor} patternSrc={patternSrc} cartaoContacts={cartaoContacts} crmLine={crmLine} editData={editData} logoColor={logoColor} comBorda={comBorda} setComBorda={setComBorda} clinicaNome={clinicaNome} setClinicaNome={setClinicaNome} />
           : <GenericItemPreview item={currentItem} marca={marca} accentColor={accentColor} patternSrc={patternSrc} editData={editData} logoColor={logoColor} />
         }
       </div>
+
+      {/* Editar contatos — acordeão */}
+      {currentItem === 'Cartão de Visita' && (
+        <div style={{ border: '1px solid #e8e8e8', borderRadius: '12px', overflow: 'hidden' }}>
+          <button onClick={() => setContactOpen(o => !o)} style={{ width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '10px 14px', background: 'none', border: 'none', cursor: 'pointer' }}>
+            <span style={{ fontWeight: 600, fontSize: '0.78rem', color: '#555' }}>Editar dados do verso</span>
+            <span style={{ fontSize: '0.7rem', color: '#aaa' }}>{contactOpen ? '▲' : '▼'}</span>
+          </button>
+          {contactOpen && (
+            <div style={{ padding: '0 14px 14px', display: 'flex', flexDirection: 'column', gap: '8px' }}>
+              {[
+                { key: 'telefone', label: 'Telefone' },
+                { key: 'telefone2', label: 'Telefone 2' },
+                { key: 'whatsapp', label: 'WhatsApp' },
+                { key: 'instagram', label: 'Instagram' },
+                { key: 'email', label: 'E-mail' },
+                { key: 'site', label: 'Site' },
+                { key: 'endereco', label: 'Endereço' },
+              ].map(({ key, label }) => (
+                <div key={key} style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                  <span style={{ fontSize: '0.72rem', color: '#888', width: '74px', flexShrink: 0 }}>{label}</span>
+                  <input
+                    value={cartaoContacts[key] || ''}
+                    onChange={e => setCartaoContacts(c => ({ ...c, [key]: e.target.value }))}
+                    style={{ flex: 1, padding: '6px 10px', fontSize: '0.8rem', border: '1px solid #e0e0e0', borderRadius: '8px', outline: 'none' }}
+                  />
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+      )}
 
       {/* Botão download */}
       <button
@@ -1096,7 +1146,7 @@ function EntregaContent({ brand, plano }) {
   }, [estampaPatterns, estampaSelectedIdx]);
   const coresRef = useRef(null);
   const [downloadingCores, setDownloadingCores] = useState(false);
-  const [cartaoContacts, setCartaoContacts] = useState(() => { try { return JSON.parse(localStorage.getItem('brandbox_cartao') || '{}').contacts || { telefone: '', whatsapp: '', email: '', site: '', instagram: '', endereco: '' }; } catch { return { telefone: '', whatsapp: '', email: '', site: '', instagram: '', endereco: '' }; } });
+  const [cartaoContacts, setCartaoContacts] = useState(() => { try { return JSON.parse(localStorage.getItem('brandbox_cartao') || '{}').contacts || { telefone: '', whatsapp: '', email: '', site: '', instagram: '', endereco: '', telefone2: '' }; } catch { return { telefone: '', whatsapp: '', email: '', site: '', instagram: '', endereco: '', telefone2: '' }; } });
   const [cartaoQrLink, setCartaoQrLink] = useState(() => { try { return JSON.parse(localStorage.getItem('brandbox_cartao') || '{}').qrLink || ''; } catch { return ''; } });
   const [cartaoShowQR, setCartaoShowQR] = useState(() => { try { return JSON.parse(localStorage.getItem('brandbox_cartao') || '{}').showQR || false; } catch { return false; } });
 
@@ -1143,6 +1193,34 @@ function EntregaContent({ brand, plano }) {
   const seloData = editData.fontStyle === 'script'
     ? { ...editData, fontFamily: 'Montserrat', fontWeight: 700, fontStyle: 'display' }
     : editData;
+
+  // Carrega a fonte da marca dinamicamente e espera ela estar pronta
+  const [fontReady, setFontReady] = useState(false);
+  useEffect(() => {
+    const fontName = editData?.fontFamily;
+    if (!fontName) { setFontReady(true); return; }
+
+    const linkId = 'dynamic-brand-font';
+    const loadFont = async () => {
+      if (!document.getElementById(linkId)) {
+        const link = document.createElement('link');
+        link.id = linkId;
+        link.rel = 'stylesheet';
+        link.href = `https://fonts.googleapis.com/css2?family=${fontName.replace(/ /g, '+')}:ital,wght@0,400;0,700;0,800;1,400&display=swap`;
+        document.head.appendChild(link);
+        // Aguarda o CSS ser parseado antes de checar a fonte
+        await new Promise(r => setTimeout(r, 100));
+      }
+      try {
+        await Promise.race([
+          document.fonts.load(`700 16px '${fontName}'`),
+          new Promise(r => setTimeout(r, 3000)), // timeout de 3s
+        ]);
+      } catch {}
+      setFontReady(true);
+    };
+    loadFont();
+  }, [editData?.fontFamily]);
 
   const paletteColors = (() => {
     const sel = paletas?.find(p => p.id === brand.selectedPaleta);
@@ -1234,7 +1312,7 @@ function EntregaContent({ brand, plano }) {
         {step === 'guia' && <GuiaStep brand={brand} accentColor={accentColor} paletteColors={paletteColors} marca={marca} tagline={tagline} estampaPatterns={estampaPatterns} editData={editData} />}
 
         {/* Papelaria / Gabaritos */}
-        {step === 'papelaria' && <PapelariaStep brand={brand} accentColor={accentColor} paletteColors={paletteColors} estampaPatterns={estampaPatterns} cartaoContacts={cartaoContacts} plano={plano} isSaude={isSaude} crmData={crmData} setCrmData={setCrmData} marca={marca} editData={editData} logoColor={logoColor} />}
+        {step === 'papelaria' && <PapelariaStep brand={brand} accentColor={accentColor} paletteColors={paletteColors} estampaPatterns={estampaPatterns} cartaoContacts={cartaoContacts} setCartaoContacts={setCartaoContacts} plano={plano} isSaude={isSaude} crmData={crmData} setCrmData={setCrmData} marca={marca} editData={editData} logoColor={logoColor} />}
 
         {/* Área da logo */}
         {step !== 'estampa' && step !== 'cores' && step !== 'cartao' && step !== 'guia' && step !== 'papelaria' && <div
@@ -1249,7 +1327,7 @@ function EntregaContent({ brand, plano }) {
             transition: 'background 0.2s ease',
           }}
         >
-          <div style={{ width: '68%', height: '68%' }}>
+          <div style={{ width: '68%', height: '68%', opacity: fontReady ? 1 : 0, transition: 'opacity 0.3s ease' }}>
             <BrandTemplateSVG
               data={step === 'submarca' ? seloData : editData}
               color={logoColor}
@@ -1360,7 +1438,7 @@ function EntregaContent({ brand, plano }) {
 
         {/* Botões */}
         <div style={{ marginTop: '1.6rem', display: 'flex', flexDirection: 'column', gap: '10px' }}>
-          {step !== 'estampa' && step !== 'cores' && step !== 'cartao' && step !== 'guia' && (
+          {step !== 'estampa' && step !== 'cores' && step !== 'cartao' && step !== 'guia' && step !== 'papelaria' && (
             <div style={{ display: 'flex', gap: '8px' }}>
               <button
                 onClick={downloadTransparent}
@@ -1463,33 +1541,108 @@ function SucessoContent() {
   const params = useSearchParams();
   const [brand, setBrand] = useState(null);
   const [loading, setLoading] = useState(true);
-  const [plano, setPlano] = useState('experience');
+  const [plano, setPlano] = useState(() => {
+    try {
+      const stored = localStorage.getItem('brandbox_plano');
+      if (stored) return stored;
+      const delivery = JSON.parse(localStorage.getItem('brandbox_delivery') || '{}');
+      if (delivery.plano) return delivery.plano;
+      if (delivery.papelariaSelecionada?.length > 0) return 'complete';
+    } catch {}
+    return 'experience';
+  });
 
   useEffect(() => {
+    const sessionParam = params.get('session');
+    const planoParam = params.get('plano');
+
     if (params.get('reset') === '1') {
       localStorage.removeItem('brandbox_step');
-      localStorage.removeItem('brandbox_cartao');
       localStorage.removeItem('brandbox_crm');
-      localStorage.removeItem('brandbox_plano');
       localStorage.removeItem('brandbox_papelaria');
+      localStorage.removeItem('brandbox_plano');
+      localStorage.removeItem('brandbox_session');
       window.location.href = '/sucesso';
       return;
     }
-    // Persiste o plano da URL no localStorage; lê do localStorage se não há param
-    const planoParam = params.get('plano');
-    if (planoParam) {
-      localStorage.setItem('brandbox_plano', planoParam);
-      setPlano(planoParam);
-    } else {
-      const savedPlano = localStorage.getItem('brandbox_plano') || 'experience';
-      setPlano(savedPlano);
-    }
-    try {
-      const saved = localStorage.getItem('brandbox_delivery');
-      if (saved) setBrand(JSON.parse(saved));
-    } catch {}
-    setLoading(false);
+
+    const loadData = async () => {
+      // 1. Se tem session na URL, busca no Supabase (link permanente)
+      if (sessionParam) {
+        localStorage.setItem('brandbox_session', sessionParam);
+        try {
+          const { data, error } = await supabase
+            .from('entregas')
+            .select('brand_data, plano, email, marca, email_enviado')
+            .eq('id', sessionParam)
+            .single();
+
+          if (!error && data) {
+            const brandFromDb = data.brand_data;
+            setBrand(brandFromDb);
+            const planoFromDb = data.plano || planoParam || 'experience';
+            setPlano(planoFromDb);
+            localStorage.setItem('brandbox_plano', planoFromDb);
+
+            // Disparar e-mail na primeira visita
+            if (!data.email_enviado && data.email) {
+              try {
+                await fetch('/api/send-email', {
+                  method: 'POST',
+                  headers: { 'Content-Type': 'application/json' },
+                  body: JSON.stringify({
+                    email: data.email,
+                    marca: data.marca,
+                    sessionId: sessionParam,
+                    plano: planoFromDb,
+                  }),
+                });
+                // Marcar como enviado no Supabase
+                await supabase
+                  .from('entregas')
+                  .update({ email_enviado: true })
+                  .eq('id', sessionParam);
+              } catch (e) {
+                console.warn('Email dispatch failed:', e);
+              }
+            }
+
+            setLoading(false);
+            return;
+          }
+        } catch (e) {
+          console.warn('Supabase fetch failed, fallback para localStorage:', e);
+        }
+      }
+
+      // 2. Fallback: lê do localStorage (dev/teste)
+      if (planoParam) {
+        localStorage.setItem('brandbox_plano', planoParam);
+        setPlano(planoParam);
+      } else {
+        const savedPlano = localStorage.getItem('brandbox_plano');
+        if (savedPlano) {
+          setPlano(savedPlano);
+        } else {
+          try {
+            const delivery = JSON.parse(localStorage.getItem('brandbox_delivery') || '{}');
+            const derived = delivery.plano || (delivery.papelariaSelecionada ? 'complete' : 'experience');
+            localStorage.setItem('brandbox_plano', derived);
+            setPlano(derived);
+          } catch { setPlano('experience'); }
+        }
+      }
+
+      try {
+        const saved = localStorage.getItem('brandbox_delivery');
+        if (saved) setBrand(JSON.parse(saved));
+      } catch {}
+      setLoading(false);
+    };
+
+    loadData();
   }, []);
+
 
   if (loading) return null;
 
