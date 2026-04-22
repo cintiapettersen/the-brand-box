@@ -1194,11 +1194,15 @@ function EntregaContent({ brand, plano }) {
     ? { ...editData, fontFamily: 'Montserrat', fontWeight: 700, fontStyle: 'display' }
     : editData;
 
-  // Espera a fonte da marca estar disponível antes de renderizar o logo
+  // Espera a fonte da marca estar disponível antes de renderizar o logo.
+  // fontReady começa false e volta a false sempre que fontFamily muda —
+  // isso evita o bug onde a primeira render (brand={}) seta fontReady=true
+  // antes do localStorage carregar, fazendo o SVG aparecer sem a fonte certa.
   const [fontReady, setFontReady] = useState(false);
   useEffect(() => {
     const fontName = editData?.fontFamily;
     const fontWeight = editData?.fontWeight || 400;
+    setFontReady(false); // reseta sempre que fonte muda
     if (!fontName) { setFontReady(true); return; }
     let cancelled = false;
     const t = setTimeout(() => { if (!cancelled) setFontReady(true); }, 3000);
