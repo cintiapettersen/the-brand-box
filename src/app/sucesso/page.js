@@ -38,6 +38,10 @@ function LogoPreviewHTML({ editData, color }) {
           {editData.tagline}
         </div>
       )}
+      {/* DEBUG TEMPORÁRIO — remover após resolver */}
+      <div style={{ position: 'absolute', bottom: 4, left: 0, right: 0, textAlign: 'center', fontSize: '9px', color: '#f00', fontFamily: 'monospace', background: 'rgba(255,255,255,0.85)', padding: '2px' }}>
+        {editData?.fontFamily || 'undefined'} / {editData?.fontWeight || 'undefined'}
+      </div>
     </div>
   );
 }
