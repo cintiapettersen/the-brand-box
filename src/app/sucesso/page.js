@@ -1236,12 +1236,36 @@ function EntregaContent({ brand, plano }) {
     setFontReady(false);
     if (!fontName) { setFontReady(true); return; }
     let cancelled = false;
-    const t = setTimeout(() => { if (!cancelled) setFontReady(true); }, 4000);
-    // Aguarda todos os @font-face serem registrados antes de checar a fonte
-    document.fonts.ready.then(() =>
+    const t = setTimeout(() => { if (!cancelled) setFontReady(true); }, 5000);
+
+    const loadFont = () => {
       document.fonts.load(`${fontWeight} 16px '${fontName}'`)
-    ).then(() => { if (!cancelled) setFontReady(true); })
-     .catch(() => { if (!cancelled) setFontReady(true); });
+        .then(() => { if (!cancelled) setFontReady(true); })
+        .catch(() => { if (!cancelled) setFontReady(true); });
+    };
+
+    // Fontes locais já estão registradas via globals.css — document.fonts.ready é suficiente.
+    // Google Fonts precisam de um <link> específico para garantir que o @font-face seja
+    // registrado antes de chamarmos document.fonts.load().
+    const LOCAL_FONTS = ['Amelie', 'Vellary', 'GoldenBlast', 'LittleFriend', 'Celina', 'Cafigine', 'Aberforth', 'Dokyo'];
+    if (LOCAL_FONTS.includes(fontName)) {
+      document.fonts.ready.then(loadFont);
+    } else {
+      const selector = `link[data-font="${CSS.escape(fontName)}"]`;
+      const existing = document.querySelector(selector);
+      if (existing) {
+        loadFont();
+      } else {
+        const link = document.createElement('link');
+        link.rel = 'stylesheet';
+        link.setAttribute('data-font', fontName);
+        link.href = `https://fonts.googleapis.com/css2?family=${fontName.replace(/ /g, '+')}:wght@${fontWeight}&display=swap`;
+        link.onload = () => { if (!cancelled) loadFont(); };
+        link.onerror = () => { if (!cancelled) setFontReady(true); };
+        document.head.appendChild(link);
+      }
+    }
+
     return () => { cancelled = true; clearTimeout(t); };
   }, [editData?.fontFamily, editData?.fontWeight]);
 
