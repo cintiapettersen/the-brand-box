@@ -1233,13 +1233,15 @@ function EntregaContent({ brand, plano }) {
   useEffect(() => {
     const fontName = editData?.fontFamily;
     const fontWeight = editData?.fontWeight || 400;
-    setFontReady(false); // reseta sempre que fonte muda
+    setFontReady(false);
     if (!fontName) { setFontReady(true); return; }
     let cancelled = false;
-    const t = setTimeout(() => { if (!cancelled) setFontReady(true); }, 3000);
-    document.fonts.load(`${fontWeight} 16px '${fontName}'`)
-      .then(() => { if (!cancelled) setFontReady(true); })
-      .catch(() => { if (!cancelled) setFontReady(true); });
+    const t = setTimeout(() => { if (!cancelled) setFontReady(true); }, 4000);
+    // Aguarda todos os @font-face serem registrados antes de checar a fonte
+    document.fonts.ready.then(() =>
+      document.fonts.load(`${fontWeight} 16px '${fontName}'`)
+    ).then(() => { if (!cancelled) setFontReady(true); })
+     .catch(() => { if (!cancelled) setFontReady(true); });
     return () => { cancelled = true; clearTimeout(t); };
   }, [editData?.fontFamily, editData?.fontWeight]);
 
