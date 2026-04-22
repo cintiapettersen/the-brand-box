@@ -1369,13 +1369,13 @@ function EntregaContent({ brand, plano }) {
           )}
 
           {step === 'logo' && (
-            <button onClick={() => setStep('submarca')} style={{ width: '100%', padding: '13px', background: 'none', color: '#888', border: '1px solid #e0e0e0', borderRadius: '30px', fontWeight: 600, fontSize: '0.9rem', cursor: 'pointer' }}>
+            <button onClick={() => setStep('submarca')} style={{ width: '100%', padding: '13px', background: accentColor, color: '#fff', border: 'none', borderRadius: '30px', fontWeight: 700, fontSize: '0.9rem', cursor: 'pointer' }}>
               Próximo: Submarca →
             </button>
           )}
           {step === 'submarca' && (
             <>
-              <button onClick={() => setStep('estampa')} style={{ width: '100%', padding: '13px', background: 'none', color: '#888', border: '1px solid #e0e0e0', borderRadius: '30px', fontWeight: 600, fontSize: '0.9rem', cursor: 'pointer' }}>
+              <button onClick={() => setStep('estampa')} style={{ width: '100%', padding: '13px', background: accentColor, color: '#fff', border: 'none', borderRadius: '30px', fontWeight: 700, fontSize: '0.9rem', cursor: 'pointer' }}>
                 Próximo: Estampa →
               </button>
               <button onClick={() => setStep('logo')} style={{ width: '100%', padding: '13px', background: 'none', color: '#bbb', border: 'none', borderRadius: '30px', fontWeight: 600, fontSize: '0.85rem', cursor: 'pointer' }}>
@@ -1385,7 +1385,7 @@ function EntregaContent({ brand, plano }) {
           )}
           {step === 'estampa' && (
             <>
-              <button onClick={() => setStep('cores')} style={{ width: '100%', padding: '13px', background: 'none', color: '#888', border: '1px solid #e0e0e0', borderRadius: '30px', fontWeight: 600, fontSize: '0.9rem', cursor: 'pointer' }}>
+              <button onClick={() => setStep('cores')} style={{ width: '100%', padding: '13px', background: accentColor, color: '#fff', border: 'none', borderRadius: '30px', fontWeight: 700, fontSize: '0.9rem', cursor: 'pointer' }}>
                 Próximo: Cores →
               </button>
               <button onClick={() => setStep('submarca')} style={{ width: '100%', padding: '13px', background: 'none', color: '#bbb', border: 'none', borderRadius: '30px', fontWeight: 600, fontSize: '0.85rem', cursor: 'pointer' }}>
@@ -1398,7 +1398,7 @@ function EntregaContent({ brand, plano }) {
               <button onClick={downloadCoresPNG} disabled={downloadingCores} style={{ width: '100%', padding: '13px', background: accentColor, color: '#fff', border: 'none', borderRadius: '30px', fontWeight: 700, fontSize: '0.82rem', cursor: 'pointer', opacity: downloadingCores ? 0.6 : 1 }}>
                 {downloadingCores ? '...' : '⬇ Baixar paleta PNG'}
               </button>
-              <button onClick={() => setStep('cartao')} style={{ width: '100%', padding: '13px', background: 'none', color: '#888', border: '1px solid #e0e0e0', borderRadius: '30px', fontWeight: 600, fontSize: '0.9rem', cursor: 'pointer' }}>
+              <button onClick={() => setStep('cartao')} style={{ width: '100%', padding: '13px', background: accentColor, color: '#fff', border: 'none', borderRadius: '30px', fontWeight: 700, fontSize: '0.9rem', cursor: 'pointer' }}>
                 Próximo: Cartão Digital →
               </button>
               <button onClick={() => setStep('estampa')} style={{ width: '100%', padding: '13px', background: 'none', color: '#bbb', border: 'none', borderRadius: '30px', fontWeight: 600, fontSize: '0.85rem', cursor: 'pointer' }}>
@@ -1408,8 +1408,8 @@ function EntregaContent({ brand, plano }) {
           )}
           {step === 'cartao' && (
             <>
-              <button onClick={() => setStep(plano === 'complete' ? 'papelaria' : 'guia')} style={{ width: '100%', padding: '13px', background: 'none', color: '#888', border: '1px solid #e0e0e0', borderRadius: '30px', fontWeight: 600, fontSize: '0.9rem', cursor: 'pointer' }}>
-                {plano === 'complete' ? 'Próximo: Meus Gabaritos →' : 'Próximo: Guia da Marca →'}
+              <button onClick={() => setStep(plano === 'complete' ? 'papelaria' : 'guia')} style={{ width: '100%', padding: '13px', background: accentColor, color: '#fff', border: 'none', borderRadius: '30px', fontWeight: 700, fontSize: '0.9rem', cursor: 'pointer' }}>
+                {plano === 'complete' ? 'Próximo: Papelaria →' : 'Próximo: Guia da Marca →'}
               </button>
               <button onClick={() => setStep('cores')} style={{ width: '100%', padding: '13px', background: 'none', color: '#bbb', border: 'none', borderRadius: '30px', fontWeight: 600, fontSize: '0.85rem', cursor: 'pointer' }}>
                 ← Voltar para as cores
@@ -1418,7 +1418,7 @@ function EntregaContent({ brand, plano }) {
           )}
           {step === 'papelaria' && (
             <>
-              <button onClick={() => setStep('guia')} style={{ width: '100%', padding: '13px', background: 'none', color: '#888', border: '1px solid #e0e0e0', borderRadius: '30px', fontWeight: 600, fontSize: '0.9rem', cursor: 'pointer' }}>
+              <button onClick={() => setStep('guia')} style={{ width: '100%', padding: '13px', background: accentColor, color: '#fff', border: 'none', borderRadius: '30px', fontWeight: 700, fontSize: '0.9rem', cursor: 'pointer' }}>
                 Próximo: Guia da Marca →
               </button>
               <button onClick={() => setStep('cartao')} style={{ width: '100%', padding: '13px', background: 'none', color: '#bbb', border: 'none', borderRadius: '30px', fontWeight: 600, fontSize: '0.85rem', cursor: 'pointer' }}>
@@ -1428,7 +1428,7 @@ function EntregaContent({ brand, plano }) {
           )}
           {step === 'guia' && (
             <button onClick={() => setStep(plano === 'complete' ? 'papelaria' : 'cartao')} style={{ width: '100%', padding: '13px', background: 'none', color: '#bbb', border: 'none', borderRadius: '30px', fontWeight: 600, fontSize: '0.85rem', cursor: 'pointer' }}>
-              {plano === 'complete' ? '← Voltar para os gabaritos' : '← Voltar para o cartão'}
+              {plano === 'complete' ? '← Voltar para a papelaria' : '← Voltar para o cartão'}
             </button>
           )}
         </div>
