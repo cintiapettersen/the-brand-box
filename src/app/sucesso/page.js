@@ -1366,8 +1366,10 @@ function SucessoContent() {
 
   useEffect(() => {
     if (params.get('reset') === '1') {
-      localStorage.removeItem('brandbox_delivery');
-      window.location.href = '/';
+      localStorage.removeItem('brandbox_step');
+      localStorage.removeItem('brandbox_cartao');
+      localStorage.removeItem('brandbox_crm');
+      window.location.href = '/sucesso';
       return;
     }
     try {
