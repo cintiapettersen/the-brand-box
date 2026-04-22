@@ -744,9 +744,10 @@ function GuiaStep({ brand, accentColor, paletteColors, marca, tagline, estampaPa
   );
 }
 
-function PapelariaStep({ brand, accentColor, paletteColors, estampaPatterns, cartaoContacts, logoRef, plano }) {
+function PapelariaStep({ brand, accentColor, paletteColors, estampaPatterns, cartaoContacts, logoRef, plano, isSaude, crmData, setCrmData, marca }) {
   const itens = brand.papelariaSelecionada || [];
-  
+  const [rqeInput, setRqeInput] = React.useState('');
+
   if (plano !== 'complete' || itens.length === 0) {
      return <div style={{ textAlign: 'center', padding: '2rem 0', color: '#888' }}>Nenhuma papelaria inclusa no seu pacote.</div>;
   }
@@ -754,32 +755,126 @@ function PapelariaStep({ brand, accentColor, paletteColors, estampaPatterns, car
   const openGabarito = (item) => {
     const patternSrc = estampaPatterns?.[0] ? `data:${estampaPatterns[0].mimeType};base64,${estampaPatterns[0].base64}` : null;
     const logoHtml = logoRef?.current?.innerHTML || '';
-    
-    let sizeCSS = '@page { size: A4 portrait; margin: 0; }';
-    let containerStyle = 'width: 210mm; height: 297mm;';
-    
-    if (item.includes('Cartão de Visita') || item.includes('Tag') || item.includes('Agradecimento')) {
-       sizeCSS = '@page { size: 90mm 50mm; margin: 0; }';
-       containerStyle = 'width: 90mm; height: 50mm;';
-    } else if (item.includes('Receituário') || item.includes('Timbrado')) {
-       sizeCSS = '@page { size: A4 portrait; margin: 0; }';
-       containerStyle = 'width: 210mm; height: 297mm;';
-    } else if (item.includes('Envelope')) {
-       sizeCSS = '@page { size: 240mm 340mm; margin: 0; }';
-       containerStyle = 'width: 240mm; height: 340mm;';
+    const { endereco, whatsapp, telefone, instagram, email, site } = cartaoContacts;
+    const mainPhone = whatsapp || telefone || '';
+
+    const crmLine = isSaude && crmData.crm
+      ? `CRM/${crmData.uf || 'UF'} ${crmData.crm}${crmData.rqe.length > 0 ? ' · RQE ' + crmData.rqe.join(' / RQE ') : ''}`
+      : null;
+
+    // ── CARTÃO DE VISITA ────────────────────────────────────────────
+    if (item === 'Cartão de Visita') {
+      const borderSize = '8mm';
+      const fontImports = `
+        <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;600;700&display=swap" rel="stylesheet">
+        ${brand.editData?.googleFont !== false ? `<link href="https://fonts.googleapis.com/css2?family=${encodeURIComponent(brand.editData?.fontFamily || 'Playfair+Display')}:wght@400;700&display=swap" rel="stylesheet">` : ''}
+      `;
+      const brandFont = `'${brand.editData?.fontFamily || 'Playfair Display'}', serif`;
+      const isScript = brand.editData?.fontStyle === 'script';
+      const marcaDisplay = isScript
+        ? marca.split(' ').map(w => w.charAt(0).toUpperCase() + w.slice(1).toLowerCase()).join(' ')
+        : marca.toUpperCase();
+
+      const frenteHtml = `
+        <div class="card" style="position:relative; background:#fff; overflow:hidden;">
+          <!-- Borda estampa -->
+          ${patternSrc ? `
+          <div style="position:absolute;top:0;left:0;width:100%;height:100%;
+            background-image:url(${patternSrc}); background-size:35mm; background-repeat:repeat; opacity:0.9; z-index:0;"></div>
+          <div style="position:absolute;top:${borderSize};left:${borderSize};right:${borderSize};bottom:${borderSize};
+            background:#fff; z-index:1;"></div>
+          ` : ''}
+          <!-- Conteúdo -->
+          <div style="position:absolute;top:0;left:0;width:100%;height:100%;z-index:2;
+            display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2mm;">
+            <div style="width:18mm;height:18mm;display:flex;align-items:center;justify-content:center;">
+              ${logoHtml}
+            </div>
+            <div style="text-align:center;line-height:1.1;">
+              <div style="font-family:${brandFont};font-size:7.5pt;color:${accentColor};font-weight:${brand.editData?.fontWeight || 700};">${marcaDisplay}</div>
+              <div style="font-family:'Montserrat',sans-serif;font-size:4.5pt;color:#555;letter-spacing:1.5px;text-transform:uppercase;margin-top:1.5mm;">${crmLine || (brand.editData?.tagline || '')}</div>
+            </div>
+          </div>
+        </div>`;
+
+      const contactLines = [
+        endereco ? `<div style="font-size:5.5pt;color:#444;line-height:1.5;">${endereco}</div>` : '',
+        mainPhone ? `<div style="font-size:6pt;font-weight:700;color:#222;margin-top:1mm;">${mainPhone}</div>` : '',
+        instagram ? `<div style="font-size:5pt;color:#666;">${instagram}</div>` : '',
+        email ? `<div style="font-size:5pt;color:#666;">${email}</div>` : '',
+        site ? `<div style="font-size:5pt;color:#666;">${site}</div>` : '',
+      ].filter(Boolean).join('');
+
+      const versoHtml = `
+        <div class="card" style="position:relative; overflow:hidden;">
+          <!-- Fundo estampa full -->
+          ${patternSrc ? `<div style="position:absolute;top:0;left:0;width:100%;height:100%;
+            background-image:url(${patternSrc}); background-size:35mm; background-repeat:repeat; z-index:0;"></div>` : `<div style="position:absolute;inset:0;background:${accentColor};z-index:0;"></div>`}
+          <!-- Retângulo de dados centralizado, largura auto -->
+          <div style="position:absolute;top:0;left:0;width:100%;height:100%;z-index:1;
+            display:flex;align-items:center;justify-content:center;">
+            <div style="background:rgba(255,255,255,0.93);padding:4mm 6mm;border-radius:2mm;
+              max-width:74mm;width:fit-content;text-align:center;">
+              <div style="font-family:${brandFont};font-size:7pt;color:${accentColor};font-weight:${brand.editData?.fontWeight || 700};margin-bottom:1.5mm;">${marcaDisplay}</div>
+              ${crmLine ? `<div style="font-family:'Montserrat',sans-serif;font-size:4pt;color:#666;letter-spacing:1px;text-transform:uppercase;margin-bottom:2mm;">${crmLine}</div>` : ''}
+              <div style="font-family:'Montserrat',sans-serif;">${contactLines || '<span style="font-size:5pt;color:#aaa;">Adicione seus dados no Cartão Digital</span>'}</div>
+            </div>
+          </div>
+        </div>`;
+
+      const html = `<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<title>Cartão de Visita - ${marca}</title>
+${fontImports}
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: #555; display: flex; flex-direction: column; align-items: center; gap: 20px; padding: 40px 20px; font-family: 'Montserrat', sans-serif; }
+  .card { width: 90mm; height: 50mm; box-shadow: 0 4px 20px rgba(0,0,0,0.3); }
+  .label { color: #ccc; font-size: 11px; letter-spacing: 2px; text-transform: uppercase; font-weight: 600; }
+  .print-btn { padding: 14px 32px; background: #dc3495; color: #fff; border: none; border-radius: 30px; font-weight: bold; cursor: pointer; font-size: 14px; box-shadow: 0 4px 15px rgba(0,0,0,0.2); }
+  .print-helper { width: 100%; background: #ffeb3b; color: #333; text-align: center; padding: 10px; font-size: 12px; font-weight: 600; border-radius: 8px; }
+  @media print {
+    body { background: #fff; padding: 0; gap: 0; display: block; }
+    .card { box-shadow: none; page-break-after: always; }
+    .print-btn, .print-helper, .label { display: none !important; }
+    @page { size: 90mm 50mm; margin: 0; }
+  }
+</style>
+</head>
+<body>
+  <div class="print-helper">Habilite "Gráficos de plano de fundo" e defina margens como "Nenhuma" ao salvar o PDF.</div>
+  <div class="label">Frente</div>
+  ${frenteHtml}
+  <div class="label">Verso</div>
+  ${versoHtml}
+  <button class="print-btn" onclick="window.print()">🖨️ Salvar PDF Padrão Gráfica</button>
+</body>
+</html>`;
+
+      const win = window.open('', '_blank');
+      if (win) { win.document.write(html); win.document.close(); }
+      return;
     }
 
-    const { endereco, whatsapp, telefone, instagram } = cartaoContacts;
-    const mainPhone = whatsapp || telefone || '';
+    // ── OUTROS ITENS (template genérico) ───────────────────────────
+    let sizeCSS = '@page { size: A4 portrait; margin: 0; }';
+    let containerStyle = 'width: 210mm; height: 297mm;';
+    if (item.includes('Tag') || item.includes('Agradecimento')) {
+       sizeCSS = '@page { size: 90mm 50mm; margin: 0; }'; containerStyle = 'width: 90mm; height: 50mm;';
+    } else if (item.includes('Envelope')) {
+       sizeCSS = '@page { size: 240mm 340mm; margin: 0; }'; containerStyle = 'width: 240mm; height: 340mm;';
+    }
+
     const footerHtml = (endereco || mainPhone || instagram) ? `
       <div style="position: absolute; bottom: 0; left: 0; width: 100%; background: ${accentColor}; color: #fff; padding: 12mm; display: flex; justify-content: space-between; align-items: center; font-size: 10pt; font-family: 'Montserrat', sans-serif;">
-        <div style="max-width: 60%;">${endereco || 'Espaço reservado para endereço'}</div>
+        <div style="max-width: 60%;">${endereco || ''}</div>
         <div style="display: flex; gap: 15px;">
            ${instagram ? `<span>${instagram}</span>` : ''}
            ${mainPhone ? `<strong>${mainPhone}</strong>` : ''}
         </div>
-      </div>
-    ` : '';
+      </div>` : '';
 
     const html = `<!DOCTYPE html>
 <html lang="pt-BR">
@@ -789,61 +884,81 @@ function PapelariaStep({ brand, accentColor, paletteColors, estampaPatterns, car
 <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700&display=swap" rel="stylesheet">
 <style>
   * { box-sizing: border-box; margin: 0; padding: 0; }
-  body { background: #555; display: flex; justify-content: center; padding: 20px; font-family: 'Montserrat', sans-serif; }
-  .gabarito { 
-    background: #fff; 
-    position: relative; 
-    ${containerStyle}
-    box-shadow: 0 0 20px rgba(0,0,0,0.5);
-    overflow: hidden;
-  }
+  body { background: #555; display: flex; justify-content: center; padding: 20px; }
+  .gabarito { background: #fff; position: relative; ${containerStyle} box-shadow: 0 0 20px rgba(0,0,0,0.5); overflow: hidden; }
   @media print {
     body { background: #fff; padding: 0; display: block; }
     .gabarito { box-shadow: none; page-break-after: always; }
     .print-btn, .print-helper { display: none !important; }
     ${sizeCSS}
   }
-  .print-btn { position: fixed; bottom: 30px; right: 30px; padding: 15px 30px; background: #dc3495; color: #fff; border:none; border-radius: 30px; font-weight: bold; cursor: pointer; z-index: 999; box-shadow: 0 4px 15px rgba(0,0,0,0.2); }
+  .print-btn { position: fixed; bottom: 30px; right: 30px; padding: 15px 30px; background: #dc3495; color: #fff; border:none; border-radius: 30px; font-weight: bold; cursor: pointer; z-index: 999; }
   .print-helper { position: fixed; top: 0; left: 0; width: 100%; background: #ffeb3b; color: #333; text-align: center; padding: 8px; font-size: 12px; font-weight: 600; z-index: 999; }
 </style>
 </head>
 <body>
-  <div class="print-helper">Atenção: Ao clicar em gerar PDF, certifique-se de que a opção "Gráficos de plano de fundo" (Background graphics) esteja MARCADAS, e as margens definidas como "Nenhuma".</div>
+  <div class="print-helper">Habilite "Gráficos de plano de fundo" e defina margens como "Nenhuma" ao salvar o PDF.</div>
   <button class="print-btn" onclick="window.print()">🖨️ Salvar PDF Padrão Gráfica</button>
   <div class="gabarito">
-     <!-- Fundo com Estampa -->
-     <div style="position: absolute; top:0; left:0; width: 100%; height: 100%; 
-                 ${patternSrc ? `background-image: url(${patternSrc}); background-size: 60mm; background-repeat: repeat; mix-blend-mode: multiply; opacity: 0.1;` : ''}">
-     </div>
-     
-     <!-- Logo Topo -->
-     <div style="position: absolute; top: 15mm; left: 50%; transform: translateX(-50%); width: 50mm; height: 50mm; display: flex; justify-content: center; align-items: center;">
-        ${logoHtml}
-     </div>
-
-     <!-- Footer -->
+     <div style="position:absolute;top:0;left:0;width:100%;height:100%;${patternSrc ? `background-image:url(${patternSrc});background-size:60mm;background-repeat:repeat;mix-blend-mode:multiply;opacity:0.08;` : ''}"></div>
+     <div style="position:absolute;top:20mm;left:50%;transform:translateX(-50%);width:60mm;height:60mm;display:flex;justify-content:center;align-items:center;">${logoHtml}</div>
      ${footerHtml}
   </div>
 </body>
 </html>`;
 
     const win = window.open('', '_blank');
-    if (win) {
-      win.document.write(html);
-      win.document.close();
-    }
+    if (win) { win.document.write(html); win.document.close(); }
   };
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '1.2rem' }}>
+       {/* Form CRM/RQE — só para área de saúde */}
+       {isSaude && (
+         <div style={{ background: '#fdf0f7', border: '1px solid #f0c0dc', borderRadius: '12px', padding: '16px', display: 'flex', flexDirection: 'column', gap: '10px' }}>
+           <p style={{ fontWeight: 700, fontSize: '0.85rem', color: '#8a1a50' }}>Dados do Conselho (obrigatório em materiais médicos)</p>
+           <div style={{ display: 'flex', gap: '8px', alignItems: 'center', flexWrap: 'wrap' }}>
+             <span style={{ fontSize: '0.8rem', fontWeight: 600, color: '#555', whiteSpace: 'nowrap' }}>CRM /</span>
+             <input
+               value={crmData.uf}
+               onChange={e => setCrmData(d => ({ ...d, uf: e.target.value.toUpperCase().slice(0, 2) }))}
+               placeholder="UF"
+               style={{ width: '52px', padding: '8px', fontSize: '0.85rem', border: '1px solid #e0c0d0', borderRadius: '8px', textAlign: 'center', outline: 'none' }}
+             />
+             <input
+               value={crmData.crm}
+               onChange={e => setCrmData(d => ({ ...d, crm: e.target.value }))}
+               placeholder="Número"
+               style={{ flex: 1, minWidth: '100px', padding: '8px', fontSize: '0.85rem', border: '1px solid #e0c0d0', borderRadius: '8px', outline: 'none' }}
+             />
+           </div>
+           {crmData.rqe.map((r, i) => (
+             <div key={i} style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+               <span style={{ fontSize: '0.8rem', fontWeight: 600, color: '#555', whiteSpace: 'nowrap' }}>RQE</span>
+               <input
+                 value={r}
+                 onChange={e => setCrmData(d => { const rqe = [...d.rqe]; rqe[i] = e.target.value; return { ...d, rqe }; })}
+                 placeholder="Número do RQE"
+                 style={{ flex: 1, padding: '8px', fontSize: '0.85rem', border: '1px solid #e0c0d0', borderRadius: '8px', outline: 'none' }}
+               />
+               <button onClick={() => setCrmData(d => ({ ...d, rqe: d.rqe.filter((_, j) => j !== i) }))} style={{ background: 'none', border: 'none', color: '#c00', fontSize: '1rem', cursor: 'pointer', padding: '4px 8px' }}>×</button>
+             </div>
+           ))}
+           <button onClick={() => setCrmData(d => ({ ...d, rqe: [...d.rqe, ''] }))} style={{ background: 'none', border: '1px dashed #d090b8', color: '#a0408a', borderRadius: '8px', padding: '6px 12px', fontSize: '0.78rem', cursor: 'pointer', alignSelf: 'flex-start' }}>
+             + Adicionar RQE
+           </button>
+           {crmData.crm && <p style={{ fontSize: '0.75rem', color: '#8a1a50', fontWeight: 600 }}>Aparecerá como: CRM/{crmData.uf || 'UF'} {crmData.crm}{crmData.rqe.length > 0 ? ' · RQE ' + crmData.rqe.filter(Boolean).join(' / RQE ') : ''}</p>}
+         </div>
+       )}
+
        <div style={{ background: '#e8f7f5', color: '#115048', padding: '16px', borderRadius: '12px', fontSize: '0.85rem', lineHeight: 1.6 }}>
          <span style={{ fontWeight: 700 }}>Dica para gráficas:</span> Os arquivos aqui gerados já possuem o tamanho milimétrico correto. Salve-os em PDF habilitando "Cores/Gráficos de Fundo" e retirando todas as margens do navegador.
        </div>
-       
+
        <div style={{ display: 'grid', gap: '10px' }}>
          {itens.map(item => (
-            <button 
-              key={item} 
+            <button
+              key={item}
               onClick={() => openGabarito(item)}
               style={{ background: '#fff', border: '1px solid #e0e0e0', padding: '16px 20px', borderRadius: '12px', textAlign: 'left', display: 'flex', alignItems: 'center', justifyContent: 'space-between', cursor: 'pointer', fontFamily: 'Montserrat, sans-serif', boxShadow: '0 2px 10px rgba(0,0,0,0.02)' }}
             >
@@ -887,6 +1002,20 @@ function EntregaContent({ brand, plano }) {
   useEffect(() => {
     try { localStorage.setItem('brandbox_cartao', JSON.stringify({ contacts: cartaoContacts, qrLink: cartaoQrLink, showQR: cartaoShowQR })); } catch {}
   }, [cartaoContacts, cartaoQrLink, cartaoShowQR]);
+
+  const atuacoesSaude = ['Pediatria / Saúde infantil', 'Obstetrícia / Saúde da mulher', 'Clínica / Saúde geral adulta', 'Terapia / Saúde mental', 'Estética / Bem-estar / Nutrição'];
+  const isSaude = atuacoesSaude.includes(brand.formData?.atuacao);
+
+  const [crmData, setCrmDataState] = useState(() => {
+    try { return JSON.parse(localStorage.getItem('brandbox_crm') || 'null') || { crm: '', uf: '', rqe: [] }; } catch { return { crm: '', uf: '', rqe: [] }; }
+  });
+  const setCrmData = (updater) => {
+    setCrmDataState(prev => {
+      const next = typeof updater === 'function' ? updater(prev) : updater;
+      try { localStorage.setItem('brandbox_crm', JSON.stringify(next)); } catch {}
+      return next;
+    });
+  };
 
   const downloadCoresPNG = async () => {
     if (!coresRef.current) return;
@@ -1004,7 +1133,7 @@ function EntregaContent({ brand, plano }) {
         {step === 'guia' && <GuiaStep brand={brand} accentColor={accentColor} paletteColors={paletteColors} marca={marca} tagline={tagline} estampaPatterns={estampaPatterns} editData={editData} />}
 
         {/* Papelaria / Gabaritos */}
-        {step === 'papelaria' && <PapelariaStep brand={brand} accentColor={accentColor} paletteColors={paletteColors} estampaPatterns={estampaPatterns} cartaoContacts={cartaoContacts} logoRef={logoRef} plano={plano} />}
+        {step === 'papelaria' && <PapelariaStep brand={brand} accentColor={accentColor} paletteColors={paletteColors} estampaPatterns={estampaPatterns} cartaoContacts={cartaoContacts} logoRef={logoRef} plano={plano} isSaude={isSaude} crmData={crmData} setCrmData={setCrmData} marca={marca} />}
 
         {/* Área da logo */}
         {step !== 'estampa' && step !== 'cores' && step !== 'cartao' && step !== 'guia' && step !== 'papelaria' && <div
