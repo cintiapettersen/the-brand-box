@@ -1348,7 +1348,7 @@ function EntregaContent({ brand, plano }) {
             transition: 'background 0.2s ease',
           }}
         >
-          <div style={{ width: '68%', height: '68%', opacity: step === 'submarca' ? (fontReady ? 1 : 0) : 1, transition: 'opacity 0.3s ease' }}>
+          <div style={{ width: '68%', height: '68%', opacity: fontReady ? 1 : 0, transition: 'opacity 0.3s ease' }}>
             {step === 'logo'
               ? <LogoPreviewHTML editData={editData} color={logoColor} />
               : <BrandTemplateSVG
