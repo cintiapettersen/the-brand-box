@@ -744,48 +744,64 @@ function GuiaStep({ brand, accentColor, paletteColors, marca, tagline, estampaPa
   );
 }
 
-function CartaoDeVisitaPreview({ marca, accentColor, patternSrc, cartaoContacts, crmLine, editData, logoColor, isScript }) {
+function CartaoDeVisitaPreview({ accentColor, patternSrc, cartaoContacts, crmLine, editData, logoColor, comBorda, setComBorda, clinicaNome, setClinicaNome }) {
   const brandFont = `'${editData?.fontFamily || 'Playfair Display'}', serif`;
-  const marcaDisplay = isScript
-    ? marca.split(' ').map(w => w.charAt(0).toUpperCase() + w.slice(1).toLowerCase()).join(' ')
-    : marca.toUpperCase();
-  const { endereco, whatsapp, telefone, instagram, email, site } = cartaoContacts || {};
+  // CRM substitui tagline dentro do BrandTemplateSVG
+  const displayData = crmLine ? { ...editData, tagline: crmLine } : editData;
+  const { endereco, whatsapp, telefone, instagram, email } = cartaoContacts || {};
   const mainPhone = whatsapp || telefone || '';
-  const borderSize = '8mm';
+
+  const toggleStyle = (active) => ({
+    padding: '5px 14px', borderRadius: '20px', fontSize: '0.72rem', fontWeight: 700, cursor: 'pointer', border: 'none',
+    background: active ? accentColor : '#eee', color: active ? '#fff' : '#888',
+  });
+
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', alignItems: 'center' }}>
+    <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', alignItems: 'center', width: '100%' }}>
+
+      {/* Toggle borda */}
+      <div style={{ display: 'flex', gap: '6px' }}>
+        <button style={toggleStyle(comBorda)} onClick={() => setComBorda(true)}>Com estampa</button>
+        <button style={toggleStyle(!comBorda)} onClick={() => setComBorda(false)}>Sem estampa</button>
+      </div>
+
       <p style={{ fontSize: '0.6rem', color: '#aaa', letterSpacing: '2px', textTransform: 'uppercase' }}>Frente</p>
-      {/* Frente: 90×50mm → scale to fit ~320px wide */}
       <div style={{ width: '320px', height: '178px', position: 'relative', background: '#fff', overflow: 'hidden', boxShadow: '0 4px 20px rgba(0,0,0,0.12)', borderRadius: '4px' }}>
-        {patternSrc && <>
+        {comBorda && patternSrc && <>
           <div style={{ position: 'absolute', inset: 0, backgroundImage: `url(${patternSrc})`, backgroundSize: '120px', backgroundRepeat: 'repeat', opacity: 0.9, zIndex: 0 }} />
-          <div style={{ position: 'absolute', top: '28px', left: '28px', right: '28px', bottom: '28px', background: '#fff', zIndex: 1 }} />
+          <div style={{ position: 'absolute', top: '16px', left: '16px', right: '16px', bottom: '16px', background: '#fff', zIndex: 1 }} />
         </>}
-        <div style={{ position: 'absolute', inset: 0, zIndex: 2, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: '6px' }}>
-          <div style={{ width: '54px', height: '54px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-            <BrandTemplateSVG data={editData} color={logoColor} side="frente" hideBackground={true} />
-          </div>
-          <div style={{ textAlign: 'center' }}>
-            <div style={{ fontFamily: brandFont, fontSize: '11px', color: accentColor, fontWeight: editData?.fontWeight || 700, lineHeight: 1.1 }}>{marcaDisplay}</div>
-            <div style={{ fontFamily: "'Montserrat', sans-serif", fontSize: '7px', color: '#666', letterSpacing: '1.5px', textTransform: 'uppercase', marginTop: '4px' }}>{crmLine || editData?.tagline || ''}</div>
+        <div style={{ position: 'absolute', inset: 0, zIndex: 2, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+          <div style={{ width: '72%', height: '72%' }}>
+            <BrandTemplateSVG data={displayData} color={logoColor} side="frente" hideBackground={true} />
           </div>
         </div>
       </div>
+
+      {/* Campo nome da clínica para o verso */}
+      <div style={{ width: '100%' }}>
+        <input
+          value={clinicaNome}
+          onChange={e => setClinicaNome(e.target.value)}
+          placeholder="Nome da clínica no verso (opcional)"
+          style={{ width: '100%', padding: '9px 14px', fontSize: '0.82rem', border: '1px solid #e0e0e0', borderRadius: '10px', outline: 'none', textAlign: 'left' }}
+        />
+      </div>
+
       <p style={{ fontSize: '0.6rem', color: '#aaa', letterSpacing: '2px', textTransform: 'uppercase' }}>Verso</p>
-      {/* Verso */}
       <div style={{ width: '320px', height: '178px', position: 'relative', overflow: 'hidden', boxShadow: '0 4px 20px rgba(0,0,0,0.12)', borderRadius: '4px' }}>
-        {patternSrc
+        {comBorda && patternSrc
           ? <div style={{ position: 'absolute', inset: 0, backgroundImage: `url(${patternSrc})`, backgroundSize: '120px', backgroundRepeat: 'repeat', zIndex: 0 }} />
           : <div style={{ position: 'absolute', inset: 0, background: accentColor, zIndex: 0 }} />}
         <div style={{ position: 'absolute', inset: 0, zIndex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-          <div style={{ background: 'rgba(255,255,255,0.93)', padding: '12px 18px', borderRadius: '6px', textAlign: 'center', maxWidth: '260px' }}>
-            <div style={{ fontFamily: brandFont, fontSize: '10px', color: accentColor, fontWeight: editData?.fontWeight || 700, marginBottom: '4px' }}>{marcaDisplay}</div>
-            {crmLine && <div style={{ fontFamily: "'Montserrat',sans-serif", fontSize: '6px', color: '#777', letterSpacing: '1px', textTransform: 'uppercase', marginBottom: '6px' }}>{crmLine}</div>}
+          <div style={{ background: 'rgba(255,255,255,0.93)', padding: '10px 16px', borderRadius: '6px', textAlign: 'center', maxWidth: '270px' }}>
+            {clinicaNome && <div style={{ fontFamily: brandFont, fontSize: '9px', color: accentColor, fontWeight: editData?.fontWeight || 700, marginBottom: '3px' }}>{clinicaNome}</div>}
+            {crmLine && <div style={{ fontFamily: "'Montserrat',sans-serif", fontSize: '6px', color: '#888', letterSpacing: '1px', textTransform: 'uppercase', marginBottom: '4px' }}>{crmLine}</div>}
             {endereco && <div style={{ fontFamily: "'Montserrat',sans-serif", fontSize: '7px', color: '#444', lineHeight: 1.5 }}>{endereco}</div>}
-            {mainPhone && <div style={{ fontFamily: "'Montserrat',sans-serif", fontSize: '8px', fontWeight: 700, color: '#222', marginTop: '4px' }}>{mainPhone}</div>}
+            {mainPhone && <div style={{ fontFamily: "'Montserrat',sans-serif", fontSize: '8px', fontWeight: 700, color: '#222', marginTop: '3px' }}>{mainPhone}</div>}
             {instagram && <div style={{ fontFamily: "'Montserrat',sans-serif", fontSize: '7px', color: '#666', marginTop: '2px' }}>{instagram}</div>}
             {email && <div style={{ fontFamily: "'Montserrat',sans-serif", fontSize: '7px', color: '#666' }}>{email}</div>}
-            {!endereco && !mainPhone && !instagram && !email && <div style={{ fontFamily: "'Montserrat',sans-serif", fontSize: '7px', color: '#aaa', fontStyle: 'italic' }}>Preencha seus dados no Cartão Digital</div>}
+            {!clinicaNome && !crmLine && !endereco && !mainPhone && !instagram && !email && <div style={{ fontFamily: "'Montserrat',sans-serif", fontSize: '7px', color: '#aaa', fontStyle: 'italic' }}>Preencha seus dados no Cartão Digital</div>}
           </div>
         </div>
       </div>
@@ -811,6 +827,8 @@ function GenericItemPreview({ item, marca, accentColor, patternSrc, editData, lo
 function PapelariaStep({ brand, accentColor, paletteColors, estampaPatterns, cartaoContacts, plano, isSaude, crmData, setCrmData, marca, editData, logoColor }) {
   const itens = brand.papelariaSelecionada || [];
   const [idx, setIdx] = useState(0);
+  const [comBorda, setComBorda] = useState(true);
+  const [clinicaNome, setClinicaNome] = useState('');
 
   if (plano !== 'complete' || itens.length === 0) {
      return <div style={{ textAlign: 'center', padding: '2rem 0', color: '#888' }}>Nenhuma papelaria inclusa no seu pacote.</div>;
@@ -835,40 +853,33 @@ function PapelariaStep({ brand, accentColor, paletteColors, estampaPatterns, car
 
     // ── CARTÃO DE VISITA ────────────────────────────────────────────
     if (item === 'Cartão de Visita') {
-      const borderSize = '8mm';
       const fontImports = `
         <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;600;700&display=swap" rel="stylesheet">
         ${brand.editData?.googleFont !== false ? `<link href="https://fonts.googleapis.com/css2?family=${encodeURIComponent(brand.editData?.fontFamily || 'Playfair+Display')}:wght@400;700&display=swap" rel="stylesheet">` : ''}
       `;
       const brandFont = `'${brand.editData?.fontFamily || 'Playfair Display'}', serif`;
-      const isScript = brand.editData?.fontStyle === 'script';
-      const marcaDisplay = isScript
+      const isScriptLocal = brand.editData?.fontStyle === 'script';
+      const marcaDisplay = isScriptLocal
         ? marca.split(' ').map(w => w.charAt(0).toUpperCase() + w.slice(1).toLowerCase()).join(' ')
         : marca.toUpperCase();
+      const taglineDisplay = crmLine || brand.editData?.tagline || '';
+      const bordaHtml = comBorda && patternSrc ? `
+        <div style="position:absolute;top:0;left:0;width:100%;height:100%;background-image:url(${patternSrc});background-size:35mm;background-repeat:repeat;opacity:0.9;z-index:0;"></div>
+        <div style="position:absolute;top:5mm;left:5mm;right:5mm;bottom:5mm;background:#fff;z-index:1;"></div>` : '';
 
       const frenteHtml = `
-        <div class="card" style="position:relative; background:#fff; overflow:hidden;">
-          <!-- Borda estampa -->
-          ${patternSrc ? `
-          <div style="position:absolute;top:0;left:0;width:100%;height:100%;
-            background-image:url(${patternSrc}); background-size:35mm; background-repeat:repeat; opacity:0.9; z-index:0;"></div>
-          <div style="position:absolute;top:${borderSize};left:${borderSize};right:${borderSize};bottom:${borderSize};
-            background:#fff; z-index:1;"></div>
-          ` : ''}
-          <!-- Conteúdo -->
-          <div style="position:absolute;top:0;left:0;width:100%;height:100%;z-index:2;
-            display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2mm;">
-            <div style="width:18mm;height:18mm;display:flex;align-items:center;justify-content:center;">
+        <div class="card" style="position:relative;background:#fff;overflow:hidden;">
+          ${bordaHtml}
+          <div style="position:absolute;top:0;left:0;width:100%;height:100%;z-index:2;display:flex;align-items:center;justify-content:center;">
+            <div style="width:72%;height:72%;display:flex;align-items:center;justify-content:center;">
               ${logoHtml}
-            </div>
-            <div style="text-align:center;line-height:1.1;">
-              <div style="font-family:${brandFont};font-size:7.5pt;color:${accentColor};font-weight:${brand.editData?.fontWeight || 700};">${marcaDisplay}</div>
-              <div style="font-family:'Montserrat',sans-serif;font-size:4.5pt;color:#555;letter-spacing:1.5px;text-transform:uppercase;margin-top:1.5mm;">${crmLine || (brand.editData?.tagline || '')}</div>
             </div>
           </div>
         </div>`;
 
       const contactLines = [
+        clinicaNome ? `<div style="font-family:${brandFont};font-size:7pt;color:${accentColor};font-weight:${brand.editData?.fontWeight || 700};margin-bottom:1.5mm;">${clinicaNome}</div>` : '',
+        crmLine ? `<div style="font-family:'Montserrat',sans-serif;font-size:4pt;color:#666;letter-spacing:1px;text-transform:uppercase;margin-bottom:2mm;">${crmLine}</div>` : '',
         endereco ? `<div style="font-size:5.5pt;color:#444;line-height:1.5;">${endereco}</div>` : '',
         mainPhone ? `<div style="font-size:6pt;font-weight:700;color:#222;margin-top:1mm;">${mainPhone}</div>` : '',
         instagram ? `<div style="font-size:5pt;color:#666;">${instagram}</div>` : '',
@@ -876,19 +887,16 @@ function PapelariaStep({ brand, accentColor, paletteColors, estampaPatterns, car
         site ? `<div style="font-size:5pt;color:#666;">${site}</div>` : '',
       ].filter(Boolean).join('');
 
+      const versoBgHtml = comBorda && patternSrc
+        ? `<div style="position:absolute;top:0;left:0;width:100%;height:100%;background-image:url(${patternSrc});background-size:35mm;background-repeat:repeat;z-index:0;"></div>`
+        : `<div style="position:absolute;inset:0;background:${accentColor};z-index:0;"></div>`;
+
       const versoHtml = `
-        <div class="card" style="position:relative; overflow:hidden;">
-          <!-- Fundo estampa full -->
-          ${patternSrc ? `<div style="position:absolute;top:0;left:0;width:100%;height:100%;
-            background-image:url(${patternSrc}); background-size:35mm; background-repeat:repeat; z-index:0;"></div>` : `<div style="position:absolute;inset:0;background:${accentColor};z-index:0;"></div>`}
-          <!-- Retângulo de dados centralizado, largura auto -->
-          <div style="position:absolute;top:0;left:0;width:100%;height:100%;z-index:1;
-            display:flex;align-items:center;justify-content:center;">
-            <div style="background:rgba(255,255,255,0.93);padding:4mm 6mm;border-radius:2mm;
-              max-width:74mm;width:fit-content;text-align:center;">
-              <div style="font-family:${brandFont};font-size:7pt;color:${accentColor};font-weight:${brand.editData?.fontWeight || 700};margin-bottom:1.5mm;">${marcaDisplay}</div>
-              ${crmLine ? `<div style="font-family:'Montserrat',sans-serif;font-size:4pt;color:#666;letter-spacing:1px;text-transform:uppercase;margin-bottom:2mm;">${crmLine}</div>` : ''}
-              <div style="font-family:'Montserrat',sans-serif;">${contactLines || '<span style="font-size:5pt;color:#aaa;">Adicione seus dados no Cartão Digital</span>'}</div>
+        <div class="card" style="position:relative;overflow:hidden;">
+          ${versoBgHtml}
+          <div style="position:absolute;top:0;left:0;width:100%;height:100%;z-index:1;display:flex;align-items:center;justify-content:center;">
+            <div style="background:rgba(255,255,255,0.93);padding:4mm 6mm;border-radius:2mm;max-width:74mm;width:fit-content;text-align:center;font-family:'Montserrat',sans-serif;">
+              ${contactLines || '<span style="font-size:5pt;color:#aaa;">Adicione seus dados no Cartão Digital</span>'}
             </div>
           </div>
         </div>`;
@@ -1027,7 +1035,7 @@ ${fontImports}
       {/* Preview inline */}
       <div style={{ display: 'flex', justifyContent: 'center' }}>
         {currentItem === 'Cartão de Visita'
-          ? <CartaoDeVisitaPreview marca={marca} accentColor={accentColor} patternSrc={patternSrc} cartaoContacts={cartaoContacts} crmLine={crmLine} editData={editData} logoColor={logoColor} isScript={isScript} />
+          ? <CartaoDeVisitaPreview accentColor={accentColor} patternSrc={patternSrc} cartaoContacts={cartaoContacts} crmLine={crmLine} editData={editData} logoColor={logoColor} comBorda={comBorda} setComBorda={setComBorda} clinicaNome={clinicaNome} setClinicaNome={setClinicaNome} />
           : <GenericItemPreview item={currentItem} marca={marca} accentColor={accentColor} patternSrc={patternSrc} editData={editData} logoColor={logoColor} />
         }
       </div>
