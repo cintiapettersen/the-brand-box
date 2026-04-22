@@ -772,7 +772,7 @@ function CartaoDeVisitaPreview({ accentColor, patternSrc, cartaoContacts, crmLin
           <div style={{ position: 'absolute', top: '16px', left: '16px', right: '16px', bottom: '16px', background: '#fff', zIndex: 1 }} />
         </>}
         <div style={{ position: 'absolute', inset: 0, zIndex: 2, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-          <div style={{ width: '72%', height: '72%' }}>
+          <div style={{ width: '82%', height: '82%', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
             <BrandTemplateSVG data={displayData} color={logoColor} side="frente" hideBackground={true} />
           </div>
         </div>
@@ -794,7 +794,7 @@ function CartaoDeVisitaPreview({ accentColor, patternSrc, cartaoContacts, crmLin
           ? <div style={{ position: 'absolute', inset: 0, backgroundImage: `url(${patternSrc})`, backgroundSize: '120px', backgroundRepeat: 'repeat', zIndex: 0 }} />
           : <div style={{ position: 'absolute', inset: 0, background: accentColor, zIndex: 0 }} />}
         <div style={{ position: 'absolute', inset: 0, zIndex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-          <div style={{ background: 'rgba(255,255,255,0.93)', padding: '10px 16px', borderRadius: '6px', textAlign: 'center', maxWidth: '270px' }}>
+          <div style={{ background: 'rgba(255,255,255,0.93)', padding: '12px 22px', borderRadius: '6px', textAlign: 'center', width: '82%' }}>
             {clinicaNome && <div style={{ fontFamily: brandFont, fontSize: '9px', color: accentColor, fontWeight: editData?.fontWeight || 700, marginBottom: '3px' }}>{clinicaNome}</div>}
             {crmLine && <div style={{ fontFamily: "'Montserrat',sans-serif", fontSize: '6px', color: '#888', letterSpacing: '1px', textTransform: 'uppercase', marginBottom: '4px' }}>{crmLine}</div>}
             {endereco && <div style={{ fontFamily: "'Montserrat',sans-serif", fontSize: '7px', color: '#444', lineHeight: 1.5 }}>{endereco}</div>}
@@ -827,8 +827,11 @@ function GenericItemPreview({ item, marca, accentColor, patternSrc, editData, lo
 function PapelariaStep({ brand, accentColor, paletteColors, estampaPatterns, cartaoContacts, plano, isSaude, crmData, setCrmData, marca, editData, logoColor }) {
   const itens = brand.papelariaSelecionada || [];
   const [idx, setIdx] = useState(0);
-  const [comBorda, setComBorda] = useState(true);
-  const [clinicaNome, setClinicaNome] = useState('');
+  const [comBorda, setComBordaState] = useState(() => { try { return JSON.parse(localStorage.getItem('brandbox_papelaria') || '{}').comBorda ?? true; } catch { return true; } });
+  const [clinicaNome, setClinicaNomeState] = useState(() => { try { return JSON.parse(localStorage.getItem('brandbox_papelaria') || '{}').clinicaNome || ''; } catch { return ''; } });
+  const persistPapelaria = (updates) => { try { const cur = JSON.parse(localStorage.getItem('brandbox_papelaria') || '{}'); localStorage.setItem('brandbox_papelaria', JSON.stringify({ ...cur, ...updates })); } catch {} };
+  const setComBorda = (v) => { setComBordaState(v); persistPapelaria({ comBorda: v }); };
+  const setClinicaNome = (v) => { setClinicaNomeState(v); persistPapelaria({ clinicaNome: v }); };
 
   if (plano !== 'complete' || itens.length === 0) {
      return <div style={{ textAlign: 'center', padding: '2rem 0', color: '#888' }}>Nenhuma papelaria inclusa no seu pacote.</div>;
@@ -1468,6 +1471,7 @@ function SucessoContent() {
       localStorage.removeItem('brandbox_cartao');
       localStorage.removeItem('brandbox_crm');
       localStorage.removeItem('brandbox_plano');
+      localStorage.removeItem('brandbox_papelaria');
       window.location.href = '/sucesso';
       return;
     }

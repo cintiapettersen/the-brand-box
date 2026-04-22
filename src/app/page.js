@@ -1464,7 +1464,7 @@ export default function Home() {
                         };
                         if (brandState.pattern) try { localStorage.setItem('brandbox_pattern', JSON.stringify(brandState.pattern)); } catch {}
                         try { localStorage.setItem('brandbox_delivery', JSON.stringify({ ...brandState, pattern: null })); } catch {}
-                        ['brandbox_step', 'brandbox_cartao', 'brandbox_crm', 'brandbox_plano'].forEach(k => localStorage.removeItem(k));
+                        ['brandbox_step', 'brandbox_cartao', 'brandbox_crm', 'brandbox_plano', 'brandbox_papelaria'].forEach(k => localStorage.removeItem(k));
                         const res = await fetch('/api/checkout', {
                           method: 'POST',
                           headers: { 'Content-Type': 'application/json' },
@@ -1528,7 +1528,7 @@ export default function Home() {
                         };
                         if (brandState.pattern) try { localStorage.setItem('brandbox_pattern', JSON.stringify(brandState.pattern)); } catch {}
                         try { localStorage.setItem('brandbox_delivery', JSON.stringify({ ...brandState, pattern: null })); } catch {}
-                        ['brandbox_step', 'brandbox_cartao', 'brandbox_crm', 'brandbox_plano'].forEach(k => localStorage.removeItem(k));
+                        ['brandbox_step', 'brandbox_cartao', 'brandbox_crm', 'brandbox_plano', 'brandbox_papelaria'].forEach(k => localStorage.removeItem(k));
                         const extrasCount = Math.max(0, papelariaSelecionada.length - 5);
                         const res = await fetch('/api/checkout', {
                           method: 'POST',
