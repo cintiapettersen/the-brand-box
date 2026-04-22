@@ -744,12 +744,84 @@ function GuiaStep({ brand, accentColor, paletteColors, marca, tagline, estampaPa
   );
 }
 
-function PapelariaStep({ brand, accentColor, paletteColors, estampaPatterns, cartaoContacts, logoRef, plano, isSaude, crmData, setCrmData, marca }) {
+function CartaoDeVisitaPreview({ marca, accentColor, patternSrc, cartaoContacts, crmLine, editData, logoColor, isScript }) {
+  const brandFont = `'${editData?.fontFamily || 'Playfair Display'}', serif`;
+  const marcaDisplay = isScript
+    ? marca.split(' ').map(w => w.charAt(0).toUpperCase() + w.slice(1).toLowerCase()).join(' ')
+    : marca.toUpperCase();
+  const { endereco, whatsapp, telefone, instagram, email, site } = cartaoContacts || {};
+  const mainPhone = whatsapp || telefone || '';
+  const borderSize = '8mm';
+  return (
+    <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', alignItems: 'center' }}>
+      <p style={{ fontSize: '0.6rem', color: '#aaa', letterSpacing: '2px', textTransform: 'uppercase' }}>Frente</p>
+      {/* Frente: 90×50mm → scale to fit ~320px wide */}
+      <div style={{ width: '320px', height: '178px', position: 'relative', background: '#fff', overflow: 'hidden', boxShadow: '0 4px 20px rgba(0,0,0,0.12)', borderRadius: '4px' }}>
+        {patternSrc && <>
+          <div style={{ position: 'absolute', inset: 0, backgroundImage: `url(${patternSrc})`, backgroundSize: '120px', backgroundRepeat: 'repeat', opacity: 0.9, zIndex: 0 }} />
+          <div style={{ position: 'absolute', top: '28px', left: '28px', right: '28px', bottom: '28px', background: '#fff', zIndex: 1 }} />
+        </>}
+        <div style={{ position: 'absolute', inset: 0, zIndex: 2, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: '6px' }}>
+          <div style={{ width: '54px', height: '54px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+            <BrandTemplateSVG data={editData} color={logoColor} side="frente" hideBackground={true} />
+          </div>
+          <div style={{ textAlign: 'center' }}>
+            <div style={{ fontFamily: brandFont, fontSize: '11px', color: accentColor, fontWeight: editData?.fontWeight || 700, lineHeight: 1.1 }}>{marcaDisplay}</div>
+            <div style={{ fontFamily: "'Montserrat', sans-serif", fontSize: '7px', color: '#666', letterSpacing: '1.5px', textTransform: 'uppercase', marginTop: '4px' }}>{crmLine || editData?.tagline || ''}</div>
+          </div>
+        </div>
+      </div>
+      <p style={{ fontSize: '0.6rem', color: '#aaa', letterSpacing: '2px', textTransform: 'uppercase' }}>Verso</p>
+      {/* Verso */}
+      <div style={{ width: '320px', height: '178px', position: 'relative', overflow: 'hidden', boxShadow: '0 4px 20px rgba(0,0,0,0.12)', borderRadius: '4px' }}>
+        {patternSrc
+          ? <div style={{ position: 'absolute', inset: 0, backgroundImage: `url(${patternSrc})`, backgroundSize: '120px', backgroundRepeat: 'repeat', zIndex: 0 }} />
+          : <div style={{ position: 'absolute', inset: 0, background: accentColor, zIndex: 0 }} />}
+        <div style={{ position: 'absolute', inset: 0, zIndex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+          <div style={{ background: 'rgba(255,255,255,0.93)', padding: '12px 18px', borderRadius: '6px', textAlign: 'center', maxWidth: '260px' }}>
+            <div style={{ fontFamily: brandFont, fontSize: '10px', color: accentColor, fontWeight: editData?.fontWeight || 700, marginBottom: '4px' }}>{marcaDisplay}</div>
+            {crmLine && <div style={{ fontFamily: "'Montserrat',sans-serif", fontSize: '6px', color: '#777', letterSpacing: '1px', textTransform: 'uppercase', marginBottom: '6px' }}>{crmLine}</div>}
+            {endereco && <div style={{ fontFamily: "'Montserrat',sans-serif", fontSize: '7px', color: '#444', lineHeight: 1.5 }}>{endereco}</div>}
+            {mainPhone && <div style={{ fontFamily: "'Montserrat',sans-serif", fontSize: '8px', fontWeight: 700, color: '#222', marginTop: '4px' }}>{mainPhone}</div>}
+            {instagram && <div style={{ fontFamily: "'Montserrat',sans-serif", fontSize: '7px', color: '#666', marginTop: '2px' }}>{instagram}</div>}
+            {email && <div style={{ fontFamily: "'Montserrat',sans-serif", fontSize: '7px', color: '#666' }}>{email}</div>}
+            {!endereco && !mainPhone && !instagram && !email && <div style={{ fontFamily: "'Montserrat',sans-serif", fontSize: '7px', color: '#aaa', fontStyle: 'italic' }}>Preencha seus dados no Cartão Digital</div>}
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function GenericItemPreview({ item, marca, accentColor, patternSrc, editData, logoColor }) {
+  return (
+    <div style={{ width: '320px', height: '220px', position: 'relative', background: '#fff', overflow: 'hidden', boxShadow: '0 4px 20px rgba(0,0,0,0.12)', borderRadius: '8px', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: '12px' }}>
+      {patternSrc && <div style={{ position: 'absolute', inset: 0, backgroundImage: `url(${patternSrc})`, backgroundSize: '100px', backgroundRepeat: 'repeat', opacity: 0.06 }} />}
+      <div style={{ position: 'relative', zIndex: 1, width: '60px', height: '60px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+        <BrandTemplateSVG data={editData} color={logoColor} side="frente" hideBackground={true} />
+      </div>
+      <div style={{ position: 'relative', zIndex: 1, textAlign: 'center' }}>
+        <div style={{ fontFamily: "'Montserrat',sans-serif", fontSize: '11px', color: accentColor, fontWeight: 700, letterSpacing: '1px', textTransform: 'uppercase' }}>{item}</div>
+        <div style={{ fontFamily: "'Montserrat',sans-serif", fontSize: '9px', color: '#bbb', marginTop: '6px' }}>Preview gerado ao exportar o PDF</div>
+      </div>
+    </div>
+  );
+}
+
+function PapelariaStep({ brand, accentColor, paletteColors, estampaPatterns, cartaoContacts, plano, isSaude, crmData, setCrmData, marca, editData, logoColor }) {
   const itens = brand.papelariaSelecionada || [];
+  const [idx, setIdx] = useState(0);
 
   if (plano !== 'complete' || itens.length === 0) {
      return <div style={{ textAlign: 'center', padding: '2rem 0', color: '#888' }}>Nenhuma papelaria inclusa no seu pacote.</div>;
   }
+
+  const currentItem = itens[idx];
+  const patternSrc = estampaPatterns?.[0] ? `data:${estampaPatterns[0].mimeType};base64,${estampaPatterns[0].base64}` : null;
+  const isScript = editData?.fontStyle === 'script';
+  const crmLine = isSaude && crmData?.crm
+    ? `CRM/${crmData.uf || 'UF'} ${crmData.crm}${crmData.rqe?.length > 0 ? ' · RQE ' + crmData.rqe.filter(Boolean).join(' / RQE ') : ''}`
+    : null;
 
   const openGabarito = (item) => {
     const patternSrc = estampaPatterns?.[0] ? `data:${estampaPatterns[0].mimeType};base64,${estampaPatterns[0].base64}` : null;
@@ -912,60 +984,79 @@ ${fontImports}
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '1.2rem' }}>
-       {/* Form CRM/RQE — só para área de saúde */}
-       {isSaude && (
-         <div style={{ background: '#fdf0f7', border: '1px solid #f0c0dc', borderRadius: '12px', padding: '16px', display: 'flex', flexDirection: 'column', gap: '10px' }}>
-           <p style={{ fontWeight: 700, fontSize: '0.85rem', color: '#8a1a50' }}>Dados do Conselho (obrigatório em materiais médicos)</p>
-           <div style={{ display: 'flex', gap: '8px', alignItems: 'center', flexWrap: 'wrap' }}>
-             <span style={{ fontSize: '0.8rem', fontWeight: 600, color: '#555', whiteSpace: 'nowrap' }}>CRM /</span>
-             <input
-               value={crmData.uf}
-               onChange={e => setCrmData(d => ({ ...d, uf: e.target.value.toUpperCase().slice(0, 2) }))}
-               placeholder="UF"
-               style={{ width: '52px', padding: '8px', fontSize: '0.85rem', border: '1px solid #e0c0d0', borderRadius: '8px', textAlign: 'center', outline: 'none' }}
-             />
-             <input
-               value={crmData.crm}
-               onChange={e => setCrmData(d => ({ ...d, crm: e.target.value }))}
-               placeholder="Número"
-               style={{ flex: 1, minWidth: '100px', padding: '8px', fontSize: '0.85rem', border: '1px solid #e0c0d0', borderRadius: '8px', outline: 'none' }}
-             />
-           </div>
-           {crmData.rqe.map((r, i) => (
-             <div key={i} style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
-               <span style={{ fontSize: '0.8rem', fontWeight: 600, color: '#555', whiteSpace: 'nowrap' }}>RQE</span>
-               <input
-                 value={r}
-                 onChange={e => setCrmData(d => { const rqe = [...d.rqe]; rqe[i] = e.target.value; return { ...d, rqe }; })}
-                 placeholder="Número do RQE"
-                 style={{ flex: 1, padding: '8px', fontSize: '0.85rem', border: '1px solid #e0c0d0', borderRadius: '8px', outline: 'none' }}
-               />
-               <button onClick={() => setCrmData(d => ({ ...d, rqe: d.rqe.filter((_, j) => j !== i) }))} style={{ background: 'none', border: 'none', color: '#c00', fontSize: '1rem', cursor: 'pointer', padding: '4px 8px' }}>×</button>
-             </div>
-           ))}
-           <button onClick={() => setCrmData(d => ({ ...d, rqe: [...d.rqe, ''] }))} style={{ background: 'none', border: '1px dashed #d090b8', color: '#a0408a', borderRadius: '8px', padding: '6px 12px', fontSize: '0.78rem', cursor: 'pointer', alignSelf: 'flex-start' }}>
-             + Adicionar RQE
-           </button>
-           {crmData.crm && <p style={{ fontSize: '0.75rem', color: '#8a1a50', fontWeight: 600 }}>Aparecerá como: CRM/{crmData.uf || 'UF'} {crmData.crm}{crmData.rqe.length > 0 ? ' · RQE ' + crmData.rqe.filter(Boolean).join(' / RQE ') : ''}</p>}
-         </div>
-       )}
 
-       <div style={{ background: '#e8f7f5', color: '#115048', padding: '16px', borderRadius: '12px', fontSize: '0.85rem', lineHeight: 1.6 }}>
-         <span style={{ fontWeight: 700 }}>Dica para gráficas:</span> Os arquivos aqui gerados já possuem o tamanho milimétrico correto. Salve-os em PDF habilitando "Cores/Gráficos de Fundo" e retirando todas as margens do navegador.
-       </div>
+      {/* Form CRM/RQE — só para área de saúde, colapsável após preenchido */}
+      {isSaude && (
+        <div style={{ background: '#fdf0f7', border: '1px solid #f0c0dc', borderRadius: '12px', padding: '14px', display: 'flex', flexDirection: 'column', gap: '8px' }}>
+          <p style={{ fontWeight: 700, fontSize: '0.82rem', color: '#8a1a50' }}>Dados do Conselho (obrigatório em materiais médicos)</p>
+          <div style={{ display: 'flex', gap: '8px', alignItems: 'center', flexWrap: 'wrap' }}>
+            <span style={{ fontSize: '0.78rem', fontWeight: 600, color: '#555', whiteSpace: 'nowrap' }}>CRM /</span>
+            <input value={crmData.uf} onChange={e => setCrmData(d => ({ ...d, uf: e.target.value.toUpperCase().slice(0, 2) }))} placeholder="UF"
+              style={{ width: '48px', padding: '7px', fontSize: '0.82rem', border: '1px solid #e0c0d0', borderRadius: '8px', textAlign: 'center', outline: 'none' }} />
+            <input value={crmData.crm} onChange={e => setCrmData(d => ({ ...d, crm: e.target.value }))} placeholder="Número"
+              style={{ flex: 1, minWidth: '90px', padding: '7px', fontSize: '0.82rem', border: '1px solid #e0c0d0', borderRadius: '8px', outline: 'none' }} />
+          </div>
+          {crmData.rqe.map((r, i) => (
+            <div key={i} style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+              <span style={{ fontSize: '0.78rem', fontWeight: 600, color: '#555' }}>RQE</span>
+              <input value={r} onChange={e => setCrmData(d => { const rqe = [...d.rqe]; rqe[i] = e.target.value; return { ...d, rqe }; })} placeholder="Número"
+                style={{ flex: 1, padding: '7px', fontSize: '0.82rem', border: '1px solid #e0c0d0', borderRadius: '8px', outline: 'none' }} />
+              <button onClick={() => setCrmData(d => ({ ...d, rqe: d.rqe.filter((_, j) => j !== i) }))} style={{ background: 'none', border: 'none', color: '#c00', fontSize: '1rem', cursor: 'pointer' }}>×</button>
+            </div>
+          ))}
+          <button onClick={() => setCrmData(d => ({ ...d, rqe: [...d.rqe, ''] }))} style={{ background: 'none', border: '1px dashed #d090b8', color: '#a0408a', borderRadius: '8px', padding: '5px 10px', fontSize: '0.75rem', cursor: 'pointer', alignSelf: 'flex-start' }}>
+            + Adicionar RQE
+          </button>
+          {crmData.crm && <p style={{ fontSize: '0.72rem', color: '#8a1a50', fontWeight: 600 }}>Aparecerá como: CRM/{crmData.uf || 'UF'} {crmData.crm}{crmData.rqe.length > 0 ? ' · RQE ' + crmData.rqe.filter(Boolean).join(' / RQE ') : ''}</p>}
+        </div>
+      )}
 
-       <div style={{ display: 'grid', gap: '10px' }}>
-         {itens.map(item => (
-            <button
-              key={item}
-              onClick={() => openGabarito(item)}
-              style={{ background: '#fff', border: '1px solid #e0e0e0', padding: '16px 20px', borderRadius: '12px', textAlign: 'left', display: 'flex', alignItems: 'center', justifyContent: 'space-between', cursor: 'pointer', fontFamily: 'Montserrat, sans-serif', boxShadow: '0 2px 10px rgba(0,0,0,0.02)' }}
-            >
-               <span style={{ fontWeight: 600, color: '#333' }}>{item}</span>
-               <span style={{ fontSize: '0.8rem', color: accentColor, fontWeight: 700 }}>Exportar arquivo →</span>
-            </button>
-         ))}
-       </div>
+      {/* Contador de item */}
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+        <span style={{ fontSize: '0.72rem', color: '#aaa', letterSpacing: '1.5px', textTransform: 'uppercase', fontWeight: 700 }}>Item {idx + 1} de {itens.length}</span>
+        <div style={{ display: 'flex', gap: '6px' }}>
+          {itens.map((_, i) => (
+            <button key={i} onClick={() => setIdx(i)} style={{ width: '8px', height: '8px', borderRadius: '50%', background: i === idx ? accentColor : '#ddd', border: 'none', cursor: 'pointer', padding: 0 }} />
+          ))}
+        </div>
+      </div>
+
+      {/* Nome do item atual */}
+      <div style={{ fontWeight: 700, fontSize: '1.1rem', color: '#1a1a1a' }}>{currentItem}</div>
+
+      {/* Preview inline */}
+      <div style={{ display: 'flex', justifyContent: 'center' }}>
+        {currentItem === 'Cartão de Visita'
+          ? <CartaoDeVisitaPreview marca={marca} accentColor={accentColor} patternSrc={patternSrc} cartaoContacts={cartaoContacts} crmLine={crmLine} editData={editData} logoColor={logoColor} isScript={isScript} />
+          : <GenericItemPreview item={currentItem} marca={marca} accentColor={accentColor} patternSrc={patternSrc} editData={editData} logoColor={logoColor} />
+        }
+      </div>
+
+      {/* Botão download */}
+      <button
+        onClick={() => openGabarito(currentItem)}
+        style={{ width: '100%', padding: '14px', background: accentColor, color: '#fff', border: 'none', borderRadius: '30px', fontWeight: 700, fontSize: '0.95rem', cursor: 'pointer' }}
+      >
+        Baixar PDF Padrão Gráfica →
+      </button>
+
+      <div style={{ background: '#e8f7f5', color: '#115048', padding: '12px 14px', borderRadius: '10px', fontSize: '0.78rem', lineHeight: 1.6 }}>
+        <span style={{ fontWeight: 700 }}>Dica:</span> Habilite "Cores/Gráficos de Fundo" e retire as margens ao salvar em PDF.
+      </div>
+
+      {/* Navegação prev/next */}
+      <div style={{ display: 'flex', gap: '10px' }}>
+        {idx > 0 && (
+          <button onClick={() => setIdx(idx - 1)} style={{ flex: 1, padding: '12px', background: 'none', border: '1px solid #e0e0e0', borderRadius: '30px', fontWeight: 600, fontSize: '0.85rem', cursor: 'pointer', color: '#888' }}>
+            ← {itens[idx - 1]}
+          </button>
+        )}
+        {idx < itens.length - 1 && (
+          <button onClick={() => setIdx(idx + 1)} style={{ flex: 1, padding: '12px', background: 'none', border: '1px solid #e0e0e0', borderRadius: '30px', fontWeight: 600, fontSize: '0.85rem', cursor: 'pointer', color: '#888' }}>
+            {itens[idx + 1]} →
+          </button>
+        )}
+      </div>
     </div>
   );
 }
@@ -1132,7 +1223,7 @@ function EntregaContent({ brand, plano }) {
         {step === 'guia' && <GuiaStep brand={brand} accentColor={accentColor} paletteColors={paletteColors} marca={marca} tagline={tagline} estampaPatterns={estampaPatterns} editData={editData} />}
 
         {/* Papelaria / Gabaritos */}
-        {step === 'papelaria' && <PapelariaStep brand={brand} accentColor={accentColor} paletteColors={paletteColors} estampaPatterns={estampaPatterns} cartaoContacts={cartaoContacts} logoRef={logoRef} plano={plano} isSaude={isSaude} crmData={crmData} setCrmData={setCrmData} marca={marca} />}
+        {step === 'papelaria' && <PapelariaStep brand={brand} accentColor={accentColor} paletteColors={paletteColors} estampaPatterns={estampaPatterns} cartaoContacts={cartaoContacts} plano={plano} isSaude={isSaude} crmData={crmData} setCrmData={setCrmData} marca={marca} editData={editData} logoColor={logoColor} />}
 
         {/* Área da logo */}
         {step !== 'estampa' && step !== 'cores' && step !== 'cartao' && step !== 'guia' && step !== 'papelaria' && <div
