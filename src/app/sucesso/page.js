@@ -987,7 +987,7 @@ function EntregaContent({ brand, plano }) {
             </h1>
           </div>
           <span style={{ fontSize: '0.75rem', color: '#ccc', fontWeight: 600 }}>
-            {step === 'logo' ? '1' : step === 'submarca' ? '2' : step === 'estampa' ? '3' : step === 'cores' ? '4' : step === 'cartao' ? '5' : step === 'guia' ? '6' : '7'} / {plano === 'complete' ? '7' : '6'}
+            {step === 'logo' ? '1' : step === 'submarca' ? '2' : step === 'estampa' ? '3' : step === 'cores' ? '4' : step === 'cartao' ? '5' : step === 'papelaria' ? '6' : plano === 'complete' ? '7' : '6'} / {plano === 'complete' ? '7' : '6'}
           </span>
         </div>
 
@@ -1189,29 +1189,27 @@ function EntregaContent({ brand, plano }) {
           )}
           {step === 'cartao' && (
             <>
-              <button onClick={() => setStep('guia')} style={{ width: '100%', padding: '13px', background: 'none', color: '#888', border: '1px solid #e0e0e0', borderRadius: '30px', fontWeight: 600, fontSize: '0.9rem', cursor: 'pointer' }}>
-                Próximo: Guia da Marca →
+              <button onClick={() => setStep(plano === 'complete' ? 'papelaria' : 'guia')} style={{ width: '100%', padding: '13px', background: 'none', color: '#888', border: '1px solid #e0e0e0', borderRadius: '30px', fontWeight: 600, fontSize: '0.9rem', cursor: 'pointer' }}>
+                {plano === 'complete' ? 'Próximo: Meus Gabaritos →' : 'Próximo: Guia da Marca →'}
               </button>
               <button onClick={() => setStep('cores')} style={{ width: '100%', padding: '13px', background: 'none', color: '#bbb', border: 'none', borderRadius: '30px', fontWeight: 600, fontSize: '0.85rem', cursor: 'pointer' }}>
                 ← Voltar para as cores
               </button>
             </>
           )}
-          {step === 'guia' && (
+          {step === 'papelaria' && (
             <>
-              {plano === 'complete' && (
-                <button onClick={() => setStep('papelaria')} style={{ width: '100%', padding: '13px', background: 'none', color: '#888', border: '1px solid #e0e0e0', borderRadius: '30px', fontWeight: 600, fontSize: '0.9rem', cursor: 'pointer' }}>
-                  Próximo: Meus Gabaritos Gráficos →
-                </button>
-              )}
+              <button onClick={() => setStep('guia')} style={{ width: '100%', padding: '13px', background: 'none', color: '#888', border: '1px solid #e0e0e0', borderRadius: '30px', fontWeight: 600, fontSize: '0.9rem', cursor: 'pointer' }}>
+                Próximo: Guia da Marca →
+              </button>
               <button onClick={() => setStep('cartao')} style={{ width: '100%', padding: '13px', background: 'none', color: '#bbb', border: 'none', borderRadius: '30px', fontWeight: 600, fontSize: '0.85rem', cursor: 'pointer' }}>
                 ← Voltar para o cartão
               </button>
             </>
           )}
-          {step === 'papelaria' && (
-            <button onClick={() => setStep('guia')} style={{ width: '100%', padding: '13px', background: 'none', color: '#bbb', border: 'none', borderRadius: '30px', fontWeight: 600, fontSize: '0.85rem', cursor: 'pointer' }}>
-              ← Voltar para o guia
+          {step === 'guia' && (
+            <button onClick={() => setStep(plano === 'complete' ? 'papelaria' : 'cartao')} style={{ width: '100%', padding: '13px', background: 'none', color: '#bbb', border: 'none', borderRadius: '30px', fontWeight: 600, fontSize: '0.85rem', cursor: 'pointer' }}>
+              {plano === 'complete' ? '← Voltar para os gabaritos' : '← Voltar para o cartão'}
             </button>
           )}
         </div>
