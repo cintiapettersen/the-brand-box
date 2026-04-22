@@ -1359,17 +1359,27 @@ function EntregaContent({ brand, plano }) {
 
 function SucessoContent() {
   const params = useSearchParams();
-  const plano = params.get('plano');
   const [brand, setBrand] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [plano, setPlano] = useState('experience');
 
   useEffect(() => {
     if (params.get('reset') === '1') {
       localStorage.removeItem('brandbox_step');
       localStorage.removeItem('brandbox_cartao');
       localStorage.removeItem('brandbox_crm');
+      localStorage.removeItem('brandbox_plano');
       window.location.href = '/sucesso';
       return;
+    }
+    // Persiste o plano da URL no localStorage; lê do localStorage se não há param
+    const planoParam = params.get('plano');
+    if (planoParam) {
+      localStorage.setItem('brandbox_plano', planoParam);
+      setPlano(planoParam);
+    } else {
+      const savedPlano = localStorage.getItem('brandbox_plano') || 'experience';
+      setPlano(savedPlano);
     }
     try {
       const saved = localStorage.getItem('brandbox_delivery');
