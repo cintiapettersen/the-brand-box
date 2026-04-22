@@ -1465,10 +1465,27 @@ export default function Home() {
                         if (brandState.pattern) try { localStorage.setItem('brandbox_pattern', JSON.stringify(brandState.pattern)); } catch {}
                         try { localStorage.setItem('brandbox_delivery', JSON.stringify({ ...brandState, pattern: null })); } catch {}
                         ['brandbox_step', 'brandbox_cartao', 'brandbox_crm', 'brandbox_plano', 'brandbox_papelaria'].forEach(k => localStorage.removeItem(k));
+                        // Salvar no Supabase para link permanente + disparo de email
+                        let sessionIdExp = null;
+                        try {
+                          const cleanState = { ...brandState, pattern: null, estampas: null, generatedPatterns: null };
+                          const saveRes = await fetch('/api/salvar-entrega', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({ brandState: cleanState, plano: 'experience', email: formData.email, marca: formData.marca }),
+                          });
+                          const saveData = await saveRes.json();
+                          if (saveData.sessionId) {
+                            sessionIdExp = saveData.sessionId;
+                            localStorage.setItem('brandbox_session', sessionIdExp);
+                          }
+                        } catch (e) {
+                          console.warn('Supabase save failed, continuando sem sessionId:', e);
+                        }
                         const res = await fetch('/api/checkout', {
                           method: 'POST',
                           headers: { 'Content-Type': 'application/json' },
-                          body: JSON.stringify({ plano: 'experience', marca: formData.marca, email: formData.email }),
+                          body: JSON.stringify({ plano: 'experience', marca: formData.marca, email: formData.email, sessionId: sessionIdExp }),
                         });
                         const data = await res.json();
                         if (data.url) window.location.href = data.url;
@@ -1525,15 +1542,43 @@ export default function Home() {
                           patternGenerationCount,
                           estampas,
                           papelariaSelecionada,
+                          plano: 'complete',
                         };
                         if (brandState.pattern) try { localStorage.setItem('brandbox_pattern', JSON.stringify(brandState.pattern)); } catch {}
                         try { localStorage.setItem('brandbox_delivery', JSON.stringify({ ...brandState, pattern: null })); } catch {}
-                        ['brandbox_step', 'brandbox_cartao', 'brandbox_crm', 'brandbox_plano', 'brandbox_papelaria'].forEach(k => localStorage.removeItem(k));
+                        ['brandbox_step', 'brandbox_cartao', 'brandbox_crm', 'brandbox_papelaria'].forEach(k => localStorage.removeItem(k));
+                        localStorage.setItem('brandbox_plano', 'complete');
                         const extrasCount = Math.max(0, papelariaSelecionada.length - 5);
+
+                        // Salvar no Supabase para link permanente
+                        let sessionId = null;
+                        try {
+                          // Limpar dados pesados (base64) antes de salvar
+                          const cleanState = { ...brandState, pattern: null, estampas: null, generatedPatterns: null };
+                          const saveRes = await fetch('/api/salvar-entrega', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({
+                              brandState: cleanState,
+                              plano: 'complete',
+                              email: formData.email,
+                              marca: formData.marca,
+                            }),
+                          });
+                          const saveData = await saveRes.json();
+                          console.log('salvar-entrega response:', saveData);
+                          if (saveData.sessionId) {
+                            sessionId = saveData.sessionId;
+                            localStorage.setItem('brandbox_session', sessionId);
+                          }
+                        } catch (e) {
+                          console.warn('Supabase save failed, continuando sem sessionId:', e);
+                        }
+
                         const res = await fetch('/api/checkout', {
                           method: 'POST',
                           headers: { 'Content-Type': 'application/json' },
-                          body: JSON.stringify({ plano: 'complete', marca: formData.marca, email: formData.email, extrasCount, papelaria: papelariaSelecionada }),
+                          body: JSON.stringify({ plano: 'complete', marca: formData.marca, email: formData.email, extrasCount, papelaria: papelariaSelecionada, sessionId }),
                         });
                         const data = await res.json();
                         if (data.url) window.location.href = data.url;
