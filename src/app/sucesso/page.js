@@ -31,17 +31,15 @@ function LogoPreviewHTML({ editData, color }) {
         lineHeight: editData?.fontLineHeight || (isScript ? 0.9 : 1.1),
         letterSpacing: editData?.fontLetterSpacing || (isScript ? '0px' : '1px'),
       }}>
-        {words.map((word, i) => <div key={i}>{word}</div>)}
+        {words.map((word, i) => (
+          <div key={i} style={{ fontFamily: 'inherit', fontWeight: 'inherit', letterSpacing: 'inherit' }}>{word}</div>
+        ))}
       </div>
       {editData?.tagline && (
         <div style={{ fontFamily: "'Montserrat', sans-serif", fontSize: '0.5rem', letterSpacing: '2.5px', textTransform: 'uppercase', color: '#999', marginTop: '8px' }}>
           {editData.tagline}
         </div>
       )}
-      {/* DEBUG TEMPORÁRIO — remover após resolver */}
-      <div style={{ position: 'absolute', bottom: 4, left: 0, right: 0, textAlign: 'center', fontSize: '9px', color: '#f00', fontFamily: 'monospace', background: 'rgba(255,255,255,0.85)', padding: '2px' }}>
-        {editData?.fontFamily || 'undefined'} / {editData?.fontWeight || 'undefined'}
-      </div>
     </div>
   );
 }
