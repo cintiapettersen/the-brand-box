@@ -4,6 +4,12 @@ const BrandTemplateSVG = ({ data, color, side = 'frente', hideBackground = false
   const { marca, tagline, whatsapp, instagram } = data;
   const activeColor = color || '#d22f5a';
   const brandFont = data.fontFamily || 'Playfair Display';
+  const brandWeight = data.fontWeight || 700;
+  const isScript = data.fontStyle === 'script';
+  const sizeBoost = data.fontSizeBoost || 1;
+  const formatMarca = (str) => isScript
+    ? str.split(' ').map(w => w.charAt(0).toUpperCase() + w.slice(1).toLowerCase()).join(' ')
+    : str.toUpperCase();
 
   // O viewBox original é 0 0 1502.53 1082.02
   // Frente e Verso estão em posições diferentes no canvas do Illustrator
@@ -49,17 +55,18 @@ const BrandTemplateSVG = ({ data, color, side = 'frente', hideBackground = false
           
           {/* LOGO INTELIGENTE (Split de palavras e escala dinâmica) */}
           {(() => {
-            const words = (marca || 'SUA MARCA').toUpperCase().split(' ');
-            const fontSize = words.length > 1 ? (marca.length > 15 ? '45px' : '55px') : '75px';
+            const words = formatMarca(marca || 'SUA MARCA').split(' ');
+            const baseFontSize = words.length > 1 ? (marca.length > 15 ? 45 : 55) : 75;
+            const fontSize = `${Math.round(baseFontSize * sizeBoost)}px`;
             const lineHeight = 1.1;
-            const startY = 440 - ((words.length - 1) * 30); // Centraliza o bloco verticalmente
+            const startY = 440 - ((words.length - 1) * 30);
 
             return (
-              <text 
-                x="447" y={startY} 
-                textAnchor="middle" 
-                className="st4" 
-                style={{ fontSize, fill: hideBackground ? activeColor : '#000', fontFamily: `'${brandFont}', 'Playfair Display', serif`, fontWeight: 800 }}
+              <text
+                x="447" y={startY}
+                textAnchor="middle"
+                className="st4"
+                style={{ fontSize, fill: hideBackground ? activeColor : '#000', fontFamily: `'${brandFont}', 'Playfair Display', serif`, fontWeight: brandWeight, textTransform: 'none' }}
               >
                 {words.map((word, idx) => (
                   <tspan key={idx} x="447" dy={idx === 0 ? 0 : `${lineHeight}em`}>
@@ -72,8 +79,8 @@ const BrandTemplateSVG = ({ data, color, side = 'frente', hideBackground = false
 
           {/* TAGLINE DINAMICA (colada logo abaixo do logo) */}
           {(() => {
-            const words = (marca || 'SUA MARCA').toUpperCase().split(' ');
-            const fontSize = words.length > 1 ? (marca.length > 15 ? 45 : 55) : 75;
+            const words = formatMarca(marca || 'SUA MARCA').split(' ');
+            const fontSize = (words.length > 1 ? (marca.length > 15 ? 45 : 55) : 75) * sizeBoost;
             const lineHeightPx = fontSize * 1.1;
             const logoStartY = 440 - ((words.length - 1) * 30);
             const taglineY = logoStartY + ((words.length - 1) * lineHeightPx) + 35;
