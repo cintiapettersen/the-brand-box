@@ -746,7 +746,6 @@ function GuiaStep({ brand, accentColor, paletteColors, marca, tagline, estampaPa
 
 function PapelariaStep({ brand, accentColor, paletteColors, estampaPatterns, cartaoContacts, logoRef, plano, isSaude, crmData, setCrmData, marca }) {
   const itens = brand.papelariaSelecionada || [];
-  const [rqeInput, setRqeInput] = React.useState('');
 
   if (plano !== 'complete' || itens.length === 0) {
      return <div style={{ textAlign: 'center', padding: '2rem 0', color: '#888' }}>Nenhuma papelaria inclusa no seu pacote.</div>;
