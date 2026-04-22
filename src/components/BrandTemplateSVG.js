@@ -69,7 +69,7 @@ const BrandTemplateSVG = ({ data, color, side = 'frente', hideBackground = false
                 style={{ fontSize, fill: hideBackground ? activeColor : '#000', fontFamily: `'${brandFont}', 'Playfair Display', serif`, fontWeight: brandWeight, textTransform: 'none' }}
               >
                 {words.map((word, idx) => (
-                  <tspan key={idx} x="447" dy={idx === 0 ? 0 : `${lineHeight}em`}>
+                  <tspan key={idx} x="447" dy={idx === 0 ? 0 : `${lineHeight}em`} style={{ fontFamily: 'inherit', fontWeight: 'inherit' }}>
                     {word}
                   </tspan>
                 ))}

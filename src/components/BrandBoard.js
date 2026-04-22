@@ -137,7 +137,7 @@ const BrandBoard = ({ data, palette, color, patternImage, iconPath }) => {
                     letterSpacing: data.fontLetterSpacing || (isScript ? '0px' : '1px'),
                   }}>
                     {data.fontFeatureSettings && i === 0 ? (
-                      <><span style={{ fontFeatureSettings: data.fontFeatureSettings }}>{word[0]}</span><span style={{ fontFeatureSettings: 'normal' }}>{word.slice(1)}</span></>
+                      <><span style={{ fontFeatureSettings: data.fontFeatureSettings, fontFamily: 'inherit', fontWeight: 'inherit' }}>{word[0]}</span><span style={{ fontFeatureSettings: 'normal', fontFamily: 'inherit', fontWeight: 'inherit' }}>{word.slice(1)}</span></>
                     ) : word}
                   </h1>
                 ))}
@@ -153,7 +153,7 @@ const BrandBoard = ({ data, palette, color, patternImage, iconPath }) => {
                 letterSpacing: isScript ? '0px' : '1px',
               }}>
                 {data.fontFeatureSettings ? (
-                  <><span style={{ fontFeatureSettings: data.fontFeatureSettings }}>{words.join(' ')[0]}</span><span style={{ fontFeatureSettings: 'normal' }}>{words.join(' ').slice(1)}</span></>
+                  <><span style={{ fontFeatureSettings: data.fontFeatureSettings, fontFamily: 'inherit', fontWeight: 'inherit' }}>{words.join(' ')[0]}</span><span style={{ fontFeatureSettings: 'normal', fontFamily: 'inherit', fontWeight: 'inherit' }}>{words.join(' ').slice(1)}</span></>
                 ) : words.join(' ')}
               </h1>
             )}
