@@ -1016,7 +1016,7 @@ function PapelariaStep({ brand, accentColor, paletteColors, estampaPatterns, car
         <div class="card" style="position:relative;overflow:hidden;">
           ${versoBgHtml}
           <div style="position:absolute;top:${BLEED}mm;left:${BLEED}mm;right:${BLEED}mm;bottom:${BLEED}mm;display:flex;align-items:center;justify-content:center;">
-            <div style="background:rgba(255,255,255,0.93);padding:4mm 6mm;border-radius:2mm;max-width:74mm;width:fit-content;text-align:center;font-family:'Montserrat',sans-serif;">
+            <div style="background:rgba(255,255,255,0.93);padding:3mm 5mm;border-radius:1.5mm;width:82%;text-align:center;font-family:'Montserrat',sans-serif;">
               ${contactLines || `<span style="font-size:5pt;color:#aaa;">Adicione seus dados no Cartão Digital</span>`}
             </div>
           </div>
@@ -1031,52 +1031,6 @@ function PapelariaStep({ brand, accentColor, paletteColors, estampaPatterns, car
 ${fontImports}
 <style>
   * { box-sizing: border-box; margin: 0; padding: 0; }
-
-  /* ── TELA ── */
-  body {
-    background: #3a3a3a;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 0;
-    padding: 0;
-    font-family: 'Montserrat', sans-serif;
-  }
-  .screen-ui {
-    width: 100%;
-    background: #1e1e1e;
-    color: #eee;
-    padding: 20px 24px;
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
-  }
-  .screen-ui h2 { font-size: 14px; font-weight: 700; color: #fff; letter-spacing: 1px; }
-  .spec-row { display: flex; align-items: flex-start; gap: 8px; font-size: 12px; line-height: 1.6; }
-  .spec-icon { width: 18px; flex-shrink: 0; text-align: center; }
-  .spec-ok { color: #4caf50; }
-  .spec-warn { color: #ffb300; }
-  .btn-area { margin-top: 6px; }
-  .print-btn {
-    padding: 12px 28px;
-    background: #dc3495;
-    color: #fff;
-    border: none;
-    border-radius: 30px;
-    font-weight: 700;
-    cursor: pointer;
-    font-size: 13px;
-    letter-spacing: 0.3px;
-  }
-  .card-label {
-    color: #999;
-    font-size: 10px;
-    letter-spacing: 3px;
-    text-transform: uppercase;
-    font-weight: 600;
-    padding: 18px 0 8px;
-    text-align: center;
-  }
 
   /* ── CARD (com sangria) ── */
   /* Tamanho total da página = 90+6 × 50+6 = 96mm × 56mm */
@@ -1105,59 +1059,38 @@ ${fontImports}
   .cm-bl { bottom: 3mm; left: 3mm; border-bottom: 0.3px solid rgba(0,0,0,0.4); border-left: 0.3px solid rgba(0,0,0,0.4); }
   .cm-br { bottom: 3mm; right: 3mm; border-bottom: 0.3px solid rgba(0,0,0,0.4); border-right: 0.3px solid rgba(0,0,0,0.4); }
 
-  @media screen {
-    .card { box-shadow: 0 6px 30px rgba(0,0,0,0.5); }
-  }
-
   /* ── IMPRESSÃO ── */
+  * { print-color-adjust: exact !important; -webkit-print-color-adjust: exact !important; }
   @media print {
-    body { background: #fff; display: block; }
-    .screen-ui, .card-label { display: none !important; }
-    .card { page-break-after: always; box-shadow: none; }
-    /* Força impressão de fundos (cor + imagem) independente da config do browser */
-    * { print-color-adjust: exact !important; -webkit-print-color-adjust: exact !important; }
-    /* Página exata: 90mm + 3mm sangria × 2 = 96mm × 56mm */
+    body { margin: 0; }
+    .card { page-break-after: always; }
     @page { size: 96mm 56mm; margin: 0; }
   }
 </style>
-<script>
-  // Aguarda fontes carregarem antes de liberar o botão de impressão
-  document.addEventListener('DOMContentLoaded', function() {
-    var btn = document.getElementById('print-btn');
-    btn.disabled = true;
-    btn.textContent = '⏳ Carregando fontes...';
-    document.fonts.ready.then(function() {
-      btn.disabled = false;
-      btn.textContent = '🖨️ Salvar PDF para Gráfica';
-    });
-  });
-</script>
 </head>
 <body>
-
-<div class="screen-ui">
-  <h2>🖨 Gabarito para Gráfica — Cartão de Visita</h2>
-  <div class="spec-row spec-ok"><span class="spec-icon">✅</span><span>Tamanho de corte: <strong>90 × 50 mm</strong> (padrão 9×5cm)</span></div>
-  <div class="spec-row spec-ok"><span class="spec-icon">✅</span><span>Sangria incluída: <strong>3 mm</strong> em cada lado — página total: 96 × 56 mm</span></div>
-  <div class="spec-row spec-ok"><span class="spec-icon">✅</span><span>Marcas de corte nos cantos (visíveis no PDF)</span></div>
-  <div class="spec-row spec-ok"><span class="spec-icon">✅</span><span>Fundos e estampas incluídos no PDF automaticamente</span></div>
-  <div class="spec-row spec-warn"><span class="spec-icon">⚠️</span><span>Defina as margens como <strong>Nenhuma</strong> para preservar a sangria</span></div>
-  <div class="spec-row" style="color:#aaa;"><span class="spec-icon">ℹ️</span><span>O PDF gerado é RGB. Para gráficas que exigem CMYK, abra no Acrobat ou Illustrator para converter.</span></div>
-  <div class="btn-area">
-    <button id="print-btn" class="print-btn" onclick="window.print()">🖨️ Salvar PDF para Gráfica</button>
-  </div>
-</div>
-
-<div class="card-label">Frente</div>
 ${frenteHtml}
-<div class="card-label">Verso</div>
 ${versoHtml}
-
 </body>
 </html>`;
 
-      const win = window.open('', '_blank');
-      if (win) { win.document.write(html); win.document.close(); }
+      // Impressão via iframe invisível — usuário fica na mesma página
+      const existing = document.getElementById('_gabarito_iframe');
+      if (existing) existing.remove();
+      const iframe = document.createElement('iframe');
+      iframe.id = '_gabarito_iframe';
+      iframe.style.cssText = 'position:fixed;top:-9999px;left:-9999px;width:200mm;height:150mm;border:none;visibility:hidden;';
+      document.body.appendChild(iframe);
+      iframe.contentDocument.open();
+      iframe.contentDocument.write(html);
+      iframe.contentDocument.close();
+      iframe.contentWindow.document.fonts.ready.then(() => {
+        setTimeout(() => {
+          iframe.contentWindow.focus();
+          iframe.contentWindow.print();
+          setTimeout(() => iframe.remove(), 3000);
+        }, 300);
+      });
       return;
     }
 
