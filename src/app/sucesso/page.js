@@ -1699,28 +1699,22 @@ function EntregaContent({ brand, plano }) {
 }
 
 function SucessoContent() {
-  const [isMounted, setIsMounted] = useState(false);
-  useEffect(() => setIsMounted(true), []);
-
   const params = useSearchParams();
   const [brand, setBrand] = useState(null);
   const [loading, setLoading] = useState(true);
   const [showWelcome, setShowWelcome] = useState(false);
-  const [plano, setPlano] = useState('experience');
-
-  if (!isMounted) return null;
+  const [plano, setPlano] = useState(() => {
+    try {
+      const stored = localStorage.getItem('brandbox_plano');
+      if (stored) return stored;
+      const delivery = JSON.parse(localStorage.getItem('brandbox_delivery') || '{}');
+      if (delivery.plano) return delivery.plano;
+      if (delivery.papelariaSelecionada?.length > 0) return 'complete';
+    } catch {}
+    return 'experience';
+  });
 
   useEffect(() => {
-    // Carrega dados iniciais do localStorage aqui
-    try {
-      const storedPlano = localStorage.getItem('brandbox_plano');
-      if (storedPlano) setPlano(storedPlano);
-      else {
-        const delivery = JSON.parse(localStorage.getItem('brandbox_delivery') || '{}');
-        if (delivery.plano) setPlano(delivery.plano);
-        else if (delivery.papelariaSelecionada?.length > 0) setPlano('complete');
-      }
-    } catch {}
 
     const sessionParam = params.get('session');
     const planoParam = params.get('plano');
