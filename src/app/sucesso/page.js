@@ -898,9 +898,16 @@ function GenericItemPreview({ item, marca, accentColor, patternSrc, editData, lo
 function PapelariaStep({ brand, accentColor, paletteColors, estampaPatterns, cartaoContacts, setCartaoContacts, plano, isSaude, crmData, setCrmData, marca, editData, logoColor, logoLayout, setLayout, clinicaNome, setClinicaNome }) {
   const itens = brand.papelariaSelecionada || [];
   const [idx, setIdx] = useState(0);
-  const [comBorda, setComBordaState] = useState(() => { try { return JSON.parse(localStorage.getItem('brandbox_papelaria') || '{}').comBorda ?? true; } catch { return true; } });
+  const [comBorda, setComBordaState] = useState(true);
   const persistPapelaria = (updates) => { try { const cur = JSON.parse(localStorage.getItem('brandbox_papelaria') || '{}'); localStorage.setItem('brandbox_papelaria', JSON.stringify({ ...cur, ...updates })); } catch {} };
   const setComBorda = (v) => { setComBordaState(v); persistPapelaria({ comBorda: v }); };
+
+  useEffect(() => {
+    try {
+      const saved = JSON.parse(localStorage.getItem('brandbox_papelaria') || '{}');
+      if (saved.comBorda !== undefined) setComBordaState(saved.comBorda);
+    } catch {}
+  }, []);
   const [crmOpen, setCrmOpen] = useState(!crmData?.crm);
   const [contactOpen, setContactOpen] = useState(false);
 
@@ -1915,7 +1922,7 @@ function SucessoContent() {
 
 export default function Sucesso() {
   return (
-    <Suspense>
+    <Suspense fallback={<div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', fontFamily: 'Montserrat, sans-serif', color: '#aaa' }}>Carregando sua marca...</div>}>
       <SucessoContent />
     </Suspense>
   );
