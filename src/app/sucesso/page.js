@@ -1244,9 +1244,9 @@ function EntregaContent({ brand, plano }) {
   }, [estampaPatterns, estampaSelectedIdx]);
   const coresRef = useRef(null);
   const [downloadingCores, setDownloadingCores] = useState(false);
-  const [cartaoContacts, setCartaoContacts] = useState({ telefone: '', whatsapp: '', email: '', site: '', instagram: '', endereco: '', telefone2: '' });
-  const [cartaoQrLink, setCartaoQrLink] = useState('');
-  const [cartaoShowQR, setCartaoShowQR] = useState(false);
+  const [cartaoContacts, setCartaoContacts] = useState(() => { try { return JSON.parse(localStorage.getItem('brandbox_cartao') || '{}').contacts || { telefone: '', whatsapp: '', email: '', site: '', instagram: '', endereco: '', telefone2: '' }; } catch { return { telefone: '', whatsapp: '', email: '', site: '', instagram: '', endereco: '', telefone2: '' }; } });
+  const [cartaoQrLink, setCartaoQrLink] = useState(() => { try { return JSON.parse(localStorage.getItem('brandbox_cartao') || '{}').qrLink || ''; } catch { return ''; } });
+  const [cartaoShowQR, setCartaoShowQR] = useState(() => { try { return JSON.parse(localStorage.getItem('brandbox_cartao') || '{}').showQR || false; } catch { return false; } });
 
   useEffect(() => {
     try { localStorage.setItem('brandbox_cartao', JSON.stringify({ contacts: cartaoContacts, qrLink: cartaoQrLink, showQR: cartaoShowQR })); } catch {}
@@ -1272,10 +1272,6 @@ function EntregaContent({ brand, plano }) {
       const s = localStorage.getItem('brandbox_step'); if (s) setStepState(s);
       const l = localStorage.getItem('brandbox_logo_layout'); if (l) setLogoLayout(l);
       const p = JSON.parse(localStorage.getItem('brandbox_pattern') || 'null'); if (p && !brand.pattern) setEstampaPatterns([p]);
-      const c = JSON.parse(localStorage.getItem('brandbox_cartao') || '{}');
-      if (c.contacts) setCartaoContacts(c.contacts);
-      if (c.qrLink) setCartaoQrLink(c.qrLink);
-      if (c.showQR) setCartaoShowQR(c.showQR);
       const crm = JSON.parse(localStorage.getItem('brandbox_crm') || 'null'); if (crm) setCrmDataState(crm);
     } catch {}
   }, []);
