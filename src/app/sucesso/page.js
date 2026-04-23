@@ -245,7 +245,7 @@ function buildLink(key, value) {
   } catch { return null; }
 }
 
-function CartaoStep({ brand, accentColor, paletteColors, marca, estampaPatterns, contacts, setContacts, qrLink, setQrLink, showQR, setShowQR }) {
+function CartaoStep({ brand, accentColor, paletteColors, marca, estampaPatterns, contacts, setContacts, qrLink, setQrLink, showQR, setShowQR, logoLayout, editData, logoColor }) {
   const editData = brand.editData || {};
 
   const setContact = (key, val) => setContacts(prev => ({ ...prev, [key]: val }));
@@ -317,7 +317,7 @@ function CartaoStep({ brand, accentColor, paletteColors, marca, estampaPatterns,
             </div>
           )}
           <div style={{ width: '70%', maxWidth: '210px' }}>
-            <LogoPreviewHTML editData={editData} color={accentColor} />
+            <LogoPreviewHTML editData={editData} color={accentColor} layout={logoLayout} />
           </div>
           <div style={{ width: '50%', height: '1px', background: '#eee' }} />
           <p style={{ margin: 0, textAlign: 'center', fontSize: '0.72rem', color: '#aaa', fontFamily: 'Montserrat, sans-serif', letterSpacing: '0.5px' }}>
@@ -797,7 +797,7 @@ function GuiaStep({ brand, accentColor, paletteColors, marca, tagline, estampaPa
   );
 }
 
-function CartaoDeVisitaPreview({ accentColor, patternSrc, cartaoContacts, crmLine, editData, logoColor, comBorda, setComBorda, clinicaNome, setClinicaNome }) {
+function CartaoDeVisitaPreview({ accentColor, patternSrc, cartaoContacts, crmLine, editData, logoColor, comBorda, setComBorda, clinicaNome, setClinicaNome, logoLayout }) {
   const brandFont = `'${editData?.fontFamily || 'Playfair Display'}', serif`;
   // CRM substitui tagline dentro do BrandTemplateSVG
   const displayData = crmLine ? { ...editData, tagline: crmLine } : editData;
@@ -826,7 +826,7 @@ function CartaoDeVisitaPreview({ accentColor, patternSrc, cartaoContacts, crmLin
         </>}
         <div style={{ position: 'absolute', inset: 0, zIndex: 2, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
           <div style={{ width: '82%', height: '82%', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-            <LogoPreviewHTML editData={displayData} color={logoColor} />
+            <LogoPreviewHTML editData={displayData} color={logoColor} layout={logoLayout} />
           </div>
         </div>
       </div>
@@ -863,12 +863,12 @@ function CartaoDeVisitaPreview({ accentColor, patternSrc, cartaoContacts, crmLin
   );
 }
 
-function GenericItemPreview({ item, marca, accentColor, patternSrc, editData, logoColor }) {
+function GenericItemPreview({ item, marca, accentColor, patternSrc, editData, logoColor, logoLayout }) {
   return (
     <div style={{ width: '320px', height: '220px', position: 'relative', background: '#fff', overflow: 'hidden', boxShadow: '0 4px 20px rgba(0,0,0,0.12)', borderRadius: '8px', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: '12px' }}>
       {patternSrc && <div style={{ position: 'absolute', inset: 0, backgroundImage: `url(${patternSrc})`, backgroundSize: '100px', backgroundRepeat: 'repeat', opacity: 0.06 }} />}
       <div style={{ position: 'relative', zIndex: 1, width: '60px', height: '60px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-        <LogoPreviewHTML editData={editData} color={logoColor} />
+        <LogoPreviewHTML editData={editData} color={logoColor} layout={logoLayout} />
       </div>
       <div style={{ position: 'relative', zIndex: 1, textAlign: 'center' }}>
         <div style={{ fontFamily: "'Montserrat',sans-serif", fontSize: '11px', color: accentColor, fontWeight: 700, letterSpacing: '1px', textTransform: 'uppercase' }}>{item}</div>
@@ -878,7 +878,7 @@ function GenericItemPreview({ item, marca, accentColor, patternSrc, editData, lo
   );
 }
 
-function PapelariaStep({ brand, accentColor, paletteColors, estampaPatterns, cartaoContacts, setCartaoContacts, plano, isSaude, crmData, setCrmData, marca, editData, logoColor }) {
+function PapelariaStep({ brand, accentColor, paletteColors, estampaPatterns, cartaoContacts, setCartaoContacts, plano, isSaude, crmData, setCrmData, marca, editData, logoColor, logoLayout }) {
   const itens = brand.papelariaSelecionada || [];
   const [idx, setIdx] = useState(0);
   const [comBorda, setComBordaState] = useState(() => { try { return JSON.parse(localStorage.getItem('brandbox_papelaria') || '{}').comBorda ?? true; } catch { return true; } });
@@ -1104,8 +1104,8 @@ ${fontImports}
       {/* Preview inline */}
       <div style={{ display: 'flex', justifyContent: 'center', paddingTop: '8px', paddingBottom: '8px' }}>
         {currentItem === 'Cartão de Visita'
-          ? <CartaoDeVisitaPreview accentColor={accentColor} patternSrc={patternSrc} cartaoContacts={cartaoContacts} crmLine={crmLine} editData={editData} logoColor={logoColor} comBorda={comBorda} setComBorda={setComBorda} clinicaNome={clinicaNome} setClinicaNome={setClinicaNome} />
-          : <GenericItemPreview item={currentItem} marca={marca} accentColor={accentColor} patternSrc={patternSrc} editData={editData} logoColor={logoColor} />
+          ? <CartaoDeVisitaPreview accentColor={accentColor} patternSrc={patternSrc} cartaoContacts={cartaoContacts} crmLine={crmLine} editData={editData} logoColor={logoColor} comBorda={comBorda} setComBorda={setComBorda} clinicaNome={clinicaNome} setClinicaNome={setClinicaNome} logoLayout={logoLayout} />
+          : <GenericItemPreview item={currentItem} marca={marca} accentColor={accentColor} patternSrc={patternSrc} editData={editData} logoColor={logoColor} logoLayout={logoLayout} />
         }
       </div>
 
@@ -1289,9 +1289,15 @@ function EntregaContent({ brand, plano }) {
   }, [editData?.fontFamily, editData?.fontWeight]);
 
   const paletteColors = (() => {
+    // 1. Prioridade total: cores salvas diretamente no objeto da marca
+    if (brand.currentPaletteColors?.length > 0) return brand.currentPaletteColors;
+
+    // 2. Fallback: buscar na lista global pelo ID
     const sel = paletas?.find(p => p.id === brand.selectedPaleta);
     const hex = sel?.paleta_hex || sel?.cores_hex || [];
     if (hex.length > 0) return hex;
+
+    // 3. Fallback de emergência: qualquer paleta carregada ou a cor ativa
     const any = paletas?.find(p => p.paleta_hex?.length > 0);
     return any?.paleta_hex || [brand.activeColor || '#dc3495'];
   })();
@@ -1372,13 +1378,13 @@ function EntregaContent({ brand, plano }) {
         {step === 'cores' && <CoresStep paletteColors={paletteColors} accentColor={accentColor} paletaNome={paletas?.find(p => p.id === brand.selectedPaleta)?.nome_variacao} coresRef={coresRef} />}
 
         {/* Cartão digital */}
-        {step === 'cartao' && <CartaoStep brand={brand} accentColor={accentColor} paletteColors={paletteColors} marca={marca} estampaPatterns={estampaPatterns} contacts={cartaoContacts} setContacts={setCartaoContacts} qrLink={cartaoQrLink} setQrLink={setCartaoQrLink} showQR={cartaoShowQR} setShowQR={setCartaoShowQR} />}
+        {step === 'cartao' && <CartaoStep brand={brand} accentColor={accentColor} paletteColors={paletteColors} marca={marca} estampaPatterns={estampaPatterns} contacts={cartaoContacts} setContacts={setCartaoContacts} qrLink={cartaoQrLink} setQrLink={setCartaoQrLink} showQR={cartaoShowQR} setShowQR={setCartaoShowQR} logoLayout={logoLayout} editData={editData} logoColor={logoColor} />}
 
         {/* Guia da marca */}
         {step === 'guia' && <GuiaStep brand={brand} accentColor={accentColor} paletteColors={paletteColors} marca={marca} tagline={tagline} estampaPatterns={estampaPatterns} editData={editData} />}
 
         {/* Papelaria / Gabaritos */}
-        {step === 'papelaria' && <PapelariaStep brand={brand} accentColor={accentColor} paletteColors={paletteColors} estampaPatterns={estampaPatterns} cartaoContacts={cartaoContacts} setCartaoContacts={setCartaoContacts} plano={plano} isSaude={isSaude} crmData={crmData} setCrmData={setCrmData} marca={marca} editData={editData} logoColor={logoColor} />}
+        {step === 'papelaria' && <PapelariaStep brand={brand} accentColor={accentColor} paletteColors={paletteColors} estampaPatterns={estampaPatterns} cartaoContacts={cartaoContacts} setCartaoContacts={setCartaoContacts} plano={plano} isSaude={isSaude} crmData={crmData} setCrmData={setCrmData} marca={marca} editData={editData} logoColor={logoColor} logoLayout={logoLayout} />}
 
         {/* Área da logo */}
         {step !== 'estampa' && step !== 'cores' && step !== 'cartao' && step !== 'guia' && step !== 'papelaria' && <div
@@ -1784,9 +1790,13 @@ function SucessoContent() {
             <p style={{ fontSize: '0.7rem', letterSpacing: '3px', textTransform: 'uppercase', color: '#dc3495', fontWeight: 700, marginBottom: '0.75rem' }}>
               The Brand Box
             </p>
-            <h1 style={{ fontSize: '2rem', fontWeight: 800, color: '#1a1a1a', lineHeight: 1.2, margin: 0 }}>
-              {nomeCliente ? `${nomeCliente}, sua marca` : 'Sua marca'}<br />
-              <span style={{ color: '#dc3495' }}>está nascendo agora.</span>
+            <h1 style={{ fontSize: '2rem', fontWeight: 800, color: '#1a1a1a', lineHeight: 1.3, margin: 0 }}>
+              {nomeCliente
+                ? <><span style={{ fontFamily: "'Sacramento', cursive", fontSize: '2.8rem', fontWeight: 400, color: '#1a1a1a' }}>{nomeCliente}</span><span style={{ fontWeight: 400, color: '#555', fontSize: '1.3rem' }}>,</span><br /></>
+                : null
+              }
+              <span style={{ fontWeight: 800 }}>sua marca </span>
+              <span style={{ color: '#dc3495', fontFamily: "'Sacramento', cursive", fontWeight: 400, fontSize: '2.6rem' }}>está nascendo agora.</span>
             </h1>
           </div>
 

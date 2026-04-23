@@ -1533,6 +1533,7 @@ export default function Home() {
                         const brandState = {
                           editData, formData, resultadoFinal,
                           selectedPaleta, selectedIcon, selectedTipo,
+                          currentPaletteColors: paletas?.find(p => p.id === selectedPaleta)?.paleta_hex || [],
                           paletas, tipografias,
                           activeColor: editData.corAtiva,
                           pattern: selectedPattern !== null && generatedPatterns[selectedPattern] && !generatedPatterns[selectedPattern]._devPlaceholder
