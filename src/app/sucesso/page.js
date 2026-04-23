@@ -924,6 +924,23 @@ function PapelariaStep({ brand, accentColor, paletteColors, estampaPatterns, car
 
   const openGabarito = (item) => {
     const patternSrc = estampaPatterns?.[0] ? `data:${estampaPatterns[0].mimeType};base64,${estampaPatterns[0].base64}` : null;
+
+    // URLs absolutas para fontes self-hosted — necessário na nova janela
+    const _origin = window.location.origin;
+    const LOCAL_FONT_FACES = {
+      'Aberforth':    `@font-face{font-family:'Aberforth';src:url('${_origin}/fonts/Aberforth Demo.ttf') format('truetype');}`,
+      'Dokyo':        `@font-face{font-family:'Dokyo';src:url('${_origin}/fonts/DOKYO___.TTF') format('truetype');}`,
+      'Vellary':      `@font-face{font-family:'Vellary';src:url('${_origin}/fonts/Vellary.otf') format('opentype');}`,
+      'Amelie':       `@font-face{font-family:'Amelie';src:url('${_origin}/fonts/Amelie.otf') format('opentype');}`,
+      'Celina':       `@font-face{font-family:'Celina';src:url('${_origin}/fonts/Celina-Regular Done.ttf') format('truetype');}`,
+      'LittleFriend': `@font-face{font-family:'LittleFriend';src:url('${_origin}/fonts/LittleFriend.otf') format('opentype');}`,
+      'Cafigine':     `@font-face{font-family:'Cafigine';src:url('${_origin}/fonts/cafigine.otf') format('opentype');}`,
+      'JulietaProGota':`@font-face{font-family:'JulietaProGota';src:url('${_origin}/fonts/Latinotype - JulietaProGota.otf') format('opentype');}`,
+      'TuttiFrutti':  `@font-face{font-family:'TuttiFrutti';src:url('${_origin}/fonts/TuttiFrutti Regular.ttf') format('truetype');}`,
+      'GoldenBlast':  `@font-face{font-family:'GoldenBlast';src:url('${_origin}/fonts/GoldenBlast-YzaVL 2.ttf') format('truetype');}`,
+      'Solea':        `@font-face{font-family:'Solea';font-weight:300;src:url('${_origin}/fonts/Solea-Light.ttf') format('truetype');}@font-face{font-family:'Solea';font-weight:700;src:url('${_origin}/fonts/Solea-Bold.ttf') format('truetype');}`,
+    };
+
     // Gera logo diretamente — logoRef.current é null na etapa de papelaria
     const _isScript = brand.editData?.fontStyle === 'script';
     const _boost = brand.editData?.fontSizeBoost || 1;
@@ -952,9 +969,14 @@ function PapelariaStep({ brand, accentColor, paletteColors, estampaPatterns, car
     // Zona segura: 6mm das bordas da página (3mm da linha de corte)
     if (item === 'Cartão de Visita') {
       const BLEED = 3; // mm
+      const _fontFamily = brand.editData?.fontFamily || 'Playfair Display';
+      const _localFace = LOCAL_FONT_FACES[_fontFamily];
       const fontImports = `
         <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;600;700&display=swap" rel="stylesheet">
-        ${brand.editData?.googleFont !== false ? `<link href="https://fonts.googleapis.com/css2?family=${(brand.editData?.fontFamily || 'Playfair Display').replace(/ /g, '+')}:wght@400;700&display=swap" rel="stylesheet">` : ''}
+        ${_localFace
+          ? `<style>${_localFace}</style>`
+          : `<link href="https://fonts.googleapis.com/css2?family=${_fontFamily.replace(/ /g, '+')}:wght@400;700&display=swap" rel="stylesheet">`
+        }
       `;
 
       // Frente: background branco / estampa como borda — estende até a sangria
@@ -1092,10 +1114,24 @@ ${fontImports}
     body { background: #fff; display: block; }
     .screen-ui, .card-label { display: none !important; }
     .card { page-break-after: always; box-shadow: none; }
+    /* Força impressão de fundos (cor + imagem) independente da config do browser */
+    * { print-color-adjust: exact !important; -webkit-print-color-adjust: exact !important; }
     /* Página exata: 90mm + 3mm sangria × 2 = 96mm × 56mm */
     @page { size: 96mm 56mm; margin: 0; }
   }
 </style>
+<script>
+  // Aguarda fontes carregarem antes de liberar o botão de impressão
+  document.addEventListener('DOMContentLoaded', function() {
+    var btn = document.getElementById('print-btn');
+    btn.disabled = true;
+    btn.textContent = '⏳ Carregando fontes...';
+    document.fonts.ready.then(function() {
+      btn.disabled = false;
+      btn.textContent = '🖨️ Salvar PDF para Gráfica';
+    });
+  });
+</script>
 </head>
 <body>
 
@@ -1104,11 +1140,11 @@ ${fontImports}
   <div class="spec-row spec-ok"><span class="spec-icon">✅</span><span>Tamanho de corte: <strong>90 × 50 mm</strong> (padrão 9×5cm)</span></div>
   <div class="spec-row spec-ok"><span class="spec-icon">✅</span><span>Sangria incluída: <strong>3 mm</strong> em cada lado — página total: 96 × 56 mm</span></div>
   <div class="spec-row spec-ok"><span class="spec-icon">✅</span><span>Marcas de corte nos cantos (visíveis no PDF)</span></div>
-  <div class="spec-row spec-warn"><span class="spec-icon">⚠️</span><span>Ao salvar: habilite <strong>"Gráficos de plano de fundo"</strong> nas configurações de impressão</span></div>
+  <div class="spec-row spec-ok"><span class="spec-icon">✅</span><span>Fundos e estampas incluídos no PDF automaticamente</span></div>
   <div class="spec-row spec-warn"><span class="spec-icon">⚠️</span><span>Defina as margens como <strong>Nenhuma</strong> para preservar a sangria</span></div>
   <div class="spec-row" style="color:#aaa;"><span class="spec-icon">ℹ️</span><span>O PDF gerado é RGB. Para gráficas que exigem CMYK, abra no Acrobat ou Illustrator para converter.</span></div>
   <div class="btn-area">
-    <button class="print-btn" onclick="window.print()">🖨️ Salvar PDF para Gráfica</button>
+    <button id="print-btn" class="print-btn" onclick="window.print()">🖨️ Salvar PDF para Gráfica</button>
   </div>
 </div>
 
