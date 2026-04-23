@@ -1732,9 +1732,14 @@ function SucessoContent() {
       localStorage.removeItem('brandbox_plano');
       localStorage.removeItem('brandbox_session');
       localStorage.removeItem('brandbox_email_sent');
+      localStorage.removeItem('brandbox_progress');
       window.location.href = '/sucesso';
       return;
     }
+
+    // Se chegou aqui com sucesso, o rascunho anterior não faz mais sentido oferecer na home
+    localStorage.removeItem('brandbox_progress');
+    localStorage.removeItem('brandbox_step');
 
     const loadData = async () => {
       // 1. Se tem session na URL, busca no Supabase (link permanente)
