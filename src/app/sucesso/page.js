@@ -56,7 +56,7 @@ function LogoPreviewHTML({ editData, color, layout = 'stacked' }) {
         ))}
       </div>
       {editData?.tagline && (
-        <div style={{ fontFamily: "'Montserrat', sans-serif", fontSize: '0.5rem', letterSpacing: '2.5px', textTransform: 'uppercase', color: '#999', marginTop: '8px' }}>
+        <div style={{ fontFamily: "'Montserrat', sans-serif", fontSize: '0.5rem', letterSpacing: '1.8px', textTransform: 'uppercase', color: '#999', marginTop: '8px', textAlign: 'center', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', maxWidth: '100%' }}>
           {editData.tagline}
         </div>
       )}
@@ -850,7 +850,7 @@ function CartaoDeVisitaPreview({ accentColor, patternSrc, cartaoContacts, crmLin
           <div style={{ position: 'absolute', top: '16px', left: '16px', right: '16px', bottom: '16px', background: '#fff', zIndex: 1 }} />
         </>}
         <div style={{ position: 'absolute', inset: 0, zIndex: 2, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-          <div style={{ width: '62%', height: '62%', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+          <div style={{ width: '52%', height: '52%', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
             <LogoPreviewHTML editData={displayData} color={logoColor} layout={logoLayout} />
           </div>
         </div>
@@ -989,7 +989,7 @@ function PapelariaStep({ brand, accentColor, paletteColors, estampaPatterns, car
         <div class="card" style="position:relative;overflow:hidden;">
           ${frenteBgHtml}
           <div style="position:absolute;top:${BLEED}mm;left:${BLEED}mm;right:${BLEED}mm;bottom:${BLEED}mm;display:flex;align-items:center;justify-content:center;">
-            <div style="width:70%;display:flex;flex-direction:column;align-items:center;justify-content:center;">
+            <div style="width:58%;display:flex;flex-direction:column;align-items:center;justify-content:center;">
               ${logoHtml}
             </div>
           </div>
@@ -1133,7 +1133,7 @@ ${versoHtml}
 </style>
 </head>
 <body>
-  <div class="print-helper">Habilite "Gráficos de plano de fundo" e defina margens como "Nenhuma" ao salvar o PDF.</div>
+  <div class="print-helper">Ao salvar o PDF: defina <strong>Margens → Nenhuma</strong>.</div>
   <button class="print-btn" onclick="window.print()">🖨️ Salvar PDF Padrão Gráfica</button>
   <div class="gabarito">
      <div style="position:absolute;top:0;left:0;width:100%;height:100%;${patternSrc ? `background-image:url(${patternSrc});background-size:60mm;background-repeat:repeat;mix-blend-mode:multiply;opacity:0.08;` : ''}"></div>
@@ -1277,7 +1277,7 @@ ${versoHtml}
       </button>
 
       <div style={{ background: '#e8f7f5', color: '#115048', padding: '12px 14px', borderRadius: '10px', fontSize: '0.78rem', lineHeight: 1.6 }}>
-        <span style={{ fontWeight: 700 }}>Dica:</span> Habilite "Cores/Gráficos de Fundo" e retire as margens ao salvar em PDF.
+        <span style={{ fontWeight: 700 }}>Dica:</span> Ao salvar o PDF, defina as <strong>margens como Nenhuma</strong> para preservar a sangria.
       </div>
 
       {/* Navegação prev/next */}
