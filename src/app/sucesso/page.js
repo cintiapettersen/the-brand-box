@@ -23,15 +23,15 @@ function LogoPreviewHTML({ editData, color, layout = 'stacked' }) {
   let lines, baseSize;
   if (layout === 'horizontal') {
     lines = [words.join(' ')];
-    baseSize = marca.length > 18 ? 1.2 : marca.length > 12 ? 1.7 : 2.3;
+    baseSize = marca.length > 18 ? 1.0 : marca.length > 12 ? 1.4 : 1.9;
   } else if (layout === 'balanced' && words.length >= 3) {
     const mid = Math.ceil(words.length / 2);
     lines = [words.slice(0, mid).join(' '), words.slice(mid).join(' ')];
-    baseSize = marca.length > 15 ? 1.5 : 1.9;
+    baseSize = marca.length > 15 ? 1.3 : 1.7;
   } else {
     // stacked: uma palavra por linha (comportamento original)
     lines = words;
-    baseSize = words.length >= 3 ? (marca.length > 15 ? 1.4 : 1.7) : words.length === 2 ? 2.0 : 2.6;
+    baseSize = words.length >= 3 ? (marca.length > 15 ? 1.1 : 1.4) : words.length === 2 ? 1.8 : 2.4;
   }
   const fontSize = `${(baseSize * sizeBoost).toFixed(1)}rem`;
 
@@ -47,7 +47,12 @@ function LogoPreviewHTML({ editData, color, layout = 'stacked' }) {
         letterSpacing: editData?.fontLetterSpacing || (isScript ? '0px' : '1px'),
       }}>
         {lines.map((line, i) => (
-          <div key={i} style={{ fontFamily: 'inherit', fontWeight: 'inherit', letterSpacing: 'inherit' }}>{line}</div>
+          <div key={i} style={{ 
+            fontFamily: 'inherit', 
+            fontWeight: 'inherit', 
+            letterSpacing: 'inherit',
+            whiteSpace: layout === 'horizontal' ? 'nowrap' : 'normal'
+          }}>{line}</div>
         ))}
       </div>
       {editData?.tagline && (
