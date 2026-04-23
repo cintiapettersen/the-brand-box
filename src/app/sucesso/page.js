@@ -245,7 +245,7 @@ function buildLink(key, value) {
   } catch { return null; }
 }
 
-function CartaoStep({ brand, accentColor, paletteColors, marca, estampaPatterns, contacts, setContacts, qrLink, setQrLink, showQR, setShowQR, logoLayout, editData, logoColor }) {
+function CartaoStep({ brand, accentColor, paletteColors, marca, estampaPatterns, contacts, setContacts, qrLink, setQrLink, showQR, setShowQR, logoLayout, editData, logoColor, setLayout }) {
   const editData = brand.editData || {};
 
   const setContact = (key, val) => setContacts(prev => ({ ...prev, [key]: val }));
@@ -319,6 +319,27 @@ function CartaoStep({ brand, accentColor, paletteColors, marca, estampaPatterns,
           <div style={{ width: '70%', maxWidth: '210px' }}>
             <LogoPreviewHTML editData={editData} color={accentColor} layout={logoLayout} />
           </div>
+
+          {/* Atalho de Layout no Cartão Digital */}
+          {marca.split(' ').length > 1 && (
+            <div style={{ display: 'flex', gap: '4px', marginTop: '4px' }}>
+              {['horizontal', 'balanced', 'stacked'].map(l => (
+                <button
+                  key={l}
+                  onClick={() => setLayout(l)}
+                  style={{
+                    padding: '4px 8px', borderRadius: '12px', fontSize: '0.65rem',
+                    border: '1px solid', borderColor: logoLayout === l ? accentColor : '#eee',
+                    background: logoLayout === l ? `${accentColor}10` : '#fff',
+                    color: logoLayout === l ? accentColor : '#999', cursor: 'pointer'
+                  }}
+                >
+                  {l === 'horizontal' ? 'Horizontal' : l === 'balanced' ? '2 Linhas' : 'Empilhada'}
+                </button>
+              ))}
+            </div>
+          )}
+
           <div style={{ width: '50%', height: '1px', background: '#eee' }} />
           <p style={{ margin: 0, textAlign: 'center', fontSize: '0.72rem', color: '#aaa', fontFamily: 'Montserrat, sans-serif', letterSpacing: '0.5px' }}>
             Como prefere entrar em contato?
@@ -878,7 +899,7 @@ function GenericItemPreview({ item, marca, accentColor, patternSrc, editData, lo
   );
 }
 
-function PapelariaStep({ brand, accentColor, paletteColors, estampaPatterns, cartaoContacts, setCartaoContacts, plano, isSaude, crmData, setCrmData, marca, editData, logoColor, logoLayout }) {
+function PapelariaStep({ brand, accentColor, paletteColors, estampaPatterns, cartaoContacts, setCartaoContacts, plano, isSaude, crmData, setCrmData, marca, editData, logoColor, logoLayout, setLayout }) {
   const itens = brand.papelariaSelecionada || [];
   const [idx, setIdx] = useState(0);
   const [comBorda, setComBordaState] = useState(() => { try { return JSON.parse(localStorage.getItem('brandbox_papelaria') || '{}').comBorda ?? true; } catch { return true; } });
@@ -1108,6 +1129,27 @@ ${fontImports}
           : <GenericItemPreview item={currentItem} marca={marca} accentColor={accentColor} patternSrc={patternSrc} editData={editData} logoColor={logoColor} logoLayout={logoLayout} />
         }
       </div>
+
+      {/* Atalho de Layout na Papelaria */}
+      {marca.split(' ').length > 1 && (
+        <div style={{ display: 'flex', justifyContent: 'center', gap: '6px', marginBottom: '14px' }}>
+          {['horizontal', 'balanced', 'stacked'].map(l => (
+            <button
+              key={l}
+              onClick={() => setLayout(l)}
+              style={{
+                padding: '5px 10px', borderRadius: '20px', fontSize: '0.68rem',
+                border: '1px solid', borderColor: logoLayout === l ? accentColor : '#eee',
+                background: logoLayout === l ? `${accentColor}10` : '#fff',
+                color: logoLayout === l ? accentColor : '#aaa', cursor: 'pointer',
+                fontWeight: logoLayout === l ? 700 : 400
+              }}
+            >
+              {l === 'horizontal' ? '⟵→' : l === 'balanced' ? '⊟' : '≡'} {l.charAt(0).toUpperCase() + l.slice(1)}
+            </button>
+          ))}
+        </div>
+      )}
 
       {/* Editar contatos — acordeão */}
       {currentItem === 'Cartão de Visita' && (
@@ -1384,7 +1426,7 @@ function EntregaContent({ brand, plano }) {
         {step === 'guia' && <GuiaStep brand={brand} accentColor={accentColor} paletteColors={paletteColors} marca={marca} tagline={tagline} estampaPatterns={estampaPatterns} editData={editData} />}
 
         {/* Papelaria / Gabaritos */}
-        {step === 'papelaria' && <PapelariaStep brand={brand} accentColor={accentColor} paletteColors={paletteColors} estampaPatterns={estampaPatterns} cartaoContacts={cartaoContacts} setCartaoContacts={setCartaoContacts} plano={plano} isSaude={isSaude} crmData={crmData} setCrmData={setCrmData} marca={marca} editData={editData} logoColor={logoColor} logoLayout={logoLayout} />}
+        {step === 'papelaria' && <PapelariaStep brand={brand} accentColor={accentColor} paletteColors={paletteColors} estampaPatterns={estampaPatterns} cartaoContacts={cartaoContacts} setCartaoContacts={setCartaoContacts} plano={plano} isSaude={isSaude} crmData={crmData} setCrmData={setCrmData} marca={marca} editData={editData} logoColor={logoColor} logoLayout={logoLayout} setLayout={setLayout} />}
 
         {/* Área da logo */}
         {step !== 'estampa' && step !== 'cores' && step !== 'cartao' && step !== 'guia' && step !== 'papelaria' && <div
