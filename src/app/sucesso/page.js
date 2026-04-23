@@ -317,7 +317,7 @@ function CartaoStep({ brand, accentColor, paletteColors, marca, estampaPatterns,
             </div>
           )}
           <div style={{ width: '70%', maxWidth: '210px' }}>
-            <BrandTemplateSVG data={editData} color={accentColor} side='frente' hideBackground={true} />
+            <LogoPreviewHTML editData={editData} color={accentColor} />
           </div>
           <div style={{ width: '50%', height: '1px', background: '#eee' }} />
           <p style={{ margin: 0, textAlign: 'center', fontSize: '0.72rem', color: '#aaa', fontFamily: 'Montserrat, sans-serif', letterSpacing: '0.5px' }}>
@@ -826,7 +826,7 @@ function CartaoDeVisitaPreview({ accentColor, patternSrc, cartaoContacts, crmLin
         </>}
         <div style={{ position: 'absolute', inset: 0, zIndex: 2, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
           <div style={{ width: '82%', height: '82%', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-            <BrandTemplateSVG data={displayData} color={logoColor} side="frente" hideBackground={true} />
+            <LogoPreviewHTML editData={displayData} color={logoColor} />
           </div>
         </div>
       </div>
@@ -868,7 +868,7 @@ function GenericItemPreview({ item, marca, accentColor, patternSrc, editData, lo
     <div style={{ width: '320px', height: '220px', position: 'relative', background: '#fff', overflow: 'hidden', boxShadow: '0 4px 20px rgba(0,0,0,0.12)', borderRadius: '8px', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: '12px' }}>
       {patternSrc && <div style={{ position: 'absolute', inset: 0, backgroundImage: `url(${patternSrc})`, backgroundSize: '100px', backgroundRepeat: 'repeat', opacity: 0.06 }} />}
       <div style={{ position: 'relative', zIndex: 1, width: '60px', height: '60px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-        <BrandTemplateSVG data={editData} color={logoColor} side="frente" hideBackground={true} />
+        <LogoPreviewHTML editData={editData} color={logoColor} />
       </div>
       <div style={{ position: 'relative', zIndex: 1, textAlign: 'center' }}>
         <div style={{ fontFamily: "'Montserrat',sans-serif", fontSize: '11px', color: accentColor, fontWeight: 700, letterSpacing: '1px', textTransform: 'uppercase' }}>{item}</div>

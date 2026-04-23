@@ -17,7 +17,7 @@ const PLANOS = {
 
 export async function POST(request) {
   try {
-    const { plano, marca, email, extrasCount = 0 } = await request.json();
+    const { plano, marca, email, extrasCount = 0, sessionId } = await request.json();
     const stripe = new Stripe(process.env.STRIPE_SECRET_KEY || 'dummy_key_for_build');
 
     const planoData = PLANOS[plano];
@@ -55,13 +55,19 @@ export async function POST(request) {
       });
     }
 
+    // success_url usa o sessionId do Supabase se disponível,
+    // garantindo link permanente independente de localStorage
+    const successUrl = sessionId
+      ? `${origin}/sucesso?session=${sessionId}&plano=${plano}`
+      : `${origin}/sucesso?plano=${plano}`;
+
     const session = await stripe.checkout.sessions.create({
       payment_method_types: ['card', 'pix'],
       line_items,
       mode: 'payment',
       customer_email: email || undefined,
-      metadata: { plano, marca: marca || '' },
-      success_url: `${origin}/sucesso?plano=${plano}&session_id={CHECKOUT_SESSION_ID}`,
+      metadata: { plano, marca: marca || '', sessionId: sessionId || '' },
+      success_url: successUrl,
       cancel_url: `${origin}/?canceled=1`,
     });
 
