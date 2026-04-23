@@ -11,15 +11,30 @@ const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
 );
 
-function LogoPreviewHTML({ editData, color }) {
+function LogoPreviewHTML({ editData, color, layout = 'stacked' }) {
   const isScript = editData?.fontStyle === 'script';
   const sizeBoost = editData?.fontSizeBoost || 1;
   const marca = editData?.marca || '';
   const words = marca.split(' ').map(w =>
     isScript ? w.charAt(0).toUpperCase() + w.slice(1).toLowerCase() : w.toUpperCase()
   );
-  const baseSize = words.length >= 3 ? (marca.length > 15 ? 1.4 : 1.7) : words.length === 2 ? 2.0 : 2.6;
+
+  // Calcula linhas e tamanho de fonte de acordo com o layout
+  let lines, baseSize;
+  if (layout === 'horizontal') {
+    lines = [words.join(' ')];
+    baseSize = marca.length > 18 ? 1.2 : marca.length > 12 ? 1.7 : 2.3;
+  } else if (layout === 'balanced' && words.length >= 3) {
+    const mid = Math.ceil(words.length / 2);
+    lines = [words.slice(0, mid).join(' '), words.slice(mid).join(' ')];
+    baseSize = marca.length > 15 ? 1.5 : 1.9;
+  } else {
+    // stacked: uma palavra por linha (comportamento original)
+    lines = words;
+    baseSize = words.length >= 3 ? (marca.length > 15 ? 1.4 : 1.7) : words.length === 2 ? 2.0 : 2.6;
+  }
   const fontSize = `${(baseSize * sizeBoost).toFixed(1)}rem`;
+
   return (
     <div style={{ width: '100%', height: '100%', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
       <div style={{
@@ -31,8 +46,8 @@ function LogoPreviewHTML({ editData, color }) {
         lineHeight: editData?.fontLineHeight || (isScript ? 0.9 : 1.1),
         letterSpacing: editData?.fontLetterSpacing || (isScript ? '0px' : '1px'),
       }}>
-        {words.map((word, i) => (
-          <div key={i} style={{ fontFamily: 'inherit', fontWeight: 'inherit', letterSpacing: 'inherit' }}>{word}</div>
+        {lines.map((line, i) => (
+          <div key={i} style={{ fontFamily: 'inherit', fontWeight: 'inherit', letterSpacing: 'inherit' }}>{line}</div>
         ))}
       </div>
       {editData?.tagline && (
@@ -1161,6 +1176,8 @@ function EntregaContent({ brand, plano }) {
 
   const [bgColor, setBgColor] = useState('#ffffff');
   const [logoColor, setLogoColor] = useState(brand.activeColor || '#dc3495');
+  const [logoLayout, setLogoLayout] = useState(() => { try { return localStorage.getItem('brandbox_logo_layout') || 'stacked'; } catch { return 'stacked'; } });
+  const setLayout = (l) => { setLogoLayout(l); try { localStorage.setItem('brandbox_logo_layout', l); } catch {} };
   const [downloading, setDownloading] = useState(false);
   const [showEdit, setShowEdit] = useState(false);
   const [marca, setMarca] = useState(brand.editData?.marca || '');
@@ -1378,7 +1395,7 @@ function EntregaContent({ brand, plano }) {
         >
           <div style={{ width: '68%', height: '68%' }}>
             {step === 'logo'
-              ? <LogoPreviewHTML editData={editData} color={logoColor} />
+              ? <LogoPreviewHTML editData={editData} color={logoColor} layout={logoLayout} />
               : <BrandTemplateSVG
                   data={seloData}
                   color={logoColor}
@@ -1419,6 +1436,32 @@ function EntregaContent({ brand, plano }) {
               </div>
             )}
           </div>
+
+          {/* Layout da logo */}
+          {step === 'logo' && marca.split(' ').length > 1 && (
+            <div>
+              <SectionLabel>Layout</SectionLabel>
+              <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap' }}>
+                {[
+                  { key: 'horizontal', label: '⟵→ Uma linha' },
+                  { key: 'balanced',   label: '⊟ Duas linhas',     hide: marca.split(' ').length < 3 },
+                  { key: 'stacked',    label: '≡ Empilhada' },
+                ].filter(o => !o.hide).map(({ key, label }) => (
+                  <button
+                    key={key}
+                    onClick={() => setLayout(key)}
+                    style={{
+                      padding: '5px 13px', borderRadius: '20px', fontSize: '0.72rem',
+                      fontWeight: 600, cursor: 'pointer', border: 'none',
+                      background: logoLayout === key ? logoColor : '#eee',
+                      color: logoLayout === key ? '#fff' : '#888',
+                      transition: 'all 0.15s ease',
+                    }}
+                  >{label}</button>
+                ))}
+              </div>
+            </div>
+          )}
 
           {/* Fundo (só na logo) */}
           {step === 'logo' && <div>
