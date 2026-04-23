@@ -1255,6 +1255,8 @@ function EntregaContent({ brand, plano }) {
   const atuacoesSaude = ['Pediatria / Saúde infantil', 'Obstetrícia / Saúde da mulher', 'Clínica / Saúde geral adulta', 'Terapia / Saúde mental', 'Estética / Bem-estar / Nutrição'];
   const isSaude = atuacoesSaude.includes(brand.formData?.atuacao);
 
+  const [clinicaNome, setClinicaNomeState] = useState(() => { try { return JSON.parse(localStorage.getItem('brandbox_papelaria') || '{}').clinicaNome || ''; } catch { return ''; } });
+  const setClinicaNome = (v) => { setClinicaNomeState(v); try { const cur = JSON.parse(localStorage.getItem('brandbox_papelaria') || '{}'); localStorage.setItem('brandbox_papelaria', JSON.stringify({ ...cur, clinicaNome: v })); } catch {} };
   const [crmData, setCrmDataState] = useState({ crm: '', uf: '', rqe: [] });
   const setCrmData = (updater) => {
     setCrmDataState(prev => {
@@ -1723,7 +1725,6 @@ function SucessoContent() {
       localStorage.removeItem('brandbox_step');
       localStorage.removeItem('brandbox_crm');
       localStorage.removeItem('brandbox_papelaria');
-      localStorage.removeItem('brandbox_plano');
       localStorage.removeItem('brandbox_session');
       localStorage.removeItem('brandbox_email_sent');
       localStorage.removeItem('brandbox_progress');
