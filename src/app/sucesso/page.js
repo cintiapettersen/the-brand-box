@@ -1836,8 +1836,7 @@ function SucessoContent() {
                 ? <><span style={{ fontFamily: "Sacramento, cursive", fontSize: '2.8rem', fontWeight: 400, color: '#1a1a1a' }}>{nomeCliente}</span><span style={{ fontWeight: 400, color: '#555', fontSize: '1.3rem' }}>,</span><br /></>
                 : null
               }
-              <span style={{ fontWeight: 800 }}>sua marca </span>
-              <span style={{ color: '#dc3495', fontWeight: 800 }}>está nascendo agora!</span>
+              <span style={{ fontWeight: 800, color: '#1a1a1a' }}>sua marca está nascendo agora!</span>
             </h1>
           </div>
 
