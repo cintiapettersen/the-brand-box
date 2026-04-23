@@ -1810,7 +1810,8 @@ function SucessoContent() {
   if (loading) return null;
 
   if (showWelcome) {
-    const nomeCliente = brand?.formData?.nome || brand?.editData?.marca || '';
+    const rawNome = brand?.formData?.nome || brand?.editData?.marca || '';
+    const nomeCliente = rawNome.split(' ').map(w => w.charAt(0).toUpperCase() + w.slice(1).toLowerCase()).join(' ');
     return (
       <div style={{
         minHeight: '100vh', display: 'flex', flexDirection: 'column',
@@ -1830,15 +1831,15 @@ function SucessoContent() {
           {/* Título */}
           <div>
             <p style={{ fontSize: '0.7rem', letterSpacing: '3px', textTransform: 'uppercase', color: '#dc3495', fontWeight: 700, marginBottom: '0.75rem' }}>
-              The Brand Box
+              BRAND BOX
             </p>
             <h1 style={{ fontSize: '2rem', fontWeight: 800, color: '#1a1a1a', lineHeight: 1.3, margin: 0 }}>
               {nomeCliente
-                ? <><span style={{ fontFamily: "'Sacramento', cursive", fontSize: '2.8rem', fontWeight: 400, color: '#1a1a1a' }}>{nomeCliente}</span><span style={{ fontWeight: 400, color: '#555', fontSize: '1.3rem' }}>,</span><br /></>
+                ? <><span style={{ fontFamily: "Sacramento, cursive", fontSize: '2.8rem', fontWeight: 400, color: '#1a1a1a' }}>{nomeCliente}</span><span style={{ fontWeight: 400, color: '#555', fontSize: '1.3rem' }}>,</span><br /></>
                 : null
               }
               <span style={{ fontWeight: 800 }}>sua marca </span>
-              <span style={{ color: '#dc3495', fontFamily: "'Sacramento', cursive", fontWeight: 400, fontSize: '2.6rem' }}>está nascendo agora.</span>
+              <span style={{ color: '#dc3495', fontFamily: "Sacramento, cursive", fontWeight: 400, fontSize: '2.6rem' }}>está nascendo agora!</span>
             </h1>
           </div>
 
