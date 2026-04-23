@@ -933,33 +933,64 @@ function PapelariaStep({ brand, accentColor, paletteColors, estampaPatterns, car
       : null;
 
     // ── CARTÃO DE VISITA ────────────────────────────────────────────
+    // Sangria: 3mm em cada lado → página com sangria = 96mm × 56mm
+    // Área de corte: 90mm × 50mm (a 3mm das bordas da página)
+    // Zona segura: 6mm das bordas da página (3mm da linha de corte)
     if (item === 'Cartão de Visita') {
+      const BLEED = 3; // mm
       const fontImports = `
         <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;600;700&display=swap" rel="stylesheet">
-        ${brand.editData?.googleFont !== false ? `<link href="https://fonts.googleapis.com/css2?family=${encodeURIComponent(brand.editData?.fontFamily || 'Playfair+Display')}:wght@400;700&display=swap" rel="stylesheet">` : ''}
+        ${brand.editData?.googleFont !== false ? `<link href="https://fonts.googleapis.com/css2?family=${(brand.editData?.fontFamily || 'Playfair Display').replace(/ /g, '+')}:wght@400;700&display=swap" rel="stylesheet">` : ''}
       `;
       const brandFont = `'${brand.editData?.fontFamily || 'Playfair Display'}', serif`;
       const isScriptLocal = brand.editData?.fontStyle === 'script';
-      const marcaDisplay = isScriptLocal
-        ? marca.split(' ').map(w => w.charAt(0).toUpperCase() + w.slice(1).toLowerCase()).join(' ')
-        : marca.toUpperCase();
-      const taglineDisplay = crmLine || brand.editData?.tagline || '';
-      const bordaHtml = comBorda && patternSrc ? `
-        <div style="position:absolute;top:0;left:0;width:100%;height:100%;background-image:url(${patternSrc});background-size:35mm;background-repeat:repeat;opacity:0.9;z-index:0;"></div>
-        <div style="position:absolute;top:5mm;left:5mm;right:5mm;bottom:5mm;background:#fff;z-index:1;"></div>` : '';
+      const sizeBoostLocal = brand.editData?.fontSizeBoost || 1;
+      const brandWeight = brand.editData?.fontWeight || 700;
+      const taglineLocal = crmLine || brand.editData?.tagline || '';
+
+      // Logo gerado diretamente (logoRef.current é null na etapa de papelaria)
+      const marcaWords = marca.split(' ').map(w => isScriptLocal ? w.charAt(0).toUpperCase() + w.slice(1).toLowerCase() : w.toUpperCase());
+      let logoLines, logoBasePt;
+      if (logoLayout === 'horizontal') {
+        logoLines = [marcaWords.join(' ')];
+        logoBasePt = marca.length > 18 ? 13 : marca.length > 12 ? 18 : 24;
+      } else if (logoLayout === 'balanced' && marcaWords.length >= 3) {
+        const mid = Math.ceil(marcaWords.length / 2);
+        logoLines = [marcaWords.slice(0, mid).join(' '), marcaWords.slice(mid).join(' ')];
+        logoBasePt = marca.length > 15 ? 16 : 21;
+      } else {
+        logoLines = marcaWords;
+        logoBasePt = marcaWords.length >= 3 ? (marca.length > 15 ? 14 : 17) : marcaWords.length === 2 ? 22 : 29;
+      }
+      const logoFontPt = (logoBasePt * sizeBoostLocal).toFixed(1);
+      const lineH = brand.editData?.fontLineHeight || (isScriptLocal ? 0.9 : 1.1);
+      const letterSp = brand.editData?.fontLetterSpacing || (isScriptLocal ? '0pt' : '0.5pt');
+
+      const logoBlockHtml = `
+        <div style="text-align:center;font-family:${brandFont};font-weight:${brandWeight};font-size:${logoFontPt}pt;color:${accentColor};line-height:${lineH};letter-spacing:${letterSp};">
+          ${logoLines.map(l => `<div style="font-family:inherit;font-weight:inherit;">${l}</div>`).join('')}
+        </div>
+        ${taglineLocal ? `<div style="font-family:'Montserrat',sans-serif;font-size:4pt;letter-spacing:2pt;text-transform:uppercase;color:#999;margin-top:3pt;text-align:center;">${taglineLocal}</div>` : ''}`;
+
+      // Frente: background branco / estampa como borda — estende até a sangria
+      const frenteBgHtml = comBorda && patternSrc
+        ? `<div style="position:absolute;inset:0;background-image:url(${patternSrc});background-size:35mm;background-repeat:repeat;opacity:0.9;"></div>
+           <div style="position:absolute;top:${BLEED + 5}mm;left:${BLEED + 5}mm;right:${BLEED + 5}mm;bottom:${BLEED + 5}mm;background:#fff;"></div>`
+        : `<div style="position:absolute;inset:0;background:#fff;"></div>`;
 
       const frenteHtml = `
-        <div class="card" style="position:relative;background:#fff;overflow:hidden;">
-          ${bordaHtml}
-          <div style="position:absolute;top:0;left:0;width:100%;height:100%;z-index:2;display:flex;align-items:center;justify-content:center;">
-            <div style="width:72%;height:72%;display:flex;align-items:center;justify-content:center;">
-              ${logoHtml}
+        <div class="card" style="position:relative;overflow:hidden;">
+          ${frenteBgHtml}
+          <div style="position:absolute;top:${BLEED}mm;left:${BLEED}mm;right:${BLEED}mm;bottom:${BLEED}mm;display:flex;align-items:center;justify-content:center;">
+            <div style="width:70%;display:flex;flex-direction:column;align-items:center;justify-content:center;">
+              ${logoBlockHtml}
             </div>
           </div>
+          <div class="cm cm-tl"></div><div class="cm cm-tr"></div><div class="cm cm-bl"></div><div class="cm cm-br"></div>
         </div>`;
 
       const contactLines = [
-        clinicaNome ? `<div style="font-family:${brandFont};font-size:7pt;color:${accentColor};font-weight:${brand.editData?.fontWeight || 700};margin-bottom:1.5mm;">${clinicaNome}</div>` : '',
+        clinicaNome ? `<div style="font-family:${brandFont};font-size:7pt;color:${accentColor};font-weight:${brandWeight};margin-bottom:1.5mm;">${clinicaNome}</div>` : '',
         crmLine ? `<div style="font-family:'Montserrat',sans-serif;font-size:4pt;color:#666;letter-spacing:1px;text-transform:uppercase;margin-bottom:2mm;">${crmLine}</div>` : '',
         endereco ? `<div style="font-size:5.5pt;color:#444;line-height:1.5;">${endereco}</div>` : '',
         mainPhone ? `<div style="font-size:6pt;font-weight:700;color:#222;margin-top:1mm;">${mainPhone}</div>` : '',
@@ -969,18 +1000,20 @@ function PapelariaStep({ brand, accentColor, paletteColors, estampaPatterns, car
         site ? `<div style="font-size:5pt;color:#666;">${site}</div>` : '',
       ].filter(Boolean).join('');
 
+      // Verso: fundo colorido / estampa estende até a sangria
       const versoBgHtml = comBorda && patternSrc
-        ? `<div style="position:absolute;top:0;left:0;width:100%;height:100%;background-image:url(${patternSrc});background-size:35mm;background-repeat:repeat;z-index:0;"></div>`
-        : `<div style="position:absolute;inset:0;background:${accentColor};z-index:0;"></div>`;
+        ? `<div style="position:absolute;inset:0;background-image:url(${patternSrc});background-size:35mm;background-repeat:repeat;"></div>`
+        : `<div style="position:absolute;inset:0;background:${accentColor};"></div>`;
 
       const versoHtml = `
         <div class="card" style="position:relative;overflow:hidden;">
           ${versoBgHtml}
-          <div style="position:absolute;top:0;left:0;width:100%;height:100%;z-index:1;display:flex;align-items:center;justify-content:center;">
+          <div style="position:absolute;top:${BLEED}mm;left:${BLEED}mm;right:${BLEED}mm;bottom:${BLEED}mm;display:flex;align-items:center;justify-content:center;">
             <div style="background:rgba(255,255,255,0.93);padding:4mm 6mm;border-radius:2mm;max-width:74mm;width:fit-content;text-align:center;font-family:'Montserrat',sans-serif;">
-              ${contactLines || '<span style="font-size:5pt;color:#aaa;">Adicione seus dados no Cartão Digital</span>'}
+              ${contactLines || `<span style="font-size:5pt;color:#aaa;">Adicione seus dados no Cartão Digital</span>`}
             </div>
           </div>
+          <div class="cm cm-tl"></div><div class="cm cm-tr"></div><div class="cm cm-bl"></div><div class="cm cm-br"></div>
         </div>`;
 
       const html = `<!DOCTYPE html>
@@ -991,26 +1024,114 @@ function PapelariaStep({ brand, accentColor, paletteColors, estampaPatterns, car
 ${fontImports}
 <style>
   * { box-sizing: border-box; margin: 0; padding: 0; }
-  body { background: #555; display: flex; flex-direction: column; align-items: center; gap: 20px; padding: 40px 20px; font-family: 'Montserrat', sans-serif; }
-  .card { width: 90mm; height: 50mm; box-shadow: 0 4px 20px rgba(0,0,0,0.3); }
-  .label { color: #ccc; font-size: 11px; letter-spacing: 2px; text-transform: uppercase; font-weight: 600; }
-  .print-btn { padding: 14px 32px; background: #dc3495; color: #fff; border: none; border-radius: 30px; font-weight: bold; cursor: pointer; font-size: 14px; box-shadow: 0 4px 15px rgba(0,0,0,0.2); }
-  .print-helper { width: 100%; background: #ffeb3b; color: #333; text-align: center; padding: 10px; font-size: 12px; font-weight: 600; border-radius: 8px; }
+
+  /* ── TELA ── */
+  body {
+    background: #3a3a3a;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0;
+    padding: 0;
+    font-family: 'Montserrat', sans-serif;
+  }
+  .screen-ui {
+    width: 100%;
+    background: #1e1e1e;
+    color: #eee;
+    padding: 20px 24px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+  .screen-ui h2 { font-size: 14px; font-weight: 700; color: #fff; letter-spacing: 1px; }
+  .spec-row { display: flex; align-items: flex-start; gap: 8px; font-size: 12px; line-height: 1.6; }
+  .spec-icon { width: 18px; flex-shrink: 0; text-align: center; }
+  .spec-ok { color: #4caf50; }
+  .spec-warn { color: #ffb300; }
+  .btn-area { margin-top: 6px; }
+  .print-btn {
+    padding: 12px 28px;
+    background: #dc3495;
+    color: #fff;
+    border: none;
+    border-radius: 30px;
+    font-weight: 700;
+    cursor: pointer;
+    font-size: 13px;
+    letter-spacing: 0.3px;
+  }
+  .card-label {
+    color: #999;
+    font-size: 10px;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    font-weight: 600;
+    padding: 18px 0 8px;
+    text-align: center;
+  }
+
+  /* ── CARD (com sangria) ── */
+  /* Tamanho total da página = 90+6 × 50+6 = 96mm × 56mm */
+  .card {
+    width: 96mm;
+    height: 56mm;
+    position: relative;
+  }
+
+  /* Marcas de corte (crop marks) — mostram a linha de corte a 3mm das bordas */
+  .crop-marks::before,
+  .crop-marks::after {
+    content: '';
+    position: absolute;
+    background: rgba(0,0,0,0.35);
+  }
+  /* Linha horizontal de corte: canto superior e inferior */
+  .crop-corner {
+    position: absolute;
+    pointer-events: none;
+  }
+  /* Cantos de corte em cada canto do card */
+  .cm { position: absolute; width: 2mm; height: 2mm; pointer-events: none; }
+  .cm-tl { top: 3mm; left: 3mm; border-top: 0.3px solid rgba(0,0,0,0.4); border-left: 0.3px solid rgba(0,0,0,0.4); }
+  .cm-tr { top: 3mm; right: 3mm; border-top: 0.3px solid rgba(0,0,0,0.4); border-right: 0.3px solid rgba(0,0,0,0.4); }
+  .cm-bl { bottom: 3mm; left: 3mm; border-bottom: 0.3px solid rgba(0,0,0,0.4); border-left: 0.3px solid rgba(0,0,0,0.4); }
+  .cm-br { bottom: 3mm; right: 3mm; border-bottom: 0.3px solid rgba(0,0,0,0.4); border-right: 0.3px solid rgba(0,0,0,0.4); }
+
+  @media screen {
+    .card { box-shadow: 0 6px 30px rgba(0,0,0,0.5); }
+  }
+
+  /* ── IMPRESSÃO ── */
   @media print {
-    body { background: #fff; padding: 0; gap: 0; display: block; }
-    .card { box-shadow: none; page-break-after: always; }
-    .print-btn, .print-helper, .label { display: none !important; }
-    @page { size: 90mm 50mm; margin: 0; }
+    body { background: #fff; display: block; }
+    .screen-ui, .card-label { display: none !important; }
+    .card { page-break-after: always; box-shadow: none; }
+    /* Página exata: 90mm + 3mm sangria × 2 = 96mm × 56mm */
+    @page { size: 96mm 56mm; margin: 0; }
   }
 </style>
 </head>
 <body>
-  <div class="print-helper">Habilite "Gráficos de plano de fundo" e defina margens como "Nenhuma" ao salvar o PDF.</div>
-  <div class="label">Frente</div>
-  ${frenteHtml}
-  <div class="label">Verso</div>
-  ${versoHtml}
-  <button class="print-btn" onclick="window.print()">🖨️ Salvar PDF Padrão Gráfica</button>
+
+<div class="screen-ui">
+  <h2>🖨 Gabarito para Gráfica — Cartão de Visita</h2>
+  <div class="spec-row spec-ok"><span class="spec-icon">✅</span><span>Tamanho de corte: <strong>90 × 50 mm</strong> (padrão 9×5cm)</span></div>
+  <div class="spec-row spec-ok"><span class="spec-icon">✅</span><span>Sangria incluída: <strong>3 mm</strong> em cada lado — página total: 96 × 56 mm</span></div>
+  <div class="spec-row spec-ok"><span class="spec-icon">✅</span><span>Marcas de corte nos cantos (visíveis no PDF)</span></div>
+  <div class="spec-row spec-warn"><span class="spec-icon">⚠️</span><span>Ao salvar: habilite <strong>"Gráficos de plano de fundo"</strong> nas configurações de impressão</span></div>
+  <div class="spec-row spec-warn"><span class="spec-icon">⚠️</span><span>Defina as margens como <strong>Nenhuma</strong> para preservar a sangria</span></div>
+  <div class="spec-row" style="color:#aaa;"><span class="spec-icon">ℹ️</span><span>O PDF gerado é RGB. Para gráficas que exigem CMYK, abra no Acrobat ou Illustrator para converter.</span></div>
+  <div class="btn-area">
+    <button class="print-btn" onclick="window.print()">🖨️ Salvar PDF para Gráfica</button>
+  </div>
+</div>
+
+<div class="card-label">Frente</div>
+${frenteHtml}
+<div class="card-label">Verso</div>
+${versoHtml}
+
 </body>
 </html>`;
 
