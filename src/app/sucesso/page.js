@@ -850,21 +850,13 @@ function CartaoDeVisitaPreview({ accentColor, patternSrc, cartaoContacts, crmLin
           <div style={{ position: 'absolute', top: '16px', left: '16px', right: '16px', bottom: '16px', background: '#fff', zIndex: 1 }} />
         </>}
         <div style={{ position: 'absolute', inset: 0, zIndex: 2, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-          <div style={{ width: '82%', height: '82%', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+          <div style={{ width: '62%', height: '62%', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
             <LogoPreviewHTML editData={displayData} color={logoColor} layout={logoLayout} />
           </div>
         </div>
       </div>
 
-      {/* Campo nome da clínica para o verso */}
-      <div style={{ width: '100%' }}>
-        <input
-          value={clinicaNome}
-          onChange={e => setClinicaNome(e.target.value)}
-          placeholder="Nome da clínica no verso (opcional)"
-          style={{ width: '100%', padding: '9px 14px', fontSize: '0.82rem', border: '1px solid #e0e0e0', borderRadius: '10px', outline: 'none', textAlign: 'left' }}
-        />
-      </div>
+
 
       <p style={{ fontSize: '0.6rem', color: '#aaa', letterSpacing: '2px', textTransform: 'uppercase' }}>Verso</p>
       <div style={{ width: '320px', height: '178px', position: 'relative', overflow: 'hidden', boxShadow: '0 4px 20px rgba(0,0,0,0.12)', borderRadius: '4px' }}>
@@ -903,7 +895,7 @@ function GenericItemPreview({ item, marca, accentColor, patternSrc, editData, lo
   );
 }
 
-function PapelariaStep({ brand, accentColor, paletteColors, estampaPatterns, cartaoContacts, setCartaoContacts, plano, isSaude, crmData, setCrmData, marca, editData, logoColor, logoLayout, setLayout }) {
+function PapelariaStep({ brand, accentColor, paletteColors, estampaPatterns, cartaoContacts, setCartaoContacts, plano, isSaude, crmData, setCrmData, marca, editData, logoColor, logoLayout, setLayout, clinicaNome, setClinicaNome }) {
   const itens = brand.papelariaSelecionada || [];
   const [idx, setIdx] = useState(0);
   const [comBorda, setComBordaState] = useState(() => { try { return JSON.parse(localStorage.getItem('brandbox_papelaria') || '{}').comBorda ?? true; } catch { return true; } });
@@ -1163,7 +1155,16 @@ ${fontImports}
             <span style={{ fontSize: '0.7rem', color: '#aaa' }}>{contactOpen ? '▲' : '▼'}</span>
           </button>
           {contactOpen && (
-            <div style={{ padding: '0 14px 14px', display: 'flex', flexDirection: 'column', gap: '8px' }}>
+           <div style={{ padding: '0 14px 14px', display: 'flex', flexDirection: 'column', gap: '8px' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '4px', paddingBottom: '8px', borderBottom: '1px solid #eee' }}>
+                <span style={{ fontSize: '0.72rem', color: '#888', width: '74px', flexShrink: 0 }}>Clínica</span>
+                <input
+                  value={clinicaNome}
+                  onChange={e => setClinicaNome(e.target.value)}
+                  placeholder="Nome no verso (opcional)"
+                  style={{ flex: 1, padding: '6px 10px', fontSize: '0.8rem', border: '1px solid #e0e0e0', borderRadius: '8px', outline: 'none' }}
+                />
+              </div>
               {[
                 { key: 'telefone', label: 'Telefone' },
                 { key: 'telefone2', label: 'Telefone 2' },
@@ -1430,7 +1431,7 @@ function EntregaContent({ brand, plano }) {
         {step === 'guia' && <GuiaStep brand={brand} accentColor={accentColor} paletteColors={paletteColors} marca={marca} tagline={tagline} estampaPatterns={estampaPatterns} editData={editData} />}
 
         {/* Papelaria / Gabaritos */}
-        {step === 'papelaria' && <PapelariaStep brand={brand} accentColor={accentColor} paletteColors={paletteColors} estampaPatterns={estampaPatterns} cartaoContacts={cartaoContacts} setCartaoContacts={setCartaoContacts} plano={plano} isSaude={isSaude} crmData={crmData} setCrmData={setCrmData} marca={marca} editData={editData} logoColor={logoColor} logoLayout={logoLayout} setLayout={setLayout} />}
+        {step === 'papelaria' && <PapelariaStep brand={brand} accentColor={accentColor} paletteColors={paletteColors} estampaPatterns={estampaPatterns} cartaoContacts={cartaoContacts} setCartaoContacts={setCartaoContacts} plano={plano} isSaude={isSaude} crmData={crmData} setCrmData={setCrmData} marca={marca} editData={editData} logoColor={logoColor} logoLayout={logoLayout} setLayout={setLayout} clinicaNome={clinicaNome} setClinicaNome={setClinicaNome} />}
 
         {/* Área da logo */}
         {step !== 'estampa' && step !== 'cores' && step !== 'cartao' && step !== 'guia' && step !== 'papelaria' && <div
