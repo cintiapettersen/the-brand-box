@@ -246,8 +246,6 @@ function buildLink(key, value) {
 }
 
 function CartaoStep({ brand, accentColor, paletteColors, marca, estampaPatterns, contacts, setContacts, qrLink, setQrLink, showQR, setShowQR, logoLayout, editData, logoColor, setLayout }) {
-  const editData = brand.editData || {};
-
   const setContact = (key, val) => setContacts(prev => ({ ...prev, [key]: val }));
   const patternSrc = estampaPatterns?.[0] ? `data:${estampaPatterns[0].mimeType};base64,${estampaPatterns[0].base64}` : null;
   const colors = paletteColors.length ? paletteColors : [accentColor];
