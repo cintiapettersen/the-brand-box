@@ -899,10 +899,8 @@ function PapelariaStep({ brand, accentColor, paletteColors, estampaPatterns, car
   const itens = brand.papelariaSelecionada || [];
   const [idx, setIdx] = useState(0);
   const [comBorda, setComBordaState] = useState(() => { try { return JSON.parse(localStorage.getItem('brandbox_papelaria') || '{}').comBorda ?? true; } catch { return true; } });
-  const [clinicaNome, setClinicaNomeState] = useState(() => { try { return JSON.parse(localStorage.getItem('brandbox_papelaria') || '{}').clinicaNome || ''; } catch { return ''; } });
   const persistPapelaria = (updates) => { try { const cur = JSON.parse(localStorage.getItem('brandbox_papelaria') || '{}'); localStorage.setItem('brandbox_papelaria', JSON.stringify({ ...cur, ...updates })); } catch {} };
   const setComBorda = (v) => { setComBordaState(v); persistPapelaria({ comBorda: v }); };
-  const setClinicaNome = (v) => { setClinicaNomeState(v); persistPapelaria({ clinicaNome: v }); };
   const [crmOpen, setCrmOpen] = useState(!crmData?.crm);
   const [contactOpen, setContactOpen] = useState(false);
 
