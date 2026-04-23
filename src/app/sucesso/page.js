@@ -1216,22 +1216,18 @@ ${fontImports}
 }
 
 function EntregaContent({ brand, plano }) {
-  const [step, setStepState] = useState(() => { try { return localStorage.getItem('brandbox_step') || 'logo'; } catch { return 'logo'; } });
+  const [step, setStepState] = useState('logo');
   const setStep = (s) => { setStepState(s); try { localStorage.setItem('brandbox_step', s); } catch {} };
 
   const [bgColor, setBgColor] = useState('#ffffff');
   const [logoColor, setLogoColor] = useState(brand.activeColor || '#dc3495');
-  const [logoLayout, setLogoLayout] = useState(() => { try { return localStorage.getItem('brandbox_logo_layout') || 'stacked'; } catch { return 'stacked'; } });
+  const [logoLayout, setLogoLayout] = useState('stacked');
   const setLayout = (l) => { setLogoLayout(l); try { localStorage.setItem('brandbox_logo_layout', l); } catch {} };
   const [downloading, setDownloading] = useState(false);
   const [showEdit, setShowEdit] = useState(false);
   const [marca, setMarca] = useState(brand.editData?.marca || '');
   const [tagline, setTagline] = useState(brand.editData?.tagline || '');
-  const [estampaPatterns, setEstampaPatterns] = useState(() => {
-    if (brand.pattern) return [brand.pattern];
-    try { const p = JSON.parse(localStorage.getItem('brandbox_pattern') || 'null'); if (p) return [p]; } catch {}
-    return [];
-  });
+  const [estampaPatterns, setEstampaPatterns] = useState(brand.pattern ? [brand.pattern] : []);
   const [estampaGenCount, setEstampaGenCount] = useState(brand.patternGenerationCount || 0);
   const [estampaSelectedIdx, setEstampaSelectedIdx] = useState(0);
 
@@ -1241,9 +1237,9 @@ function EntregaContent({ brand, plano }) {
   }, [estampaPatterns, estampaSelectedIdx]);
   const coresRef = useRef(null);
   const [downloadingCores, setDownloadingCores] = useState(false);
-  const [cartaoContacts, setCartaoContacts] = useState(() => { try { return JSON.parse(localStorage.getItem('brandbox_cartao') || '{}').contacts || { telefone: '', whatsapp: '', email: '', site: '', instagram: '', endereco: '', telefone2: '' }; } catch { return { telefone: '', whatsapp: '', email: '', site: '', instagram: '', endereco: '', telefone2: '' }; } });
-  const [cartaoQrLink, setCartaoQrLink] = useState(() => { try { return JSON.parse(localStorage.getItem('brandbox_cartao') || '{}').qrLink || ''; } catch { return ''; } });
-  const [cartaoShowQR, setCartaoShowQR] = useState(() => { try { return JSON.parse(localStorage.getItem('brandbox_cartao') || '{}').showQR || false; } catch { return false; } });
+  const [cartaoContacts, setCartaoContacts] = useState({ telefone: '', whatsapp: '', email: '', site: '', instagram: '', endereco: '', telefone2: '' });
+  const [cartaoQrLink, setCartaoQrLink] = useState('');
+  const [cartaoShowQR, setCartaoShowQR] = useState(false);
 
   useEffect(() => {
     try { localStorage.setItem('brandbox_cartao', JSON.stringify({ contacts: cartaoContacts, qrLink: cartaoQrLink, showQR: cartaoShowQR })); } catch {}
@@ -1252,9 +1248,7 @@ function EntregaContent({ brand, plano }) {
   const atuacoesSaude = ['Pediatria / Saúde infantil', 'Obstetrícia / Saúde da mulher', 'Clínica / Saúde geral adulta', 'Terapia / Saúde mental', 'Estética / Bem-estar / Nutrição'];
   const isSaude = atuacoesSaude.includes(brand.formData?.atuacao);
 
-  const [crmData, setCrmDataState] = useState(() => {
-    try { return JSON.parse(localStorage.getItem('brandbox_crm') || 'null') || { crm: '', uf: '', rqe: [] }; } catch { return { crm: '', uf: '', rqe: [] }; }
-  });
+  const [crmData, setCrmDataState] = useState({ crm: '', uf: '', rqe: [] });
   const setCrmData = (updater) => {
     setCrmDataState(prev => {
       const next = typeof updater === 'function' ? updater(prev) : updater;
@@ -1262,6 +1256,20 @@ function EntregaContent({ brand, plano }) {
       return next;
     });
   };
+
+  useEffect(() => {
+    // Carregamento inicial de tudo
+    try {
+      const s = localStorage.getItem('brandbox_step'); if (s) setStepState(s);
+      const l = localStorage.getItem('brandbox_logo_layout'); if (l) setLogoLayout(l);
+      const p = JSON.parse(localStorage.getItem('brandbox_pattern') || 'null'); if (p && !brand.pattern) setEstampaPatterns([p]);
+      const c = JSON.parse(localStorage.getItem('brandbox_cartao') || '{}');
+      if (c.contacts) setCartaoContacts(c.contacts);
+      if (c.qrLink) setCartaoQrLink(c.qrLink);
+      if (c.showQR) setCartaoShowQR(c.showQR);
+      const crm = JSON.parse(localStorage.getItem('brandbox_crm') || 'null'); if (crm) setCrmDataState(crm);
+    } catch {}
+  }, []);
 
   const downloadCoresPNG = async () => {
     if (!coresRef.current) return;
@@ -1691,20 +1699,22 @@ function SucessoContent() {
   const [brand, setBrand] = useState(null);
   const [loading, setLoading] = useState(true);
   const [showWelcome, setShowWelcome] = useState(false);
-  const [plano, setPlano] = useState(() => {
-    try {
-      const stored = localStorage.getItem('brandbox_plano');
-      if (stored) return stored;
-      const delivery = JSON.parse(localStorage.getItem('brandbox_delivery') || '{}');
-      if (delivery.plano) return delivery.plano;
-      if (delivery.papelariaSelecionada?.length > 0) return 'complete';
-    } catch {}
-    return 'experience';
-  });
+  const [plano, setPlano] = useState('experience');
 
   if (!isMounted) return null;
 
   useEffect(() => {
+    // Carrega dados iniciais do localStorage aqui
+    try {
+      const storedPlano = localStorage.getItem('brandbox_plano');
+      if (storedPlano) setPlano(storedPlano);
+      else {
+        const delivery = JSON.parse(localStorage.getItem('brandbox_delivery') || '{}');
+        if (delivery.plano) setPlano(delivery.plano);
+        else if (delivery.papelariaSelecionada?.length > 0) setPlano('complete');
+      }
+    } catch {}
+
     const sessionParam = params.get('session');
     const planoParam = params.get('plano');
 
