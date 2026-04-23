@@ -924,7 +924,21 @@ function PapelariaStep({ brand, accentColor, paletteColors, estampaPatterns, car
 
   const openGabarito = (item) => {
     const patternSrc = estampaPatterns?.[0] ? `data:${estampaPatterns[0].mimeType};base64,${estampaPatterns[0].base64}` : null;
-    const logoHtml = logoRef?.current?.innerHTML || '';
+    // Gera logo diretamente — logoRef.current é null na etapa de papelaria
+    const _isScript = brand.editData?.fontStyle === 'script';
+    const _boost = brand.editData?.fontSizeBoost || 1;
+    const _words = marca.split(' ').map(w => _isScript ? w.charAt(0).toUpperCase() + w.slice(1).toLowerCase() : w.toUpperCase());
+    let _lines, _basePt;
+    if (logoLayout === 'horizontal') { _lines = [_words.join(' ')]; _basePt = marca.length > 18 ? 13 : marca.length > 12 ? 18 : 24; }
+    else if (logoLayout === 'balanced' && _words.length >= 3) { const m = Math.ceil(_words.length / 2); _lines = [_words.slice(0, m).join(' '), _words.slice(m).join(' ')]; _basePt = marca.length > 15 ? 16 : 21; }
+    else { _lines = _words; _basePt = _words.length >= 3 ? (marca.length > 15 ? 14 : 17) : _words.length === 2 ? 22 : 29; }
+    const _fontPt = (_basePt * _boost).toFixed(1);
+    const _lineH = brand.editData?.fontLineHeight || (_isScript ? 0.9 : 1.1);
+    const _letterSp = brand.editData?.fontLetterSpacing || (_isScript ? '0pt' : '0.5pt');
+    const _brandFont = `'${brand.editData?.fontFamily || 'Playfair Display'}', serif`;
+    const _tagline = brand.editData?.tagline || '';
+    const logoHtml = `<div style="text-align:center;font-family:${_brandFont};font-weight:${brand.editData?.fontWeight || 700};font-size:${_fontPt}pt;color:${accentColor};line-height:${_lineH};letter-spacing:${_letterSp};">${_lines.map(l => `<div style="font-family:inherit;font-weight:inherit;">${l}</div>`).join('')}</div>${_tagline ? `<div style="font-family:'Montserrat',sans-serif;font-size:4pt;letter-spacing:2pt;text-transform:uppercase;color:#999;margin-top:3pt;text-align:center;">${_tagline}</div>` : ''}`;
+
     const { endereco, whatsapp, telefone, telefone2, instagram, email, site } = cartaoContacts;
     const mainPhone = whatsapp || telefone || '';
 
@@ -942,35 +956,6 @@ function PapelariaStep({ brand, accentColor, paletteColors, estampaPatterns, car
         <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;600;700&display=swap" rel="stylesheet">
         ${brand.editData?.googleFont !== false ? `<link href="https://fonts.googleapis.com/css2?family=${(brand.editData?.fontFamily || 'Playfair Display').replace(/ /g, '+')}:wght@400;700&display=swap" rel="stylesheet">` : ''}
       `;
-      const brandFont = `'${brand.editData?.fontFamily || 'Playfair Display'}', serif`;
-      const isScriptLocal = brand.editData?.fontStyle === 'script';
-      const sizeBoostLocal = brand.editData?.fontSizeBoost || 1;
-      const brandWeight = brand.editData?.fontWeight || 700;
-      const taglineLocal = crmLine || brand.editData?.tagline || '';
-
-      // Logo gerado diretamente (logoRef.current é null na etapa de papelaria)
-      const marcaWords = marca.split(' ').map(w => isScriptLocal ? w.charAt(0).toUpperCase() + w.slice(1).toLowerCase() : w.toUpperCase());
-      let logoLines, logoBasePt;
-      if (logoLayout === 'horizontal') {
-        logoLines = [marcaWords.join(' ')];
-        logoBasePt = marca.length > 18 ? 13 : marca.length > 12 ? 18 : 24;
-      } else if (logoLayout === 'balanced' && marcaWords.length >= 3) {
-        const mid = Math.ceil(marcaWords.length / 2);
-        logoLines = [marcaWords.slice(0, mid).join(' '), marcaWords.slice(mid).join(' ')];
-        logoBasePt = marca.length > 15 ? 16 : 21;
-      } else {
-        logoLines = marcaWords;
-        logoBasePt = marcaWords.length >= 3 ? (marca.length > 15 ? 14 : 17) : marcaWords.length === 2 ? 22 : 29;
-      }
-      const logoFontPt = (logoBasePt * sizeBoostLocal).toFixed(1);
-      const lineH = brand.editData?.fontLineHeight || (isScriptLocal ? 0.9 : 1.1);
-      const letterSp = brand.editData?.fontLetterSpacing || (isScriptLocal ? '0pt' : '0.5pt');
-
-      const logoBlockHtml = `
-        <div style="text-align:center;font-family:${brandFont};font-weight:${brandWeight};font-size:${logoFontPt}pt;color:${accentColor};line-height:${lineH};letter-spacing:${letterSp};">
-          ${logoLines.map(l => `<div style="font-family:inherit;font-weight:inherit;">${l}</div>`).join('')}
-        </div>
-        ${taglineLocal ? `<div style="font-family:'Montserrat',sans-serif;font-size:4pt;letter-spacing:2pt;text-transform:uppercase;color:#999;margin-top:3pt;text-align:center;">${taglineLocal}</div>` : ''}`;
 
       // Frente: background branco / estampa como borda — estende até a sangria
       const frenteBgHtml = comBorda && patternSrc
@@ -983,14 +968,14 @@ function PapelariaStep({ brand, accentColor, paletteColors, estampaPatterns, car
           ${frenteBgHtml}
           <div style="position:absolute;top:${BLEED}mm;left:${BLEED}mm;right:${BLEED}mm;bottom:${BLEED}mm;display:flex;align-items:center;justify-content:center;">
             <div style="width:70%;display:flex;flex-direction:column;align-items:center;justify-content:center;">
-              ${logoBlockHtml}
+              ${logoHtml}
             </div>
           </div>
           <div class="cm cm-tl"></div><div class="cm cm-tr"></div><div class="cm cm-bl"></div><div class="cm cm-br"></div>
         </div>`;
 
       const contactLines = [
-        clinicaNome ? `<div style="font-family:${brandFont};font-size:7pt;color:${accentColor};font-weight:${brandWeight};margin-bottom:1.5mm;">${clinicaNome}</div>` : '',
+        clinicaNome ? `<div style="font-family:${_brandFont};font-size:7pt;color:${accentColor};font-weight:${brand.editData?.fontWeight || 700};margin-bottom:1.5mm;">${clinicaNome}</div>` : '',
         crmLine ? `<div style="font-family:'Montserrat',sans-serif;font-size:4pt;color:#666;letter-spacing:1px;text-transform:uppercase;margin-bottom:2mm;">${crmLine}</div>` : '',
         endereco ? `<div style="font-size:5.5pt;color:#444;line-height:1.5;">${endereco}</div>` : '',
         mainPhone ? `<div style="font-size:6pt;font-weight:700;color:#222;margin-top:1mm;">${mainPhone}</div>` : '',
