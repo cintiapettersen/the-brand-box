@@ -56,7 +56,7 @@ function LogoPreviewHTML({ editData, color, layout = 'stacked' }) {
         ))}
       </div>
       {editData?.tagline && (
-        <div style={{ fontFamily: "'Montserrat', sans-serif", fontSize: '0.5rem', letterSpacing: '1.8px', textTransform: 'uppercase', color: '#999', marginTop: '8px', textAlign: 'center', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', maxWidth: '100%' }}>
+        <div style={{ fontFamily: "'Montserrat', sans-serif", fontSize: '0.45rem', letterSpacing: '1.5px', textTransform: 'uppercase', color: '#999', marginTop: '8px', textAlign: 'center', lineHeight: 1.4, maxWidth: '100%' }}>
           {editData.tagline}
         </div>
       )}
@@ -867,13 +867,24 @@ function CartaoDeVisitaPreview({ accentColor, patternSrc, cartaoContacts, crmLin
           <div style={{ background: 'rgba(255,255,255,0.93)', padding: '12px 22px', borderRadius: '6px', textAlign: 'center', width: '82%' }}>
             {clinicaNome && <div style={{ fontFamily: brandFont, fontSize: '9px', color: accentColor, fontWeight: editData?.fontWeight || 700, marginBottom: '3px' }}>{clinicaNome}</div>}
             {crmLine && <div style={{ fontFamily: "'Montserrat',sans-serif", fontSize: '6px', color: '#888', letterSpacing: '1px', textTransform: 'uppercase', marginBottom: '4px' }}>{crmLine}</div>}
-            {endereco && <div style={{ fontFamily: "'Montserrat',sans-serif", fontSize: '7px', color: '#444', lineHeight: 1.5 }}>{endereco}</div>}
-            {mainPhone && <div style={{ fontFamily: "'Montserrat',sans-serif", fontSize: '8px', fontWeight: 700, color: '#222', marginTop: '3px' }}>{mainPhone}</div>}
-            {telefone2 && !whatsapp && <div style={{ fontFamily: "'Montserrat',sans-serif", fontSize: '7px', color: '#444', marginTop: '1px' }}>{telefone2}</div>}
-            {instagram && <div style={{ fontFamily: "'Montserrat',sans-serif", fontSize: '7px', color: '#666', marginTop: '2px' }}>{instagram}</div>}
-            {email && <div style={{ fontFamily: "'Montserrat',sans-serif", fontSize: '7px', color: '#666' }}>{email}</div>}
-            {site && <div style={{ fontFamily: "'Montserrat',sans-serif", fontSize: '7px', color: '#666' }}>{site}</div>}
-            {!clinicaNome && !crmLine && !endereco && !mainPhone && !instagram && !email && !site && <div style={{ fontFamily: "'Montserrat',sans-serif", fontSize: '7px', color: '#aaa', fontStyle: 'italic' }}>Preencha seus dados no Cartão Digital</div>}
+            {endereco && <div style={{ fontFamily: "'Montserrat',sans-serif", fontSize: '6.5px', color: '#444', lineHeight: 1.5, marginBottom: '6px' }}>{endereco}</div>}
+            {whatsapp && <div style={{ fontFamily: "'Montserrat',sans-serif", fontSize: '8px', fontWeight: 700, color: '#222', marginTop: '2px', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '4px' }}>
+              <svg viewBox="0 0 24 24" width="10" height="10" fill="#25D366"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+              {whatsapp}
+            </div>}
+            {[telefone, telefone2].filter(Boolean).length > 0 && <div style={{ fontFamily: "'Montserrat',sans-serif", fontSize: '6.5px', color: '#555', marginTop: '1px' }}>{[telefone, telefone2].filter(Boolean).join('  ·  ')}</div>}
+            {email && <div style={{ fontFamily: "'Montserrat',sans-serif", fontSize: '6.5px', color: '#666', marginTop: '6px' }}>{email}</div>}
+            {(instagram || site) && <div style={{ fontFamily: "'Montserrat',sans-serif", fontSize: '6.5px', color: '#666', marginTop: '3px', display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '10px', flexWrap: 'wrap' }}>
+              {instagram && <span style={{ display: 'flex', alignItems: 'center', gap: '3px' }}>
+                <svg viewBox="0 0 24 24" width="9" height="9"><defs><linearGradient id="igP" x1="0%" y1="100%" x2="100%" y2="0%"><stop offset="0%" stopColor="#f09433"/><stop offset="50%" stopColor="#dc2743"/><stop offset="100%" stopColor="#bc1888"/></linearGradient></defs><path fill="url(#igP)" d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zM12 0C8.741 0 8.333.014 7.053.072 2.695.272.273 2.69.073 7.052.014 8.333 0 8.741 0 12c0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98C8.333 23.986 8.741 24 12 24c3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98C15.668.014 15.259 0 12 0zm0 5.838a6.162 6.162 0 100 12.324 6.162 6.162 0 000-12.324zM12 16a4 4 0 110-8 4 4 0 010 8zm6.406-11.845a1.44 1.44 0 100 2.881 1.44 1.44 0 000-2.881z"/></svg>
+                {instagram}
+              </span>}
+              {site && <span style={{ display: 'flex', alignItems: 'center', gap: '3px' }}>
+                <svg viewBox="0 0 24 24" width="9" height="9" fill="none" stroke="#666" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
+                {site}
+              </span>}
+            </div>}
+            {!clinicaNome && !crmLine && !endereco && !whatsapp && !telefone && !instagram && !email && !site && <div style={{ fontFamily: "'Montserrat',sans-serif", fontSize: '7px', color: '#aaa', fontStyle: 'italic' }}>Preencha seus dados no Cartão Digital</div>}
           </div>
         </div>
       </div>
@@ -902,6 +913,8 @@ function PapelariaStep({ brand, accentColor, paletteColors, estampaPatterns, car
   const [comBorda, setComBordaState] = useState(true);
   const persistPapelaria = (updates) => { try { const cur = JSON.parse(localStorage.getItem('brandbox_papelaria') || '{}'); localStorage.setItem('brandbox_papelaria', JSON.stringify({ ...cur, ...updates })); } catch {} };
   const setComBorda = (v) => { setComBordaState(v); persistPapelaria({ comBorda: v }); };
+  const [showPrintModal, setShowPrintModal] = useState(false);
+  const [pendingItem, setPendingItem] = useState(null);
 
   useEffect(() => {
     try {
@@ -947,7 +960,7 @@ function PapelariaStep({ brand, accentColor, paletteColors, estampaPatterns, car
     const _boost = brand.editData?.fontSizeBoost || 1;
     const _words = marca.split(' ').map(w => _isScript ? w.charAt(0).toUpperCase() + w.slice(1).toLowerCase() : w.toUpperCase());
     let _lines, _basePt;
-    if (logoLayout === 'horizontal') { _lines = [_words.join(' ')]; _basePt = marca.length > 18 ? 13 : marca.length > 12 ? 18 : 24; }
+    if (logoLayout === 'horizontal') { _lines = [_words.join(' ')]; _basePt = marca.length > 18 ? 10 : marca.length > 12 ? 14 : marca.length > 8 ? 18 : 22; }
     else if (logoLayout === 'balanced' && _words.length >= 3) { const m = Math.ceil(_words.length / 2); _lines = [_words.slice(0, m).join(' '), _words.slice(m).join(' ')]; _basePt = marca.length > 15 ? 16 : 21; }
     else { _lines = _words; _basePt = _words.length >= 3 ? (marca.length > 15 ? 14 : 17) : _words.length === 2 ? 22 : 29; }
     const _fontPt = (_basePt * _boost).toFixed(1);
@@ -997,15 +1010,18 @@ function PapelariaStep({ brand, accentColor, paletteColors, estampaPatterns, car
           <div class="cm cm-tl"></div><div class="cm cm-tr"></div><div class="cm cm-bl"></div><div class="cm cm-br"></div>
         </div>`;
 
+      const _waIconSvg = `<svg viewBox="0 0 24 24" width="9" height="9" style="display:inline;vertical-align:middle;margin-right:2pt;" fill="#25D366"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>`;
+      const _igIconSvg = `<svg viewBox="0 0 24 24" width="9" height="9" style="display:inline;vertical-align:middle;margin-right:2pt;"><defs><linearGradient id="igG" x1="0%" y1="100%" x2="100%" y2="0%"><stop offset="0%" stop-color="#f09433"/><stop offset="50%" stop-color="#dc2743"/><stop offset="100%" stop-color="#bc1888"/></linearGradient></defs><path fill="url(#igG)" d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zM12 0C8.741 0 8.333.014 7.053.072 2.695.272.273 2.69.073 7.052.014 8.333 0 8.741 0 12c0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98C8.333 23.986 8.741 24 12 24c3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98C15.668.014 15.259 0 12 0zm0 5.838a6.162 6.162 0 100 12.324 6.162 6.162 0 000-12.324zM12 16a4 4 0 110-8 4 4 0 010 8zm6.406-11.845a1.44 1.44 0 100 2.881 1.44 1.44 0 000-2.881z"/></svg>`;
+      const _extraPhones = [telefone, telefone2].filter(Boolean);
+      const _siteIconSvg = `<svg viewBox="0 0 24 24" width="9" height="9" style="display:inline;vertical-align:middle;margin-right:2pt;" fill="none" stroke="#666" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>`;
       const contactLines = [
         clinicaNome ? `<div style="font-family:${_brandFont};font-size:7pt;color:${accentColor};font-weight:${brand.editData?.fontWeight || 700};margin-bottom:1.5mm;">${clinicaNome}</div>` : '',
         crmLine ? `<div style="font-family:'Montserrat',sans-serif;font-size:4pt;color:#666;letter-spacing:1px;text-transform:uppercase;margin-bottom:2mm;">${crmLine}</div>` : '',
-        endereco ? `<div style="font-size:5.5pt;color:#444;line-height:1.5;">${endereco}</div>` : '',
-        mainPhone ? `<div style="font-size:6pt;font-weight:700;color:#222;margin-top:1mm;">${mainPhone}</div>` : '',
-        (telefone2 && !whatsapp) ? `<div style="font-size:5.5pt;color:#444;">${telefone2}</div>` : '',
-        instagram ? `<div style="font-size:5pt;color:#666;">${instagram}</div>` : '',
-        email ? `<div style="font-size:5pt;color:#666;">${email}</div>` : '',
-        site ? `<div style="font-size:5pt;color:#666;">${site}</div>` : '',
+        endereco ? `<div style="font-size:5pt;color:#444;line-height:1.5;margin-bottom:1mm;">${endereco}</div>` : '',
+        whatsapp ? `<div style="font-size:6.5pt;font-weight:700;color:#222;margin-top:1mm;">${_waIconSvg}${whatsapp}</div>` : '',
+        _extraPhones.length > 0 ? `<div style="font-size:5.5pt;color:#555;margin-top:0.5mm;">${_extraPhones.join('  ·  ')}</div>` : '',
+        email ? `<div style="font-size:5pt;color:#666;margin-top:1mm;">${email}</div>` : '',
+        (instagram || site) ? `<div style="font-size:5pt;color:#666;margin-top:1.5mm;display:flex;justify-content:center;align-items:center;gap:4mm;">${instagram ? `<span>${_igIconSvg}${instagram}</span>` : ''}${site ? `<span>${_siteIconSvg}${site}</span>` : ''}</div>` : '',
       ].filter(Boolean).join('');
 
       // Verso: fundo colorido / estampa estende até a sangria
@@ -1085,11 +1101,15 @@ ${versoHtml}
       iframe.contentDocument.open();
       iframe.contentDocument.write(html);
       iframe.contentDocument.close();
+      const _docTitle = `Cartão de Visita 9x5cm - ${marca}`;
+      iframe.contentDocument.title = _docTitle;
+      const _prevTitle = document.title;
       iframe.contentWindow.document.fonts.ready.then(() => {
         setTimeout(() => {
+          document.title = _docTitle;
           iframe.contentWindow.focus();
           iframe.contentWindow.print();
-          setTimeout(() => iframe.remove(), 3000);
+          setTimeout(() => { document.title = _prevTitle; iframe.remove(); }, 3000);
         }, 300);
       });
       return;
@@ -1269,17 +1289,81 @@ ${versoHtml}
         </div>
       )}
 
+      {/* Modal de instruções de impressão */}
+      {showPrintModal && (() => {
+        const SPECS = {
+          'Cartão de Visita':       { cat: 'Cartão de visita', tam: '8,5 × 5,5 cm', papel: 'Couché 300g', acabamento: 'Refile', preco: '~R$52,94 / 250 un.' },
+          'Receituário':            { cat: 'Receituário', tam: 'A5', papel: 'Offset 90g+', acabamento: 'Blocos 25, 50 ou 100 fls · Mínimo 10 blocos', preco: '~R$109,19 / 10 blocos de 25 fls' },
+          'Timbrado':               { cat: 'Timbrado', tam: 'A4', papel: 'Offset 90g+', acabamento: 'Refile', preco: '~R$170,85 / 250 un.' },
+          'Cartão de Retorno':      { cat: 'Cartão de visita', tam: 'A6', papel: 'Couché 240g+', acabamento: 'Refile', preco: '' },
+          'Pasta':                  { cat: 'Pasta com bolsa (sem orelha)', tam: '22 × 31 cm', papel: '', acabamento: '', preco: '~R$205,04 / 50 un.' },
+          'Envelope Ofício':        { cat: 'Envelope', tam: '22 × 11,3 cm', papel: 'Acima de 120g', acabamento: 'Refile', preco: '~R$319,24 / 50 un.' },
+          'Recibo':                 { cat: 'Recibo', tam: '7,5 × 23 cm', papel: 'Offset 120g', acabamento: '4x0', preco: '~R$60,84 / 250 un.', obs: 'A Printi não faz com picote. Para versões com picote, use outro fornecedor.' },
+          'Caneca':                 { cat: 'Caneca', tam: 'Arte: 20 × 8 cm · 325ml', papel: '', acabamento: '', preco: '~R$33,93 / un.', obs: 'A impressão pode deixar bordas brancas de ~1cm nas laterais.' },
+          'Cartão de Aniversário':  { cat: 'Flyer', tam: 'A6', papel: 'Couché 240g+', acabamento: 'Frente e verso', preco: '~R$131,92 / 250 un.' },
+          'Caderneta':              { cat: 'Livreto', tam: 'A5 (14,8 × 21 cm)', papel: 'Miolo: Offset 120g · Capa: Couché 150g+', acabamento: 'Grampo · Shirink opcional', preco: '' },
+          'Livro de Atividades':    { cat: 'Livreto', tam: 'A5', papel: 'Miolo: Offset 120g · Capa: Couché 150g+', acabamento: 'Grampo', preco: '' },
+        };
+        const folderItems = ['Guia de Cuidados','Guia Alimentar','Guia de Desenvolvimento','Cartão de Vacina','Guia Pré-natal'];
+        const spec = SPECS[pendingItem] || (folderItems.some(f => pendingItem?.includes(f)) ? { cat: 'Folder', tam: 'A5 (6 páginas)', papel: 'Couché ou Cartão 150g+', acabamento: '2 dobras (sanfonado)', preco: '~R$250,00 / 250 un.' } : null);
+        return (
+          <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.5)', zIndex: 9999, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '16px' }}
+            onClick={() => setShowPrintModal(false)}>
+            <div style={{ background: '#fff', borderRadius: '16px', padding: '24px 22px', maxWidth: '420px', width: '100%', boxShadow: '0 20px 60px rgba(0,0,0,0.25)', maxHeight: '90vh', overflowY: 'auto' }}
+              onClick={e => e.stopPropagation()}>
+              <div style={{ fontFamily: "'Montserrat',sans-serif", fontWeight: 800, fontSize: '1rem', color: accentColor, marginBottom: '16px' }}>
+                Como salvar o PDF padrão gráfica
+              </div>
+              {[
+                ['Margens → Nenhuma', 'Na janela de impressão, defina as margens como Nenhuma para preservar a sangria.'],
+                ['Gráficos de fundo ativado', 'Ative "Gráficos de fundo" (Background graphics) para cores e estampas aparecerem.'],
+                ['Destino → Salvar como PDF', 'Selecione Salvar como PDF — não envie para impressora.'],
+              ].map(([titulo, desc], i) => (
+                <div key={i} style={{ display: 'flex', gap: '12px', marginBottom: '12px', alignItems: 'flex-start' }}>
+                  <div style={{ minWidth: '24px', height: '24px', borderRadius: '50%', background: accentColor, color: '#fff', fontWeight: 800, fontSize: '0.75rem', display: 'flex', alignItems: 'center', justifyContent: 'center', fontFamily: "'Montserrat',sans-serif", flexShrink: 0 }}>{i + 1}</div>
+                  <div style={{ fontFamily: "'Montserrat',sans-serif", fontSize: '0.78rem', lineHeight: 1.6, color: '#333' }}>
+                    <strong style={{ display: 'block', marginBottom: '1px' }}>{titulo}</strong>
+                    {desc}
+                  </div>
+                </div>
+              ))}
+
+              {spec && <>
+                <div style={{ fontFamily: "'Montserrat',sans-serif", fontWeight: 800, fontSize: '0.8rem', color: '#333', margin: '16px 0 10px', letterSpacing: '0.5px', textTransform: 'uppercase' }}>
+                  Especificações para a gráfica
+                </div>
+                <div style={{ background: '#f7f7f7', borderRadius: '10px', padding: '12px 14px', fontFamily: "'Montserrat',sans-serif", fontSize: '0.75rem', color: '#555', lineHeight: 1.8 }}>
+                  {spec.cat && <div><strong>Categoria:</strong> {spec.cat}</div>}
+                  {spec.tam && <div><strong>Tamanho:</strong> {spec.tam}</div>}
+                  {spec.papel && <div><strong>Papel:</strong> {spec.papel}</div>}
+                  {spec.acabamento && <div><strong>Acabamento:</strong> {spec.acabamento}</div>}
+                  {spec.preco && <div><strong>Preço médio:</strong> {spec.preco}</div>}
+                  {spec.obs && <div style={{ marginTop: '6px', color: '#c0392b', fontSize: '0.72rem' }}>⚠️ {spec.obs}</div>}
+                </div>
+              </>}
+
+              <div style={{ background: '#fffbea', borderRadius: '10px', padding: '10px 14px', fontFamily: "'Montserrat',sans-serif", fontSize: '0.74rem', color: '#555', lineHeight: 1.7, margin: '12px 0 16px' }}>
+                <strong>Sugestão de gráfica:</strong> printi.com.br<br/>
+                Selecione <em>"Enviar minha arte final"</em> e envie o PDF gerado.<br/>
+                <strong style={{ color: '#b7791f' }}>Cupom 5% off:</strong> <span style={{ fontWeight: 700, letterSpacing: '1px' }}>CIN243460MS</span> (primeira compra)
+              </div>
+
+              <div style={{ display: 'flex', gap: '10px' }}>
+                <button onClick={() => setShowPrintModal(false)} style={{ flex: 1, padding: '11px', background: 'none', border: '1px solid #e0e0e0', borderRadius: '30px', fontWeight: 600, fontSize: '0.82rem', cursor: 'pointer', color: '#888' }}>Cancelar</button>
+                <button onClick={() => { setShowPrintModal(false); openGabarito(pendingItem); }} style={{ flex: 2, padding: '11px', background: accentColor, color: '#fff', border: 'none', borderRadius: '30px', fontWeight: 700, fontSize: '0.82rem', cursor: 'pointer' }}>Entendi, baixar PDF →</button>
+              </div>
+            </div>
+          </div>
+        );
+      })()}
+
       {/* Botão download */}
       <button
-        onClick={() => openGabarito(currentItem)}
+        onClick={() => { setPendingItem(currentItem); setShowPrintModal(true); }}
         style={{ width: '100%', padding: '14px', background: accentColor, color: '#fff', border: 'none', borderRadius: '30px', fontWeight: 700, fontSize: '0.95rem', cursor: 'pointer' }}
       >
         Baixar PDF Padrão Gráfica →
       </button>
-
-      <div style={{ background: '#e8f7f5', color: '#115048', padding: '12px 14px', borderRadius: '10px', fontSize: '0.78rem', lineHeight: 1.6 }}>
-        <span style={{ fontWeight: 700 }}>Dica:</span> Ao salvar o PDF, defina as <strong>margens como Nenhuma</strong> para preservar a sangria.
-      </div>
 
       {/* Navegação prev/next */}
       <div style={{ display: 'flex', gap: '10px' }}>
@@ -1304,7 +1388,7 @@ function EntregaContent({ brand, plano }) {
 
   const [bgColor, setBgColor] = useState('#ffffff');
   const [logoColor, setLogoColor] = useState(brand.activeColor || '#dc3495');
-  const [logoLayout, setLogoLayout] = useState('stacked');
+  const [logoLayout, setLogoLayout] = useState(() => { try { return localStorage.getItem('brandbox_logo_layout') || 'stacked'; } catch { return 'stacked'; } });
   const setLayout = (l) => { setLogoLayout(l); try { localStorage.setItem('brandbox_logo_layout', l); } catch {} };
   const [downloading, setDownloading] = useState(false);
   const [showEdit, setShowEdit] = useState(false);
@@ -1346,7 +1430,7 @@ function EntregaContent({ brand, plano }) {
     // Carregamento inicial de tudo
     try {
       const s = localStorage.getItem('brandbox_step'); if (s) setStepState(s);
-      const l = localStorage.getItem('brandbox_logo_layout'); if (l) setLogoLayout(l);
+
       const p = JSON.parse(localStorage.getItem('brandbox_pattern') || 'null'); if (p && !brand.pattern) setEstampaPatterns([p]);
       const crm = JSON.parse(localStorage.getItem('brandbox_crm') || 'null'); if (crm) setCrmDataState(crm);
     } catch {}
