@@ -1684,6 +1684,9 @@ function EntregaContent({ brand, plano }) {
 }
 
 function SucessoContent() {
+  const [isMounted, setIsMounted] = useState(false);
+  useEffect(() => setIsMounted(true), []);
+
   const params = useSearchParams();
   const [brand, setBrand] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -1698,6 +1701,8 @@ function SucessoContent() {
     } catch {}
     return 'experience';
   });
+
+  if (!isMounted) return null;
 
   useEffect(() => {
     const sessionParam = params.get('session');
