@@ -826,7 +826,7 @@ function CartaoDeVisitaPreview({ accentColor, patternSrc, cartaoContacts, crmLin
   const brandFont = `'${editData?.fontFamily || 'Playfair Display'}', serif`;
   // CRM substitui tagline dentro do BrandTemplateSVG
   const displayData = crmLine ? { ...editData, tagline: crmLine } : editData;
-  const { endereco, whatsapp, telefone, telefone2, instagram, email } = cartaoContacts || {};
+  const { endereco, whatsapp, telefone, telefone2, instagram, email, site } = cartaoContacts || {};
   const mainPhone = whatsapp || telefone || '';
 
   const toggleStyle = (active) => ({
@@ -872,7 +872,8 @@ function CartaoDeVisitaPreview({ accentColor, patternSrc, cartaoContacts, crmLin
             {telefone2 && !whatsapp && <div style={{ fontFamily: "'Montserrat',sans-serif", fontSize: '7px', color: '#444', marginTop: '1px' }}>{telefone2}</div>}
             {instagram && <div style={{ fontFamily: "'Montserrat',sans-serif", fontSize: '7px', color: '#666', marginTop: '2px' }}>{instagram}</div>}
             {email && <div style={{ fontFamily: "'Montserrat',sans-serif", fontSize: '7px', color: '#666' }}>{email}</div>}
-            {!clinicaNome && !crmLine && !endereco && !mainPhone && !instagram && !email && <div style={{ fontFamily: "'Montserrat',sans-serif", fontSize: '7px', color: '#aaa', fontStyle: 'italic' }}>Preencha seus dados no Cartão Digital</div>}
+            {site && <div style={{ fontFamily: "'Montserrat',sans-serif", fontSize: '7px', color: '#666' }}>{site}</div>}
+            {!clinicaNome && !crmLine && !endereco && !mainPhone && !instagram && !email && !site && <div style={{ fontFamily: "'Montserrat',sans-serif", fontSize: '7px', color: '#aaa', fontStyle: 'italic' }}>Preencha seus dados no Cartão Digital</div>}
           </div>
         </div>
       </div>
