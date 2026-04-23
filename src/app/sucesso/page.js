@@ -323,26 +323,6 @@ function CartaoStep({ brand, accentColor, paletteColors, marca, estampaPatterns,
             <LogoPreviewHTML editData={editData} color={accentColor} layout={logoLayout} />
           </div>
 
-          {/* Atalho de Layout no Cartão Digital */}
-          {marca.split(' ').length > 1 && (
-            <div style={{ display: 'flex', gap: '4px', marginTop: '4px' }}>
-              {['horizontal', 'balanced', 'stacked'].map(l => (
-                <button
-                  key={l}
-                  onClick={() => setLayout(l)}
-                  style={{
-                    padding: '4px 8px', borderRadius: '12px', fontSize: '0.65rem',
-                    border: '1px solid', borderColor: logoLayout === l ? accentColor : '#eee',
-                    background: logoLayout === l ? `${accentColor}10` : '#fff',
-                    color: logoLayout === l ? accentColor : '#999', cursor: 'pointer'
-                  }}
-                >
-                  {l === 'horizontal' ? 'Horizontal' : l === 'balanced' ? '2 Linhas' : 'Empilhada'}
-                </button>
-              ))}
-            </div>
-          )}
-
           <div style={{ width: '50%', height: '1px', background: '#eee' }} />
           <p style={{ margin: 0, textAlign: 'center', fontSize: '0.72rem', color: '#aaa', fontFamily: 'Montserrat, sans-serif', letterSpacing: '0.5px' }}>
             Como prefere entrar em contato?
@@ -370,7 +350,28 @@ function CartaoStep({ brand, accentColor, paletteColors, marca, estampaPatterns,
         </div>
       </div>
 
-      <div style={{ display: 'flex', gap: '8px' }}>
+      {/* Seletor de Layout (Fora do cartão para não sair no download) */}
+      {marca.split(' ').length > 1 && (
+        <div style={{ display: 'flex', justifyContent: 'center', gap: '6px', marginTop: '0.4rem' }}>
+          {['horizontal', 'balanced', 'stacked'].map(l => (
+            <button
+              key={l}
+              onClick={() => setLayout(l)}
+              style={{
+                padding: '6px 14px', borderRadius: '20px', fontSize: '0.7rem', fontWeight: 600,
+                border: '1px solid', borderColor: logoLayout === l ? accentColor : '#eee',
+                background: logoLayout === l ? `${accentColor}10` : '#fff',
+                color: logoLayout === l ? accentColor : '#888', cursor: 'pointer',
+                transition: 'all 0.2s'
+              }}
+            >
+              {l === 'horizontal' ? 'Horizontal' : l === 'balanced' ? '2 Linhas' : 'Empilhada'}
+            </button>
+          ))}
+        </div>
+      )}
+
+      <div style={{ display: 'flex', gap: '8px', marginTop: '1rem' }}>
         <button onClick={async () => {
           const html = downloadHTML(true);
           const file = new File([new Blob([html], { type: 'text/html' })], `${marca || 'marca'}-cartao-digital.html`, { type: 'text/html' });
