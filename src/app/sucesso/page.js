@@ -820,7 +820,7 @@ function GuiaStep({ brand, accentColor, paletteColors, marca, tagline, estampaPa
   );
 }
 
-function CartaoDeVisitaPreview({ accentColor, patternSrc, cartaoContacts, crmLine, editData, logoColor, comBorda, setComBorda, clinicaNome, setClinicaNome, logoLayout }) {
+function CartaoDeVisitaPreview({ accentColor, patternSrc, cartaoContacts, crmLine, editData, logoColor, comBorda, setComBorda, clinicaNome, setClinicaNome, logoLayout, paletteColors, borderColor, setBorderColor }) {
   const brandFont = `'${editData?.fontFamily || 'Playfair Display'}', serif`;
   // CRM substitui tagline dentro do BrandTemplateSVG
   const displayData = crmLine ? { ...editData, tagline: crmLine } : editData;
@@ -836,10 +836,7 @@ function CartaoDeVisitaPreview({ accentColor, patternSrc, cartaoContacts, crmLin
     <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', alignItems: 'center', width: '100%' }}>
 
       {/* Toggle borda */}
-      <div style={{ display: 'flex', gap: '6px' }}>
-        <button style={toggleStyle(comBorda)} onClick={() => setComBorda(true)}>Com estampa</button>
-        <button style={toggleStyle(!comBorda)} onClick={() => setComBorda(false)}>Sem estampa</button>
-      </div>
+      <BordaToggle comBorda={comBorda} setComBorda={setComBorda} accentColor={accentColor} paletteColors={paletteColors} borderColor={borderColor} setBorderColor={setBorderColor} />
 
       <p style={{ fontSize: '0.6rem', color: '#aaa', letterSpacing: '2px', textTransform: 'uppercase' }}>Frente</p>
       <div style={{ width: '320px', height: '178px', position: 'relative', background: '#fff', overflow: 'hidden', boxShadow: '0 4px 20px rgba(0,0,0,0.12)', borderRadius: '4px' }}>
@@ -890,26 +887,56 @@ function CartaoDeVisitaPreview({ accentColor, patternSrc, cartaoContacts, crmLin
   );
 }
 
+// Toggle compartilhado: Com/Sem estampa + bolinhas clicáveis de cor da paleta
+function BordaToggle({ comBorda, setComBorda, accentColor, paletteColors, borderColor, setBorderColor }) {
+  const btn = (active) => ({
+    padding: '5px 14px', borderRadius: '20px', fontSize: '0.72rem', fontWeight: 700,
+    cursor: 'pointer', border: 'none',
+    background: active ? accentColor : '#eee', color: active ? '#fff' : '#888',
+  });
+  return (
+    <div style={{ display: 'flex', gap: '6px', alignItems: 'center', flexWrap: 'wrap', justifyContent: 'center' }}>
+      <button style={btn(comBorda)} onClick={() => setComBorda(true)}>Com estampa</button>
+      <button style={btn(!comBorda)} onClick={() => setComBorda(false)}>Sem estampa</button>
+      {!comBorda && paletteColors?.length > 0 && (
+        <div style={{ display: 'flex', gap: '5px', alignItems: 'center', marginLeft: '4px' }}>
+          {paletteColors.map((hex, i) => {
+            const isSelected = (borderColor || accentColor) === hex;
+            return (
+              <div
+                key={i}
+                onClick={() => setBorderColor?.(hex)}
+                style={{
+                  width: '14px', height: '14px', borderRadius: '50%', background: hex,
+                  cursor: 'pointer', flexShrink: 0, transition: 'transform 0.15s',
+                  transform: isSelected ? 'scale(1.25)' : 'scale(1)',
+                  boxShadow: isSelected ? `0 0 0 2px #fff, 0 0 0 3.5px ${hex}` : '0 0 0 1px rgba(0,0,0,0.1)',
+                }}
+              />
+            );
+          })}
+        </div>
+      )}
+    </div>
+  );
+}
+
 // Preview proporcional A5 — usado por receituário, timbrado, etc.
-function A5ItemPreview({ accentColor, patternSrc, editData, logoColor, logoLayout, cartaoContacts, crmLine, clinicaNome }) {
+function A5ItemPreview({ accentColor, patternSrc, editData, logoColor, logoLayout, cartaoContacts, crmLine, clinicaNome, comBorda, setComBorda, paletteColors, borderColor, setBorderColor }) {
   const BORDER = 14;
   const { whatsapp, telefone, instagram, site, endereco } = cartaoContacts || {};
   const mainPhone = whatsapp || telefone || '';
-  // Cada dado é um item separado — sem quebra no meio de um dado
-  const footerItems = [
-    clinicaNome,
-    mainPhone,
-    instagram ? `@${instagram}` : '',
-    site,
-    endereco,
-  ].filter(Boolean);
+  const effectiveSrc = comBorda ? patternSrc : null;
+  const solidColor = borderColor || accentColor;
 
   return (
+    <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', alignItems: 'center' }}>
+      <BordaToggle comBorda={comBorda} setComBorda={setComBorda} accentColor={accentColor} paletteColors={paletteColors} borderColor={borderColor} setBorderColor={setBorderColor} />
     <div style={{ width: '226px', height: '320px', position: 'relative', boxShadow: '0 4px 20px rgba(0,0,0,0.12)', borderRadius: '4px', overflow: 'hidden', background: '#fff' }}>
       {/* Borda de estampa */}
-      {patternSrc
-        ? <div style={{ position: 'absolute', inset: 0, backgroundImage: `url(${patternSrc})`, backgroundSize: '60px', backgroundRepeat: 'repeat' }} />
-        : <div style={{ position: 'absolute', inset: 0, background: accentColor }} />}
+      {effectiveSrc
+        ? <div style={{ position: 'absolute', inset: 0, backgroundImage: `url(${effectiveSrc})`, backgroundSize: '60px', backgroundRepeat: 'repeat' }} />
+        : <div style={{ position: 'absolute', inset: 0, background: solidColor }} />}
       {/* Área branca interna */}
       <div style={{ position: 'absolute', top: BORDER, left: BORDER, right: BORDER, bottom: BORDER, background: '#fff' }} />
       {/* Logo no topo — ~20% da largura interna */}
@@ -933,10 +960,11 @@ function A5ItemPreview({ accentColor, patternSrc, editData, logoColor, logoLayou
       {/* Linha separadora rodapé */}
       <div style={{ position: 'absolute', bottom: BORDER + (clinicaNome || mainPhone ? 12 : 6) + (instagram || site || endereco ? 8 : 0), left: BORDER + 8, right: BORDER + 8, height: '0.5px', background: '#e0e0e0' }} />
     </div>
+    </div>
   );
 }
 
-function AtestadoPreview({ accentColor, patternSrc, editData, logoColor, logoLayout, crmLine, clinicaNome, marca, cartaoContacts }) {
+function AtestadoPreview({ accentColor, patternSrc, editData, logoColor, logoLayout, crmLine, clinicaNome, marca, cartaoContacts, comBorda, setComBorda, paletteColors, borderColor, setBorderColor }) {
   const BORDER = 14;
   const { whatsapp, telefone, instagram, site, endereco } = cartaoContacts || {};
   const mainPhone = whatsapp || telefone || '';
@@ -945,13 +973,15 @@ function AtestadoPreview({ accentColor, patternSrc, editData, logoColor, logoLay
   const B = ({ w }) => (
     <span style={{ display: 'inline-block', borderBottom: '0.6px solid #555', width: w, verticalAlign: 'bottom' }}>&nbsp;</span>
   );
-  // Posições derivadas do SVG de referência (240.96×330) → preview (226×320)
-  // scaleY = 320/330 = 0.9697
+  const effectiveSrc = comBorda ? patternSrc : null;
+  const solidColor = borderColor || accentColor;
   return (
+    <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', alignItems: 'center' }}>
+      <BordaToggle comBorda={comBorda} setComBorda={setComBorda} accentColor={accentColor} paletteColors={paletteColors} borderColor={borderColor} setBorderColor={setBorderColor} />
     <div style={{ width: '226px', height: '320px', position: 'relative', boxShadow: '0 4px 20px rgba(0,0,0,0.12)', borderRadius: '4px', overflow: 'hidden', background: '#fff' }}>
-      {patternSrc
-        ? <><div style={{ position: 'absolute', inset: 0, backgroundImage: `url(${patternSrc})`, backgroundSize: '60px', backgroundRepeat: 'repeat' }} /><div style={{ position: 'absolute', top: BORDER, left: BORDER, right: BORDER, bottom: BORDER, background: '#fff' }} /></>
-        : <div style={{ position: 'absolute', inset: 0, background: '#fff', border: `${BORDER}px solid ${accentColor}` }} />}
+      {effectiveSrc
+        ? <><div style={{ position: 'absolute', inset: 0, backgroundImage: `url(${effectiveSrc})`, backgroundSize: '60px', backgroundRepeat: 'repeat' }} /><div style={{ position: 'absolute', top: BORDER, left: BORDER, right: BORDER, bottom: BORDER, background: '#fff' }} /></>
+        : <div style={{ position: 'absolute', inset: 0, background: '#fff', border: `${BORDER}px solid ${solidColor}` }} />}
 
       {/* Logo: 16mm abaixo da área branca → ~34px */}
       <div style={{ position: 'absolute', top: '34px', left: '50%', transform: 'translateX(-50%)', width: '109px', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
@@ -963,13 +993,12 @@ function AtestadoPreview({ accentColor, patternSrc, editData, logoColor, logoLay
       <div style={{ position: 'absolute', top: '82px', left: 0, right: 0, fontFamily: "'Montserrat',sans-serif", fontWeight: 800, fontSize: '7.5px', letterSpacing: '1.2px', textAlign: 'center', color: '#1a1a2e' }}>ATESTADO MÉDICO</div>
 
       {/* Texto: padding horizontal de 9mm → ~25px */}
-      <div style={{ position: 'absolute', top: '118px', left: '25px', right: '22px', fontFamily: "'Montserrat',sans-serif", fontSize: '5.5px', color: '#333', display: 'flex', flexDirection: 'column', gap: '10px', lineHeight: 1.2 }}>
+      <div style={{ position: 'absolute', top: '118px', left: '25px', right: '22px', fontFamily: "'Montserrat',sans-serif", fontSize: '5.5px', color: '#333', display: 'flex', flexDirection: 'column', gap: '8px', lineHeight: 1.2 }}>
         {[
-          [['Declaro para os devidos fins, que', false], ['', true], [',', false]],
-          [['esteve em consulta médica no dia de hoje das', false], ['', 'fixed:12px'], ['hs às', false], ['', 'fixed:12px'], ['hs,', false]],
+          [['Declaro para os devidos fins, que', false], ['', true]],
+          [['', true], [', esteve em consulta, das', false], ['', 'fixed:14px'], ['hs às', false], ['', 'fixed:14px'], ['hs,', false]],
           [['acompanhado de seu responsável Sr. (a)', false], ['', true], [',', false]],
-          [['R.G. n°', false], ['', 'fixed:22px'], [', necessitando o', false], ['', true]],
-          [['', 'fixed:26px'], ['de', false], ['', 'fixed:12px'], ['(', false], ['', 'fixed:8px'], [') dias de dispensa.', false]],
+          [['R.G. n°', false], ['', true], [', necessitando o mesmo de', false], ['', 'fixed:12px'], ['(', false], ['', 'fixed:8px'], [') dias de dispensa.', false]],
         ].map((row, ri) => (
           <div key={ri} style={{ display: 'flex', alignItems: 'flex-end', gap: '1px' }}>
             {row.map(([text, isBlank], ci) => isBlank === true
@@ -988,7 +1017,7 @@ function AtestadoPreview({ accentColor, patternSrc, editData, logoColor, logoLay
       </div>
 
       {/* Assinatura: SVG y=251.6 → 244px */}
-      <div style={{ position: 'absolute', top: '244px', left: '20%', right: '20%', borderTop: '0.5px solid #555', paddingTop: '3px', textAlign: 'center', fontFamily: "'Montserrat',sans-serif", fontSize: '4px', color: '#888', letterSpacing: '0.5px' }}>assinatura / carimbo</div>
+      <div style={{ position: 'absolute', top: '244px', left: '20%', right: '20%', borderTop: '0.5px solid #555' }} />
 
       {/* Rodapé: SVG y=309 → bottom */}
       {(footerLine1 || footerLine2) && <>
@@ -999,13 +1028,17 @@ function AtestadoPreview({ accentColor, patternSrc, editData, logoColor, logoLay
         <div style={{ position: 'absolute', bottom: BORDER + (footerLine1 && footerLine2 ? 18 : 11), left: BORDER + 8, right: BORDER + 8, height: '0.5px', background: '#e0e0e0' }} />
       </>}
     </div>
+    </div>
   );
 }
 
-function GenericItemPreview({ item, marca, accentColor, patternSrc, editData, logoColor, logoLayout }) {
+function GenericItemPreview({ item, marca, accentColor, patternSrc, editData, logoColor, logoLayout, comBorda, setComBorda, paletteColors, borderColor, setBorderColor }) {
+  const effectiveSrc = comBorda ? patternSrc : null;
   return (
+    <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', alignItems: 'center' }}>
+      <BordaToggle comBorda={comBorda} setComBorda={setComBorda} accentColor={accentColor} paletteColors={paletteColors} borderColor={borderColor} setBorderColor={setBorderColor} />
     <div style={{ width: '320px', height: '220px', position: 'relative', background: '#fff', overflow: 'hidden', boxShadow: '0 4px 20px rgba(0,0,0,0.12)', borderRadius: '8px', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: '12px' }}>
-      {patternSrc && <div style={{ position: 'absolute', inset: 0, backgroundImage: `url(${patternSrc})`, backgroundSize: '100px', backgroundRepeat: 'repeat', opacity: 0.06 }} />}
+      {effectiveSrc && <div style={{ position: 'absolute', inset: 0, backgroundImage: `url(${effectiveSrc})`, backgroundSize: '100px', backgroundRepeat: 'repeat', opacity: 0.06 }} />}
       <div style={{ position: 'relative', zIndex: 1, width: '60px', height: '60px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
         <LogoPreviewHTML editData={editData} color={logoColor} layout={logoLayout} />
       </div>
@@ -1014,6 +1047,7 @@ function GenericItemPreview({ item, marca, accentColor, patternSrc, editData, lo
         <div style={{ fontFamily: "'Montserrat',sans-serif", fontSize: '9px', color: '#bbb', marginTop: '6px' }}>Preview gerado ao exportar o PDF</div>
       </div>
     </div>
+    </div>
   );
 }
 
@@ -1021,8 +1055,10 @@ function PapelariaStep({ brand, accentColor, paletteColors, estampaPatterns, car
   const itens = brand.papelariaSelecionada || [];
   const [idx, setIdx] = useState(0);
   const [comBorda, setComBordaState] = useState(true);
+  const [borderColor, setBorderColorState] = useState(() => accentColor);
   const persistPapelaria = (updates) => { try { const cur = JSON.parse(localStorage.getItem('brandbox_papelaria') || '{}'); localStorage.setItem('brandbox_papelaria', JSON.stringify({ ...cur, ...updates })); } catch {} };
   const setComBorda = (v) => { setComBordaState(v); persistPapelaria({ comBorda: v }); };
+  const setBorderColor = (v) => { setBorderColorState(v); persistPapelaria({ borderColor: v }); };
   const [showPrintModal, setShowPrintModal] = useState(false);
   const [pendingItem, setPendingItem] = useState(null);
 
@@ -1030,6 +1066,7 @@ function PapelariaStep({ brand, accentColor, paletteColors, estampaPatterns, car
     try {
       const saved = JSON.parse(localStorage.getItem('brandbox_papelaria') || '{}');
       if (saved.comBorda !== undefined) setComBordaState(saved.comBorda);
+      if (saved.borderColor) setBorderColorState(saved.borderColor);
     } catch {}
   }, []);
   const [crmOpen, setCrmOpen] = useState(!crmData?.crm);
@@ -1078,7 +1115,8 @@ function PapelariaStep({ brand, accentColor, paletteColors, estampaPatterns, car
     const _letterSp = brand.editData?.fontLetterSpacing || (_isScript ? '0pt' : '0.5pt');
     const _brandFont = `'${brand.editData?.fontFamily || 'Playfair Display'}', serif`;
     const _tagline = brand.editData?.tagline || '';
-    const logoHtml = `<div style="text-align:center;font-family:${_brandFont};font-weight:${brand.editData?.fontWeight || 700};font-size:${_fontPt}pt;color:${accentColor};line-height:${_lineH};letter-spacing:${_letterSp};">${_lines.map(l => `<div style="font-family:inherit;font-weight:inherit;">${l}</div>`).join('')}</div>${_tagline ? `<div style="font-family:'Montserrat',sans-serif;font-size:4pt;letter-spacing:2pt;text-transform:uppercase;color:#999;margin-top:3pt;text-align:center;">${_tagline}</div>` : ''}`;
+    const _noWrap = logoLayout === 'horizontal' ? 'white-space:nowrap;' : '';
+    const logoHtml = `<div style="text-align:center;font-family:${_brandFont};font-weight:${brand.editData?.fontWeight || 700};font-size:${_fontPt}pt;color:${accentColor};line-height:${_lineH};letter-spacing:${_letterSp};${_noWrap}">${_lines.map(l => `<div style="font-family:inherit;font-weight:inherit;${_noWrap}">${l}</div>`).join('')}</div>${_tagline ? `<div style="font-family:'Montserrat',sans-serif;font-size:4pt;letter-spacing:2pt;text-transform:uppercase;color:#999;margin-top:3pt;text-align:center;">${_tagline}</div>` : ''}`;
 
     const { endereco, whatsapp, telefone, telefone2, instagram, email, site } = cartaoContacts;
     const mainPhone = whatsapp || telefone || '';
@@ -1135,9 +1173,10 @@ function PapelariaStep({ brand, accentColor, paletteColors, estampaPatterns, car
       ].filter(Boolean).join('');
 
       // Verso: fundo colorido / estampa estende até a sangria
+      const _bc = borderColor || accentColor;
       const versoBgHtml = comBorda && patternSrc
         ? `<div style="position:absolute;inset:0;background-image:url(${patternSrc});background-size:35mm;background-repeat:repeat;"></div>`
-        : `<div style="position:absolute;inset:0;background:${accentColor};"></div>`;
+        : `<div style="position:absolute;inset:0;background:${_bc};"></div>`;
 
       const versoHtml = `
         <div class="card" style="position:relative;overflow:hidden;">
@@ -1231,18 +1270,23 @@ ${versoHtml}
       const _lf2 = LOCAL_FONT_FACES[_fa2];
       const fi2 = `<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;600;700&display=swap" rel="stylesheet">${_lf2 ? `<style>${_lf2}</style>` : `<link href="https://fonts.googleapis.com/css2?family=${_fa2.replace(/ /g,'+')}:wght@400;700&display=swap" rel="stylesheet">`}`;
       const _bw = '8mm';
-      const _pat2 = patternSrc
+      const _bc2 = borderColor || accentColor;
+      const _pat2 = (comBorda && patternSrc)
         ? `<div style="position:absolute;inset:0;background-image:url(${patternSrc});background-size:35mm;background-repeat:repeat;"></div><div style="position:absolute;top:${_bw};left:${_bw};right:${_bw};bottom:${_bw};background:#fff;"></div>`
-        : `<div style="position:absolute;inset:0;background:#fff;"></div>`;
+        : comBorda
+          ? `<div style="position:absolute;inset:0;background:#fff;"></div>`
+          : `<div style="position:absolute;inset:0;background:#fff;border:${_bw} solid ${_bc2};box-sizing:border-box;"></div>`;
       const _atFooter1 = [clinicaNome, mainPhone].filter(Boolean).join(' · ');
       const _atFooter2 = [instagram ? `@${instagram}` : '', site, endereco].filter(Boolean).join(' · ');
-      const _atFooterHtml = (_atFooter1 || _atFooter2) ? `
-        <div style="position:absolute;bottom:${_bw};left:${_bw};right:${_bw};text-align:center;font-family:'Montserrat',sans-serif;color:#555;line-height:1.7;">
+      const _hasFooter = !!(  _atFooter1 || _atFooter2);
+      const _footerH = _atFooter1 && _atFooter2 ? 13 : 8; // mm de altura do bloco rodapé
+      const _atFooterHtml = _hasFooter ? `
+        <div style="position:absolute;bottom:10mm;left:${_bw};right:${_bw};text-align:center;font-family:'Montserrat',sans-serif;color:#555;line-height:1.7;">
           ${_atFooter1 ? `<div style="font-size:6pt;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${_atFooter1}</div>` : ''}
           ${_atFooter2 ? `<div style="font-size:5.5pt;color:#888;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${_atFooter2}</div>` : ''}
         </div>
-        <div style="position:absolute;bottom:${(_atFooter1 && _atFooter2) ? '11mm' : '7mm'};left:${_bw};right:${_bw};height:0.5px;background:#e0e0e0;"></div>` : '';
-      const _atBottom = (_atFooter1 || _atFooter2) ? ((_atFooter1 && _atFooter2) ? '14mm' : '10mm') : _bw;
+        <div style="position:absolute;bottom:${7 + _footerH}mm;left:12mm;right:12mm;border-top:0.5px solid #e0e0e0;"></div>` : '';
+      const _atBottom = _hasFooter ? `${7 + _footerH + 2}mm` : _bw;
       // Posições derivadas do SVG de referência (240.96×330) → A5 (148×210mm)
       // scaleY = 210/330 = 0.6364  |  posições inside do content div (top:8mm) = pos_mm - 8
       const _atHtml = `<!DOCTYPE html><html lang="pt-BR"><head><meta charset="UTF-8"><title>Atestado Médico - ${marca}</title>${fi2}
@@ -1261,18 +1305,18 @@ body { margin:0; } @media print { @page { size: A5 portrait; margin:0; } }
     <!-- Título -->
     <div style="position:absolute;top:48mm;left:0;right:0;text-align:center;font-size:14pt;font-weight:800;letter-spacing:2.5pt;color:#1a1a2e;">ATESTADO MÉDICO</div>
 
-    <!-- Texto: padding horizontal de 9mm de cada lado -->
-    <div style="position:absolute;top:69mm;left:9mm;right:9mm;font-size:11pt;color:#222;display:flex;flex-direction:column;gap:6mm;line-height:1.2;">
+    <!-- Texto: 4 linhas, nome ocupa fim da linha 1 e início da linha 2 -->
+    <div style="position:absolute;top:66mm;left:9mm;right:9mm;font-size:10pt;color:#222;display:flex;flex-direction:column;gap:6mm;line-height:1.2;">
       <div style="display:flex;align-items:flex-end;gap:1mm;">
         <span style="white-space:nowrap;">Declaro para os devidos fins, que</span>
         <span class="blank" style="flex:1;">&nbsp;</span>
-        <span>,</span>
       </div>
       <div style="display:flex;align-items:flex-end;gap:1mm;">
-        <span style="white-space:nowrap;">esteve em consulta médica no dia de hoje das</span>
-        <span class="blank" style="width:18mm;">&nbsp;</span>
+        <span class="blank" style="flex:1;">&nbsp;</span>
+        <span style="white-space:nowrap;">, esteve em consulta, das</span>
+        <span class="blank" style="width:22mm;">&nbsp;</span>
         <span style="white-space:nowrap;">hs às</span>
-        <span class="blank" style="width:18mm;">&nbsp;</span>
+        <span class="blank" style="width:22mm;">&nbsp;</span>
         <span style="white-space:nowrap;">hs,</span>
       </div>
       <div style="display:flex;align-items:flex-end;gap:1mm;">
@@ -1282,13 +1326,8 @@ body { margin:0; } @media print { @page { size: A5 portrait; margin:0; } }
       </div>
       <div style="display:flex;align-items:flex-end;gap:1mm;">
         <span style="white-space:nowrap;">R.G. n°</span>
-        <span class="blank" style="width:35mm;">&nbsp;</span>
-        <span style="white-space:nowrap;">, necessitando o</span>
         <span class="blank" style="flex:1;">&nbsp;</span>
-      </div>
-      <div style="display:flex;align-items:flex-end;gap:1mm;">
-        <span class="blank" style="width:40mm;">&nbsp;</span>
-        <span style="white-space:nowrap;">de</span>
+        <span style="white-space:nowrap;">, necessitando o mesmo de</span>
         <span class="blank" style="width:18mm;">&nbsp;</span>
         <span style="white-space:nowrap;">(</span><span class="blank" style="width:10mm;">&nbsp;</span><span style="white-space:nowrap;">) dias de dispensa.</span>
       </div>
@@ -1301,7 +1340,7 @@ body { margin:0; } @media print { @page { size: A5 portrait; margin:0; } }
     </div>
 
     <!-- Assinatura: SVG y=251.6 → 160mm page → 152mm content -->
-    <div style="position:absolute;top:152mm;left:20%;right:20%;border-top:0.7px solid #555;padding-top:3mm;text-align:center;font-size:8pt;color:#888;letter-spacing:1pt;">assinatura / carimbo</div>
+    <div style="position:absolute;top:152mm;left:20%;right:20%;border-top:0.7px solid #555;"></div>
 
   </div>
 </div></body></html>`;
@@ -1340,23 +1379,30 @@ body { margin:0; } @media print { @page { size: A5 portrait; margin:0; } }
     const psKey = Object.keys(PAGE_SIZES).find(k => item.includes(k));
     const ps = PAGE_SIZES[psKey] || { w: '210mm', h: '297mm', page: 'size: A4 portrait' };
 
-    const BORDER_W = '8mm'; // largura da borda de estampa
-    const patternBorder = patternSrc ? `
+    const BORDER_W = '8mm';
+    const _bc3 = borderColor || accentColor;
+    const patternBorder = (comBorda && patternSrc) ? `
       <div style="position:absolute;inset:0;background-image:url(${patternSrc});background-size:40mm;background-repeat:repeat;"></div>
       <div style="position:absolute;top:${BORDER_W};left:${BORDER_W};right:${BORDER_W};bottom:${BORDER_W};background:#fff;"></div>
-    ` : `<div style="position:absolute;inset:0;background:#fff;"></div>`;
+    ` : comBorda
+      ? `<div style="position:absolute;inset:0;background:#fff;"></div>`
+      : `<div style="position:absolute;inset:0;background:#fff;border:${BORDER_W} solid ${_bc3};box-sizing:border-box;"></div>`;
 
     // Rodapé em 2 linhas — sem quebrar no meio de um dado
     const _sep = '<span style="margin:0 3pt;color:#ccc;">·</span>';
     const footerLine1 = [clinicaNome, mainPhone ? mainPhone : ''].filter(Boolean).join(` ${_sep} `);
     const footerLine2 = [instagram ? `@${instagram}` : '', site, endereco].filter(Boolean).join(` ${_sep} `);
+    const _fH = footerLine1 && footerLine2 ? 13 : 8;
     const footerHtml = (footerLine1 || footerLine2) ? `
-      <div style="position:absolute;bottom:${BORDER_W};left:${BORDER_W};right:${BORDER_W};text-align:center;font-family:'Montserrat',sans-serif;color:#555;line-height:1.7;">
+      <div style="position:absolute;bottom:10mm;left:${BORDER_W};right:${BORDER_W};text-align:center;font-family:'Montserrat',sans-serif;color:#555;line-height:1.7;">
         ${footerLine1 ? `<div style="font-size:6pt;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${footerLine1}</div>` : ''}
         ${footerLine2 ? `<div style="font-size:5.5pt;color:#888;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${footerLine2}</div>` : ''}
-      </div>` : '';
+      </div>
+      <div style="position:absolute;bottom:${7 + _fH}mm;left:12mm;right:12mm;border-top:0.5px solid #e0e0e0;"></div>` : '';
 
-    const _logoWidthMm = Math.round(parseFloat(ps.w) * 0.28);
+    const _logoWidthMm = logoLayout === 'horizontal'
+      ? Math.round(parseFloat(ps.w) * 0.72)
+      : Math.round(parseFloat(ps.w) * 0.28);
     const pageHtml = `
       <div style="position:relative;width:${ps.w};height:${ps.h};overflow:hidden;">
         ${patternBorder}
@@ -1457,12 +1503,12 @@ ${fontImports2}
       {/* Preview inline */}
       <div style={{ display: 'flex', justifyContent: 'center', paddingTop: '8px', paddingBottom: '8px' }}>
         {currentItem === 'Cartão de Visita'
-          ? <CartaoDeVisitaPreview accentColor={accentColor} patternSrc={patternSrc} cartaoContacts={cartaoContacts} crmLine={crmLine} editData={editData} logoColor={logoColor} comBorda={comBorda} setComBorda={setComBorda} clinicaNome={clinicaNome} setClinicaNome={setClinicaNome} logoLayout={logoLayout} />
+          ? <CartaoDeVisitaPreview accentColor={accentColor} patternSrc={patternSrc} cartaoContacts={cartaoContacts} crmLine={crmLine} editData={editData} logoColor={logoColor} comBorda={comBorda} setComBorda={setComBorda} clinicaNome={clinicaNome} setClinicaNome={setClinicaNome} logoLayout={logoLayout} paletteColors={paletteColors} borderColor={borderColor} setBorderColor={setBorderColor} />
           : currentItem === 'Atestado Médico'
-            ? <AtestadoPreview accentColor={accentColor} patternSrc={patternSrc} editData={editData} logoColor={logoColor} logoLayout={logoLayout} crmLine={crmLine} clinicaNome={clinicaNome} marca={marca} cartaoContacts={cartaoContacts} />
+            ? <AtestadoPreview accentColor={accentColor} patternSrc={patternSrc} editData={editData} logoColor={logoColor} logoLayout={logoLayout} crmLine={crmLine} clinicaNome={clinicaNome} marca={marca} cartaoContacts={cartaoContacts} comBorda={comBorda} setComBorda={setComBorda} paletteColors={paletteColors} borderColor={borderColor} setBorderColor={setBorderColor} />
             : ['Receituário','Timbrado','Cartão de Retorno','Cartão de Aniversário'].some(n => currentItem.includes(n))
-            ? <A5ItemPreview accentColor={accentColor} patternSrc={patternSrc} editData={editData} logoColor={logoColor} logoLayout={logoLayout} cartaoContacts={cartaoContacts} crmLine={crmLine} clinicaNome={clinicaNome} />
-            : <GenericItemPreview item={currentItem} marca={marca} accentColor={accentColor} patternSrc={patternSrc} editData={editData} logoColor={logoColor} logoLayout={logoLayout} />
+            ? <A5ItemPreview accentColor={accentColor} patternSrc={patternSrc} editData={editData} logoColor={logoColor} logoLayout={logoLayout} cartaoContacts={cartaoContacts} crmLine={crmLine} clinicaNome={clinicaNome} comBorda={comBorda} setComBorda={setComBorda} paletteColors={paletteColors} borderColor={borderColor} setBorderColor={setBorderColor} />
+            : <GenericItemPreview item={currentItem} marca={marca} accentColor={accentColor} patternSrc={patternSrc} editData={editData} logoColor={logoColor} logoLayout={logoLayout} comBorda={comBorda} setComBorda={setComBorda} paletteColors={paletteColors} borderColor={borderColor} setBorderColor={setBorderColor} />
         }
       </div>
 
