@@ -1449,6 +1449,7 @@ function PapelariaStep({ brand, accentColor, paletteColors, estampaPatterns, est
     const _brandFont = `'${brand.editData?.fontFamily || 'Playfair Display'}', serif`;
     const { endereco, whatsapp, telefone, telefone2, instagram, email, site } = cartaoContacts;
     const mainPhone = whatsapp || telefone || '';
+    const allPhones = [mainPhone, telefone2].filter(Boolean).join(' / ');
 
     const crmLine = isSaude && crmData.crm
       ? `CRM/${crmData.uf || 'UF'} ${crmData.crm}${crmData.rqe.length > 0 ? ' · RQE ' + crmData.rqe.join(' / RQE ') : ''}`
