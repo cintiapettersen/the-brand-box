@@ -936,53 +936,68 @@ function A5ItemPreview({ accentColor, patternSrc, editData, logoColor, logoLayou
   );
 }
 
-function AtestadoPreview({ accentColor, patternSrc, editData, logoColor, logoLayout, crmLine, clinicaNome, marca }) {
+function AtestadoPreview({ accentColor, patternSrc, editData, logoColor, logoLayout, crmLine, clinicaNome, marca, cartaoContacts }) {
   const BORDER = 14;
-  const sigName = clinicaNome || marca;
-  const Blank = ({ w }) => (
-    <span style={{ display: 'inline-block', borderBottom: '0.6px solid #555', width: w, verticalAlign: 'bottom', marginBottom: '1px' }}>&nbsp;</span>
+  const { whatsapp, telefone, instagram, site, endereco } = cartaoContacts || {};
+  const mainPhone = whatsapp || telefone || '';
+  const footerLine1 = [clinicaNome, mainPhone].filter(Boolean).join('  ·  ');
+  const footerLine2 = [instagram ? `@${instagram}` : '', site, endereco].filter(Boolean).join('  ·  ');
+  const B = ({ w }) => (
+    <span style={{ display: 'inline-block', borderBottom: '0.6px solid #555', width: w, verticalAlign: 'bottom' }}>&nbsp;</span>
   );
+  // Posições derivadas do SVG de referência (240.96×330) → preview (226×320)
+  // scaleY = 320/330 = 0.9697
   return (
     <div style={{ width: '226px', height: '320px', position: 'relative', boxShadow: '0 4px 20px rgba(0,0,0,0.12)', borderRadius: '4px', overflow: 'hidden', background: '#fff' }}>
       {patternSrc
         ? <><div style={{ position: 'absolute', inset: 0, backgroundImage: `url(${patternSrc})`, backgroundSize: '60px', backgroundRepeat: 'repeat' }} /><div style={{ position: 'absolute', top: BORDER, left: BORDER, right: BORDER, bottom: BORDER, background: '#fff' }} /></>
         : <div style={{ position: 'absolute', inset: 0, background: '#fff', border: `${BORDER}px solid ${accentColor}` }} />}
-      {/* Logo */}
-      <div style={{ position: 'absolute', top: BORDER + 8, left: '50%', transform: 'translateX(-50%)', width: '130px', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-        <LogoPreviewHTML editData={editData} color={logoColor} layout={logoLayout} scaleFactor={0.28} />
+
+      {/* Logo: 16mm abaixo da área branca → ~34px */}
+      <div style={{ position: 'absolute', top: '34px', left: '50%', transform: 'translateX(-50%)', width: '109px', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+        <LogoPreviewHTML editData={editData} color={logoColor} layout={logoLayout} scaleFactor={0.38} />
         {crmLine && <div style={{ fontFamily: "'Montserrat',sans-serif", fontSize: '3.5px', color: '#999', letterSpacing: '0.6px', textTransform: 'uppercase', marginTop: '2px', textAlign: 'center' }}>{crmLine}</div>}
       </div>
-      {/* Título + corpo */}
-      <div style={{ position: 'absolute', top: BORDER + 52, left: BORDER + 10, right: BORDER + 10, bottom: BORDER + 44, overflow: 'hidden' }}>
-        <div style={{ fontFamily: "'Montserrat',sans-serif", fontWeight: 800, fontSize: '7.5px', letterSpacing: '1.2px', textAlign: 'center', color: '#1a1a2e', marginBottom: '10px' }}>ATESTADO MÉDICO</div>
-        <div style={{ fontFamily: "'Montserrat',sans-serif", fontSize: '5px', color: '#333', display: 'flex', flexDirection: 'column', gap: '5px' }}>
-          {[
-            [['Declaro para os devidos fins, que', false], ['', true], [',', false]],
-            [['', 'fixed:26px'], ['esteve em consulta médica no dia', false]],
-            [['de hoje das', false], ['', 'fixed:10px'], ['hs às', false], ['', 'fixed:10px'], ['hs, acompanhado de seu responsá-', false]],
-            [['vel Sr. (a)', false], ['', true], [',', false]],
-            [['R.G. n°', false], ['', 'fixed:20px'], [', necessitando o', false], ['', true]],
-            [['', 'fixed:24px'], ['de', false], ['', 'fixed:10px'], ['(', false], ['', 'fixed:6px'], [') dias de dispensa.', false]],
-          ].map((row, ri) => (
-            <div key={ri} style={{ display: 'flex', alignItems: 'flex-end', gap: '1px' }}>
-              {row.map(([text, isBlank], ci) => isBlank === true
-                ? <span key={ci} style={{ flex: 1, borderBottom: '0.6px solid #555', marginBottom: '0.5px' }}>&nbsp;</span>
-                : isBlank && isBlank.startsWith('fixed:')
-                  ? <span key={ci} style={{ width: isBlank.replace('fixed:', ''), borderBottom: '0.6px solid #555', marginBottom: '0.5px', display: 'inline-block' }}>&nbsp;</span>
-                  : <span key={ci} style={{ whiteSpace: 'nowrap' }}>{text}</span>
-              )}
-            </div>
-          ))}
-        </div>
+
+      {/* Título: SVG y=84.65 → 82px */}
+      <div style={{ position: 'absolute', top: '82px', left: 0, right: 0, fontFamily: "'Montserrat',sans-serif", fontWeight: 800, fontSize: '7.5px', letterSpacing: '1.2px', textAlign: 'center', color: '#1a1a2e' }}>ATESTADO MÉDICO</div>
+
+      {/* Texto: padding horizontal de 9mm → ~25px */}
+      <div style={{ position: 'absolute', top: '118px', left: '25px', right: '22px', fontFamily: "'Montserrat',sans-serif", fontSize: '5.5px', color: '#333', display: 'flex', flexDirection: 'column', gap: '10px', lineHeight: 1.2 }}>
+        {[
+          [['Declaro para os devidos fins, que', false], ['', true], [',', false]],
+          [['esteve em consulta médica no dia de hoje das', false], ['', 'fixed:12px'], ['hs às', false], ['', 'fixed:12px'], ['hs,', false]],
+          [['acompanhado de seu responsável Sr. (a)', false], ['', true], [',', false]],
+          [['R.G. n°', false], ['', 'fixed:22px'], [', necessitando o', false], ['', true]],
+          [['', 'fixed:26px'], ['de', false], ['', 'fixed:12px'], ['(', false], ['', 'fixed:8px'], [') dias de dispensa.', false]],
+        ].map((row, ri) => (
+          <div key={ri} style={{ display: 'flex', alignItems: 'flex-end', gap: '1px' }}>
+            {row.map(([text, isBlank], ci) => isBlank === true
+              ? <span key={ci} style={{ flex: 1, borderBottom: '0.6px solid #555' }}>&nbsp;</span>
+              : isBlank && isBlank.startsWith('fixed:')
+                ? <span key={ci} style={{ width: isBlank.replace('fixed:', ''), borderBottom: '0.6px solid #555', display: 'inline-block' }}>&nbsp;</span>
+                : <span key={ci} style={{ whiteSpace: 'nowrap' }}>{text}</span>
+            )}
+          </div>
+        ))}
       </div>
-      {/* Rodapé assinatura */}
-      <div style={{ position: 'absolute', bottom: BORDER + 6, left: BORDER + 8, right: BORDER + 8, textAlign: 'center' }}>
-        <div style={{ width: '80%', margin: '0 auto', borderTop: '0.5px solid #bbb', paddingTop: '4px', fontFamily: "'Montserrat',sans-serif", fontSize: '4.5px', color: '#888', marginBottom: '4px' }}>
-          <Blank w="18px" />, <Blank w="9px" /> de <Blank w="16px" /> de <Blank w="9px" />
-        </div>
-        <div style={{ fontFamily: `'${editData?.fontFamily || 'Playfair Display'}',serif`, fontSize: '6.5px', fontWeight: editData?.fontWeight || 700, color: accentColor }}>{sigName}</div>
-        {crmLine && <div style={{ fontFamily: "'Montserrat',sans-serif", fontSize: '4px', color: '#888', marginTop: '2px' }}>{crmLine}</div>}
+
+      {/* Data/cidade: SVG y=222.64 → 216px */}
+      <div style={{ position: 'absolute', top: '216px', left: 0, right: 0, textAlign: 'center', fontFamily: "'Montserrat',sans-serif", fontSize: '4.5px', color: '#555' }}>
+        <B w="26px" />, <B w="9px" /> de <B w="16px" /> de <B w="9px" />
       </div>
+
+      {/* Assinatura: SVG y=251.6 → 244px */}
+      <div style={{ position: 'absolute', top: '244px', left: '20%', right: '20%', borderTop: '0.5px solid #555', paddingTop: '3px', textAlign: 'center', fontFamily: "'Montserrat',sans-serif", fontSize: '4px', color: '#888', letterSpacing: '0.5px' }}>assinatura / carimbo</div>
+
+      {/* Rodapé: SVG y=309 → bottom */}
+      {(footerLine1 || footerLine2) && <>
+        <div style={{ position: 'absolute', bottom: BORDER + 3, left: BORDER + 4, right: BORDER + 4, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '2px' }}>
+          {footerLine1 && <div style={{ fontFamily: "'Montserrat',sans-serif", fontSize: '4.5px', color: '#555', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', maxWidth: '100%', textAlign: 'center' }}>{footerLine1}</div>}
+          {footerLine2 && <div style={{ fontFamily: "'Montserrat',sans-serif", fontSize: '4.5px', color: '#888', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', maxWidth: '100%', textAlign: 'center' }}>{footerLine2}</div>}
+        </div>
+        <div style={{ position: 'absolute', bottom: BORDER + (footerLine1 && footerLine2 ? 18 : 11), left: BORDER + 8, right: BORDER + 8, height: '0.5px', background: '#e0e0e0' }} />
+      </>}
     </div>
   );
 }
@@ -1219,36 +1234,49 @@ ${versoHtml}
       const _pat2 = patternSrc
         ? `<div style="position:absolute;inset:0;background-image:url(${patternSrc});background-size:35mm;background-repeat:repeat;"></div><div style="position:absolute;top:${_bw};left:${_bw};right:${_bw};bottom:${_bw};background:#fff;"></div>`
         : `<div style="position:absolute;inset:0;background:#fff;"></div>`;
-      const _sigName = clinicaNome || marca;
-      const _sigLine = [_sigName, crmLine].filter(Boolean);
+      const _atFooter1 = [clinicaNome, mainPhone].filter(Boolean).join(' · ');
+      const _atFooter2 = [instagram ? `@${instagram}` : '', site, endereco].filter(Boolean).join(' · ');
+      const _atFooterHtml = (_atFooter1 || _atFooter2) ? `
+        <div style="position:absolute;bottom:${_bw};left:${_bw};right:${_bw};text-align:center;font-family:'Montserrat',sans-serif;color:#555;line-height:1.7;">
+          ${_atFooter1 ? `<div style="font-size:6pt;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${_atFooter1}</div>` : ''}
+          ${_atFooter2 ? `<div style="font-size:5.5pt;color:#888;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${_atFooter2}</div>` : ''}
+        </div>
+        <div style="position:absolute;bottom:${(_atFooter1 && _atFooter2) ? '11mm' : '7mm'};left:${_bw};right:${_bw};height:0.5px;background:#e0e0e0;"></div>` : '';
+      const _atBottom = (_atFooter1 || _atFooter2) ? ((_atFooter1 && _atFooter2) ? '14mm' : '10mm') : _bw;
+      // Posições derivadas do SVG de referência (240.96×330) → A5 (148×210mm)
+      // scaleY = 210/330 = 0.6364  |  posições inside do content div (top:8mm) = pos_mm - 8
       const _atHtml = `<!DOCTYPE html><html lang="pt-BR"><head><meta charset="UTF-8"><title>Atestado Médico - ${marca}</title>${fi2}
 <style>* { box-sizing:border-box; margin:0; padding:0; print-color-adjust:exact !important; -webkit-print-color-adjust:exact !important; }
 body { margin:0; } @media print { @page { size: A5 portrait; margin:0; } }
-.blank { display:inline-block; border-bottom:0.8px solid #333; vertical-align:bottom; }
+.blank { display:inline-block; border-bottom:0.8px solid #555; vertical-align:bottom; }
 </style></head><body>
 <div style="position:relative;width:148mm;height:210mm;overflow:hidden;">
   ${_pat2}
-  <div style="position:absolute;top:${_bw};left:${_bw};right:${_bw};bottom:${_bw};display:flex;flex-direction:column;padding:6mm 8mm;font-family:'Montserrat',sans-serif;">
-    <div style="text-align:center;font-family:'Montserrat',sans-serif;font-size:14pt;font-weight:800;letter-spacing:2.5pt;color:#1a1a2e;margin-bottom:12mm;">ATESTADO MÉDICO</div>
-    <div style="font-size:10pt;color:#222;flex:1;display:flex;flex-direction:column;gap:5.5mm;">
+  ${_atFooterHtml}
+  <div style="position:absolute;top:${_bw};left:${_bw};right:${_bw};bottom:${_atBottom};font-family:'Montserrat',sans-serif;">
+
+    <!-- Logo: 16mm abaixo do início da área branca -->
+    <div style="position:absolute;top:16mm;left:50%;transform:translateX(-50%);width:48mm;display:inline-flex;flex-direction:column;align-items:center;">${logoHtml}</div>
+
+    <!-- Título -->
+    <div style="position:absolute;top:48mm;left:0;right:0;text-align:center;font-size:14pt;font-weight:800;letter-spacing:2.5pt;color:#1a1a2e;">ATESTADO MÉDICO</div>
+
+    <!-- Texto: padding horizontal de 9mm de cada lado -->
+    <div style="position:absolute;top:69mm;left:9mm;right:9mm;font-size:11pt;color:#222;display:flex;flex-direction:column;gap:6mm;line-height:1.2;">
       <div style="display:flex;align-items:flex-end;gap:1mm;">
         <span style="white-space:nowrap;">Declaro para os devidos fins, que</span>
         <span class="blank" style="flex:1;">&nbsp;</span>
         <span>,</span>
       </div>
       <div style="display:flex;align-items:flex-end;gap:1mm;">
-        <span class="blank" style="width:45mm;">&nbsp;</span>
-        <span style="white-space:nowrap;">esteve em consulta médica no dia</span>
-      </div>
-      <div style="display:flex;align-items:flex-end;gap:1mm;">
-        <span style="white-space:nowrap;">de hoje das</span>
+        <span style="white-space:nowrap;">esteve em consulta médica no dia de hoje das</span>
         <span class="blank" style="width:18mm;">&nbsp;</span>
         <span style="white-space:nowrap;">hs às</span>
         <span class="blank" style="width:18mm;">&nbsp;</span>
-        <span style="white-space:nowrap;">hs, acompanhado de seu responsá-</span>
+        <span style="white-space:nowrap;">hs,</span>
       </div>
       <div style="display:flex;align-items:flex-end;gap:1mm;">
-        <span style="white-space:nowrap;">vel Sr. (a)</span>
+        <span style="white-space:nowrap;">acompanhado de seu responsável Sr. (a)</span>
         <span class="blank" style="flex:1;">&nbsp;</span>
         <span>,</span>
       </div>
@@ -1265,13 +1293,16 @@ body { margin:0; } @media print { @page { size: A5 portrait; margin:0; } }
         <span style="white-space:nowrap;">(</span><span class="blank" style="width:10mm;">&nbsp;</span><span style="white-space:nowrap;">) dias de dispensa.</span>
       </div>
     </div>
-    <div style="margin-top:16mm;text-align:center;font-size:9pt;color:#333;">
-      <span class="blank" style="width:28mm;">&nbsp;</span>, <span class="blank" style="width:10mm;">&nbsp;</span>
+
+    <!-- Data/cidade: SVG y=222.64 → 141mm page → 133mm content -->
+    <div style="position:absolute;top:133mm;left:0;right:0;text-align:center;font-size:9pt;color:#555;">
+      <span class="blank" style="width:38mm;">&nbsp;</span>, <span class="blank" style="width:10mm;">&nbsp;</span>
       de <span class="blank" style="width:22mm;">&nbsp;</span> de <span class="blank" style="width:12mm;">&nbsp;</span>
     </div>
-    <div style="margin-top:12mm;text-align:center;">
-      ${_sigLine.map((l, i) => `<div style="font-family:'${_fa2}',serif;font-size:${i===0?'11':'8'}pt;font-weight:${i===0?700:400};color:${accentColor};letter-spacing:${i===0?'1pt':'0.5pt'};">${l}</div>`).join('')}
-    </div>
+
+    <!-- Assinatura: SVG y=251.6 → 160mm page → 152mm content -->
+    <div style="position:absolute;top:152mm;left:20%;right:20%;border-top:0.7px solid #555;padding-top:3mm;text-align:center;font-size:8pt;color:#888;letter-spacing:1pt;">assinatura / carimbo</div>
+
   </div>
 </div></body></html>`;
       const _dt = `Atestado Médico - ${marca}`;
@@ -1428,7 +1459,7 @@ ${fontImports2}
         {currentItem === 'Cartão de Visita'
           ? <CartaoDeVisitaPreview accentColor={accentColor} patternSrc={patternSrc} cartaoContacts={cartaoContacts} crmLine={crmLine} editData={editData} logoColor={logoColor} comBorda={comBorda} setComBorda={setComBorda} clinicaNome={clinicaNome} setClinicaNome={setClinicaNome} logoLayout={logoLayout} />
           : currentItem === 'Atestado Médico'
-            ? <AtestadoPreview accentColor={accentColor} patternSrc={patternSrc} editData={editData} logoColor={logoColor} logoLayout={logoLayout} crmLine={crmLine} clinicaNome={clinicaNome} marca={marca} />
+            ? <AtestadoPreview accentColor={accentColor} patternSrc={patternSrc} editData={editData} logoColor={logoColor} logoLayout={logoLayout} crmLine={crmLine} clinicaNome={clinicaNome} marca={marca} cartaoContacts={cartaoContacts} />
             : ['Receituário','Timbrado','Cartão de Retorno','Cartão de Aniversário'].some(n => currentItem.includes(n))
             ? <A5ItemPreview accentColor={accentColor} patternSrc={patternSrc} editData={editData} logoColor={logoColor} logoLayout={logoLayout} cartaoContacts={cartaoContacts} crmLine={crmLine} clinicaNome={clinicaNome} />
             : <GenericItemPreview item={currentItem} marca={marca} accentColor={accentColor} patternSrc={patternSrc} editData={editData} logoColor={logoColor} logoLayout={logoLayout} />
