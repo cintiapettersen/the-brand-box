@@ -1452,8 +1452,10 @@ function PapelariaStep({ brand, accentColor, paletteColors, estampaPatterns, est
     const allPhones = [mainPhone, telefone2].filter(Boolean).join(' / ');
 
     const crmLine = isSaude && crmData.crm
-      ? `CRM/${crmData.uf || 'UF'} ${crmData.crm}${crmData.rqe.length > 0 ? ' · RQE ' + crmData.rqe.join(' / RQE ') : ''}`
+      ? `CRM/${crmData.uf || 'UF'} ${crmData.crm}${crmData.rqe?.length > 0 ? ' · RQE ' + crmData.rqe.filter(Boolean).join(' / RQE ') : ''}`
       : null;
+    
+    const localSlogan = brand.editData?.tagline || tagline || '';
     
     // Suporte a ocultar tagline e mostrar CRM no gabarito
     const logoHtml = `
@@ -1785,17 +1787,17 @@ ${versoHtml}
       const solidColor = borderColor || accentColor;
       const genPattern = (scaleMul = 1) => patternSrc ? `<div style="position:absolute;inset:0;background-image:url(${patternSrc});background-size:${(patternScale * scaleMul).toFixed(1)}mm;opacity:1;"></div>` : '';
 
-      const abaHtml = `<div style="position:absolute;top:${BLEED}mm;left:${BLEED + COLA_V}mm;width:${W}mm;height:${ABA}mm;background:${solidColor};"></div>`;
+      const abaHtml = `<div style="position:absolute;top:0;left:${COLA_V}mm;width:${W + BLEED*2}mm;height:${ABA + BLEED}mm;background:${solidColor};"></div>`;
 
       const frenteHtml = `
-        <div style="position:absolute;top:${BLEED + ABA + H}mm;left:${BLEED + COLA_V}mm;width:${W}mm;height:${H}mm;background:#fff;position:relative;overflow:hidden;">
+        <div style="position:absolute;top:${BLEED + ABA + H}mm;left:${BLEED + COLA_V}mm;width:${W}mm;height:${H + BLEED}mm;background:#fff;position:relative;overflow:hidden;">
            <div style="position:absolute;bottom:30mm;right:30mm;transform:scale(2.5);transform-origin:right bottom;">${logoHtmlWithCrm}</div>
         </div>`;
 
       const versoHtml = `
-        <div style="position:absolute;top:${BLEED + ABA}mm;left:${BLEED + COLA_V}mm;width:${W}mm;height:${H}mm;background:#fff;transform:rotate(180deg);position:relative;overflow:hidden;">
-            ${genPattern(0.9)}
-            <div style="position:absolute;bottom:20mm;left:15mm;right:15mm;background:rgba(255,255,255,0.95);padding:8mm;border-radius:2mm;display:flex;flex-direction:column;align-items:center;justify-content:center;border:0.2mm solid #eee;backdrop-filter:blur(3mm);text-align:center;">
+        <div style="position:absolute;top:${BLEED + ABA}mm;left:0;width:${totalW}mm;height:${H}mm;background:#fff;transform:rotate(180deg);position:relative;overflow:hidden;">
+            <div style="position:absolute;inset:0 ${COLA_V}mm;">${genPattern(0.9)}</div>
+            <div style="position:absolute;bottom:20mm;left:${COLA_V + 15}mm;right:${COLA_V + 15}mm;background:rgba(255,255,255,0.95);padding:8mm;border-radius:2mm;display:flex;flex-direction:column;align-items:center;justify-content:center;border:0.2mm solid #eee;backdrop-filter:blur(3mm);text-align:center;">
                <div style="font-size:10pt;color:#666;font-family:'Montserrat',sans-serif;line-height:1.4;">
                   <div style="opacity:0.8;">${endereco}</div>
                   <div style="font-weight:700;color:#333;font-size:12pt;margin:2mm 0;">${allPhones}</div>
@@ -1831,17 +1833,17 @@ body { width:${totalW}mm; height:${totalH}mm; position:relative; overflow:hidden
       const solidColor = borderColor || accentColor;
       const genPattern = (scaleMul = 1) => patternSrc ? `<div style="position:absolute;inset:0;background-image:url(${patternSrc});background-size:${(patternScale * scaleMul).toFixed(1)}mm;opacity:1;"></div>` : '';
 
-      const abaHtml = `<div style="position:absolute;top:${BLEED}mm;left:${BLEED + COLA}mm;width:${W}mm;height:${ABA}mm;background:${solidColor};"></div>`;
+      const abaHtml = `<div style="position:absolute;top:0;left:${COLA}mm;width:${W + BLEED*2}mm;height:${ABA + BLEED}mm;background:${solidColor};"></div>`;
 
       const frenteHtml = `
-        <div style="position:absolute;top:${BLEED + ABA + H}mm;left:${BLEED + COLA}mm;width:${W}mm;height:${H}mm;background:#fff;position:relative;overflow:hidden;">
+        <div style="position:absolute;top:${BLEED + ABA + H}mm;left:${BLEED + COLA}mm;width:${W}mm;height:${H + BLEED}mm;background:#fff;position:relative;overflow:hidden;">
            <div style="position:absolute;bottom:8mm;right:8mm;transform:scale(2);transform-origin:right bottom;">${logoHtmlWithCrm}</div>
         </div>`;
 
       const versoHtml = `
-        <div style="position:absolute;top:${BLEED + ABA}mm;left:${BLEED + COLA}mm;width:${W}mm;height:${H}mm;background:#fff;transform:rotate(180deg);position:relative;overflow:hidden;">
-            ${genPattern(0.6)}
-            <div style="position:absolute;bottom:10mm;left:10mm;right:10mm;background:rgba(255,255,255,0.95);padding:6mm;border-radius:1.5mm;display:flex;flex-direction:column;align-items:center;justify-content:center;border:0.1mm solid #eee;backdrop-filter:blur(3mm);text-align:center;">
+        <div style="position:absolute;top:${BLEED + ABA}mm;left:0;width:${totalW}mm;height:${H}mm;background:#fff;transform:rotate(180deg);position:relative;overflow:hidden;">
+            <div style="position:absolute;inset:0 ${COLA}mm;">${genPattern(0.6)}</div>
+            <div style="position:absolute;bottom:10mm;left:${COLA + 10}mm;right:${COLA + 10}mm;background:rgba(255,255,255,0.95);padding:6mm;border-radius:1.5mm;display:flex;flex-direction:column;align-items:center;justify-content:center;border:0.1mm solid #eee;backdrop-filter:blur(3mm);text-align:center;">
                <div style="font-size:6.5pt;color:#666;font-family:'Montserrat',sans-serif;line-height:1.4;">
                   <div style="opacity:0.8;">${endereco}</div>
                   <div style="font-weight:700;color:#333;font-size:8pt;margin:1.5mm 0;">${allPhones}</div>
