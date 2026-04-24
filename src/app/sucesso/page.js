@@ -11,7 +11,7 @@ const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
 );
 
-function LogoPreviewHTML({ editData, color, layout = 'stacked' }) {
+function LogoPreviewHTML({ editData, color, layout = 'stacked', scaleFactor = 1 }) {
   const isScript = editData?.fontStyle === 'script';
   const sizeBoost = editData?.fontSizeBoost || 1;
   const marca = editData?.marca || '';
@@ -19,7 +19,6 @@ function LogoPreviewHTML({ editData, color, layout = 'stacked' }) {
     isScript ? w.charAt(0).toUpperCase() + w.slice(1).toLowerCase() : w.toUpperCase()
   );
 
-  // Calcula linhas e tamanho de fonte de acordo com o layout
   let lines, baseSize;
   if (layout === 'horizontal') {
     lines = [words.join(' ')];
@@ -29,11 +28,10 @@ function LogoPreviewHTML({ editData, color, layout = 'stacked' }) {
     lines = [words.slice(0, mid).join(' '), words.slice(mid).join(' ')];
     baseSize = marca.length > 15 ? 1.3 : 1.7;
   } else {
-    // stacked: uma palavra por linha (comportamento original)
     lines = words;
     baseSize = words.length >= 3 ? (marca.length > 15 ? 1.1 : 1.4) : words.length === 2 ? 1.8 : 2.4;
   }
-  const fontSize = `${(baseSize * sizeBoost).toFixed(1)}rem`;
+  const fontSize = `${(baseSize * sizeBoost * scaleFactor).toFixed(2)}rem`;
 
   return (
     <div style={{ width: '100%', height: '100%', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
@@ -56,7 +54,7 @@ function LogoPreviewHTML({ editData, color, layout = 'stacked' }) {
         ))}
       </div>
       {editData?.tagline && (
-        <div style={{ fontFamily: "'Montserrat', sans-serif", fontSize: '0.45rem', letterSpacing: '1.5px', textTransform: 'uppercase', color: '#999', marginTop: '8px', textAlign: 'center', lineHeight: 1.4, maxWidth: '100%' }}>
+        <div style={{ fontFamily: "'Montserrat', sans-serif", fontSize: `${(0.45 * scaleFactor).toFixed(2)}rem`, letterSpacing: '1.5px', textTransform: 'uppercase', color: '#999', marginTop: `${8 * scaleFactor}px`, textAlign: 'center', lineHeight: 1.4, maxWidth: '100%' }}>
           {editData.tagline}
         </div>
       )}
@@ -892,6 +890,103 @@ function CartaoDeVisitaPreview({ accentColor, patternSrc, cartaoContacts, crmLin
   );
 }
 
+// Preview proporcional A5 — usado por receituário, timbrado, etc.
+function A5ItemPreview({ accentColor, patternSrc, editData, logoColor, logoLayout, cartaoContacts, crmLine, clinicaNome }) {
+  const BORDER = 14;
+  const { whatsapp, telefone, instagram, site, endereco } = cartaoContacts || {};
+  const mainPhone = whatsapp || telefone || '';
+  // Cada dado é um item separado — sem quebra no meio de um dado
+  const footerItems = [
+    clinicaNome,
+    mainPhone,
+    instagram ? `@${instagram}` : '',
+    site,
+    endereco,
+  ].filter(Boolean);
+
+  return (
+    <div style={{ width: '226px', height: '320px', position: 'relative', boxShadow: '0 4px 20px rgba(0,0,0,0.12)', borderRadius: '4px', overflow: 'hidden', background: '#fff' }}>
+      {/* Borda de estampa */}
+      {patternSrc
+        ? <div style={{ position: 'absolute', inset: 0, backgroundImage: `url(${patternSrc})`, backgroundSize: '60px', backgroundRepeat: 'repeat' }} />
+        : <div style={{ position: 'absolute', inset: 0, background: accentColor }} />}
+      {/* Área branca interna */}
+      <div style={{ position: 'absolute', top: BORDER, left: BORDER, right: BORDER, bottom: BORDER, background: '#fff' }} />
+      {/* Logo no topo — ~20% da largura interna */}
+      <div style={{ position: 'absolute', top: BORDER + 14, left: '50%', transform: 'translateX(-50%)', width: '130px', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+        <LogoPreviewHTML editData={editData} color={logoColor} layout={logoLayout} scaleFactor={0.38} />
+        {crmLine && <div style={{ fontFamily: "'Montserrat',sans-serif", fontSize: '4px', color: '#999', letterSpacing: '0.8px', textTransform: 'uppercase', marginTop: '2px', textAlign: 'center', whiteSpace: 'nowrap' }}>{crmLine}</div>}
+      </div>
+      {/* Rodapé — linha 1: clínica · telefone  /  linha 2: @ig · site · endereço */}
+      <div style={{ position: 'absolute', bottom: BORDER + 3, left: BORDER + 4, right: BORDER + 4, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '2px' }}>
+        {(clinicaNome || mainPhone) && (
+          <div style={{ fontFamily: "'Montserrat',sans-serif", fontSize: '4.5px', color: '#555', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', maxWidth: '100%', textAlign: 'center' }}>
+            {[clinicaNome, mainPhone].filter(Boolean).join('  ·  ')}
+          </div>
+        )}
+        {(instagram || site || endereco) && (
+          <div style={{ fontFamily: "'Montserrat',sans-serif", fontSize: '4.5px', color: '#888', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', maxWidth: '100%', textAlign: 'center' }}>
+            {[instagram ? `@${instagram}` : '', site, endereco].filter(Boolean).join('  ·  ')}
+          </div>
+        )}
+      </div>
+      {/* Linha separadora rodapé */}
+      <div style={{ position: 'absolute', bottom: BORDER + (clinicaNome || mainPhone ? 12 : 6) + (instagram || site || endereco ? 8 : 0), left: BORDER + 8, right: BORDER + 8, height: '0.5px', background: '#e0e0e0' }} />
+    </div>
+  );
+}
+
+function AtestadoPreview({ accentColor, patternSrc, editData, logoColor, logoLayout, crmLine, clinicaNome, marca }) {
+  const BORDER = 14;
+  const sigName = clinicaNome || marca;
+  const Blank = ({ w }) => (
+    <span style={{ display: 'inline-block', borderBottom: '0.6px solid #555', width: w, verticalAlign: 'bottom', marginBottom: '1px' }}>&nbsp;</span>
+  );
+  return (
+    <div style={{ width: '226px', height: '320px', position: 'relative', boxShadow: '0 4px 20px rgba(0,0,0,0.12)', borderRadius: '4px', overflow: 'hidden', background: '#fff' }}>
+      {patternSrc
+        ? <><div style={{ position: 'absolute', inset: 0, backgroundImage: `url(${patternSrc})`, backgroundSize: '60px', backgroundRepeat: 'repeat' }} /><div style={{ position: 'absolute', top: BORDER, left: BORDER, right: BORDER, bottom: BORDER, background: '#fff' }} /></>
+        : <div style={{ position: 'absolute', inset: 0, background: '#fff', border: `${BORDER}px solid ${accentColor}` }} />}
+      {/* Logo */}
+      <div style={{ position: 'absolute', top: BORDER + 8, left: '50%', transform: 'translateX(-50%)', width: '130px', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+        <LogoPreviewHTML editData={editData} color={logoColor} layout={logoLayout} scaleFactor={0.28} />
+        {crmLine && <div style={{ fontFamily: "'Montserrat',sans-serif", fontSize: '3.5px', color: '#999', letterSpacing: '0.6px', textTransform: 'uppercase', marginTop: '2px', textAlign: 'center' }}>{crmLine}</div>}
+      </div>
+      {/* Título + corpo */}
+      <div style={{ position: 'absolute', top: BORDER + 52, left: BORDER + 10, right: BORDER + 10, bottom: BORDER + 44, overflow: 'hidden' }}>
+        <div style={{ fontFamily: "'Montserrat',sans-serif", fontWeight: 800, fontSize: '7.5px', letterSpacing: '1.2px', textAlign: 'center', color: '#1a1a2e', marginBottom: '10px' }}>ATESTADO MÉDICO</div>
+        <div style={{ fontFamily: "'Montserrat',sans-serif", fontSize: '5px', color: '#333', display: 'flex', flexDirection: 'column', gap: '5px' }}>
+          {[
+            [['Declaro para os devidos fins, que', false], ['', true], [',', false]],
+            [['', 'fixed:26px'], ['esteve em consulta médica no dia', false]],
+            [['de hoje das', false], ['', 'fixed:10px'], ['hs às', false], ['', 'fixed:10px'], ['hs, acompanhado de seu responsá-', false]],
+            [['vel Sr. (a)', false], ['', true], [',', false]],
+            [['R.G. n°', false], ['', 'fixed:20px'], [', necessitando o', false], ['', true]],
+            [['', 'fixed:24px'], ['de', false], ['', 'fixed:10px'], ['(', false], ['', 'fixed:6px'], [') dias de dispensa.', false]],
+          ].map((row, ri) => (
+            <div key={ri} style={{ display: 'flex', alignItems: 'flex-end', gap: '1px' }}>
+              {row.map(([text, isBlank], ci) => isBlank === true
+                ? <span key={ci} style={{ flex: 1, borderBottom: '0.6px solid #555', marginBottom: '0.5px' }}>&nbsp;</span>
+                : isBlank && isBlank.startsWith('fixed:')
+                  ? <span key={ci} style={{ width: isBlank.replace('fixed:', ''), borderBottom: '0.6px solid #555', marginBottom: '0.5px', display: 'inline-block' }}>&nbsp;</span>
+                  : <span key={ci} style={{ whiteSpace: 'nowrap' }}>{text}</span>
+              )}
+            </div>
+          ))}
+        </div>
+      </div>
+      {/* Rodapé assinatura */}
+      <div style={{ position: 'absolute', bottom: BORDER + 6, left: BORDER + 8, right: BORDER + 8, textAlign: 'center' }}>
+        <div style={{ width: '80%', margin: '0 auto', borderTop: '0.5px solid #bbb', paddingTop: '4px', fontFamily: "'Montserrat',sans-serif", fontSize: '4.5px', color: '#888', marginBottom: '4px' }}>
+          <Blank w="18px" />, <Blank w="9px" /> de <Blank w="16px" /> de <Blank w="9px" />
+        </div>
+        <div style={{ fontFamily: `'${editData?.fontFamily || 'Playfair Display'}',serif`, fontSize: '6.5px', fontWeight: editData?.fontWeight || 700, color: accentColor }}>{sigName}</div>
+        {crmLine && <div style={{ fontFamily: "'Montserrat',sans-serif", fontSize: '4px', color: '#888', marginTop: '2px' }}>{crmLine}</div>}
+      </div>
+    </div>
+  );
+}
+
 function GenericItemPreview({ item, marca, accentColor, patternSrc, editData, logoColor, logoLayout }) {
   return (
     <div style={{ width: '320px', height: '220px', position: 'relative', background: '#fff', overflow: 'hidden', boxShadow: '0 4px 20px rgba(0,0,0,0.12)', borderRadius: '8px', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: '12px' }}>
@@ -1115,57 +1210,166 @@ ${versoHtml}
       return;
     }
 
-    // ── OUTROS ITENS (template genérico) ───────────────────────────
-    let sizeCSS = '@page { size: A4 portrait; margin: 0; }';
-    let containerStyle = 'width: 210mm; height: 297mm;';
-    if (item.includes('Tag') || item.includes('Agradecimento')) {
-       sizeCSS = '@page { size: 90mm 50mm; margin: 0; }'; containerStyle = 'width: 90mm; height: 50mm;';
-    } else if (item.includes('Envelope')) {
-       sizeCSS = '@page { size: 240mm 340mm; margin: 0; }'; containerStyle = 'width: 240mm; height: 340mm;';
+    // ── ATESTADO MÉDICO ─────────────────────────────────────────────
+    if (item === 'Atestado Médico') {
+      const _fa2 = brand.editData?.fontFamily || 'Playfair Display';
+      const _lf2 = LOCAL_FONT_FACES[_fa2];
+      const fi2 = `<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;600;700&display=swap" rel="stylesheet">${_lf2 ? `<style>${_lf2}</style>` : `<link href="https://fonts.googleapis.com/css2?family=${_fa2.replace(/ /g,'+')}:wght@400;700&display=swap" rel="stylesheet">`}`;
+      const _bw = '8mm';
+      const _pat2 = patternSrc
+        ? `<div style="position:absolute;inset:0;background-image:url(${patternSrc});background-size:35mm;background-repeat:repeat;"></div><div style="position:absolute;top:${_bw};left:${_bw};right:${_bw};bottom:${_bw};background:#fff;"></div>`
+        : `<div style="position:absolute;inset:0;background:#fff;"></div>`;
+      const _sigName = clinicaNome || marca;
+      const _sigLine = [_sigName, crmLine].filter(Boolean);
+      const _atHtml = `<!DOCTYPE html><html lang="pt-BR"><head><meta charset="UTF-8"><title>Atestado Médico - ${marca}</title>${fi2}
+<style>* { box-sizing:border-box; margin:0; padding:0; print-color-adjust:exact !important; -webkit-print-color-adjust:exact !important; }
+body { margin:0; } @media print { @page { size: A5 portrait; margin:0; } }
+.blank { display:inline-block; border-bottom:0.8px solid #333; vertical-align:bottom; }
+</style></head><body>
+<div style="position:relative;width:148mm;height:210mm;overflow:hidden;">
+  ${_pat2}
+  <div style="position:absolute;top:${_bw};left:${_bw};right:${_bw};bottom:${_bw};display:flex;flex-direction:column;padding:6mm 8mm;font-family:'Montserrat',sans-serif;">
+    <div style="text-align:center;font-family:'Montserrat',sans-serif;font-size:14pt;font-weight:800;letter-spacing:2.5pt;color:#1a1a2e;margin-bottom:12mm;">ATESTADO MÉDICO</div>
+    <div style="font-size:10pt;color:#222;flex:1;display:flex;flex-direction:column;gap:5.5mm;">
+      <div style="display:flex;align-items:flex-end;gap:1mm;">
+        <span style="white-space:nowrap;">Declaro para os devidos fins, que</span>
+        <span class="blank" style="flex:1;">&nbsp;</span>
+        <span>,</span>
+      </div>
+      <div style="display:flex;align-items:flex-end;gap:1mm;">
+        <span class="blank" style="width:45mm;">&nbsp;</span>
+        <span style="white-space:nowrap;">esteve em consulta médica no dia</span>
+      </div>
+      <div style="display:flex;align-items:flex-end;gap:1mm;">
+        <span style="white-space:nowrap;">de hoje das</span>
+        <span class="blank" style="width:18mm;">&nbsp;</span>
+        <span style="white-space:nowrap;">hs às</span>
+        <span class="blank" style="width:18mm;">&nbsp;</span>
+        <span style="white-space:nowrap;">hs, acompanhado de seu responsá-</span>
+      </div>
+      <div style="display:flex;align-items:flex-end;gap:1mm;">
+        <span style="white-space:nowrap;">vel Sr. (a)</span>
+        <span class="blank" style="flex:1;">&nbsp;</span>
+        <span>,</span>
+      </div>
+      <div style="display:flex;align-items:flex-end;gap:1mm;">
+        <span style="white-space:nowrap;">R.G. n°</span>
+        <span class="blank" style="width:35mm;">&nbsp;</span>
+        <span style="white-space:nowrap;">, necessitando o</span>
+        <span class="blank" style="flex:1;">&nbsp;</span>
+      </div>
+      <div style="display:flex;align-items:flex-end;gap:1mm;">
+        <span class="blank" style="width:40mm;">&nbsp;</span>
+        <span style="white-space:nowrap;">de</span>
+        <span class="blank" style="width:18mm;">&nbsp;</span>
+        <span style="white-space:nowrap;">(</span><span class="blank" style="width:10mm;">&nbsp;</span><span style="white-space:nowrap;">) dias de dispensa.</span>
+      </div>
+    </div>
+    <div style="margin-top:16mm;text-align:center;font-size:9pt;color:#333;">
+      <span class="blank" style="width:28mm;">&nbsp;</span>, <span class="blank" style="width:10mm;">&nbsp;</span>
+      de <span class="blank" style="width:22mm;">&nbsp;</span> de <span class="blank" style="width:12mm;">&nbsp;</span>
+    </div>
+    <div style="margin-top:12mm;text-align:center;">
+      ${_sigLine.map((l, i) => `<div style="font-family:'${_fa2}',serif;font-size:${i===0?'11':'8'}pt;font-weight:${i===0?700:400};color:${accentColor};letter-spacing:${i===0?'1pt':'0.5pt'};">${l}</div>`).join('')}
+    </div>
+  </div>
+</div></body></html>`;
+      const _dt = `Atestado Médico - ${marca}`;
+      const _ex = document.getElementById('_gabarito_iframe'); if (_ex) _ex.remove();
+      const _if = document.createElement('iframe');
+      _if.id = '_gabarito_iframe';
+      _if.style.cssText = 'position:fixed;top:-9999px;left:-9999px;width:200mm;height:280mm;border:none;visibility:hidden;';
+      document.body.appendChild(_if);
+      _if.contentDocument.open(); _if.contentDocument.write(_atHtml); _if.contentDocument.close();
+      _if.contentDocument.title = _dt;
+      const _pv = document.title;
+      _if.contentWindow.document.fonts.ready.then(() => { setTimeout(() => { document.title = _dt; _if.contentWindow.focus(); _if.contentWindow.print(); setTimeout(() => { document.title = _pv; _if.remove(); }, 3000); }, 400); });
+      return;
     }
 
-    const footerHtml = (endereco || mainPhone || instagram) ? `
-      <div style="position: absolute; bottom: 0; left: 0; width: 100%; background: ${accentColor}; color: #fff; padding: 12mm; display: flex; justify-content: space-between; align-items: center; font-size: 10pt; font-family: 'Montserrat', sans-serif;">
-        <div style="max-width: 60%;">${endereco || ''}</div>
-        <div style="display: flex; gap: 15px;">
-           ${instagram ? `<span>${instagram}</span>` : ''}
-           ${mainPhone ? `<strong>${mainPhone}</strong>` : ''}
-        </div>
+    // ── OUTROS ITENS ────────────────────────────────────────────────
+    const _fontFamily2 = brand.editData?.fontFamily || 'Playfair Display';
+    const _localFace2 = LOCAL_FONT_FACES[_fontFamily2];
+    const fontImports2 = `
+      <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;600;700&display=swap" rel="stylesheet">
+      ${_localFace2
+        ? `<style>${_localFace2}</style>`
+        : `<link href="https://fonts.googleapis.com/css2?family=${_fontFamily2.replace(/ /g, '+')}:wght@400;700&display=swap" rel="stylesheet">`
+      }`;
+
+    // Tamanho de página por item
+    const PAGE_SIZES = {
+      'Receituário':         { w: '148mm', h: '210mm', page: 'size: A5 portrait' },
+      'Timbrado':            { w: '210mm', h: '297mm', page: 'size: A4 portrait' },
+      'Cartão de Retorno':   { w: '105mm', h: '148mm', page: 'size: A6 portrait' },
+      'Envelope Ofício':     { w: '220mm', h: '113mm', page: 'size: 220mm 113mm landscape' },
+      'Recibo':              { w: '75mm',  h: '230mm', page: 'size: 75mm 230mm portrait' },
+      'Cartão de Aniversário': { w: '105mm', h: '148mm', page: 'size: A6 portrait' },
+    };
+    const psKey = Object.keys(PAGE_SIZES).find(k => item.includes(k));
+    const ps = PAGE_SIZES[psKey] || { w: '210mm', h: '297mm', page: 'size: A4 portrait' };
+
+    const BORDER_W = '8mm'; // largura da borda de estampa
+    const patternBorder = patternSrc ? `
+      <div style="position:absolute;inset:0;background-image:url(${patternSrc});background-size:40mm;background-repeat:repeat;"></div>
+      <div style="position:absolute;top:${BORDER_W};left:${BORDER_W};right:${BORDER_W};bottom:${BORDER_W};background:#fff;"></div>
+    ` : `<div style="position:absolute;inset:0;background:#fff;"></div>`;
+
+    // Rodapé em 2 linhas — sem quebrar no meio de um dado
+    const _sep = '<span style="margin:0 3pt;color:#ccc;">·</span>';
+    const footerLine1 = [clinicaNome, mainPhone ? mainPhone : ''].filter(Boolean).join(` ${_sep} `);
+    const footerLine2 = [instagram ? `@${instagram}` : '', site, endereco].filter(Boolean).join(` ${_sep} `);
+    const footerHtml = (footerLine1 || footerLine2) ? `
+      <div style="position:absolute;bottom:${BORDER_W};left:${BORDER_W};right:${BORDER_W};text-align:center;font-family:'Montserrat',sans-serif;color:#555;line-height:1.7;">
+        ${footerLine1 ? `<div style="font-size:6pt;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${footerLine1}</div>` : ''}
+        ${footerLine2 ? `<div style="font-size:5.5pt;color:#888;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${footerLine2}</div>` : ''}
       </div>` : '';
 
+    const _logoWidthMm = Math.round(parseFloat(ps.w) * 0.28);
+    const pageHtml = `
+      <div style="position:relative;width:${ps.w};height:${ps.h};overflow:hidden;">
+        ${patternBorder}
+        <div style="position:absolute;top:${BORDER_W};left:50%;transform:translateX(-50%);width:${_logoWidthMm}mm;padding-top:5mm;display:flex;flex-direction:column;align-items:center;justify-content:center;">
+          ${logoHtml}
+        </div>
+        ${footerHtml}
+      </div>`;
+
+    const _docTitle2 = `${item} - ${marca}`;
     const html = `<!DOCTYPE html>
 <html lang="pt-BR">
 <head>
 <meta charset="UTF-8">
-<title>Gabarito - ${item}</title>
-<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700&display=swap" rel="stylesheet">
+<title>${_docTitle2}</title>
+${fontImports2}
 <style>
-  * { box-sizing: border-box; margin: 0; padding: 0; }
-  body { background: #555; display: flex; justify-content: center; padding: 20px; }
-  .gabarito { background: #fff; position: relative; ${containerStyle} box-shadow: 0 0 20px rgba(0,0,0,0.5); overflow: hidden; }
-  @media print {
-    body { background: #fff; padding: 0; display: block; }
-    .gabarito { box-shadow: none; page-break-after: always; }
-    .print-btn, .print-helper { display: none !important; }
-    ${sizeCSS}
-  }
-  .print-btn { position: fixed; bottom: 30px; right: 30px; padding: 15px 30px; background: #dc3495; color: #fff; border:none; border-radius: 30px; font-weight: bold; cursor: pointer; z-index: 999; }
-  .print-helper { position: fixed; top: 0; left: 0; width: 100%; background: #ffeb3b; color: #333; text-align: center; padding: 8px; font-size: 12px; font-weight: 600; z-index: 999; }
+  * { box-sizing: border-box; margin: 0; padding: 0; print-color-adjust: exact !important; -webkit-print-color-adjust: exact !important; }
+  body { margin: 0; }
+  @media print { @page { ${ps.page}; margin: 0; } }
 </style>
 </head>
-<body>
-  <div class="print-helper">Ao salvar o PDF: defina <strong>Margens → Nenhuma</strong>.</div>
-  <button class="print-btn" onclick="window.print()">🖨️ Salvar PDF Padrão Gráfica</button>
-  <div class="gabarito">
-     <div style="position:absolute;top:0;left:0;width:100%;height:100%;${patternSrc ? `background-image:url(${patternSrc});background-size:60mm;background-repeat:repeat;mix-blend-mode:multiply;opacity:0.08;` : ''}"></div>
-     <div style="position:absolute;top:20mm;left:50%;transform:translateX(-50%);width:60mm;height:60mm;display:flex;justify-content:center;align-items:center;">${logoHtml}</div>
-     ${footerHtml}
-  </div>
-</body>
+<body>${pageHtml}</body>
 </html>`;
 
-    const win = window.open('', '_blank');
-    if (win) { win.document.write(html); win.document.close(); }
+    const existing2 = document.getElementById('_gabarito_iframe');
+    if (existing2) existing2.remove();
+    const iframe2 = document.createElement('iframe');
+    iframe2.id = '_gabarito_iframe';
+    iframe2.style.cssText = 'position:fixed;top:-9999px;left:-9999px;width:300mm;height:400mm;border:none;visibility:hidden;';
+    document.body.appendChild(iframe2);
+    iframe2.contentDocument.open();
+    iframe2.contentDocument.write(html);
+    iframe2.contentDocument.close();
+    iframe2.contentDocument.title = _docTitle2;
+    const _prevTitle2 = document.title;
+    iframe2.contentWindow.document.fonts.ready.then(() => {
+      setTimeout(() => {
+        document.title = _docTitle2;
+        iframe2.contentWindow.focus();
+        iframe2.contentWindow.print();
+        setTimeout(() => { document.title = _prevTitle2; iframe2.remove(); }, 3000);
+      }, 400);
+    });
   };
 
   return (
@@ -1223,7 +1427,11 @@ ${versoHtml}
       <div style={{ display: 'flex', justifyContent: 'center', paddingTop: '8px', paddingBottom: '8px' }}>
         {currentItem === 'Cartão de Visita'
           ? <CartaoDeVisitaPreview accentColor={accentColor} patternSrc={patternSrc} cartaoContacts={cartaoContacts} crmLine={crmLine} editData={editData} logoColor={logoColor} comBorda={comBorda} setComBorda={setComBorda} clinicaNome={clinicaNome} setClinicaNome={setClinicaNome} logoLayout={logoLayout} />
-          : <GenericItemPreview item={currentItem} marca={marca} accentColor={accentColor} patternSrc={patternSrc} editData={editData} logoColor={logoColor} logoLayout={logoLayout} />
+          : currentItem === 'Atestado Médico'
+            ? <AtestadoPreview accentColor={accentColor} patternSrc={patternSrc} editData={editData} logoColor={logoColor} logoLayout={logoLayout} crmLine={crmLine} clinicaNome={clinicaNome} marca={marca} />
+            : ['Receituário','Timbrado','Cartão de Retorno','Cartão de Aniversário'].some(n => currentItem.includes(n))
+            ? <A5ItemPreview accentColor={accentColor} patternSrc={patternSrc} editData={editData} logoColor={logoColor} logoLayout={logoLayout} cartaoContacts={cartaoContacts} crmLine={crmLine} clinicaNome={clinicaNome} />
+            : <GenericItemPreview item={currentItem} marca={marca} accentColor={accentColor} patternSrc={patternSrc} editData={editData} logoColor={logoColor} logoLayout={logoLayout} />
         }
       </div>
 
@@ -1248,11 +1456,10 @@ ${versoHtml}
         </div>
       )}
 
-      {/* Editar contatos — acordeão */}
-      {currentItem === 'Cartão de Visita' && (
-        <div style={{ border: '1px solid #e8e8e8', borderRadius: '12px', overflow: 'hidden' }}>
+      {/* Editar contatos — acordeão (todos os itens) */}
+      <div style={{ border: '1px solid #e8e8e8', borderRadius: '12px', overflow: 'hidden' }}>
           <button onClick={() => setContactOpen(o => !o)} style={{ width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '10px 14px', background: 'none', border: 'none', cursor: 'pointer' }}>
-            <span style={{ fontWeight: 600, fontSize: '0.78rem', color: '#555' }}>Editar dados do verso</span>
+            <span style={{ fontWeight: 600, fontSize: '0.78rem', color: '#555' }}>Editar dados</span>
             <span style={{ fontSize: '0.7rem', color: '#aaa' }}>{contactOpen ? '▲' : '▼'}</span>
           </button>
           {contactOpen && (
@@ -1287,7 +1494,6 @@ ${versoHtml}
             </div>
           )}
         </div>
-      )}
 
       {/* Modal de instruções de impressão */}
       {showPrintModal && (() => {
