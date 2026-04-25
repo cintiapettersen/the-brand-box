@@ -2185,7 +2185,7 @@ body { margin:0; } @media print { @page { size: A5 portrait; margin:0; } }
         const _lColor = logoColor || _accent;
         const _lLayout = logoLayout || 'stacked';
         
-        const logoHtmlCe = `<div style="width:52mm;display:flex;flex-direction:column;align-items:center;justify-content:center;">${ReactDOMServer.renderToString(<LogoPreviewHTML editData={_brandData} color={_lColor} layout={_lLayout} scaleFactor={0.32} crm={crmLine} hideTagline={false} />)}</div>`;
+        const logoHtmlCe = `<div style="width:60mm;display:flex;flex-direction:column;align-items:center;justify-content:center;">${ReactDOMServer.renderToString(<LogoPreviewHTML editData={_brandData} color={_lColor} layout={_lLayout} scaleFactor={0.41} crm={crmLine} hideTagline={false} />)}</div>`;
 
         const html = `<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Receituário Controle Especial - ${marca}</title>${fiCe}
 <style>* { box-sizing:border-box; margin:0; padding:0; print-color-adjust:exact !important; -webkit-print-color-adjust:exact !important; }
@@ -2227,9 +2227,15 @@ body { width:${W + BLEED*2}mm; height:${H + BLEED*2}mm; position:relative; overf
             </div>
         </div>
 
-        <div style="margin-top:10mm;display:flex;gap:12mm;align-items:flex-end;padding:0 5mm;margin-bottom:10mm;">
-             <div style="width:38mm;border-bottom:0.2mm solid #333;text-align:center;padding-bottom:1.5mm;font-size:8pt;">Data</div>
-             <div style="flex:1;border-bottom:0.2mm solid #333;text-align:center;padding-bottom:1.5mm;font-size:8pt;font-weight:700;">Assinatura do Médico</div>
+        <div style="margin-top:12mm;display:flex;gap:15mm;align-items:flex-start;padding:0 5mm;margin-bottom:8mm;">
+             <div style="width:38mm;display:flex;flex-direction:column;align-items:center;">
+                <div style="width:100%;border-top:0.25mm solid #000;"></div>
+                <div style="font-size:8pt;margin-top:2mm;color:#333;">Data</div>
+             </div>
+             <div style="flex:1;display:flex;flex-direction:column;align-items:center;">
+                <div style="width:100%;border-top:0.25mm solid #000;"></div>
+                <div style="font-size:8pt;font-weight:700;margin-top:2mm;color:#333;">Assinatura do Médico</div>
+             </div>
         </div>
 
         <div style="display:flex;gap:6mm;height:26mm;margin-bottom:2mm;">
