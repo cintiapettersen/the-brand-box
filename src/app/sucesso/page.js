@@ -2249,15 +2249,6 @@ body { width:${W + BLEED*2}mm; height:${H + BLEED*2}mm; position:relative; overf
         iframe.contentWindow.document.fonts.ready.then(() => { setTimeout(() => { document.title = `Controle Especial - ${marca}`; iframe.contentWindow.focus(); iframe.contentWindow.print(); setTimeout(() => { document.title = prevT; iframe.remove(); }, 3000); }, 1000); });
         return;
       }
-
-        const iframe = document.createElement('iframe');
-        iframe.style.cssText = 'position:fixed;top:-9999px;left:-9999px;width:300mm;height:400mm;border:none;visibility:hidden;';
-        document.body.appendChild(iframe);
-        iframe.contentDocument.open(); iframe.contentDocument.write(html); iframe.contentDocument.close();
-        const prevT = document.title;
-        iframe.contentWindow.document.fonts.ready.then(() => { setTimeout(() => { document.title = `Controle Especial - ${marca}`; iframe.contentWindow.focus(); iframe.contentWindow.print(); setTimeout(() => { document.title = prevT; iframe.remove(); }, 3000); }, 1000); });
-        return;
-      }
       if (item === 'Recibo') {
         const BLEED = 3;
         const _ffRec = brand.editData?.fontFamily || 'Playfair Display';
