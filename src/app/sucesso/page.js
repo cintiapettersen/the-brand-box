@@ -1210,14 +1210,16 @@ function ControleEspecialPreview({ accentColor, patternSrc, editData, logoColor,
                 <div style={{ fontWeight: 700, color: accentColor }}>{clinicaNome || marca}</div>
                 <div style={{ fontWeight: 600 }}>{crmLine}</div>
                 <div style={{ marginTop: '1.5px', opacity: 0.8 }}>{endereco}</div>
-                <div style={{ fontWeight: 600 }}>{mainPhone}</div>
+                <div style={{ fontWeight: 600, whiteSpace: 'nowrap' }}>{mainPhone.replace(/ \/ /g, '  ·  ')}</div>
               </div>
             </div>
             
             {/* Logo e Vias */}
             <div style={{ flex: 0.8, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: '4px' }}>
-               <LogoPreviewHTML editData={editData} color={logoColor} layout={logoLayout} scaleFactor={0.2} crm={crmLine} hideTagline={hideTagline} />
-               <div style={{ fontSize: '3.5px', color: '#aaa', textTransform: 'uppercase', letterSpacing: '0.3px', textAlign: 'center' }}>
+               <div style={{ transform: 'scale(1.4)', transformOrigin: 'center' }}>
+                 <LogoPreviewHTML editData={editData} color={logoColor} layout={logoLayout} scaleFactor={0.25} crm={crmLine} hideTagline={hideTagline} />
+               </div>
+               <div style={{ fontSize: '3.5px', color: '#aaa', textTransform: 'uppercase', letterSpacing: '0.3px', textAlign: 'center', marginTop: '4px' }}>
                   1ª VIA FARMÁCIA<br/>2ª VIA PACIENTE
                </div>
             </div>
@@ -1240,23 +1242,29 @@ function ControleEspecialPreview({ accentColor, patternSrc, editData, logoColor,
           </div>
 
           {/* Data e Assinatura */}
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', marginTop: '10px', padding: '0 10px' }}>
-             <div style={{ borderBottom: '0.2mm solid #333', width: '40px', textAlign: 'center', paddingBottom: '1.5px', fontSize: '3.5px' }}>Data</div>
-             <div style={{ borderBottom: '0.2mm solid #333', width: '80px', textAlign: 'center', paddingBottom: '1.5px', fontSize: '3.5px', fontWeight: 700 }}>Assinatura do Médico</div>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginTop: '10px', padding: '0 8px' }}>
+             <div style={{ width: '40px', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+                <div style={{ width: '100%', borderTop: '0.2mm solid #333' }}></div>
+                <div style={{ fontSize: '3.5px', marginTop: '1.5px', color: '#333' }}>Data</div>
+             </div>
+             <div style={{ width: '80px', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+                <div style={{ width: '100%', borderTop: '0.2mm solid #333' }}></div>
+                <div style={{ fontSize: '3.5px', fontWeight: 700, marginTop: '1.5px', color: '#333' }}>Assinatura do Médico</div>
+             </div>
           </div>
 
           {/* Rodapé Obrigatório */}
           <div style={{ marginTop: 'auto', display: 'flex', gap: '5px' }}>
-             <div style={{ flex: 1, background: `${accentColor}18`, border: `0.1mm solid ${accentColor}30`, padding: '4px', borderRadius: '1.5px' }}>
-                <div style={{ fontSize: '3.5px', fontWeight: 800, color: accentColor, textTransform: 'uppercase', marginBottom: '2px', textAlign: 'center' }}>IDENTIFICAÇÃO DO COMPRADOR</div>
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5px' }}>
-                  {['Nome', 'Ident.', 'Endereço', 'Cidade'].map(f => (
-                    <div key={f} style={{ borderBottom: '0.05mm solid rgba(0,0,0,0.1)', height: '4px' }}></div>
+             <div style={{ flex: 1, background: `${accentColor}18`, border: `0.1mm solid ${accentColor}30`, padding: '3.5px 4px', borderRadius: '1.5px' }}>
+                <div style={{ fontSize: '3.3px', fontWeight: 800, color: accentColor, textTransform: 'uppercase', marginBottom: '1.5px', textAlign: 'center' }}>IDENTIFICAÇÃO DO COMPRADOR</div>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '1.2px' }}>
+                  {['Nome', 'Ident.', 'Endereço', 'Cidade', 'Estado/Tel'].map(f => (
+                    <div key={f} style={{ borderBottom: '0.05mm solid rgba(0,0,0,0.1)', height: '4mm' }}></div>
                   ))}
                 </div>
              </div>
              <div style={{ flex: 1, border: '0.1mm solid #ddd', borderRadius: '1.5px', position: 'relative' }}>
-                <div style={{ position: 'absolute', bottom: '2px', left: 0, right: 0, textAlign: 'center', fontSize: '3px', color: '#aaa', textTransform: 'uppercase' }}>ASSINATURA DO FARMACÊUTICO</div>
+                <div style={{ position: 'absolute', bottom: '2.5px', left: 0, right: 0, textAlign: 'center', fontSize: '3.2px', color: '#aaa', textTransform: 'uppercase', fontWeight: 700 }}>ASSINATURA DO FARMACÊUTICO</div>
              </div>
           </div>
 
