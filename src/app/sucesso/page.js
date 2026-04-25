@@ -1105,6 +1105,75 @@ function A5ItemPreview({ accentColor, patternSrc, editData, logoColor, logoLayou
   );
 }
 
+function ReciboPreview({ accentColor, patternSrc, editData, logoColor, logoLayout, cartaoContacts, crmLine, clinicaNome, comBorda, setComBorda, paletteColors, borderColor, setBorderColor, patternScale, setPatternScale, hideTagline, marca }) {
+  const BORDER = 10;
+  const { whatsapp, telefone, instagram, site, endereco } = cartaoContacts || {};
+  const mainPhone = whatsapp || telefone || '';
+  const effectiveSrc = comBorda ? patternSrc : null;
+  const solidColor = borderColor || accentColor;
+
+  return (
+    <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', alignItems: 'center' }}>
+      <BordaToggle comBorda={comBorda} setComBorda={setComBorda} accentColor={accentColor} paletteColors={paletteColors} borderColor={borderColor} setBorderColor={setBorderColor} patternScale={patternScale} setPatternScale={setPatternScale} />
+      <div style={{ width: '226px', height: '320px', position: 'relative', boxShadow: '0 6px 30px rgba(0,0,0,0.12)', borderRadius: '4px', overflow: 'hidden', background: '#fff' }}>
+        {/* Borda de estampa */}
+        {effectiveSrc
+          ? <div style={{ position: 'absolute', inset: 0, backgroundImage: `url(${effectiveSrc})`, backgroundSize: `${(patternScale || 150) / 2}px`, backgroundRepeat: 'repeat' }} />
+          : <div style={{ position: 'absolute', inset: 0, background: solidColor }} />}
+        
+        {/* Área branca interna */}
+        <div style={{ position: 'absolute', top: BORDER, left: BORDER, right: BORDER, bottom: BORDER, background: '#fff', display: 'flex', flexDirection: 'column', padding: '12px 10px' }}>
+          
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '8px' }}>
+            <div style={{ width: '55px' }}>
+               <LogoPreviewHTML editData={editData} color={logoColor} layout={logoLayout} scaleFactor={0.2} crm={crmLine} hideTagline={hideTagline} />
+            </div>
+            <div style={{ textAlign: 'right' }}>
+              <div style={{ fontSize: '10px', fontWeight: 800, color: accentColor, opacity: 0.2, letterSpacing: '1px' }}>RECIBO</div>
+              <div style={{ fontSize: '7px', fontWeight: 800, color: accentColor, marginTop: '2px', background: `${accentColor}12`, padding: '2px 4px', borderRadius: '1.5px' }}>R$ ________</div>
+            </div>
+          </div>
+
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '5px', marginTop: '5px' }}>
+            {['Recebi de', 'A quantia de', 'Referente a'].map(label => (
+              <div key={label} style={{ borderBottom: '0.5px solid #eee', paddingBottom: '2.5px', display: 'flex', gap: '4px', alignItems: 'flex-end', minHeight: '12px' }}>
+                <span style={{ fontSize: '4.2px', fontWeight: 800, color: accentColor, textTransform: 'uppercase', flexShrink: 0 }}>{label}</span>
+                <div style={{ flex: 1 }}></div>
+              </div>
+            ))}
+          </div>
+
+          <div style={{ marginTop: '10px', width: '100%', border: '0.5px solid #eee', borderRadius: '1px', overflow: 'hidden' }}>
+            <div style={{ display: 'flex', background: `${accentColor}10`, borderBottom: '0.5px solid #eee' }}>
+              <div style={{ flex: 1.5, padding: '3mm', fontSize: '4px', fontWeight: 700, color: accentColor, borderRight: '0.5px solid #eee' }}>DATA</div>
+              <div style={{ flex: 4, padding: '3mm', fontSize: '4px', fontWeight: 700, color: accentColor, borderRight: '0.5px solid #eee' }}>DESCRIÇÃO</div>
+              <div style={{ flex: 1.5, padding: '3mm', fontSize: '4px', fontWeight: 700, color: accentColor, textAlign: 'right' }}>TOTAL</div>
+            </div>
+            {[1,2,3].map(i => (
+              <div key={i} style={{ display: 'flex', borderBottom: '0.5px solid #f9f9f9', height: '10px' }}>
+                <div style={{ flex: 1.5, borderRight: '0.5px solid #f9f9f9' }}></div>
+                <div style={{ flex: 4, borderRight: '0.5px solid #f9f9f9' }}></div>
+                <div style={{ flex: 1.5 }}></div>
+              </div>
+            ))}
+            <div style={{ display: 'flex', height: '10px', background: `${accentColor}05` }}>
+              <div style={{ flex: 5.5, borderRight: '0.5px solid #f9f9f9', padding: '3px', textAlign: 'right', fontSize: '4px', fontWeight: 700, color: accentColor }}>TOTAL</div>
+              <div style={{ flex: 1.5 }}></div>
+            </div>
+          </div>
+
+          <div style={{ marginTop: 'auto', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+            <div style={{ width: '40px', borderTop: '0.5px solid #333', marginBottom: '2px' }}></div>
+            <div style={{ fontSize: '4.5px', fontWeight: 700 }}>{clinicaNome || marca}</div>
+            <div style={{ fontSize: '3.5px', color: '#aaa', textTransform: 'uppercase', letterSpacing: '0.5px' }}>{crmLine}</div>
+          </div>
+
+        </div>
+      </div>
+    </div>
+  );
+}
+
 function AtestadoPreview({ accentColor, patternSrc, editData, logoColor, logoLayout, crmLine, clinicaNome, marca, cartaoContacts, comBorda, setComBorda, paletteColors, borderColor, setBorderColor, patternScale, setPatternScale, hideTagline }) {
   const BORDER = 14;
   const { whatsapp, telefone, instagram, site, endereco } = cartaoContacts || {};
