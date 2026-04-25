@@ -1822,12 +1822,12 @@ ${versoHtml}
       const versoHtml = `
         <div style="position:absolute;top:${BLEED + ABA_S}mm;left:${BLEED + ABA_L + W}mm;width:${W + BLEED}mm;height:${H}mm;background:#fff;overflow:hidden;z-index:2;border-left:0.1mm dashed rgba(0,0,0,0.1);">
             ${genPattern(1)}
-            <div style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:max-content;max-width:${W - 20}mm;background:rgba(255,255,255,0.97);padding:5mm 10mm;border-radius:2mm;display:flex;flex-direction:column;align-items:center;justify-content:center;border:0.2mm solid #ddd;text-align:center;white-space:nowrap;">
-               <div style="font-size:9pt;color:#666;font-family:'Montserrat',sans-serif;line-height:1.65;">
-                  ${clinicaNome ? `<div style="font-weight:700;color:${accentColor};font-size:10.5pt;margin-bottom:1.5mm;">${clinicaNome}</div>` : ''}
+            <div style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:max-content;max-width:${W - 20}mm;background:rgba(255,255,255,0.97);padding:8mm 16mm;border-radius:2mm;display:flex;flex-direction:column;align-items:center;justify-content:center;border:0.2mm solid #ddd;text-align:center;white-space:nowrap;">
+               <div style="font-size:11pt;color:#666;font-family:'Montserrat',sans-serif;line-height:1.7;">
+                  ${clinicaNome ? `<div style="font-weight:700;color:${accentColor};font-size:14pt;margin-bottom:2mm;">${clinicaNome}</div>` : ''}
                   ${endereco ? `<div style="opacity:0.75;">${endereco}</div>` : ''}
-                  ${_sacPhones ? `<div style="font-weight:700;color:#333;font-size:11pt;margin:1.5mm 0;">${_waIcoSac}${_sacPhones}</div>` : ''}
-                  ${email ? `<div style="opacity:0.75;">${email}</div>` : ''}
+                  ${_sacPhones ? `<div style="font-weight:700;color:#333;font-size:15pt;margin:2mm 0;">${_waIcoSac}${_sacPhones}</div>` : ''}
+                  ${email ? `<div style="opacity:0.75;margin-bottom:1mm;">${email}</div>` : ''}
                   ${(site || instagram) ? `<div style="opacity:0.75;">${[site, instagram ? `@${instagram}` : ''].filter(Boolean).join('  ·  ')}</div>` : ''}
                </div>
             </div>
