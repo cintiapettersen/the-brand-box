@@ -2002,6 +2002,85 @@ body { margin:0; } @media print { @page { size: A5 portrait; margin:0; } }
       return;
     }
 
+      // ── RECIBO A5 (Layout Autoral) ───────────────────────────────────
+      if (item === 'Recibo') {
+        const BLEED = 3;
+        const _ffRec = brand.editData?.fontFamily || 'Playfair Display';
+        const _lfRec = LOCAL_FONT_FACES[_ffRec];
+        const fiRec = `<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;600;700;800&display=swap" rel="stylesheet">${_lfRec ? `<style>${_lfRec}</style>` : `<link href="https://fonts.googleapis.com/css2?family=${_ffRec.replace(/ /g,'+')}:wght@400;700&display=swap" rel="stylesheet">`}`;
+        
+        const W = 148, H = 210;
+        const BORDER = 10;
+        const _bcRec = borderColor || accentColor;
+        
+        const patternBorder = (comBorda && patternSrc) ? `
+          <div style="position:absolute;inset:0;background-image:url(${patternSrc});background-size:${(patternScale * 0.45).toFixed(1)}mm;background-repeat:repeat;"></div>
+          <div style="position:absolute;top:${BORDER}mm;left:${BORDER}mm;right:${BORDER}mm;bottom:${BORDER}mm;background:#fff;"></div>
+        ` : comBorda ? `<div style="position:absolute;inset:0;background:#fff;"></div>` : `<div style="position:absolute;inset:0;background:#fff;border:${BORDER}mm solid ${_bcRec};box-sizing:border-box;"></div>`;
+
+        const html = `<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Recibo - ${marca}</title>${fiRec}
+<style>* { box-sizing:border-box; margin:0; padding:0; print-color-adjust:exact !important; -webkit-print-color-adjust:exact !important; }
+body { width:${W + BLEED*2}mm; height:${H + BLEED*2}mm; position:relative; overflow:hidden; background:#fff; font-family:'Montserrat',sans-serif; }
+.cm { position:absolute; width:10mm; height:10mm; border-color:rgba(0,0,0,0.5); border-style:solid; border-width:0; pointer-events:none; }
+.cm-tl { top:0; left:0; border-top:0.2mm solid; border-left:0.2mm solid; }
+.cm-tr { top:0; right:0; border-top:0.2mm solid; border-right:0.2mm solid; }
+.cm-bl { bottom:0; left:0; border-bottom:0.2mm solid; border-left:0.2mm solid; }
+.cm-br { bottom:0; right:0; border-bottom:0.2mm solid; border-right:0.2mm solid; }
+.field { border-bottom: 0.2mm solid #ddd; padding: 2mm 0; font-size: 10pt; color: #333; margin-top: 4mm; display:flex; gap: 4mm; align-items:flex-end; }
+.label { font-weight: 700; color: ${accentColor}; text-transform: uppercase; font-size: 8pt; flex-shrink: 0; margin-bottom: 0.5mm; }
+table { width: 100%; border-collapse: collapse; margin-top: 10mm; }
+th { background: ${accentColor}12; color: ${accentColor}; font-size: 8pt; text-transform: uppercase; padding: 3mm; text-align: left; border: 0.2mm solid #eee; }
+td { padding: 4mm 3mm; border: 0.2mm solid #eee; font-size: 10pt; color: #555; }
+@media print { body { margin:0; } @page { size: ${W + BLEED*2}mm ${H + BLEED*2}mm; margin:0; } }
+</style></head><body>
+<div style="position:relative;width:${W + BLEED*2}mm;height:${H + BLEED*2}mm;overflow:hidden;">
+    ${patternBorder}
+    <div style="position:absolute;top:${BLEED + BORDER + 8}mm;left:${BLEED + BORDER + 12}mm;right:${BLEED + BORDER + 12}mm;bottom:${BLEED + BORDER + 12}mm;display:flex;flex-direction:column;">
+        
+        <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:12mm;">
+            <div style="width:50mm;transform:scale(1.2);transform-origin:left top;">${logoHtmlWithCrm}</div>
+            <div style="text-align:right;">
+                <div style="font-size:18pt;font-weight:800;color:${accentColor};opacity:0.2;letter-spacing:4pt;">RECIBO</div>
+                <div style="font-size:12pt;font-weight:800;color:${accentColor};margin-top:2mm;background:${accentColor}15;padding:2mm 4mm;border-radius:1mm;">R$ ______________</div>
+            </div>
+        </div>
+
+        <div class="field"><span class="label">Recebi de</span> <div style="flex:1;"></div></div>
+        <div class="field"><span class="label">A quantia de</span> <div style="flex:1;"></div></div>
+        <div class="field"><span class="label">Referente a</span> <div style="flex:1;"></div></div>
+
+        <table>
+            <thead><tr><th style="width:20%;">Data</th><th>Descrição dos Serviços</th><th style="width:25%;text-align:right;">Total</th></tr></thead>
+            <tbody>
+                ${Array.from({length: 6}).map(() => `<tr><td></td><td></td><td></td></tr>`).join('')}
+                <tr><td colspan="2" style="text-align:right;font-weight:700;color:${accentColor};">TOTAL</td><td style="background:${accentColor}08;"></td></tr>
+            </tbody>
+        </table>
+
+        <div style="margin-top:auto;display:flex;flex-direction:column;align-items:center;">
+             <div style="width:80mm;border-top:0.2mm solid #333;margin-bottom:3mm;"></div>
+             <div style="font-size:9pt;font-weight:700;color:#1a1a1a;">${clinicaNome || marca}</div>
+             <div style="font-size:7.5pt;color:#999;margin-top:1mm;text-transform:uppercase;letter-spacing:1pt;">${crmLine || ''}</div>
+        </div>
+
+        <div style="margin-top:8mm;padding-top:4mm;border-top:0.2mm solid #f0f0f0;display:flex;justify-content:space-between;font-size:7pt;color:#888;">
+            <div>${endereco || ''}</div>
+            <div style="font-weight:700;">${allPhones}</div>
+        </div>
+    </div>
+    <div class="cm cm-tl"></div><div class="cm cm-tr"></div><div class="cm cm-bl"></div><div class="cm cm-br"></div>
+</div>
+</body></html>`;
+
+        const iframe = document.createElement('iframe');
+        iframe.style.cssText = 'position:fixed;top:-9999px;left:-9999px;width:300mm;height:400mm;border:none;visibility:hidden;';
+        document.body.appendChild(iframe);
+        iframe.contentDocument.open(); iframe.contentDocument.write(html); iframe.contentDocument.close();
+        const prevT = document.title;
+        iframe.contentWindow.document.fonts.ready.then(() => { setTimeout(() => { document.title = `Recibo - ${marca}`; iframe.contentWindow.focus(); iframe.contentWindow.print(); setTimeout(() => { document.title = prevT; iframe.remove(); }, 3000); }, 1000); });
+        return;
+      }
+
     // ── OUTROS ITENS ────────────────────────────────────────────────
     const _fontFamily2 = brand.editData?.fontFamily || 'Playfair Display';
     const _localFace2 = LOCAL_FONT_FACES[_fontFamily2];
@@ -2160,6 +2239,8 @@ ${fontImports2}
             ? <EnvelopeOficioPreview accentColor={accentColor} patternSrc={patternSrc} logoColor={logoColor} logoLayout={logoLayout} comBorda={comBorda} setComBorda={setComBorda} paletteColors={paletteColors} borderColor={borderColor} setBorderColor={setBorderColor} patternScale={patternScale} setPatternScale={setPatternScale} cartaoContacts={cartaoContacts} crmLine={crmLine} localSlogan={localSlogan} brand={brand} editData={editData} clinicaNome={clinicaNome} />
           : currentItem.includes('Envelope Saco')
             ? <EnvelopeSacoPreview accentColor={accentColor} patternSrc={patternSrc} logoColor={logoColor} logoLayout={logoLayout} comBorda={comBorda} setComBorda={setComBorda} paletteColors={paletteColors} borderColor={borderColor} setBorderColor={setBorderColor} patternScale={patternScale} setPatternScale={setPatternScale} cartaoContacts={cartaoContacts} crmLine={crmLine} localSlogan={localSlogan} brand={brand} editData={editData} clinicaNome={clinicaNome} />
+          : currentItem === 'Recibo'
+            ? <ReciboPreview accentColor={accentColor} patternSrc={patternSrc} cartaoContacts={cartaoContacts} crmLine={crmLine} editData={{ ...editData, tagline: localSlogan }} logoColor={logoColor} comBorda={comBorda} setComBorda={setComBorda} clinicaNome={clinicaNome} setClinicaNome={setClinicaNome} logoLayout={logoLayout} paletteColors={paletteColors} borderColor={borderColor} setBorderColor={setBorderColor} patternScale={patternScale} setPatternScale={setPatternScale} marca={marca} />
           : currentItem.includes('Cartão de Retorno')
             ? <CartaoRetornoPreview accentColor={accentColor} patternSrc={patternSrc} cartaoContacts={cartaoContacts} crmLine={crmLine} editData={{ ...editData, tagline: localSlogan }} logoColor={logoColor} comBorda={comBorda} setComBorda={setComBorda} clinicaNome={clinicaNome} setClinicaNome={setClinicaNome} logoLayout={logoLayout} paletteColors={paletteColors} borderColor={borderColor} setBorderColor={setBorderColor} patternScale={patternScale} setPatternScale={setPatternScale} />
             : currentItem.includes('Atestado Médico')
@@ -2272,7 +2353,7 @@ ${fontImports2}
           'Cartão de Retorno':      { cat: 'Cartão de visita', tam: '5 × 9 cm (vertical)', papel: 'Couché 300g', acabamento: 'Refile', preco: '~R$52,94 / 250 un.' },
           'Pasta':                  { cat: 'Pasta com bolsa (sem orelha)', tam: '22 × 31 cm', papel: '', acabamento: '', preco: '~R$205,04 / 50 un.' },
           'Envelope Ofício':        { cat: 'Envelope', tam: '22 × 11,3 cm', papel: 'Acima de 120g', acabamento: 'Refile', preco: '~R$319,24 / 50 un.' },
-          'Recibo':                 { cat: 'Recibo', tam: '7,5 × 23 cm', papel: 'Offset 120g', acabamento: '4x0', preco: '~R$60,84 / 250 un.', obs: 'A Printi não faz com picote. Para versões com picote, use outro fornecedor.' },
+          'Recibo':                 { cat: 'Recibo A5', tam: '14,8 × 21 cm', papel: 'Offset 120g', acabamento: 'Refile · Blocos', preco: '~R$120,84 / 10 blocos', obs: 'Formato A5 Padrão Printi. Pode ser produzido em blocos ou folhas avulsas.' },
           'Caneca':                 { cat: 'Caneca', tam: 'Arte: 20 × 8 cm · 325ml', papel: '', acabamento: '', preco: '~R$33,93 / un.', obs: 'A impressão pode deixar bordas brancas de ~1cm nas laterais.' },
           'Cartão de Aniversário':  { cat: 'Flyer', tam: 'A6', papel: 'Couché 240g+', acabamento: 'Frente e verso', preco: '~R$131,92 / 250 un.' },
           'Caderneta':              { cat: 'Livreto', tam: 'A5 (14,8 × 21 cm)', papel: 'Miolo: Offset 120g · Capa: Couché 150g+', acabamento: 'Grampo · Shirink opcional', preco: '' },
