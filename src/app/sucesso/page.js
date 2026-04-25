@@ -1124,13 +1124,12 @@ function ReciboPreview({ accentColor, patternSrc, editData, logoColor, logoLayou
         {/* Área branca interna */}
         <div style={{ position: 'absolute', top: BORDER, left: BORDER, right: BORDER, bottom: BORDER, background: '#fff', display: 'flex', flexDirection: 'column', padding: '12px 10px' }}>
           
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '8px' }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '12px', paddingBottom: '4px', borderBottom: '0.1mm solid #f0f0f0' }}>
             <div style={{ width: '85px' }}>
                <LogoPreviewHTML editData={editData} color={logoColor} layout={logoLayout} scaleFactor={0.32} crm={crmLine} hideTagline={hideTagline} />
             </div>
             <div style={{ textAlign: 'right' }}>
-              <div style={{ fontSize: '11px', fontWeight: 800, color: accentColor, opacity: 0.15, letterSpacing: '1.2px' }}>RECIBO</div>
-              <div style={{ fontSize: '8px', fontWeight: 800, color: accentColor, marginTop: '1.5px', background: `${accentColor}08`, padding: '2px 5px', borderRadius: '1.5px', border: `0.1mm solid ${accentColor}15` }}>R$ ________</div>
+              <div style={{ fontSize: '12px', fontWeight: 800, color: accentColor, opacity: 0.12, letterSpacing: '2px' }}>RECIBO</div>
             </div>
           </div>
 
@@ -2111,11 +2110,10 @@ td { padding: 4mm 3mm; border: 0.2mm solid #eee; font-size: 10pt; color: #555; }
     ${patternBorder}
     <div style="position:absolute;top:${BLEED + BORDER + 8}mm;left:${BLEED + BORDER + 12}mm;right:${BLEED + BORDER + 12}mm;bottom:${BLEED + BORDER + 12}mm;display:flex;flex-direction:column;">
         
-        <div style="display:flex;justify-content:space-between;align-items:flex-end;margin-bottom:12mm;padding-bottom:2mm;border-bottom:0.1mm solid #f5f5f5;">
-            <div style="width:60mm;">${logoHtmlWithCrm}</div>
-            <div style="text-align:right;display:flex;flex-direction:column;align-items:flex-end;gap:3mm;">
-                <div style="font-size:24pt;font-weight:800;color:${accentColor};opacity:0.12;letter-spacing:6pt;line-height:1;">RECIBO</div>
-                <div style="font-size:14pt;font-weight:800;color:${accentColor};background:${accentColor}10;padding:3mm 6mm;border-radius:1.5mm;border:0.2mm solid ${accentColor}20;min-width:60mm;text-align:center;">R$ ______________</div>
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12mm;padding-bottom:4mm;border-bottom:0.1mm solid #f0f0f0;">
+            <div style="width:65mm;">${logoHtmlWithCrm}</div>
+            <div style="text-align:right;">
+                <div style="font-size:28pt;font-weight:800;color:${accentColor};opacity:0.08;letter-spacing:10pt;line-height:1;">RECIBO</div>
             </div>
         </div>
 
