@@ -1125,47 +1125,52 @@ function ReciboPreview({ accentColor, patternSrc, editData, logoColor, logoLayou
         <div style={{ position: 'absolute', top: BORDER, left: BORDER, right: BORDER, bottom: BORDER, background: '#fff', display: 'flex', flexDirection: 'column', padding: '12px 10px' }}>
           
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '8px' }}>
-            <div style={{ width: '55px' }}>
-               <LogoPreviewHTML editData={editData} color={logoColor} layout={logoLayout} scaleFactor={0.2} crm={crmLine} hideTagline={hideTagline} />
+            <div style={{ width: '85px' }}>
+               <LogoPreviewHTML editData={editData} color={logoColor} layout={logoLayout} scaleFactor={0.32} crm={crmLine} hideTagline={hideTagline} />
             </div>
             <div style={{ textAlign: 'right' }}>
-              <div style={{ fontSize: '10px', fontWeight: 800, color: accentColor, opacity: 0.2, letterSpacing: '1px' }}>RECIBO</div>
-              <div style={{ fontSize: '7px', fontWeight: 800, color: accentColor, marginTop: '2px', background: `${accentColor}12`, padding: '2px 4px', borderRadius: '1.5px' }}>R$ ________</div>
+              <div style={{ fontSize: '11px', fontWeight: 800, color: accentColor, opacity: 0.15, letterSpacing: '1.2px' }}>RECIBO</div>
+              <div style={{ fontSize: '8px', fontWeight: 800, color: accentColor, marginTop: '1.5px', background: `${accentColor}08`, padding: '2px 5px', borderRadius: '1.5px', border: `0.1mm solid ${accentColor}15` }}>R$ ________</div>
             </div>
           </div>
 
           <div style={{ display: 'flex', flexDirection: 'column', gap: '5px', marginTop: '5px' }}>
             {['Recebi de', 'A quantia de', 'Referente a'].map(label => (
-              <div key={label} style={{ borderBottom: '0.5px solid #eee', paddingBottom: '2.5px', display: 'flex', gap: '4px', alignItems: 'flex-end', minHeight: '12px' }}>
-                <span style={{ fontSize: '4.2px', fontWeight: 800, color: accentColor, textTransform: 'uppercase', flexShrink: 0 }}>{label}</span>
+              <div key={label} style={{ borderBottom: '0.5px solid #eee', paddingBottom: '3px', display: 'flex', gap: '5px', alignItems: 'flex-end', minHeight: '14px' }}>
+                <span style={{ fontSize: '4.5px', fontWeight: 800, color: accentColor, textTransform: 'uppercase', flexShrink: 0 }}>{label}</span>
                 <div style={{ flex: 1 }}></div>
               </div>
             ))}
           </div>
 
           <div style={{ marginTop: '10px', width: '100%', border: '0.5px solid #eee', borderRadius: '1px', overflow: 'hidden' }}>
-            <div style={{ display: 'flex', background: `${accentColor}10`, borderBottom: '0.5px solid #eee' }}>
-              <div style={{ flex: 1.5, padding: '3mm', fontSize: '4px', fontWeight: 700, color: accentColor, borderRight: '0.5px solid #eee' }}>DATA</div>
-              <div style={{ flex: 4, padding: '3mm', fontSize: '4px', fontWeight: 700, color: accentColor, borderRight: '0.5px solid #eee' }}>DESCRIÇÃO</div>
-              <div style={{ flex: 1.5, padding: '3mm', fontSize: '4px', fontWeight: 700, color: accentColor, textAlign: 'right' }}>TOTAL</div>
+            <div style={{ display: 'flex', background: `${accentColor}08`, borderBottom: '0.5px solid #eee' }}>
+              <div style={{ flex: 1.5, padding: '3px', fontSize: '4.5px', fontWeight: 700, color: accentColor, borderRight: '0.5px solid #eee' }}>DATA</div>
+              <div style={{ flex: 4, padding: '3px', fontSize: '4.5px', fontWeight: 700, color: accentColor, borderRight: '0.5px solid #eee' }}>DESCRIÇÃO DOS SERVIÇOS</div>
+              <div style={{ flex: 1.5, padding: '3px', fontSize: '4.5px', fontWeight: 700, color: accentColor, textAlign: 'right' }}>TOTAL</div>
             </div>
-            {[1,2,3].map(i => (
-              <div key={i} style={{ display: 'flex', borderBottom: '0.5px solid #f9f9f9', height: '10px' }}>
+            {[1,2,3,4,5,6].map(i => (
+              <div key={i} style={{ display: 'flex', borderBottom: '0.5px solid #f9f9f9', height: '11px' }}>
                 <div style={{ flex: 1.5, borderRight: '0.5px solid #f9f9f9' }}></div>
                 <div style={{ flex: 4, borderRight: '0.5px solid #f9f9f9' }}></div>
                 <div style={{ flex: 1.5 }}></div>
               </div>
             ))}
-            <div style={{ display: 'flex', height: '10px', background: `${accentColor}05` }}>
-              <div style={{ flex: 5.5, borderRight: '0.5px solid #f9f9f9', padding: '3px', textAlign: 'right', fontSize: '4px', fontWeight: 700, color: accentColor }}>TOTAL</div>
+            <div style={{ display: 'flex', height: '11px', background: `${accentColor}05` }}>
+              <div style={{ flex: 5.5, borderRight: '0.5px solid #f9f9f9', padding: '3px', textAlign: 'right', fontSize: '4.5px', fontWeight: 800, color: accentColor }}>TOTAL</div>
               <div style={{ flex: 1.5 }}></div>
             </div>
           </div>
 
           <div style={{ marginTop: 'auto', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-            <div style={{ width: '40px', borderTop: '0.5px solid #333', marginBottom: '2px' }}></div>
-            <div style={{ fontSize: '4.5px', fontWeight: 700 }}>{clinicaNome || marca}</div>
-            <div style={{ fontSize: '3.5px', color: '#aaa', textTransform: 'uppercase', letterSpacing: '0.5px' }}>{crmLine}</div>
+            <div style={{ width: '50px', borderTop: '0.5px solid #333', marginBottom: '2.5px' }}></div>
+            <div style={{ fontSize: '5.5px', fontWeight: 700, color: '#1a1a1a' }}>{clinicaNome || marca}</div>
+            <div style={{ fontSize: '4px', color: '#999', textTransform: 'uppercase', letterSpacing: '0.6px', marginBottom: '4px' }}>{crmLine}</div>
+            
+            <div style={{ width: '100%', borderTop: '0.1mm solid #f2f2f2', paddingTop: '3px', display: 'flex', justifyContent: 'space-between', fontSize: '3.6px', color: '#aaa', fontFamily: 'Montserrat, sans-serif' }}>
+              <div>{endereco || ''}</div>
+              <div style={{ fontWeight: 600 }}>{[whatsapp || telefone, telefone2].filter(Boolean).join(' / ')}</div>
+            </div>
           </div>
 
         </div>
@@ -2106,11 +2111,11 @@ td { padding: 4mm 3mm; border: 0.2mm solid #eee; font-size: 10pt; color: #555; }
     ${patternBorder}
     <div style="position:absolute;top:${BLEED + BORDER + 8}mm;left:${BLEED + BORDER + 12}mm;right:${BLEED + BORDER + 12}mm;bottom:${BLEED + BORDER + 12}mm;display:flex;flex-direction:column;">
         
-        <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:12mm;">
-            <div style="width:50mm;transform:scale(1.2);transform-origin:left top;">${logoHtmlWithCrm}</div>
-            <div style="text-align:right;">
-                <div style="font-size:18pt;font-weight:800;color:${accentColor};opacity:0.2;letter-spacing:4pt;">RECIBO</div>
-                <div style="font-size:12pt;font-weight:800;color:${accentColor};margin-top:2mm;background:${accentColor}15;padding:2mm 4mm;border-radius:1mm;">R$ ______________</div>
+        <div style="display:flex;justify-content:space-between;align-items:flex-end;margin-bottom:12mm;padding-bottom:2mm;border-bottom:0.1mm solid #f5f5f5;">
+            <div style="width:60mm;">${logoHtmlWithCrm}</div>
+            <div style="text-align:right;display:flex;flex-direction:column;align-items:flex-end;gap:3mm;">
+                <div style="font-size:24pt;font-weight:800;color:${accentColor};opacity:0.12;letter-spacing:6pt;line-height:1;">RECIBO</div>
+                <div style="font-size:14pt;font-weight:800;color:${accentColor};background:${accentColor}10;padding:3mm 6mm;border-radius:1.5mm;border:0.2mm solid ${accentColor}20;min-width:60mm;text-align:center;">R$ ______________</div>
             </div>
         </div>
 
