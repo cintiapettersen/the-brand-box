@@ -2204,18 +2204,18 @@ body { width:${W + BLEED*2}mm; height:${H + BLEED*2}mm; position:relative; overf
         <div style="text-align:center;font-size:11pt;font-weight:800;color:#aaa;letter-spacing:2pt;text-transform:uppercase;">RECEITUÁRIO DE CONTROLE ESPECIAL</div>
 
         <div style="display:flex;gap:8mm;align-items:flex-start;">
-            <div style="flex:1.2;background:${_accent}08;border:0.2mm solid ${_accent}20;padding:3mm 4mm;border-radius:1.5mm;">
-                <div style="font-size:8pt;font-weight:800;color:${_accent};margin-bottom:2mm;border-bottom:0.2mm solid ${_accent}20;padding-bottom:1mm;text-transform:uppercase;">IDENTIFICAÇÃO DO EMITENTE</div>
-                <div style="font-size:8.5pt;line-height:1.4;color:#444;">
+            <div style="flex:1.2;background:${_accent}08;border:0.2mm solid ${_accent}20;padding:2.5mm 4mm;border-radius:1.5mm;">
+                <div style="font-size:7.5pt;font-weight:800;color:${_accent};margin-bottom:1.5mm;border-bottom:0.2mm solid ${_accent}20;padding-bottom:1mm;text-transform:uppercase;">IDENTIFICAÇÃO DO EMITENTE</div>
+                <div style="font-size:8pt;line-height:1.3;color:#444;">
                     <div style="font-weight:700;color:${_accent};">${clinicaNome || marca}</div>
                     <div style="font-weight:700;">${crmLine || ''}</div>
-                    <div style="opacity:0.8;font-size:7.5pt;margin-top:1mm;">${endereco || ''}</div>
-                    <div style="font-weight:700;margin-top:1.5mm;">${allPhones}</div>
+                    <div style="opacity:0.8;font-size:7pt;margin-top:1mm;">${endereco || ''}</div>
+                    <div style="font-weight:700;margin-top:1mm;font-size:7.5pt;">${allPhones.replace(/<br\/>/g, '  ·  ')}</div>
                 </div>
             </div>
-            <div style="flex:0.8;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3mm;padding-top:2mm;">
+            <div style="flex:0.8;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2mm;padding-top:1mm;">
                 ${logoHtmlCe}
-                <div style="font-size:7.5pt;font-weight:600;color:#bbb;text-transform:uppercase;letter-spacing:0.5pt;text-align:center;line-height:1.2;">1ª VIA FARMÁCIA<br/>2ª VIA PACIENTE</div>
+                <div style="font-size:7pt;font-weight:600;color:#bbb;text-transform:uppercase;letter-spacing:0.5pt;text-align:center;line-height:1.2;">1ª VIA FARMÁCIA<br/>2ª VIA PACIENTE</div>
             </div>
         </div>
 
@@ -2223,16 +2223,16 @@ body { width:${W + BLEED*2}mm; height:${H + BLEED*2}mm; position:relative; overf
             ${['PACIENTE', 'ENDEREÇO'].map(l => `<div style="border-bottom:0.15mm solid #eee;padding-bottom:1.5mm;display:flex;gap:3mm;"><span style="font-size:8.5pt;font-weight:700;color:#333;text-transform:uppercase;">${l}:</span></div>`).join('')}
             <div style="margin-top:2mm;">
                <div style="font-size:8.5pt;font-weight:700;color:#333;margin-bottom:1.5mm;">PRESCRIÇÃO:</div>
-               ${Array.from({length: 6}).map(() => `<div style="border-bottom:0.1mm solid #f2f2f2;height:8.5mm;"></div>`).join('')}
+               ${Array.from({length: 6}).map(() => `<div style="border-bottom:0.1mm solid #f2f2f2;height:7.5mm;"></div>`).join('')}
             </div>
         </div>
 
-        <div style="margin-top:8mm;display:flex;gap:12mm;align-items:flex-end;padding:0 5mm;">
+        <div style="margin-top:10mm;display:flex;gap:12mm;align-items:flex-end;padding:0 5mm;margin-bottom:10mm;">
              <div style="width:38mm;border-bottom:0.2mm solid #333;text-align:center;padding-bottom:1.5mm;font-size:8pt;">Data</div>
              <div style="flex:1;border-bottom:0.2mm solid #333;text-align:center;padding-bottom:1.5mm;font-size:8pt;font-weight:700;">Assinatura do Médico</div>
         </div>
 
-        <div style="margin-top:auto;display:flex;gap:6mm;height:28mm;margin-bottom:3mm;">
+        <div style="display:flex;gap:6mm;height:26mm;margin-bottom:2mm;">
              <div style="flex:1;background:${_accent}10;border:0.2mm solid ${_accent}25;padding:2mm 4mm;border-radius:1.5mm;">
                 <div style="font-size:7pt;font-weight:800;color:${_accent};margin-bottom:1.5mm;text-align:center;text-transform:uppercase;">IDENTIFICAÇÃO DO COMPRADOR</div>
                 <div style="display:flex;flex-direction:column;gap:1mm;">
