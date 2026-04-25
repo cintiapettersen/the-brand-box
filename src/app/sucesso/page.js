@@ -2185,7 +2185,7 @@ body { margin:0; } @media print { @page { size: A5 portrait; margin:0; } }
         const _lColor = logoColor || _accent;
         const _lLayout = logoLayout || 'stacked';
         
-        const logoHtmlCe = `<div style="width:42mm;display:flex;flex-direction:column;align-items:center;justify-content:center;">${ReactDOMServer.renderToString(<LogoPreviewHTML editData={_brandData} color={_lColor} layout={_lLayout} scaleFactor={0.25} crm={crmLine} hideTagline={false} />)}</div>`;
+        const logoHtmlCe = `<div style="width:52mm;display:flex;flex-direction:column;align-items:center;justify-content:center;">${ReactDOMServer.renderToString(<LogoPreviewHTML editData={_brandData} color={_lColor} layout={_lLayout} scaleFactor={0.32} crm={crmLine} hideTagline={false} />)}</div>`;
 
         const html = `<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Receituário Controle Especial - ${marca}</title>${fiCe}
 <style>* { box-sizing:border-box; margin:0; padding:0; print-color-adjust:exact !important; -webkit-print-color-adjust:exact !important; }
@@ -2223,11 +2223,11 @@ body { width:${W + BLEED*2}mm; height:${H + BLEED*2}mm; position:relative; overf
             ${['PACIENTE', 'ENDEREÇO'].map(l => `<div style="border-bottom:0.15mm solid #eee;padding-bottom:1.5mm;display:flex;gap:3mm;"><span style="font-size:8.5pt;font-weight:700;color:#333;text-transform:uppercase;">${l}:</span></div>`).join('')}
             <div style="margin-top:2mm;">
                <div style="font-size:8.5pt;font-weight:700;color:#333;margin-bottom:1.5mm;">PRESCRIÇÃO:</div>
-               ${Array.from({length: 8}).map(() => `<div style="border-bottom:0.1mm solid #f2f2f2;height:7.5mm;"></div>`).join('')}
+               ${Array.from({length: 7}).map(() => `<div style="border-bottom:0.1mm solid #f2f2f2;height:8.5mm;"></div>`).join('')}
             </div>
         </div>
 
-        <div style="margin-top:4mm;display:flex;justify-content:space-between;align-items:flex-end;padding:0 8mm;">
+        <div style="margin-top:10mm;display:flex;justify-content:space-between;align-items:flex-end;padding:0 8mm;position:relative;">
              <div style="border-bottom:0.2mm solid #333;width:35mm;text-align:center;padding-bottom:1.5mm;font-size:8pt;">Data</div>
              <div style="border-bottom:0.2mm solid #333;width:75mm;text-align:center;padding-bottom:1.5mm;font-size:8pt;font-weight:700;">Assinatura do Médico</div>
         </div>
