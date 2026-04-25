@@ -2113,7 +2113,7 @@ td { padding: 4mm 3mm; border: 0.2mm solid #eee; font-size: 10pt; color: #555; }
         <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12mm;padding-bottom:4mm;border-bottom:0.1mm solid #f0f0f0;">
             <div style="width:65mm;">${logoHtmlWithCrm}</div>
             <div style="text-align:right;">
-                <div style="font-size:28pt;font-weight:800;color:${accentColor};opacity:0.08;letter-spacing:10pt;line-height:1;">RECIBO</div>
+                <div style="font-size:18pt;font-weight:800;color:${accentColor};opacity:0.1;letter-spacing:4pt;line-height:1;">RECIBO</div>
             </div>
         </div>
 
