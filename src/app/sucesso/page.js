@@ -1202,24 +1202,24 @@ function ControleEspecialPreview({ accentColor, patternSrc, editData, logoColor,
             RECEITUÁRIO DE CONTROLE ESPECIAL
           </div>
 
-          <div style={{ display: 'flex', gap: '8px', marginBottom: '8px' }}>
+          <div style={{ display: 'flex', gap: '8px', marginBottom: '8px', alignItems: 'stretch' }}>
             {/* Box Emitente */}
-            <div style={{ flex: 1.2, background: `${accentColor}12`, border: `0.1mm solid ${accentColor}25`, padding: '4px', borderRadius: '1.5px' }}>
+            <div style={{ flex: 2.5, background: `${accentColor}12`, border: `0.1mm solid ${accentColor}25`, padding: '4px', borderRadius: '1.5px' }}>
               <div style={{ fontSize: '4.5px', fontWeight: 800, color: accentColor, textTransform: 'uppercase', marginBottom: '2px', borderBottom: `0.1mm solid ${accentColor}30`, paddingBottom: '1.5px' }}>IDENTIFICAÇÃO DO EMITENTE</div>
-              <div style={{ fontSize: '3.4px', color: '#555', lineHeight: 1.35 }}>
+              <div style={{ fontSize: '3.4px', color: '#555', lineHeight: 1.45 }}>
                 <div style={{ fontWeight: 700, color: accentColor }}>{clinicaNome || marca}</div>
-                <div style={{ fontWeight: 600 }}>{crmLine}</div>
-                <div style={{ marginTop: '1.5px', opacity: 0.8 }}>{endereco}</div>
-                <div style={{ fontWeight: 600, whiteSpace: 'nowrap' }}>{mainPhone.replace(/ \/ /g, '  ·  ')}</div>
+                {crmLine && <div style={{ fontWeight: 600 }}>{crmLine}</div>}
+                {endereco && <div style={{ marginTop: '1px', opacity: 0.8 }}>{endereco}</div>}
+                {mainPhone && <div style={{ fontWeight: 600, whiteSpace: 'nowrap' }}>{mainPhone}</div>}
+                {cartaoContacts?.email && <div style={{ opacity: 0.8 }}>{cartaoContacts.email}</div>}
+                {cartaoContacts?.site && <div style={{ opacity: 0.8 }}>{cartaoContacts.site}</div>}
               </div>
             </div>
-            
+
             {/* Logo e Vias */}
-            <div style={{ flex: 0.8, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: '4px' }}>
-               <div style={{ transform: 'scale(1.4)', transformOrigin: 'center' }}>
-                 <LogoPreviewHTML editData={editData} color={logoColor} layout={logoLayout} scaleFactor={0.25} crm={crmLine} hideTagline={hideTagline} />
-               </div>
-               <div style={{ fontSize: '3.5px', color: '#aaa', textTransform: 'uppercase', letterSpacing: '0.3px', textAlign: 'center', marginTop: '4px' }}>
+            <div style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: '4px' }}>
+               <LogoPreviewHTML editData={editData} color={logoColor} layout={logoLayout} scaleFactor={0.3} crm={crmLine} hideTagline={hideTagline} />
+               <div style={{ fontSize: '3.5px', color: '#aaa', textTransform: 'uppercase', letterSpacing: '0.3px', textAlign: 'center', marginTop: '2px' }}>
                   1ª VIA FARMÁCIA<br/>2ª VIA PACIENTE
                </div>
             </div>
@@ -1235,21 +1235,21 @@ function ControleEspecialPreview({ accentColor, patternSrc, editData, logoColor,
             </div>
             <div style={{ marginTop: '3px' }}>
               <span style={{ fontSize: '4px', fontWeight: 700, color: '#333' }}>PRESCRIÇÃO:</span>
-              {[1,2,3,4,5,6].map(i => (
+              {[1,2,3,4,5,6,7,8].map(i => (
                 <div key={i} style={{ borderBottom: '0.1mm solid #f5f5f5', height: '8px' }}></div>
               ))}
             </div>
           </div>
 
           {/* Data e Assinatura */}
-          <div style={{ marginTop: 'auto', display: 'flex', gap: '15px', alignItems: 'flex-start', padding: '15px 15px' }}>
+          <div style={{ marginTop: 'auto', display: 'flex', gap: '15px', alignItems: 'flex-start', padding: '10px 15px' }}>
              <div style={{ width: '38%', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-                <div style={{ width: '100%', borderTop: '0.8px solid #333' }} />
-                <div style={{ fontSize: '7.5px', fontWeight: 700, color: '#333', marginTop: '3px' }}>Data</div>
+                <div style={{ width: '100%', borderTop: '0.5px solid #999' }} />
+                <div style={{ fontSize: '5.5px', fontWeight: 400, color: '#888', marginTop: '2px' }}>Data</div>
              </div>
              <div style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-                <div style={{ width: '100%', borderTop: '0.8px solid #333' }} />
-                <div style={{ fontSize: '7.5px', fontWeight: 700, color: '#333', marginTop: '3px' }}>Assinatura do Médico</div>
+                <div style={{ width: '100%', borderTop: '0.5px solid #999' }} />
+                <div style={{ fontSize: '5.5px', fontWeight: 400, color: '#888', marginTop: '2px' }}>Assinatura do Médico</div>
              </div>
           </div>
 
@@ -2189,7 +2189,7 @@ body { margin:0; } @media print { @page { size: A5 portrait; margin:0; } }
 
         const _lColor = logoColor || _accent;
         const _lLayout = logoLayout || 'stacked';
-        const logoHtmlCe = `<div style="width:72mm;display:flex;flex-direction:column;align-items:center;justify-content:center;">${ReactDOMServer.renderToString(<LogoPreviewHTML editData={_brandData} color={_lColor} layout={_lLayout} scaleFactor={0.62} crm={crmLine} hideTagline={false} />)}</div>`;
+        const logoHtmlCe = `<div style="width:38mm;display:flex;flex-direction:column;align-items:center;justify-content:center;">${ReactDOMServer.renderToString(<LogoPreviewHTML editData={_brandData} color={_lColor} layout={_lLayout} scaleFactor={0.62} crm={crmLine} hideTagline={false} />)}</div>`;
 
         const html = `<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Receituário Controle Especial - ${marca}</title>${fiCe}
 <style>* { box-sizing:border-box; margin:0; padding:0; print-color-adjust:exact !important; -webkit-print-color-adjust:exact !important; }
@@ -2204,53 +2204,55 @@ body { width:${W + BLEED*2}mm; height:${H + BLEED*2}mm; position:relative; overf
 <div style="position:relative;width:${W + BLEED*2}mm;height:${H + BLEED*2}mm;overflow:hidden;">
     ${patternBorder}
     
-    <div style="position:absolute;top:${BLEED + BORDER + 16}mm;left:${BLEED + BORDER + 8}mm;right:${BLEED + BORDER + 8}mm;bottom:${BLEED + BORDER + 4}mm;display:flex;flex-direction:column;gap:5mm;z-index:3;">
-        <div style="text-align:center;font-size:11pt;font-weight:800;color:#aaa;letter-spacing:2pt;text-transform:uppercase;margin-bottom:2mm;">RECEITUÁRIO DE CONTROLE ESPECIAL</div>
+    <div style="position:absolute;top:${BLEED + BORDER + 8}mm;left:${BLEED + BORDER + 8}mm;right:${BLEED + BORDER + 8}mm;bottom:${BLEED + BORDER + 4}mm;display:flex;flex-direction:column;gap:3mm;z-index:3;">
+        <div style="text-align:center;font-size:9pt;font-weight:800;color:#aaa;letter-spacing:2pt;text-transform:uppercase;margin-bottom:1mm;">RECEITUÁRIO DE CONTROLE ESPECIAL</div>
 
-        <div style="display:flex;gap:8mm;align-items:flex-start;">
-            <div style="flex:1.2;background:${_accent}08;border:0.2mm solid ${_accent}20;padding:3.5mm 4mm;border-radius:1.5mm;min-height:28mm;">
-                <div style="font-size:7.5pt;font-weight:800;color:${_accent};margin-bottom:1.5mm;border-bottom:0.2mm solid ${_accent}20;padding-bottom:1mm;text-transform:uppercase;">IDENTIFICAÇÃO DO EMITENTE</div>
-                <div style="font-size:8pt;line-height:1.4;color:#444;">
+        <div style="display:flex;gap:6mm;align-items:stretch;">
+            <div style="flex:2.5;background:${_accent}08;border:0.2mm solid ${_accent}20;padding:3mm 4mm;border-radius:1.5mm;">
+                <div style="font-size:7pt;font-weight:800;color:${_accent};margin-bottom:1.5mm;border-bottom:0.2mm solid ${_accent}20;padding-bottom:1mm;text-transform:uppercase;">IDENTIFICAÇÃO DO EMITENTE</div>
+                <div style="font-size:7.5pt;line-height:1.5;color:#444;">
                     <div style="font-weight:700;color:${_accent};">${clinicaNome || marca}</div>
-                    <div style="font-weight:700;">${crmLine || ''}</div>
-                    <div style="opacity:0.8;font-size:7pt;margin-top:1mm;">${endereco || ''}</div>
-                    <div style="font-weight:700;margin-top:1.5mm;font-size:7.5pt;white-space:nowrap;">${allPhones.replace(/<br\/>/g, '  ·  ').replace(/ \/ /g, '  ·  ')}</div>
+                    ${crmLine ? `<div style="font-weight:700;">${crmLine}</div>` : ''}
+                    ${endereco ? `<div style="opacity:0.8;font-size:6.5pt;margin-top:0.5mm;">${endereco}</div>` : ''}
+                    ${allPhones ? `<div style="font-weight:700;margin-top:0.5mm;font-size:7pt;white-space:nowrap;">${allPhones}</div>` : ''}
+                    ${email ? `<div style="opacity:0.8;font-size:6.5pt;">${email}</div>` : ''}
+                    ${site ? `<div style="opacity:0.8;font-size:6.5pt;">${site}</div>` : ''}
                 </div>
             </div>
-            <div style="flex:0.8;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2mm;padding-top:1mm;">
+            <div style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3mm;">
                 ${logoHtmlCe}
-                <div style="font-size:7pt;font-weight:600;color:#bbb;text-transform:uppercase;letter-spacing:0.5pt;text-align:center;line-height:1.2;">1ª VIA FARMÁCIA<br/>2ª VIA PACIENTE</div>
+                <div style="font-size:6.5pt;font-weight:600;color:#bbb;text-transform:uppercase;letter-spacing:0.5pt;text-align:center;line-height:1.4;">1ª VIA FARMÁCIA<br/>2ª VIA PACIENTE</div>
             </div>
         </div>
 
-        <div style="display:flex;flex-direction:column;gap:3mm;">
-            ${['PACIENTE', 'ENDEREÇO'].map(l => `<div style="border-bottom:0.15mm solid #eee;padding-bottom:1.5mm;display:flex;gap:3mm;"><span style="font-size:8.5pt;font-weight:700;color:#333;text-transform:uppercase;">${l}:</span></div>`).join('')}
-            <div style="margin-top:2mm;">
-               <div style="font-size:8.5pt;font-weight:700;color:#333;margin-bottom:1.5mm;">PRESCRIÇÃO:</div>
-               ${Array.from({length: 6}).map(() => `<div style="border-bottom:0.1mm solid #f2f2f2;height:7.5mm;"></div>`).join('')}
+        <div style="display:flex;flex-direction:column;gap:2.5mm;">
+            ${['PACIENTE', 'ENDEREÇO'].map(l => `<div style="border-bottom:0.15mm solid #eee;padding-bottom:1.5mm;display:flex;gap:3mm;"><span style="font-size:8pt;font-weight:700;color:#333;text-transform:uppercase;">${l}:</span></div>`).join('')}
+            <div style="margin-top:1mm;">
+               <div style="font-size:8pt;font-weight:700;color:#333;margin-bottom:1mm;">PRESCRIÇÃO:</div>
+               ${Array.from({length: 8}).map(() => `<div style="border-bottom:0.1mm solid #f2f2f2;height:7mm;"></div>`).join('')}
             </div>
         </div>
 
-        <div style="margin-top:12mm;display:flex;gap:15mm;align-items:flex-start;padding:0 5mm;margin-bottom:8mm;">
+        <div style="margin-top:auto;display:flex;gap:15mm;align-items:flex-start;padding:0 5mm;margin-bottom:3mm;">
              <div style="width:38mm;display:flex;flex-direction:column;align-items:center;">
-                <div style="width:100%;border-top:0.25mm solid #000;"></div>
-                <div style="font-size:8pt;margin-top:2mm;color:#333;">Data</div>
+                <div style="width:100%;border-top:0.2mm solid #999;"></div>
+                <div style="font-size:7pt;font-weight:400;margin-top:1.5mm;color:#888;">Data</div>
              </div>
              <div style="flex:1;display:flex;flex-direction:column;align-items:center;">
-                <div style="width:100%;border-top:0.25mm solid #000;"></div>
-                <div style="font-size:8pt;font-weight:700;margin-top:2mm;color:#333;">Assinatura do Médico</div>
+                <div style="width:100%;border-top:0.2mm solid #999;"></div>
+                <div style="font-size:7pt;font-weight:400;margin-top:1.5mm;color:#888;">Assinatura do Médico</div>
              </div>
         </div>
 
-        <div style="display:flex;gap:6mm;height:26mm;margin-bottom:2mm;">
+        <div style="display:flex;gap:6mm;height:24mm;">
              <div style="flex:1;background:${_accent}10;border:0.2mm solid ${_accent}25;padding:2.5mm 4mm;border-radius:1.5mm;">
-                <div style="font-size:7pt;font-weight:800;color:${_accent};margin-bottom:1.5mm;text-align:center;text-transform:uppercase;">IDENTIFICAÇÃO DO COMPRADOR</div>
+                <div style="font-size:6.5pt;font-weight:800;color:${_accent};margin-bottom:1.5mm;text-align:center;text-transform:uppercase;">IDENTIFICAÇÃO DO COMPRADOR</div>
                 <div style="display:flex;flex-direction:column;gap:1mm;">
-                  ${['Nome', 'Ident.', 'Endereço', 'Cidade'].map(f => `<div style="border-bottom:0.1mm solid rgba(0,0,0,0.08);height:3.8mm;"></div>`).join('')}
+                  ${['Nome', 'Ident.', 'Endereço', 'Cidade'].map(f => `<div style="border-bottom:0.1mm solid rgba(0,0,0,0.08);height:3.5mm;"></div>`).join('')}
                 </div>
              </div>
              <div style="flex:1;border:0.2mm solid #ddd;border-radius:1.5mm;position:relative;">
-                <div style="position:absolute;bottom:2.5mm;left:0;right:0;text-align:center;font-size:6.5pt;color:#bbb;text-transform:uppercase;font-weight:700;">ASSINATURA DO FARMACÊUTICO</div>
+                <div style="position:absolute;bottom:2.5mm;left:0;right:0;text-align:center;font-size:6pt;color:#bbb;text-transform:uppercase;font-weight:700;">ASSINATURA DO FARMACÊUTICO</div>
              </div>
         </div>
     </div>
