@@ -1178,6 +1178,93 @@ function ReciboPreview({ accentColor, patternSrc, editData, logoColor, logoLayou
   );
 }
 
+function ControleEspecialPreview({ accentColor, patternSrc, editData, logoColor, logoLayout, cartaoContacts, crmLine, clinicaNome, comBorda, setComBorda, paletteColors, borderColor, setBorderColor, patternScale, setPatternScale, hideTagline, marca }) {
+  const BORDER = 10;
+  const { whatsapp, telefone, telefone2, instagram, site, endereco } = cartaoContacts || {};
+  const mainPhone = [whatsapp || telefone, telefone2].filter(Boolean).join(' / ');
+  const effectiveSrc = comBorda ? patternSrc : null;
+  const solidColor = borderColor || accentColor;
+
+  return (
+    <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', alignItems: 'center' }}>
+      <BordaToggle comBorda={comBorda} setComBorda={setComBorda} accentColor={accentColor} paletteColors={paletteColors} borderColor={borderColor} setBorderColor={setBorderColor} patternScale={patternScale} setPatternScale={setPatternScale} />
+      <div style={{ width: '226px', height: '320px', position: 'relative', boxShadow: '0 6px 30px rgba(0,0,0,0.12)', borderRadius: '4px', overflow: 'hidden', background: '#fff' }}>
+        {/* Borda de estampa */}
+        {effectiveSrc
+          ? <div style={{ position: 'absolute', inset: 0, backgroundImage: `url(${effectiveSrc})`, backgroundSize: `${(patternScale || 150) / 2}px`, backgroundRepeat: 'repeat' }} />
+          : <div style={{ position: 'absolute', inset: 0, background: solidColor }} />}
+        
+        {/* Área branca interna */}
+        <div style={{ position: 'absolute', top: BORDER, left: BORDER, right: BORDER, bottom: BORDER, background: '#fff', display: 'flex', flexDirection: 'column', padding: '10px' }}>
+          
+          <div style={{ textAlign: 'center', fontSize: '5.5px', fontWeight: 800, color: '#999', letterSpacing: '1px', textTransform: 'uppercase', marginBottom: '8px' }}>
+            RECEITUÁRIO DE CONTROLE ESPECIAL
+          </div>
+
+          <div style={{ display: 'flex', gap: '8px', marginBottom: '8px' }}>
+            {/* Box Emitente */}
+            <div style={{ flex: 1.2, background: `${accentColor}12`, border: `0.1mm solid ${accentColor}25`, padding: '4px', borderRadius: '1.5px' }}>
+              <div style={{ fontSize: '4.5px', fontWeight: 800, color: accentColor, textTransform: 'uppercase', marginBottom: '2px', borderBottom: `0.1mm solid ${accentColor}30`, paddingBottom: '1.5px' }}>IDENTIFICAÇÃO DO EMITENTE</div>
+              <div style={{ fontSize: '3.4px', color: '#555', lineHeight: 1.35 }}>
+                <div style={{ fontWeight: 700, color: accentColor }}>{clinicaNome || marca}</div>
+                <div style={{ fontWeight: 600 }}>{crmLine}</div>
+                <div style={{ marginTop: '1.5px', opacity: 0.8 }}>{endereco}</div>
+                <div style={{ fontWeight: 600 }}>{mainPhone}</div>
+              </div>
+            </div>
+            
+            {/* Logo e Vias */}
+            <div style={{ flex: 0.8, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: '4px' }}>
+               <LogoPreviewHTML editData={editData} color={logoColor} layout={logoLayout} scaleFactor={0.2} crm={crmLine} hideTagline={hideTagline} />
+               <div style={{ fontSize: '3.5px', color: '#aaa', textTransform: 'uppercase', letterSpacing: '0.3px', textAlign: 'center' }}>
+                  1ª VIA FARMÁCIA<br/>2ª VIA PACIENTE
+               </div>
+            </div>
+          </div>
+
+          {/* Campos Prescrição */}
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '3px', marginTop: '4px' }}>
+            <div style={{ borderBottom: '0.1mm solid #eee', paddingBottom: '1.5px', display: 'flex', gap: '4px' }}>
+              <span style={{ fontSize: '4px', fontWeight: 700, color: '#333' }}>PACIENTE:</span>
+            </div>
+            <div style={{ borderBottom: '0.1mm solid #eee', paddingBottom: '1.5px', display: 'flex', gap: '4px' }}>
+              <span style={{ fontSize: '4px', fontWeight: 700, color: '#333' }}>ENDEREÇO:</span>
+            </div>
+            <div style={{ marginTop: '3px' }}>
+              <span style={{ fontSize: '4px', fontWeight: 700, color: '#333' }}>PRESCRIÇÃO:</span>
+              {[1,2,3,4,5,6].map(i => (
+                <div key={i} style={{ borderBottom: '0.1mm solid #f5f5f5', height: '8px' }}></div>
+              ))}
+            </div>
+          </div>
+
+          {/* Data e Assinatura */}
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', marginTop: '10px', padding: '0 10px' }}>
+             <div style={{ borderBottom: '0.2mm solid #333', width: '40px', textAlign: 'center', paddingBottom: '1.5px', fontSize: '3.5px' }}>Data</div>
+             <div style={{ borderBottom: '0.2mm solid #333', width: '80px', textAlign: 'center', paddingBottom: '1.5px', fontSize: '3.5px', fontWeight: 700 }}>Assinatura do Médico</div>
+          </div>
+
+          {/* Rodapé Obrigatório */}
+          <div style={{ marginTop: 'auto', display: 'flex', gap: '5px' }}>
+             <div style={{ flex: 1, background: `${accentColor}18`, border: `0.1mm solid ${accentColor}30`, padding: '4px', borderRadius: '1.5px' }}>
+                <div style={{ fontSize: '3.5px', fontWeight: 800, color: accentColor, textTransform: 'uppercase', marginBottom: '2px', textAlign: 'center' }}>IDENTIFICAÇÃO DO COMPRADOR</div>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5px' }}>
+                  {['Nome', 'Ident.', 'Endereço', 'Cidade'].map(f => (
+                    <div key={f} style={{ borderBottom: '0.05mm solid rgba(0,0,0,0.1)', height: '4px' }}></div>
+                  ))}
+                </div>
+             </div>
+             <div style={{ flex: 1, border: '0.1mm solid #ddd', borderRadius: '1.5px', position: 'relative' }}>
+                <div style={{ position: 'absolute', bottom: '2px', left: 0, right: 0, textAlign: 'center', fontSize: '3px', color: '#aaa', textTransform: 'uppercase' }}>ASSINATURA DO FARMACÊUTICO</div>
+             </div>
+          </div>
+
+        </div>
+      </div>
+    </div>
+  );
+}
+
 function AtestadoPreview({ accentColor, patternSrc, editData, logoColor, logoLayout, crmLine, clinicaNome, marca, cartaoContacts, comBorda, setComBorda, paletteColors, borderColor, setBorderColor, patternScale, setPatternScale, hideTagline }) {
   const BORDER = 14;
   const { whatsapp, telefone, instagram, site, endereco } = cartaoContacts || {};
@@ -2075,7 +2162,92 @@ body { margin:0; } @media print { @page { size: A5 portrait; margin:0; } }
       return;
     }
 
-      // ── RECIBO A5 (Layout Autoral) ───────────────────────────────────
+      // ── RECEITUÁRIO DE CONTROLE ESPECIAL ────────────────────────────
+      if (item.includes('Controle Especial')) {
+        const BLEED = 3;
+        const _ffCe = brand.editData?.fontFamily || 'Playfair Display';
+        const _lfCe = LOCAL_FONT_FACES[_ffCe];
+        const fiCe = `<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;600;700;800&display=swap" rel="stylesheet">${_lfCe ? `<style>${_lfCe}</style>` : `<link href="https://fonts.googleapis.com/css2?family=${_ffCe.replace(/ /g,'+')}:wght@400;700&display=swap" rel="stylesheet">`}`;
+        
+        const W = 148, H = 210;
+        const BORDER = 10;
+        const _bcCe = borderColor || accentColor;
+        
+        const patternBorder = (comBorda && patternSrc) ? `
+          <div style="position:absolute;inset:0;background-image:url(${patternSrc});background-size:${(patternScale * 0.45).toFixed(1)}mm;background-repeat:repeat;"></div>
+          <div style="position:absolute;top:${BORDER}mm;left:${BORDER}mm;right:${BORDER}mm;bottom:${BORDER}mm;background:#fff;"></div>
+        ` : comBorda ? `<div style="position:absolute;inset:0;background:#fff;"></div>` : `<div style="position:absolute;inset:0;background:#fff;border:${BORDER}mm solid ${_bcCe};box-sizing:border-box;"></div>`;
+
+        const html = `<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Receituário Controle Especial - ${marca}</title>${fiCe}
+<style>* { box-sizing:border-box; margin:0; padding:0; print-color-adjust:exact !important; -webkit-print-color-adjust:exact !important; }
+body { width:${W + BLEED*2}mm; height:${H + BLEED*2}mm; position:relative; overflow:hidden; background:#fff; font-family:'Montserrat',sans-serif; }
+.cm { position:absolute; width:10mm; height:10mm; border-color:rgba(0,0,0,0.5); border-style:solid; border-width:0; pointer-events:none; }
+.cm-tl { top:0; left:0; border-top:0.2mm solid; border-left:0.2mm solid; }
+.cm-tr { top:0; right:0; border-top:0.2mm solid; border-right:0.2mm solid; }
+.cm-bl { bottom:0; left:0; border-bottom:0.2mm solid; border-left:0.2mm solid; }
+.cm-br { bottom:0; right:0; border-bottom:0.2mm solid; border-right:0.2mm solid; }
+@media print { body { margin:0; } @page { size: ${W + BLEED*2}mm ${H + BLEED*2}mm; margin:0; } }
+</style></head><body>
+<div style="position:relative;width:${W + BLEED*2}mm;height:${H + BLEED*2}mm;overflow:hidden;">
+    ${patternBorder}
+    <div style="position:absolute;top:${BLEED + BORDER + 5}mm;left:${BLEED + BORDER + 10}mm;right:${BLEED + BORDER + 10}mm;bottom:${BLEED + BORDER + 5}mm;display:flex;flex-direction:column;">
+        
+        <div style="text-align:center;font-size:14pt;font-weight:800;color:#999;letter-spacing:2pt;margin-bottom:10mm;">RECEITUÁRIO DE CONTROLE ESPECIAL</div>
+
+        <div style="display:flex;gap:12mm;margin-bottom:10mm;">
+            <div style="flex:1.3;background:${accentColor}10;border:0.2mm solid ${accentColor}25;padding:5mm;border-radius:2mm;">
+                <div style="font-size:11pt;font-weight:800;color:${accentColor};margin-bottom:4mm;border-bottom:0.3mm solid ${accentColor}30;padding-bottom:2mm;">IDENTIFICAÇÃO DO EMITENTE</div>
+                <div style="font-size:9.5pt;line-height:1.5;color:#444;">
+                    <div style="font-weight:700;color:${accentColor};font-size:11pt;">${clinicaNome || marca}</div>
+                    <div style="font-weight:700;">${crmLine || ''}</div>
+                    <div style="margin-top:2mm;opacity:0.8;">${endereco || ''}</div>
+                    <div style="font-weight:700;margin-top:2mm;border-top:0.1mm solid ${accentColor}15;padding-top:2mm;">${allPhones}</div>
+                </div>
+            </div>
+            <div style="flex:0.7;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6mm;">
+                <div style="width:50mm;">${logoHtmlWithCrm}</div>
+                <div style="font-size:9pt;font-weight:600;color:#aaa;text-transform:uppercase;letter-spacing:1pt;text-align:center;line-height:1.5;">1ª VIA FARMÁCIA<br/>2ª VIA PACIENTE</div>
+            </div>
+        </div>
+
+        <div style="display:flex;flex-direction:column;gap:5mm;">
+            ${['PACIENTE', 'ENDEREÇO'].map(l => `<div style="border-bottom:0.1mm solid #ddd;padding-bottom:2mm;display:flex;gap:4mm;"><span style="font-size:10pt;font-weight:700;color:#111;text-transform:uppercase;">${l}:</span></div>`).join('')}
+            <div style="margin-top:4mm;">
+               <div style="font-size:10pt;font-weight:700;color:#111;margin-bottom:2mm;">PRESCRIÇÃO:</div>
+               ${Array.from({length: 10}).map(() => `<div style="border-bottom:0.1mm solid #f0f0f0;height:10mm;"></div>`).join('')}
+            </div>
+        </div>
+
+        <div style="margin-top:15mm;display:flex;justify-content:space-between;align-items:flex-end;padding:0 10mm;">
+             <div style="border-bottom:0.3mm solid #111;width:50mm;text-align:center;padding-bottom:2mm;font-size:9pt;">Data</div>
+             <div style="border-bottom:0.3mm solid #111;width:100mm;text-align:center;padding-bottom:2mm;font-size:9pt;font-weight:700;">Assinatura do Médico</div>
+        </div>
+
+        <div style="margin-top:auto;display:flex;gap:10mm;height:45mm;">
+             <div style="flex:1;background:${accentColor}15;border:0.2mm solid ${accentColor}30;padding:5mm;border-radius:2mm;">
+                <div style="font-size:9pt;font-weight:800;color:${accentColor};margin-bottom:4mm;text-align:center;text-transform:uppercase;">IDENTIFICAÇÃO DO COMPRADOR</div>
+                <div style="display:flex;flex-direction:column;gap:1.5mm;">
+                  ${['Nome', 'Ident.', 'Endereço', 'Cidade', 'Estado e Telefone'].map(f => `<div style="border-bottom:0.1mm solid rgba(0,0,0,0.1);height:6mm;"></div>`).join('')}
+                </div>
+             </div>
+             <div style="flex:1;border:0.2mm solid #ddd;border-radius:2mm;position:relative;">
+                <div style="position:absolute;bottom:4mm;left:0;right:0;text-align:center;font-size:8.5pt;color:#aaa;text-transform:uppercase;font-weight:700;">ASSINATURA DO FARMACÊUTICO</div>
+             </div>
+        </div>
+
+    </div>
+    <div class="cm cm-tl"></div><div class="cm cm-tr"></div><div class="cm cm-bl"></div><div class="cm cm-br"></div>
+</div>
+</body></html>`;
+
+        const iframe = document.createElement('iframe');
+        iframe.style.cssText = 'position:fixed;top:-9999px;left:-9999px;width:300mm;height:400mm;border:none;visibility:hidden;';
+        document.body.appendChild(iframe);
+        iframe.contentDocument.open(); iframe.contentDocument.write(html); iframe.contentDocument.close();
+        const prevT = document.title;
+        iframe.contentWindow.document.fonts.ready.then(() => { setTimeout(() => { document.title = `Controle Especial - ${marca}`; iframe.contentWindow.focus(); iframe.contentWindow.print(); setTimeout(() => { document.title = prevT; iframe.remove(); }, 3000); }, 1000); });
+        return;
+      }
       if (item === 'Recibo') {
         const BLEED = 3;
         const _ffRec = brand.editData?.fontFamily || 'Playfair Display';
@@ -2315,7 +2487,9 @@ ${fontImports2}
             ? <ReciboPreview accentColor={accentColor} patternSrc={patternSrc} cartaoContacts={cartaoContacts} crmLine={crmLine} editData={{ ...editData, tagline: localSlogan }} logoColor={logoColor} comBorda={comBorda} setComBorda={setComBorda} clinicaNome={clinicaNome} setClinicaNome={setClinicaNome} logoLayout={logoLayout} paletteColors={paletteColors} borderColor={borderColor} setBorderColor={setBorderColor} patternScale={patternScale} setPatternScale={setPatternScale} marca={marca} />
           : currentItem.includes('Cartão de Retorno')
             ? <CartaoRetornoPreview accentColor={accentColor} patternSrc={patternSrc} cartaoContacts={cartaoContacts} crmLine={crmLine} editData={{ ...editData, tagline: localSlogan }} logoColor={logoColor} comBorda={comBorda} setComBorda={setComBorda} clinicaNome={clinicaNome} setClinicaNome={setClinicaNome} logoLayout={logoLayout} paletteColors={paletteColors} borderColor={borderColor} setBorderColor={setBorderColor} patternScale={patternScale} setPatternScale={setPatternScale} />
-            : currentItem.includes('Atestado Médico')
+            : currentItem.includes('Controle Especial')
+            ? <ControleEspecialPreview accentColor={accentColor} patternSrc={patternSrc} cartaoContacts={cartaoContacts} crmLine={crmLine} editData={{ ...editData, tagline: localSlogan }} logoColor={logoColor} comBorda={comBorda} setComBorda={setComBorda} clinicaNome={clinicaNome} setClinicaNome={setClinicaNome} logoLayout={logoLayout} paletteColors={paletteColors} borderColor={borderColor} setBorderColor={setBorderColor} patternScale={patternScale} setPatternScale={setPatternScale} marca={marca} />
+          : currentItem.includes('Atestado Médico')
               ? <AtestadoPreview accentColor={accentColor} patternSrc={patternSrc} editData={{ ...editData, tagline: localSlogan }} logoColor={logoColor} logoLayout={logoLayout} crmLine={crmLine} clinicaNome={clinicaNome} marca={marca} cartaoContacts={cartaoContacts} comBorda={comBorda} setComBorda={setComBorda} paletteColors={paletteColors} borderColor={borderColor} setBorderColor={setBorderColor} patternScale={patternScale} setPatternScale={setPatternScale} />
               : currentItem.includes('Pasta')
                 ? <PastaPreview brand={brand} editData={{ ...editData, tagline: localSlogan }} accentColor={accentColor} solidColor={paletteColors[0]} logoColor={logoColor} logoLayout={logoLayout} isSaude={isSaude} crmLine={crmLine} clinicaNome={clinicaNome} cartaoContacts={cartaoContacts} comBorda={comBorda} setComBorda={setComBorda} patternSrc={patternSrc} paletteColors={paletteColors} borderColor={borderColor} setBorderColor={setBorderColor} patternScale={patternScale} setPatternScale={setPatternScale} folderRoof={folderRoof} />
