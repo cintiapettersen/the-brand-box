@@ -1822,9 +1822,9 @@ ${versoHtml}
         </div>`;
 
       const versoHtml = `
-        <div style="position:absolute;top:${BLEED + ABA + H}mm;left:0;width:${totalW}mm;height:${H + BLEED}mm;background:#fff;transform:rotate(180deg);overflow:hidden;">
+        <div style="position:absolute;top:${BLEED + ABA + H}mm;left:0;width:${totalW}mm;height:${H + BLEED}mm;background:#fff;overflow:hidden;">
             ${genPattern(1)}
-            <div style="position:absolute;bottom:15mm;left:50%;transform:translateX(-50%);width:max-content;max-width:${W - 20}mm;background:rgba(255,255,255,0.97);padding:5mm 10mm;border-radius:2mm;display:flex;flex-direction:column;align-items:center;justify-content:center;border:0.2mm solid #ddd;text-align:center;white-space:nowrap;">
+            <div style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%) rotate(180deg);width:max-content;max-width:${W - 20}mm;background:rgba(255,255,255,0.97);padding:5mm 10mm;border-radius:2mm;display:flex;flex-direction:column;align-items:center;justify-content:center;border:0.2mm solid #ddd;text-align:center;white-space:nowrap;">
                <div style="font-size:9pt;color:#666;font-family:'Montserrat',sans-serif;line-height:1.65;">
                   ${clinicaNome ? `<div style="font-weight:700;color:${accentColor};font-size:10.5pt;margin-bottom:1.5mm;">${clinicaNome}</div>` : ''}
                   ${endereco ? `<div style="opacity:0.75;">${endereco}</div>` : ''}
