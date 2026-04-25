@@ -1107,7 +1107,7 @@ function A5ItemPreview({ accentColor, patternSrc, editData, logoColor, logoLayou
 
 function ReciboPreview({ accentColor, patternSrc, editData, logoColor, logoLayout, cartaoContacts, crmLine, clinicaNome, comBorda, setComBorda, paletteColors, borderColor, setBorderColor, patternScale, setPatternScale, hideTagline, marca }) {
   const BORDER = 10;
-  const { whatsapp, telefone, instagram, site, endereco } = cartaoContacts || {};
+  const { whatsapp, telefone, telefone2, instagram, site, endereco } = cartaoContacts || {};
   const mainPhone = whatsapp || telefone || '';
   const effectiveSrc = comBorda ? patternSrc : null;
   const solidColor = borderColor || accentColor;
