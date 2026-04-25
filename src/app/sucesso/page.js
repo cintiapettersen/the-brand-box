@@ -55,7 +55,7 @@ function LogoPreviewHTML({ editData, color, layout = 'stacked', scaleFactor = 1,
         ))}
       </div>
       {(editData?.tagline && !hideTagline) && (
-        <div style={{ fontFamily: "'Montserrat', sans-serif", fontSize: `${(0.42 * scaleFactor).toFixed(2)}rem`, letterSpacing: '1.5px', textTransform: 'uppercase', color: '#999', marginTop: `${6 * scaleFactor}px`, textAlign: 'center', lineHeight: 1.2, maxWidth: '100%', whiteSpace: 'nowrap' }}>
+        <div style={{ fontFamily: "'Montserrat', sans-serif", fontSize: `${(0.42 * scaleFactor).toFixed(2)}rem`, letterSpacing: '0.4px', textTransform: 'uppercase', color: '#999', marginTop: `${6 * scaleFactor}px`, textAlign: 'center', lineHeight: 1.2, maxWidth: '100%', whiteSpace: 'nowrap' }}>
           {editData.tagline}
         </div>
       )}
@@ -1242,29 +1242,27 @@ function ControleEspecialPreview({ accentColor, patternSrc, editData, logoColor,
           </div>
 
           {/* Data e Assinatura */}
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginTop: '10px', padding: '0 8px' }}>
-             <div style={{ width: '40px', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-                <div style={{ width: '100%', borderTop: '0.2mm solid #333' }}></div>
-                <div style={{ fontSize: '3.5px', marginTop: '1.5px', color: '#333' }}>Data</div>
+          <div style={{ marginTop: 'auto', display: 'flex', gap: '15px', alignItems: 'flex-start', padding: '15px 15px' }}>
+             <div style={{ width: '38%', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+                <div style={{ width: '100%', borderTop: '0.8px solid #333' }} />
+                <div style={{ fontSize: '7.5px', color: '#333', marginTop: '3px' }}>Data</div>
              </div>
-             <div style={{ width: '80px', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-                <div style={{ width: '100%', borderTop: '0.2mm solid #333' }}></div>
-                <div style={{ fontSize: '3.5px', fontWeight: 700, marginTop: '1.5px', color: '#333' }}>Assinatura do Médico</div>
+             <div style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+                <div style={{ width: '100%', borderTop: '0.8px solid #333' }} />
+                <div style={{ fontSize: '7.5px', fontWeight: 700, color: '#333', marginTop: '3px' }}>Assinatura do Médico</div>
              </div>
           </div>
 
           {/* Rodapé Obrigatório */}
-          <div style={{ marginTop: 'auto', display: 'flex', gap: '5px' }}>
-             <div style={{ flex: 1, background: `${accentColor}18`, border: `0.1mm solid ${accentColor}30`, padding: '3.5px 4px', borderRadius: '1.5px' }}>
-                <div style={{ fontSize: '3.3px', fontWeight: 800, color: accentColor, textTransform: 'uppercase', marginBottom: '1.5px', textAlign: 'center' }}>IDENTIFICAÇÃO DO COMPRADOR</div>
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '1.2px' }}>
-                  {['Nome', 'Ident.', 'Endereço', 'Cidade', 'Estado/Tel'].map(f => (
-                    <div key={f} style={{ borderBottom: '0.05mm solid rgba(0,0,0,0.1)', height: '4mm' }}></div>
-                  ))}
+          <div style={{ display: 'flex', gap: '10px', height: '52px', marginBottom: '4px', marginTop: '4px' }}>
+             <div style={{ flex: 1, background: `${accentColor}10`, border: `0.5px solid ${accentColor}25`, padding: '4px 8px', borderRadius: '4px' }}>
+                <div style={{ fontSize: '7px', fontWeight: 800, color: accentColor, marginBottom: '2.5px', textAlign: 'center', textTransform: 'uppercase' }}>IDENTIFICAÇÃO DO COMPRADOR</div>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5px' }}>
+                  {['Nome', 'Ident.', 'Endereço', 'Cidade', 'Estado/Tel'].map(f => <div key={f} style={{ borderBottom: '0.5px solid rgba(0,0,0,0.06)', height: '6px' }} />)}
                 </div>
              </div>
-             <div style={{ flex: 1, border: '0.1mm solid #ddd', borderRadius: '1.5px', position: 'relative' }}>
-                <div style={{ position: 'absolute', bottom: '2.5px', left: 0, right: 0, textAlign: 'center', fontSize: '3.2px', color: '#aaa', textTransform: 'uppercase', fontWeight: 700 }}>ASSINATURA DO FARMACÊUTICO</div>
+             <div style={{ flex: 1, border: '0.5px solid #ddd', borderRadius: '4px', position: 'relative' }}>
+                <div style={{ position: 'absolute', bottom: '4px', left: 0, right: 0, textAlign: 'center', fontSize: '7px', color: '#bbb', textTransform: 'uppercase', fontWeight: 700 }}>ASSINATURA DO FARMACÊUTICO</div>
              </div>
           </div>
 
