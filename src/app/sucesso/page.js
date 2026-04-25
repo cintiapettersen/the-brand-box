@@ -1785,46 +1785,44 @@ ${versoHtml}
       return;
     }
 
-    // ── ENVELOPE SACO ──────────────────────────────────────────────
+    // ── ENVELOPE SACO (GABARITO HORIZONTAL PRINTI) ──────────────────
     if (item.includes('Envelope Saco')) {
       const BLEED = 3;
-      const W = 225; const H = 311; // Face
-      const ABA = 40; const COLA_V = 15;
-      const totalW = W + (COLA_V * 2) + (BLEED * 2);
-      const totalH = (H * 2) + ABA + (BLEED * 2);
+      const W = 225; const H = 311; 
+      const ABA_S = 40; const ABA_I = 15; const ABA_L = 15;
+      // totalW: sangria + aba lateral + frente + verso + sangria
+      const totalW = (BLEED * 2) + ABA_L + (W * 2); 
+      // totalH: sangria + aba superior + altura + aba inferior + sangria
+      const totalH = (BLEED * 2) + ABA_S + H + ABA_I;
 
       const solidColor = borderColor || accentColor;
-      // Regra de proporção: preview 220px = 225mm PDF → scale = 1/(220×0.2646/patternScale_px_per_tile)
-      // patternScale/4 px no preview → (patternScale/4) × (225/58.2) mm no PDF = patternScale × 0.967mm... mas
-      // fator 0.18 funciona para Ofício (310px→220mm): 220/(310×4)=0.177. Para Saco (220px→225mm): 225/(220×4)=0.256 grande demais
-      // visualmente o iframe PDF é ~2× mais largo que o preview → dividir por 2: 0.128 ≈ 0.13
       const genPattern = (scaleMul = 1) => patternSrc ? `<div style="position:absolute;inset:0;background-image:url(${patternSrc});background-size:${(patternScale * 0.18 * scaleMul).toFixed(1)}mm;opacity:1;"></div>` : '';
-      // Regra de proporção logo: boost para 2.2 para melhor presença no Saco
       const _sacLogoZoom = 2.2;
       const _sacPhones = [mainPhone, telefone].filter(Boolean).join(' / ');
-
-      // Imports de fonte — necessário para logo aparecer com a fonte da marca
       const _ffSac = brand.editData?.fontFamily || 'Playfair Display';
       const _lfSac = LOCAL_FONT_FACES[_ffSac];
       const _fiSac = `<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;600;700&display=swap" rel="stylesheet">${_lfSac ? `<style>${_lfSac}</style>` : `<link href="https://fonts.googleapis.com/css2?family=${_ffSac.replace(/ /g,'+')}:wght@400;700&display=swap" rel="stylesheet">`}`;
-
       const _waIcoSac = `<svg viewBox="0 0 24 24" width="9" height="9" style="display:inline;vertical-align:middle;margin-right:1.5pt;" fill="#25D366"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>`;
 
-      const abaHtml = `<div style="position:absolute;top:0;left:0;width:${totalW}mm;height:${ABA + BLEED}mm;background:${solidColor};"></div>`;
+      // Componentes do gabarito horizontal
+      const abaSupHtml = `<div style="position:absolute;top:0;left:${BLEED + ABA_L}mm;width:${W}mm;height:${ABA_S + BLEED}mm;background:${solidColor};"></div>`;
+      const abaInfHtml = `<div style="position:absolute;top:${BLEED + ABA_S + H}mm;left:${BLEED + ABA_L}mm;width:${W}mm;height:${ABA_I + BLEED}mm;background:#fff;z-index:1;">${genPattern(1)}</div>`;
+      const abaLatHtml = `<div style="position:absolute;top:${BLEED + ABA_S}mm;left:0;width:${ABA_L + BLEED}mm;height:${H}mm;background:#fff;z-index:1;">${genPattern(1)}</div>`;
 
-      // Gabarito Printi: ABA (topo) → FRENTE (meio) → VERSO (baixo, rotacionado)
+      // FRENTE (Centro-Esquerda)
       const frenteHtml = `
-        <div style="position:absolute;top:${BLEED + ABA}mm;left:0;width:${totalW}mm;height:${H}mm;overflow:hidden;background:#fff;">
+        <div style="position:absolute;top:${BLEED + ABA_S}mm;left:${BLEED + ABA_L}mm;width:${W}mm;height:${H}mm;overflow:hidden;background:#fff;z-index:2;">
             ${genPattern(1)}
-            <div style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);z-index:2;background:rgba(255,255,255,0.97);padding:8mm 16mm;border-radius:2mm;border:0.2mm solid #ddd;text-align:center;white-space:nowrap;">
+            <div style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);z-index:3;background:rgba(255,255,255,0.97);padding:8mm 16mm;border-radius:2mm;border:0.2mm solid #ddd;text-align:center;white-space:nowrap;">
               <div style="zoom:${_sacLogoZoom};">${logoHtmlWithCrm}</div>
             </div>
         </div>`;
 
+      // VERSO (Centro-Direita, SEM rotação neste layout)
       const versoHtml = `
-        <div style="position:absolute;top:${BLEED + ABA + H}mm;left:0;width:${totalW}mm;height:${H + BLEED}mm;background:#fff;overflow:hidden;">
+        <div style="position:absolute;top:${BLEED + ABA_S}mm;left:${BLEED + ABA_L + W}mm;width:${W + BLEED}mm;height:${H}mm;background:#fff;overflow:hidden;z-index:2;border-left:0.1mm dashed rgba(0,0,0,0.1);">
             ${genPattern(1)}
-            <div style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%) rotate(180deg);width:max-content;max-width:${W - 20}mm;background:rgba(255,255,255,0.97);padding:5mm 10mm;border-radius:2mm;display:flex;flex-direction:column;align-items:center;justify-content:center;border:0.2mm solid #ddd;text-align:center;white-space:nowrap;">
+            <div style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:max-content;max-width:${W - 20}mm;background:rgba(255,255,255,0.97);padding:5mm 10mm;border-radius:2mm;display:flex;flex-direction:column;align-items:center;justify-content:center;border:0.2mm solid #ddd;text-align:center;white-space:nowrap;">
                <div style="font-size:9pt;color:#666;font-family:'Montserrat',sans-serif;line-height:1.65;">
                   ${clinicaNome ? `<div style="font-weight:700;color:${accentColor};font-size:10.5pt;margin-bottom:1.5mm;">${clinicaNome}</div>` : ''}
                   ${endereco ? `<div style="opacity:0.75;">${endereco}</div>` : ''}
@@ -1835,16 +1833,16 @@ ${versoHtml}
             </div>
         </div>`;
 
-      const html = `<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Envelope Saco - ${marca}</title>${_fiSac}
+      const html = `<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Envelope Saco Gabarito - ${marca}</title>${_fiSac}
 <style>* { box-sizing:border-box; margin:0; padding:0; print-color-adjust:exact !important; -webkit-print-color-adjust:exact !important; }
 body { width:${totalW}mm; height:${totalH}mm; position:relative; overflow:hidden; background:#fff; }
 @media print { body { margin:0; } @page { size: ${totalW}mm ${totalH}mm; margin:0; } }
-</style></head><body><div style="width:${totalW}mm; height:${totalH}mm; position:relative;">${abaHtml}${frenteHtml}${versoHtml}</div></body></html>`;
+</style></head><body><div style="width:${totalW}mm; height:${totalH}mm; position:relative;">${abaSupHtml}${abaInfHtml}${abaLatHtml}${frenteHtml}${versoHtml}</div></body></html>`;
 
       const ex = document.getElementById('_gabarito_iframe'); if (ex) ex.remove();
       const iframe = document.createElement('iframe');
       iframe.id = '_gabarito_iframe';
-      iframe.style.cssText = 'position:fixed;top:-9999px;left:-9999px;width:350mm;height:450mm;border:none;visibility:hidden;';
+      iframe.style.cssText = 'position:fixed;top:-9999px;left:-9999px;width:500mm;height:400mm;border:none;visibility:hidden;';
       document.body.appendChild(iframe);
       iframe.contentDocument.open(); iframe.contentDocument.write(html); iframe.contentDocument.close();
       iframe.contentWindow.document.fonts.ready.then(() => { setTimeout(() => { iframe.contentWindow.focus(); iframe.contentWindow.print(); setTimeout(() => { iframe.remove(); }, 3000); }, 500); });
