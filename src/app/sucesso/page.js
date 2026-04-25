@@ -1254,15 +1254,15 @@ function ControleEspecialPreview({ accentColor, patternSrc, editData, logoColor,
           </div>
 
           {/* Rodapé Obrigatório */}
-          <div style={{ display: 'flex', gap: '10px', height: '52px', marginBottom: '4px', marginTop: '4px' }}>
+          <div style={{ display: 'flex', gap: '10px', height: '48px', marginBottom: '4px', marginTop: '4px' }}>
              <div style={{ flex: 1, background: `${accentColor}10`, border: `0.5px solid ${accentColor}25`, padding: '4px 8px', borderRadius: '4px' }}>
-                <div style={{ fontSize: '7px', fontWeight: 800, color: accentColor, marginBottom: '2.5px', textAlign: 'center', textTransform: 'uppercase' }}>IDENTIFICAÇÃO DO COMPRADOR</div>
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5px' }}>
-                  {['Nome', 'Ident.', 'Endereço', 'Cidade', 'Estado/Tel'].map(f => <div key={f} style={{ borderBottom: '0.5px solid rgba(0,0,0,0.06)', height: '6px' }} />)}
+                <div style={{ fontSize: '5.5px', fontWeight: 800, color: accentColor, marginBottom: '2px', textAlign: 'center', textTransform: 'uppercase' }}>IDENTIFICAÇÃO DO COMPRADOR</div>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '1.2px' }}>
+                  {['Nome', 'Ident.', 'Endereço', 'Cidade', 'Estado/Tel'].map(f => <div key={f} style={{ borderBottom: '0.5px solid rgba(0,0,0,0.06)', height: '5px' }} />)}
                 </div>
              </div>
              <div style={{ flex: 1, border: '0.5px solid #ddd', borderRadius: '4px', position: 'relative' }}>
-                <div style={{ position: 'absolute', bottom: '4px', left: 0, right: 0, textAlign: 'center', fontSize: '7px', color: '#bbb', textTransform: 'uppercase', fontWeight: 700 }}>ASSINATURA DO FARMACÊUTICO</div>
+                <div style={{ position: 'absolute', bottom: '4px', left: 0, right: 0, textAlign: 'center', fontSize: '5.5px', color: '#bbb', textTransform: 'uppercase', fontWeight: 700 }}>ASSINATURA DO FARMACÊUTICO</div>
              </div>
           </div>
 
@@ -2187,10 +2187,8 @@ body { margin:0; } @media print { @page { size: A5 portrait; margin:0; } }
           <div style="position:absolute;top:${BORDER}mm;left:${BORDER}mm;right:${BORDER}mm;bottom:${BORDER}mm;background:#fff;z-index:2;"></div>
         ` : comBorda ? `<div style="position:absolute;inset:0;background:#fff;z-index:1;"></div>` : `<div style="position:absolute;inset:0;background:#fff;border:${BORDER}mm solid ${_bcCe};box-sizing:border-box;z-index:1;"></div>`;
 
-        // Garantir que as variáveis do logo existem
         const _lColor = logoColor || _accent;
         const _lLayout = logoLayout || 'stacked';
-        
         const logoHtmlCe = `<div style="width:72mm;display:flex;flex-direction:column;align-items:center;justify-content:center;">${ReactDOMServer.renderToString(<LogoPreviewHTML editData={_brandData} color={_lColor} layout={_lLayout} scaleFactor={0.62} crm={crmLine} hideTagline={false} />)}</div>`;
 
         const html = `<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Receituário Controle Especial - ${marca}</title>${fiCe}
@@ -2206,17 +2204,17 @@ body { width:${W + BLEED*2}mm; height:${H + BLEED*2}mm; position:relative; overf
 <div style="position:relative;width:${W + BLEED*2}mm;height:${H + BLEED*2}mm;overflow:hidden;">
     ${patternBorder}
     
-    <div style="position:absolute;top:${BLEED + BORDER + 4}mm;left:${BLEED + BORDER + 8}mm;right:${BLEED + BORDER + 8}mm;bottom:${BLEED + BORDER + 4}mm;display:flex;flex-direction:column;gap:5mm;z-index:3;">
-        <div style="text-align:center;font-size:11pt;font-weight:800;color:#aaa;letter-spacing:2pt;text-transform:uppercase;">RECEITUÁRIO DE CONTROLE ESPECIAL</div>
+    <div style="position:absolute;top:${BLEED + BORDER + 10}mm;left:${BLEED + BORDER + 8}mm;right:${BLEED + BORDER + 8}mm;bottom:${BLEED + BORDER + 4}mm;display:flex;flex-direction:column;gap:5mm;z-index:3;">
+        <div style="text-align:center;font-size:11pt;font-weight:800;color:#aaa;letter-spacing:2pt;text-transform:uppercase;margin-bottom:2mm;">RECEITUÁRIO DE CONTROLE ESPECIAL</div>
 
         <div style="display:flex;gap:8mm;align-items:flex-start;">
-            <div style="flex:1.2;background:${_accent}08;border:0.2mm solid ${_accent}20;padding:2.5mm 4mm;border-radius:1.5mm;">
+            <div style="flex:1.2;background:${_accent}08;border:0.2mm solid ${_accent}20;padding:3.5mm 4mm;border-radius:1.5mm;min-height:28mm;">
                 <div style="font-size:7.5pt;font-weight:800;color:${_accent};margin-bottom:1.5mm;border-bottom:0.2mm solid ${_accent}20;padding-bottom:1mm;text-transform:uppercase;">IDENTIFICAÇÃO DO EMITENTE</div>
-                <div style="font-size:8pt;line-height:1.3;color:#444;">
+                <div style="font-size:8pt;line-height:1.4;color:#444;">
                     <div style="font-weight:700;color:${_accent};">${clinicaNome || marca}</div>
                     <div style="font-weight:700;">${crmLine || ''}</div>
                     <div style="opacity:0.8;font-size:7pt;margin-top:1mm;">${endereco || ''}</div>
-                    <div style="font-weight:700;margin-top:1mm;font-size:7.5pt;white-space:nowrap;">${allPhones.replace(/<br\/>/g, '  ·  ').replace(/ \/ /g, '  ·  ')}</div>
+                    <div style="font-weight:700;margin-top:1.5mm;font-size:7.5pt;white-space:nowrap;">${allPhones.replace(/<br\/>/g, '  ·  ').replace(/ \/ /g, '  ·  ')}</div>
                 </div>
             </div>
             <div style="flex:0.8;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2mm;padding-top:1mm;">
@@ -2245,14 +2243,14 @@ body { width:${W + BLEED*2}mm; height:${H + BLEED*2}mm; position:relative; overf
         </div>
 
         <div style="display:flex;gap:6mm;height:26mm;margin-bottom:2mm;">
-             <div style="flex:1;background:${_accent}10;border:0.2mm solid ${_accent}25;padding:2mm 4mm;border-radius:1.5mm;">
+             <div style="flex:1;background:${_accent}10;border:0.2mm solid ${_accent}25;padding:2.5mm 4mm;border-radius:1.5mm;">
                 <div style="font-size:7pt;font-weight:800;color:${_accent};margin-bottom:1.5mm;text-align:center;text-transform:uppercase;">IDENTIFICAÇÃO DO COMPRADOR</div>
                 <div style="display:flex;flex-direction:column;gap:1mm;">
-                  ${['Nome', 'Ident.', 'Endereço', 'Cidade', 'Estado/Tel'].map(f => `<div style="border-bottom:0.1mm solid rgba(0,0,0,0.08);height:3.8mm;"></div>`).join('')}
+                  ${['Nome', 'Ident.', 'Endereço', 'Cidade'].map(f => `<div style="border-bottom:0.1mm solid rgba(0,0,0,0.08);height:3.8mm;"></div>`).join('')}
                 </div>
              </div>
              <div style="flex:1;border:0.2mm solid #ddd;border-radius:1.5mm;position:relative;">
-                <div style="position:absolute;bottom:2mm;left:0;right:0;text-align:center;font-size:6.5pt;color:#bbb;text-transform:uppercase;font-weight:700;">ASSINATURA DO FARMACÊUTICO</div>
+                <div style="position:absolute;bottom:2.5mm;left:0;right:0;text-align:center;font-size:6.5pt;color:#bbb;text-transform:uppercase;font-weight:700;">ASSINATURA DO FARMACÊUTICO</div>
              </div>
         </div>
     </div>
@@ -2262,6 +2260,7 @@ body { width:${W + BLEED*2}mm; height:${H + BLEED*2}mm; position:relative; overf
 </body></html>`;
 
         const iframe = document.createElement('iframe');
+        iframe.id = '_gabarito_iframe';
         iframe.style.cssText = 'position:fixed;top:-9999px;left:-9999px;width:300mm;height:400mm;border:none;visibility:hidden;';
         document.body.appendChild(iframe);
         iframe.contentDocument.open(); iframe.contentDocument.write(html); iframe.contentDocument.close();
