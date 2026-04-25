@@ -1,6 +1,7 @@
 'use client';
 import { useSearchParams } from 'next/navigation';
 import { Suspense, useState, useEffect, useRef } from 'react';
+import ReactDOMServer from 'react-dom/server';
 import BrandTemplateSVG from '../../components/BrandTemplateSVG';
 import { STYLE_ICONS } from '../../lib/styleIcons';
 import html2canvas from 'html2canvas';
