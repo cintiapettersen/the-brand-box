@@ -1198,7 +1198,7 @@ function ControleEspecialPreview({ accentColor, patternSrc, editData, logoColor,
         {/* Área branca interna */}
         <div style={{ position: 'absolute', top: BORDER, left: BORDER, right: BORDER, bottom: BORDER, background: '#fff', display: 'flex', flexDirection: 'column', padding: '10px' }}>
           
-          <div style={{ textAlign: 'center', fontSize: '5.5px', fontWeight: 800, color: '#999', letterSpacing: '1px', textTransform: 'uppercase', marginBottom: '8px' }}>
+          <div style={{ textAlign: 'center', fontSize: '5.5px', fontWeight: 800, color: '#999', letterSpacing: '1px', textTransform: 'uppercase', marginBottom: '16px' }}>
             RECEITUÁRIO DE CONTROLE ESPECIAL
           </div>
 
@@ -1245,7 +1245,7 @@ function ControleEspecialPreview({ accentColor, patternSrc, editData, logoColor,
           <div style={{ marginTop: 'auto', display: 'flex', gap: '15px', alignItems: 'flex-start', padding: '15px 15px' }}>
              <div style={{ width: '38%', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
                 <div style={{ width: '100%', borderTop: '0.8px solid #333' }} />
-                <div style={{ fontSize: '7.5px', color: '#333', marginTop: '3px' }}>Data</div>
+                <div style={{ fontSize: '7.5px', fontWeight: 700, color: '#333', marginTop: '3px' }}>Data</div>
              </div>
              <div style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
                 <div style={{ width: '100%', borderTop: '0.8px solid #333' }} />
@@ -2204,7 +2204,7 @@ body { width:${W + BLEED*2}mm; height:${H + BLEED*2}mm; position:relative; overf
 <div style="position:relative;width:${W + BLEED*2}mm;height:${H + BLEED*2}mm;overflow:hidden;">
     ${patternBorder}
     
-    <div style="position:absolute;top:${BLEED + BORDER + 10}mm;left:${BLEED + BORDER + 8}mm;right:${BLEED + BORDER + 8}mm;bottom:${BLEED + BORDER + 4}mm;display:flex;flex-direction:column;gap:5mm;z-index:3;">
+    <div style="position:absolute;top:${BLEED + BORDER + 16}mm;left:${BLEED + BORDER + 8}mm;right:${BLEED + BORDER + 8}mm;bottom:${BLEED + BORDER + 4}mm;display:flex;flex-direction:column;gap:5mm;z-index:3;">
         <div style="text-align:center;font-size:11pt;font-weight:800;color:#aaa;letter-spacing:2pt;text-transform:uppercase;margin-bottom:2mm;">RECEITUÁRIO DE CONTROLE ESPECIAL</div>
 
         <div style="display:flex;gap:8mm;align-items:flex-start;">
