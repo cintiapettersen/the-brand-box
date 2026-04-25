@@ -2166,76 +2166,83 @@ body { margin:0; } @media print { @page { size: A5 portrait; margin:0; } }
       // ── RECEITUÁRIO DE CONTROLE ESPECIAL ────────────────────────────
       if (item.includes('Controle Especial')) {
         const BLEED = 3;
-        const _ffCe = brand.editData?.fontFamily || 'Playfair Display';
+        const _brandData = brand.editData || {};
+        const _ffCe = _brandData.fontFamily || 'Playfair Display';
         const _lfCe = LOCAL_FONT_FACES[_ffCe];
         const fiCe = `<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;600;700;800&display=swap" rel="stylesheet">${_lfCe ? `<style>${_lfCe}</style>` : `<link href="https://fonts.googleapis.com/css2?family=${_ffCe.replace(/ /g,'+')}:wght@400;700&display=swap" rel="stylesheet">`}`;
         
         const W = 148, H = 210;
         const BORDER = 10;
-        const _bcCe = borderColor || accentColor;
+        const _accent = brand.activeColor || '#dc3495';
+        const _bcCe = borderColor || _accent;
         
         const patternBorder = (comBorda && patternSrc) ? `
-          <div style="position:absolute;inset:0;background-image:url(${patternSrc});background-size:${(patternScale * 0.42).toFixed(1)}mm;background-repeat:repeat;"></div>
-          <div style="position:absolute;top:${BORDER}mm;left:${BORDER}mm;right:${BORDER}mm;bottom:${BORDER}mm;background:#fff;"></div>
-        ` : comBorda ? `<div style="position:absolute;inset:0;background:#fff;"></div>` : `<div style="position:absolute;inset:0;background:#fff;border:${BORDER}mm solid ${_bcCe};box-sizing:border-box;"></div>`;
+          <div style="position:absolute;inset:0;background-image:url(${patternSrc});background-size:${(patternScale * 0.42).toFixed(1)}mm;background-repeat:repeat;z-index:1;"></div>
+          <div style="position:absolute;top:${BORDER}mm;left:${BORDER}mm;right:${BORDER}mm;bottom:${BORDER}mm;background:#fff;z-index:2;"></div>
+        ` : comBorda ? `<div style="position:absolute;inset:0;background:#fff;z-index:1;"></div>` : `<div style="position:absolute;inset:0;background:#fff;border:${BORDER}mm solid ${_bcCe};box-sizing:border-box;z-index:1;"></div>`;
 
-        // Gerar HTML de Logo específico para este tamanho
-        const logoHtmlCe = `<div style="width:42mm;display:flex;flex-direction:column;align-items:center;justify-content:center;">${ReactDOMServer.renderToString(<LogoPreviewHTML editData={brand?.editData} color={logoColor} layout={logoLayout} scaleFactor={0.25} crm={crmLine} hideTagline={false} />)}</div>`;
+        // Garantir que as variáveis do logo existem
+        const _lColor = logoColor || _accent;
+        const _lLayout = logoLayout || 'stacked';
+        
+        const logoHtmlCe = `<div style="width:42mm;display:flex;flex-direction:column;align-items:center;justify-content:center;">${ReactDOMServer.renderToString(<LogoPreviewHTML editData={_brandData} color={_lColor} layout={_lLayout} scaleFactor={0.25} crm={crmLine} hideTagline={false} />)}</div>`;
 
         const html = `<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Receituário Controle Especial - ${marca}</title>${fiCe}
 <style>* { box-sizing:border-box; margin:0; padding:0; print-color-adjust:exact !important; -webkit-print-color-adjust:exact !important; }
 body { width:${W + BLEED*2}mm; height:${H + BLEED*2}mm; position:relative; overflow:hidden; background:#fff; font-family:'Montserrat',sans-serif; }
-.cm { position:absolute; width:10mm; height:10mm; border-color:rgba(0,0,0,0.5); border-style:solid; border-width:0; pointer-events:none; }
+.cm { position:absolute; width:10mm; height:10mm; border-color:rgba(0,0,0,0.5); border-style:solid; border-width:0; pointer-events:none; z-index:10; }
 .cm-tl { top:0; left:0; border-top:0.2mm solid; border-left:0.2mm solid; }
 .cm-tr { top:0; right:0; border-top:0.2mm solid; border-right:0.2mm solid; }
 .cm-bl { bottom:0; left:0; border-bottom:0.2mm solid; border-left:0.2mm solid; }
 .cm-br { bottom:0; right:0; border-bottom:0.2mm solid; border-right:0.2mm solid; }
 @media print { body { margin:0; } @page { size: ${W + BLEED*2}mm ${H + BLEED*2}mm; margin:0; } }
 </style></head><body>
-<div style="position:relative;width:${W + BLEED*2}mm;height:${H + BLEED*2}mm;overflow:hidden;padding:${BLEED + BORDER + 4}mm ${BLEED + BORDER + 8}mm;display:flex;flex-direction:column;gap:5mm;">
+<div style="position:relative;width:${W + BLEED*2}mm;height:${H + BLEED*2}mm;overflow:hidden;">
     ${patternBorder}
     
-    <div style="text-align:center;font-size:11pt;font-weight:800;color:#aaa;letter-spacing:2pt;text-transform:uppercase;">RECEITUÁRIO DE CONTROLE ESPECIAL</div>
+    <div style="position:absolute;top:${BLEED + BORDER + 4}mm;left:${BLEED + BORDER + 8}mm;right:${BLEED + BORDER + 8}mm;bottom:${BLEED + BORDER + 4}mm;display:flex;flex-direction:column;gap:5mm;z-index:3;">
+        <div style="text-align:center;font-size:11pt;font-weight:800;color:#aaa;letter-spacing:2pt;text-transform:uppercase;">RECEITUÁRIO DE CONTROLE ESPECIAL</div>
 
-    <div style="display:flex;gap:8mm;align-items:flex-start;">
-        <div style="flex:1.2;background:${accentColor}08;border:0.2mm solid ${accentColor}20;padding:3mm 4mm;border-radius:1.5mm;">
-            <div style="font-size:8pt;font-weight:800;color:${accentColor};margin-bottom:2mm;border-bottom:0.2mm solid ${accentColor}20;padding-bottom:1mm;text-transform:uppercase;">IDENTIFICAÇÃO DO EMITENTE</div>
-            <div style="font-size:8.5pt;line-height:1.4;color:#444;">
-                <div style="font-weight:700;color:${accentColor};">${clinicaNome || marca}</div>
-                <div style="font-weight:700;">${crmLine || ''}</div>
-                <div style="opacity:0.8;font-size:7.5pt;margin-top:1mm;">${endereco || ''}</div>
-                <div style="font-weight:700;margin-top:1.5mm;">${allPhones}</div>
+        <div style="display:flex;gap:8mm;align-items:flex-start;">
+            <div style="flex:1.2;background:${_accent}08;border:0.2mm solid ${_accent}20;padding:3mm 4mm;border-radius:1.5mm;">
+                <div style="font-size:8pt;font-weight:800;color:${_accent};margin-bottom:2mm;border-bottom:0.2mm solid ${_accent}20;padding-bottom:1mm;text-transform:uppercase;">IDENTIFICAÇÃO DO EMITENTE</div>
+                <div style="font-size:8.5pt;line-height:1.4;color:#444;">
+                    <div style="font-weight:700;color:${_accent};">${clinicaNome || marca}</div>
+                    <div style="font-weight:700;">${crmLine || ''}</div>
+                    <div style="opacity:0.8;font-size:7.5pt;margin-top:1mm;">${endereco || ''}</div>
+                    <div style="font-weight:700;margin-top:1.5mm;">${allPhones}</div>
+                </div>
+            </div>
+            <div style="flex:0.8;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3mm;padding-top:2mm;">
+                ${logoHtmlCe}
+                <div style="font-size:7.5pt;font-weight:600;color:#bbb;text-transform:uppercase;letter-spacing:0.5pt;text-align:center;line-height:1.2;">1ª VIA FARMÁCIA<br/>2ª VIA PACIENTE</div>
             </div>
         </div>
-        <div style="flex:0.8;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3mm;padding-top:2mm;">
-            ${logoHtmlCe}
-            <div style="font-size:7.5pt;font-weight:600;color:#bbb;text-transform:uppercase;letter-spacing:0.5pt;text-align:center;line-height:1.2;">1ª VIA FARMÁCIA<br/>2ª VIA PACIENTE</div>
-        </div>
-    </div>
 
-    <div style="display:flex;flex-direction:column;gap:3mm;">
-        ${['PACIENTE', 'ENDEREÇO'].map(l => `<div style="border-bottom:0.15mm solid #eee;padding-bottom:1.5mm;display:flex;gap:3mm;"><span style="font-size:8.5pt;font-weight:700;color:#333;text-transform:uppercase;">${l}:</span></div>`).join('')}
-        <div style="margin-top:2mm;">
-           <div style="font-size:8.5pt;font-weight:700;color:#333;margin-bottom:1.5mm;">PRESCRIÇÃO:</div>
-           ${Array.from({length: 8}).map(() => `<div style="border-bottom:0.1mm solid #f2f2f2;height:7.5mm;"></div>`).join('')}
-        </div>
-    </div>
-
-    <div style="margin-top:4mm;display:flex;justify-content:space-between;align-items:flex-end;padding:0 8mm;">
-         <div style="border-bottom:0.2mm solid #333;width:35mm;text-align:center;padding-bottom:1.5mm;font-size:8pt;">Data</div>
-         <div style="border-bottom:0.2mm solid #333;width:75mm;text-align:center;padding-bottom:1.5mm;font-size:8pt;font-weight:700;">Assinatura do Médico</div>
-    </div>
-
-    <div style="margin-top:auto;display:flex;gap:6mm;height:32mm;margin-bottom:2mm;">
-         <div style="flex:1;background:${accentColor}10;border:0.2mm solid ${accentColor}25;padding:3mm 4mm;border-radius:1.5mm;">
-            <div style="font-size:7.5pt;font-weight:800;color:${accentColor};margin-bottom:2mm;text-align:center;text-transform:uppercase;">IDENTIFICAÇÃO DO COMPRADOR</div>
-            <div style="display:flex;flex-direction:column;gap:1mm;">
-              ${['Nome', 'Ident.', 'Endereço', 'Cidade', 'Estado/Telefone'].map(f => `<div style="border-bottom:0.1mm solid rgba(0,0,0,0.08);height:4.2mm;"></div>`).join('')}
+        <div style="display:flex;flex-direction:column;gap:3mm;">
+            ${['PACIENTE', 'ENDEREÇO'].map(l => `<div style="border-bottom:0.15mm solid #eee;padding-bottom:1.5mm;display:flex;gap:3mm;"><span style="font-size:8.5pt;font-weight:700;color:#333;text-transform:uppercase;">${l}:</span></div>`).join('')}
+            <div style="margin-top:2mm;">
+               <div style="font-size:8.5pt;font-weight:700;color:#333;margin-bottom:1.5mm;">PRESCRIÇÃO:</div>
+               ${Array.from({length: 8}).map(() => `<div style="border-bottom:0.1mm solid #f2f2f2;height:7.5mm;"></div>`).join('')}
             </div>
-         </div>
-         <div style="flex:1;border:0.2mm solid #ddd;border-radius:1.5mm;position:relative;">
-            <div style="position:absolute;bottom:2mm;left:0;right:0;text-align:center;font-size:7pt;color:#bbb;text-transform:uppercase;font-weight:700;">ASSINATURA DO FARMACÊUTICO</div>
-         </div>
+        </div>
+
+        <div style="margin-top:4mm;display:flex;justify-content:space-between;align-items:flex-end;padding:0 8mm;">
+             <div style="border-bottom:0.2mm solid #333;width:35mm;text-align:center;padding-bottom:1.5mm;font-size:8pt;">Data</div>
+             <div style="border-bottom:0.2mm solid #333;width:75mm;text-align:center;padding-bottom:1.5mm;font-size:8pt;font-weight:700;">Assinatura do Médico</div>
+        </div>
+
+        <div style="margin-top:auto;display:flex;gap:6mm;height:32mm;margin-bottom:2mm;">
+             <div style="flex:1;background:${_accent}10;border:0.2mm solid ${_accent}25;padding:3mm 4mm;border-radius:1.5mm;">
+                <div style="font-size:7.5pt;font-weight:800;color:${_accent};margin-bottom:2mm;text-align:center;text-transform:uppercase;">IDENTIFICAÇÃO DO COMPRADOR</div>
+                <div style="display:flex;flex-direction:column;gap:1mm;">
+                  ${['Nome', 'Ident.', 'Endereço', 'Cidade', 'Estado/Telefone'].map(f => `<div style="border-bottom:0.1mm solid rgba(0,0,0,0.08);height:4.2mm;"></div>`).join('')}
+                </div>
+             </div>
+             <div style="flex:1;border:0.2mm solid #ddd;border-radius:1.5mm;position:relative;">
+                <div style="position:absolute;bottom:2mm;left:0;right:0;text-align:center;font-size:7pt;color:#bbb;text-transform:uppercase;font-weight:700;">ASSINATURA DO FARMACÊUTICO</div>
+             </div>
+        </div>
     </div>
 
     <div class="cm cm-tl"></div><div class="cm cm-tr"></div><div class="cm cm-bl"></div><div class="cm cm-br"></div>
