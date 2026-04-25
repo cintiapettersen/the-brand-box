@@ -2174,9 +2174,12 @@ body { margin:0; } @media print { @page { size: A5 portrait; margin:0; } }
         const _bcCe = borderColor || accentColor;
         
         const patternBorder = (comBorda && patternSrc) ? `
-          <div style="position:absolute;inset:0;background-image:url(${patternSrc});background-size:${(patternScale * 0.45).toFixed(1)}mm;background-repeat:repeat;"></div>
+          <div style="position:absolute;inset:0;background-image:url(${patternSrc});background-size:${(patternScale * 0.42).toFixed(1)}mm;background-repeat:repeat;"></div>
           <div style="position:absolute;top:${BORDER}mm;left:${BORDER}mm;right:${BORDER}mm;bottom:${BORDER}mm;background:#fff;"></div>
         ` : comBorda ? `<div style="position:absolute;inset:0;background:#fff;"></div>` : `<div style="position:absolute;inset:0;background:#fff;border:${BORDER}mm solid ${_bcCe};box-sizing:border-box;"></div>`;
+
+        // Gerar HTML de Logo específico para este tamanho
+        const logoHtmlCe = `<div style="width:42mm;display:flex;flex-direction:column;align-items:center;justify-content:center;">${ReactDOMServer.renderToString(<LogoPreviewHTML editData={brand?.editData} color={logoColor} layout={logoLayout} scaleFactor={0.25} crm={crmLine} hideTagline={false} />)}</div>`;
 
         const html = `<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Receituário Controle Especial - ${marca}</title>${fiCe}
 <style>* { box-sizing:border-box; margin:0; padding:0; print-color-adjust:exact !important; -webkit-print-color-adjust:exact !important; }
@@ -2188,57 +2191,64 @@ body { width:${W + BLEED*2}mm; height:${H + BLEED*2}mm; position:relative; overf
 .cm-br { bottom:0; right:0; border-bottom:0.2mm solid; border-right:0.2mm solid; }
 @media print { body { margin:0; } @page { size: ${W + BLEED*2}mm ${H + BLEED*2}mm; margin:0; } }
 </style></head><body>
-<div style="position:relative;width:${W + BLEED*2}mm;height:${H + BLEED*2}mm;overflow:hidden;">
+<div style="position:relative;width:${W + BLEED*2}mm;height:${H + BLEED*2}mm;overflow:hidden;padding:${BLEED + BORDER + 4}mm ${BLEED + BORDER + 8}mm;display:flex;flex-direction:column;gap:5mm;">
     ${patternBorder}
-    <div style="position:absolute;top:${BLEED + BORDER + 5}mm;left:${BLEED + BORDER + 10}mm;right:${BLEED + BORDER + 10}mm;bottom:${BLEED + BORDER + 5}mm;display:flex;flex-direction:column;">
-        
-        <div style="text-align:center;font-size:14pt;font-weight:800;color:#999;letter-spacing:2pt;margin-bottom:10mm;">RECEITUÁRIO DE CONTROLE ESPECIAL</div>
+    
+    <div style="text-align:center;font-size:11pt;font-weight:800;color:#aaa;letter-spacing:2pt;text-transform:uppercase;">RECEITUÁRIO DE CONTROLE ESPECIAL</div>
 
-        <div style="display:flex;gap:12mm;margin-bottom:10mm;">
-            <div style="flex:1.3;background:${accentColor}10;border:0.2mm solid ${accentColor}25;padding:5mm;border-radius:2mm;">
-                <div style="font-size:11pt;font-weight:800;color:${accentColor};margin-bottom:4mm;border-bottom:0.3mm solid ${accentColor}30;padding-bottom:2mm;">IDENTIFICAÇÃO DO EMITENTE</div>
-                <div style="font-size:9.5pt;line-height:1.5;color:#444;">
-                    <div style="font-weight:700;color:${accentColor};font-size:11pt;">${clinicaNome || marca}</div>
-                    <div style="font-weight:700;">${crmLine || ''}</div>
-                    <div style="margin-top:2mm;opacity:0.8;">${endereco || ''}</div>
-                    <div style="font-weight:700;margin-top:2mm;border-top:0.1mm solid ${accentColor}15;padding-top:2mm;">${allPhones}</div>
-                </div>
-            </div>
-            <div style="flex:0.7;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6mm;">
-                <div style="width:50mm;">${logoHtmlWithCrm}</div>
-                <div style="font-size:9pt;font-weight:600;color:#aaa;text-transform:uppercase;letter-spacing:1pt;text-align:center;line-height:1.5;">1ª VIA FARMÁCIA<br/>2ª VIA PACIENTE</div>
+    <div style="display:flex;gap:8mm;align-items:flex-start;">
+        <div style="flex:1.2;background:${accentColor}08;border:0.2mm solid ${accentColor}20;padding:3mm 4mm;border-radius:1.5mm;">
+            <div style="font-size:8pt;font-weight:800;color:${accentColor};margin-bottom:2mm;border-bottom:0.2mm solid ${accentColor}20;padding-bottom:1mm;text-transform:uppercase;">IDENTIFICAÇÃO DO EMITENTE</div>
+            <div style="font-size:8.5pt;line-height:1.4;color:#444;">
+                <div style="font-weight:700;color:${accentColor};">${clinicaNome || marca}</div>
+                <div style="font-weight:700;">${crmLine || ''}</div>
+                <div style="opacity:0.8;font-size:7.5pt;margin-top:1mm;">${endereco || ''}</div>
+                <div style="font-weight:700;margin-top:1.5mm;">${allPhones}</div>
             </div>
         </div>
-
-        <div style="display:flex;flex-direction:column;gap:4mm;">
-            ${['PACIENTE', 'ENDEREÇO'].map(l => `<div style="border-bottom:0.1mm solid #ddd;padding-bottom:1.5mm;display:flex;gap:4mm;"><span style="font-size:9.5pt;font-weight:700;color:#111;text-transform:uppercase;">${l}:</span></div>`).join('')}
-            <div style="margin-top:2mm;">
-               <div style="font-size:9.5pt;font-weight:700;color:#111;margin-bottom:1mm;">PRESCRIÇÃO:</div>
-               ${Array.from({length: 10}).map(() => `<div style="border-bottom:0.1mm solid #f0f0f0;height:8mm;"></div>`).join('')}
-            </div>
+        <div style="flex:0.8;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3mm;padding-top:2mm;">
+            ${logoHtmlCe}
+            <div style="font-size:7.5pt;font-weight:600;color:#bbb;text-transform:uppercase;letter-spacing:0.5pt;text-align:center;line-height:1.2;">1ª VIA FARMÁCIA<br/>2ª VIA PACIENTE</div>
         </div>
-
-        <div style="margin-top:8mm;display:flex;justify-content:space-between;align-items:flex-end;padding:0 5mm;">
-             <div style="border-bottom:0.3mm solid #111;width:45mm;text-align:center;padding-bottom:2mm;font-size:8.5pt;">Data</div>
-             <div style="border-bottom:0.3mm solid #111;width:90mm;text-align:center;padding-bottom:2mm;font-size:8.5pt;font-weight:700;">Assinatura do Médico</div>
-        </div>
-
-        <div style="margin-top:auto;display:flex;gap:8mm;height:38mm;">
-             <div style="flex:1;background:${accentColor}12;border:0.2mm solid ${accentColor}25;padding:4mm;border-radius:2mm;">
-                <div style="font-size:8.5pt;font-weight:800;color:${accentColor};margin-bottom:3mm;text-align:center;text-transform:uppercase;">IDENTIFICAÇÃO DO COMPRADOR</div>
-                <div style="display:flex;flex-direction:column;gap:1.5mm;">
-                  ${['Nome', 'Ident.', 'Endereço', 'Cidade', 'Estado e Telefone'].map(f => `<div style="border-bottom:0.1mm solid rgba(0,0,0,0.1);height:5mm;"></div>`).join('')}
-                </div>
-             </div>
-             <div style="flex:1;border:0.2mm solid #ddd;border-radius:2mm;position:relative;">
-                <div style="position:absolute;bottom:3mm;left:0;right:0;text-align:center;font-size:8pt;color:#aaa;text-transform:uppercase;font-weight:700;">ASSINATURA DO FARMACÊUTICO</div>
-             </div>
-        </div>
-
     </div>
+
+    <div style="display:flex;flex-direction:column;gap:3mm;">
+        ${['PACIENTE', 'ENDEREÇO'].map(l => `<div style="border-bottom:0.15mm solid #eee;padding-bottom:1.5mm;display:flex;gap:3mm;"><span style="font-size:8.5pt;font-weight:700;color:#333;text-transform:uppercase;">${l}:</span></div>`).join('')}
+        <div style="margin-top:2mm;">
+           <div style="font-size:8.5pt;font-weight:700;color:#333;margin-bottom:1.5mm;">PRESCRIÇÃO:</div>
+           ${Array.from({length: 8}).map(() => `<div style="border-bottom:0.1mm solid #f2f2f2;height:7.5mm;"></div>`).join('')}
+        </div>
+    </div>
+
+    <div style="margin-top:4mm;display:flex;justify-content:space-between;align-items:flex-end;padding:0 8mm;">
+         <div style="border-bottom:0.2mm solid #333;width:35mm;text-align:center;padding-bottom:1.5mm;font-size:8pt;">Data</div>
+         <div style="border-bottom:0.2mm solid #333;width:75mm;text-align:center;padding-bottom:1.5mm;font-size:8pt;font-weight:700;">Assinatura do Médico</div>
+    </div>
+
+    <div style="margin-top:auto;display:flex;gap:6mm;height:32mm;margin-bottom:2mm;">
+         <div style="flex:1;background:${accentColor}10;border:0.2mm solid ${accentColor}25;padding:3mm 4mm;border-radius:1.5mm;">
+            <div style="font-size:7.5pt;font-weight:800;color:${accentColor};margin-bottom:2mm;text-align:center;text-transform:uppercase;">IDENTIFICAÇÃO DO COMPRADOR</div>
+            <div style="display:flex;flex-direction:column;gap:1mm;">
+              ${['Nome', 'Ident.', 'Endereço', 'Cidade', 'Estado/Telefone'].map(f => `<div style="border-bottom:0.1mm solid rgba(0,0,0,0.08);height:4.2mm;"></div>`).join('')}
+            </div>
+         </div>
+         <div style="flex:1;border:0.2mm solid #ddd;border-radius:1.5mm;position:relative;">
+            <div style="position:absolute;bottom:2mm;left:0;right:0;text-align:center;font-size:7pt;color:#bbb;text-transform:uppercase;font-weight:700;">ASSINATURA DO FARMACÊUTICO</div>
+         </div>
+    </div>
+
     <div class="cm cm-tl"></div><div class="cm cm-tr"></div><div class="cm cm-bl"></div><div class="cm cm-br"></div>
 </div>
 </body></html>`;
+
+        const iframe = document.createElement('iframe');
+        iframe.style.cssText = 'position:fixed;top:-9999px;left:-9999px;width:300mm;height:400mm;border:none;visibility:hidden;';
+        document.body.appendChild(iframe);
+        iframe.contentDocument.open(); iframe.contentDocument.write(html); iframe.contentDocument.close();
+        const prevT = document.title;
+        iframe.contentWindow.document.fonts.ready.then(() => { setTimeout(() => { document.title = `Controle Especial - ${marca}`; iframe.contentWindow.focus(); iframe.contentWindow.print(); setTimeout(() => { document.title = prevT; iframe.remove(); }, 3000); }, 1000); });
+        return;
+      }
 
         const iframe = document.createElement('iframe');
         iframe.style.cssText = 'position:fixed;top:-9999px;left:-9999px;width:300mm;height:400mm;border:none;visibility:hidden;';
