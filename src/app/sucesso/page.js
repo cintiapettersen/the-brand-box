@@ -2223,24 +2223,24 @@ body { width:${W + BLEED*2}mm; height:${H + BLEED*2}mm; position:relative; overf
             ${['PACIENTE', 'ENDEREÇO'].map(l => `<div style="border-bottom:0.15mm solid #eee;padding-bottom:1.5mm;display:flex;gap:3mm;"><span style="font-size:8.5pt;font-weight:700;color:#333;text-transform:uppercase;">${l}:</span></div>`).join('')}
             <div style="margin-top:2mm;">
                <div style="font-size:8.5pt;font-weight:700;color:#333;margin-bottom:1.5mm;">PRESCRIÇÃO:</div>
-               ${Array.from({length: 7}).map(() => `<div style="border-bottom:0.1mm solid #f2f2f2;height:8.5mm;"></div>`).join('')}
+               ${Array.from({length: 6}).map(() => `<div style="border-bottom:0.1mm solid #f2f2f2;height:8.5mm;"></div>`).join('')}
             </div>
         </div>
 
-        <div style="margin-top:10mm;display:flex;justify-content:space-between;align-items:flex-end;padding:0 8mm;position:relative;">
-             <div style="border-bottom:0.2mm solid #333;width:35mm;text-align:center;padding-bottom:1.5mm;font-size:8pt;">Data</div>
-             <div style="border-bottom:0.2mm solid #333;width:75mm;text-align:center;padding-bottom:1.5mm;font-size:8pt;font-weight:700;">Assinatura do Médico</div>
+        <div style="margin-top:8mm;display:flex;gap:12mm;align-items:flex-end;padding:0 5mm;">
+             <div style="width:38mm;border-bottom:0.2mm solid #333;text-align:center;padding-bottom:1.5mm;font-size:8pt;">Data</div>
+             <div style="flex:1;border-bottom:0.2mm solid #333;text-align:center;padding-bottom:1.5mm;font-size:8pt;font-weight:700;">Assinatura do Médico</div>
         </div>
 
-        <div style="margin-top:auto;display:flex;gap:6mm;height:32mm;margin-bottom:2mm;">
-             <div style="flex:1;background:${_accent}10;border:0.2mm solid ${_accent}25;padding:3mm 4mm;border-radius:1.5mm;">
-                <div style="font-size:7.5pt;font-weight:800;color:${_accent};margin-bottom:2mm;text-align:center;text-transform:uppercase;">IDENTIFICAÇÃO DO COMPRADOR</div>
+        <div style="margin-top:auto;display:flex;gap:6mm;height:28mm;margin-bottom:3mm;">
+             <div style="flex:1;background:${_accent}10;border:0.2mm solid ${_accent}25;padding:2mm 4mm;border-radius:1.5mm;">
+                <div style="font-size:7pt;font-weight:800;color:${_accent};margin-bottom:1.5mm;text-align:center;text-transform:uppercase;">IDENTIFICAÇÃO DO COMPRADOR</div>
                 <div style="display:flex;flex-direction:column;gap:1mm;">
-                  ${['Nome', 'Ident.', 'Endereço', 'Cidade', 'Estado/Telefone'].map(f => `<div style="border-bottom:0.1mm solid rgba(0,0,0,0.08);height:4.2mm;"></div>`).join('')}
+                  ${['Nome', 'Ident.', 'Endereço', 'Cidade', 'Estado/Tel'].map(f => `<div style="border-bottom:0.1mm solid rgba(0,0,0,0.08);height:3.8mm;"></div>`).join('')}
                 </div>
              </div>
              <div style="flex:1;border:0.2mm solid #ddd;border-radius:1.5mm;position:relative;">
-                <div style="position:absolute;bottom:2mm;left:0;right:0;text-align:center;font-size:7pt;color:#bbb;text-transform:uppercase;font-weight:700;">ASSINATURA DO FARMACÊUTICO</div>
+                <div style="position:absolute;bottom:2mm;left:0;right:0;text-align:center;font-size:6.5pt;color:#bbb;text-transform:uppercase;font-weight:700;">ASSINATURA DO FARMACÊUTICO</div>
              </div>
         </div>
     </div>
