@@ -2185,7 +2185,7 @@ body { margin:0; } @media print { @page { size: A5 portrait; margin:0; } }
         const _lColor = logoColor || _accent;
         const _lLayout = logoLayout || 'stacked';
         
-        const logoHtmlCe = `<div style="width:60mm;display:flex;flex-direction:column;align-items:center;justify-content:center;">${ReactDOMServer.renderToString(<LogoPreviewHTML editData={_brandData} color={_lColor} layout={_lLayout} scaleFactor={0.41} crm={crmLine} hideTagline={false} />)}</div>`;
+        const logoHtmlCe = `<div style="width:72mm;display:flex;flex-direction:column;align-items:center;justify-content:center;">${ReactDOMServer.renderToString(<LogoPreviewHTML editData={_brandData} color={_lColor} layout={_lLayout} scaleFactor={0.62} crm={crmLine} hideTagline={false} />)}</div>`;
 
         const html = `<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Receituário Controle Especial - ${marca}</title>${fiCe}
 <style>* { box-sizing:border-box; margin:0; padding:0; print-color-adjust:exact !important; -webkit-print-color-adjust:exact !important; }
@@ -2210,7 +2210,7 @@ body { width:${W + BLEED*2}mm; height:${H + BLEED*2}mm; position:relative; overf
                     <div style="font-weight:700;color:${_accent};">${clinicaNome || marca}</div>
                     <div style="font-weight:700;">${crmLine || ''}</div>
                     <div style="opacity:0.8;font-size:7pt;margin-top:1mm;">${endereco || ''}</div>
-                    <div style="font-weight:700;margin-top:1mm;font-size:7.5pt;">${allPhones.replace(/<br\/>/g, '  ·  ')}</div>
+                    <div style="font-weight:700;margin-top:1mm;font-size:7.5pt;white-space:nowrap;">${allPhones.replace(/<br\/>/g, '  ·  ').replace(/ \/ /g, '  ·  ')}</div>
                 </div>
             </div>
             <div style="flex:0.8;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2mm;padding-top:1mm;">
