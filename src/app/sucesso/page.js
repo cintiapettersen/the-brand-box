@@ -1192,10 +1192,9 @@ function GenericItemPreview({ item, marca, accentColor, patternSrc, editData, lo
   );
 }
 
-function EnvelopeSacoPreview({ brand, editData, accentColor, patternSrc, logoColor, logoLayout, comBorda, setComBorda, paletteColors, borderColor, setBorderColor, patternScale, setPatternScale, cartaoContacts, crmLine, localSlogan }) {
-  const { clinica, endereco, instagram, site, whatsapp, telefone } = cartaoContacts || {};
+function EnvelopeSacoPreview({ brand, editData, accentColor, patternSrc, logoColor, logoLayout, comBorda, setComBorda, paletteColors, borderColor, setBorderColor, patternScale, setPatternScale, cartaoContacts, crmLine, localSlogan, clinicaNome }) {
+  const { endereco, instagram, site, whatsapp, telefone, email } = cartaoContacts || {};
   const mainPhone = whatsapp || telefone || '';
-  const clinicaNome = clinica || brand.editData?.marca || '';
   const effectiveSrc = comBorda ? patternSrc : null;
   const solidColor = borderColor || accentColor;
   const allPhones = [mainPhone, telefone].filter(Boolean).join(' / ');
@@ -1207,11 +1206,12 @@ function EnvelopeSacoPreview({ brand, editData, accentColor, patternSrc, logoCol
         {/* FRENTE */}
         <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '8px' }}>
           <span style={{ fontSize: '0.65rem', color: '#aaa', textTransform: 'uppercase', letterSpacing: '1px' }}>Frente</span>
-          <div style={{ width: '220px', height: '300px', position: 'relative', background: '#fff', boxShadow: '0 4px 20px rgba(0,0,0,0.1)', borderRadius: '4px', overflow: 'hidden' }}>
-            {/* Aba sólida no preview frontal */}
-            <div style={{ position: 'absolute', top: 0, left: 0, right: 0, height: '45px', background: solidColor, opacity: 0.9 }} />
-            <div style={{ position: 'absolute', bottom: '8px', right: '8px', width: '160px', textAlign: 'right' }}>
-              <LogoPreviewHTML editData={{ ...editData, tagline: localSlogan }} color={logoColor} layout={logoLayout} scaleFactor={0.7} crm={crmLine} />
+          <div style={{ width: '220px', height: '300px', position: 'relative', backgroundColor: comBorda && patternSrc ? 'transparent' : '#fff', backgroundImage: comBorda && patternSrc ? `url(${patternSrc})` : 'none', backgroundSize: `${(patternScale || 150) / 4}px`, boxShadow: '0 4px 20px rgba(0,0,0,0.1)', borderRadius: '4px', overflow: 'hidden' }}>
+            {/* Aba superior */}
+            <div style={{ position: 'absolute', top: 0, left: 0, right: 0, height: '45px', background: solidColor, opacity: 0.9, zIndex: 5 }} />
+            {/* Etiqueta com logo — centralizada na área abaixo da aba */}
+            <div style={{ position: 'absolute', top: '172px', left: '50%', transform: 'translate(-50%, -50%)', padding: '10px 18px', background: 'rgba(255,255,255,0.97)', backdropFilter: 'blur(4px)', borderRadius: '2px', border: '0.5px solid #ddd', display: 'inline-flex', alignItems: 'center', justifyContent: 'center' }}>
+              <LogoPreviewHTML editData={{ ...editData, tagline: localSlogan }} color={logoColor} layout={logoLayout} scaleFactor={0.42} crm={crmLine} />
             </div>
           </div>
         </div>
@@ -1223,12 +1223,17 @@ function EnvelopeSacoPreview({ brand, editData, accentColor, patternSrc, logoCol
             {/* Aba superior simulada */}
             <div style={{ position: 'absolute', top: 0, left: 0, right: 0, height: '45px', background: solidColor, zIndex: 5 }} />
             
-            {/* Rodapé de dados CENTRALIZADO */}
-            <div style={{ position: 'absolute', bottom: '15px', left: '15px', right: '15px', padding: '12px', background: 'rgba(255,255,255,0.95)', backdropFilter: 'blur(4px)', borderRadius: '4px', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', border: '0.5px solid #eee', textAlign: 'center', fontFamily: 'Montserrat, sans-serif' }}>
-              <div style={{ fontSize: '6.5px', color: '#666', lineHeight: 1.4 }}>
-                  <div style={{ opacity: 0.8 }}>{endereco}</div>
-                  <div style={{ fontWeight: 700, color: '#333', fontSize: '7.5px', margin: '2px 0' }}>{allPhones}</div>
-                  <div style={{ opacity: 0.8 }}>{[site, instagram ? `@${instagram}` : ''].filter(Boolean).join('  ·  ')}</div>
+            {/* Etiqueta discreta — igual ao Envelope Ofício */}
+            <div style={{ position: 'absolute', bottom: '12px', left: '50%', transform: 'translateX(-50%)', width: 'fit-content', maxWidth: '78%', padding: '5px 10px', background: 'rgba(255,255,255,0.97)', backdropFilter: 'blur(4px)', borderRadius: '2px', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', border: '0.5px solid #ddd', textAlign: 'center', fontFamily: 'Montserrat, sans-serif', whiteSpace: 'nowrap' }}>
+              <div style={{ fontSize: '4.5px', color: '#666', lineHeight: 1.55 }}>
+                  {clinicaNome && <div style={{ fontWeight: 700, color: accentColor, fontSize: '5px', marginBottom: '1px' }}>{clinicaNome}</div>}
+                  {endereco && <div style={{ opacity: 0.75 }}>{endereco}</div>}
+                  {mainPhone && <div style={{ fontWeight: 700, color: '#333', fontSize: '5.5px', margin: '1px 0', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '2px' }}>
+                    <svg viewBox="0 0 24 24" width="6" height="6" fill="#25D366" style={{ flexShrink: 0 }}><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+                    {mainPhone}
+                  </div>}
+                  {email && <div style={{ opacity: 0.75 }}>{email}</div>}
+                  {(site || instagram) && <div style={{ opacity: 0.75 }}>{[site, instagram ? `@${instagram}` : ''].filter(Boolean).join('  ·  ')}</div>}
               </div>
             </div>
           </div>
@@ -1238,11 +1243,10 @@ function EnvelopeSacoPreview({ brand, editData, accentColor, patternSrc, logoCol
   );
 }
 
-function EnvelopeOficioPreview({ brand, editData, accentColor, patternSrc, logoColor, logoLayout, comBorda, setComBorda, paletteColors, borderColor, setBorderColor, patternScale, setPatternScale, cartaoContacts, crmLine, localSlogan }) {
+function EnvelopeOficioPreview({ brand, editData, accentColor, patternSrc, logoColor, logoLayout, comBorda, setComBorda, paletteColors, borderColor, setBorderColor, patternScale, setPatternScale, cartaoContacts, crmLine, localSlogan, clinicaNome }) {
   const BORDER = 15;
-  const { clinica, endereco, instagram, site, whatsapp, telefone } = cartaoContacts || {};
+  const { endereco, instagram, site, whatsapp, telefone, email } = cartaoContacts || {};
   const mainPhone = whatsapp || telefone || '';
-  const clinicaNome = clinica || brand.editData?.marca || '';
   const effectiveSrc = comBorda ? patternSrc : null;
   const solidColor = borderColor || accentColor;
   const allPhones = [mainPhone, telefone].filter(Boolean).join(' / ');
@@ -1259,7 +1263,7 @@ function EnvelopeOficioPreview({ brand, editData, accentColor, patternSrc, logoC
             {/* Aba sólida no preview frontal */}
             <div style={{ position: 'absolute', top: 0, left: 0, right: 0, height: '35px', background: solidColor, opacity: 0.9 }} />
             <div style={{ position: 'absolute', bottom: '8px', right: '8px', width: '130px', textAlign: 'right' }}>
-              <LogoPreviewHTML editData={{ ...editData, tagline: localSlogan }} color={logoColor} layout={logoLayout} scaleFactor={0.5} crm={crmLine} />
+              <LogoPreviewHTML editData={{ ...editData, tagline: localSlogan }} color={logoColor} layout={logoLayout} scaleFactor={0.5} />
             </div>
           </div>
         </div>
@@ -1271,12 +1275,17 @@ function EnvelopeOficioPreview({ brand, editData, accentColor, patternSrc, logoC
             {/* Aba superior simulada */}
             <div style={{ position: 'absolute', top: 0, left: 0, right: 0, height: '35px', background: solidColor, zIndex: 5 }} />
             
-            {/* Rodapé de dados CENTRALIZADO */}
-            <div style={{ position: 'absolute', bottom: '15px', left: '15px', right: '15px', padding: '10px', background: 'rgba(255,255,255,0.95)', backdropFilter: 'blur(4px)', borderRadius: '2px', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', border: '0.5px solid #eee', textAlign: 'center', fontFamily: 'Montserrat, sans-serif' }}>
-              <div style={{ fontSize: '5.5px', color: '#666', lineHeight: 1.4 }}>
-                  <div style={{ opacity: 0.8 }}>{endereco}</div>
-                  <div style={{ fontWeight: 700, color: '#333', fontSize: '6.5px', margin: '1px 0' }}>{allPhones}</div>
-                  <div style={{ opacity: 0.8 }}>{[site, instagram ? `@${instagram}` : ''].filter(Boolean).join('  ·  ')}</div>
+            {/* Etiqueta discreta — largura automática */}
+            <div style={{ position: 'absolute', bottom: '10px', left: '50%', transform: 'translateX(-50%)', width: 'fit-content', maxWidth: '78%', padding: '5px 10px', background: 'rgba(255,255,255,0.97)', backdropFilter: 'blur(4px)', borderRadius: '2px', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', border: '0.5px solid #ddd', textAlign: 'center', fontFamily: 'Montserrat, sans-serif', whiteSpace: 'nowrap' }}>
+              <div style={{ fontSize: '4.5px', color: '#666', lineHeight: 1.55 }}>
+                  {clinicaNome && <div style={{ fontWeight: 700, color: accentColor, fontSize: '5px', marginBottom: '1px' }}>{clinicaNome}</div>}
+                  {endereco && <div style={{ opacity: 0.75 }}>{endereco}</div>}
+                  {allPhones && <div style={{ fontWeight: 700, color: '#333', fontSize: '5.5px', margin: '1px 0', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '2px' }}>
+                    <svg viewBox="0 0 24 24" width="6" height="6" fill="#25D366" style={{ flexShrink: 0 }}><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+                    {allPhones}
+                  </div>}
+                  {email && <div style={{ opacity: 0.75 }}>{email}</div>}
+                  {(site || instagram) && <div style={{ opacity: 0.75 }}>{[site, instagram ? `@${instagram}` : ''].filter(Boolean).join('  ·  ')}</div>}
               </div>
             </div>
           </div>
@@ -1778,35 +1787,55 @@ ${versoHtml}
 
     // ── ENVELOPE SACO ──────────────────────────────────────────────
     if (item.includes('Envelope Saco')) {
-      const BLEED = 3; 
+      const BLEED = 3;
       const W = 225; const H = 311; // Face
       const ABA = 40; const COLA_V = 15;
       const totalW = W + (COLA_V * 2) + (BLEED * 2);
       const totalH = (H * 2) + ABA + (BLEED * 2);
 
       const solidColor = borderColor || accentColor;
-      const genPattern = (scaleMul = 1) => patternSrc ? `<div style="position:absolute;inset:0;background-image:url(${patternSrc});background-size:${(patternScale * scaleMul).toFixed(1)}mm;opacity:1;"></div>` : '';
+      // Regra de proporção: preview 220px = 225mm PDF → scale = 1/(220×0.2646/patternScale_px_per_tile)
+      // patternScale/4 px no preview → (patternScale/4) × (225/58.2) mm no PDF = patternScale × 0.967mm... mas
+      // fator 0.18 funciona para Ofício (310px→220mm): 220/(310×4)=0.177. Para Saco (220px→225mm): 225/(220×4)=0.256 grande demais
+      // visualmente o iframe PDF é ~2× mais largo que o preview → dividir por 2: 0.128 ≈ 0.13
+      const genPattern = (scaleMul = 1) => patternSrc ? `<div style="position:absolute;inset:0;background-image:url(${patternSrc});background-size:${(patternScale * 0.18 * scaleMul).toFixed(1)}mm;opacity:1;"></div>` : '';
+      // Regra de proporção logo: boost para 2.2 para melhor presença no Saco
+      const _sacLogoZoom = 2.2;
+      const _sacPhones = [mainPhone, telefone].filter(Boolean).join(' / ');
+
+      // Imports de fonte — necessário para logo aparecer com a fonte da marca
+      const _ffSac = brand.editData?.fontFamily || 'Playfair Display';
+      const _lfSac = LOCAL_FONT_FACES[_ffSac];
+      const _fiSac = `<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;600;700&display=swap" rel="stylesheet">${_lfSac ? `<style>${_lfSac}</style>` : `<link href="https://fonts.googleapis.com/css2?family=${_ffSac.replace(/ /g,'+')}:wght@400;700&display=swap" rel="stylesheet">`}`;
+
+      const _waIcoSac = `<svg viewBox="0 0 24 24" width="9" height="9" style="display:inline;vertical-align:middle;margin-right:1.5pt;" fill="#25D366"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>`;
 
       const abaHtml = `<div style="position:absolute;top:0;left:0;width:${totalW}mm;height:${ABA + BLEED}mm;background:${solidColor};"></div>`;
 
+      // Gabarito Printi: ABA (topo) → FRENTE (meio) → VERSO (baixo, rotacionado)
       const frenteHtml = `
-        <div style="position:absolute;top:${BLEED + ABA + H}mm;left:0;width:${totalW}mm;height:${H + BLEED}mm;background:#fff;position:relative;overflow:hidden;">
-            <div style="position:absolute;bottom:30mm;right:${COLA_V + 30}mm;transform:scale(2.5);transform-origin:right bottom;">${logoHtmlWithCrm}</div>
+        <div style="position:absolute;top:${BLEED + ABA}mm;left:0;width:${totalW}mm;height:${H}mm;overflow:hidden;background:#fff;">
+            ${genPattern(1)}
+            <div style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);z-index:2;background:rgba(255,255,255,0.97);padding:8mm 16mm;border-radius:2mm;border:0.2mm solid #ddd;text-align:center;white-space:nowrap;">
+              <div style="zoom:${_sacLogoZoom};">${logoHtmlWithCrm}</div>
+            </div>
         </div>`;
 
       const versoHtml = `
-        <div style="position:absolute;top:${BLEED + ABA}mm;left:0;width:${totalW}mm;height:${H}mm;background:#fff;transform:rotate(180deg);position:relative;overflow:hidden;">
-            ${genPattern(0.9)}
-            <div style="position:absolute;bottom:20mm;left:${COLA_V + 15}mm;right:${COLA_V + 15}mm;background:rgba(255,255,255,0.95);padding:8mm;border-radius:2mm;display:flex;flex-direction:column;align-items:center;justify-content:center;border:0.2mm solid #eee;backdrop-filter:blur(3mm);text-align:center;">
-               <div style="font-size:10pt;color:#666;font-family:'Montserrat',sans-serif;line-height:1.4;">
-                  <div style="opacity:0.8;">${endereco}</div>
-                  <div style="font-weight:700;color:#333;font-size:12pt;margin:2mm 0;">${allPhones}</div>
-                  <div style="opacity:0.8;">${[site, instagram ? `@${instagram}` : ''].filter(Boolean).join('  ·  ')}</div>
+        <div style="position:absolute;top:${BLEED + ABA + H}mm;left:0;width:${totalW}mm;height:${H + BLEED}mm;background:#fff;transform:rotate(180deg);overflow:hidden;">
+            ${genPattern(1)}
+            <div style="position:absolute;bottom:15mm;left:50%;transform:translateX(-50%);width:max-content;max-width:${W - 20}mm;background:rgba(255,255,255,0.97);padding:5mm 10mm;border-radius:2mm;display:flex;flex-direction:column;align-items:center;justify-content:center;border:0.2mm solid #ddd;text-align:center;white-space:nowrap;">
+               <div style="font-size:9pt;color:#666;font-family:'Montserrat',sans-serif;line-height:1.65;">
+                  ${clinicaNome ? `<div style="font-weight:700;color:${accentColor};font-size:10.5pt;margin-bottom:1.5mm;">${clinicaNome}</div>` : ''}
+                  ${endereco ? `<div style="opacity:0.75;">${endereco}</div>` : ''}
+                  ${_sacPhones ? `<div style="font-weight:700;color:#333;font-size:11pt;margin:1.5mm 0;">${_waIcoSac}${_sacPhones}</div>` : ''}
+                  ${email ? `<div style="opacity:0.75;">${email}</div>` : ''}
+                  ${(site || instagram) ? `<div style="opacity:0.75;">${[site, instagram ? `@${instagram}` : ''].filter(Boolean).join('  ·  ')}</div>` : ''}
                </div>
             </div>
         </div>`;
 
-      const html = `<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Envelope Saco - ${marca}</title>
+      const html = `<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Envelope Saco - ${marca}</title>${_fiSac}
 <style>* { box-sizing:border-box; margin:0; padding:0; print-color-adjust:exact !important; -webkit-print-color-adjust:exact !important; }
 body { width:${totalW}mm; height:${totalH}mm; position:relative; overflow:hidden; background:#fff; }
 @media print { body { margin:0; } @page { size: ${totalW}mm ${totalH}mm; margin:0; } }
@@ -1824,35 +1853,46 @@ body { width:${totalW}mm; height:${totalH}mm; position:relative; overflow:hidden
 
     // ── ENVELOPE OFÍCIO ───────────────────────────────────────────
     if (item.includes('Envelope Ofício')) {
-      const BLEED = 3; 
+      const BLEED = 3;
       const W = 220; const H = 113; // Face
       const ABA = 35; const COLA = 12;
       const totalW = W + (COLA * 2) + (BLEED * 2);
       const totalH = (H * 2) + ABA + (BLEED * 2);
 
       const solidColor = borderColor || accentColor;
-      const genPattern = (scaleMul = 1) => patternSrc ? `<div style="position:absolute;inset:0;background-image:url(${patternSrc});background-size:${(patternScale * scaleMul).toFixed(1)}mm;opacity:1;"></div>` : '';
+      // Fator 0.18: calibrado para que 310px (preview) = 220mm (PDF) com patternScale/4 px
+      const genPattern = (scaleMul = 1) => patternSrc ? `<div style="position:absolute;inset:0;background-image:url(${patternSrc});background-size:${(patternScale * 0.18 * scaleMul).toFixed(1)}mm;opacity:1;"></div>` : '';
+      const _envPhones = [mainPhone, telefone].filter(Boolean).join(' / ');
+
+      // Imports de fonte — necessário para logo aparecer com a fonte da marca
+      const _ffEnv = brand.editData?.fontFamily || 'Playfair Display';
+      const _lfEnv = LOCAL_FONT_FACES[_ffEnv];
+      const _fiEnv = `<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;600;700&display=swap" rel="stylesheet">${_lfEnv ? `<style>${_lfEnv}</style>` : `<link href="https://fonts.googleapis.com/css2?family=${_ffEnv.replace(/ /g,'+')}:wght@400;700&display=swap" rel="stylesheet">`}`;
 
       const abaHtml = `<div style="position:absolute;top:0;left:0;width:${totalW}mm;height:${ABA + BLEED}mm;background:${solidColor};"></div>`;
 
+      // Gabarito Printi: ABA (topo) → FRENTE (meio) → VERSO (baixo, rotacionado)
       const frenteHtml = `
-        <div style="position:absolute;top:${BLEED + ABA + H}mm;left:0;width:${totalW}mm;height:${H + BLEED}mm;background:#fff;position:relative;overflow:hidden;">
-            <div style="position:absolute;bottom:8mm;right:${COLA + 8}mm;transform:scale(2);transform-origin:right bottom;">${logoHtmlWithCrm}</div>
+        <div style="position:absolute;top:${BLEED + ABA}mm;left:0;width:${totalW}mm;height:${H}mm;background:#fff;overflow:hidden;">
+            <div style="position:absolute;bottom:8mm;right:${COLA + 8}mm;transform:scale(1.6);transform-origin:right bottom;text-align:right;">${logoHtmlWithCrm}</div>
         </div>`;
 
+      const _waIco = `<svg viewBox="0 0 24 24" width="9" height="9" style="display:inline;vertical-align:middle;margin-right:1.5pt;" fill="#25D366"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>`;
       const versoHtml = `
-        <div style="position:absolute;top:${BLEED + ABA}mm;left:0;width:${totalW}mm;height:${H}mm;background:#fff;transform:rotate(180deg);position:relative;overflow:hidden;">
+        <div style="position:absolute;top:${BLEED + ABA + H}mm;left:0;width:${totalW}mm;height:${H + BLEED}mm;background:#fff;transform:rotate(180deg);overflow:hidden;">
             ${genPattern(0.6)}
-            <div style="position:absolute;bottom:10mm;left:${COLA + 10}mm;right:${COLA + 10}mm;background:rgba(255,255,255,0.95);padding:6mm;border-radius:1.5mm;display:flex;flex-direction:column;align-items:center;justify-content:center;border:0.1mm solid #eee;backdrop-filter:blur(3mm);text-align:center;">
-               <div style="font-size:6.5pt;color:#666;font-family:'Montserrat',sans-serif;line-height:1.4;">
-                  <div style="opacity:0.8;">${endereco}</div>
-                  <div style="font-weight:700;color:#333;font-size:8pt;margin:1.5mm 0;">${allPhones}</div>
-                  <div style="opacity:0.8;">${[site, instagram ? `@${instagram}` : ''].filter(Boolean).join('  ·  ')}</div>
+            <div style="position:absolute;bottom:10mm;left:50%;transform:translateX(-50%);width:max-content;max-width:${W - 20}mm;background:rgba(255,255,255,0.97);padding:5mm 10mm;border-radius:2mm;display:flex;flex-direction:column;align-items:center;justify-content:center;border:0.2mm solid #ddd;text-align:center;white-space:nowrap;">
+               <div style="font-size:9pt;color:#666;font-family:'Montserrat',sans-serif;line-height:1.65;">
+                  ${clinicaNome ? `<div style="font-weight:700;color:${accentColor};font-size:10.5pt;margin-bottom:1.5mm;">${clinicaNome}</div>` : ''}
+                  ${endereco ? `<div style="opacity:0.75;">${endereco}</div>` : ''}
+                  ${_envPhones ? `<div style="font-weight:700;color:#333;font-size:11pt;margin:1.5mm 0;">${_waIco}${_envPhones}</div>` : ''}
+                  ${email ? `<div style="opacity:0.75;">${email}</div>` : ''}
+                  ${(site || instagram) ? `<div style="opacity:0.75;">${[site, instagram ? `@${instagram}` : ''].filter(Boolean).join('  ·  ')}</div>` : ''}
                </div>
             </div>
         </div>`;
 
-      const html = `<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Envelope Ofício - ${marca}</title>
+      const html = `<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Envelope Ofício - ${marca}</title>${_fiEnv}
 <style>* { box-sizing:border-box; margin:0; padding:0; print-color-adjust:exact !important; -webkit-print-color-adjust:exact !important; }
 body { width:${totalW}mm; height:${totalH}mm; position:relative; overflow:hidden; background:#fff; }
 @media print { body { margin:0; } @page { size: ${totalW}mm ${totalH}mm; margin:0; } }
@@ -1995,17 +2035,24 @@ body { margin:0; } @media print { @page { size: A5 portrait; margin:0; } }
       ? `<div style="position:absolute;inset:0;background:#fff;"></div>`
       : `<div style="position:absolute;inset:0;background:#fff;border:${BORDER_W} solid ${_bc3};box-sizing:border-box;"></div>`;
 
-    // Rodapé em 2 linhas — sem quebrar no meio de um dado
-    const _sep = '<span style="margin:0 3pt;color:#ccc;">·</span>';
-    const footerLine1 = [clinicaNome, mainPhone ? mainPhone : ''].filter(Boolean).join(` ${_sep} `);
-    const footerLine2 = [instagram ? `@${instagram}` : '', site, endereco].filter(Boolean).join(` ${_sep} `);
-    const _fH = footerLine1 && footerLine2 ? 13 : 8;
-    const footerHtml = (footerLine1 || footerLine2) ? `
-      <div style="position:absolute;bottom:10mm;left:${BORDER_W};right:${BORDER_W};text-align:center;font-family:'Montserrat',sans-serif;color:#555;line-height:1.7;">
-        ${footerLine1 ? `<div style="font-size:6pt;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${footerLine1}</div>` : ''}
-        ${footerLine2 ? `<div style="font-size:5.5pt;color:#888;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${footerLine2}</div>` : ''}
+    // Etiqueta discreta — proporcional ao tamanho do item
+    const _pw = parseFloat(ps.w); // largura em mm
+    const _fs = _pw >= 200 ? '5.5' : _pw >= 140 ? '5' : '4.5'; // body font
+    const _fsN = _pw >= 200 ? '6.5' : _pw >= 140 ? '5.5' : '5'; // nome font
+    const _fsP = _pw >= 200 ? '6' : _pw >= 140 ? '5.5' : '5'; // phone font
+    const _pad = _pw >= 200 ? '3.5mm 6mm' : '2.5mm 5mm'; // padding
+    const _waIco2 = `<svg viewBox="0 0 24 24" width="7" height="7" style="display:inline;vertical-align:middle;margin-right:1.5pt;" fill="#25D366"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>`;
+    const _hasFooterData = !!(clinicaNome || mainPhone || instagram || site || endereco || email);
+    const _fH = _pw >= 200 ? 18 : 14;
+    const footerHtml = _hasFooterData ? `
+      <div style="position:absolute;bottom:9mm;left:50%;transform:translateX(-50%);width:max-content;max-width:calc(100% - 20mm);background:rgba(255,255,255,0.97);padding:${_pad};border-radius:1mm;display:flex;flex-direction:column;align-items:center;justify-content:center;border:0.12mm solid #ddd;text-align:center;font-family:'Montserrat',sans-serif;white-space:nowrap;">
+        ${clinicaNome ? `<div style="font-size:${_fsN}pt;font-weight:700;color:${accentColor};margin-bottom:0.8mm;">${clinicaNome}</div>` : ''}
+        ${endereco ? `<div style="font-size:${_fs}pt;color:#666;opacity:0.8;">${endereco}</div>` : ''}
+        ${mainPhone ? `<div style="font-size:${_fsP}pt;font-weight:700;color:#333;margin:0.8mm 0;">${_waIco2}${mainPhone}</div>` : ''}
+        ${email ? `<div style="font-size:${_fs}pt;color:#666;opacity:0.8;">${email}</div>` : ''}
+        ${(instagram || site) ? `<div style="font-size:${_fs}pt;color:#777;opacity:0.8;">${[site, instagram ? `@${instagram}` : ''].filter(Boolean).join('  ·  ')}</div>` : ''}
       </div>
-      <div style="position:absolute;bottom:${7 + _fH}mm;left:12mm;right:12mm;border-top:0.5px solid #e0e0e0;"></div>` : '';
+      <div style="position:absolute;bottom:${8 + _fH}mm;left:14mm;right:14mm;border-top:0.4px solid #e5e5e5;"></div>` : '';
 
     const _logoWidthMm = logoLayout === 'horizontal'
       ? Math.round(parseFloat(ps.w) * 0.72)
@@ -2112,9 +2159,9 @@ ${fontImports2}
         {currentItem.includes('Cartão de Visita')
           ? <CartaoDeVisitaPreview accentColor={accentColor} patternSrc={patternSrc} cartaoContacts={cartaoContacts} crmLine={crmLine} editData={{ ...editData, tagline: localSlogan }} logoColor={logoColor} comBorda={comBorda} setComBorda={setComBorda} clinicaNome={clinicaNome} setClinicaNome={setClinicaNome} logoLayout={logoLayout} paletteColors={paletteColors} borderColor={borderColor} setBorderColor={setBorderColor} patternScale={patternScale} setPatternScale={setPatternScale} />
           : currentItem.includes('Envelope Ofício')
-            ? <EnvelopeOficioPreview accentColor={accentColor} patternSrc={patternSrc} logoColor={logoColor} logoLayout={logoLayout} comBorda={comBorda} setComBorda={setComBorda} paletteColors={paletteColors} borderColor={borderColor} setBorderColor={setBorderColor} patternScale={patternScale} setPatternScale={setPatternScale} cartaoContacts={cartaoContacts} crmLine={crmLine} localSlogan={localSlogan} brand={brand} editData={editData} />
+            ? <EnvelopeOficioPreview accentColor={accentColor} patternSrc={patternSrc} logoColor={logoColor} logoLayout={logoLayout} comBorda={comBorda} setComBorda={setComBorda} paletteColors={paletteColors} borderColor={borderColor} setBorderColor={setBorderColor} patternScale={patternScale} setPatternScale={setPatternScale} cartaoContacts={cartaoContacts} crmLine={crmLine} localSlogan={localSlogan} brand={brand} editData={editData} clinicaNome={clinicaNome} />
           : currentItem.includes('Envelope Saco')
-            ? <EnvelopeSacoPreview accentColor={accentColor} patternSrc={patternSrc} logoColor={logoColor} logoLayout={logoLayout} comBorda={comBorda} setComBorda={setComBorda} paletteColors={paletteColors} borderColor={borderColor} setBorderColor={setBorderColor} patternScale={patternScale} setPatternScale={setPatternScale} cartaoContacts={cartaoContacts} crmLine={crmLine} localSlogan={localSlogan} brand={brand} editData={editData} />
+            ? <EnvelopeSacoPreview accentColor={accentColor} patternSrc={patternSrc} logoColor={logoColor} logoLayout={logoLayout} comBorda={comBorda} setComBorda={setComBorda} paletteColors={paletteColors} borderColor={borderColor} setBorderColor={setBorderColor} patternScale={patternScale} setPatternScale={setPatternScale} cartaoContacts={cartaoContacts} crmLine={crmLine} localSlogan={localSlogan} brand={brand} editData={editData} clinicaNome={clinicaNome} />
           : currentItem.includes('Cartão de Retorno')
             ? <CartaoRetornoPreview accentColor={accentColor} patternSrc={patternSrc} cartaoContacts={cartaoContacts} crmLine={crmLine} editData={{ ...editData, tagline: localSlogan }} logoColor={logoColor} comBorda={comBorda} setComBorda={setComBorda} clinicaNome={clinicaNome} setClinicaNome={setClinicaNome} logoLayout={logoLayout} paletteColors={paletteColors} borderColor={borderColor} setBorderColor={setBorderColor} patternScale={patternScale} setPatternScale={setPatternScale} />
             : currentItem.includes('Atestado Médico')
@@ -2122,7 +2169,7 @@ ${fontImports2}
               : currentItem.includes('Pasta')
                 ? <PastaPreview brand={brand} editData={{ ...editData, tagline: localSlogan }} accentColor={accentColor} solidColor={paletteColors[0]} logoColor={logoColor} logoLayout={logoLayout} isSaude={isSaude} crmLine={crmLine} clinicaNome={clinicaNome} cartaoContacts={cartaoContacts} comBorda={comBorda} setComBorda={setComBorda} patternSrc={patternSrc} paletteColors={paletteColors} borderColor={borderColor} setBorderColor={setBorderColor} patternScale={patternScale} setPatternScale={setPatternScale} folderRoof={folderRoof} />
                 : currentItem.includes('Envelope Ofício')
-                  ? <EnvelopeOficioPreview accentColor={accentColor} patternSrc={patternSrc} logoColor={logoColor} logoLayout={logoLayout} comBorda={comBorda} setComBorda={setComBorda} paletteColors={paletteColors} borderColor={borderColor} setBorderColor={setBorderColor} patternScale={patternScale} setPatternScale={setPatternScale} cartaoContacts={cartaoContacts} crmLine={crmLine} localSlogan={localSlogan} brand={brand} editData={editData} />
+                  ? <EnvelopeOficioPreview accentColor={accentColor} patternSrc={patternSrc} logoColor={logoColor} logoLayout={logoLayout} comBorda={comBorda} setComBorda={setComBorda} paletteColors={paletteColors} borderColor={borderColor} setBorderColor={setBorderColor} patternScale={patternScale} setPatternScale={setPatternScale} cartaoContacts={cartaoContacts} crmLine={crmLine} localSlogan={localSlogan} brand={brand} editData={editData} clinicaNome={clinicaNome} />
                 : ['Receituário','Timbrado','Cartão','Guia','Calendário','Atestado','Dicas','Ficha','Orientação','Checklist','Prontuário','Receita','Certificado','Quadro','Gráfico','Diário','Card','Pratinho','Fundo','Arte','Etiqueta','Assinatura','Tag'].some(n => currentItem.includes(n))
                 ? <A5ItemPreview accentColor={accentColor} patternSrc={patternSrc} editData={{ ...editData, tagline: localSlogan }} logoColor={logoColor} logoLayout={logoLayout} cartaoContacts={cartaoContacts} crmLine={crmLine} clinicaNome={clinicaNome} comBorda={comBorda} setComBorda={setComBorda} paletteColors={paletteColors} borderColor={borderColor} setBorderColor={setBorderColor} patternScale={patternScale} setPatternScale={setPatternScale} />
                 : <GenericItemPreview item={currentItem} marca={marca} accentColor={accentColor} patternSrc={patternSrc} editData={{ ...editData, tagline: localSlogan }} logoColor={logoColor} logoLayout={logoLayout} comBorda={comBorda} setComBorda={setComBorda} paletteColors={paletteColors} borderColor={borderColor} setBorderColor={setBorderColor} patternScale={patternScale} setPatternScale={setPatternScale} />
