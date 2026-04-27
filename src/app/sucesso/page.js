@@ -3,6 +3,11 @@ import { useSearchParams } from 'next/navigation';
 import { Suspense, useState, useEffect, useRef } from 'react';
 import ReactDOMServer from 'react-dom/server';
 import BrandTemplateSVG from '../../components/BrandTemplateSVG';
+import FolderPage2Art from './FolderPage2Art';
+import FolderPage3Art from './FolderPage3Art';
+import FolderPage4Art from './FolderPage4Art';
+import FolderPage5Art from './FolderPage5Art';
+import FolderPage6Etiqueta from './FolderPage6Etiqueta';
 import { STYLE_ICONS } from '../../lib/styleIcons';
 import html2canvas from 'html2canvas';
 import { createClient } from '@supabase/supabase-js';
@@ -55,7 +60,7 @@ function LogoPreviewHTML({ editData, color, layout = 'stacked', scaleFactor = 1,
         ))}
       </div>
       {(editData?.tagline && !hideTagline) && (
-        <div style={{ fontFamily: "'Montserrat', sans-serif", fontSize: `${(0.42 * scaleFactor).toFixed(2)}rem`, letterSpacing: '0.4px', textTransform: 'uppercase', color: '#999', marginTop: `${6 * scaleFactor}px`, textAlign: 'center', lineHeight: 1.2, maxWidth: '100%', whiteSpace: 'nowrap' }}>
+        <div style={{ fontFamily: "'Montserrat', sans-serif", fontSize: `${(0.42 * scaleFactor).toFixed(2)}rem`, letterSpacing: '0.4px', textTransform: 'uppercase', color: '#999', marginTop: `${12 * scaleFactor}px`, textAlign: 'center', lineHeight: 1.2, maxWidth: '100%', whiteSpace: 'nowrap' }}>
           {editData.tagline}
         </div>
       )}
@@ -672,11 +677,11 @@ body{font-family:'Montserrat',sans-serif;background:#f0ece6;color:#1a1a1a;}
 <!-- CAPA -->
 <div class="page" style="display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:1100px;text-align:center;">
   <div style="width:50px;height:2px;background:${accentColor};margin:0 auto 48px;"></div>
-  <p style="font-size:0.58rem;letter-spacing:6px;text-transform:uppercase;color:#ccc;margin-bottom:64px;">Guia de Identidade Visual</p>
+  <p style="font-size:0.58rem;letter-spacing:2px;text-transform:uppercase;color:#ccc;margin-bottom:64px;">Guia de Identidade Visual</p>
   <h1 style="font-family:'${fontFamily}',serif;font-weight:${fontWeight};font-size:4rem;color:${accentColor};letter-spacing:${isScript ? '0px' : '2px'};line-height:1;margin-bottom:14px;">${marcaDisplay}</h1>
-  ${tagline ? `<p style="font-size:0.68rem;letter-spacing:4px;text-transform:uppercase;color:#aaa;margin-bottom:64px;">${tagline}</p>` : '<div style="height:64px;"></div>'}
+  ${tagline ? `<p style="font-size:0.68rem;letter-spacing:1.5px;text-transform:uppercase;color:#aaa;margin-bottom:64px;">${tagline}</p>` : '<div style="height:64px;"></div>'}
   <div style="width:50px;height:1px;background:#e0e0e0;margin:0 auto 24px;"></div>
-  <p style="font-size:0.55rem;letter-spacing:5px;text-transform:uppercase;color:#ddd;">The Brand Box</p>
+  <p style="font-size:0.55rem;letter-spacing:2px;text-transform:uppercase;color:#ddd;">The Brand Box</p>
 </div>
 
 <!-- PALETA DE CORES -->
@@ -1265,9 +1270,170 @@ function ControleEspecialPreview({ accentColor, patternSrc, editData, logoColor,
                 <div style={{ position: 'absolute', bottom: '4px', left: 0, right: 0, textAlign: 'center', fontSize: '5.5px', color: '#bbb', textTransform: 'uppercase', fontWeight: 700 }}>ASSINATURA DO FARMACÊUTICO</div>
              </div>
           </div>
-
         </div>
       </div>
+    </div>
+  );
+}
+
+function FolderTrifoldPreview({ brand, logoColor, logoLayout, comBorda, setComBorda, patternSrc, patternScale, setPatternScale, accentColor, borderColor, setBorderColor, paletteColors, title, subtitle, cartaoContacts, folderRoof, crmLine }) {
+  const _brandData = brand.editData || {};
+  const instagram = cartaoContacts?.instagram || brand?.instagram || '';
+  const site = cartaoContacts?.site || brand?.site || '';
+  const clinicaNome = brand?.clinicaNome || brand?.editData?.clinicaNome || 'Sua Clínica';
+  const endereco = cartaoContacts?.endereco || brand?.endereco || brand?.editData?.endereco || 'Endereço não informado';
+
+  const allPhones = [cartaoContacts?.whatsapp, cartaoContacts?.telefone].filter(Boolean).join(' · ');
+  const logoHtml = <LogoPreviewHTML editData={_brandData} color={logoColor} layout={logoLayout} scaleFactor={0.16} crm={crmLine} />;
+  const _borderColor = borderColor || accentColor;
+  
+  // Página do Folder (A5 148x210mm)
+  const Page = ({ num, children, isSmall = false, withPattern = false }) => (
+    <div style={{ 
+      width: isSmall ? '146px' : '148px', 
+      height: '210px', 
+      background: '#fff', 
+      borderRight: num === 2 || num === 3 || num === 5 || num === 6 ? '1px dashed rgba(0,0,0,0.06)' : 'none',
+      position: 'relative',
+      overflow: 'hidden'
+    }}>
+      {withPattern && comBorda && patternSrc && (
+        <div style={{ position: 'absolute', inset: 0, backgroundImage: `url(${patternSrc})`, backgroundSize: `${patternScale * 0.3}px`, backgroundRepeat: 'repeat', opacity: 0.1 }} />
+      )}
+      <div style={{ position: 'absolute', top: '5px', right: '5px', fontSize: '6px', color: '#ccc', fontWeight: 700, zIndex: 10 }}>PÁG {num} {num === 1 ? '(CAPA)' : ''}</div>
+      <div style={{ position: 'relative', zIndex: 2, padding: '15px', height: '100%' }}>
+        {children}
+      </div>
+    </div>
+  );
+
+  // Lógica de Título em dois níveis
+  const getTitleData = (raw) => {
+    if (raw.includes('Alimentar')) return { pre: 'GUIA DE', main: 'INTRODUÇÃO ALIMENTAR' };
+    if (raw.includes('Cuidados')) return { pre: 'GUIA DE', main: 'CUIDADOS COM O BEBÊ' };
+    if (raw.includes('Desenvolvimento')) return { pre: 'GUIA DE', main: 'DESENVOLVIMENTO' };
+    if (raw.includes('Pré-Natal')) return { pre: 'CARTÃO DE', main: 'EXAME PRÉ-NATAL' };
+    return { pre: 'GUIA DE', main: raw.toUpperCase() };
+  };
+  const { pre, main } = getTitleData(title || 'Guia Alimentar');
+
+  return (
+    <div id="folder-trifold-preview" style={{ display: 'flex', flexDirection: 'column', gap: '30px', width: '100%', alignItems: 'center', paddingBottom: '40px' }}>
+      
+      <BordaToggle comBorda={comBorda} setComBorda={setComBorda} accentColor={accentColor} paletteColors={paletteColors} borderColor={borderColor} setBorderColor={setBorderColor} patternScale={patternScale} setPatternScale={setPatternScale} />
+
+      {/* LADO EXTERNO (5 | 6 | 1) */}
+      <div style={{ textAlign: 'center' }}>
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '10px', marginBottom: '12px' }}>
+          <div style={{ height: '1px', flex: 1, background: '#eee' }} />
+          <span style={{ fontSize: '10px', fontWeight: 800, color: '#aaa', textTransform: 'uppercase', letterSpacing: '1px' }}>LADO EXTERNO (FACE 1)</span>
+          <div style={{ height: '1px', flex: 1, background: '#eee' }} />
+        </div>
+        <div style={{ display: 'flex', boxShadow: '0 20px 50px rgba(0,0,0,0.1)', borderRadius: '4px', overflow: 'hidden', background: '#fff', clipPath: folderRoof ? 'polygon(0% 8%, 50% 0%, 100% 8%, 100% 100%, 0% 100%)' : 'none', transition: 'clip-path 0.3s ease' }}>
+          {/* Pág 5 - Aba que dobra pra dentro */}
+          {/* Pág 5 - Aba que dobra pra dentro */}
+          <Page num={5} isSmall withPattern>
+            <FolderPage5Art accentColor={accentColor} palette={paletteColors} />
+          </Page>
+
+
+          {/* Pág 6 - Contra-capa (ESTAMPA COMPLETA + LEMBRE-SE) */}
+          <Page num={6}>
+            <div style={{ position: 'absolute', inset: 0, overflow: 'hidden' }}>
+              {comBorda && patternSrc && (
+                <div style={{ position: 'absolute', inset: 0, backgroundImage: `url(${patternSrc})`, backgroundSize: `${patternScale * 0.3}px`, backgroundRepeat: 'repeat', opacity: 1 }} />
+              )}
+              <div style={{ position: 'absolute', inset: 0, background: !patternSrc && comBorda ? `${accentColor}10` : 'transparent' }} />
+            </div>
+            
+            <div style={{ position: 'absolute', top: '23%', left: '10px', right: '10px', zIndex: 3, display: 'flex', justifyContent: 'center' }}>
+              <FolderPage6Etiqueta palette={paletteColors} accentColor={accentColor} />
+            </div>
+
+            <div style={{ position: 'absolute', bottom: '68px', left: 0, right: 0, display: 'flex', justifyContent: 'center', gap: '4px', opacity: 0.18 }}>
+               {Array.from({length: 8}).map((_, i) => (
+                 <div key={i} style={{ width: '3px', height: '3px', background: accentColor, borderRadius: '50%' }} />
+               ))}
+            </div>
+
+            {/* ETIQUETA DE DADOS NO RODAPÉ (DISCRETA E ELEGANTE) */}
+            <div style={{ position: 'absolute', bottom: '12px', left: '25px', right: '25px', background: '#fff', border: `0.5px solid ${accentColor}10`, borderRadius: '3px', padding: '5px', zIndex: 4, boxShadow: '0 2px 10px rgba(0,0,0,0.04)', textAlign: 'center', display: 'flex', flexDirection: 'column', gap: '1.5px' }}>
+                <div style={{ fontSize: '5.2px', fontWeight: 800, color: accentColor, marginBottom: '1px' }}>{clinicaNome}</div>
+                <div style={{ fontSize: '4.2px', color: '#999', fontWeight: 500, lineHeight: 1.1 }}>{endereco}</div>
+                
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '2.5px', marginTop: '0.5px' }}>
+                   <div style={{ width: '6px', height: '6px', background: '#25D366', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                      <div style={{ width: '3.2px', height: '3.2px', border: '0.6px solid #fff', borderRadius: '0.8px' }} />
+                   </div>
+                   <div style={{ fontSize: '5.2px', fontWeight: 800, color: '#444' }}>{allPhones}</div>
+                </div>
+
+                <div style={{ fontSize: '4.2px', color: '#aaa', marginTop: '0.5px' }}>
+                   {[brand.email, site, instagram ? `@${instagram}` : ''].filter(Boolean).join('  ·  ')}
+                </div>
+            </div>
+          </Page>
+
+          {/* Pág 1 - Capa Principal (ESTAMPA NA BORDA) */}
+          <Page num={1}>
+            <div style={{ position: 'absolute', inset: 0, overflow: 'hidden' }}>
+               {comBorda && patternSrc && (
+                 <div style={{ position: 'absolute', inset: 0, backgroundImage: `url(${patternSrc})`, backgroundSize: `${patternScale * 0.35}px`, backgroundRepeat: 'repeat', opacity: 1 }} />
+               )}
+               <div style={{ position: 'absolute', inset: 0, background: !patternSrc && comBorda ? `${accentColor}15` : 'transparent' }} />
+            </div>
+            <div style={{ position: 'absolute', top: '10px', left: '10px', right: '10px', bottom: '10px', background: '#fff', borderRadius: '2px', boxShadow: '0 2px 10px rgba(0,0,0,0.1)', zIndex: 2, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'flex-start', paddingTop: '32px', textAlign: 'center', border: `0.5px solid ${accentColor}15` }}>
+                 <div style={{ transform: 'scale(1.95)', marginBottom: '25px' }}>{logoHtml}</div>
+                 <div style={{ width: '22px', height: '1.2px', background: accentColor, marginBottom: '14px', borderRadius: '10px' }} />
+                 <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '0px' }}>
+                    <div style={{ fontSize: '5.2px', fontWeight: 800, color: `${accentColor}cc`, textTransform: 'uppercase', letterSpacing: '0.6px', fontStyle: 'italic' }}>{pre}</div>
+                    <div style={{ fontSize: '10px', fontWeight: 800, color: '#333', textTransform: 'uppercase', letterSpacing: '0.8px', lineHeight: 1.2 }}>{main}</div>
+                 </div>
+                 <div style={{ 
+                   marginTop: '5px',
+                   padding: '1px 5px',
+                   background: (paletteColors[1] || accentColor) + '15',
+                   borderRadius: '20px',
+                   border: `0.4px solid ${(paletteColors[1] || accentColor) + '30'}`
+                 }}>
+                   <div style={{ 
+                     fontSize: '4.8px', 
+                     fontWeight: 800, 
+                     color: title === 'Guia Alimentar' ? '#666' : (paletteColors[1] || accentColor), 
+                     letterSpacing: '0.2px',
+                     fontFamily: '"Myriad Pro Condensed", "MyriadPro-Cond", sans-serif',
+                     textTransform: 'uppercase'
+                   }}>Saúde e Bem-Estar Pediátrico</div>
+                 </div>
+            </div>
+          </Page>
+        </div>
+      </div>
+
+      {/* LADO INTERNO (2 | 3 | 4) */}
+      <div style={{ textAlign: 'center' }}>
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '10px', marginBottom: '12px' }}>
+          <div style={{ height: '1px', flex: 1, background: '#eee' }} />
+          <span style={{ fontSize: '10px', fontWeight: 800, color: '#aaa', textTransform: 'uppercase', letterSpacing: '1px' }}>LADO INTERNO (FACE 2)</span>
+          <div style={{ height: '1px', flex: 1, background: '#eee' }} />
+        </div>
+        <div style={{ display: 'flex', boxShadow: '0 20px 50px rgba(0,0,0,0.1)', borderRadius: '4px', overflow: 'hidden', background: '#fff', clipPath: folderRoof ? 'polygon(0% 8%, 50% 0%, 100% 8%, 100% 100%, 0% 100%)' : 'none', transition: 'clip-path 0.3s ease' }}>
+          <Page num={2} withPattern>
+            <FolderPage2Art accentColor={accentColor} palette={paletteColors} />
+
+
+          </Page>
+          <Page num={3} withPattern>
+            <FolderPage3Art accentColor={accentColor} palette={paletteColors} />
+
+          </Page>
+          <Page num={4} isSmall withPattern>
+            <FolderPage4Art accentColor={accentColor} palette={paletteColors} />
+
+          </Page>
+        </div>
+      </div>
+
     </div>
   );
 }
@@ -1546,10 +1712,10 @@ function PapelariaStep({ brand, accentColor, paletteColors, estampaPatterns, est
   // ATUALIZAÇÃO: MEGA PACOTE COMPLETO (Listas Clínica + Institucional)
   const itens = [
     "Cartão de Visita", "Receituário Padrão", "Atestado Médico", "Cartão de Retorno", "Pasta A4 Exclusiva",
-    "Envelope Ofício", "Envelope Saco", "Recibo", "Receituário de Controle Especial", "Dicas de Introdução Alimentar",
-    "Guia de Vacina c/ Calendário", "Ficha de Acompanhamento", "Orientação Pré-Natal",
-    "Cartão de Exames", "Checklist Maternidade", "Guia do Sono", "Orientações p/ Recém Nascidos",
-    "Prontuário Médico", "Receita de Alta", "Ficha de Cadastro",
+    "Envelope Ofício", "Envelope Saco", "Recibo", "Receituário de Controle Especial", "Guia Alimentar",
+    "Guia de Cuidados", "Guia de Desenvolvimento", "Guia de Vacina c/ Calendário", "Ficha de Acompanhamento", 
+    "Cartão de Exame Pré-Natal", "Cartão de Exames", "Checklist Maternidade", "Guia do Sono", 
+    "Orientações p/ Recém Nascidos", "Prontuário Médico", "Receita de Alta", "Ficha de Cadastro",
     "Certificado de Coragem", "Quadro de Incentivo", "Cartão de Aniversário Exclusivo",
     "Arte para Caneca/Brindes", "Gráfico de Crescimento", "Diário do Xixi", "Card de Orientação de Sono",
     "Meu Pratinho", "Guia de Amamentação", "Fundo de Tira Dúvidas Instagram",
@@ -1638,7 +1804,7 @@ function PapelariaStep({ brand, accentColor, paletteColors, estampaPatterns, est
       <div style="text-align:center;font-family:${_brandFont};font-weight:${brand.editData?.fontWeight || 700};font-size:${_fontPt}pt;color:${accentColor};line-height:${_lineH};letter-spacing:${_letterSp};white-space:nowrap;">
         ${_lines.map(l => `<div style="font-family:inherit;font-weight:inherit;white-space:nowrap;">${l}</div>`).join('')}
       </div>
-      ${localSlogan ? `<div style="font-family:'Montserrat',sans-serif;font-size:4pt;letter-spacing:2pt;text-transform:uppercase;color:#999;margin-top:3pt;text-align:center;">${localSlogan}</div>` : ''}
+      ${localSlogan ? `<div style="font-family:'Montserrat',sans-serif;font-size:4pt;letter-spacing:1pt;text-transform:uppercase;color:#999;margin-top:3pt;text-align:center;">${localSlogan}</div>` : ''}
     `;
 
     const logoHtmlWithCrm = `
@@ -2347,6 +2513,238 @@ td { padding: 4mm 3mm; border: 0.2mm solid #eee; font-size: 10pt; color: #555; }
         return;
       }
 
+      if (['Guia Alimentar', 'Guia de Cuidados', 'Guia de Desenvolvimento', 'Cartão de Exame Pré-Natal'].includes(item)) {
+        const BLEED = 3;
+        const W1 = 146, W2 = 148, W3 = 148; // Compensação de dobra
+        const totalW = W1 + W2 + W3 + (BLEED * 2);
+        const totalH = 210 + (BLEED * 2);
+        
+        const _ffTri = brand.editData?.fontFamily || 'Playfair Display';
+        const _lfTri = LOCAL_FONT_FACES[_ffTri];
+        const fiTri = `<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;600;700;800&display=swap" rel="stylesheet">${_lfTri ? `<style>${_lfTri}</style>` : `<link href="https://fonts.googleapis.com/css2?family=${_ffTri.replace(/ /g,'+')}:wght@400;700&display=swap" rel="stylesheet">`}`;
+        
+        const genPattern = (opacity = 1) => patternSrc ? `<div style="position:absolute;inset:0;background-image:url(${patternSrc});background-size:${(patternScale * 0.45).toFixed(1)}mm;background-repeat:repeat;opacity:${opacity};"></div>` : '';
+        const _bcTri = borderColor || accentColor;
+
+        const page1 = `
+          <div class="page" style="width:${totalW}mm;height:${totalH}mm;position:relative;overflow:hidden;background:#fff;">
+            
+            <!-- Pág 5 (Aba Interna) - ESQUEMA DO PRATO -->
+            <div style="position:absolute;top:${BLEED}mm;left:${BLEED}mm;width:${W1}mm;bottom:${BLEED}mm;border-right:0.1mm dashed rgba(0,0,0,0.1);display:flex;flex-direction:column;align-items:center;padding:12mm 8mm;z-index:2;">
+                 <div style="text-align:center;font-family:'Montserrat',sans-serif;color:${accentColor};font-size:10pt;font-weight:800;text-transform:uppercase;margin-bottom:12mm;line-height:1.3;letter-spacing:1pt;">Esquema do prato para ser utilizado em todas as idades:</div>
+                 
+                 <div style="width:75mm;height:75mm;position:relative;">
+                    <svg version="1.1" viewBox="0 0 489.673 505.047" style="width:100%;height:100%;">
+                      <g><circle style="fill:#FFFFFF;" cx="246.734" cy="192.593" r="132.581"/></g>
+                      <circle style="fill:#C18E68;" cx="246.106" cy="191.961" r="126.073"/>
+                      <circle style="fill:#879A6C;" cx="246.106" cy="191.961" r="71.014"/>
+                      <g>
+                        <path style="fill:#FFFFFF;" d="M193.218,201.322c-0.341,0.018-0.303-0.55-0.311-0.686l-0.003-0.059c-0.05-0.943-2.028-1.258-3.129-1.199c-1.245,0.067-2.126,0.193-2.79,1.088c-0.328,0.438,0.066,1.06-0.189,1.22c-0.33,0.213-0.466-0.141-0.482-0.452c-0.069-2.211,2.842-2.709,4.763-2.363c1.023,0.179,2.408,0.709,2.477,1.975C193.564,201.05,193.442,201.311,193.218,201.322z"/>
+                        <path style="fill:#FFFFFF;" d="M193.054,202.598c0.174-0.022,0.358,0.121,0.38,0.296l0.19,1.528c0.007,0.059-0.113,0.27-0.161,0.285c-0.018,0.013-0.027,0.014-0.046,0.016c-0.194,0.025-0.314-0.226-0.334-0.381l-0.144-1.16l-3.207,0.447l0.285,1.026l0.006,0.048c0.057,0.455-0.41,0.336-0.517-0.043l-0.266-0.95l-2.53,0.286c0.002,0.088,0.042,0.417,0.053,0.504c0.082,0.648,0.363,1.096-0.078,1.18c-0.326,0.061-0.559-2.112-0.374-2.136L193.054,202.598z"/>
+                        <path style="fill:#FFFFFF;" d="M187.401,207.332c2.156-0.415,4.345-0.757,6.511-1.115c0.444-0.065,0.476,0.098,0.55,0.48l0.017,0.096c0.172,0.882-0.295,1.557-1.139,1.72l-0.104,0.021c-0.699,0.135-1.549,0.109-2.102-0.439c-0.038,0.057-0.255,0.326-0.314,0.377c-0.482,0.541-1.872,0.699-2.523,0.875c-0.058,0.01-0.486,0.152-0.545,0.164l-0.076,0.014c-0.163,0.031-0.212-0.117-0.235-0.242l-0.001-0.01c-0.021-0.104-0.045-0.229,0.081-0.293c0.315-0.07,1.763-0.439,2.086-0.521c0.462-0.129,1.085-0.348,0.973-0.932l-0.03-0.154c-0.09-0.002-0.48,0.033-0.566,0.051c-0.089,0.006-2.224,0.367-3.04,0.516c-0.181,0.035-0.376,0.102-0.423-0.137c-0.021-0.105-0.004-0.229,0.078-0.314L187.401,207.332z M191.251,207.365c0.132,0.68,1.436,0.697,1.875,0.611c0.451-0.086,0.986-0.406,0.881-0.953c-0.028-0.145-0.133-0.223-0.296-0.191c-0.831,0.17-1.545,0.229-2.397,0.393C191.236,207.238,191.24,207.308,191.251,207.365z"/>
+                        <path style="fill:#FFFFFF;" d="M194.263,209.662c0.17-0.045,0.373,0.074,0.417,0.243l0.392,1.491c0.016,0.057-0.076,0.282-0.121,0.305c-0.017,0.014-0.027,0.016-0.046,0.021c-0.188,0.049-0.34-0.184-0.38-0.334l-0.297-1.133l-3.12,0.87l0.419,0.979l0.012,0.047c0.116,0.443-0.362,0.388-0.518,0.025l-0.39-0.906l-2.47,0.617c0.012,0.088,0.097,0.408,0.119,0.494c0.166,0.631,0.504,1.037,0.078,1.18c-0.316,0.102-0.834-2.021-0.654-2.068L194.263,209.662z"/>
+                        <path style="fill:#FFFFFF;" d="M190.614,215.098l-0.075-0.037l-1.097,0.195c-0.145,0.027-0.538,0.171-0.628-0.098c-0.04-0.119,0.171-0.283,0.263-0.314c7.021-1.293,7.044-1.291,7.044-1.291c0.19-0.013,0.472-0.035,0.549,0.196c0.033,0.101,0.031,0.245-0.042,0.333l-0.17,0.139c-1.935,1.248-4.021,2.229-6.118,3.211l-0.582,0.258c-0.009,0.003-0.013-0.006-0.021-0.003c-0.197-0.006-0.283-0.019-0.342-0.193l-0.01-0.028c-0.02-0.055-0.05-0.146,0.012-0.178l1.677-0.822L190.614,215.098z M191.233,215.043l0.36,1.164l4.107-2.07L191.233,215.043z"/>
+                        <path style="fill:#FFFFFF;" d="M190.004,219.414c-0.004-0.008,4.602-2.039,5.214-2.292c0.172-0.07,1.506-0.749,1.672-0.829l0.064-0.025c0.072-0.029,0.099-0.041,0.188-0.004c0.021,0.023,0.074,0.127,0.089,0.163c0.067,0.163,0.106,0.231-0.069,0.366c-0.318,0.227-0.55,0.279-0.896,0.436c-1.82,0.805-3.679,1.594-5.49,2.469l0.026,0.062c0.156,0.379,0.433,0.688,0.592,1.074c0.06,0.145,0.09,0.322-0.09,0.396c-0.099,0.041-0.202,0.02-0.272-0.099L190.004,219.414z"/>
+                        <path style="fill:#FFFFFF;" d="M193.419,226.268c2.498-0.59,5.021-1.195,7.484-1.925c0.03-0.007,0.242-0.106,0.282-0.097c0,0,0.054,0.072,0.072,0.105c0.113,0.193,0.061,0.338-0.135,0.449c-0.497,0.289-1.133,0.318-1.7,0.468c-1.95,0.487-3.951,1.062-5.922,1.472c-0.078,0.021-0.179,0.023-0.228-0.062c-0.103-0.177-0.104-0.278,0.048-0.365C193.33,226.309,193.41,226.273,193.419,226.268z"/>
+                        <path style="fill:#FFFFFF;" d="M203.831,229.439c-0.401-0.454-0.561-0.676-0.441-0.793c0.273-0.188,0.366-0.26,0.941,0.579l0.502,0.647c0.123,0.176,0.321,0.48,0.097,0.652c-0.069,0.055-0.211,0.029-0.266-0.039l-0.501-0.648l-4.786,3.938c-0.069,0.055-0.228-0.07-0.264-0.117c-0.036-0.046-0.116-0.23-0.047-0.283L203.831,229.439z"/>
+                        <path style="fill:#FFFFFF;" d="M201.726,237.332c-0.046-0.051-0.091-0.115-0.142-0.187c-0.694-0.991,1.454-3.038,3.93-5.395l0.344-0.333l0.035-0.033c0.159-0.145,0.498,0.248,0.398,0.429c-0.099,0.312-5.112,4.239-4.219,5.233c0.229,0.254,0.714-0.037,0.916-0.207c0.921-0.786,2.933-2.621,4.301-3.916c0.149-0.067,0.203-0.037,0.319,0.094c0.105,0.116,0.175,0.236,0.057,0.355c-1.244,1.184-2.588,2.287-3.892,3.523C203.129,237.449,202.404,238.088,201.726,237.332z"/>
+                        <path style="fill:#FFFFFF;" d="M209.499,236.24c-0.35,0.367-0.807,0.564-1.303,0.604c0.328,1.269,0.074,2.173-0.828,3.12c-0.961,1.01-2.34,1.342-3.449,0.285c-0.05-0.047-0.185-0.189-0.147-0.342c0.959-1.162,1.987-2.244,3.1-3.624l1.46-1.817l0.141-0.148C209.429,234.232,210.327,235.371,209.499,236.24z M204.576,240.068c0.749,0.713,1.729,0.178,2.375-0.501c0.748-0.784,1.295-2.081,0.37-2.964c-1.018,1.068-1.941,2.195-2.866,3.336C204.491,239.988,204.534,240.027,204.576,240.068z M207.73,236.132c0.361,0.343,0.99,0.161,1.361-0.228c0.383-0.402,0.185-0.86-0.357-1.04L207.73,236.132z"/>
+                        <path style="fill:#FFFFFF;" d="M210.969,237.299c0.111-0.135,0.346-0.154,0.48-0.043l1.181,0.99c0.044,0.037,0.1,0.275,0.076,0.318c-0.005,0.021-0.012,0.029-0.023,0.045c-0.126,0.148-0.384,0.047-0.503-0.053l-0.897-0.752l-2.043,2.512l0.907,0.557l0.038,0.033c0.352,0.293-0.071,0.525-0.407,0.319l-0.843-0.515l-1.657,1.932c0.06,0.064,0.314,0.277,0.382,0.334c0.502,0.42,1.013,0.555,0.746,0.916c-0.198,0.268-1.848-1.166-1.729-1.308L210.969,237.299z M212.77,236.365l0.749,0.093c0.021,0.005,0.091,0.026,0.091,0.026c0.098,0.082,0.135,0.266,0.054,0.361c-0.043,0.054-0.043,0.066-0.112,0.06l-0.582-0.081l-0.452-0.021c-0.076,0-0.091-0.014-0.136-0.051c-0.098-0.082-0.116-0.225-0.035-0.322C212.445,236.311,212.63,236.35,212.77,236.365z"/>
+                        <path style="fill:#FFFFFF;" d="M210.048,244.607c1.295-1.773,2.663-3.516,4.003-5.256c0.28-0.351,0.414-0.253,0.73-0.022l0.078,0.058c0.726,0.528,0.845,1.34,0.339,2.034l-0.062,0.087c-0.42,0.575-1.059,1.136-1.837,1.111c0.011,0.068,0.037,0.414,0.027,0.49c0.017,0.725-0.894,1.789-1.25,2.361c-0.035,0.047-0.251,0.444-0.286,0.492l-0.046,0.062c-0.098,0.134-0.235,0.058-0.338-0.018l-0.008-0.006c-0.087-0.062-0.188-0.137-0.141-0.271c0.183-0.266,0.99-1.523,1.171-1.803c0.25-0.408,0.557-0.994,0.075-1.345l-0.126-0.093c-0.067,0.061-0.329,0.352-0.381,0.424c-0.06,0.064-1.376,1.785-1.871,2.45c-0.11,0.149-0.207,0.331-0.404,0.188c-0.087-0.063-0.158-0.164-0.155-0.283L210.048,244.607z M212.889,242.006c0.56,0.408,1.526-0.469,1.79-0.832c0.27-0.37,0.441-0.97-0.008-1.297c-0.118-0.086-0.248-0.072-0.347,0.061c-0.492,0.691-0.975,1.222-1.486,1.922C212.792,241.924,212.841,241.971,212.889,242.006z"/>
+                        <path style="fill:#FFFFFF;" d="M218.724,242.607c-0.184,0.287-0.623-0.074-0.739-0.148l-0.048-0.031c-0.798-0.51-2.207,0.915-2.802,1.844c-0.673,1.052-1.086,1.842-0.747,2.903c0.165,0.522,0.901,0.565,0.883,0.866c-0.02,0.393-0.387,0.297-0.649,0.129c-1.839-1.234-0.544-3.893,0.859-5.253c0.743-0.728,1.983-1.544,3.051-0.86C218.705,242.166,218.845,242.418,218.724,242.607z"/>
+                        <path style="fill:#FFFFFF;" d="M217.805,249.912c-0.061-0.033-0.125-0.08-0.196-0.129c-0.984-0.703,0.356-3.348,1.903-6.393l0.211-0.43l0.023-0.043c0.103-0.188,0.553,0.068,0.519,0.271c0.011,0.328-3.402,5.699-2.229,6.338c0.3,0.163,0.659-0.273,0.793-0.5c0.604-1.049,1.888-3.448,2.746-5.123c0.118-0.114,0.178-0.104,0.332-0.02c0.137,0.074,0.243,0.165,0.172,0.315c-0.777,1.53-1.676,3.019-2.491,4.617C219.165,249.553,218.694,250.396,217.805,249.912z"/>
+                        <path style="fill:#FFFFFF;" d="M220.317,251.75c-0.009-0.004,1.972-4.631,2.247-5.234c0.076-0.17,0.588-1.576,0.656-1.748l0.029-0.062c0.031-0.071,0.043-0.098,0.134-0.131c0.03,0.002,0.141,0.042,0.177,0.059c0.159,0.072,0.234,0.096,0.198,0.316c-0.076,0.382-0.21,0.578-0.358,0.93c-0.781,1.83-1.601,3.676-2.326,5.553l0.062,0.027c0.371,0.17,0.783,0.207,1.165,0.381c0.143,0.065,0.286,0.174,0.205,0.352c-0.045,0.098-0.135,0.152-0.268,0.113L220.317,251.75z"/>
+                        <path style="fill:#FFFFFF;" d="M227.331,246.284c1.558,0.813-0.183,4.597-0.743,5.771c-0.322,0.64-1.106,1.665-2.016,1.312c-1.61-0.625-0.617-3.4-0.203-4.465C224.817,247.748,225.721,245.659,227.331,246.284z M224.901,249.067c-1.035,2.665-0.826,3.583-0.18,3.834c0.892,0.347,1.797-1.961,2.019-2.534l0.014-0.036c0.272-0.7,1.069-3.321,0.206-3.657c-0.683-0.264-1.563,1.142-1.739,1.596C225.099,248.559,225,248.813,224.901,249.067z"/>
+                      </g>
+                      <line style="fill:none;stroke:#FFFFFF;stroke-width:0.85;stroke-miterlimit:10;" x1="247.596" y1="190.289" x2="241.567" y2="317.831"/>
+                      <line style="fill:none;stroke:#FFFFFF;stroke-width:0.85;stroke-miterlimit:10;" x1="247.596" y1="190.289" x2="343.916" y2="271.506"/>
+                      <line style="fill:none;stroke:#FFFFFF;stroke-width:0.85;stroke-miterlimit:10;" x1="247.596" y1="190.289" x2="119.916" y2="190.289"/>
+                    </svg>
+                 </div>
+
+
+                 <div style="margin-top:12mm;font-family:'Montserrat',sans-serif;font-size:9pt;font-weight:800;color:#888;letter-spacing:1.5pt;">FRUTA (SOBREMESA)</div>
+            </div>
+
+            <!-- Pág 6 (Contra Capa) - ESTAMPA COMPLETA + LEMBRE-SE -->
+            <div style="position:absolute;top:${BLEED}mm;left:${BLEED + W1}mm;width:${W2}mm;bottom:${BLEED}mm;border-right:0.1mm dashed rgba(0,0,0,0.1);overflow:hidden;">
+                ${genPattern(1)}
+                <div style="position:absolute;inset:0;background:rgba(255,255,255,0.85);"></div>
+                
+                <div style="position:absolute;top:18mm;left:20mm;right:20mm;bottom:62mm;background:#fff;border-radius:2mm;z-index:3;display:flex;flex-direction:column;align-items:center;box-shadow:0 1mm 4mm rgba(0,0,0,0.05);overflow:hidden;border:0.1mm solid ${accentColor}15;">
+                   <div style="background:${accentColor};width:100%;padding:3mm;text-align:center;color:#fff;font-family:'Montserrat',sans-serif;font-size:7pt;font-weight:800;text-transform:uppercase;letter-spacing:1.5pt;">Lembre-se:</div>
+                   <div style="flex:1;display:flex;align-items:center;justify-content:center;padding:10mm;text-align:center;">
+                      <div style="font-family:'Montserrat',sans-serif;font-size:6.2pt;color:#333;font-weight:700;line-height:1.8;text-transform:uppercase;letter-spacing:0.5px;">
+                        ${item.includes('Alimentar') ? 'Quanto mais colorida, mais nutritiva e estimulante se torna a alimentação da criança! O que você faz hoje pode prevenir muitas doenças e proporcionar o melhor desenvolvimento para o seu filho!' : 
+                         'Acompanhando cada passo do crescimento com carinho e técnica, garantindo o melhor futuro para o seu pequeno.'}
+                      </div>
+                   </div>
+                </div>
+
+                <div style="position:absolute;bottom:52mm;left:0;right:0;display:flex;justify-content:center;gap:3mm;opacity:0.25;">
+                   ${Array.from({length: 10}).map((_, i) => `<div style="width:2.2mm;height:2.2mm;background:${accentColor};border-radius:50%;"></div>`).join('')}
+                </div>
+
+                <!-- ETIQUETA INDUSTRIAL NO RODAPÉ (DISCRETA E ELEGANTE) -->
+                <div style="position:absolute;bottom:8mm;left:18mm;right:18mm;background:#fff;border:0.15mm solid ${accentColor}20;border-radius:1.5mm;padding:3.5mm;z-index:4;display:flex;flex-direction:column;gap:1mm;box-shadow:0 0.5mm 2mm rgba(0,0,0,0.05);text-align:center;align-items:center;">
+                    <div style="font-family:'Montserrat',sans-serif;font-size:7pt;font-weight:800;color:${accentColor};margin-bottom:0.5mm;">${clinicaNome || 'Sua Clínica'}</div>
+                    <div style="font-family:'Montserrat',sans-serif;font-size:5.5pt;color:#888;font-weight:500;line-height:1.2;">${endereco || 'Endereço não informado'}</div>
+                    
+                    <div style="display:flex;align-items:center;justify-content:center;gap:1.5mm;margin:0.5mm 0;">
+                        <div style="width:3.5mm;height:3.5mm;background:#25D366;border-radius:50%;display:flex;align-items:center;justify-content:center;">
+                            <div style="width:1.8mm;height:1.8mm;border:0.35mm solid #fff;border-radius:0.4mm;"></div>
+                        </div>
+                        <div style="font-family:'Montserrat',sans-serif;font-size:7pt;fontWeight:800;color:#333;">${allPhones}</div>
+                    </div>
+
+                    <div style="font-family:'Montserrat',sans-serif;font-size:5.5pt;color:#aaa;font-weight:500;">
+                        ${[brand.email, site, instagram ? `@${instagram}` : ''].filter(Boolean).join('  ·  ')}
+                    </div>
+                </div>
+            </div>
+
+            <!-- Pág 1 (Capa) - ESTAMPA NA BORDA -->
+            <div style="position:absolute;top:${BLEED}mm;left:${BLEED + W1 + W2}mm;width:${W3}mm;bottom:${BLEED}mm;overflow:hidden;">
+                 ${genPattern(1)}
+                 <div style="position:absolute;top:6mm;left:6mm;right:6mm;bottom:6mm;background:#fff;border:0.2mm solid ${accentColor}30;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:10mm;text-align:center;z-index:2;box-shadow:0 1mm 4mm rgba(0,0,0,0.1);">
+                     <div style="zoom:3.4;margin-bottom:12mm;">${logoHtmlWithCrm}</div>
+                     <div style="width:15mm;height:0.8mm;background:${accentColor};margin-bottom:10mm;border-radius:1mm;"></div>
+                     
+                     <div style="display:flex;flex-direction:column;align-items:center;margin-bottom:3mm;">
+                        <div style="font-family:'Montserrat',sans-serif;font-weight:800;font-size:8.5pt;color:${accentColor}cc;letter-spacing:1.8pt;text-transform:uppercase;margin-bottom:0.5mm;">
+                          ${item.includes('Alimentar') || item.includes('Cuidados') || item.includes('Desenvolvimento') ? 'GUIA DE' : 'CARTÃO DE'}
+                        </div>
+                        <div style="font-family:'Montserrat',sans-serif;font-weight:800;font-size:13pt;color:${accentColor};letter-spacing:0.8pt;text-transform:uppercase;line-height:1.2;">
+                          ${item.includes('Alimentar') ? 'INTRODUÇÃO ALIMENTAR' : 
+                            item.includes('Cuidados') ? 'CUIDADOS COM O BEBÊ' :
+                            item.includes('Desenvolvimento') ? 'DESENVOLVIMENTO' : 'EXAME PRÉ-NATAL'}
+                        </div>
+                     </div>
+
+                     <div style="font-family:'Montserrat',sans-serif;font-size:9.5pt;font-weight:500;color:#666;letter-spacing:0.2px;">Saúde e Bem-Estar Pediátrico</div>
+                 </div>
+            </div>
+
+            <div class="cm cm-tl"></div><div class="cm cm-tr"></div><div class="cm cm-bl"></div><div class="cm cm-br"></div>
+          </div>`;
+
+        const page2 = `
+          <div class="page" style="width:${totalW}mm;height:${totalH}mm;position:relative;overflow:hidden;background:#fff;page-break-before:always;">
+            ${genPattern(0.4)}
+            <div style="position:absolute;inset:${BLEED}mm;background:rgba(255,255,255,0.92);"></div>
+            
+            <div style="position:absolute;top:${BLEED + 12}mm;left:${BLEED + 12}mm;right:${BLEED + 12}mm;bottom:${BLEED + 12}mm;display:flex;gap:0;">
+                <!-- Pág 2 -->
+                <div style="flex:0 0 ${W3}mm;padding-right:12mm;border-right:0.1mm dashed #eee;display:flex;flex-direction:column;font-family:'Montserrat',sans-serif;">
+                    <div style="background:#F15A24;color:#fff;padding:4mm;border-radius:1.5mm;font-size:8.2pt;font-weight:600;line-height:1.4;margin-bottom:6mm;text-align:justify;">
+                        A alimentação saudável é fundamental para garantir a saúde, o bom crescimento e desenvolvimento das crianças, prevenindo doenças e deficiências nutricionais... Afinal, se queremos ofertar o melhor, o exemplo é o primeiro passo.
+                    </div>
+                    
+                    <div style="display:flex;flex-direction:column;gap:3.5mm;margin-bottom:8mm;">
+                        <div style="display:flex;gap:2.5mm;"><span style="color:#F15A24;">▶</span><span style="font-size:7.2pt;color:#444;line-height:1.3;">A partir do 6º mês de vida, caso o bebê já tenha sinais de prontidão...</span></div>
+                        <div style="display:flex;gap:2.5mm;"><span style="color:#F15A24;">▶</span><span style="font-size:7.2pt;color:#444;line-height:1.3;">No momento da alimentação, o bebê pode receber alimentos amassados... mas deve experimentar com as mãos.</span></div>
+                    </div>
+
+                    <div style="font-size:8pt;font-weight:800;color:#F15A24;margin-bottom:3mm;text-transform:uppercase;text-decoration:underline;">Faixa Etária / Alimento</div>
+                    <table style="width:100%;border-collapse:collapse;border:0.2mm solid #F15A2430;">
+                        ${[
+                            ['Até 6º mês', 'Leite materno exclusivo'],
+                            ['6 a 12 m', 'Leite ou fórmula, complementado'],
+                            ['6º mês', 'Frutas e papa almoço (principal)'],
+                            ['7º mês', 'Segunda papa principal (jantar)'],
+                            ['9º-11º mês', 'Refeição da família (ajuste consistência)'],
+                            ['12º mês', 'Comida da família']
+                        ].map((r, i) => `<tr style="background:${i%2===0?'#F9ED3208':'#fff'};font-size:7pt;"><td style="padding:2.5mm;font-weight:800;border-bottom:0.15mm solid #F15A2415;">${r[0]}</td><td style="padding:2.5mm;border-bottom:0.15mm solid #F15A2415;">${r[1]}</td></tr>`).join('')}
+                    </table>
+                </div>
+
+                <!-- Pág 3 (Centro) -->
+                <div style="flex:0 0 ${W2}mm;padding:0 12mm;border-right:0.1mm dashed #eee;display:flex;flex-direction:column;font-family:'Montserrat',sans-serif;">
+                    <div style="font-size:8.5pt;font-weight:800;color:#00A19D;margin-bottom:3mm;text-transform:uppercase;border-bottom:0.3mm solid #00A19D40;padding-bottom:1.5mm;">Higiene e Contaminação</div>
+                    <div style="font-size:7.2pt;color:#555;line-height:1.4;margin-bottom:6mm;">Sempre dar preferência para alimentos da estação e orgânicos. Procedimento para higienização de hortaliças e frutas...</div>
+                    
+                    <div style="display:flex;gap:4mm;margin-bottom:8mm;">
+                        <div style="flex:1;background:#00A19D08;padding:3mm;border-radius:1.5mm;border:0.15mm solid #00A19D20;">
+                            <div style="font-size:7.5pt;font-weight:800;color:#00A19D;margin-bottom:1.5mm;">ÁGUA</div>
+                            <div style="font-size:6.2pt;line-height:1.3;color:#444;">Oferecer água potável a partir da introdução complementar...</div>
+                        </div>
+                        <div style="flex:1;background:#8DC63F08;padding:3mm;border-radius:1.5mm;border:0.15mm solid #8DC63F20;">
+                            <div style="font-size:7.5pt;font-weight:800;color:#4D6B22;margin-bottom:1.5mm;">FRUTAS</div>
+                            <div style="font-size:6.2pt;line-height:1.3;color:#444;">Respeitar características regionais e sazonais...</div>
+                        </div>
+                    </div>
+
+                    <div style="font-size:8.5pt;font-weight:800;color:#F15A24;margin-bottom:6mm;text-align:center;text-transform:uppercase;">Papa Principal / Papa de Panela</div>
+                    <div style="display:flex;justify-content:center;gap:8mm;margin-bottom:5mm;">
+                        ${[
+                            {l:'Cereal ou Tubérculo', c:'#F9ED32'},
+                            {l:'Leguminosas', c:'#F15A24'},
+                            {l:'Protéina Animal', c:'#BE1E2E'},
+                            {l:'Hortaliças', c:'#8DC63F'}
+                        ].map(it => `
+                          <div style="text-align:center;width:22mm;">
+                             <div style="width:16mm;height:16mm;border-radius:50%;background:${it.c}20;border:0.3mm solid ${it.c};margin:0 auto;display:flex;align-items:center;justify-content:center;">
+                                <div style="width:3mm;height:3mm;background:${it.c};border-radius:50%;"></div>
+                             </div>
+                             <div style="font-size:6pt;font-weight:800;color:#555;margin-top:2mm;line-height:1.1;">${it.l}</div>
+                          </div>
+                        `).join('')}
+                    </div>
+                </div>
+
+                <!-- Pág 4 -->
+                <div style="flex:0 0 ${W1}mm;padding-left:12mm;display:flex;flex-direction:column;font-family:'Montserrat',sans-serif;">
+                    <table style="width:100%;border-collapse:collapse;margin-bottom:8mm;">
+                        ${[
+                            ['CAFÉ DA MANHÃ', 'Leite materno ou fórmula infantil'],
+                            ['LANCHE M.', 'Frutas / Leite / Fórmula'],
+                            ['ALMOÇO', 'Papa Principal (Cereal+Prot+Leg+Hort)'],
+                            ['LANCHE T.', 'Frutas / Leite / Fórmula'],
+                            ['JANTAR', 'Igual Almoço'],
+                            ['LANCHE N.', 'Leite ou fórmula']
+                        ].map(r => `<tr style="font-size:6.8pt;"><td style="padding:2mm;background:#8DC63F12;font-weight:800;border:0.15mm solid #eee;width:40%;">${r[0]}</td><td style="padding:2mm;border:0.15mm solid #eee;color:#444;">${r[1]}</td></tr>`).join('')}
+                    </table>
+
+                    <div style="font-size:8.5pt;font-weight:800;color:#00A19D;margin-bottom:4mm;text-transform:uppercase;">Introdução Alimentar Clássica</div>
+                    <table style="width:100%;border-collapse:collapse;border:0.2mm solid #00A19D30;text-align:center;">
+                        <tr style="background:#00A19D;color:#fff;font-size:6.5pt;font-weight:800;">
+                            <th style="padding:2mm;">IDADE</th><th style="padding:2mm;">TEXTURA</th><th style="padding:2mm;">QTDE</th>
+                        </tr>
+                        ${[
+                            ['6 meses', 'Amassados', '2-3 colheres'],
+                            ['7 meses', 'Amassados', '2/3 xícara'],
+                            ['9-11 m', 'Pedacinhos', '3/4 xícara'],
+                            ['12-24 m', 'Cortados', '1 xícara']
+                        ].map(r => `<tr style="font-size:6.5pt;"><td style="padding:2.5mm;border:0.15mm solid #eee;font-weight:800;">${r[0]}</td><td style="padding:2.5mm;border:0.15mm solid #eee;">${r[1]}</td><td style="padding:2.5mm;border:0.15mm solid #eee;">${r[2]}</td></tr>`).join('')}
+                    </table>
+                </div>
+            </div>
+
+            <div class="cm cm-tl"></div><div class="cm cm-tr"></div><div class="cm cm-bl"></div><div class="cm cm-br"></div>
+          </div>`;
+
+        const html = `<!DOCTYPE html><html><head><meta charset="UTF-8"><title>${item} - ${marca}</title>${fiTri}
+<style>* { box-sizing:border-box; margin:0; padding:0; print-color-adjust:exact !important; -webkit-print-color-adjust:exact !important; }
+body { background:#eee; }
+.page { background:#fff; margin:0 auto; }
+.cm { position:absolute; width:10mm; height:10mm; border-color:rgba(0,0,0,0.5); border-style:solid; border-width:0; pointer-events:none; z-index:100; }
+.cm-tl { top:0; left:0; border-top:0.2mm solid; border-left:0.2mm solid; }
+.cm-tr { top:0; right:0; border-top:0.2mm solid; border-right:0.2mm solid; }
+.cm-bl { bottom:0; left:0; border-bottom:0.2mm solid; border-left:0.2mm solid; }
+.cm-br { bottom:0; right:0; border-bottom:0.2mm solid; border-right:0.2mm solid; }
+@media print { body { background:none; } .page { margin:0; } @page { size: ${totalW}mm ${totalH}mm; margin:0; } }
+</style></head><body>${page1}${page2}</body></html>`;
+
+        const iframe = document.createElement('iframe');
+        iframe.id = '_gabarito_trifold';
+        iframe.style.cssText = 'position:fixed;top:-9999px;left:-9999px;width:1000mm;height:1000mm;border:none;visibility:hidden;';
+        document.body.appendChild(iframe);
+        iframe.contentDocument.open(); iframe.contentDocument.write(html); iframe.contentDocument.close();
+        const prevT = document.title;
+        iframe.contentWindow.document.fonts.ready.then(() => { setTimeout(() => { document.title = `${item} - ${marca}`; iframe.contentWindow.focus(); iframe.contentWindow.print(); setTimeout(() => { document.title = prevT; iframe.remove(); }, 3000); }, 1000); });
+        return;
+      }
+
     // ── OUTROS ITENS ────────────────────────────────────────────────
     const _fontFamily2 = brand.editData?.fontFamily || 'Playfair Display';
     const _localFace2 = LOCAL_FONT_FACES[_fontFamily2];
@@ -2509,17 +2907,17 @@ ${fontImports2}
             ? <ReciboPreview accentColor={accentColor} patternSrc={patternSrc} cartaoContacts={cartaoContacts} crmLine={crmLine} editData={{ ...editData, tagline: localSlogan }} logoColor={logoColor} comBorda={comBorda} setComBorda={setComBorda} clinicaNome={clinicaNome} setClinicaNome={setClinicaNome} logoLayout={logoLayout} paletteColors={paletteColors} borderColor={borderColor} setBorderColor={setBorderColor} patternScale={patternScale} setPatternScale={setPatternScale} marca={marca} />
           : currentItem.includes('Cartão de Retorno')
             ? <CartaoRetornoPreview accentColor={accentColor} patternSrc={patternSrc} cartaoContacts={cartaoContacts} crmLine={crmLine} editData={{ ...editData, tagline: localSlogan }} logoColor={logoColor} comBorda={comBorda} setComBorda={setComBorda} clinicaNome={clinicaNome} setClinicaNome={setClinicaNome} logoLayout={logoLayout} paletteColors={paletteColors} borderColor={borderColor} setBorderColor={setBorderColor} patternScale={patternScale} setPatternScale={setPatternScale} />
-            : currentItem.includes('Controle Especial')
+          : currentItem.includes('Controle Especial')
             ? <ControleEspecialPreview accentColor={accentColor} patternSrc={patternSrc} cartaoContacts={cartaoContacts} crmLine={crmLine} editData={{ ...editData, tagline: localSlogan }} logoColor={logoColor} comBorda={comBorda} setComBorda={setComBorda} clinicaNome={clinicaNome} setClinicaNome={setClinicaNome} logoLayout={logoLayout} paletteColors={paletteColors} borderColor={borderColor} setBorderColor={setBorderColor} patternScale={patternScale} setPatternScale={setPatternScale} marca={marca} />
+          : ['Guia Alimentar', 'Guia de Cuidados', 'Guia de Desenvolvimento', 'Cartão de Exame Pré-Natal'].some(n => currentItem === n)
+            ? <FolderTrifoldPreview brand={brand} logoColor={logoColor} logoLayout={logoLayout} comBorda={comBorda} setComBorda={setComBorda} patternSrc={patternSrc} patternScale={patternScale} setPatternScale={setPatternScale} accentColor={accentColor} borderColor={borderColor} setBorderColor={setBorderColor} paletteColors={paletteColors} title={currentItem} cartaoContacts={cartaoContacts} folderRoof={folderRoof} crmLine={crmLine} />
           : currentItem.includes('Atestado Médico')
-              ? <AtestadoPreview accentColor={accentColor} patternSrc={patternSrc} editData={{ ...editData, tagline: localSlogan }} logoColor={logoColor} logoLayout={logoLayout} crmLine={crmLine} clinicaNome={clinicaNome} marca={marca} cartaoContacts={cartaoContacts} comBorda={comBorda} setComBorda={setComBorda} paletteColors={paletteColors} borderColor={borderColor} setBorderColor={setBorderColor} patternScale={patternScale} setPatternScale={setPatternScale} />
-              : currentItem.includes('Pasta')
-                ? <PastaPreview brand={brand} editData={{ ...editData, tagline: localSlogan }} accentColor={accentColor} solidColor={paletteColors[0]} logoColor={logoColor} logoLayout={logoLayout} isSaude={isSaude} crmLine={crmLine} clinicaNome={clinicaNome} cartaoContacts={cartaoContacts} comBorda={comBorda} setComBorda={setComBorda} patternSrc={patternSrc} paletteColors={paletteColors} borderColor={borderColor} setBorderColor={setBorderColor} patternScale={patternScale} setPatternScale={setPatternScale} folderRoof={folderRoof} />
-                : currentItem.includes('Envelope Ofício')
-                  ? <EnvelopeOficioPreview accentColor={accentColor} patternSrc={patternSrc} logoColor={logoColor} logoLayout={logoLayout} comBorda={comBorda} setComBorda={setComBorda} paletteColors={paletteColors} borderColor={borderColor} setBorderColor={setBorderColor} patternScale={patternScale} setPatternScale={setPatternScale} cartaoContacts={cartaoContacts} crmLine={crmLine} localSlogan={localSlogan} brand={brand} editData={editData} clinicaNome={clinicaNome} />
-                : ['Receituário','Timbrado','Cartão','Guia','Calendário','Atestado','Dicas','Ficha','Orientação','Checklist','Prontuário','Receita','Certificado','Quadro','Gráfico','Diário','Card','Pratinho','Fundo','Arte','Etiqueta','Assinatura','Tag'].some(n => currentItem.includes(n))
-                ? <A5ItemPreview accentColor={accentColor} patternSrc={patternSrc} editData={{ ...editData, tagline: localSlogan }} logoColor={logoColor} logoLayout={logoLayout} cartaoContacts={cartaoContacts} crmLine={crmLine} clinicaNome={clinicaNome} comBorda={comBorda} setComBorda={setComBorda} paletteColors={paletteColors} borderColor={borderColor} setBorderColor={setBorderColor} patternScale={patternScale} setPatternScale={setPatternScale} />
-                : <GenericItemPreview item={currentItem} marca={marca} accentColor={accentColor} patternSrc={patternSrc} editData={{ ...editData, tagline: localSlogan }} logoColor={logoColor} logoLayout={logoLayout} comBorda={comBorda} setComBorda={setComBorda} paletteColors={paletteColors} borderColor={borderColor} setBorderColor={setBorderColor} patternScale={patternScale} setPatternScale={setPatternScale} />
+            ? <AtestadoPreview accentColor={accentColor} patternSrc={patternSrc} editData={{ ...editData, tagline: localSlogan }} logoColor={logoColor} logoLayout={logoLayout} crmLine={crmLine} clinicaNome={clinicaNome} marca={marca} cartaoContacts={cartaoContacts} comBorda={comBorda} setComBorda={setComBorda} paletteColors={paletteColors} borderColor={borderColor} setBorderColor={setBorderColor} patternScale={patternScale} setPatternScale={setPatternScale} />
+          : currentItem.includes('Pasta')
+            ? <PastaPreview brand={brand} editData={{ ...editData, tagline: localSlogan }} accentColor={accentColor} solidColor={paletteColors[0]} logoColor={logoColor} logoLayout={logoLayout} isSaude={isSaude} crmLine={crmLine} clinicaNome={clinicaNome} cartaoContacts={cartaoContacts} comBorda={comBorda} setComBorda={setComBorda} patternSrc={patternSrc} paletteColors={paletteColors} borderColor={borderColor} setBorderColor={setBorderColor} patternScale={patternScale} setPatternScale={setPatternScale} folderRoof={folderRoof} />
+          : ['Receituário','Timbrado','Cartão','Guia','Calendário','Atestado','Dicas','Ficha','Orientação','Checklist','Prontuário','Receita','Certificado','Quadro','Gráfico','Diário','Card','Pratinho','Fundo','Arte','Etiqueta','Assinatura','Tag'].some(n => currentItem.includes(n))
+            ? <A5ItemPreview accentColor={accentColor} patternSrc={patternSrc} editData={{ ...editData, tagline: localSlogan }} logoColor={logoColor} logoLayout={logoLayout} cartaoContacts={cartaoContacts} crmLine={crmLine} clinicaNome={clinicaNome} comBorda={comBorda} setComBorda={setComBorda} paletteColors={paletteColors} borderColor={borderColor} setBorderColor={setBorderColor} patternScale={patternScale} setPatternScale={setPatternScale} />
+          : <GenericItemPreview item={currentItem} marca={marca} accentColor={accentColor} patternSrc={patternSrc} editData={{ ...editData, tagline: localSlogan }} logoColor={logoColor} logoLayout={logoLayout} comBorda={comBorda} setComBorda={setComBorda} paletteColors={paletteColors} borderColor={borderColor} setBorderColor={setBorderColor} patternScale={patternScale} setPatternScale={setPatternScale} />
         }
       </div>
 
