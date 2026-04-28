@@ -1466,7 +1466,7 @@ function FolderTrifoldPreview({ brand, logoColor, logoLayout, comBorda, setComBo
   const _borderColor = borderColor || accentColor;
   
   // Página do Folder (A5 148x210mm)
-  const Page = ({ num, children, isSmall = false, withPattern = false }) => (
+  const Page = ({ num, children, isSmall = false, withPattern = false, padding = '15px' }) => (
     <div style={{ 
       width: isSmall ? '146px' : '148px', 
       height: '210px', 
@@ -1483,7 +1483,7 @@ function FolderTrifoldPreview({ brand, logoColor, logoLayout, comBorda, setComBo
         )
       )}
       <div style={{ position: 'absolute', top: '5px', right: '5px', fontSize: '6px', color: '#ccc', fontWeight: 700, zIndex: 10 }}>PÁG {num} {num === 1 ? '(CAPA)' : ''}</div>
-      <div style={{ position: 'relative', zIndex: 2, padding: '15px', height: '100%' }}>
+      <div style={{ position: 'relative', zIndex: 2, padding, height: '100%' }}>
         {children}
       </div>
     </div>
@@ -1622,13 +1622,13 @@ function FolderTrifoldPreview({ brand, logoColor, logoLayout, comBorda, setComBo
           <div style={{ height: '1px', flex: 1, background: '#eee' }} />
         </div>
         <div style={{ display: 'flex', boxShadow: '0 20px 50px rgba(0,0,0,0.1)', borderRadius: '4px', overflow: 'hidden', background: '#fff' }}>
-          <Page num={2} withPattern>
+          <Page num={2} withPattern padding="15px 4px 6px 4px">
             <Art2 accentColor={accentColor} palette={paletteColors} />
           </Page>
-          <Page num={3} withPattern>
+          <Page num={3} withPattern padding="15px 4px 6px 4px">
             <Art3 accentColor={accentColor} palette={paletteColors} />
           </Page>
-          <Page num={4} isSmall withPattern>
+          <Page num={4} isSmall withPattern padding="15px 4px 6px 4px">
             <Art4 accentColor={accentColor} palette={paletteColors} />
           </Page>
         </div>
