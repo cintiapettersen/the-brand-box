@@ -66,18 +66,19 @@ export default function FolderDevPage5({ accentColor, palette = [] }) {
     <div style={{
       width: '100%',
       height: '100%',
-      padding: '2px 3px',
+      padding: '0 1px',
       display: 'flex',
       flexDirection: 'column',
       fontFamily: "'Montserrat', sans-serif",
-      boxSizing: 'border-box'
+      boxSizing: 'border-box',
+      justifyContent: 'center'
     }}>
       <div style={{
-        fontSize: '7.5px',
+        fontSize: '6px',
         fontWeight: 900,
         color: colors[0],
         textAlign: 'center',
-        marginBottom: '2px',
+        marginBottom: '1px',
         textTransform: 'uppercase',
         letterSpacing: '0.8px',
         fontFamily: "'Playfair Display', serif", // Tentando usar uma fonte mais elegante para o título
@@ -109,9 +110,9 @@ export default function FolderDevPage5({ accentColor, palette = [] }) {
         {/* Header */}
         <div style={{
           display: 'flex',
-          padding: '1.5px 0',
+          padding: '1px 0',
           color: colors[0],
-          fontSize: '4px',
+          fontSize: '3.5px',
           fontWeight: 800,
           textTransform: 'uppercase',
           borderBottom: `0.5px solid ${colors[0]}50`,
@@ -125,7 +126,7 @@ export default function FolderDevPage5({ accentColor, palette = [] }) {
         </div>
 
         {/* Rows */}
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '1px', zIndex: 2 }}>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5px', zIndex: 2 }}>
           {linguagemData.map((item, idx) => {
             const rowColor = colors[idx % colors.length];
             return (
@@ -140,10 +141,10 @@ export default function FolderDevPage5({ accentColor, palette = [] }) {
                 {/* Left: Receptivo */}
                 <div style={{
                   flex: 1,
-                  padding: '2px 3px',
-                  fontSize: '3.4px',
+                  padding: '1px 2px',
+                  fontSize: '3.1px',
                   color: '#444',
-                  lineHeight: '1.25',
+                  lineHeight: '1.1',
                   textAlign: 'right',
                   display: 'flex',
                   alignItems: 'center',
@@ -163,9 +164,9 @@ export default function FolderDevPage5({ accentColor, palette = [] }) {
                   <div style={{
                     background: rowColor,
                     color: '#fff',
-                    fontSize: '3.5px',
+                    fontSize: '3.1px',
                     fontWeight: 800,
-                    padding: '1px 3px',
+                    padding: '0.5px 2px',
                     borderRadius: '10px',
                     whiteSpace: 'nowrap',
                     boxShadow: '0 1px 2px rgba(0,0,0,0.1)',
@@ -178,10 +179,10 @@ export default function FolderDevPage5({ accentColor, palette = [] }) {
                 {/* Right: Expressivo */}
                 <div style={{
                   flex: 1,
-                  padding: '2px 3px',
-                  fontSize: '3.4px',
+                  padding: '1px 2px',
+                  fontSize: '3.1px',
                   color: '#444',
-                  lineHeight: '1.25',
+                  lineHeight: '1.1',
                   textAlign: 'left',
                   display: 'flex',
                   alignItems: 'center'
