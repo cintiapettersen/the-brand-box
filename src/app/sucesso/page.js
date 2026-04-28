@@ -1336,21 +1336,22 @@ function GuiaCuidadosPreview({ brand, logoColor, logoLayout, comBorda, setComBor
   // Capa HTML igual ao Guia Alimentar — overlay sobre o SVG
   const capaOverlay = (
     <div style={{ position:'absolute', right:0, top:0, width:'33.1%', height:'100%',
-      padding:'3%', display:'flex', pointerEvents:'none' }}>
-      <div style={{ flex:1, background:'#fff', borderRadius:'2px', display:'flex',
+      pointerEvents:'none' }}>
+      <div style={{ position:'absolute', top:'1.6%', left:'2.4%', right:'2.4%', bottom:'1.6%',
+        background:'#fff', borderRadius:'2px', display:'flex',
         flexDirection:'column', alignItems:'center', justifyContent:'flex-start',
-        paddingTop:'32px', textAlign:'center',
-        clipPath:'polygon(0% 6%, 50% 0%, 100% 6%, 100% 100%, 0% 100%)' }}>
-        <div style={{ transform:'scale(1.95)', marginBottom:'25px' }}>
+        paddingTop:'19px', textAlign:'center',
+        clipPath:'polygon(0% 8%, 50% 0%, 100% 8%, 100% 100%, 0% 100%)' }}>
+        <div style={{ transform:'scale(1.15)', marginBottom:'15px' }}>
           <LogoPreviewHTML editData={editData} color={accentColor} layout={logoLayout} scaleFactor={0.16} crm={crmLine} />
         </div>
-        <div style={{ width:'22px', height:'1.2px', background:accentColor, marginBottom:'14px', borderRadius:'10px' }} />
+        <div style={{ width:'13px', height:'0.7px', background:accentColor, marginBottom:'8px', borderRadius:'10px' }} />
         <div style={{ display:'flex', flexDirection:'column', alignItems:'center', gap:'0px' }}>
-          <div style={{ fontSize:'4px', fontWeight:800, color:`${accentColor}cc`, textTransform:'uppercase', letterSpacing:'0.6px', fontStyle:'italic' }}>GUIA DE</div>
-          <div style={{ fontSize:'5px', fontWeight:800, color:'#333', textTransform:'uppercase', letterSpacing:'0.5px', lineHeight:1.2 }}>CUIDADOS COM O BEBÊ</div>
+          <div style={{ fontSize:'3px', fontWeight:800, color:`${accentColor}cc`, textTransform:'uppercase', letterSpacing:'0.6px', fontStyle:'italic' }}>GUIA DE</div>
+          <div style={{ fontSize:'5.9px', fontWeight:800, color:'#333', textTransform:'uppercase', letterSpacing:'0.8px', lineHeight:1.2 }}>CUIDADOS COM O BEBÊ</div>
         </div>
-        <div style={{ marginTop:'3px', padding:'1px 4px', background:`${accentColor}15`, borderRadius:'20px', border:`0.4px solid ${accentColor}30` }}>
-          <div style={{ fontSize:'3.5px', fontWeight:800, color:accentColor, letterSpacing:'0.2px', textTransform:'uppercase' }}>Saúde e Bem-Estar Pediátrico</div>
+        <div style={{ marginTop:'3px', padding:'0.6px 3px', background:`${accentColor}15`, borderRadius:'20px', border:`0.4px solid ${accentColor}30` }}>
+          <div style={{ fontSize:'2.8px', fontWeight:800, color:accentColor, letterSpacing:'0.2px', textTransform:'uppercase' }}>Saúde e Bem-Estar Pediátrico</div>
         </div>
       </div>
     </div>
@@ -2651,9 +2652,9 @@ td { padding: 4mm 3mm; border: 0.2mm solid #eee; font-size: 10pt; color: #555; }
             const _patTileSvg = Math.round((patternScale || 150) / 4 * (428 / 220));
             const _solidCover = borderColor || accentColor;
             // clipPath para casinha — deve vir em <defs> no início do SVG
-            const _cx = 857, _cy = 6, _cw = 418, _ch = 623;
+            const _cx = 864, _cy = 10, _cw = 408, _ch = 615;
             const _ccx = _cx + _cw / 2;
-            const _roofH = _ch * 0.06;
+            const _roofH = _ch * 0.08;
             // Apenas <defs> no início — rects coloridos vão no FINAL para ficarem acima do branco original do SVG
             const estampaEl = comBorda && patternSrc ? `
               <defs>
