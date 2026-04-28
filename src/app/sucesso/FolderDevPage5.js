@@ -74,11 +74,11 @@ export default function FolderDevPage5({ accentColor, palette = [] }) {
       justifyContent: 'center'
     }}>
       <div style={{
-        fontSize: '6px',
+        fontSize: '5.2px',
         fontWeight: 900,
         color: colors[0],
         textAlign: 'center',
-        marginBottom: '1px',
+        marginBottom: '3px',
         textTransform: 'uppercase',
         letterSpacing: '0.8px',
         fontFamily: "'Playfair Display', serif", // Tentando usar uma fonte mais elegante para o título
