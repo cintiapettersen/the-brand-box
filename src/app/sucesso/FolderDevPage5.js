@@ -66,18 +66,18 @@ export default function FolderDevPage5({ accentColor, palette = [] }) {
     <div style={{
       width: '100%',
       height: '100%',
-      padding: '6px',
+      padding: '2px 3px',
       display: 'flex',
       flexDirection: 'column',
       fontFamily: "'Montserrat', sans-serif",
       boxSizing: 'border-box'
     }}>
       <div style={{
-        fontSize: '9px',
+        fontSize: '7.5px',
         fontWeight: 900,
         color: colors[0],
         textAlign: 'center',
-        marginBottom: '6px',
+        marginBottom: '2px',
         textTransform: 'uppercase',
         letterSpacing: '0.8px',
         fontFamily: "'Playfair Display', serif", // Tentando usar uma fonte mais elegante para o título
@@ -109,13 +109,13 @@ export default function FolderDevPage5({ accentColor, palette = [] }) {
         {/* Header */}
         <div style={{
           display: 'flex',
-          padding: '3px 0',
+          padding: '1.5px 0',
           color: colors[0],
-          fontSize: '4.5px',
+          fontSize: '4px',
           fontWeight: 800,
           textTransform: 'uppercase',
           borderBottom: `0.5px solid ${colors[0]}50`,
-          marginBottom: '2px',
+          marginBottom: '1px',
           zIndex: 2,
           position: 'relative'
         }}>
@@ -140,8 +140,8 @@ export default function FolderDevPage5({ accentColor, palette = [] }) {
                 {/* Left: Receptivo */}
                 <div style={{
                   flex: 1,
-                  padding: '3px 6px',
-                  fontSize: '3.6px',
+                  padding: '2px 3px',
+                  fontSize: '3.4px',
                   color: '#444',
                   lineHeight: '1.25',
                   textAlign: 'right',
@@ -163,9 +163,9 @@ export default function FolderDevPage5({ accentColor, palette = [] }) {
                   <div style={{
                     background: rowColor,
                     color: '#fff',
-                    fontSize: '4px',
+                    fontSize: '3.5px',
                     fontWeight: 800,
-                    padding: '1.5px 4px',
+                    padding: '1px 3px',
                     borderRadius: '10px',
                     whiteSpace: 'nowrap',
                     boxShadow: '0 1px 2px rgba(0,0,0,0.1)',
@@ -178,8 +178,8 @@ export default function FolderDevPage5({ accentColor, palette = [] }) {
                 {/* Right: Expressivo */}
                 <div style={{
                   flex: 1,
-                  padding: '3px 6px',
-                  fontSize: '3.6px',
+                  padding: '2px 3px',
+                  fontSize: '3.4px',
                   color: '#444',
                   lineHeight: '1.25',
                   textAlign: 'left',
