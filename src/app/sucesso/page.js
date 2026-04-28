@@ -7,6 +7,10 @@ import FolderPage2Art from './FolderPage2Art';
 import FolderPage3Art from './FolderPage3Art';
 import FolderPage4Art from './FolderPage4Art';
 import FolderPage5Art from './FolderPage5Art';
+import FolderDevPage2 from './FolderDevPage2';
+import FolderDevPage3 from './FolderDevPage3';
+import FolderDevPage4 from './FolderDevPage4';
+import FolderDevPage5 from './FolderDevPage5';
 import { genPDFLogoHtml, PratinhoArtSVG, genPDFFooter, PDFStyles } from './PDFTemplates';
 import FolderPage6Etiqueta from './FolderPage6Etiqueta';
 import { STYLE_ICONS } from '../../lib/styleIcons';
@@ -1277,6 +1281,76 @@ function ControleEspecialPreview({ accentColor, patternSrc, editData, logoColor,
   );
 }
 
+function ChecklistMaternidadePreview({ accentColor, patternSrc, editData, logoColor, logoLayout, cartaoContacts, crmLine, clinicaNome, comBorda, setComBorda, paletteColors, borderColor, setBorderColor, patternScale, setPatternScale }) {
+  const BORDER = 10;
+  const solidColor = borderColor || accentColor;
+  const { whatsapp, telefone, telefone2, instagram, site, endereco } = cartaoContacts || {};
+  const mainPhone = [whatsapp || telefone, telefone2].filter(Boolean).join(' / ');
+
+  const SECOES = [
+    { titulo: 'check list bebê', itens: ['4 mudas para troca de roupas','1 saída de maternidade','4 pares de meia','Fraldinhas de boca','2 mantas','1 pacote de fralda descartável (RN P dependendo do tamanho do bebê)','1 toalha fralda','Sabonete líquido de glicerina','Algodão','Frasco de álcool','Pomada para prevenção de assadura','1 sacolinha para roupas sujas','Pente para cabelo','Almofada de amamentação','1 Coeiro','Cadeirinha ou bebê conforto para o carro'] },
+    { titulo: 'check list mamãe', itens: ['2 ou mais camisolas/pijamas com abertura frontal','5 calcinhas confortáveis','Chinelo de dedo confortável','Sutiã de amamentação','Absorvente íntimo','Produtos de higiene pessoal ex: (escova de dente, pasta de dente, sabonete, desodorante sem cheiro por causa do bebê, pente de cabelo, absorvente noturno)','1 muda de roupa para saída pós parto','Prendedor de cabelo','Produtos de beleza (batom pra animar a puérpera)','1 sacola para roupas sujas','Travesseiro de uso pessoal','Toalha de banho'] },
+    { titulo: 'check list documentos', itens: ['RG dos pais ou documento com foto','Carteirinha do plano de saúde','Cartão do pré natal!!!','Últimos exames feitos','Se pais casados: certidão de casamento'] },
+    { titulo: 'check list acompanhante', itens: ['2 mudas de roupa','Produtos de higiene pessoal','Chinelo','Carregador de celular','Lanchinho'] },
+  ];
+
+  const Secao = ({ titulo, itens }) => (
+    <div style={{ border: `0.5px solid ${accentColor}40`, borderRadius: '2px', padding: '5px 6px', display: 'flex', flexDirection: 'column', gap: '1.5px' }}>
+      <div style={{ fontFamily: 'Georgia, serif', fontStyle: 'italic', fontSize: '5px', fontWeight: 700, color: accentColor, marginBottom: '3px', borderBottom: `0.3px solid ${accentColor}30`, paddingBottom: '2px' }}>{titulo}</div>
+      {itens.map((item, i) => (
+        <div key={i} style={{ display: 'flex', alignItems: 'flex-start', gap: '3px', fontSize: '3px', color: '#444', lineHeight: 1.3 }}>
+          <div style={{ width: '5px', height: '5px', border: `0.4px solid ${accentColor}80`, borderRadius: '1px', flexShrink: 0, marginTop: '0.5px' }} />
+          <span>{item}</span>
+        </div>
+      ))}
+    </div>
+  );
+
+  return (
+    <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', alignItems: 'center' }}>
+      <BordaToggle comBorda={comBorda} setComBorda={setComBorda} accentColor={accentColor} paletteColors={paletteColors} borderColor={borderColor} setBorderColor={setBorderColor} patternScale={patternScale} setPatternScale={setPatternScale} />
+      {/* A4 proporcional: 226×320 ≈ A5, A4 ≈ 226×320 → usar 226×320 para A5, A4 = 226×320 */}
+      <div style={{ width: '226px', height: '320px', position: 'relative', boxShadow: '0 6px 30px rgba(0,0,0,0.12)', borderRadius: '4px', overflow: 'hidden', background: '#fff' }}>
+        {comBorda && patternSrc
+          ? <div style={{ position: 'absolute', inset: 0, backgroundImage: `url(${patternSrc})`, backgroundSize: `${(patternScale || 150) / 2}px`, backgroundRepeat: 'repeat' }} />
+          : <div style={{ position: 'absolute', inset: 0, background: solidColor }} />}
+        {/* Área branca interna */}
+        <div style={{ position: 'absolute', top: BORDER, left: BORDER, right: BORDER, bottom: BORDER, background: '#fff', display: 'flex', overflow: 'hidden' }}>
+          {/* Título vertical */}
+          <div style={{ width: '18px', flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', background: `${accentColor}10` }}>
+            <div style={{ transform: 'rotate(-90deg)', whiteSpace: 'nowrap', fontSize: '5.5px', fontWeight: 900, color: accentColor, letterSpacing: '2px', textTransform: 'uppercase' }}>
+              CHECKLIST MATERNIDADE
+            </div>
+          </div>
+          {/* Conteúdo */}
+          <div style={{ flex: 1, display: 'flex', flexDirection: 'column', padding: '4px 5px 3px 5px', gap: '2px', overflow: 'hidden' }}>
+            {/* Logo centralizada no topo */}
+            <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', paddingBottom: '2px', borderBottom: `0.3px solid ${accentColor}20`, marginBottom: '1px' }}>
+              <LogoPreviewHTML editData={editData} color={logoColor} layout={logoLayout} scaleFactor={0.16} crm={crmLine} />
+            </div>
+            {/* Grid 2x2 */}
+            <div style={{ flex: 1, display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '2px', overflow: 'hidden' }}>
+              {SECOES.map((s, i) => <Secao key={i} titulo={s.titulo} itens={s.itens} />)}
+            </div>
+            {/* Rodapé etiqueta */}
+            <div style={{ borderTop: `0.3px solid ${accentColor}30`, paddingTop: '3px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '4px' }}>
+              <div style={{ fontSize: '3px', fontWeight: 800, color: accentColor, textTransform: 'uppercase', letterSpacing: '0.5px', flexShrink: 0 }}>{clinicaNome || editData?.marca}</div>
+              <div style={{ fontSize: '2.6px', color: '#888', textAlign: 'center', lineHeight: 1.3 }}>
+                {endereco && <div>{endereco}</div>}
+                {mainPhone && <div>{mainPhone}</div>}
+              </div>
+              <div style={{ fontSize: '2.6px', color: '#888', textAlign: 'right', flexShrink: 0 }}>
+                {site && <div>{site}</div>}
+                {instagram && <div>@{instagram}</div>}
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 function GuiaCuidadosPreview({ brand, logoColor, logoLayout, comBorda, setComBorda, patternSrc, patternScale, setPatternScale, accentColor, borderColor, setBorderColor, paletteColors, cartaoContacts, crmLine, clinicaNome, editData, localSlogan }) {
   const [svgContent, setSvgContent] = React.useState('');
   const color1 = paletteColors[0] || accentColor;
@@ -1425,6 +1499,13 @@ function FolderTrifoldPreview({ brand, logoColor, logoLayout, comBorda, setComBo
   };
   const { pre, main } = getTitleData(title || 'Guia Alimentar');
 
+  // Determinar quais componentes de arte usar
+  const isDev = (title || '').includes('Desenvolvimento');
+  const Art2 = isDev ? FolderDevPage2 : FolderPage2Art;
+  const Art3 = isDev ? FolderDevPage3 : FolderPage3Art;
+  const Art4 = isDev ? FolderDevPage4 : FolderPage4Art;
+  const Art5 = isDev ? FolderDevPage5 : FolderPage5Art;
+
   return (
     <div id="folder-trifold-preview" style={{ display: 'flex', flexDirection: 'column', gap: '30px', width: '100%', alignItems: 'center', paddingBottom: '40px' }}>
       
@@ -1448,7 +1529,7 @@ function FolderTrifoldPreview({ brand, logoColor, logoLayout, comBorda, setComBo
             </div>
             <div style={{ position: 'absolute', top: '6px', left: '6px', right: '6px', bottom: '6px', background: '#fff', borderRadius: '1.5px', boxShadow: '0 2px 5px rgba(0,0,0,0.05)', zIndex: 2, display: 'flex', flexDirection: 'column', alignItems: 'center', overflow: 'hidden', justifyContent: 'center' }}>
                <div style={{ transform: 'scale(0.92)', transformOrigin: 'center center' }}>
-                 <FolderPage5Art accentColor={accentColor} palette={paletteColors} />
+                 <Art5 accentColor={accentColor} palette={paletteColors} />
                </div>
             </div>
           </Page>
@@ -1535,24 +1616,20 @@ function FolderTrifoldPreview({ brand, logoColor, logoLayout, comBorda, setComBo
 
       {/* LADO INTERNO (2 | 3 | 4) */}
       <div style={{ textAlign: 'center' }}>
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '10px', marginBottom: '12px' }}>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '10px', marginBottom: '12px' }}>
           <div style={{ height: '1px', flex: 1, background: '#eee' }} />
           <span style={{ fontSize: '10px', fontWeight: 800, color: '#aaa', textTransform: 'uppercase', letterSpacing: '1px' }}>LADO INTERNO (FACE 2)</span>
           <div style={{ height: '1px', flex: 1, background: '#eee' }} />
         </div>
         <div style={{ display: 'flex', boxShadow: '0 20px 50px rgba(0,0,0,0.1)', borderRadius: '4px', overflow: 'hidden', background: '#fff' }}>
           <Page num={2} withPattern>
-            <FolderPage2Art accentColor={accentColor} palette={paletteColors} />
-
-
+            <Art2 accentColor={accentColor} palette={paletteColors} />
           </Page>
           <Page num={3} withPattern>
-            <FolderPage3Art accentColor={accentColor} palette={paletteColors} />
-
+            <Art3 accentColor={accentColor} palette={paletteColors} />
           </Page>
           <Page num={4} isSmall withPattern>
-            <FolderPage4Art accentColor={accentColor} palette={paletteColors} />
-
+            <Art4 accentColor={accentColor} palette={paletteColors} />
           </Page>
         </div>
       </div>
@@ -1832,7 +1909,6 @@ function PastaPreview({ brand, editData, accentColor, solidColor, logoColor, log
 }
 
 function PapelariaStep({ brand, accentColor, paletteColors, estampaPatterns, estampaSelectedIdx, cartaoContacts, setCartaoContacts, plano, isSaude, crmData, setCrmData, marca, editData, logoColor, logoLayout, setLayout, clinicaNome, setClinicaNome }) {
-  // ATUALIZAÇÃO: MEGA PACOTE COMPLETO (Listas Clínica + Institucional)
   const itens = [
     "Cartão de Visita", "Receituário Padrão", "Atestado Médico", "Cartão de Retorno", "Pasta A4 Exclusiva",
     "Envelope Ofício", "Envelope Saco", "Recibo", "Receituário de Controle Especial", "Guia Alimentar",
@@ -1884,7 +1960,6 @@ function PapelariaStep({ brand, accentColor, paletteColors, estampaPatterns, est
   const openGabarito = (item) => {
     const patternSrc = estampaPatterns?.[currentIdx] ? `data:${estampaPatterns[currentIdx].mimeType};base64,${estampaPatterns[currentIdx].base64}` : null;
 
-    // URLs absolutas para fontes self-hosted — necessário na nova janela
     const _origin = window.location.origin;
     const LOCAL_FONT_FACES = {
       'Aberforth':    `@font-face{font-family:'Aberforth';src:url('${_origin}/fonts/Aberforth Demo.ttf') format('truetype');}`,
@@ -1900,7 +1975,6 @@ function PapelariaStep({ brand, accentColor, paletteColors, estampaPatterns, est
       'Solea':        `@font-face{font-family:'Solea';font-weight:300;src:url('${_origin}/fonts/Solea-Light.ttf') format('truetype');}@font-face{font-family:'Solea';font-weight:700;src:url('${_origin}/fonts/Solea-Bold.ttf') format('truetype');}`,
     };
 
-    // Gera logo diretamente — logoRef.current é null na etapa de papelaria
     const _isScript = brand.editData?.fontStyle === 'script';
     const _boost = brand.editData?.fontSizeBoost || 1;
     const _words = marca.split(' ').map(w => _isScript ? w.charAt(0).toUpperCase() + w.slice(1).toLowerCase() : w.toUpperCase());
@@ -1923,9 +1997,14 @@ function PapelariaStep({ brand, accentColor, paletteColors, estampaPatterns, est
     const localSlogan = editData?.tagline || brand.editData?.tagline || '';
     
     const logoHtmlWithCrm = genPDFLogoHtml({ brand, color: accentColor, localSlogan, crmLine, fontPt: _fontPt, lineH: _lineH, letterSp: _letterSp });
-    
-    // Suporte a legado onde logoHtml puro era usado
     const logoHtml = logoHtmlWithCrm;
+
+    // Determinar componentes
+    const isDev = item.includes('Desenvolvimento');
+    const Art2 = isDev ? FolderDevPage2 : FolderPage2Art;
+    const Art3 = isDev ? FolderDevPage3 : FolderPage3Art;
+    const Art4 = isDev ? FolderDevPage4 : FolderPage4Art;
+    const Art5 = isDev ? FolderDevPage5 : FolderPage5Art;
 
     // ── PASTA ──────────────────────────────────────────────────────
     if (item.includes('Pasta')) {
@@ -2027,7 +2106,6 @@ body { width: 480mm; height: 380mm; position: relative; overflow: hidden; backgr
           ${Array.from({ length: count }).map(() => `<div style="display:flex;border-bottom:0.3pt solid #eee;height:${rowH};"><div style="flex:1;border-right:0.3pt solid #eee;"></div><div style="flex:1;"></div></div>`).join('')}
         </div>`;
 
-      // Logo reduzido drasticamente para o formato vertical (fator 0.5)
       const _logoSizeR = (_basePt * 0.5 * _boost).toFixed(1);
       const logoHtmlR = `<div style="text-align:center;font-family:${_brandFont};font-weight:${brand.editData?.fontWeight || 700};font-size:${_logoSizeR}pt;color:${accentColor};line-height:${_lineH};letter-spacing:${_letterSp};${_noWrap}">${_lines.map(l => `<div style="font-family:inherit;font-weight:inherit;${_noWrap}">${l}</div>`).join('')}</div>${_tagline ? `<div style="font-family:'Montserrat',sans-serif;font-size:3.2pt;letter-spacing:1.2pt;text-transform:uppercase;color:#999;margin-top:2.2pt;text-align:center;white-space:nowrap;">${_tagline}</div>` : ''}`;
 
@@ -2089,11 +2167,8 @@ body { width: 480mm; height: 380mm; position: relative; overflow: hidden; backgr
     }
 
     // ── CARTÃO DE VISITA ────────────────────────────────────────────
-    // Sangria: 3mm em cada lado → página com sangria = 96mm × 56mm
-    // Área de corte: 90mm × 50mm (a 3mm das bordas da página)
-    // Zona segura: 6mm das bordas da página (3mm da linha de corte)
     if (item === 'Cartão de Visita') {
-      const BLEED = 3; // mm
+      const BLEED = 3;
       const _fontFamily = brand.editData?.fontFamily || 'Playfair Display';
       const _localFace = LOCAL_FONT_FACES[_fontFamily];
       const fontImports = `
@@ -2104,7 +2179,6 @@ body { width: 480mm; height: 380mm; position: relative; overflow: hidden; backgr
         }
       `;
 
-      // Frente: background branco / estampa como borda — estende até a sangria
       const frenteBgHtml = comBorda && patternSrc
         ? `<div style="position:absolute;inset:0;background-image:url(${patternSrc});background-size:${((patternScale || 150) * 0.22).toFixed(1)}mm;background-repeat:repeat;opacity:0.9;"></div>
            <div style="position:absolute;top:${BLEED + 5}mm;left:${BLEED + 5}mm;right:${BLEED + 5}mm;bottom:${BLEED + 5}mm;background:#fff;"></div>`
@@ -2124,12 +2198,6 @@ body { width: 480mm; height: 380mm; position: relative; overflow: hidden; backgr
       const _waIconSvg = `<svg viewBox="0 0 24 24" width="9" height="9" style="display:inline;vertical-align:middle;margin-right:2pt;" fill="#25D366"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>`;
       const _igIconSvg = `<svg viewBox="0 0 24 24" width="9" height="9" style="display:inline;vertical-align:middle;margin-right:2pt;"><defs><linearGradient id="igG" x1="0%" y1="100%" x2="100%" y2="0%"><stop offset="0%" stop-color="#f09433"/><stop offset="50%" stop-color="#dc2743"/><stop offset="100%" stop-color="#bc1888"/></linearGradient></defs><path fill="url(#igG)" d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zM12 0C8.741 0 8.333.014 7.053.072 2.695.272.273 2.69.073 7.052.014 8.333 0 8.741 0 12c0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98C8.333 23.986 8.741 24 12 24c3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98C15.668.014 15.259 0 12 0zm0 5.838a6.162 6.162 0 100 12.324 6.162 6.162 0 000-12.324zM12 16a4 4 0 110-8 4 4 0 010 8zm6.406-11.845a1.44 1.44 0 100 2.881 1.44 1.44 0 000-2.881z"/></svg>`;
       
-      const variationPrompts = [
-        `REPLICATE ARTISTIC DNA - IGNORE REFERENCE COLORS: Follow the exact drawing technique of the reference image but REPAINT EVERYTHING with ONLY these colors: ${paletteColors.join(', ')}. This is mandatory. FULL BLEED - NO WHITE MARGINS. 100% Seamless Tile.`,
-        `STYLISTIC EVOLUTION - PALETTE IS THE LAW: Maintain visual soul but explore NEW COMPOSITION. STRICTLY USE ONLY: ${paletteColors.join(', ')}. Do not use any colors from the reference. Technically perfect infinite repeat tile.`,
-        `BRAND FAMILY VARIATION - STRICT COLORS: Create an original repeatable pattern tile in the same collection. MANDATORY COLOR PALETTE: ${paletteColors.join(', ')}. No other colors allowed. Clean white background. Full-bleed continuity.`
-      ];
-
       const _extraPhones = [telefone, telefone2].filter(Boolean);
       const _siteIconSvg = `<svg viewBox="0 0 24 24" width="9" height="9" style="display:inline;vertical-align:middle;margin-right:2pt;" fill="none" stroke="#666" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>`;
       const contactLines = [
@@ -2141,7 +2209,6 @@ body { width: 480mm; height: 380mm; position: relative; overflow: hidden; backgr
         (instagram || site) ? `<div style="font-size:5pt;color:#666;margin-top:1.5mm;display:flex;justify-content:center;align-items:center;gap:4mm;">${instagram ? `<span>${_igIconSvg}${instagram}</span>` : ''}${site ? `<span>${_siteIconSvg}${site}</span>` : ''}</div>` : '',
       ].filter(Boolean).join('');
 
-      // Verso: fundo colorido / estampa estende até a sangria
       const _bc = borderColor || accentColor;
       const versoBgHtml = comBorda && patternSrc
         ? `<div style="position:absolute;inset:0;background-image:url(${patternSrc});background-size:${((patternScale || 150) * 0.22).toFixed(1)}mm;background-repeat:repeat;"></div>`
@@ -2166,41 +2233,14 @@ body { width: 480mm; height: 380mm; position: relative; overflow: hidden; backgr
 ${fontImports}
 <style>
   * { box-sizing: border-box; margin: 0; padding: 0; }
-
-  /* ── CARD (com sangria) ── */
-  /* Tamanho total da página = 90+6 × 50+6 = 96mm × 56mm */
-  .card {
-    width: 96mm;
-    height: 56mm;
-    position: relative;
-  }
-
-  /* Marcas de corte (crop marks) — mostram a linha de corte a 3mm das bordas */
-  .crop-marks::before,
-  .crop-marks::after {
-    content: '';
-    position: absolute;
-    background: rgba(0,0,0,0.35);
-  }
-  /* Linha horizontal de corte: canto superior e inferior */
-  .crop-corner {
-    position: absolute;
-    pointer-events: none;
-  }
-  /* Cantos de corte em cada canto do card */
+  .card { width: 96mm; height: 56mm; position: relative; }
   .cm { position: absolute; width: 2mm; height: 2mm; pointer-events: none; }
   .cm-tl { top: 3mm; left: 3mm; border-top: 0.3px solid rgba(0,0,0,0.4); border-left: 0.3px solid rgba(0,0,0,0.4); }
   .cm-tr { top: 3mm; right: 3mm; border-top: 0.3px solid rgba(0,0,0,0.4); border-right: 0.3px solid rgba(0,0,0,0.4); }
   .cm-bl { bottom: 3mm; left: 3mm; border-bottom: 0.3px solid rgba(0,0,0,0.4); border-left: 0.3px solid rgba(0,0,0,0.4); }
   .cm-br { bottom: 3mm; right: 3mm; border-bottom: 0.3px solid rgba(0,0,0,0.4); border-right: 0.3px solid rgba(0,0,0,0.4); }
-
-  /* ── IMPRESSÃO ── */
   * { print-color-adjust: exact !important; -webkit-print-color-adjust: exact !important; }
-  @media print {
-    body { margin: 0; }
-    .card { page-break-after: always; }
-    @page { size: 96mm 56mm; margin: 0; }
-  }
+  @media print { body { margin: 0; } .card { page-break-after: always; } @page { size: 96mm 56mm; margin: 0; } }
 </style>
 </head>
 <body>
@@ -2209,38 +2249,34 @@ ${versoHtml}
 </body>
 </html>`;
 
-      // Impressão via iframe invisível — usuário fica na mesma página
-      const existing = document.getElementById('_gabarito_iframe');
-      if (existing) existing.remove();
-      const iframe = document.createElement('iframe');
-      iframe.id = '_gabarito_iframe';
-      iframe.style.cssText = 'position:fixed;top:-9999px;left:-9999px;width:200mm;height:150mm;border:none;visibility:hidden;';
-      document.body.appendChild(iframe);
-      iframe.contentDocument.open();
-      iframe.contentDocument.write(html);
-      iframe.contentDocument.close();
+      const existing2 = document.getElementById('_gabarito_iframe');
+      if (existing2) existing2.remove();
+      const iframe2 = document.createElement('iframe');
+      iframe2.id = '_gabarito_iframe';
+      iframe2.style.cssText = 'position:fixed;top:-9999px;left:-9999px;width:200mm;height:150mm;border:none;visibility:hidden;';
+      document.body.appendChild(iframe2);
+      iframe2.contentDocument.open();
+      iframe2.contentDocument.write(html);
+      iframe2.contentDocument.close();
       const _docTitle = `Cartão de Visita 9x5cm - ${marca}`;
-      iframe.contentDocument.title = _docTitle;
+      iframe2.contentDocument.title = _docTitle;
       const _prevTitle = document.title;
-      iframe.contentWindow.document.fonts.ready.then(() => {
+      iframe2.contentWindow.document.fonts.ready.then(() => {
         setTimeout(() => {
           document.title = _docTitle;
-          iframe.contentWindow.focus();
-          iframe.contentWindow.print();
-          setTimeout(() => { document.title = _prevTitle; iframe.remove(); }, 3000);
+          iframe2.contentWindow.focus();
+          iframe2.contentWindow.print();
+          setTimeout(() => { document.title = _prevTitle; iframe2.remove(); }, 3000);
         }, 300);
       });
       return;
     }
 
-    // ── ENVELOPE SACO (GABARITO HORIZONTAL PRINTI) ──────────────────
     if (item.includes('Envelope Saco')) {
       const BLEED = 3;
       const W = 225; const H = 311; 
       const ABA_S = 40; const ABA_I = 15; const ABA_L = 15;
-      // totalW: sangria + aba lateral + frente + verso + sangria
       const totalW = (BLEED * 2) + ABA_L + (W * 2); 
-      // totalH: sangria + aba superior + altura + aba inferior + sangria
       const totalH = (BLEED * 2) + ABA_S + H + ABA_I;
 
       const solidColor = borderColor || accentColor;
@@ -2252,12 +2288,10 @@ ${versoHtml}
       const _fiSac = `<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;600;700&display=swap" rel="stylesheet">${_lfSac ? `<style>${_lfSac}</style>` : `<link href="https://fonts.googleapis.com/css2?family=${_ffSac.replace(/ /g,'+')}:wght@400;700&display=swap" rel="stylesheet">`}`;
       const _waIcoSac = `<svg viewBox="0 0 24 24" width="9" height="9" style="display:inline;vertical-align:middle;margin-right:1.5pt;" fill="#25D366"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>`;
 
-      // Componentes do gabarito horizontal
       const abaSupHtml = `<div style="position:absolute;top:0;left:${BLEED + ABA_L}mm;width:${W}mm;height:${ABA_S + BLEED}mm;background:${solidColor};"></div>`;
       const abaInfHtml = `<div style="position:absolute;top:${BLEED + ABA_S + H}mm;left:${BLEED + ABA_L}mm;width:${W}mm;height:${ABA_I + BLEED}mm;background:#fff;z-index:1;">${genPattern(1)}</div>`;
       const abaLatHtml = `<div style="position:absolute;top:${BLEED + ABA_S}mm;left:0;width:${ABA_L + BLEED}mm;height:${H}mm;background:#fff;z-index:1;">${genPattern(1)}</div>`;
 
-      // FRENTE (Centro-Esquerda)
       const frenteHtml = `
         <div style="position:absolute;top:${BLEED + ABA_S}mm;left:${BLEED + ABA_L}mm;width:${W}mm;height:${H}mm;overflow:hidden;background:#fff;z-index:2;">
             ${genPattern(1)}
@@ -2266,7 +2300,6 @@ ${versoHtml}
             </div>
         </div>`;
 
-      // VERSO (Centro-Direita, SEM rotação neste layout)
       const versoHtml = `
         <div style="position:absolute;top:${BLEED + ABA_S}mm;left:${BLEED + ABA_L + W}mm;width:${W + BLEED}mm;height:${H}mm;background:#fff;overflow:hidden;z-index:2;border-left:0.1mm dashed rgba(0,0,0,0.1);">
             ${genPattern(1)}
@@ -2297,27 +2330,23 @@ body { width:${totalW}mm; height:${totalH}mm; position:relative; overflow:hidden
       return;
     }
 
-    // ── ENVELOPE OFÍCIO ───────────────────────────────────────────
     if (item.includes('Envelope Ofício')) {
       const BLEED = 3;
-      const W = 220; const H = 113; // Face
+      const W = 220; const H = 113;
       const ABA = 35; const COLA = 12;
       const totalW = W + (COLA * 2) + (BLEED * 2);
       const totalH = (H * 2) + ABA + (BLEED * 2);
 
       const solidColor = borderColor || accentColor;
-      // Fator 0.18: calibrado para que 310px (preview) = 220mm (PDF) com patternScale/4 px
       const genPattern = (scaleMul = 1) => patternSrc ? `<div style="position:absolute;inset:0;background-image:url(${patternSrc});background-size:${(patternScale * 0.18 * scaleMul).toFixed(1)}mm;opacity:1;"></div>` : '';
       const _envPhones = [mainPhone, telefone].filter(Boolean).join(' / ');
 
-      // Imports de fonte — necessário para logo aparecer com a fonte da marca
       const _ffEnv = brand.editData?.fontFamily || 'Playfair Display';
       const _lfEnv = LOCAL_FONT_FACES[_ffEnv];
       const _fiEnv = `<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;600;700&display=swap" rel="stylesheet">${_lfEnv ? `<style>${_lfEnv}</style>` : `<link href="https://fonts.googleapis.com/css2?family=${_ffEnv.replace(/ /g,'+')}:wght@400;700&display=swap" rel="stylesheet">`}`;
 
       const abaHtml = `<div style="position:absolute;top:0;left:0;width:${totalW}mm;height:${ABA + BLEED}mm;background:${solidColor};"></div>`;
 
-      // Gabarito Printi: ABA (topo) → FRENTE (meio) → VERSO (baixo, rotacionado)
       const frenteHtml = `
         <div style="position:absolute;top:${BLEED + ABA}mm;left:0;width:${totalW}mm;height:${H}mm;background:#fff;overflow:hidden;">
             <div style="position:absolute;bottom:8mm;right:${COLA + 8}mm;transform:scale(1.6);transform-origin:right bottom;text-align:right;">${logoHtmlWithCrm}</div>
@@ -2354,7 +2383,34 @@ body { width:${totalW}mm; height:${totalH}mm; position:relative; overflow:hidden
       return;
     }
 
-    // ── ATESTADO MÉDICO ─────────────────────────────────────────────
+    if (item === 'Checklist Maternidade') {
+      const _bc = borderColor || accentColor;
+      const _bwCk = '8mm';
+      const _patCk = (comBorda && patternSrc)
+        ? `background-image:url(${patternSrc});background-size:${((patternScale || 150) * 0.35).toFixed(1)}mm;background-repeat:repeat;`
+        : `background:${_bc};`;
+      const SECOES_CK = [
+        { titulo: 'check list bebê', itens: ['4 mudas para troca de roupas','1 saída de maternidade','4 pares de meia','Fraldinhas de boca','2 mantas','1 pacote de fralda descartável (RN P dependendo do tamanho do bebê)','1 toalha fralda','Sabonete líquido de glicerina','Algodão','Frasco de álcool','Pomada para prevenção de assadura','1 sacolinha para roupas sujas','Pente para cabelo','Almofada de amamentação','1 Coeiro','Cadeirinha ou bebê conforto para o carro'] },
+        { titulo: 'check list mamãe', itens: ['2 ou mais camisolas/pijamas com abertura frontal','5 calcinhas confortáveis','Chinelo de dedo confortável','Sutiã de amamentação','Absorvente íntimo','Produtos de higiene pessoal ex: (escova de dente, pasta de dente, sabonete, desodorante sem cheiro por causa do bebê, pente de cabelo, absorvente noturno)','1 muda de roupa para saída pós parto','Prendedor de cabelo','Produtos de beleza (batom pra animar a puérpera)','1 sacola para roupas sujas','Travesseiro de uso pessoal','Toalha de banho'] },
+        { titulo: 'check list documentos', itens: ['RG dos pais ou documento com foto','Carteirinha do plano de saúde','Cartão do pré natal!!!','Últimos exames feitos','Se pais casados: certidão de casamento'] },
+        { titulo: 'check list acompanhante', itens: ['2 mudas de roupa','Produtos de higiene pessoal','Chinelo','Carregador de celular','Lanchinho'] },
+      ];
+      const secaoHtmlCk = (s) => `<div style="border:0.3mm solid ${accentColor}40;border-radius:1mm;padding:2.5mm 3mm;display:flex;flex-direction:column;gap:0.8mm;"><div style="font-family:Georgia,serif;font-style:italic;font-size:9pt;font-weight:700;color:${accentColor};margin-bottom:1mm;border-bottom:0.2mm solid ${accentColor}30;padding-bottom:1mm;">${s.titulo}</div>${s.itens.map(it => `<div style="display:flex;align-items:flex-start;gap:2mm;font-family:'Montserrat',sans-serif;font-size:7.5pt;color:#444;line-height:1.3;"><div style="width:3.5mm;height:3.5mm;border:0.3mm solid ${accentColor}80;border-radius:0.5mm;flex-shrink:0;margin-top:0.3mm;"></div><span>${it}</span></div>`).join('')}</div>`;
+      const _allPhonesCk = [whatsapp || telefone, telefone2].filter(Boolean).join(' / ');
+      const _logoCk = genPDFLogoHtml({ brand, color: accentColor, localSlogan, crmLine, fontPt: 18, lineH: 1.2, letterSp: brand.editData?.fontLetterSpacing || '0.5pt' });
+      const htmlCk = `<!DOCTYPE html><html><head><meta charset="UTF-8"><link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700;900&display=swap" rel="stylesheet"><style>*{margin:0;padding:0;box-sizing:border-box;}body{width:210mm;height:297mm;}@media print{body{margin:0;}@page{size:210mm 297mm;margin:0;}}</style></head><body><div style="position:relative;width:210mm;height:297mm;${_patCk}"><div style="position:absolute;top:${_bwCk};left:${_bwCk};right:${_bwCk};bottom:${_bwCk};background:#fff;display:flex;overflow:hidden;"><div style="width:14mm;flex-shrink:0;display:flex;align-items:center;justify-content:center;background:${accentColor}15;"><div style="transform:rotate(-90deg);white-space:nowrap;font-family:'Montserrat',sans-serif;font-size:13pt;font-weight:900;color:${accentColor};letter-spacing:3pt;text-transform:uppercase;">CHECKLIST MATERNIDADE</div></div><div style="flex:1;display:flex;flex-direction:column;padding:4mm 5mm 3mm 5mm;gap:2.5mm;overflow:hidden;"><div style="display:flex;justify-content:center;padding-bottom:3mm;border-bottom:0.2mm solid ${accentColor}20;">${_logoCk}</div><div style="flex:1;display:grid;grid-template-columns:1fr 1fr;gap:2.5mm;">${SECOES_CK.map(secaoHtmlCk).join('')}</div><div style="border-top:0.3mm solid ${accentColor}30;padding-top:2.5mm;display:flex;align-items:center;justify-content:space-between;gap:4mm;"><div style="font-family:'Montserrat',sans-serif;font-size:8pt;font-weight:800;color:${accentColor};text-transform:uppercase;letter-spacing:0.5pt;white-space:nowrap;">${clinicaNome || marca}</div><div style="font-family:'Montserrat',sans-serif;font-size:7pt;color:#888;text-align:center;line-height:1.4;">${endereco ? `<div>${endereco}</div>` : ''}${_allPhonesCk ? `<div>${_allPhonesCk}</div>` : ''}</div><div style="font-family:'Montserrat',sans-serif;font-size:7pt;color:#888;text-align:right;white-space:nowrap;">${site ? `<div>${site}</div>` : ''}${instagram ? `<div>@${instagram}</div>` : ''}</div></div></div></div></div></body></html>`;
+      const exCk = document.getElementById('_gabarito_iframe'); if (exCk) exCk.remove();
+      const blobCk = new Blob([htmlCk], { type: 'text/html;charset=utf-8' });
+      const blobUrlCk = URL.createObjectURL(blobCk);
+      const iframeCk = document.createElement('iframe');
+      iframeCk.id = '_gabarito_iframe';
+      iframeCk.style.cssText = 'position:fixed;top:-9999px;left:-9999px;width:210mm;height:297mm;border:none;visibility:hidden;';
+      document.body.appendChild(iframeCk);
+      iframeCk.src = blobUrlCk;
+      iframeCk.onload = () => setTimeout(() => { iframeCk.contentWindow.focus(); iframeCk.contentWindow.print(); setTimeout(() => { iframeCk.remove(); URL.revokeObjectURL(blobUrlCk); }, 2000); }, 800);
+      return;
+    }
+
     if (item === 'Atestado Médico') {
       const _fa2 = brand.editData?.fontFamily || 'Playfair Display';
       const _lf2 = LOCAL_FONT_FACES[_fa2];
@@ -2369,7 +2425,7 @@ body { width:${totalW}mm; height:${totalH}mm; position:relative; overflow:hidden
       const _atFooter1 = [clinicaNome, mainPhone].filter(Boolean).join(' · ');
       const _atFooter2 = [instagram ? `@${instagram}` : '', site, endereco].filter(Boolean).join(' · ');
       const _hasFooter = !!(  _atFooter1 || _atFooter2);
-      const _footerH = _atFooter1 && _atFooter2 ? 13 : 8; // mm de altura do bloco rodapé
+      const _footerH = _atFooter1 && _atFooter2 ? 13 : 8; 
       const _atFooterHtml = _hasFooter ? `
         <div style="position:absolute;bottom:10mm;left:${_bw};right:${_bw};text-align:center;font-family:'Montserrat',sans-serif;color:#555;line-height:1.7;">
           ${_atFooter1 ? `<div style="font-size:6pt;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${_atFooter1}</div>` : ''}
@@ -2377,8 +2433,6 @@ body { width:${totalW}mm; height:${totalH}mm; position:relative; overflow:hidden
         </div>
         <div style="position:absolute;bottom:${7 + _footerH}mm;left:12mm;right:12mm;border-top:0.5px solid #e0e0e0;"></div>` : '';
       const _atBottom = _hasFooter ? `${7 + _footerH + 2}mm` : _bw;
-      // Posições derivadas do SVG de referência (240.96×330) → A5 (148×210mm)
-      // scaleY = 210/330 = 0.6364  |  posições inside do content div (top:8mm) = pos_mm - 8
       const _atHtml = `<!DOCTYPE html><html lang="pt-BR"><head><meta charset="UTF-8"><title>Atestado Médico - ${marca}</title>${fi2}
 <style>* { box-sizing:border-box; margin:0; padding:0; print-color-adjust:exact !important; -webkit-print-color-adjust:exact !important; }
 body { margin:0; } @media print { @page { size: A5 portrait; margin:0; } }
@@ -2389,13 +2443,10 @@ body { margin:0; } @media print { @page { size: A5 portrait; margin:0; } }
   ${_atFooterHtml}
   <div style="position:absolute;top:${_bw};left:${_bw};right:${_bw};bottom:${_atBottom};font-family:'Montserrat',sans-serif;">
 
-    <!-- Logo: 16mm abaixo do início da área branca -->
     <div style="position:absolute;top:16mm;left:50%;transform:translateX(-50%);width:48mm;display:inline-flex;flex-direction:column;align-items:center;">${logoHtml}</div>
 
-    <!-- Título -->
     <div style="position:absolute;top:48mm;left:0;right:0;text-align:center;font-size:14pt;font-weight:800;letter-spacing:2.5pt;color:#1a1a2e;">ATESTADO MÉDICO</div>
 
-    <!-- Texto: 4 linhas, nome ocupa fim da linha 1 e início da linha 2 -->
     <div style="position:absolute;top:66mm;left:9mm;right:9mm;font-size:10pt;color:#222;display:flex;flex-direction:column;gap:6mm;line-height:1.2;">
       <div style="display:flex;align-items:flex-end;gap:1mm;">
         <span style="white-space:nowrap;">Declaro para os devidos fins, que</span>
@@ -2426,13 +2477,11 @@ body { margin:0; } @media print { @page { size: A5 portrait; margin:0; } }
       </div>
     </div>
 
-    <!-- Data/cidade: SVG y=222.64 → 141mm page → 133mm content -->
     <div style="position:absolute;top:133mm;left:0;right:0;text-align:center;font-size:9pt;color:#555;">
       <span class="blank" style="width:38mm;">&nbsp;</span>, <span class="blank" style="width:10mm;">&nbsp;</span>
       de <span class="blank" style="width:22mm;">&nbsp;</span> de <span class="blank" style="width:12mm;">&nbsp;</span>
     </div>
 
-    <!-- Assinatura: SVG y=251.6 → 160mm page → 152mm content -->
     <div style="position:absolute;top:152mm;left:20%;right:20%;border-top:0.7px solid #555;"></div>
 
   </div>
@@ -2450,7 +2499,6 @@ body { margin:0; } @media print { @page { size: A5 portrait; margin:0; } }
       return;
     }
 
-      // ── RECEITUÁRIO DE CONTROLE ESPECIAL ────────────────────────────
       if (item.includes('Controle Especial')) {
         const BLEED = 3;
         const _brandData = brand.editData || {};
@@ -2543,7 +2591,6 @@ body { width:${W + BLEED*2}mm; height:${H + BLEED*2}mm; position:relative; overf
 </body></html>`;
 
         const iframe = document.createElement('iframe');
-        iframe.id = '_gabarito_iframe';
         iframe.style.cssText = 'position:fixed;top:-9999px;left:-9999px;width:300mm;height:400mm;border:none;visibility:hidden;';
         document.body.appendChild(iframe);
         iframe.contentDocument.open(); iframe.contentDocument.write(html); iframe.contentDocument.close();
@@ -2628,145 +2675,9 @@ td { padding: 4mm 3mm; border: 0.2mm solid #eee; font-size: 10pt; color: #555; }
         return;
       }
 
-      // ── GUIA DE CUIDADOS — SVG direto ──────────────────────────────
-      if (item === 'Guia de Cuidados') {
-        console.log('[Guia de Cuidados] handler ativado, item=', item);
-        const _color1 = paletteColors[0] || accentColor;
-        const _color2 = paletteColors[1] || accentColor;
-        const _draNome = clinicaNome || marca;
-        const _crmText = crmLine || '';
-        const _especialidade = cartaoContacts?.especialidade || 'pediatra';
-        const svgW = 1282.199, svgH = 1270.744;
-        const pxPerMm = 3.7795;
-        const printW = (svgW / pxPerMm).toFixed(1), printH = (svgH / pxPerMm).toFixed(1);
-
-        console.log('[Guia de Cuidados] iniciando fetch...');
-        const toBase64 = (url) => fetch(url).then(r => r.blob()).then(b => new Promise(res => { const rd = new FileReader(); rd.onload = () => res(rd.result); rd.readAsDataURL(b); }));
-
-        fetch('/guia-de-cuidados-clean.svg').then(r => r.text())
-        .then(svg => {
-            console.log('[Guia de Cuidados] SVG carregado, tamanho:', svg.length);
-
-            // Estampa na capa — usando patternScale para calibrar tamanho
-            // Calibração: preview tile = patternScale/4 px em 220px → SVG 428px → scale = 428/220
-            const _patTileSvg = Math.round((patternScale || 150) / 4 * (428 / 220));
-            const _solidCover = borderColor || accentColor;
-            // clipPath para casinha — deve vir em <defs> no início do SVG
-            const _cx = 864, _cy = 10, _cw = 408, _ch = 615;
-            const _ccx = _cx + _cw / 2;
-            const _roofH = _ch * 0.08;
-            // Apenas <defs> no início — rects coloridos vão no FINAL para ficarem acima do branco original do SVG
-            const estampaEl = comBorda && patternSrc ? `
-              <defs>
-                <clipPath id="casinhaClip"><polygon points="${_cx},${_cy+_roofH} ${_ccx},${_cy} ${_cx+_cw},${_cy+_roofH} ${_cx+_cw},${_cy+_ch} ${_cx},${_cy+_ch}"/></clipPath>
-                <pattern id="guiaPat" x="854" y="0" width="${_patTileSvg}" height="${_patTileSvg}" patternUnits="userSpaceOnUse">
-                  <image href="${patternSrc}" x="0" y="0" width="${_patTileSvg}" height="${_patTileSvg}" preserveAspectRatio="xMidYMid slice"/>
-                </pattern>
-                <pattern id="guiaPat5" x="0" y="0" width="${_patTileSvg}" height="${_patTileSvg}" patternUnits="userSpaceOnUse">
-                  <image href="${patternSrc}" x="0" y="0" width="${_patTileSvg}" height="${_patTileSvg}" preserveAspectRatio="xMidYMid slice"/>
-                </pattern>
-              </defs>
-            ` : `
-              <defs><clipPath id="casinhaClip"><polygon points="${_cx},${_cy+_roofH} ${_ccx},${_cy} ${_cx+_cw},${_cy+_roofH} ${_cx+_cw},${_cy+_ch} ${_cx},${_cy+_ch}"/></clipPath></defs>
-            `;
-            // Rect de cor/estampa na capa (FINAL para cobrir o branco original do SVG)
-            // Pág 5 (x=0) NÃO recebe overlay — o texto deve aparecer sobre o fundo colorido original
-            const _estampaRectsEl = comBorda && patternSrc ? `
-              <rect x="854" y="0" width="428" height="635" fill="url(#guiaPat)" opacity="0.9"/>
-              <rect x="0" y="0" width="427" height="635" fill="url(#guiaPat5)" opacity="0.15"/>
-            ` : `
-              <rect x="854" y="0" width="428" height="635" fill="${_solidCover}" opacity="0.9"/>
-            `;
-
-            // Logo SVG na capa (caixa branca x=870-1251, centro x=1060)
-            const _logoX = 1060, _logoFsz = Math.min(parseFloat(_fontPt) * 1.3, 32);
-            const _logoStartY = 160;
-            const _logoSvg = _lines.map((line, i) =>
-              `<text x="${_logoX}" y="${_logoStartY + i * (_logoFsz * 1.3)}" text-anchor="middle" font-family="${_brandFont}" font-size="${_logoFsz}" fill="${accentColor}" font-weight="700" letter-spacing="${_letterSp}">${line}</text>`
-            ).join('') +
-            (localSlogan ? `<text x="${_logoX}" y="${_logoStartY + _lines.length * (_logoFsz * 1.3) - 4}" text-anchor="middle" font-family="'Montserrat',sans-serif" font-size="9" fill="#aaa" letter-spacing="2">${localSlogan.toUpperCase()}</text>` : '') +
-            (_crmText ? `<text x="${_logoX}" y="${_logoStartY + _lines.length * (_logoFsz * 1.3) + 16}" text-anchor="middle" font-family="'Montserrat',sans-serif" font-size="8" fill="#bbb" letter-spacing="1">${_crmText}</text>` : '');
-
-            // Duas cores diferentes para os dois fundos coloridos do SVG
-            // Rect1: Pág6 fundo (x=434, y=1.6) → paletteColors[0]
-            // Rect2: Pág3 fundo (x=434, y=648) → paletteColors[1] ou variação
-            const _color1b = paletteColors[1] || paletteColors[0] || accentColor;
-            svg = svg
-              .replace(/<\?xml[^?]*\?>\s*/g, '')
-              .replace(/font-family:'Cinzel-Medium'/g, "font-family:'Cinzel'")
-              .replace(/font-family:'OratorStd'/g, "font-family:'Courier Prime'")
-              .replace(/(<rect x="434[^"]*" y="[^"]*" style="fill:#E4D1C1;" width="417[^"]*" height="[^"]*"\/>)/, `<rect x="427" y="0" style="fill:${_color1};" width="428" height="636"/>`)
-              .replace(/(<rect x="434\.863" y="648[^"]*" style="fill:#E4D1C1;" width="416[^"]*" height="[^"]*"\/>)/, `<rect x="427" y="635" style="fill:${_color1b};" width="428" height="636"/>`)
-              .replace(/#E4D1C1/gi, _color1)
-              .replace(/#2D3615/gi, _color2)
-              .replace(/(<svg[^>]*>)/, `$1${estampaEl}`);
-
-            // Injetar nome/CRM/especialidade como texto (convertidos para path na exportação)
-            const _doctorSvg = `
-              <text transform="matrix(1 0 0 1 1416.1676 328.7415)" font-family="'Cinzel',serif" font-size="12.5956" fill="#010202" font-weight="500">${_draNome}</text>
-              ${_especialidade ? `<text transform="matrix(1 0 0 1 1445.5065 343.5843)" font-family="'Courier Prime',monospace" font-size="14.0766" fill="#010202">${_especialidade}</text>` : ''}
-              ${_crmText ? `<text transform="matrix(1 0 0 1 1451.6442 353.1995)" font-family="'Courier Prime',monospace" font-size="5.1196" fill="#010202">${_crmText}</text>` : ''}
-            `;
-
-            // Etiqueta compacta Pág 6 — y=565, x=439
-            const _eW = 380, _eX = 451, _eY = 565, _eH = 42;
-            const _eLine1 = [_draNome, _crmText].filter(Boolean).join('  ·  ');
-            const _eLine2 = [mainPhone, email, site, instagram ? `@${instagram}` : ''].filter(Boolean).join('  ·  ');
-            const etiquetaSvg = `
-              <rect x="${_eX}" y="${_eY}" width="${_eW}" height="${_eH}" rx="2" fill="rgba(255,255,255,0.92)" stroke="${accentColor}" stroke-width="0.4"/>
-              ${_eLine1 ? `<text x="${_eX + _eW/2}" y="${_eY + 14}" text-anchor="middle" font-family="'Montserrat',sans-serif" font-size="7.5" font-weight="700" fill="${accentColor}">${_eLine1}</text>` : ''}
-              ${_eLine2 ? `<text x="${_eX + _eW/2}" y="${_eY + 27}" text-anchor="middle" font-family="'Montserrat',sans-serif" font-size="6.5" fill="#555">${_eLine2}</text>` : ''}
-            `;
-            // Título padrão (cobrindo os paths originais com branco)
-            const _guiaTitulo = item.includes('Cuidados') ? 'CUIDADOS COM O BEBÊ' :
-                                item.includes('Alimentar') ? 'GUIA ALIMENTAR' : 'GUIA DE DESENVOLVIMENTO';
-            const _guiaSubtitulo = item.includes('Cuidados') ? 'SAÚDE E BEM-ESTAR PEDIÁTRICO' :
-                                   item.includes('Alimentar') ? 'INTRODUÇÃO ALIMENTAR' : 'MARCOS DO DESENVOLVIMENTO';
-
-            const _tituloCoverSvg = `
-              <rect x="${_cx}" y="${_cy}" width="${_cw}" height="${_ch}" fill="#fff" clip-path="url(#casinhaClip)"/>
-              <rect x="${_ccx - 18}" y="${_cy + 270}" width="36" height="1.2" rx="0.6" fill="${accentColor}"/>
-              <text x="${_ccx}" y="${_cy + 290}" text-anchor="middle" font-family="'Montserrat',sans-serif" font-size="11" font-weight="800" fill="${accentColor}" letter-spacing="1" font-style="italic">GUIA DE</text>
-              <text x="${_ccx}" y="${_cy + 320}" text-anchor="middle" font-family="'Montserrat',sans-serif" font-size="19" font-weight="800" fill="#1a1a2e" letter-spacing="0.5">${_guiaTitulo}</text>
-              <rect x="${_ccx - 130}" y="${_cy + 335}" width="260" height="20" rx="10" fill="${accentColor}20"/>
-              <text x="${_ccx}" y="${_cy + 349}" text-anchor="middle" font-family="'Montserrat',sans-serif" font-size="9" font-weight="700" fill="${accentColor}" letter-spacing="1">${_guiaSubtitulo}</text>
-            `;
-
-            svg = svg.replace('</svg>', _estampaRectsEl + etiquetaSvg + _tituloCoverSvg + _logoSvg + _doctorSvg + '</svg>');
-
-            const html = `<!DOCTYPE html><html><head><meta charset="UTF-8">
-<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500&family=Courier+Prime:wght@400;700&family=Montserrat:wght@400;600;700&display=swap" rel="stylesheet">${LOCAL_FONT_FACES[brand.editData?.fontFamily] ? `<style>${LOCAL_FONT_FACES[brand.editData?.fontFamily]}</style>` : `<link href="https://fonts.googleapis.com/css2?family=${(brand.editData?.fontFamily||'Playfair+Display').replace(/ /g,'+')}:wght@400;700&display=swap" rel="stylesheet">`}
-<style>* {margin:0;padding:0;box-sizing:border-box;}
-body {width:${printW}mm;height:${printH}mm;}
-@media print {body{margin:0;}@page{size:${printW}mm ${printH}mm;margin:0;}}
-svg {width:100%;height:100%;display:block;}
-</style></head><body>${svg}</body></html>`;
-
-            const ex = document.getElementById('_gabarito_iframe'); if (ex) ex.remove();
-            const blob = new Blob([html], { type: 'text/html;charset=utf-8' });
-            const blobUrl = URL.createObjectURL(blob);
-            const iframe = document.createElement('iframe');
-            iframe.id = '_gabarito_iframe';
-            iframe.style.cssText = `position:fixed;top:-9999px;left:-9999px;width:${printW}mm;height:${printH}mm;border:none;visibility:hidden;`;
-            document.body.appendChild(iframe);
-            iframe.src = blobUrl;
-            iframe.onload = () => {
-              iframe.contentWindow.document.fonts.ready.then(() => {
-                setTimeout(() => {
-                  iframe.contentWindow.focus();
-                  iframe.contentWindow.print();
-                  setTimeout(() => { iframe.remove(); URL.revokeObjectURL(blobUrl); }, 3000);
-                }, 1000);
-              });
-            };
-        })
-        .catch(e => { console.error('Erro SVG Guia de Cuidados:', e); alert('Erro ao gerar PDF.'); });
-        return;
-      }
-
       if (['Guia Alimentar', 'Guia de Cuidados', 'Guia de Desenvolvimento', 'Cartão de Exame Pré-Natal'].includes(item)) {
         const BLEED = 3;
-        const W1 = 146, W2 = 148, W3 = 148; // Compensação de dobra
+        const W1 = 146, W2 = 148, W3 = 148;
         const totalW = W1 + W2 + W3 + (BLEED * 2);
         const totalH = 210 + (BLEED * 2);
         
@@ -2811,7 +2722,7 @@ svg {width:100%;height:100%;display:block;}
         const p5Content = `
           <div style="width: 100%; height: 100%; display: flex; flex-direction: column; align-items: center; justify-content: center; position: relative;">
               <div style="transform: scale(3.3); transform-origin: center center; width: 100%; display: flex; flex-direction: column; align-items: center; gap: 6mm;">
-                ${ReactDOMServer.renderToString(React.createElement(FolderPage5Art, { accentColor, palette: paletteColors }))}
+                ${ReactDOMServer.renderToString(React.createElement(Art5, { accentColor, palette: paletteColors }))}
               </div>
           </div>`;
 
@@ -2864,9 +2775,9 @@ svg {width:100%;height:100%;display:block;}
         ], true);
 
         const page2 = renderTrifoldFace([
-          { num: 2, w: W3, content: ReactDOMServer.renderToString(React.createElement(FolderPage2Art, { accentColor, palette: paletteColors })) },
-          { num: 3, w: W2, content: ReactDOMServer.renderToString(React.createElement(FolderPage3Art, { accentColor, palette: paletteColors })) },
-          { num: 4, w: W1, content: ReactDOMServer.renderToString(React.createElement(FolderPage4Art, { accentColor, palette: paletteColors })) }
+          { num: 2, w: W3, content: ReactDOMServer.renderToString(React.createElement(Art2, { accentColor, palette: paletteColors })) },
+          { num: 3, w: W2, content: ReactDOMServer.renderToString(React.createElement(Art3, { accentColor, palette: paletteColors })) },
+          { num: 4, w: W1, content: ReactDOMServer.renderToString(React.createElement(Art4, { accentColor, palette: paletteColors })) }
         ], false);
 
         const html = `<!DOCTYPE html><html><head><meta charset="UTF-8"><title>${item} - ${marca}</title>${fiTri}
@@ -3053,6 +2964,8 @@ ${fontImports2}
             ? <ReciboPreview accentColor={accentColor} patternSrc={patternSrc} cartaoContacts={cartaoContacts} crmLine={crmLine} editData={{ ...editData, tagline: localSlogan }} logoColor={logoColor} comBorda={comBorda} setComBorda={setComBorda} clinicaNome={clinicaNome} setClinicaNome={setClinicaNome} logoLayout={logoLayout} paletteColors={paletteColors} borderColor={borderColor} setBorderColor={setBorderColor} patternScale={patternScale} setPatternScale={setPatternScale} marca={marca} />
           : currentItem.includes('Cartão de Retorno')
             ? <CartaoRetornoPreview accentColor={accentColor} patternSrc={patternSrc} cartaoContacts={cartaoContacts} crmLine={crmLine} editData={{ ...editData, tagline: localSlogan }} logoColor={logoColor} comBorda={comBorda} setComBorda={setComBorda} clinicaNome={clinicaNome} setClinicaNome={setClinicaNome} logoLayout={logoLayout} paletteColors={paletteColors} borderColor={borderColor} setBorderColor={setBorderColor} patternScale={patternScale} setPatternScale={setPatternScale} />
+          : currentItem === 'Checklist Maternidade'
+            ? <ChecklistMaternidadePreview accentColor={accentColor} patternSrc={patternSrc} editData={{ ...editData, tagline: localSlogan }} logoColor={logoColor} logoLayout={logoLayout} cartaoContacts={cartaoContacts} crmLine={crmLine} clinicaNome={clinicaNome} comBorda={comBorda} setComBorda={setComBorda} paletteColors={paletteColors} borderColor={borderColor} setBorderColor={setBorderColor} patternScale={patternScale} setPatternScale={setPatternScale} />
           : currentItem.includes('Controle Especial')
             ? <ControleEspecialPreview accentColor={accentColor} patternSrc={patternSrc} cartaoContacts={cartaoContacts} crmLine={crmLine} editData={{ ...editData, tagline: localSlogan }} logoColor={logoColor} comBorda={comBorda} setComBorda={setComBorda} clinicaNome={clinicaNome} setClinicaNome={setClinicaNome} logoLayout={logoLayout} paletteColors={paletteColors} borderColor={borderColor} setBorderColor={setBorderColor} patternScale={patternScale} setPatternScale={setPatternScale} marca={marca} />
           : currentItem === 'Guia de Cuidados'
