@@ -1,92 +1,197 @@
 import React from 'react';
 
 export default function FolderDevPage5({ accentColor, palette = [] }) {
-  const mainColor = palette[0] || accentColor;
-  const secondaryColor = palette[1] || accentColor;
+  // Use palette colors for the alternating rows to make it vibrant
+  const colors = [
+    palette[0] || accentColor,
+    palette[1] || accentColor,
+    palette[2] || accentColor,
+    palette[3] || palette[1] || accentColor,
+  ];
 
   const linguagemData = [
-    { assunto: 'Choro', idade: '0-6 semanas', resposta: 'Choros diferenciados para várias necessidades.' },
-    { assunto: 'Sons de vogal', idade: '2 meses', resposta: 'Aparecem sons de vogal (V).' },
-    { assunto: 'Vira-se para a fonte', idade: '3 meses', resposta: 'Primeiras consoantes (C): ouve-se sons p, b, m.' },
-    { assunto: 'Tom melódico', idade: '6 meses', resposta: 'Inicia balbucios. Balbucia sequência de CVCV (ex: "dadada").' },
-    { assunto: 'Atenção visual', idade: '9 meses', resposta: 'Imita sons, jargão. Balbucia não-reduplicativo (CVC ou VCV).' },
-    { assunto: 'Primeiras palavras', idade: '12 meses', resposta: 'Começa a dizer as primeiras palavras (ex: "mama", "papa").' },
-    { assunto: 'Vocabulário inicial', idade: '18 meses', resposta: 'Vocabulário de 20 a 50 palavras. Começa a combinar duas palavras ("dá papai").' },
-    { assunto: 'Expansão', idade: '24 meses', resposta: 'Vocabulário de cerca de 150 palavras. Usa combinações de duas ou três.' },
-    { assunto: 'Miniaturas', idade: '30 meses', resposta: 'Vocabulário de cerca de 450 palavras. Brincadeira simbólica.' },
-    { assunto: 'Gramática', idade: '36 meses', resposta: 'Inicia o uso de artigos, plurais, preposições e verbos auxiliares.' },
-    { assunto: 'Frases complexas', idade: '48 meses', resposta: 'Formula frases corretas, faz perguntas, usa negação e fala do passado.' },
+    {
+      receptivo: 'Assusta-se. Aquieta-se ao som de voz.',
+      idade: '0-6 semanas',
+      expressivo: 'Choros diferenciados e sons primitivos. Aparecem os sons vogais (V).'
+    },
+    {
+      receptivo: 'Vira-se para a fonte de voz. Observa com atenção objetos e fatos do ambiente.',
+      idade: '3 meses',
+      expressivo: 'Primeiras consoantes (C) ouvidas são p/b e k/g. Inicia balbucio.'
+    },
+    {
+      receptivo: 'Responde com tons emotivos à voz materna.',
+      idade: '6 meses',
+      expressivo: 'Balbucio (sequências de CVCV sem mudar a consoante). Ex.: "Dudadá".'
+    },
+    {
+      receptivo: 'Entende pedidos simples com dicas através de gestos. Entende "não" e "tchau".',
+      idade: '9 meses',
+      expressivo: 'Imita sons. Jargão. Balbucio não-reduplicativo (sequência CVC ou VCV).'
+    },
+    {
+      receptivo: 'Entende muitas palavras familiares e ordens simples associadas a gestos. Ex.: "Vem com o papai".',
+      idade: '12 meses',
+      expressivo: 'Começa a dizer as primeiras palavras como "mamá", "papá" ou "dadá".'
+    },
+    {
+      receptivo: 'Conhece algumas partes do corpo. Acha objetos a pedido. Brincadeira simbólica com miniaturas.',
+      idade: '18 meses',
+      expressivo: 'Poderá ter de 30 a 40 palavras ("mamá", "bebê", "miau", "pé", "ão-ão", "upa"). Começa a combinar duas palavras ("dá papá").'
+    },
+    {
+      receptivo: 'Segue instruções envolvendo dois conceitos verbais (os quais são substantivos). Ex.: "Coloque o copo na caixa".',
+      idade: '24 meses',
+      expressivo: 'Tem um vocabulário de cerca de 150 palavras. Usa combinação de duas ou três.'
+    },
+    {
+      receptivo: 'Entende primeiros verbos. Entende instruções envolvendo até três conceitos. Ex.: "Coloque a boneca grande na cadeira".',
+      idade: '30 meses',
+      expressivo: 'Usa habitualmente linguagem telegráfica ("bebê", "papá pão", "mamã vai papá").'
+    },
+    {
+      receptivo: 'Conhece diversas cores. Reconhece plurais, pronomes que diferenciam os sexos, adjetivos.',
+      idade: '36 meses',
+      expressivo: 'Inicia o uso de artigos, plurais, preposições e verbos auxiliares.'
+    },
+    {
+      receptivo: 'Começa a aprender conceitos abstratos (duro, mole, liso). Linguagem usada para raciocínio. Entende "se", "por que", "quanto". Compreende 1.500 a 2.000 palavras.',
+      idade: '48 meses',
+      expressivo: 'Formula frases corretas, faz perguntas, usa a negação, fala de acontecimentos no passado ou antecipa outros no futuro.'
+    },
   ];
 
   return (
     <div style={{
       width: '100%',
       height: '100%',
-      padding: '5px',
+      padding: '6px',
       display: 'flex',
       flexDirection: 'column',
-      fontFamily: "'Montserrat', sans-serif"
+      fontFamily: "'Montserrat', sans-serif",
+      boxSizing: 'border-box'
     }}>
       <div style={{
-        fontSize: '10px',
+        fontSize: '9px',
         fontWeight: 900,
-        color: mainColor,
+        color: colors[0],
         textAlign: 'center',
-        marginBottom: '10px',
+        marginBottom: '6px',
         textTransform: 'uppercase',
-        letterSpacing: '1px'
+        letterSpacing: '0.8px',
+        fontFamily: "'Playfair Display', serif", // Tentando usar uma fonte mais elegante para o título
+        fontStyle: 'italic'
       }}>
-        Marcos da Linguagem
+        Tabela de Desenvolvimento da Linguagem
       </div>
 
       <div style={{
         width: '100%',
-        border: `0.5px solid ${mainColor}30`,
-        borderRadius: '4px',
-        overflow: 'hidden'
+        display: 'flex',
+        flexDirection: 'column',
+        flex: 1,
+        position: 'relative'
       }}>
+        {/* Timeline Center Line */}
+        <div style={{
+          position: 'absolute',
+          top: '0',
+          bottom: '0',
+          left: '50%',
+          width: '1px',
+          background: '#fff',
+          transform: 'translateX(-50%)',
+          zIndex: 1,
+          opacity: 0.6
+        }} />
+
         {/* Header */}
         <div style={{
           display: 'flex',
-          background: mainColor,
-          padding: '4px 6px',
-          color: '#fff',
-          fontSize: '5.5px',
-          fontWeight: 700,
-          textTransform: 'uppercase'
+          padding: '3px 0',
+          color: colors[0],
+          fontSize: '4.5px',
+          fontWeight: 800,
+          textTransform: 'uppercase',
+          borderBottom: `0.5px solid ${colors[0]}50`,
+          marginBottom: '2px',
+          zIndex: 2,
+          position: 'relative'
         }}>
-          <div style={{ flex: 1 }}>Assunto</div>
-          <div style={{ flex: 1, textAlign: 'center' }}>Idade</div>
-          <div style={{ flex: 2 }}>Resposta Esperada</div>
+          <div style={{ flex: 1, textAlign: 'right', paddingRight: '8px' }}>Receptivo</div>
+          <div style={{ width: '26px', textAlign: 'center' }}>Idade</div>
+          <div style={{ flex: 1, textAlign: 'left', paddingLeft: '8px' }}>Expressivo</div>
         </div>
 
         {/* Rows */}
-        {linguagemData.map((item, idx) => (
-          <div key={idx} style={{
-            display: 'flex',
-            padding: '4px 6px',
-            background: idx % 2 === 0 ? '#fff' : `${mainColor}08`,
-            borderBottom: idx === linguagemData.length - 1 ? 'none' : `0.1px solid ${mainColor}15`,
-            fontSize: '4.8px',
-            color: '#444',
-            lineHeight: '1.2'
-          }}>
-            <div style={{ flex: 1, fontWeight: 700, color: mainColor }}>{item.assunto}</div>
-            <div style={{ flex: 1, textAlign: 'center' }}>{item.idade}</div>
-            <div style={{ flex: 2 }}>{item.resposta}</div>
-          </div>
-        ))}
-      </div>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '1px', zIndex: 2 }}>
+          {linguagemData.map((item, idx) => {
+            const rowColor = colors[idx % colors.length];
+            return (
+              <div key={idx} style={{
+                display: 'flex',
+                alignItems: 'stretch',
+                background: `${rowColor}15`,
+                borderRadius: '2px',
+                position: 'relative',
+                overflow: 'hidden'
+              }}>
+                {/* Left: Receptivo */}
+                <div style={{
+                  flex: 1,
+                  padding: '3px 6px',
+                  fontSize: '3.6px',
+                  color: '#444',
+                  lineHeight: '1.25',
+                  textAlign: 'right',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'flex-end'
+                }}>
+                  {item.receptivo}
+                </div>
 
-      <div style={{
-        marginTop: 'auto',
-        textAlign: 'center',
-        fontSize: '4px',
-        color: '#999',
-        fontStyle: 'italic',
-        padding: '5px'
-      }}>
-        * Fonte: Protocolo de Observação do Desenvolvimento da Linguagem (PODL).
+                {/* Center: Idade (Pill) */}
+                <div style={{
+                  width: '26px',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  position: 'relative'
+                }}>
+                  <div style={{
+                    background: rowColor,
+                    color: '#fff',
+                    fontSize: '4px',
+                    fontWeight: 800,
+                    padding: '1.5px 4px',
+                    borderRadius: '10px',
+                    whiteSpace: 'nowrap',
+                    boxShadow: '0 1px 2px rgba(0,0,0,0.1)',
+                    zIndex: 3
+                  }}>
+                    {item.idade}
+                  </div>
+                </div>
+
+                {/* Right: Expressivo */}
+                <div style={{
+                  flex: 1,
+                  padding: '3px 6px',
+                  fontSize: '3.6px',
+                  color: '#444',
+                  lineHeight: '1.25',
+                  textAlign: 'left',
+                  display: 'flex',
+                  alignItems: 'center'
+                }}>
+                  {item.expressivo}
+                </div>
+              </div>
+            );
+          })}
+        </div>
       </div>
     </div>
   );
