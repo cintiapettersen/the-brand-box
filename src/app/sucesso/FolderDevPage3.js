@@ -3,59 +3,107 @@ import React from 'react';
 export default function FolderDevPage3({ accentColor, palette = [] }) {
   const mainColor = palette[0] || accentColor;
   
-  const milestones = [
-    { label: "Levanta os braços ao pedido", range: [0, 1] }, // 18-21m
-    { label: "Aponta direção de objeto comum", range: [0, 2] }, // 18m-2y
-    { label: "Reconhece o próprio nome", range: [1, 3] }, // 21m-3y
-    { label: "Faz 'não' e acena 'tchau'", range: [2, 4] }, // 2y-4y
-    { label: "Expressa primeiras palavras", range: [2, 4] }, // 2y-4y
-    { label: "Repete sons e entonação", range: [3, 5] }, // 3y-5y
-    { label: "Atende ao que lhe é pedido", range: [3, 6] }, // 3y-6y
-    { label: "Reconhece sons e pessoas", range: [4, 6] }, // 4y-6y
-    { label: "Tenta falar palavras ouvidas", range: [5, 6] }, // 5y-6y
-    { label: "Imita sons que ouve", range: [5, 6] }, // 5y-6y
-    { label: "Aponta com polegar e indicador", range: [6, 6] }, // 6y
+  // Data from the original image for Page 3
+  const columns = [
+    { label: '10', type: 'month' },
+    { label: '11', type: 'month' },
+    { label: '13', type: 'month' },
+    { label: '14', type: 'month' },
+    { label: '15', type: 'month' },
+    { label: '18', type: 'month' },
+    { label: '21', type: 'month' },
+    { label: '2', type: 'year' },
+    { label: '3', type: 'year' },
+    { label: '4', type: 'year' },
+    { label: '5', type: 'year' },
+    { label: '6', type: 'year' },
   ];
 
-  const headers = ["18m", "21m", "2a", "3a", "4a", "5a", "6a"];
+  const milestones = [
+    { label: "Anda sozinho e raramente cai", start: 2, end: 6 }, // 13m to 21m
+    { label: "Tira sozinho qualquer peça do vestuário", start: 3, end: 7 }, // 14m to 2y
+    { label: "Combina pelo menos 2 ou 3 palavras", start: 3, end: 8 }, // 14m to 3y
+    { label: "Distancia-se da mãe sem perdê-la de vista", start: 3, end: 8 }, // 14m to 3y
+    { label: "Leva os alimentos a boca com sua própria mão", start: 3, end: 9 }, // 14m to 4y
+    { label: "Corre e/ou sobe degraus baixos", start: 4, end: 9 }, // 15m to 4y
+    { label: "Aceita a companhia de outras crianças, mas brinca isoladamente", start: 4, end: 9 }, // 15m to 4y
+    { label: "Diz seu próprio nome e nomeia objetos como sendo seus", start: 5, end: 10 }, // 18m to 5y
+    { label: "Veste-se com auxílio", start: 6, end: 10 }, // 21m to 5y
+    { label: "Fica sobre um pé, momentaneamente", start: 6, end: 10 }, // 21m to 5y
+    { label: "Usa frases", start: 7, end: 11 }, // 2y to 6y
+    { label: "Começa o controle esfincteriano", start: 7, end: 11 }, // 2y to 6y
+    { label: "Reconhece mais de duas cores", start: 7, end: 11 }, // 2y to 6y
+    { label: "Pula sobre um pé só", start: 8, end: 11 }, // 3y to 6y
+    { label: "Brinca com outras crianças", start: 8, end: 11 }, // 3y to 6y
+    { label: "Imita pessoas da vida cotidiana (pai, mãe, médico)", start: 8, end: 11 }, // 3y to 6y
+    { label: "Veste-se sozinho", start: 9, end: 11 }, // 4y to 6y
+    { label: "Pula alternadamente com um e outro pé", start: 9, end: 11 }, // 4y to 6y
+    { label: "Alterna momentos cooperativos com agressivos", start: 10, end: 11 }, // 5y to 6y
+    { label: "Capaz de expressar preferências e ideias próprias", start: 10, end: 11 }, // 5y to 6y
+  ];
 
   return (
-    <div style={{ padding: '8px', height: '100%', display: 'flex', flexDirection: 'column', fontFamily: "'Montserrat', sans-serif" }}>
-      <div style={{ fontSize: '8px', fontWeight: 900, color: mainColor, marginBottom: '6px', textAlign: 'center', textTransform: 'uppercase' }}>
-        Marcos do Desenvolvimento (18m - 6 anos)
+    <div style={{ padding: '4px', height: '100%', display: 'flex', flexDirection: 'column', fontFamily: "'Montserrat', sans-serif" }}>
+      <div style={{ fontSize: '6px', fontWeight: 900, color: mainColor, marginBottom: '2px', textAlign: 'center', textTransform: 'uppercase' }}>
+        Marcos de Desenvolvimento
+      </div>
+      <div style={{ fontSize: '4px', fontWeight: 600, color: '#666', marginBottom: '4px', textAlign: 'center' }}>
+        (resposta esperada)
       </div>
 
-      <div style={{ flex: 1, display: 'flex', flexDirection: 'column', border: `0.3px solid ${mainColor}20`, borderRadius: '3px', overflow: 'hidden' }}>
+      <div style={{ flex: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
         {/* Header */}
-        <div style={{ display: 'flex', background: `${mainColor}10`, borderBottom: `0.3px solid ${mainColor}20` }}>
-          <div style={{ width: '45%', padding: '4px', fontSize: '5px', fontWeight: 700, color: mainColor }}>HABILIDADES</div>
-          <div style={{ flex: 1, display: 'flex' }}>
-            {headers.map((h, i) => (
-              <div key={i} style={{ flex: 1, textAlign: 'center', fontSize: '4.5px', fontWeight: 800, color: mainColor, padding: '4px 0', borderLeft: `0.1px solid ${mainColor}10` }}>
-                {h}
-              </div>
-            ))}
+        <div style={{ display: 'flex', borderBottom: `0.5px solid ${mainColor}` }}>
+          <div style={{ width: '45%', padding: '2px', fontSize: '3.5px', fontWeight: 700, color: mainColor, display: 'flex', alignItems: 'flex-end' }}>
+            HABILIDADES
           </div>
-        </div>
-
-        {/* Rows */}
-        {milestones.map((ms, i) => (
-          <div key={i} style={{ display: 'flex', borderBottom: `0.1px solid ${mainColor}10`, background: i % 2 === 0 ? '#fff' : `${mainColor}05` }}>
-            <div style={{ width: '45%', padding: '3.5px 4px', fontSize: '4.2px', color: '#444', fontWeight: 500, lineHeight: 1 }}>{ms.label}</div>
-            <div style={{ flex: 1, display: 'flex', position: 'relative' }}>
-              {headers.map((_, idx) => (
-                <div key={idx} style={{ flex: 1, borderLeft: `0.1px solid ${mainColor}05`, height: '100%' }}>
-                  {idx >= ms.range[0] && idx <= ms.range[1] && (
-                    <div style={{ margin: '1px', height: 'calc(100% - 2px)', background: mainColor, borderRadius: '1px', opacity: 0.8 }} />
-                  )}
+          <div style={{ flex: 1, display: 'flex', flexDirection: 'column' }}>
+             <div style={{ display: 'flex', width: '100%', marginBottom: '1px' }}>
+                <div style={{ flex: 7, fontSize: '3.5px', color: '#666', textAlign: 'center' }}>Idade em meses</div>
+                <div style={{ flex: 5, fontSize: '3.5px', color: '#666', textAlign: 'center' }}>Idade em anos</div>
+             </div>
+             <div style={{ display: 'flex', width: '100%' }}>
+              {columns.map((col, idx) => (
+                <div key={idx} style={{ 
+                  flex: 1, 
+                  textAlign: 'center', 
+                  fontSize: '3.5px', 
+                  fontWeight: 800, 
+                  color: '#fff', 
+                  background: col.type === 'month' ? '#72A9D1' : '#E67E7E', 
+                  padding: '1px 0', 
+                  borderLeft: '0.1px solid #fff' 
+                }}>
+                  {col.label}
                 </div>
               ))}
             </div>
           </div>
-        ))}
+        </div>
+
+        {/* Rows */}
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5px', marginTop: '1px' }}>
+          {milestones.map((ms, i) => (
+            <div key={i} style={{ display: 'flex', alignItems: 'center' }}>
+              <div style={{ width: '45%', padding: '0.5px 2px', fontSize: '3px', color: '#444', lineHeight: 1, borderBottom: '0.1px solid #eee' }}>
+                {ms.label}
+              </div>
+              <div style={{ flex: 1, display: 'flex', height: '100%', borderBottom: '0.1px solid #eee' }}>
+                {columns.map((_, idx) => {
+                  const isFilled = idx >= ms.start && idx <= ms.end;
+                  return (
+                    <div key={idx} style={{ flex: 1, borderLeft: '0.1px solid #eee', position: 'relative' }}>
+                      {isFilled && (
+                        <div style={{ position: 'absolute', top: 0, bottom: 0, left: 0, right: 0, background: '#E3998D' }} />
+                      )}
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+          ))}
+        </div>
       </div>
-      
-      <div style={{ marginTop: '5px', textAlign: 'right', fontSize: '3.5px', color: '#aaa', fontWeight: 600 }}>IDADE EM MESES/ANOS</div>
     </div>
   );
 }

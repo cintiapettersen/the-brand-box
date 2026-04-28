@@ -3,63 +3,84 @@ import React from 'react';
 export default function FolderDevPage2({ accentColor, palette = [] }) {
   const mainColor = palette[0] || accentColor;
   
+  // Data from the original image for Page 2
   const milestones = [
-    { label: "Olha e sorri em resposta à estimulação", range: [1, 2] },
-    { label: "Atende a ruídos e sons curvos", range: [1, 3] },
-    { label: "Sorri em resposta à face humana", range: [1, 3] },
-    { label: "Dá mostras de prazer e desprazer", range: [2, 4] },
-    { label: "Sente-se bem acompanhado", range: [3, 5] },
-    { label: "Reconhece vozes familiares", range: [3, 6] },
-    { label: "Balbucia sons variados", range: [4, 7] },
-    { label: "Silencia ao se aproximarem", range: [5, 8] },
-    { label: "Localiza sons lateralmente", range: [6, 9] },
-    { label: "Começa a diferenciar o estranho", range: [7, 10] },
-    { label: "Brinca de esconde-esconde", range: [8, 11] },
-    { label: "Vocaliza para chamar atenção", range: [8, 12] },
-    { label: "Emite sons (balbucio)", range: [9, 13] },
-    { label: "Controle de tom de voz", range: [10, 14] },
-    { label: "Compreende palavras simples", range: [11, 15] },
+    { label: "Abre e fecha os braços em resposta à estimulação (Reflexo de Moro)", range: [1, 3] },
+    { label: "Postura: barriga para cima, pernas e braços fletidos, cabeça lateralizada", range: [1, 4] },
+    { label: "Olha para a pessoa que o observa", range: [1, 2] },
+    { label: "Dá mostras de prazer e desconforto", range: [2, 3] },
+    { label: "Fixa e acompanha objetos em seu campo visual", range: [1, 3] },
+    { label: "Colocado de bruços, levanta a cabeça momentaneamente", range: [1, 2] },
+    { label: "Arrulha e sorri espontaneamente", range: [2, 4] },
+    { label: "Começa a diferenciar dia/noite", range: [2, 4] },
+    { label: "Postura: passa da posição lateral para linha média", range: [3, 5] },
+    { label: "Colocado de bruços, levanta e sustenta a cabeça apoiando-se no antebraço", range: [3, 5] },
+    { label: "Emite sons - Balbucia", range: [3, 5] },
+    { label: "Senta com a ajuda de outra pessoa, mas não fica passivo", range: [3, 6] },
+    { label: "Segura e transfere objetos de uma mão para a outra", range: [4, 7] },
+    { label: "Levantado pelos braços, ajuda com o corpo", range: [4, 6] },
+    { label: "Vira a cabeça na direção de uma voz ou objeto sonoro", range: [4, 6] },
+    { label: "Reconhece quando se dirigem a ele", range: [4, 7] },
+    { label: "Tenta ficar de pé com apoio", range: [5, 9] },
+    { label: "Arrasta-se ou engatinha", range: [6, 11] },
+    { label: "Responde diferentemente a pessoas familiares e a estranhos", range: [6, 12] },
+    { label: "Imita pequenos gestos ou brincadeiras", range: [7, 13] },
+    { label: "Anda com apoio", range: [8, 15] },
+    { label: "Pega objetos usando o polegar e o indicador", range: [9, 15] },
   ];
 
-  const months = Array.from({ length: 15 }, (_, i) => i + 1);
+  const months = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 15];
 
   return (
-    <div style={{ padding: '8px', height: '100%', display: 'flex', flexDirection: 'column', fontFamily: "'Montserrat', sans-serif" }}>
-      <div style={{ fontSize: '8px', fontWeight: 900, color: mainColor, marginBottom: '6px', textAlign: 'center', textTransform: 'uppercase' }}>
-        Marcos do Desenvolvimento (1-15 meses)
+    <div style={{ padding: '4px', height: '100%', display: 'flex', flexDirection: 'column', fontFamily: "'Montserrat', sans-serif" }}>
+      <div style={{ fontSize: '6px', fontWeight: 900, color: mainColor, marginBottom: '2px', textAlign: 'center', textTransform: 'uppercase' }}>
+        Marcos de Desenvolvimento
+      </div>
+      <div style={{ fontSize: '4px', fontWeight: 600, color: '#666', marginBottom: '4px', textAlign: 'center' }}>
+        (resposta esperada)
       </div>
 
-      <div style={{ flex: 1, display: 'flex', flexDirection: 'column', border: `0.3px solid ${mainColor}20`, borderRadius: '3px', overflow: 'hidden' }}>
+      <div style={{ flex: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
         {/* Header */}
-        <div style={{ display: 'flex', background: `${mainColor}10`, borderBottom: `0.3px solid ${mainColor}20` }}>
-          <div style={{ width: '45%', padding: '3px', fontSize: '5px', fontWeight: 700, color: mainColor }}>HABILIDADES</div>
-          <div style={{ flex: 1, display: 'flex' }}>
-            {months.map(m => (
-              <div key={m} style={{ flex: 1, textAlign: 'center', fontSize: '4.5px', fontWeight: 800, color: mainColor, padding: '3px 0', borderLeft: `0.1px solid ${mainColor}10` }}>
-                {m}
-              </div>
-            ))}
+        <div style={{ display: 'flex', borderBottom: `0.5px solid ${mainColor}` }}>
+          <div style={{ width: '45%', padding: '2px', fontSize: '3.5px', fontWeight: 700, color: mainColor, display: 'flex', alignItems: 'flex-end' }}>
+            HABILIDADES
           </div>
-        </div>
-
-        {/* Rows */}
-        {milestones.map((ms, i) => (
-          <div key={i} style={{ display: 'flex', borderBottom: `0.1px solid ${mainColor}10`, background: i % 2 === 0 ? '#fff' : `${mainColor}05` }}>
-            <div style={{ width: '45%', padding: '2.5px 4px', fontSize: '4.2px', color: '#444', fontWeight: 500, lineHeight: 1 }}>{ms.label}</div>
-            <div style={{ flex: 1, display: 'flex', position: 'relative' }}>
+          <div style={{ flex: 1, display: 'flex', flexDirection: 'column' }}>
+             <div style={{ fontSize: '3.5px', color: '#666', textAlign: 'center', marginBottom: '1px' }}>Idade em meses</div>
+             <div style={{ display: 'flex', width: '100%' }}>
               {months.map(m => (
-                <div key={m} style={{ flex: 1, borderLeft: `0.1px solid ${mainColor}05`, height: '100%' }}>
-                  {m >= ms.range[0] && m <= ms.range[1] && (
-                    <div style={{ margin: '1px', height: 'calc(100% - 2px)', background: mainColor, borderRadius: '1px', opacity: 0.8 }} />
-                  )}
+                <div key={m} style={{ flex: 1, textAlign: 'center', fontSize: '3.5px', fontWeight: 800, color: '#fff', background: '#72A9D1', padding: '1px 0', borderLeft: '0.1px solid #fff' }}>
+                  {m}
                 </div>
               ))}
             </div>
           </div>
-        ))}
+        </div>
+
+        {/* Rows */}
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5px', marginTop: '1px' }}>
+          {milestones.map((ms, i) => (
+            <div key={i} style={{ display: 'flex', alignItems: 'center' }}>
+              <div style={{ width: '45%', padding: '0.5px 2px', fontSize: '3px', color: '#444', lineHeight: 1, borderBottom: '0.1px solid #eee' }}>
+                {ms.label}
+              </div>
+              <div style={{ flex: 1, display: 'flex', height: '100%', borderBottom: '0.1px solid #eee' }}>
+                {months.map(m => {
+                  const isFilled = m >= ms.range[0] && m <= ms.range[1];
+                  return (
+                    <div key={m} style={{ flex: 1, borderLeft: '0.1px solid #eee', position: 'relative' }}>
+                      {isFilled && (
+                        <div style={{ position: 'absolute', top: 0, bottom: 0, left: 0, right: 0, background: '#E6C673' }} />
+                      )}
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+          ))}
+        </div>
       </div>
-      
-      <div style={{ marginTop: '5px', textAlign: 'right', fontSize: '3.5px', color: '#aaa', fontWeight: 600 }}>IDADE EM MESES</div>
     </div>
   );
 }
