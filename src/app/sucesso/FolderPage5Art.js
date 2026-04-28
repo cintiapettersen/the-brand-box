@@ -23,7 +23,7 @@ export default function FolderPage5Art({ accentColor = '#879A6C', palette = [] }
   const titleColor = getSafeColor(c1, 30);
 
   return (
-    <div style={{ textAlign: 'center', marginTop: '10px' }}>
+    <div style={{ textAlign: 'center', padding: '15px 0' }}>
       <style>{`
         @font-face {
           font-family: 'MyriadProCondensed';
@@ -31,14 +31,14 @@ export default function FolderPage5Art({ accentColor = '#879A6C', palette = [] }
         }
       `}</style>
       <div style={{ 
-        fontSize: '4.6px', 
+        fontSize: '5.2px', 
         fontWeight: 800, 
         color: titleColor, 
         textTransform: 'uppercase', 
-        marginBottom: '10px', 
+        marginBottom: '20px', 
         lineHeight: 1.1, 
         padding: '0 4px',
-        fontFamily: '"Myriad Pro Condensed", "MyriadPro-Cond", sans-serif',
+        fontFamily: '"Montserrat", "Myriad Pro Condensed", sans-serif',
         letterSpacing: '0.05px',
         display: 'flex',
         flexDirection: 'column',
@@ -128,8 +128,8 @@ export default function FolderPage5Art({ accentColor = '#879A6C', palette = [] }
         {/* Dica das Frutas com Fundo de Etiqueta */}
         <div style={{ 
           position: 'absolute', 
-          bottom: '-9px', 
-          left: '32px', 
+          bottom: '-18px', 
+          left: '42px', 
           width: '74px', 
           textAlign: 'left', 
           zIndex: 3,
@@ -140,10 +140,10 @@ export default function FolderPage5Art({ accentColor = '#879A6C', palette = [] }
           border: `0.5px solid ${c2}33`
         }}>
           <div style={{ 
-            fontSize: '3px', 
+            fontSize: '3.8px', 
             fontWeight: 800, 
             color: titleColor, 
-            fontFamily: '"Myriad Pro Condensed", sans-serif',
+            fontFamily: '"Montserrat", sans-serif',
             textTransform: 'uppercase',
             letterSpacing: '0.02px'
           }}>
