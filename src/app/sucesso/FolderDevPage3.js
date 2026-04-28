@@ -54,7 +54,7 @@ export default function FolderDevPage3({ accentColor, palette = [] }) {
       <div style={{ flex: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
         {/* Header */}
         <div style={{ display: 'flex', borderBottom: `0.5px solid ${mainColor}` }}>
-          <div style={{ width: '60%', padding: '1px 2px', fontSize: '3.5px', fontWeight: 700, color: mainColor, display: 'flex', alignItems: 'flex-end' }}>
+          <div style={{ width: '50%', padding: '1px 2px', fontSize: '3.5px', fontWeight: 700, color: mainColor, display: 'flex', alignItems: 'flex-end' }}>
             HABILIDADES
           </div>
           <div style={{ flex: 1, display: 'flex', flexDirection: 'column' }}>
@@ -84,17 +84,17 @@ export default function FolderDevPage3({ accentColor, palette = [] }) {
         {/* Rows */}
         <div style={{ display: 'flex', flexDirection: 'column', gap: '0', marginTop: '1px' }}>
           {milestones.map((ms, i) => (
-            <div key={i} style={{ display: 'flex', alignItems: 'stretch' }}>
-              <div style={{ width: '60%', padding: '0.5px 2px', fontSize: '2.8px', color: '#444', lineHeight: 0.95, borderBottom: '0.1px solid #eee' }}>
+            <div key={i} style={{ display: 'flex', alignItems: 'stretch', borderBottom: '0.3px solid #ccc' }}>
+              <div style={{ width: '50%', padding: '1.5px 2px', fontSize: '3px', color: '#444', lineHeight: 1 }}>
                 {ms.label}
               </div>
-              <div style={{ flex: 1, display: 'flex', height: '100%', borderBottom: '0.1px solid #eee', borderRight: '0.2px solid #ddd' }}>
+              <div style={{ flex: 1, display: 'flex', height: '100%', borderRight: '0.2px solid #ccc' }}>
                 {columns.map((_, idx) => {
                   const isFilled = idx >= ms.start && idx <= ms.end;
                   return (
-                    <div key={idx} style={{ flex: 1, borderLeft: '0.2px solid #ddd', position: 'relative' }}>
+                    <div key={idx} style={{ flex: 1, borderLeft: '0.2px solid #ccc', position: 'relative' }}>
                       {isFilled && (
-                        <div style={{ position: 'absolute', top: 0, bottom: 0, left: 0, right: 0, background: '#E3998D' }} />
+                        <div style={{ position: 'absolute', top: '0.3px', bottom: '0.3px', left: 0, right: 0, background: '#E3998D' }} />
                       )}
                     </div>
                   );
