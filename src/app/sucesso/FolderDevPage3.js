@@ -43,7 +43,7 @@ export default function FolderDevPage3({ accentColor, palette = [] }) {
   ];
 
   return (
-    <div style={{ padding: '4px', height: '100%', display: 'flex', flexDirection: 'column', fontFamily: "'Montserrat', sans-serif" }}>
+    <div style={{ width: '100%', height: '100%', padding: '2px 4px', display: 'flex', flexDirection: 'column', fontFamily: "'Montserrat', sans-serif", boxSizing: 'border-box' }}>
       <div style={{ fontSize: '6px', fontWeight: 900, color: mainColor, marginBottom: '2px', textAlign: 'center', textTransform: 'uppercase' }}>
         Marcos de Desenvolvimento
       </div>
@@ -85,7 +85,7 @@ export default function FolderDevPage3({ accentColor, palette = [] }) {
         <div style={{ display: 'flex', flexDirection: 'column', gap: '0', marginTop: '1px' }}>
           {milestones.map((ms, i) => (
             <div key={i} style={{ display: 'flex', alignItems: 'stretch', borderBottom: '0.3px solid #ccc' }}>
-              <div style={{ width: '50%', padding: '1.5px 2px', fontSize: '3px', color: '#444', lineHeight: 1 }}>
+              <div style={{ width: '50%', padding: '0.8px 2px', fontSize: '2.8px', color: '#444', lineHeight: 1 }}>
                 {ms.label}
               </div>
               <div style={{ flex: 1, display: 'flex', height: '100%', borderRight: '0.2px solid #ccc' }}>
