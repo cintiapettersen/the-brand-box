@@ -70,8 +70,7 @@ export default function FolderDevPage5({ accentColor, palette = [] }) {
       display: 'flex',
       flexDirection: 'column',
       fontFamily: "'Montserrat', sans-serif",
-      boxSizing: 'border-box',
-      justifyContent: 'center'
+      boxSizing: 'border-box'
     }}>
       <div style={{
         fontSize: '5.2px',
