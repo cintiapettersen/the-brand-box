@@ -1,0 +1,120 @@
+'use client';
+import React, { useState } from 'react';
+import { LogoPreviewHTML, BordaToggle } from './page';
+
+const SIZES = [
+  { label: '9 × 4,8 cm', w: 9, h: 4.8, shape: 'rect', scale: 28 },
+  { label: '4,8 × 4,8 cm', w: 4.8, h: 4.8, shape: 'square', scale: 36 },
+  { label: '6 × 6 cm', w: 6, h: 6, shape: 'circle', scale: 30 },
+];
+
+function TagCard({ size, solidColor, c0, c1, paletteColors, effectiveSrc, patternScale, editData, logoColor, logoLayout, clinicaNome, cartaoContacts, crmLine, side }) {
+  const W = Math.round(size.w * size.scale);
+  const H = Math.round(size.h * size.scale);
+  const isCircle = size.shape === 'circle';
+  const holeSize = Math.round(size.scale * 0.28);
+
+  const containerStyle = {
+    width: W, height: H,
+    position: 'relative',
+    boxShadow: '0 4px 16px rgba(0,0,0,0.15)',
+    overflow: 'hidden',
+    flexShrink: 0,
+    borderRadius: isCircle ? '50%' : 6,
+  };
+
+  const bgStyle = effectiveSrc
+    ? { position: 'absolute', inset: 0, backgroundImage: `url(${effectiveSrc})`, backgroundSize: `${(patternScale || 150) * size.scale / 150}px`, backgroundRepeat: 'repeat' }
+    : { position: 'absolute', inset: 0, background: solidColor };
+
+  if (side === 'frente') {
+    return (
+      <div style={containerStyle}>
+        <div style={bgStyle} />
+        {/* Furo */}
+        {!isCircle && (
+          <div style={{ position: 'absolute', top: Math.round(size.scale * 0.22), left: '50%', transform: 'translateX(-50%)', width: holeSize, height: holeSize, borderRadius: '50%', background: '#fff', border: `${Math.round(size.scale * 0.04)}px solid rgba(0,0,0,0.15)`, zIndex: 3 }} />
+        )}
+        {/* Logo com fundo branco suave quando há estampa */}
+        <div style={{ position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%)', width: '72%', textAlign: 'center', zIndex: 2, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+          {effectiveSrc ? (
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'rgba(255,255,255,0.85)', borderRadius: isCircle ? '50%' : '8px', padding: isCircle ? `${W * 0.12}px` : size.shape === 'square' ? '10px 18px' : '6px 14px', backdropFilter: 'blur(2px)', width: isCircle ? W * 0.78 : undefined, height: isCircle ? W * 0.78 : undefined }}>
+              <LogoPreviewHTML editData={editData} color={solidColor} layout={logoLayout} scaleFactor={size.shape === 'square' ? size.w * 0.095 : size.w * 0.076} hideTagline={false} />
+            </div>
+          ) : (
+            <div style={{ filter: 'brightness(0) invert(1)' }}>
+              <LogoPreviewHTML editData={editData} color="#ffffff" layout={logoLayout} scaleFactor={size.shape === 'square' ? size.w * 0.095 : size.w * 0.076} hideTagline={false} />
+            </div>
+          )}
+        </div>
+      </div>
+    );
+  }
+
+  // Verso
+  return (
+    <div style={{ ...containerStyle, background: '#fff', border: `1.5px solid ${solidColor}` }}>
+      {/* Furo */}
+      {!isCircle && (
+        <div style={{ position: 'absolute', top: Math.round(size.scale * 0.22), left: '50%', transform: 'translateX(-50%)', width: holeSize, height: holeSize, borderRadius: '50%', background: '#f5f5f5', border: `1px solid #ddd`, zIndex: 3 }} />
+      )}
+
+      {/* Conteúdo verso centralizado */}
+      <div style={{ position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%)', width: '80%', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 10 }}>
+        {clinicaNome && <div style={{ fontSize: 15, fontWeight: 400, color: solidColor, fontFamily: "'Brush Script MT','Segoe Script','Dancing Script',cursive", textAlign: 'center', lineHeight: 1.3 }}>{clinicaNome}</div>}
+        <div style={{ width: 24, height: 0.5, background: `${solidColor}60` }} />
+        {cartaoContacts?.telefone && <div style={{ fontSize: 11, fontWeight: 400, color: '#888', fontFamily: 'Montserrat,sans-serif', letterSpacing: '0.3px' }}>{cartaoContacts.telefone}</div>}
+        {cartaoContacts?.instagram && <div style={{ fontSize: 11, fontWeight: 400, color: '#888', fontFamily: 'Montserrat,sans-serif', letterSpacing: '0.3px' }}>@{cartaoContacts.instagram.replace('@','')}</div>}
+        {cartaoContacts?.site && <div style={{ fontSize: 10, fontWeight: 400, color: '#bbb', fontFamily: 'Montserrat,sans-serif', letterSpacing: '0.3px' }}>{cartaoContacts.site}</div>}
+      </div>
+    </div>
+  );
+}
+
+export default function TagSacolaPreview({
+  accentColor, paletteColors = [], editData, logoColor, logoLayout,
+  cartaoContacts, crmLine, clinicaNome, comBorda, setComBorda,
+  patternSrc, patternScale, setPatternScale, borderColor, setBorderColor,
+  sizeIdx: sizeIdxProp, setSizeIdx: setSizeIdxProp,
+}) {
+  const [sizeIdxLocal, setSizeIdxLocal] = useState(0);
+  const sizeIdx = sizeIdxProp ?? sizeIdxLocal;
+  const setSizeIdx = setSizeIdxProp ?? setSizeIdxLocal;
+  const solidColor = borderColor || accentColor;
+  const c0 = paletteColors[0] || solidColor;
+  const c1 = paletteColors[1] || solidColor;
+  const effectiveSrc = comBorda ? patternSrc : null;
+  const size = SIZES[sizeIdx];
+
+  return (
+    <div style={{ display: 'flex', flexDirection: 'column', gap: '24px', alignItems: 'center', width: '100%', padding: '20px 0' }}>
+
+      {/* Seletor de formato */}
+      <div style={{ display: 'flex', gap: '8px', background: '#f0f0f0', borderRadius: '20px', padding: '4px' }}>
+        {SIZES.map((s, i) => (
+          <button key={i} onClick={() => setSizeIdx(i)} style={{ padding: '6px 14px', borderRadius: '16px', border: 'none', cursor: 'pointer', fontFamily: 'Montserrat,sans-serif', fontSize: '11px', fontWeight: 700, background: sizeIdx === i ? solidColor : 'transparent', color: sizeIdx === i ? '#fff' : '#888', transition: 'all 0.2s' }}>
+            {s.label}
+          </button>
+        ))}
+      </div>
+
+      <BordaToggle comBorda={comBorda} setComBorda={setComBorda} accentColor={accentColor} paletteColors={paletteColors} borderColor={borderColor} setBorderColor={setBorderColor} patternScale={patternScale} setPatternScale={setPatternScale} />
+
+      {/* Frente e Verso lado a lado */}
+      <div style={{ display: 'flex', gap: '40px', alignItems: 'flex-start', justifyContent: 'center' }}>
+        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '8px' }}>
+          <span style={{ fontSize: '10px', fontWeight: 800, color: '#999', textTransform: 'uppercase' }}>Frente</span>
+          <TagCard size={size} solidColor={solidColor} c0={c0} c1={c1} paletteColors={paletteColors} effectiveSrc={effectiveSrc} patternScale={patternScale} editData={editData} logoColor={logoColor} logoLayout={logoLayout} clinicaNome={clinicaNome} cartaoContacts={cartaoContacts} crmLine={crmLine} side="frente" />
+        </div>
+        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '8px' }}>
+          <span style={{ fontSize: '10px', fontWeight: 800, color: '#999', textTransform: 'uppercase' }}>Verso</span>
+          <TagCard size={size} solidColor={solidColor} c0={c0} c1={c1} paletteColors={paletteColors} effectiveSrc={effectiveSrc} patternScale={patternScale} editData={editData} logoColor={logoColor} logoLayout={logoLayout} clinicaNome={clinicaNome} cartaoContacts={cartaoContacts} crmLine={crmLine} side="verso" />
+        </div>
+      </div>
+
+      <div style={{ fontSize: '11px', color: '#999', fontFamily: 'Montserrat,sans-serif', fontWeight: 600 }}>
+        {size.label} · {size.shape === 'circle' ? 'Redondo' : size.shape === 'square' ? 'Quadrado' : 'Retangular'}
+      </div>
+    </div>
+  );
+}

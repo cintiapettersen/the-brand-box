@@ -39,6 +39,13 @@ import {
 } from './FolderAmamentacaoPages';
 import html2canvas from 'html2canvas';
 import MeuPratinhoPreview from './MeuPratinhoPreview';
+import EtiquetaCorreiosPreview from './EtiquetaCorreiosPreview';
+import SacolaPapelPreview from './SacolaPapelPreview';
+import TagSacolaPreview from './TagSacolaPreview';
+import CartaoAgradecimentoPreview from './CartaoAgradecimentoPreview';
+import ReceitaAltaPreview, { buildReceitaAltaHTML } from './ReceitaAltaPreview';
+import CanecaPreview from './CanecaPreview';
+import PapelPresentePreview from './PapelPresentePreview';
 import GuiaAmamentacaoPreview from './GuiaAmamentacaoPreview';
 import { createClient } from '@supabase/supabase-js';
 
@@ -2347,6 +2354,226 @@ function GenericItemPreview({ item, marca, accentColor, patternSrc, editData, lo
   );
 }
 
+function PapelTimbradoPreview({ brand, editData, accentColor, patternSrc, logoColor, logoLayout, comBorda, setComBorda, paletteColors, borderColor, setBorderColor, patternScale, setPatternScale, cartaoContacts, crmLine, localSlogan, clinicaNome }) {
+  const BORDER = 12;
+  const effectiveSrc = comBorda ? patternSrc : null;
+  const solidColor = borderColor || paletteColors[0] || accentColor;
+  
+  return (
+    <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', alignItems: 'center' }}>
+      <BordaToggle comBorda={comBorda} setComBorda={setComBorda} accentColor={accentColor} paletteColors={paletteColors} borderColor={borderColor} setBorderColor={setBorderColor} patternScale={patternScale} setPatternScale={setPatternScale} />
+      <div style={{ width: '226px', height: '320px', position: 'relative', boxShadow: '0 4px 120px rgba(0,0,0,0.12)', borderRadius: '4px', overflow: 'hidden', background: '#fff' }}>
+        {effectiveSrc
+          ? <><div style={{ position: 'absolute', inset: 0, backgroundImage: `url(${effectiveSrc})`, backgroundSize: `${(patternScale || 150) / 2}px`, backgroundRepeat: 'repeat' }} /><div style={{ position: 'absolute', top: BORDER, left: BORDER, right: BORDER, bottom: BORDER, background: '#fff' }} /></>
+          : <div style={{ position: 'absolute', inset: 0, background: '#fff', border: `${BORDER}px solid ${solidColor}` }} />}
+        
+        {/* Top Logo */}
+        <div style={{ position: 'absolute', top: BORDER + 20, left: '50%', transform: 'translateX(-50%)', width: '100px', display: 'flex', justifyContent: 'center' }}>
+          <LogoPreviewHTML editData={editData} color={logoColor} layout={logoLayout} scaleFactor={0.35} crm={crmLine} />
+        </div>
+
+        {/* Central Watermark */}
+        <div style={{ position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%)', opacity: 0.15, width: '160px', display: 'flex', justifyContent: 'center', pointerEvents: 'none' }}>
+           <LogoPreviewHTML editData={editData} color={logoColor} layout={logoLayout} scaleFactor={0.65} hideTagline />
+        </div>
+
+        {/* Footer */}
+        <div style={{ position: 'absolute', bottom: BORDER + 15, left: BORDER + 10, right: BORDER + 10, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '3px' }}>
+           <div style={{ fontSize: '4.5px', fontWeight: 800, color: accentColor, textAlign: 'center' }}>{clinicaNome}</div>
+           <div style={{ fontSize: '4px', color: '#888', textAlign: 'center' }}>
+              {[cartaoContacts.whatsapp, cartaoContacts.telefone, cartaoContacts.email, cartaoContacts.site].filter(Boolean).join('  ·  ')}
+           </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+const STORY_TEMPLATES = [
+  { id: 'tiraduvidas', titulo: 'Tira-Dúvidas',       subtitulo: 'Me manda sua pergunta!',      caixinha: 'caixinha de perguntas' },
+  { id: 'enquete',     titulo: 'Me conta!',           subtitulo: 'Qual é a sua dúvida?',        caixinha: 'enquete ou caixinha' },
+  { id: 'mito',        titulo: 'Verdade ou Mito?',    subtitulo: 'O que você já ouviu por aí?', caixinha: 'caixinha de perguntas' },
+  { id: 'dica',        titulo: 'Dica do Dia',         subtitulo: 'Arrasta pra ver o conteúdo',  caixinha: 'área de conteúdo' },
+  { id: 'indica',      titulo: 'Me Indica!',          subtitulo: 'Qual produto você quer ver?', caixinha: 'caixinha de respostas' },
+  { id: 'novidades',   titulo: 'Novidades',           subtitulo: 'Tem coisa boa chegando!',     caixinha: 'área de conteúdo' },
+  { id: 'sabiaque',    titulo: 'Você Sabia?',         subtitulo: 'Um fato que vai te surpreender', caixinha: 'área de conteúdo' },
+  { id: 'livre',       titulo: 'Fala Comigo!',        subtitulo: 'Manda sua mensagem',          caixinha: 'caixinha de perguntas' },
+];
+
+const INSTA_FORMATS = [
+  { id: 'story', label: 'Story 9:16', pw: 180, ph: 320, rw: 1080, rh: 1920, logoSF: 0.45, titleTop: '95px', boxTop: '120px', boxH: '110px', footerBottom: '25px', titleSize: '9px', subSize: '6px' },
+  { id: 'post',  label: 'Post 1:1',   pw: 280, ph: 280, rw: 1080, rh: 1080, logoSF: 0.55, titleTop: '80px', boxTop: '105px', boxH: '80px',  footerBottom: '18px', titleSize: '11px', subSize: '7px' },
+];
+
+function FundoInstaPreview({ brand, editData, accentColor, patternSrc, logoColor, logoLayout, comBorda, setComBorda, paletteColors, borderColor, setBorderColor, patternScale, setPatternScale, cartaoContacts, crmLine, localSlogan, clinicaNome, storyTemplateIdx, setStoryTemplateIdx, storyFormatIdx, setStoryFormatIdx }) {
+  const effectiveSrc = comBorda ? patternSrc : null;
+  const solidColor = borderColor || paletteColors?.[0] || accentColor;
+  const instagram = cartaoContacts?.instagram || '';
+  const tmplIdx = storyTemplateIdx ?? 0;
+  const tmpl = STORY_TEMPLATES[tmplIdx] || STORY_TEMPLATES[0];
+  const fmtIdx = storyFormatIdx ?? 0;
+  const fmt = INSTA_FORMATS[fmtIdx];
+
+  return (
+    <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', alignItems: 'center' }}>
+      <BordaToggle comBorda={comBorda} setComBorda={setComBorda} accentColor={accentColor} paletteColors={paletteColors} borderColor={borderColor} setBorderColor={setBorderColor} patternScale={patternScale} setPatternScale={setPatternScale} />
+
+      {/* Seletor de formato */}
+      <div style={{ display: 'flex', gap: '8px', background: '#f0f0f0', borderRadius: '20px', padding: '4px' }}>
+        {INSTA_FORMATS.map((f, i) => (
+          <button key={f.id} onClick={() => setStoryFormatIdx && setStoryFormatIdx(i)} style={{ padding: '6px 18px', borderRadius: '16px', border: 'none', cursor: 'pointer', fontFamily: 'Montserrat,sans-serif', fontSize: '11px', fontWeight: 700, background: fmtIdx === i ? solidColor : 'transparent', color: fmtIdx === i ? '#fff' : '#888', transition: 'all 0.2s' }}>
+            {f.label}
+          </button>
+        ))}
+      </div>
+
+      {/* Seletor de template */}
+      <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap', justifyContent: 'center', maxWidth: '380px' }}>
+        {STORY_TEMPLATES.map((t, i) => (
+          <button key={t.id} onClick={() => setStoryTemplateIdx && setStoryTemplateIdx(i)} style={{ padding: '4px 10px', borderRadius: '12px', border: `1px solid ${tmplIdx === i ? solidColor : '#ddd'}`, cursor: 'pointer', fontFamily: 'Montserrat,sans-serif', fontSize: '10px', fontWeight: 600, background: tmplIdx === i ? solidColor + '15' : 'transparent', color: tmplIdx === i ? solidColor : '#999', transition: 'all 0.2s' }}>
+            {t.titulo}
+          </button>
+        ))}
+      </div>
+
+      <div id="insta-bg-preview" style={{ width: `${fmt.pw}px`, height: `${fmt.ph}px`, position: 'relative', boxShadow: '0 4px 60px rgba(0,0,0,0.15)', borderRadius: fmt.id === 'story' ? '24px' : '12px', overflow: 'hidden', background: '#fff', transition: 'width 0.3s, height 0.3s' }}>
+        <div style={{ position: 'absolute', inset: 0, overflow: 'hidden' }}>
+           {effectiveSrc && <div style={{ position: 'absolute', inset: 0, backgroundImage: `url(${effectiveSrc})`, backgroundSize: `${(patternScale || 150) / 1.5}px`, backgroundRepeat: 'repeat', opacity: 0.2 }} />}
+           <div style={{ position: 'absolute', inset: 0, background: !effectiveSrc ? `${solidColor}10` : 'transparent' }} />
+        </div>
+        <div style={{ position: 'absolute', top: fmt.id === 'post' ? '18px' : '30px', left: '0', right: '0', display: 'flex', flexDirection: 'column', alignItems: 'center', zIndex: 3 }}>
+           <LogoPreviewHTML editData={editData} color={logoColor} layout={logoLayout} scaleFactor={fmt.logoSF} crm={crmLine} />
+        </div>
+        <div style={{ position: 'absolute', top: fmt.titleTop, left: '0', right: '0', textAlign: 'center', zIndex: 3 }}>
+           <div style={{ fontFamily: "'Montserrat', sans-serif", fontSize: fmt.titleSize, fontWeight: 900, color: accentColor, letterSpacing: '2px', textTransform: 'uppercase', opacity: 0.8 }}>{tmpl.titulo}</div>
+           <div style={{ fontFamily: "'Montserrat', sans-serif", fontSize: fmt.subSize, fontWeight: 500, color: accentColor, opacity: 0.6, marginTop: '2px' }}>{tmpl.subtitulo}</div>
+        </div>
+        <div style={{ position: 'absolute', top: fmt.boxTop, left: '20px', right: '20px', height: fmt.boxH, border: `1.5px dashed ${accentColor}40`, borderRadius: '15px', display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'rgba(255,255,255,0.4)', backdropFilter: 'blur(4px)', zIndex: 2 }}>
+           <div style={{ fontSize: '7px', color: `${accentColor}80`, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '1px' }}>Espaço para a {tmpl.caixinha}</div>
+        </div>
+        <div style={{ position: 'absolute', bottom: fmt.footerBottom, left: 0, right: 0, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '2px', zIndex: 3 }}>
+           {instagram && (
+             <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+                <svg viewBox="0 0 24 24" width="8" height="8" fill={accentColor}><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.058-1.69-.072-4.949-.072zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4s1.791-4 4-4 4 1.791 4 4-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/></svg>
+                <div style={{ fontSize: '7px', fontWeight: 800, color: accentColor }}>@{instagram}</div>
+             </div>
+           )}
+           <div style={{ fontSize: '5px', color: '#999', textTransform: 'uppercase', letterSpacing: '1px' }}>{clinicaNome}</div>
+        </div>
+      </div>
+      <div style={{ fontSize: '10px', color: '#aaa', fontFamily: 'Montserrat,sans-serif', fontWeight: 600 }}>{fmt.rw} × {fmt.rh}px</div>
+    </div>
+  );
+}
+
+function AssinaturaEmailPreview({ brand, editData, accentColor, logoColor, logoLayout, cartaoContacts, crmLine, localSlogan, clinicaNome }) {
+  const { whatsapp, telefone, email, site, instagram } = cartaoContacts || {};
+  const mainPhone = whatsapp || telefone || '';
+  const [copied, setCopied] = React.useState(false);
+
+  const copyToClipboard = () => {
+    const html = `
+      <table cellpadding="0" cellspacing="0" border="0" style="font-family: Arial, sans-serif; color: #333333; line-height: 1.4;">
+        <tr>
+          <td style="padding-right: 20px; border-right: 1px solid #eeeeee; vertical-align: middle;">
+            <div style="font-size: 18px; font-weight: bold; color: ${accentColor}; text-align: center;">
+              ${clinicaNome}
+            </div>
+          </td>
+          <td style="padding-left: 20px; vertical-align: middle;">
+            <div style="font-size: 14px; font-weight: 800; color: #1a1a1a; margin-bottom: 2px;">${clinicaNome}</div>
+            <div style="font-size: 10px; font-weight: bold; color: ${accentColor}; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 8px;">${localSlogan || 'Saúde e Bem-Estar'}</div>
+            
+            <table cellpadding="0" cellspacing="0" border="0" style="font-size: 11px; color: #666666;">
+              ${mainPhone ? `<tr><td style="padding-bottom: 2px;"><b>WhatsApp:</b> ${mainPhone}</td></tr>` : ''}
+              ${email ? `<tr><td style="padding-bottom: 2px;"><b>E-mail:</b> ${email.toLowerCase()}</td></tr>` : ''}
+              ${instagram ? `<tr><td style="padding-top: 4px;"><a href="https://instagram.com/${instagram}" style="color: #333333; text-decoration: none; font-weight: bold;">@${instagram}</a></td></tr>` : ''}
+              ${site ? `<tr><td style="padding-top: 2px;"><a href="${site.startsWith('http') ? site : 'https://' + site}" style="color: ${accentColor}; text-decoration: none; font-weight: bold;">${site.replace('https://','').replace('http://','')}</a></td></tr>` : ''}
+            </table>
+          </td>
+        </tr>
+      </table>
+    `;
+    
+    const blob = new Blob([html], { type: 'text/html' });
+    const data = [new ClipboardItem({ 'text/html': blob, 'text/plain': html })];
+    
+    navigator.clipboard.write(data).then(() => {
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    });
+  };
+
+  return (
+    <div style={{ display: 'flex', flexDirection: 'column', gap: '15px', alignItems: 'center' }}>
+      <div style={{ width: '450px', height: '140px', background: '#fff', borderRadius: '8px', boxShadow: '0 10px 40px rgba(0,0,0,0.08)', padding: '20px', display: 'flex', alignItems: 'center', gap: '25px', position: 'relative', overflow: 'hidden' }}>
+         <div style={{ position: 'absolute', top: 0, right: 0, width: '40px', height: '40px', background: `${accentColor}10`, borderRadius: '0 0 0 40px' }} />
+         <div style={{ width: '150px', display: 'flex', justifyContent: 'center', flexShrink: 0 }}>
+            <LogoPreviewHTML editData={editData} color={logoColor} layout={logoLayout} scaleFactor={0.72} hideTagline />
+         </div>
+         <div style={{ width: '1px', height: '80%', background: '#eee', flexShrink: 0 }} />
+         <div style={{ display: 'flex', flexDirection: 'column', gap: '4px', flex: 1, paddingRight: '16px' }}>
+            <div style={{ fontSize: '14px', fontWeight: 800, color: '#1a1a1a', letterSpacing: '0.5px' }}>{clinicaNome}</div>
+            <div style={{ fontSize: '10px', fontWeight: 600, color: accentColor, textTransform: 'uppercase', letterSpacing: '1px', marginBottom: '4px' }}>{localSlogan || 'Saúde e Bem-Estar'}</div>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '2px' }}>
+               {mainPhone && (
+                 <div style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '9px', color: '#666' }}>
+                    <svg viewBox="0 0 24 24" width="10" height="10" fill={accentColor}><path d={ICON_PATHS.whatsapp}/></svg>
+                    <span>{mainPhone}</span>
+                 </div>
+               )}
+               {email && (
+                 <div style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '9px', color: '#666' }}>
+                    <svg viewBox="0 0 24 24" width="10" height="10" fill={accentColor}><path d="M20 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 4l-8 5-8-5V6l8 5 8-5v2z"/></svg>
+                    <span>{email.toLowerCase()}</span>
+                 </div>
+               )}
+               {(site || instagram) && (
+                 <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginTop: '2px' }}>
+                    {site && <div style={{ fontSize: '9px', color: accentColor, fontWeight: 700 }}>{site.replace('https://','').replace('http://','')}</div>}
+                    {instagram && (
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '4px', fontSize: '9px', color: '#333', fontWeight: 700 }}>
+                         <svg viewBox="0 0 24 24" width="10" height="10" fill="#333"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.058-1.69-.072-4.949-.072zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4s1.791-4 4-4 4 1.791 4 4-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/></svg>
+                         <span>@{instagram}</span>
+                      </div>
+                    )}
+                 </div>
+               )}
+            </div>
+         </div>
+      </div>
+      
+      <button 
+        onClick={copyToClipboard}
+        style={{ 
+          background: copied ? '#4CAF50' : accentColor, 
+          color: '#fff', 
+          border: 'none', 
+          borderRadius: '20px', 
+          padding: '8px 20px', 
+          fontSize: '12px', 
+          fontWeight: 700, 
+          cursor: 'pointer',
+          display: 'flex',
+          alignItems: 'center',
+          gap: '8px',
+          transition: 'all 0.3s ease',
+          boxShadow: '0 4px 15px rgba(0,0,0,0.1)'
+        }}
+      >
+        <svg viewBox="0 0 24 24" width="14" height="14" fill="currentColor">
+          <path d={copied ? "M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41L9 16.17z" : "M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"}/>
+        </svg>
+        {copied ? 'Copiado!' : 'Copiar Assinatura HTML'}
+      </button>
+      
+      <div style={{ fontSize: '10px', color: '#aaa', textAlign: 'center' }}>
+        Dica: Ao copiar o HTML, você pode colá-lo diretamente nas configurações de assinatura do Gmail ou Outlook.
+      </div>
+    </div>
+  );
+}
+
 function EnvelopeSacoPreview({ brand, editData, accentColor, patternSrc, logoColor, logoLayout, comBorda, setComBorda, paletteColors, borderColor, setBorderColor, patternScale, setPatternScale, cartaoContacts, crmLine, localSlogan, clinicaNome }) {
   const { endereco, instagram, site, whatsapp, telefone, email } = cartaoContacts || {};
   const mainPhone = whatsapp || telefone || '';
@@ -2540,8 +2767,8 @@ function PapelariaStep({ brand, accentColor, paletteColors, estampaPatterns, est
     "Certificado de Coragem", "Quadro de Incentivo", "Cartão de Aniversário Exclusivo",
     "Arte para Caneca/Brindes", "Diário do Xixi",
     "Meu Pratinho", "Guia de Amamentação", "Fundo de Tira Dúvidas Instagram",
-    "Papel Timbrado", "Cartão de Agradecimento (10x15cm)", "Etiqueta para Correios",
-    "Assinatura de E-mail", "Tag para Sacola"
+    "Papel Timbrado", "Papel de Presente", "Etiqueta para Correios",
+    "Assinatura de E-mail", "Tag para Sacola", "Sacola de Papel"
   ];
    const [idx, setIdx] = useState(0);
   const [comBorda, setComBordaState] = useState(true);
@@ -2576,6 +2803,20 @@ function PapelariaStep({ brand, accentColor, paletteColors, estampaPatterns, est
   const [rnConsultaData, setRnConsultaData] = useState('');
   const [rnConsultaHora, setRnConsultaHora] = useState('');
   const [rnUrgencia, setRnUrgencia] = useState('');
+  const [etiquetaSizeIdx, setEtiquetaSizeIdx] = useState(0);
+  const [tagSacolaSizeIdx, setTagSacolaSizeIdx] = useState(0);
+  const [papelPresenteSizeIdx, setPapelPresenteSizeIdx] = useState(1);
+  const [storyTemplateIdx, setStoryTemplateIdx] = useState(0);
+  const [storyFormatIdx, setStoryFormatIdx] = useState(0);
+  const [etiquetaFraseIdx, setEtiquetaFraseIdx] = useState(0);
+  const [receitaFields, setReceitaFields] = useState({
+    med1Nome:'Vitamina D 200UI/gota', med1Qty:'1 vidro', med1Dose:'2',
+    med2Nome:'Colidis', med2Qty:'1 vidro', med2Dose:'5 gotas 1 vez ao dia',
+    med3Nome:'Tylenol baby 140mg/ml', med3Qty:'1 frasco', med3Dose:'___',
+    med4Nome:'Mylicon / Simeticona', med4Qty:'1 frasco', med4Dose:'3',
+    top1Nome:'Bepantol baby', top2Nome:'Álcool 70%', top3Nome:'Rinossoro infantil', top4Nome:'Sabonete Johnsons / Cetrilan',
+    consulta:'', obsExtra:'',
+  });
 
   useEffect(() => {
     try {
@@ -3862,6 +4103,269 @@ body { background:#fff; }
       return;
     }
 
+    if (item === 'Etiqueta para Correios') {
+      const solidColor = borderColor || accentColor;
+      const _ffEt = brand.editData?.fontFamily || 'Montserrat';
+      const _lfEt = LOCAL_FONT_FACES[_ffEt];
+      const fiEt = `<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700;800;900&display=swap" rel="stylesheet">${_lfEt ? `<style>${_lfEt}</style>` : ''}`;
+      const logoHtmlEt = `<div style="display:flex;flex-direction:column;align-items:center;">${ReactDOMServer.renderToString(<LogoPreviewHTML editData={brand.editData || {}} color={solidColor} layout={logoLayout || 'stacked'} scaleFactor={0.48} crm={null} hideTagline={false} />)}</div>`;
+      const { instagram, telefone, whatsapp } = cartaoContacts || {};
+      const mainPhone = whatsapp || telefone || '';
+      const bgEt = comBorda && patternSrc
+        ? `background-image:url(${patternSrc});background-size:${(patternScale*0.38).toFixed(1)}mm;background-repeat:repeat;`
+        : `background:${solidColor};`;
+      const igIcon = `<svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="${solidColor}" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="2" width="20" height="20" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.5" cy="6.5" r="1" fill="${solidColor}" stroke="none"/></svg>`;
+      const waIcon = `<svg width="11" height="11" viewBox="0 0 24 24" fill="${solidColor}"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>`;
+      const SIZES_ET = [{label:'10×10cm',w:100,h:100},{label:'15×10cm',w:150,h:100},{label:'10×15cm',w:100,h:150}];
+      const FRASES_ET = ['Oba, chegou!','Com muito amor e cuidado','Feito especialmente pra você','Sua encomenda chegou!'];
+      const selSize = SIZES_ET[etiquetaSizeIdx] || SIZES_ET[0];
+      const selFrase = FRASES_ET[etiquetaFraseIdx] || FRASES_ET[0];
+      const etiquetaBlock = (frase, w, h) => `
+        <div style="width:${w}mm;height:${h}mm;position:relative;overflow:hidden;border-radius:3mm;margin:0 auto;">
+          <div style="position:absolute;inset:0;${bgEt}"></div>
+          <div style="position:absolute;inset:3mm;border:0.3mm solid rgba(255,255,255,0.45);border-radius:2mm;"></div>
+          <div style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:82%;min-height:70%;background:rgba(255,255,255,0.88);border-radius:2.5mm;padding:5mm 5mm;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3mm;">
+            <div style="font-size:5.5mm;font-weight:800;color:${solidColor};font-family:'Montserrat',sans-serif;text-align:center;line-height:1.25;">${frase}</div>
+            <div style="width:25%;height:0.2mm;background:${solidColor}40;"></div>
+            ${logoHtmlEt}
+            <div style="display:flex;flex-direction:column;align-items:center;gap:2mm;">
+              ${instagram ? `<div style="display:flex;align-items:center;gap:2mm;">${igIcon}<span style="font-size:3.5mm;color:${solidColor};font-family:'Montserrat',sans-serif;font-weight:600;">@${instagram.replace('@','')}</span></div>` : ''}
+              ${mainPhone ? `<div style="display:flex;align-items:center;gap:2mm;">${waIcon}<span style="font-size:3.2mm;color:${solidColor}bb;font-family:'Montserrat',sans-serif;font-weight:400;">${mainPhone}</span></div>` : ''}
+            </div>
+          </div>
+        </div>`;
+      const BLEED_ET = 3;
+      const html = `<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Etiqueta Adesiva - ${marca}</title>${fiEt}
+<style>* { box-sizing:border-box; margin:0; padding:0; print-color-adjust:exact !important; -webkit-print-color-adjust:exact !important; }
+html, body { width:${selSize.w + BLEED_ET*2}mm; height:${selSize.h + BLEED_ET*2}mm; overflow:hidden; }
+@page { size:${selSize.w + BLEED_ET*2}mm ${selSize.h + BLEED_ET*2}mm; margin:0; }
+</style></head><body>
+<div style="padding:${BLEED_ET}mm;position:relative;">
+  ${etiquetaBlock(selFrase, selSize.w, selSize.h)}
+  <!-- Marcas de corte -->
+  <div style="position:absolute;top:0;left:0;width:4mm;height:0.2mm;background:#ccc;"></div>
+  <div style="position:absolute;top:0;left:0;width:0.2mm;height:4mm;background:#ccc;"></div>
+  <div style="position:absolute;top:0;right:0;width:4mm;height:0.2mm;background:#ccc;"></div>
+  <div style="position:absolute;top:0;right:0;width:0.2mm;height:4mm;background:#ccc;"></div>
+  <div style="position:absolute;bottom:0;left:0;width:4mm;height:0.2mm;background:#ccc;"></div>
+  <div style="position:absolute;bottom:0;left:0;width:0.2mm;height:4mm;background:#ccc;"></div>
+  <div style="position:absolute;bottom:0;right:0;width:4mm;height:0.2mm;background:#ccc;"></div>
+  <div style="position:absolute;bottom:0;right:0;width:0.2mm;height:4mm;background:#ccc;"></div>
+</div>
+</body></html>`;
+      const exE = document.getElementById('_gabarito_etiq'); if (exE) exE.remove();
+      const iframeE = document.createElement('iframe');
+      iframeE.id = '_gabarito_etiq';
+      iframeE.style.cssText = 'position:fixed;top:-9999px;left:-9999px;width:600mm;height:400mm;border:none;visibility:hidden;';
+      document.body.appendChild(iframeE);
+      iframeE.contentDocument.open(); iframeE.contentDocument.write(html); iframeE.contentDocument.close();
+      iframeE.contentWindow.document.fonts.ready.then(() => { setTimeout(() => { iframeE.contentWindow.focus(); iframeE.contentWindow.print(); setTimeout(() => { iframeE.remove(); }, 3000); }, 1000); });
+      return;
+    }
+
+        if (item === 'Receita de Alta') {
+      const solidColor = borderColor || accentColor;
+      const _ffRA = brand.editData?.fontFamily || 'Montserrat';
+      const _lfRA = LOCAL_FONT_FACES[_ffRA];
+      const fiRA = `<link href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,300;0,400;0,600;0,700;0,800;0,900;1,700;1,800&display=swap" rel="stylesheet">${_lfRA ? `<style>${_lfRA}</style>` : ''}`;
+      const _lRA = logoColor || accentColor;
+      const _lyRA = logoLayout || 'stacked';
+      const logoHtmlRA = `<div style="width:50mm;display:flex;flex-direction:column;align-items:center;justify-content:center;">${ReactDOMServer.renderToString(<LogoPreviewHTML editData={brand.editData || {}} color="#fff" layout={_lyRA} scaleFactor={0.55} crm={null} hideTagline />)}</div>`;
+      const html = buildReceitaAltaHTML({ logoHtml: logoHtmlRA, solidColor, paletteColors, clinicaNome, cartaoContacts, crmLine, marca, fields: receitaFields });
+      const htmlFinal = html.replace('<head>', `<head>${fiRA.replace(/<link[^>]*>/, '')}`);
+      const exRA = document.getElementById('_gabarito_receita_alta'); if (exRA) exRA.remove();
+      const iframeRA = document.createElement('iframe');
+      iframeRA.id = '_gabarito_receita_alta';
+      iframeRA.style.cssText = 'position:fixed;top:-9999px;left:-9999px;width:210mm;height:297mm;border:none;visibility:hidden;';
+      document.body.appendChild(iframeRA);
+      iframeRA.contentDocument.open(); iframeRA.contentDocument.write(html); iframeRA.contentDocument.close();
+      iframeRA.contentWindow.document.fonts.ready.then(() => { setTimeout(() => { iframeRA.contentWindow.focus(); iframeRA.contentWindow.print(); setTimeout(() => { iframeRA.remove(); }, 3000); }, 1000); });
+      return;
+    }
+
+    if (item === 'Arte para Caneca/Brindes' || item === 'Arte para Caneca') {
+      const solidColor = borderColor || accentColor;
+      const _ffC = brand.editData?.fontFamily || 'Montserrat';
+      const _lfC = LOCAL_FONT_FACES[_ffC];
+      const fiC = `<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700;800;900&display=swap" rel="stylesheet">${_lfC ? `<style>${_lfC}</style>` : ''}`;
+      const logoHtmlC = ReactDOMServer.renderToString(React.createElement(LogoPreviewHTML, {editData: brand.editData || {}, color: '#fff', layout: 'stacked', scaleFactor: 0.80, crm: null, hideTagline: true}));
+      const circleD = 32;
+      const circleBgC = (comBorda && patternSrc) ? solidColor + 'cc' : 'rgba(255,255,255,0.22)';
+      const bgStyleC = comBorda && patternSrc
+        ? `background-image:url(${patternSrc});background-size:${(patternScale*0.35).toFixed(1)}mm;background-repeat:repeat;`
+        : `background:${solidColor};`;
+      const mkCircle = (leftPct) => `<div style="position:absolute;top:50%;left:${leftPct};transform:translate(-50%,-50%);width:${circleD}mm;height:${circleD}mm;border-radius:50%;background:${circleBgC};display:flex;align-items:center;justify-content:center;text-align:center;">${logoHtmlC}</div>`;
+      const html = `<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Arte Caneca - ${marca}</title>${fiC}
+<style>* { box-sizing:border-box; margin:0; padding:0; print-color-adjust:exact !important; -webkit-print-color-adjust:exact !important; }
+html, body { width:200mm; height:85mm; overflow:hidden; }
+@page { size:200mm 85mm; margin:0; }
+</style></head><body>
+<div style="width:200mm;height:85mm;position:relative;overflow:hidden;${bgStyleC}">
+  ${mkCircle('25%')}
+  ${mkCircle('75%')}
+  <div style="position:absolute;top:10%;bottom:10%;left:50%;width:0.3mm;background:rgba(255,255,255,0.25);"></div>
+</div>
+</body></html>`;
+      const exC = document.getElementById('_gabarito_caneca'); if (exC) exC.remove();
+      const iframeC = document.createElement('iframe');
+      iframeC.id = '_gabarito_caneca';
+      iframeC.style.cssText = 'position:fixed;top:-9999px;left:-9999px;width:400mm;height:200mm;border:none;visibility:hidden;';
+      document.body.appendChild(iframeC);
+      iframeC.contentDocument.open(); iframeC.contentDocument.write(html); iframeC.contentDocument.close();
+      iframeC.contentWindow.document.fonts.ready.then(() => { setTimeout(() => { iframeC.contentWindow.focus(); iframeC.contentWindow.print(); setTimeout(() => { iframeC.remove(); }, 3000); }, 1000); });
+      return;
+    }
+
+
+    if (item === 'Papel de Presente') {
+      const solidColor = borderColor || accentColor;
+      const BLEED = 5; // 5mm sangria para papel de presente
+      const SIZES_PP = [
+        { label:'49,8 × 72,5 cm', w:498, h:725 },
+        { label:'A4 — 21 × 29,7 cm', w:210, h:297 },
+        { label:'72,8 × 104,3 cm', w:728, h:1043 },
+      ];
+      const selPP = SIZES_PP[papelPresenteSizeIdx] || SIZES_PP[1];
+      const totalW = selPP.w + BLEED*2, totalH = selPP.h + BLEED*2;
+      const bgPP = comBorda && patternSrc
+        ? `background-image:url(${patternSrc});background-size:${(patternScale*0.5).toFixed(1)}mm;background-repeat:repeat;`
+        : `background:${solidColor};`;
+      const html = `<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Papel de Presente - ${marca}</title>
+<style>* { box-sizing:border-box; margin:0; padding:0; print-color-adjust:exact !important; -webkit-print-color-adjust:exact !important; }
+html, body { width:${totalW}mm; height:${totalH}mm; overflow:hidden; }
+@page { size:${totalW}mm ${totalH}mm; margin:0; }
+</style></head><body>
+<div style="width:${totalW}mm;height:${totalH}mm;position:relative;overflow:hidden;">
+  <div style="position:absolute;inset:0;${bgPP}"></div>
+  <!-- Marcas de corte -->
+  <div style="position:absolute;top:0;left:0;width:8mm;height:0.3mm;background:#fff;opacity:0.5;"></div><div style="position:absolute;top:0;left:0;width:0.3mm;height:8mm;background:#fff;opacity:0.5;"></div>
+  <div style="position:absolute;top:0;right:0;width:8mm;height:0.3mm;background:#fff;opacity:0.5;"></div><div style="position:absolute;top:0;right:0;width:0.3mm;height:8mm;background:#fff;opacity:0.5;"></div>
+  <div style="position:absolute;bottom:0;left:0;width:8mm;height:0.3mm;background:#fff;opacity:0.5;"></div><div style="position:absolute;bottom:0;left:0;width:0.3mm;height:8mm;background:#fff;opacity:0.5;"></div>
+  <div style="position:absolute;bottom:0;right:0;width:8mm;height:0.3mm;background:#fff;opacity:0.5;"></div><div style="position:absolute;bottom:0;right:0;width:0.3mm;height:8mm;background:#fff;opacity:0.5;"></div>
+</div>
+</body></html>`;
+      const exPP = document.getElementById('_gabarito_pp'); if (exPP) exPP.remove();
+      const iframePP = document.createElement('iframe');
+      iframePP.id = '_gabarito_pp';
+      iframePP.style.cssText = `position:fixed;top:-9999px;left:-9999px;width:${totalW+10}mm;height:${totalH+10}mm;border:none;visibility:hidden;`;
+      document.body.appendChild(iframePP);
+      iframePP.contentDocument.open(); iframePP.contentDocument.write(html); iframePP.contentDocument.close();
+      iframePP.contentWindow.document.fonts.ready.then(() => { setTimeout(() => { iframePP.contentWindow.focus(); iframePP.contentWindow.print(); setTimeout(() => { iframePP.remove(); }, 3000); }, 800); });
+      return;
+    }
+
+        if (item === 'Tag para Sacola') {
+      const solidColor = borderColor || accentColor;
+      const _ffT = brand.editData?.fontFamily || 'Montserrat';
+      const _lfT = LOCAL_FONT_FACES[_ffT];
+      const fiT = `<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;600;700;800&display=swap" rel="stylesheet">${_lfT ? `<style>${_lfT}</style>` : ''}`;
+      const BLEED = 3;
+      const SIZES_T = [
+        { label:'9 × 4,8 cm', w:90, h:48, shape:'rect' },
+        { label:'4,8 × 4,8 cm', w:48, h:48, shape:'square' },
+        { label:'6 × 6 cm', w:60, h:60, shape:'circle' },
+      ];
+      const bgT = comBorda && patternSrc
+        ? `background-image:url(${patternSrc});background-size:${(patternScale*0.38).toFixed(1)}mm;background-repeat:repeat;`
+        : `background:${solidColor};`;
+      const logoHtmlFrenteT = `<div style="display:flex;flex-direction:column;align-items:center;justify-content:center;">${ReactDOMServer.renderToString(<LogoPreviewHTML editData={brand.editData || {}} color={comBorda && patternSrc ? solidColor : '#fff'} layout={logoLayout || 'stacked'} scaleFactor={0.45} crm={null} hideTagline={false} />)}</div>`;
+      const { telefone, whatsapp, instagram, site } = cartaoContacts || {};
+      const mainPhone = whatsapp || telefone || '';
+
+      const tagBlock = (w, h, shape) => {
+        const isCircle = shape === 'circle';
+        const isSquare = shape === 'square';
+        const totalW = w + BLEED*2, totalH = h + BLEED*2;
+        const holeD = Math.round(w * 0.06);
+        const logoWrap = (comBorda && patternSrc)
+          ? `<div style="display:inline-flex;align-items:center;justify-content:center;background:rgba(255,255,255,0.88);border-radius:${isCircle ? '50%' : '3mm'};padding:${isCircle ? `${w*0.12}mm` : isSquare ? '2.5mm 4mm' : '1.5mm 3mm'};">${logoHtmlFrenteT}</div>`
+          : `<div style="filter:brightness(0) invert(1);">${logoHtmlFrenteT}</div>`;
+        const frente = `
+          <div style="width:${totalW}mm;height:${totalH}mm;position:relative;overflow:hidden;border-radius:${isCircle ? '50%' : '2mm'};">
+            <div style="position:absolute;inset:0;${bgT}"></div>
+            ${!isCircle ? `<div style="position:absolute;top:${BLEED+2}mm;left:50%;transform:translateX(-50%);width:${holeD}mm;height:${holeD}mm;border-radius:50%;background:#fff;border:0.3mm solid rgba(0,0,0,0.15);z-index:3;"></div>` : ''}
+            <div style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);text-align:center;z-index:2;">${logoWrap}</div>
+            <!-- Marcas de corte -->
+            <div style="position:absolute;top:0;left:0;width:3mm;height:0.2mm;background:#ccc;"></div><div style="position:absolute;top:0;left:0;width:0.2mm;height:3mm;background:#ccc;"></div>
+            <div style="position:absolute;top:0;right:0;width:3mm;height:0.2mm;background:#ccc;"></div><div style="position:absolute;top:0;right:0;width:0.2mm;height:3mm;background:#ccc;"></div>
+            <div style="position:absolute;bottom:0;left:0;width:3mm;height:0.2mm;background:#ccc;"></div><div style="position:absolute;bottom:0;left:0;width:0.2mm;height:3mm;background:#ccc;"></div>
+            <div style="position:absolute;bottom:0;right:0;width:3mm;height:0.2mm;background:#ccc;"></div><div style="position:absolute;bottom:0;right:0;width:0.2mm;height:3mm;background:#ccc;"></div>
+          </div>`;
+        const verso = `
+          <div style="width:${totalW}mm;height:${totalH}mm;position:relative;overflow:hidden;border-radius:${isCircle ? '50%' : '2mm'};background:#fff;border:0.5mm solid ${solidColor};">
+            ${!isCircle ? `<div style="position:absolute;top:${BLEED+2}mm;left:50%;transform:translateX(-50%);width:${holeD}mm;height:${holeD}mm;border-radius:50%;background:#f5f5f5;border:0.2mm solid #ddd;z-index:3;"></div>` : ''}
+            <div style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:80%;display:flex;flex-direction:column;align-items:center;gap:${isCircle ? 1 : 2}mm;text-align:center;">
+              ${clinicaNome ? `<div style="font-size:${isCircle ? 4 : 5}mm;color:${solidColor};font-family:'Brush Script MT','Segoe Script',cursive;">${clinicaNome}</div>` : ''}
+              <div style="width:5mm;height:0.2mm;background:${solidColor}60;"></div>
+              ${mainPhone ? `<div style="font-size:3mm;color:#888;font-family:'Montserrat',sans-serif;font-weight:400;">${mainPhone}</div>` : ''}
+              ${instagram ? `<div style="font-size:3mm;color:#888;font-family:'Montserrat',sans-serif;">@${instagram.replace('@','')}</div>` : ''}
+              ${site ? `<div style="font-size:2.5mm;color:#bbb;font-family:'Montserrat',sans-serif;">${site}</div>` : ''}
+            </div>
+          </div>`;
+        return `<div style="display:flex;flex-direction:column;align-items:center;gap:2mm;">
+          <div style="font-family:'Montserrat',sans-serif;font-size:7pt;color:#999;font-weight:700;">${w}×${h}mm · ${isCircle?'Redondo':isSquare?'Quadrado':'Retangular'}</div>
+          <div style="display:flex;gap:6mm;align-items:center;">
+            <div style="display:flex;flex-direction:column;align-items:center;gap:1mm;"><div style="font-size:6pt;color:#bbb;font-family:'Montserrat',sans-serif;">Frente</div>${frente}</div>
+            <div style="display:flex;flex-direction:column;align-items:center;gap:1mm;"><div style="font-size:6pt;color:#bbb;font-family:'Montserrat',sans-serif;">Verso</div>${verso}</div>
+          </div>
+        </div>`;
+      };
+
+      const selT = SIZES_T[tagSacolaSizeIdx] || SIZES_T[0];
+      const totalW_T = selT.w + BLEED*2, totalH_T = selT.h + BLEED*2;
+      const html = `<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Tag para Sacola - ${marca}</title>${fiT}
+<style>* { box-sizing:border-box; margin:0; padding:0; print-color-adjust:exact !important; -webkit-print-color-adjust:exact !important; }
+html, body { width:${totalW_T + BLEED*2}mm; }
+body { background:#f0f0f0; display:flex; gap:8mm; padding:${BLEED}mm; justify-content:center; align-items:flex-start; }
+@media print { body { background:none; } @page { size:auto; margin:0; } }
+</style></head><body>
+${tagBlock(selT.w, selT.h, selT.shape)}
+</body></html>`;
+      const exT = document.getElementById('_gabarito_tag'); if (exT) exT.remove();
+      const iframeT = document.createElement('iframe');
+      iframeT.id = '_gabarito_tag';
+      iframeT.style.cssText = 'position:fixed;top:-9999px;left:-9999px;width:400mm;height:600mm;border:none;visibility:hidden;';
+      document.body.appendChild(iframeT);
+      iframeT.contentDocument.open(); iframeT.contentDocument.write(html); iframeT.contentDocument.close();
+      iframeT.contentWindow.document.fonts.ready.then(() => { setTimeout(() => { iframeT.contentWindow.focus(); iframeT.contentWindow.print(); setTimeout(() => { iframeT.remove(); }, 3000); }, 1000); });
+      return;
+    }
+
+        if (item === 'Sacola de Papel') {
+      const SIZES_S = [{ label:'P — 18×25cm', w:180, h:250 }, { label:'M — 24×31cm', w:240, h:310 }, { label:'G — 30×40cm', w:300, h:400 }];
+      const solidColor = borderColor || accentColor;
+      const _ffS = brand.editData?.fontFamily || 'Montserrat';
+      const _lfS = LOCAL_FONT_FACES[_ffS];
+      const fiS = `<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700;800;900&display=swap" rel="stylesheet">${_lfS ? `<style>${_lfS}</style>` : ''}`;
+
+      const arteFlat = (w, h, label) => `
+        <div style="display:flex;flex-direction:column;align-items:center;gap:4mm;">
+          <div style="font-family:'Montserrat',sans-serif;font-size:9pt;color:#999;font-weight:700;">${label}</div>
+          <div style="width:${w}mm;height:${h}mm;position:relative;overflow:hidden;${comBorda && patternSrc ? `background-image:url(${patternSrc});background-size:${(patternScale*0.4).toFixed(1)}mm;background-repeat:repeat;` : `background:${solidColor};`}">
+            <div style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%) rotate(-5deg);width:60%;text-align:center;">
+              ${logoHtml.replace(/color="[^"]*"/g, 'color="#ffffff"').replace(/fill="[^"]*"/g, 'fill="#ffffff"')}
+            </div>
+          </div>
+        </div>`;
+
+      const html = `<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Sacola de Papel - ${marca}</title>${fiS}
+<style>* { box-sizing:border-box; margin:0; padding:0; print-color-adjust:exact !important; -webkit-print-color-adjust:exact !important; }
+body { background:#f0f0f0; display:flex; flex-wrap:wrap; gap:10mm; padding:10mm; justify-content:center; align-items:flex-start; }
+@media print { body { background:none; gap:8mm; padding:5mm; } @page { size:auto; margin:5mm; } }
+</style></head><body>
+${SIZES_S.map(s => arteFlat(s.w, s.h, s.label)).join('')}
+</body></html>`;
+
+      const exS = document.getElementById('_gabarito_sacola'); if (exS) exS.remove();
+      const iframeS = document.createElement('iframe');
+      iframeS.id = '_gabarito_sacola';
+      iframeS.style.cssText = 'position:fixed;top:-9999px;left:-9999px;width:1200mm;height:1000mm;border:none;visibility:hidden;';
+      document.body.appendChild(iframeS);
+      iframeS.contentDocument.open(); iframeS.contentDocument.write(html); iframeS.contentDocument.close();
+      iframeS.contentWindow.document.fonts.ready.then(() => { setTimeout(() => { iframeS.contentWindow.focus(); iframeS.contentWindow.print(); setTimeout(() => { iframeS.remove(); }, 3000); }, 1000); });
+      return;
+    }
+
       if (item.includes('Controle Especial')) {
         const BLEED = 3;
         const _brandData = brand.editData || {};
@@ -4338,7 +4842,198 @@ body { background:#eee; }
           } else { _launchTrifoldPrint(html); }
         } catch(e) { _launchTrifoldPrint(html); }
         return;
-      }      if (item.includes('Certificado')) {
+      }      if (item === 'Assinatura de E-mail') {
+        const W = 180, H = 60; // Standard signature size in mm (approx)
+        const totalW = W, totalH = H;
+        const { whatsapp, telefone, email, site, instagram } = cartaoContacts || {};
+        const mainPhone = whatsapp || telefone || '';
+
+        const html = `<!DOCTYPE html><html><head><meta charset="UTF-8"><title>${item} - ${marca}</title><link href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,400;0,700;0,800;0,900;1,700&display=swap" rel="stylesheet"/>
+<style>* { box-sizing:border-box; margin:0; padding:0; print-color-adjust:exact !important; -webkit-print-color-adjust:exact !important; }
+body { background:#eee; }
+.page { width:${totalW}mm; height:${totalH}mm; background:#fff; position:relative; overflow:hidden; margin:0 auto; display:flex; align-items:center; padding:10mm 15mm; gap:12mm; }
+@media print { body { background:none; } .page { margin:0; } @page { size: ${totalW}mm ${totalH}mm; margin:0; } }
+</style></head><body><div class="page">
+  <div style="position:absolute; top:0; right:0; width:25mm; height:25mm; background:${accentColor}10; border-radius:0 0 0 25mm;"></div>
+  
+  <div style="width:50mm; display:flex; justify-content:center; flex-shrink:0;">
+    ${genPDFLogoHtml({ brand, color: accentColor, localSlogan: '', crmLine: '', fontPt: 24, lineH: _lineH, letterSp: _letterSp, hideSlogan: true })}
+  </div>
+
+  <div style="width:0.5mm; height:70%; background:#eee;"></div>
+
+  <div style="display:flex; flex-direction:column; gap:2mm;">
+     <div style="font-family:'Montserrat',sans-serif; font-size:18pt; font-weight:800; color:#1a1a1a;">${clinicaNome}</div>
+     <div style="font-family:'Montserrat',sans-serif; font-size:12pt; font-weight:600; color:${accentColor}; text-transform:uppercase; letter-spacing:1.5pt; margin-bottom:2mm;">${localSlogan || 'Saúde e Bem-Estar'}</div>
+     
+     <div style="display:flex; flex-direction:column; gap:1.5mm;">
+        ${mainPhone ? `<div style="display:flex; align-items:center; gap:2mm; font-family:'Montserrat',sans-serif; font-size:10pt; color:#666;">
+           <svg viewBox="0 0 24 24" width="14" height="14" fill="${accentColor}"><path d="M12.01 2.01C6.48 2.01 2 6.48 2 12.01c0 2.17.69 4.19 1.86 5.83l-1.38 5.12 5.24-1.38c1.64 1.17 3.66 1.86 5.83 1.86 5.53 0 10.01-4.48 10.01-10.01S17.54 2.01 12.01 2.01zm4.12 13.91c-.24.69-1.23 1.25-1.71 1.33-.48.08-1.11.13-3.23-.74-2.7-1.12-4.44-3.86-4.57-4.04-.13-.18-1.11-1.48-1.11-2.82 0-1.34.7-2.01.95-2.29.24-.28.53-.35.71-.35.18 0 .35 0 .5.01.16.01.37-.06.58.45.22.53.75 1.84.81 1.97.06.13.11.29.02.46-.09.18-.14.29-.27.46-.13.18-.28.4-.39.54-.13.15-.27.32-.12.58.15.26.65 1.07 1.39 1.74.96.85 1.76 1.12 2.02 1.25.26.13.41.11.56-.06.15-.17.65-.75.82-.95.17-.2.35-.17.58-.08.24.08 1.5.71 1.76.84.26.13.44.2.5.31.06.11.06.66-.18 1.35z"/></svg>
+           <span>${mainPhone}</span>
+        </div>` : ''}
+        ${email ? `<div style="display:flex; align-items:center; gap:2mm; font-family:'Montserrat',sans-serif; font-size:10pt; color:#666;">
+           <svg viewBox="0 0 24 24" width="14" height="14" fill="${accentColor}"><path d="M20 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 4l-8 5-8-5V6l8 5 8-5v2z"/></svg>
+           <span>${email.toLowerCase()}</span>
+        </div>` : ''}
+        <div style="display:flex; align-items:center; gap:5mm; margin-top:2mm;">
+           ${site ? `<div style="font-family:'Montserrat',sans-serif; font-size:10pt; color:${accentColor}; font-weight:800;">${site.replace('https://','').replace('http://','')}</div>` : ''}
+           ${instagram ? `<div style="display:flex; align-items:center; gap:1.5mm; font-family:'Montserrat',sans-serif; font-size:10pt; color:#333; font-weight:800;">
+              <svg viewBox="0 0 24 24" width="14" height="14" fill="#333"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.058-1.69-.072-4.949-.072zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4s1.791-4 4-4 4 1.791 4 4-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/></svg>
+              <span>@${instagram}</span>
+           </div>` : ''}
+        </div>
+     </div>
+  </div>
+</div></body></html>`;
+
+        const ifrAS = document.createElement('iframe');
+        ifrAS.style.cssText = 'position:fixed;top:-9999px;left:-9999px;width:1800px;height:600px;border:none;visibility:hidden;';
+        document.body.appendChild(ifrAS);
+        ifrAS.contentDocument.open(); ifrAS.contentDocument.write(html); ifrAS.contentDocument.close();
+        ifrAS.contentWindow.document.fonts.ready.then(() => {
+          setTimeout(async () => {
+            try {
+              const h2c = (await import('html2canvas')).default;
+              const canvas = await h2c(ifrAS.contentDocument.querySelector('.page'), {
+                scale: 2, useCORS: true, allowTaint: true, backgroundColor: '#ffffff',
+                logging: false,
+              });
+              const url = canvas.toDataURL('image/png', 1.0);
+              const a = document.createElement('a');
+              a.href = url;
+              a.download = `Assinatura-Email-${marca}.png`;
+              a.click();
+            } catch(e) { console.error(e); alert('Erro ao gerar imagem'); }
+            ifrAS.remove();
+          }, 1200);
+        });
+        return;
+      }
+
+      if (item === 'Fundo de Tira Dúvidas Instagram') {
+        const BLEED = 0;
+        const _INSTA_FMTS = [{id:'story',rw:1080,rh:1920,W:108,H:192},{id:'post',rw:1080,rh:1080,W:108,H:108}];
+        const _fmt = _INSTA_FMTS[storyFormatIdx] || _INSTA_FMTS[0];
+        const W = _fmt.W, H = _fmt.H; // ratio for PDF rendering
+        const totalW = W;
+        const totalH = H;
+        const effectiveSrc = comBorda ? patternSrc : null;
+        const solidColor = borderColor || paletteColors?.[0] || accentColor;
+        const instagram = cartaoContacts?.instagram || '';
+        const _STORY_TMPLS = [{id:'tiraduvidas',titulo:'Tira-Dúvidas',subtitulo:'Me manda sua pergunta!'},{id:'enquete',titulo:'Me conta!',subtitulo:'Qual é a sua dúvida?'},{id:'mito',titulo:'Verdade ou Mito?',subtitulo:'O que você já ouviu por aí?'},{id:'dica',titulo:'Dica do Dia',subtitulo:'Arrasta pra ver o conteúdo'},{id:'indica',titulo:'Me Indica!',subtitulo:'Qual produto você quer ver?'},{id:'novidades',titulo:'Novidades',subtitulo:'Tem coisa boa chegando!'},{id:'sabiaque',titulo:'Você Sabia?',subtitulo:'Um fato que vai te surpreender'},{id:'livre',titulo:'Fala Comigo!',subtitulo:'Manda sua mensagem'}];
+        const _storyTmpl = _STORY_TMPLS[storyTemplateIdx] || _STORY_TMPLS[0];
+
+        const RW = _fmt.rw, RH = _fmt.rh;
+        const isPost = _fmt.id === 'post';
+        const html = `<!DOCTYPE html><html><head><meta charset="UTF-8"><title>${item} - ${marca}</title><link href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,400;0,700;0,800;0,900;1,700&display=swap" rel="stylesheet"/>
+<style>* { box-sizing:border-box; margin:0; padding:0; print-color-adjust:exact !important; -webkit-print-color-adjust:exact !important; }
+html, body { width:${RW}px; height:${RH}px; overflow:hidden; background:#fff; }
+.page { width:${RW}px; height:${RH}px; position:relative; overflow:hidden; }
+</style></head><body><div class="page">
+  <div style="position:absolute; inset:0; overflow:hidden;">
+     ${effectiveSrc ? `<div style="position:absolute; inset:0; background-image:url(${effectiveSrc}); background-size:300px; background-repeat:repeat; opacity:0.2;"></div>` : ''}
+     <div style="position:absolute; inset:0; background:${!effectiveSrc ? `${solidColor}10` : 'transparent'};"></div>
+  </div>
+
+  <div style="position:absolute; top:${isPost ? Math.round(RH*0.09) : Math.round(RH*0.07)}px; left:0; right:0; display:flex; justify-content:center; transform:scale(${isPost ? 1.3 : 1.0}); transform-origin:top center;">
+    ${genPDFLogoHtml({ brand, color: accentColor, localSlogan, crmLine, fontPt: 32, lineH: _lineH, letterSp: _letterSp })}
+  </div>
+
+  <div style="position:absolute; top:${isPost ? Math.round(RH*0.40) : Math.round(RH*0.28)}px; left:0; right:0; text-align:center;">
+    <div style="font-family:'Montserrat', sans-serif; font-size:${isPost ? 54 : 44}px; font-weight:900; color:${accentColor}; letter-spacing:8px; text-transform:uppercase; opacity:0.85;">${_storyTmpl.titulo}</div>
+    <div style="font-family:'Montserrat', sans-serif; font-size:${isPost ? 30 : 26}px; font-weight:500; color:${accentColor}; opacity:0.6; margin-top:18px;">${_storyTmpl.subtitulo}</div>
+  </div>
+
+  <!-- Área da caixinha limpa, sem texto -->
+  <div style="position:absolute; top:${isPost ? Math.round(RH*0.50) : Math.round(RH*0.38)}px; left:${Math.round(RW*0.08)}px; right:${Math.round(RW*0.08)}px; height:${isPost ? Math.round(RH*0.24) : Math.round(RH*0.30)}px; border:4px dashed ${accentColor}35; border-radius:48px; background:rgba(255,255,255,0.3);"></div>
+
+  <div style="position:absolute; bottom:${Math.round(RH*0.06)}px; left:0; right:0; display:flex; flex-direction:column; align-items:center; gap:12px;">
+     ${instagram ? `<div style="display:flex; align-items:center; gap:2mm;">
+        <svg viewBox="0 0 24 24" width="12" height="12" fill="${accentColor}"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.058-1.69-.072-4.949-.072zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4s1.791-4 4-4 4 1.791 4 4-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/></svg>
+        <div style="font-family:'Montserrat', sans-serif; font-size:10pt; font-weight:800; color:${accentColor};">@${instagram}</div>
+     </div>` : ''}
+     <div style="font-family:'Montserrat', sans-serif; font-size:7pt; color:#999; text-transform:uppercase; letter-spacing:1pt;">${clinicaNome}</div>
+  </div>
+</div></body></html>`;
+
+        const ifrFI = document.createElement('iframe');
+        ifrFI.style.cssText = `position:fixed;top:-9999px;left:-9999px;width:${_fmt.rw}px;height:${_fmt.rh}px;border:none;visibility:hidden;`;
+        document.body.appendChild(ifrFI);
+        ifrFI.contentDocument.open(); ifrFI.contentDocument.write(html); ifrFI.contentDocument.close();
+        ifrFI.contentWindow.document.fonts.ready.then(() => {
+          setTimeout(async () => {
+            try {
+              const h2c = (await import('html2canvas')).default;
+              const canvas = await h2c(ifrFI.contentDocument.querySelector('.page'), {
+                scale: 2, useCORS: true, allowTaint: true, backgroundColor: null,
+                width: _fmt.rw, height: _fmt.rh,
+                windowWidth: _fmt.rw, windowHeight: _fmt.rh,
+                logging: false,
+              });
+              // Oferecer PNG e JPG
+              const fmt = window.confirm('Salvar como PNG?\n\nOK = PNG (fundo transparente)\nCancelar = JPG (menor tamanho)') ? 'png' : 'jpeg';
+              const url = canvas.toDataURL(fmt === 'png' ? 'image/png' : 'image/jpeg', 0.95);
+              const a = document.createElement('a');
+              a.href = url;
+              a.download = `${_storyTmpl.titulo.replace(/[^a-zA-Z0-9]/g,'-')}-${marca}.${fmt === 'png' ? 'png' : 'jpg'}`;
+              a.click();
+            } catch(e) { console.error(e); alert('Erro ao gerar imagem'); }
+            ifrFI.remove();
+          }, 1200);
+        });
+        return;
+      }
+
+      if (item === 'Papel Timbrado') {
+        const BLEED = 3;
+        const W = 210, H = 297;
+        const totalW = W + (BLEED * 2);
+        const totalH = H + (BLEED * 2);
+        const BORDER = 15;
+        const effectiveSrc = comBorda ? patternSrc : null;
+        const solidColor = borderColor || paletteColors[0] || accentColor;
+
+        const html = `<!DOCTYPE html><html><head><meta charset="UTF-8"><title>${item} - ${marca}</title><link href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,400;0,700;0,800;0,900;1,700&display=swap" rel="stylesheet"/>
+<style>* { box-sizing:border-box; margin:0; padding:0; print-color-adjust:exact !important; -webkit-print-color-adjust:exact !important; }
+body { background:#eee; }
+.page { width:${totalW}mm; height:${totalH}mm; background:#fff; position:relative; overflow:hidden; margin:0 auto; box-shadow:0 0 10mm rgba(0,0,0,0.1); }
+.cm { position:absolute; width:10mm; height:10mm; border-color:rgba(0,0,0,0.5); border-style:solid; border-width:0; pointer-events:none; z-index:100; }
+.cm-tl { top:0; left:0; border-top:0.2mm solid; border-left:0.2mm solid; }
+.cm-tr { top:0; right:0; border-top:0.2mm solid; border-right:0.2mm solid; }
+.cm-bl { bottom:0; left:0; border-bottom:0.2mm solid; border-left:0.2mm solid; }
+.cm-br { bottom:0; right:0; border-bottom:0.2mm solid; border-right:0.2mm solid; }
+@media print { body { background:none; } .page { margin:0; box-shadow:none; } @page { size: ${totalW}mm ${totalH}mm; margin:0; } }
+</style></head><body><div class="page">
+<div style="position:absolute; inset:${BLEED}mm; overflow:hidden;">
+  ${effectiveSrc
+    ? `<div style="position:absolute; inset:0; background-image:url(${effectiveSrc}); background-size:50mm; background-repeat:repeat;"></div><div style="position:absolute; inset:${BORDER}mm; background:#fff;"></div>`
+    : `<div style="position:absolute; inset:0; background:#fff; border:${BORDER}mm solid ${solidColor};"></div>`}
+  
+  <div style="position:absolute; top:${BORDER + 10}mm; left:50%; transform:translateX(-50%); width:80mm; display:flex; justify-content:center;">
+    ${genPDFLogoHtml({ brand, color: accentColor, localSlogan, crmLine, fontPt: 22, lineH: _lineH, letterSp: _letterSp })}
+  </div>
+
+  <div style="position:absolute; top:50%; left:50%; transform:translate(-50%, -50%); opacity:0.15; width:140mm; display:flex; justify-content:center; pointer-events:none;">
+    ${genPDFLogoHtml({ brand, color: accentColor, localSlogan, crmLine, fontPt: 48, lineH: _lineH, letterSp: _letterSp, hideSlogan: true })}
+  </div>
+
+  <div style="position:absolute; bottom:${BORDER + 10}mm; left:0; right:0; text-align:center;">
+    ${genPDFFooter({ clinicaNome, endereco, allPhones, email: brand.email, site, instagram, accentColor, logoHtml: null, crmLine })}
+  </div>
+</div>
+<div class="cm cm-tl"></div><div class="cm cm-tr"></div><div class="cm cm-bl"></div><div class="cm cm-br"></div>
+</div></body></html>`;
+
+        const iframe = document.createElement('iframe');
+        iframe.style.cssText = 'position:fixed;top:-9999px;left:-9999px;width:1000mm;height:1000mm;border:none;visibility:hidden;';
+        document.body.appendChild(iframe);
+        iframe.contentDocument.open(); iframe.contentDocument.write(html); iframe.contentDocument.close();
+        const prevT = document.title;
+        iframe.contentWindow.document.fonts.ready.then(() => { setTimeout(() => { document.title = `${item} - ${marca}`; iframe.contentWindow.focus(); iframe.contentWindow.print(); setTimeout(() => { document.title = prevT; iframe.remove(); }, 3000); }, 1000); });
+        return;
+      }
+
+      if (item.includes('Certificado')) {
         const W = 297, H = 210;
         const BLEED = 3;
         const _brandData = brand.editData || {};
@@ -4560,9 +5255,9 @@ ${fontImports2}
         {currentItem.includes('Cartão de Visita')
           ? <CartaoDeVisitaPreview accentColor={accentColor} patternSrc={patternSrc} cartaoContacts={cartaoContacts} crmLine={crmLine} editData={{ ...editData, tagline: localSlogan }} logoColor={logoColor} comBorda={comBorda} setComBorda={setComBorda} clinicaNome={clinicaNome} setClinicaNome={setClinicaNome} logoLayout={logoLayout} paletteColors={paletteColors} borderColor={borderColor} setBorderColor={setBorderColor} patternScale={patternScale} setPatternScale={setPatternScale} />
           : currentItem.includes('Envelope Ofício')
-            ? <EnvelopeOficioPreview accentColor={accentColor} patternSrc={patternSrc} logoColor={logoColor} logoLayout={logoLayout} comBorda={comBorda} setComBorda={setComBorda} paletteColors={paletteColors} borderColor={borderColor} setBorderColor={setBorderColor} patternScale={patternScale} setPatternScale={setPatternScale} cartaoContacts={cartaoContacts} crmLine={crmLine} localSlogan={localSlogan} brand={brand} editData={editData} clinicaNome={clinicaNome} />
+            ? <EnvelopeOficioPreview accentColor={accentColor} patternSrc={patternSrc} logoColor={logoColor} logoLayout={logoLayout} comBorda={comBorda} setComBorda={setComBorda} paletteColors={paletteColors} borderColor={borderColor} setBorderColor={setBorderColor} patternScale={patternScale} setPatternScale={setPatternScale} cartaoContacts={cartaoContacts} crmLine={crmLine} localSlogan={localSlogan} brand={brand} editData={editData} clinicaNome={clinicaNome} storyTemplateIdx={storyTemplateIdx} setStoryTemplateIdx={setStoryTemplateIdx} storyFormatIdx={storyFormatIdx} setStoryFormatIdx={setStoryFormatIdx} />
           : currentItem.includes('Envelope Saco')
-            ? <EnvelopeSacoPreview accentColor={accentColor} patternSrc={patternSrc} logoColor={logoColor} logoLayout={logoLayout} comBorda={comBorda} setComBorda={setComBorda} paletteColors={paletteColors} borderColor={borderColor} setBorderColor={setBorderColor} patternScale={patternScale} setPatternScale={setPatternScale} cartaoContacts={cartaoContacts} crmLine={crmLine} localSlogan={localSlogan} brand={brand} editData={editData} clinicaNome={clinicaNome} />
+            ? <EnvelopeSacoPreview accentColor={accentColor} patternSrc={patternSrc} logoColor={logoColor} logoLayout={logoLayout} comBorda={comBorda} setComBorda={setComBorda} paletteColors={paletteColors} borderColor={borderColor} setBorderColor={setBorderColor} patternScale={patternScale} setPatternScale={setPatternScale} cartaoContacts={cartaoContacts} crmLine={crmLine} localSlogan={localSlogan} brand={brand} editData={editData} clinicaNome={clinicaNome} storyTemplateIdx={storyTemplateIdx} setStoryTemplateIdx={setStoryTemplateIdx} storyFormatIdx={storyFormatIdx} setStoryFormatIdx={setStoryFormatIdx} />
           : currentItem === 'Recibo'
             ? <ReciboPreview accentColor={accentColor} patternSrc={patternSrc} cartaoContacts={cartaoContacts} crmLine={crmLine} editData={{ ...editData, tagline: localSlogan }} logoColor={logoColor} comBorda={comBorda} setComBorda={setComBorda} clinicaNome={clinicaNome} setClinicaNome={setClinicaNome} logoLayout={logoLayout} paletteColors={paletteColors} borderColor={borderColor} setBorderColor={setBorderColor} patternScale={patternScale} setPatternScale={setPatternScale} marca={marca} />
           : currentItem.includes('Cartão de Retorno')
@@ -4582,6 +5277,18 @@ ${fontImports2}
               </div>
           : currentItem === 'Diário do Xixi'
             ? <DiarioXixiPreview accentColor={accentColor} patternSrc={patternSrc} editData={{ ...editData, tagline: localSlogan }} logoColor={logoColor} logoLayout={logoLayout} cartaoContacts={cartaoContacts} crmLine={crmLine} clinicaNome={clinicaNome} comBorda={comBorda} setComBorda={setComBorda} paletteColors={paletteColors} borderColor={borderColor} setBorderColor={setBorderColor} patternScale={patternScale} setPatternScale={setPatternScale} />
+          : currentItem === 'Receita de Alta'
+            ? <ReceitaAltaPreview accentColor={accentColor} patternSrc={patternSrc} editData={{ ...editData, tagline: localSlogan }} logoColor={logoColor} logoLayout={logoLayout} cartaoContacts={cartaoContacts} crmLine={crmLine} clinicaNome={clinicaNome} comBorda={comBorda} setComBorda={setComBorda} paletteColors={paletteColors} borderColor={borderColor} setBorderColor={setBorderColor} patternScale={patternScale} setPatternScale={setPatternScale} receitaFields={receitaFields} setReceitaFields={setReceitaFields} />
+          : currentItem === 'Arte para Caneca/Brindes' || currentItem === 'Arte para Caneca'
+            ? <CanecaPreview accentColor={accentColor} patternSrc={patternSrc} editData={{ ...editData, tagline: localSlogan }} logoColor={logoColor} logoLayout={logoLayout} cartaoContacts={cartaoContacts} crmLine={crmLine} clinicaNome={clinicaNome} comBorda={comBorda} setComBorda={setComBorda} paletteColors={paletteColors} borderColor={borderColor} setBorderColor={setBorderColor} patternScale={patternScale} setPatternScale={setPatternScale} />
+          : currentItem === 'Papel de Presente'
+            ? <PapelPresentePreview accentColor={accentColor} paletteColors={paletteColors} comBorda={comBorda} setComBorda={setComBorda} patternSrc={patternSrc} patternScale={patternScale} setPatternScale={setPatternScale} borderColor={borderColor} setBorderColor={setBorderColor} sizeIdx={papelPresenteSizeIdx} setSizeIdx={setPapelPresenteSizeIdx} />
+          : currentItem === 'Tag para Sacola'
+            ? <TagSacolaPreview accentColor={accentColor} patternSrc={patternSrc} editData={{ ...editData, tagline: localSlogan }} logoColor={logoColor} logoLayout={logoLayout} cartaoContacts={cartaoContacts} crmLine={crmLine} clinicaNome={clinicaNome} comBorda={comBorda} setComBorda={setComBorda} paletteColors={paletteColors} borderColor={borderColor} setBorderColor={setBorderColor} patternScale={patternScale} setPatternScale={setPatternScale} sizeIdx={tagSacolaSizeIdx} setSizeIdx={setTagSacolaSizeIdx} />
+          : currentItem === 'Sacola de Papel'
+            ? <SacolaPapelPreview accentColor={accentColor} patternSrc={patternSrc} editData={{ ...editData, tagline: localSlogan }} logoColor={logoColor} logoLayout={logoLayout} cartaoContacts={cartaoContacts} crmLine={crmLine} clinicaNome={clinicaNome} comBorda={comBorda} setComBorda={setComBorda} paletteColors={paletteColors} borderColor={borderColor} setBorderColor={setBorderColor} patternScale={patternScale} setPatternScale={setPatternScale} />
+          : currentItem === 'Etiqueta para Correios'
+            ? <EtiquetaCorreiosPreview accentColor={accentColor} patternSrc={patternSrc} editData={{ ...editData, tagline: localSlogan }} logoColor={logoColor} logoLayout={logoLayout} cartaoContacts={cartaoContacts} crmLine={crmLine} clinicaNome={clinicaNome} comBorda={comBorda} setComBorda={setComBorda} paletteColors={paletteColors} borderColor={borderColor} setBorderColor={setBorderColor} patternScale={patternScale} setPatternScale={setPatternScale} sizeIdx={etiquetaSizeIdx} setSizeIdx={setEtiquetaSizeIdx} fraseIdx={etiquetaFraseIdx} setFraseIdx={setEtiquetaFraseIdx} />
           : currentItem === 'Meu Pratinho'
             ? <MeuPratinhoPreview accentColor={accentColor} patternSrc={patternSrc} editData={{ ...editData, tagline: localSlogan }} logoColor={logoColor} logoLayout={logoLayout} cartaoContacts={cartaoContacts} crmLine={crmLine} clinicaNome={clinicaNome} comBorda={comBorda} setComBorda={setComBorda} paletteColors={paletteColors} borderColor={borderColor} setBorderColor={setBorderColor} patternScale={patternScale} setPatternScale={setPatternScale} />
           : currentItem === 'Guia de Amamentação'
@@ -4601,6 +5308,12 @@ ${fontImports2}
             ? <AtestadoPreview accentColor={accentColor} patternSrc={patternSrc} editData={{ ...editData, tagline: localSlogan }} logoColor={logoColor} logoLayout={logoLayout} crmLine={crmLine} clinicaNome={clinicaNome} marca={marca} cartaoContacts={cartaoContacts} comBorda={comBorda} setComBorda={setComBorda} paletteColors={paletteColors} borderColor={borderColor} setBorderColor={setBorderColor} patternScale={patternScale} setPatternScale={setPatternScale} />
           : currentItem.includes('Pasta')
             ? <PastaPreview brand={brand} editData={{ ...editData, tagline: localSlogan }} accentColor={accentColor} solidColor={paletteColors[0]} logoColor={logoColor} logoLayout={logoLayout} isSaude={isSaude} crmLine={crmLine} clinicaNome={clinicaNome} cartaoContacts={cartaoContacts} comBorda={comBorda} setComBorda={setComBorda} patternSrc={patternSrc} paletteColors={paletteColors} borderColor={borderColor} setBorderColor={setBorderColor} patternScale={patternScale} setPatternScale={setPatternScale} folderRoof={folderRoof} />
+          : currentItem === 'Papel Timbrado'
+            ? <PapelTimbradoPreview brand={brand} editData={editData} accentColor={accentColor} patternSrc={patternSrc} logoColor={logoColor} logoLayout={logoLayout} comBorda={comBorda} setComBorda={setComBorda} paletteColors={paletteColors} borderColor={borderColor} setBorderColor={setBorderColor} patternScale={patternScale} setPatternScale={setPatternScale} cartaoContacts={cartaoContacts} crmLine={crmLine} localSlogan={localSlogan} clinicaNome={clinicaNome} storyTemplateIdx={storyTemplateIdx} setStoryTemplateIdx={setStoryTemplateIdx} storyFormatIdx={storyFormatIdx} setStoryFormatIdx={setStoryFormatIdx} />
+          : currentItem === 'Fundo de Tira Dúvidas Instagram'
+            ? <FundoInstaPreview brand={brand} editData={editData} accentColor={accentColor} patternSrc={patternSrc} logoColor={logoColor} logoLayout={logoLayout} comBorda={comBorda} setComBorda={setComBorda} paletteColors={paletteColors} borderColor={borderColor} setBorderColor={setBorderColor} patternScale={patternScale} setPatternScale={setPatternScale} cartaoContacts={cartaoContacts} crmLine={crmLine} localSlogan={localSlogan} clinicaNome={clinicaNome} storyTemplateIdx={storyTemplateIdx} setStoryTemplateIdx={setStoryTemplateIdx} storyFormatIdx={storyFormatIdx} setStoryFormatIdx={setStoryFormatIdx} />
+          : currentItem === 'Assinatura de E-mail'
+            ? <AssinaturaEmailPreview brand={brand} editData={editData} accentColor={accentColor} logoColor={logoColor} logoLayout={logoLayout} cartaoContacts={cartaoContacts} crmLine={crmLine} localSlogan={localSlogan} clinicaNome={clinicaNome} storyTemplateIdx={storyTemplateIdx} setStoryTemplateIdx={setStoryTemplateIdx} storyFormatIdx={storyFormatIdx} setStoryFormatIdx={setStoryFormatIdx} />
           : currentItem.includes('Certificado')
             ? <CertificadoCoragemPreview accentColor={accentColor} patternSrc={patternSrc} editData={{ ...editData, tagline: localSlogan }} logoColor={logoColor} logoLayout={logoLayout} cartaoContacts={cartaoContacts} crmLine={crmLine} clinicaNome={clinicaNome} comBorda={comBorda} setComBorda={setComBorda} paletteColors={paletteColors} borderColor={borderColor} setBorderColor={setBorderColor} patternScale={patternScale} setPatternScale={setPatternScale} />
           : ['Receituário','Timbrado','Cartão','Guia','Calendário','Atestado','Dicas','Ficha','Orientação','Checklist','Prontuário','Receita','Quadro','Gráfico','Diário','Card','Pratinho','Fundo','Arte','Etiqueta','Assinatura','Tag'].some(n => currentItem.includes(n))
@@ -4768,10 +5481,10 @@ ${fontImports2}
 
       {/* Botão download */}
       <button
-        onClick={() => { setPendingItem(currentItem); setShowPrintModal(true); }}
+        onClick={() => { if (currentItem === 'Fundo de Tira Dúvidas Instagram' || currentItem === 'Assinatura de E-mail') { openGabarito(currentItem); } else { setPendingItem(currentItem); setShowPrintModal(true); } }}
         style={{ width: '100%', padding: '14px', background: accentColor, color: '#fff', border: 'none', borderRadius: '30px', fontWeight: 700, fontSize: '0.95rem', cursor: 'pointer' }}
       >
-        Baixar PDF Padrão Gráfica →
+        {currentItem === 'Fundo de Tira Dúvidas Instagram' ? `Baixar ${(INSTA_FORMATS[storyFormatIdx]||INSTA_FORMATS[0]).id === 'post' ? 'Post' : 'Story'} — PNG / JPG →` : currentItem === 'Assinatura de E-mail' ? 'Baixar Assinatura — PNG →' : 'Baixar PDF Padrão Gráfica →'}
       </button>
 
       {/* Navegação prev/next */}

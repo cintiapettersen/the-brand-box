@@ -1,0 +1,258 @@
+'use client';
+import React from 'react';
+import { LogoPreviewHTML, BordaToggle } from './page';
+
+function F({ value, onChange, width = '20px', color, placeholder = '___' }) {
+  return (
+    <input value={value} onChange={e => onChange(e.target.value)} placeholder={placeholder}
+      style={{ width, border: 'none', borderBottom: `0.5px solid ${color}90`, outline: 'none', fontSize: 'inherit', fontFamily: 'Montserrat,sans-serif', color, background: 'transparent', padding: '0 1px', textAlign: 'center', display: 'inline-block', verticalAlign: 'baseline' }}
+    />
+  );
+}
+
+function MedLine({ name, qty, instructions, solidColor }) {
+  return (
+    <div style={{ marginBottom: '5px' }}>
+      <div style={{ display: 'flex', alignItems: 'baseline', gap: '1px', fontSize: '3.8px', fontFamily: 'Montserrat,sans-serif', color: '#333' }}>
+        <span style={{ color: solidColor, fontWeight: 700, flexShrink: 0 }}>•</span>
+        <span style={{ fontWeight: 600, flexShrink: 0, marginLeft: '2px' }}>{name}</span>
+        <span style={{ flex: 1, borderBottom: '0.5px dashed #ccc', minWidth: '4px', margin: '0 3px', position: 'relative', top: '-0.5px' }} />
+        <span style={{ fontWeight: 600, flexShrink: 0 }}>{qty}</span>
+      </div>
+      <div style={{ fontSize: '3.2px', fontFamily: 'Montserrat,sans-serif', color: '#555', paddingLeft: '7px', lineHeight: 1.5, marginTop: '1px' }}>
+        {instructions}
+      </div>
+    </div>
+  );
+}
+
+function SecTitle({ children, color }) {
+  return (
+    <div style={{ fontSize: '4.5px', fontWeight: 800, fontStyle: 'italic', color, fontFamily: 'Montserrat,sans-serif', marginBottom: '4px', marginTop: '6px', paddingBottom: '2px', borderBottom: `0.5px solid ${color}30` }}>
+      {children}
+    </div>
+  );
+}
+
+function FieldRow({ label, children }) {
+  return (
+    <div style={{ display: 'flex', flexDirection: 'column', gap: '3px' }}>
+      <label style={{ fontSize: '10px', fontWeight: 700, color: '#888', fontFamily: 'Montserrat,sans-serif' }}>{label}</label>
+      {children}
+    </div>
+  );
+}
+
+export default function ReceitaAltaPreview({ accentColor, paletteColors = [], editData, logoColor, logoLayout, cartaoContacts, crmLine, clinicaNome, comBorda, setComBorda, patternSrc, patternScale, setPatternScale, borderColor, setBorderColor, receitaFields, setReceitaFields }) {
+  const solidColor = borderColor || paletteColors[0] || accentColor;
+  const c0 = paletteColors[0] || accentColor;
+  const c1 = paletteColors[1] || c0;
+  const BORDER = comBorda ? 8 : 0;
+
+  const f = receitaFields || {};
+  const set = (key) => (val) => setReceitaFields && setReceitaFields(prev => ({ ...prev, [key]: val }));
+
+  const med1Nome = f.med1Nome ?? 'Vitamina D 200UI/gota';
+  const med1Qty = f.med1Qty ?? '1 vidro';
+  const med1Dose = f.med1Dose ?? '2';
+  const med2Nome = f.med2Nome ?? 'Colidis';
+  const med2Qty = f.med2Qty ?? '1 vidro';
+  const med2Dose = f.med2Dose ?? '5 gotas 1 vez ao dia';
+  const med3Nome = f.med3Nome ?? 'Tylenol baby 140mg/ml';
+  const med3Qty = f.med3Qty ?? '1 frasco';
+  const med3Dose = f.med3Dose ?? '___';
+  const med4Nome = f.med4Nome ?? 'Mylicon / Simeticona';
+  const med4Qty = f.med4Qty ?? '1 frasco';
+  const med4Dose = f.med4Dose ?? '3';
+  const top1Nome = f.top1Nome ?? 'Bepantol baby';
+  const top2Nome = f.top2Nome ?? 'Álcool 70%';
+  const top3Nome = f.top3Nome ?? 'Rinossoro infantil';
+  const top4Nome = f.top4Nome ?? 'Sabonete Johnsons / Cetrilan';
+  const consulta = f.consulta ?? '';
+  const obsExtra = f.obsExtra ?? '';
+
+  const setMed1Nome = set('med1Nome'); const setMed1Dose = set('med1Dose');
+  const setMed2Nome = set('med2Nome'); const setMed2Dose = set('med2Dose');
+  const setMed3Nome = set('med3Nome'); const setMed3Dose = set('med3Dose');
+  const setMed4Nome = set('med4Nome'); const setMed4Dose = set('med4Dose');
+  const setTop1Nome = set('top1Nome'); const setTop2Nome = set('top2Nome');
+  const setTop3Nome = set('top3Nome'); const setTop4Nome = set('top4Nome');
+  const setConsulta = set('consulta'); const setObsExtra = set('obsExtra');
+
+  const { whatsapp, telefone, site, instagram } = cartaoContacts || {};
+  const mainPhone = whatsapp || telefone || '';
+  const contactLine = [mainPhone, site, instagram ? `@${instagram}` : ''].filter(Boolean).join('  ·  ');
+
+  return (
+    <div style={{ display: 'flex', flexDirection: 'column', gap: '16px', alignItems: 'center', width: '100%', padding: '20px 0' }}>
+      <BordaToggle comBorda={comBorda} setComBorda={setComBorda} accentColor={accentColor} paletteColors={paletteColors} borderColor={borderColor} setBorderColor={setBorderColor} patternScale={patternScale} setPatternScale={setPatternScale} />
+
+      {/* Preview A4 */}
+      <div style={{ width: '226px', height: '320px', position: 'relative', boxShadow: '0 6px 30px rgba(0,0,0,0.13)', borderRadius: '4px', overflow: 'hidden', background: '#fff', flexShrink: 0 }}>
+        {comBorda && patternSrc
+          ? <div style={{ position: 'absolute', inset: 0, backgroundImage: `url(${patternSrc})`, backgroundSize: `${(patternScale || 150) / 2.5}px`, backgroundRepeat: 'repeat' }} />
+          : <div style={{ position: 'absolute', inset: 0, background: solidColor }} />}
+
+        <div style={{ position: 'absolute', top: BORDER, left: BORDER, right: BORDER, bottom: BORDER, background: '#fff', display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
+
+          {/* Header */}
+          <div style={{ background: solidColor, padding: '5px 6px 4px', flexShrink: 0, display: 'flex', flexDirection: 'column', alignItems: 'center', position: 'relative', overflow: 'hidden' }}>
+            <div style={{ position: 'absolute', bottom: '-30px', left: '50%', transform: 'translateX(-50%)', width: '200%', height: '50px', borderRadius: '50%', background: 'rgba(255,255,255,0.10)' }} />
+            <div style={{ transform: 'scale(0.55)', transformOrigin: 'center center', filter: 'brightness(0) invert(1)' }}>
+              <LogoPreviewHTML editData={editData} color="#fff" layout={logoLayout} scaleFactor={0.42} crm={null} hideTagline />
+            </div>
+            <div style={{ fontSize: '5.5px', fontWeight: 900, color: '#fff', fontFamily: 'Montserrat,sans-serif', textTransform: 'uppercase', letterSpacing: '0.4px', marginTop: '-1px' }}>Receita de Alta do Bebê</div>
+          </div>
+
+          {/* Body */}
+          <div style={{ flex: 1, padding: '3px 8px 2px' }}>
+            <SecTitle color={c0}>📋 Uso Oral:</SecTitle>
+            <MedLine solidColor={c0} name={med1Nome} qty={med1Qty} instructions={<>Dar <F value={med1Dose} onChange={setMed1Dose} width="12px" color={c0} /> gotas por dia</>} />
+            <MedLine solidColor={c0} name={med2Nome} qty={med2Qty} instructions={<F value={med2Dose} onChange={setMed2Dose} width="80px" color={c0} />} />
+            <MedLine solidColor={c0} name={med3Nome} qty={med3Qty} instructions={<>Dar <F value={med3Dose} onChange={setMed3Dose} width="14px" color={c0} /> gotas de 6/6h se dor ou febre</>} />
+            <MedLine solidColor={c0} name={med4Nome} qty={med4Qty} instructions={<>Dar <F value={med4Dose} onChange={setMed4Dose} width="12px" color={c0} /> gotas de 8/8h se cólica</>} />
+
+            <SecTitle color={c1}>🧴 Uso Tópico:</SecTitle>
+            <MedLine solidColor={c1} name={top1Nome} qty="1 tubo" instructions="Aplicar a cada troca de fraldas" />
+            <MedLine solidColor={c1} name={top2Nome} qty="1 frasco" instructions="Aplicar no coto umbilical a cada troca de fralda" />
+            <MedLine solidColor={c1} name={top3Nome} qty="1 frasco" instructions="Aplicar 3 jatos em cada narina se obstrução nasal" />
+            <MedLine solidColor={c1} name={top4Nome} qty="1 frasco" instructions="Dar banho diariamente" />
+
+            {obsExtra && (
+              <div style={{ marginTop: '3px', padding: '2px 4px', background: `${c0}0d`, borderRadius: '3px', border: `0.4px solid ${c0}30` }}>
+                <div style={{ fontSize: '3px', fontFamily: 'Montserrat,sans-serif', color: '#555', lineHeight: 1.4 }}>{obsExtra}</div>
+              </div>
+            )}
+          </div>
+
+          {/* Footer */}
+          <div style={{ borderTop: `0.5px solid ${c0}25`, padding: '3px 8px 3px', flexShrink: 0, background: `${c0}06` }}>
+            <div style={{ fontSize: '3.5px', fontFamily: 'Montserrat,sans-serif', color: '#555', marginBottom: '3px', display: 'flex', alignItems: 'baseline', gap: '2px' }}>
+              <span style={{ fontWeight: 700, color: c0, whiteSpace: 'nowrap' }}>Consulta médica em:</span>
+              <span style={{ flex: 1, borderBottom: '0.5px dashed #ccc', margin: '0 3px', position: 'relative', top: '-0.5px' }} />
+              <span style={{ fontSize: '3px', color: '#aaa' }}>{consulta || '___/___/______'}</span>
+            </div>
+            {/* Espaço para carimbo */}
+            <div style={{ height: '18px', border: `0.4px dashed ${c0}30`, borderRadius: '2px', marginBottom: '3px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+              <span style={{ fontSize: '2.5px', color: '#ccc', fontFamily: 'Montserrat,sans-serif', letterSpacing: '0.3px' }}>CARIMBO</span>
+            </div>
+            <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
+              <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '1px', minWidth: '70px' }}>
+                <div style={{ width: '70px', borderBottom: `0.5px solid #999`, marginBottom: '1px' }} />
+                <div style={{ fontSize: '3px', fontFamily: 'Montserrat,sans-serif', color: '#888', textAlign: 'center' }}>{clinicaNome || editData?.marca || 'Médico(a) Responsável'}</div>
+                {crmLine && <div style={{ fontSize: '2.8px', fontFamily: 'Montserrat,sans-serif', color: '#aaa' }}>{crmLine}</div>}
+              </div>
+            </div>
+            {contactLine && <div style={{ fontSize: '2.8px', color: '#bbb', fontFamily: 'Montserrat,sans-serif', textAlign: 'center', marginTop: '2px' }}>{contactLine}</div>}
+          </div>
+        </div>
+      </div>
+
+      {/* Painel de edição */}
+      <div style={{ width: '100%', maxWidth: '420px', background: '#fafafa', borderRadius: '10px', border: '1px solid #eee', padding: '14px 16px', display: 'flex', flexDirection: 'column', gap: '10px' }}>
+        <div style={{ fontSize: '11px', fontWeight: 800, color: '#666', fontFamily: 'Montserrat,sans-serif', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Personalizar Receita</div>
+
+        <div style={{ fontSize: '10px', fontWeight: 700, color: c0, fontFamily: 'Montserrat,sans-serif', textTransform: 'uppercase' }}>Uso Oral</div>
+        {[
+          { label: 'Medicamento 1 (nome)', value: med1Nome, onChange: setMed1Nome },
+          { label: 'Medicamento 1 (dose — gotas/dia)', value: med1Dose, onChange: setMed1Dose, width: '60px' },
+          { label: 'Medicamento 2 (nome/marca)', value: med2Nome, onChange: setMed2Nome },
+          { label: 'Medicamento 2 (dose completa)', value: med2Dose, onChange: setMed2Dose },
+          { label: 'Medicamento 3 (nome)', value: med3Nome, onChange: setMed3Nome },
+          { label: 'Medicamento 3 (gotas de 6/6h)', value: med3Dose, onChange: setMed3Dose, width: '60px' },
+          { label: 'Medicamento 4 (nome)', value: med4Nome, onChange: setMed4Nome },
+          { label: 'Medicamento 4 (gotas de 8/8h)', value: med4Dose, onChange: setMed4Dose, width: '60px' },
+        ].map(({ label, value, onChange, width }) => (
+          <FieldRow key={label} label={label}>
+            <input value={value} onChange={e => onChange(e.target.value)} style={{ width: width || '100%', border: 'none', borderBottom: '1px solid #ccc', outline: 'none', fontSize: '12px', fontFamily: 'Montserrat,sans-serif', color: solidColor, background: 'transparent', padding: '2px 0' }} />
+          </FieldRow>
+        ))}
+
+        <div style={{ fontSize: '10px', fontWeight: 700, color: c1, fontFamily: 'Montserrat,sans-serif', textTransform: 'uppercase', marginTop: '4px' }}>Uso Tópico</div>
+        {[
+          { label: 'Tópico 1 (pomada)', value: top1Nome, onChange: setTop1Nome },
+          { label: 'Tópico 2 (coto umbilical)', value: top2Nome, onChange: setTop2Nome },
+          { label: 'Tópico 3 (nariz)', value: top3Nome, onChange: setTop3Nome },
+          { label: 'Tópico 4 (banho)', value: top4Nome, onChange: setTop4Nome },
+        ].map(({ label, value, onChange }) => (
+          <FieldRow key={label} label={label}>
+            <input value={value} onChange={e => onChange(e.target.value)} style={{ width: '100%', border: 'none', borderBottom: '1px solid #ccc', outline: 'none', fontSize: '12px', fontFamily: 'Montserrat,sans-serif', color: solidColor, background: 'transparent', padding: '2px 0' }} />
+          </FieldRow>
+        ))}
+
+        <FieldRow label="Data da próxima consulta">
+          <input value={consulta} onChange={e => setConsulta(e.target.value)} placeholder="dd/mm/aaaa" style={{ width: '140px', border: 'none', borderBottom: '1px solid #ccc', outline: 'none', fontSize: '12px', fontFamily: 'Montserrat,sans-serif', color: solidColor, background: 'transparent', padding: '2px 0' }} />
+        </FieldRow>
+        <FieldRow label="Observações extras (opcional)">
+          <input value={obsExtra} onChange={e => setObsExtra(e.target.value)} placeholder="texto livre…" style={{ width: '100%', border: 'none', borderBottom: '1px solid #ccc', outline: 'none', fontSize: '12px', fontFamily: 'Montserrat,sans-serif', color: solidColor, background: 'transparent', padding: '2px 0' }} />
+        </FieldRow>
+      </div>
+    </div>
+  );
+}
+
+export function buildReceitaAltaHTML({ logoHtml, solidColor, paletteColors = [], clinicaNome, cartaoContacts, crmLine, marca, fields = {} }) {
+  const c0 = paletteColors[0] || solidColor;
+  const c1 = paletteColors[1] || c0;
+  const { med1Nome='Vitamina D 200UI/gota', med1Qty='1 vidro', med1Dose='2', med2Nome='Colidis', med2Qty='1 vidro', med2Dose='5 gotas 1 vez ao dia', med3Nome='Tylenol baby 140mg/ml', med3Qty='1 frasco', med3Dose='___', med4Nome='Mylicon / Simeticona', med4Qty='1 frasco', med4Dose='3', top1Nome='Bepantol baby', top2Nome='Álcool 70%', top3Nome='Rinossoro infantil', top4Nome='Sabonete Johnsons / Cetrilan', consulta='', obsExtra='' } = fields;
+  const { whatsapp, telefone, site, instagram } = cartaoContacts || {};
+  const mainPhone = whatsapp || telefone || '';
+  const contactLine = [mainPhone, site, instagram ? `@${instagram}` : ''].filter(Boolean).join('  ·  ');
+
+  const medLine = (name, qty, instr, color) => `
+    <div style="margin-bottom:5mm;">
+      <div style="display:flex;align-items:baseline;font-size:3.2mm;font-family:Montserrat,sans-serif;color:#333;">
+        <span style="color:${color};font-weight:700;flex-shrink:0;margin-right:2mm;">•</span>
+        <span style="font-weight:600;flex-shrink:0;">${name}</span>
+        <span style="flex:1;border-bottom:0.4mm dashed #ccc;margin:0 3mm;position:relative;top:-0.5mm;"></span>
+        <span style="font-weight:600;flex-shrink:0;">${qty}</span>
+      </div>
+      <div style="font-size:2.8mm;font-family:Montserrat,sans-serif;color:#555;padding-left:6mm;line-height:1.5;margin-top:1mm;">${instr}</div>
+    </div>`;
+
+  const secTitle = (text, color) => `<div style="font-size:4mm;font-weight:800;font-style:italic;color:${color};font-family:Montserrat,sans-serif;margin:6mm 0 3mm;padding-bottom:1.5mm;border-bottom:0.3mm solid ${color}30;">${text}</div>`;
+
+  return `<!DOCTYPE html><html><head><meta charset="utf-8"/>
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,300;0,400;0,600;0,700;0,800;0,900;1,700;1,800&display=swap" rel="stylesheet"/>
+<style>* { box-sizing:border-box; margin:0; padding:0; print-color-adjust:exact !important; -webkit-print-color-adjust:exact !important; } @page { size:A4 portrait; margin:0; }</style>
+</head><body>
+<div style="width:210mm;height:297mm;background:#fff;display:flex;flex-direction:column;overflow:hidden;">
+  <div style="background:${solidColor};padding:8mm 10mm 6mm;display:flex;flex-direction:column;align-items:center;position:relative;overflow:hidden;flex-shrink:0;">
+    <div style="position:absolute;bottom:-20mm;left:50%;transform:translateX(-50%);width:220%;height:40mm;border-radius:50%;background:rgba(255,255,255,0.08);"></div>
+    <div style="filter:brightness(0) invert(1);margin-bottom:2mm;">${logoHtml}</div>
+    <div style="font-size:5.5mm;font-weight:900;color:#fff;font-family:Montserrat,sans-serif;text-transform:uppercase;letter-spacing:0.5mm;">Receita de Alta do Bebê</div>
+  </div>
+  <div style="flex:1;padding:6mm 16mm 4mm;overflow:hidden;">
+    ${secTitle('📋 Uso Oral:', c0)}
+    ${medLine(med1Nome, med1Qty, `Dar ${med1Dose} gotas por dia`, c0)}
+    ${medLine(med2Nome, med2Qty, med2Dose, c0)}
+    ${medLine(med3Nome, med3Qty, `Dar ${med3Dose} gotas de 6/6h se dor ou febre`, c0)}
+    ${medLine(med4Nome, med4Qty, `Dar ${med4Dose} gotas de 8/8h se cólica`, c0)}
+    ${secTitle('🧴 Uso Tópico:', c1)}
+    ${medLine(top1Nome, '1 tubo', 'Aplicar a cada troca de fraldas', c1)}
+    ${medLine(top2Nome, '1 frasco', 'Aplicar no coto umbilical a cada troca de fralda', c1)}
+    ${medLine(top3Nome, '1 frasco', 'Aplicar 3 jatos em cada narina se obstrução nasal', c1)}
+    ${medLine(top4Nome, '1 frasco', 'Dar banho diariamente', c1)}
+    ${obsExtra ? `<div style="margin-top:5mm;padding:3mm 5mm;background:${c0}12;border-radius:2mm;border:0.3mm solid ${c0}35;"><div style="font-size:2.8mm;font-family:Montserrat,sans-serif;color:#555;line-height:1.5;">${obsExtra}</div></div>` : ''}
+  </div>
+  <div style="border-top:0.3mm solid ${c0}25;padding:5mm 16mm 5mm;flex-shrink:0;background:${c0}06;">
+    <div style="display:flex;align-items:baseline;font-size:3mm;font-family:Montserrat,sans-serif;color:#555;margin-bottom:6mm;">
+      <span style="font-weight:700;color:${c0};white-space:nowrap;">Consulta médica em:</span>
+      <span style="flex:1;border-bottom:0.4mm dashed #ccc;margin:0 4mm;"></span>
+      <span style="color:#888;">${consulta || '___/___/______'}</span>
+    </div>
+    <div style="border:0.4mm dashed ${c0}40;border-radius:2mm;height:28mm;margin-bottom:5mm;display:flex;align-items:center;justify-content:center;">
+      <span style="font-size:2.5mm;color:#ccc;font-family:Montserrat,sans-serif;letter-spacing:0.5mm;text-transform:uppercase;">Carimbo</span>
+    </div>
+    <div style="display:flex;justify-content:flex-end;margin-bottom:3mm;">
+      <div style="display:flex;flex-direction:column;align-items:center;gap:1.5mm;min-width:65mm;">
+        <div style="width:65mm;border-bottom:0.3mm solid #999;margin-bottom:1mm;"></div>
+        <div style="font-size:2.8mm;font-family:Montserrat,sans-serif;color:#777;text-align:center;">${clinicaNome || marca || 'Médico(a) Responsável'}</div>
+        ${crmLine ? `<div style="font-size:2.5mm;font-family:Montserrat,sans-serif;color:#aaa;">${crmLine}</div>` : ''}
+      </div>
+    </div>
+    ${contactLine ? `<div style="font-size:2.3mm;color:#bbb;font-family:Montserrat,sans-serif;text-align:center;">${contactLine}</div>` : ''}
+  </div>
+</div>
+</body></html>`;
+}
