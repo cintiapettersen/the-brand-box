@@ -2811,7 +2811,7 @@ function PastaPreview({ brand, editData, accentColor, solidColor, logoColor, log
 
 function PapelariaStep({ brand, accentColor, paletteColors, estampaPatterns, estampaSelectedIdx, cartaoContacts, setCartaoContacts, plano, isSaude, crmData, setCrmData, marca, editData, logoColor, logoLayout, setLayout, clinicaNome, setClinicaNome }) {
   // Digitais: sempre inclusos no plano PRO
-  const ITENS_DIGITAIS = ["Pack Digital para Instagram", "Assinatura de E-mail"];
+  const ITENS_DIGITAIS = []; // Pack Instagram e Assinatura ficam na aba Digital, não na Papelaria
   // Papelaria disponível para não-médicos
   const PAPELARIA_GERAL = [
     "Cartão de Visita", "Papel Timbrado", "Papel de Presente", "Tag para Sacola",
@@ -2834,12 +2834,11 @@ function PapelariaStep({ brand, accentColor, paletteColors, estampaPatterns, est
   ];
   // Monta lista final: papelaria selecionada no checkout + digitais automáticos
   const papelariaSelecionada = brand?.papelariaSelecionada || [];
-  const papelariaDisponivel = isSaude ? [...PAPELARIA_GERAL, ...PAPELARIA_MEDICA] : PAPELARIA_GERAL;
-  const papelariaAtiva = papelariaSelecionada.length > 0
-    ? papelariaDisponivel.filter(i => papelariaSelecionada.includes(i))
-    : papelariaDisponivel;
-  const digitaisAtivos = [...ITENS_DIGITAIS, ...(isSaude ? DIGITAIS_MEDICOS : [])];
-  const itens = [...papelariaAtiva, ...digitaisAtivos];
+  const TODOS_DISPONIVEIS = [...PAPELARIA_GERAL, ...(isSaude ? PAPELARIA_MEDICA : []),
+    "Pack Digital para Instagram", "Assinatura de E-mail", ...(isSaude ? DIGITAIS_MEDICOS : [])];
+  const itens = papelariaSelecionada.length > 0
+    ? TODOS_DISPONIVEIS.filter(i => papelariaSelecionada.includes(i))
+    : TODOS_DISPONIVEIS;
    const [idx, setIdx] = useState(0);
   const [comBorda, setComBordaState] = useState(true);
   const [patternScale, setPatternScaleState] = useState(100);
@@ -5808,14 +5807,14 @@ function EntregaContent({ brand, plano }) {
           <div style={{ display: 'flex', background: '#eee', padding: '3px', borderRadius: '12px', gap: '2px' }}>
             {['marca', 'digital', 'papelaria'].map(cat => {
               const isActive = (cat === 'marca' && ['logo','submarca','estampa','cores','guia'].includes(step)) ||
-                               (cat === 'digital' && step === 'cartao') ||
+                               (cat === 'digital' && ['cartao','pack-instagram','assinatura-email'].includes(step)) ||
                                (cat === 'papelaria' && step === 'papelaria');
               return (
                 <button
                   key={cat}
                   onClick={() => {
                     if (cat === 'marca') setStep('logo');
-                    if (cat === 'digital') setStep('cartao');
+                    if (cat === 'digital') { if (!['cartao','pack-instagram','assinatura-email'].includes(step)) setStep('cartao'); }
                     if (cat === 'papelaria') setStep('papelaria');
                   }}
                   style={{
@@ -5834,6 +5833,19 @@ function EntregaContent({ brand, plano }) {
           </div>
 
           {/* Sub-menu para Marca */}
+          {['cartao','pack-instagram','assinatura-email'].includes(step) && (
+            <div style={{ display: 'flex', gap: '8px', overflowX: 'auto', padding: '5px 0', scrollbarWidth: 'none' }} className="no-scrollbar">
+              {[
+                { id: 'cartao', label: 'Cartão Digital' },
+                { id: 'pack-instagram', label: 'Pack Instagram' },
+                { id: 'assinatura-email', label: 'Assinatura E-mail' },
+              ].map(item => (
+                <button key={item.id} onClick={() => setStep(item.id)} style={{ whiteSpace: 'nowrap', padding: '6px 14px', borderRadius: '20px', fontSize: '0.68rem', fontWeight: 600, border: 'none', cursor: 'pointer', transition: 'all 0.2s', background: step === item.id ? accentColor : 'transparent', color: step === item.id ? '#fff' : '#999' }}>
+                  {item.label}
+                </button>
+              ))}
+            </div>
+          )}
           {['logo','submarca','estampa','cores','guia'].includes(step) && (
             <div style={{ display: 'flex', gap: '8px', overflowX: 'auto', padding: '5px 0', scrollbarWidth: 'none' }} className="no-scrollbar">
               {[
@@ -5864,7 +5876,7 @@ function EntregaContent({ brand, plano }) {
         <div style={{ display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between', marginBottom: '1.2rem' }}>
           <div>
             <h1 style={{ fontSize: '1.4rem', fontWeight: 700, color: '#1a1a1a', lineHeight: 1.2 }}>
-              {step === 'logo' ? 'Sua Logo' : step === 'submarca' ? 'Sua Submarca' : step === 'estampa' ? 'Sua Estampa' : step === 'cores' ? 'Suas Cores' : step === 'cartao' ? 'Cartão Digital' : step === 'guia' ? 'Guia da Marca' : 'Gabaritos'}
+              {step === 'logo' ? 'Sua Logo' : step === 'submarca' ? 'Sua Submarca' : step === 'estampa' ? 'Sua Estampa' : step === 'cores' ? 'Suas Cores' : step === 'cartao' ? 'Cartão Digital' : step === 'pack-instagram' ? 'Pack Digital para Instagram' : step === 'assinatura-email' ? 'Assinatura de E-mail' : step === 'guia' ? 'Guia da Marca' : 'Gabaritos'}
             </h1>
           </div>
         </div>
@@ -5877,6 +5889,9 @@ function EntregaContent({ brand, plano }) {
 
         {/* Cartão digital */}
         {step === 'cartao' && <CartaoStep brand={brand} accentColor={accentColor} paletteColors={paletteColors} marca={marca} estampaPatterns={estampaPatterns} estampaSelectedIdx={estampaSelectedIdx} contacts={cartaoContacts} setContacts={setCartaoContacts} qrLink={cartaoQrLink} setQrLink={setCartaoQrLink} showQR={cartaoShowQR} setShowQR={setCartaoShowQR} logoLayout={logoLayout} editData={editData} logoColor={logoColor} setLayout={setLayout} />}
+        {(step === 'pack-instagram' || step === 'assinatura-email') && (
+          <PapelariaStep brand={{ ...brand, papelariaSelecionada: step === 'pack-instagram' ? ['Pack Digital para Instagram'] : ['Assinatura de E-mail'] }} accentColor={accentColor} paletteColors={paletteColors} estampaPatterns={estampaPatterns} estampaSelectedIdx={estampaSelectedIdx} cartaoContacts={cartaoContacts} setCartaoContacts={setCartaoContacts} plano={plano} isSaude={false} crmData={crmData} setCrmData={setCrmData} marca={marca} editData={editData} logoColor={logoColor} logoLayout={logoLayout} setLayout={setLayout} clinicaNome={clinicaNome} setClinicaNome={setClinicaNome} />
+        )}
 
         {/* Guia da marca */}
         {step === 'guia' && <GuiaStep brand={brand} accentColor={accentColor} paletteColors={paletteColors} marca={marca} tagline={tagline} estampaPatterns={estampaPatterns} estampaSelectedIdx={estampaSelectedIdx} editData={editData} />}
@@ -6193,6 +6208,13 @@ function SucessoContent() {
 
           if (!error && data) {
             const brandFromDb = data.brand_data;
+            // Recupera papelariaSelecionada do localStorage (não salva em brand_data)
+            try {
+              const localDelivery = JSON.parse(localStorage.getItem('brandbox_delivery') || '{}');
+              if (localDelivery.papelariaSelecionada?.length > 0 && !brandFromDb.papelariaSelecionada) {
+                brandFromDb.papelariaSelecionada = localDelivery.papelariaSelecionada;
+              }
+            } catch {}
             setBrand(brandFromDb);
             const planoFromDb = data.plano || planoParam || 'starter';
             setPlano(planoFromDb);
