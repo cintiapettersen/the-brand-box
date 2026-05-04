@@ -2901,6 +2901,7 @@ function PapelariaStep({ brand, accentColor, paletteColors, estampaPatterns, est
 
   const [upsellSelecionados, setUpsellSelecionados] = React.useState([]);
   const [upsellLoading, setUpsellLoading] = React.useState(false);
+  const [upsellErro, setUpsellErro] = React.useState('');
 
   if (plano !== 'pro' || itens.length === 0) {
     const todosItens = isSaude
@@ -2911,6 +2912,7 @@ function PapelariaStep({ brand, accentColor, paletteColors, estampaPatterns, est
     const handleUpsellCheckout = async () => {
       if (upsellSelecionados.length === 0) return;
       setUpsellLoading(true);
+      setUpsellErro('');
       try {
         const sessionId = localStorage.getItem('brandbox_session') || '';
         const delivery = JSON.parse(localStorage.getItem('brandbox_delivery') || '{}');
@@ -2919,16 +2921,21 @@ function PapelariaStep({ brand, accentColor, paletteColors, estampaPatterns, est
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
             plano: 'avulso',
-            marca: delivery.formData?.marca || delivery.editData?.marca || '',
-            email: delivery.formData?.email || '',
+            marca: delivery.formData?.marca || delivery.editData?.marca || brand?.editData?.marca || '',
+            email: delivery.formData?.email || brand?.formData?.email || '',
             sessionId,
             itensSelecionados: upsellSelecionados,
           }),
         });
         const data = await res.json();
-        if (data.url) window.location.href = data.url;
+        if (data.url) {
+          window.location.href = data.url;
+        } else {
+          setUpsellErro(data.error || 'Erro ao iniciar pagamento. Tente novamente.');
+        }
       } catch (e) {
         console.error(e);
+        setUpsellErro('Erro de conexão. Tente novamente.');
       } finally {
         setUpsellLoading(false);
       }
@@ -3030,10 +3037,13 @@ function PapelariaStep({ brand, accentColor, paletteColors, estampaPatterns, est
               <div style={{ fontSize: '0.72rem', color: '#999', fontFamily: 'Montserrat,sans-serif' }}>{upsellSelecionados.length} iten{upsellSelecionados.length > 1 ? 's' : ''} selecionado{upsellSelecionados.length > 1 ? 's' : ''}</div>
               <div style={{ fontSize: '1.1rem', fontWeight: 800, color: '#333', fontFamily: 'Montserrat,sans-serif' }}>R$ {total.toFixed(2).replace('.', ',')}</div>
             </div>
+            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: '4px' }}>
+            {upsellErro && <div style={{ fontSize: '0.7rem', color: '#e55', fontFamily: 'Montserrat,sans-serif' }}>{upsellErro}</div>}
             <button onClick={handleUpsellCheckout} disabled={upsellLoading}
-              style={{ padding: '12px 24px', background: accentColor, color: '#fff', border: 'none', borderRadius: '30px', fontWeight: 700, fontSize: '0.85rem', fontFamily: 'Montserrat,sans-serif', cursor: 'pointer', opacity: upsellLoading ? 0.7 : 1 }}>
+              style={{ padding: '12px 24px', background: accentColor, color: '#fff', border: 'none', borderRadius: '30px', fontWeight: 700, fontSize: '0.85rem', fontFamily: 'Montserrat,sans-serif', cursor: upsellLoading ? 'wait' : 'pointer', opacity: upsellLoading ? 0.7 : 1 }}>
               {upsellLoading ? 'Aguarde...' : 'Ir para pagamento →'}
             </button>
+          </div>
           </div>
         )}
       </div>
