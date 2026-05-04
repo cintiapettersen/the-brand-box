@@ -6351,6 +6351,21 @@ function SucessoContent() {
     localStorage.removeItem('brandbox_step');
 
     const loadData = async () => {
+      // 0. Itens comprados avulsos — processa ANTES de qualquer fetch
+      const novosItensParam = params.get('novosItens');
+      if (novosItensParam) {
+        try {
+          const novos = JSON.parse(decodeURIComponent(novosItensParam));
+          const delivery = JSON.parse(localStorage.getItem('brandbox_delivery') || '{}');
+          const existentes = delivery.papelariaSelecionada || [];
+          const merged = [...new Set([...existentes, ...novos])];
+          delivery.papelariaSelecionada = merged;
+          localStorage.setItem('brandbox_delivery', JSON.stringify(delivery));
+          localStorage.setItem('brandbox_plano', 'pro');
+          setPlano('pro');
+        } catch {}
+      }
+
       // 1. Se tem session na URL, busca no Supabase (link permanente)
       if (sessionParam) {
         localStorage.setItem('brandbox_session', sessionParam);
@@ -6363,13 +6378,19 @@ function SucessoContent() {
 
           if (!error && data) {
             const brandFromDb = data.brand_data;
-            // Recupera papelariaSelecionada do localStorage (não salva em brand_data)
+            // Recupera papelariaSelecionada do localStorage (atualizado com novosItens)
             try {
               const localDelivery = JSON.parse(localStorage.getItem('brandbox_delivery') || '{}');
-              if (localDelivery.papelariaSelecionada?.length > 0 && !brandFromDb.papelariaSelecionada) {
+              if (localDelivery.papelariaSelecionada?.length > 0) {
                 brandFromDb.papelariaSelecionada = localDelivery.papelariaSelecionada;
               }
             } catch {}
+            // Se veio com novosItens, atualiza o plano
+            if (params.get('novosItens')) {
+              const planoFromDb = 'pro';
+              setPlano(planoFromDb);
+              localStorage.setItem('brandbox_plano', planoFromDb);
+            }
             setBrand(brandFromDb);
             const planoFromDb = data.plano || planoParam || 'starter';
             setPlano(planoFromDb);
@@ -6421,21 +6442,6 @@ function SucessoContent() {
               body: JSON.stringify({ email: emailToSend, marca: marcaToSend, sessionId: 'no-session', plano: planoParam }),
             }).then(() => localStorage.setItem('brandbox_email_sent', '1')).catch(() => {});
           }
-        } catch {}
-      }
-
-      // Itens comprados avulsos — adiciona à papelaria existente
-      const novosItensParam = params.get('novosItens');
-      if (novosItensParam) {
-        try {
-          const novos = JSON.parse(decodeURIComponent(novosItensParam));
-          const delivery = JSON.parse(localStorage.getItem('brandbox_delivery') || '{}');
-          const existentes = delivery.papelariaSelecionada || [];
-          const merged = [...new Set([...existentes, ...novos])];
-          delivery.papelariaSelecionada = merged;
-          localStorage.setItem('brandbox_delivery', JSON.stringify(delivery));
-          localStorage.setItem('brandbox_plano', 'pro');
-          setPlano('pro');
         } catch {}
       }
 
