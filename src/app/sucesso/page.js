@@ -2883,8 +2883,7 @@ function PapelariaStep({ brand, accentColor, paletteColors, estampaPatterns, est
   const [cartaoRetrato, setCartaoRetrato] = useState(false);
   const [storyTemplateIdx, setStoryTemplateIdx] = useState(0);
   const [storyFormatIdx, setStoryFormatIdx] = useState(0);
-  const [papelariaNavIdx, setPapelariaNavIdx] = useState(0);
-  const [papelariaNavItens, setPapelariaNavItens] = useState([]);
+
   const [etiquetaFraseIdx, setEtiquetaFraseIdx] = useState(0);
   const [receitaFields, setReceitaFields] = useState({
     med1Nome:'Vitamina D 200UI/gota', med1Qty:'1 vidro', med1Dose:'2',
@@ -5832,6 +5831,8 @@ function EntregaContent({ brand, plano }) {
   const [localSlogan, setLocalSlogan] = useState(brand?.editData?.tagline || '');
   const [storyTemplateIdx, setStoryTemplateIdx] = useState(0);
   const [storyFormatIdx, setStoryFormatIdx] = useState(0);
+  const [papelariaNavIdx, setPapelariaNavIdx] = useState(0);
+  const [papelariaNavItens, setPapelariaNavItens] = useState([]);
   const currentIdx = estampaSelectedIdx || 0;
   const patternSrc = estampaPatterns?.[currentIdx] ? `data:${estampaPatterns[currentIdx].mimeType};base64,${estampaPatterns[currentIdx].base64}` : null;
   const [cartaoContacts, setCartaoContacts] = useState(() => { try { return JSON.parse(localStorage.getItem('brandbox_cartao') || '{}').contacts || { telefone: '', whatsapp: '', email: '', site: '', instagram: '', endereco: '', telefone2: '' }; } catch { return { telefone: '', whatsapp: '', email: '', site: '', instagram: '', endereco: '', telefone2: '' }; } });
