@@ -2916,6 +2916,13 @@ function PapelariaStep({ brand, accentColor, paletteColors, estampaPatterns, est
       try {
         const sessionId = localStorage.getItem('brandbox_session') || '';
         const delivery = JSON.parse(localStorage.getItem('brandbox_delivery') || '{}');
+        // Salva itens no localStorage antes de ir pro Stripe
+        const existentes = delivery.papelariaSelecionada || [];
+        const merged = [...new Set([...existentes, ...upsellSelecionados])];
+        delivery.papelariaSelecionada = merged;
+        localStorage.setItem('brandbox_delivery', JSON.stringify(delivery));
+        localStorage.setItem('brandbox_plano', 'pro');
+        localStorage.setItem('brandbox_pending_upsell', JSON.stringify(upsellSelecionados));
         const res = await fetch('/api/checkout', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
@@ -6351,19 +6358,11 @@ function SucessoContent() {
     localStorage.removeItem('brandbox_step');
 
     const loadData = async () => {
-      // 0. Itens comprados avulsos — processa ANTES de qualquer fetch
-      const novosItensParam = params.get('novosItens');
-      if (novosItensParam) {
-        try {
-          const novos = JSON.parse(decodeURIComponent(novosItensParam));
-          const delivery = JSON.parse(localStorage.getItem('brandbox_delivery') || '{}');
-          const existentes = delivery.papelariaSelecionada || [];
-          const merged = [...new Set([...existentes, ...novos])];
-          delivery.papelariaSelecionada = merged;
-          localStorage.setItem('brandbox_delivery', JSON.stringify(delivery));
-          localStorage.setItem('brandbox_plano', 'pro');
-          setPlano('pro');
-        } catch {}
+      // 0. Upsell pago — itens já estão no localStorage (salvos antes do redirect pro Stripe)
+      if (params.get('upsell') === '1') {
+        localStorage.setItem('brandbox_plano', 'pro');
+        setPlano('pro');
+        localStorage.removeItem('brandbox_pending_upsell');
       }
 
       // 1. Se tem session na URL, busca no Supabase (link permanente)
@@ -6385,11 +6384,10 @@ function SucessoContent() {
                 brandFromDb.papelariaSelecionada = localDelivery.papelariaSelecionada;
               }
             } catch {}
-            // Se veio com novosItens, atualiza o plano
-            if (params.get('novosItens')) {
-              const planoFromDb = 'pro';
-              setPlano(planoFromDb);
-              localStorage.setItem('brandbox_plano', planoFromDb);
+            // Se veio de upsell, força plano pro
+            if (params.get('upsell') === '1') {
+              setPlano('pro');
+              localStorage.setItem('brandbox_plano', 'pro');
             }
             setBrand(brandFromDb);
             const planoFromDb = data.plano || planoParam || 'starter';

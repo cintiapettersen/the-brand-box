@@ -24,10 +24,9 @@ export async function POST(request) {
 
     // Fluxo de itens avulsos (upsell da página de sucesso)
     if (plano === 'avulso' && itensSelecionados?.length > 0) {
-      const itensParam = encodeURIComponent(JSON.stringify(itensSelecionados));
       const successUrl = sessionId
-        ? `${origin}/sucesso?session=${sessionId}&plano=pro&novosItens=${itensParam}`
-        : `${origin}/sucesso?plano=pro&novosItens=${itensParam}`;
+        ? `${origin}/sucesso?session=${sessionId}&plano=pro&upsell=1`
+        : `${origin}/sucesso?plano=pro&upsell=1`;
 
       const session = await stripe.checkout.sessions.create({
         payment_method_types: ['card', 'pix'],
