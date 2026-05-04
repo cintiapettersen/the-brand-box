@@ -10,6 +10,26 @@ function F({ value, onChange, width = '20px', color, placeholder = '___' }) {
   );
 }
 
+function hexToRgb(hex) {
+  const h = hex.replace('#', '');
+  return [parseInt(h.slice(0,2),16), parseInt(h.slice(2,4),16), parseInt(h.slice(4,6),16)];
+}
+function shade(hex, amount) {
+  const [r,g,b] = hexToRgb(hex);
+  const s = v => Math.round(v * (1-amount)).toString(16).padStart(2,'0');
+  return `#${s(r)}${s(g)}${s(b)}`;
+}
+function getLuminance(hex) {
+  const [r,g,b] = hexToRgb(hex);
+  return (0.299 * r + 0.587 * g + 0.114 * b) / 255;
+}
+function ensureLegibleColor(hex) {
+  if (!hex || hex === 'transparent' || hex.length < 4) return '#666';
+  const lum = getLuminance(hex);
+  if (lum > 0.65) return shade(hex, 0.4); 
+  return hex;
+}
+
 function MedLine({ name, qty, instructions, solidColor }) {
   return (
     <div style={{ marginBottom: '5px' }}>
@@ -27,8 +47,9 @@ function MedLine({ name, qty, instructions, solidColor }) {
 }
 
 function SecTitle({ children, color }) {
+  const legible = ensureLegibleColor(color);
   return (
-    <div style={{ fontSize: '4.5px', fontWeight: 800, fontStyle: 'italic', color, fontFamily: 'Montserrat,sans-serif', marginBottom: '4px', marginTop: '6px', paddingBottom: '2px', borderBottom: `0.5px solid ${color}30` }}>
+    <div style={{ fontSize: '4.5px', fontWeight: 800, fontStyle: 'italic', color: legible, fontFamily: 'Montserrat,sans-serif', marginBottom: '4px', marginTop: '6px', paddingBottom: '2px', borderBottom: `0.5px solid ${legible}30` }}>
       {children}
     </div>
   );
@@ -45,9 +66,9 @@ function FieldRow({ label, children }) {
 
 export default function ReceitaAltaPreview({ accentColor, paletteColors = [], editData, logoColor, logoLayout, cartaoContacts, crmLine, clinicaNome, comBorda, setComBorda, patternSrc, patternScale, setPatternScale, borderColor, setBorderColor, receitaFields, setReceitaFields }) {
   const solidColor = borderColor || paletteColors[0] || accentColor;
-  const c0 = paletteColors[0] || accentColor;
-  const c1 = paletteColors[1] || c0;
-  const BORDER = comBorda ? 8 : 0;
+  const c0 = ensureLegibleColor(paletteColors[0] || accentColor);
+  const c1 = ensureLegibleColor(paletteColors[1] || c0);
+  const BORDER = 8; // Sempre tem borda (conforme BordaToggle: Estampa ou Sólida)
 
   const f = receitaFields || {};
   const set = (key) => (val) => setReceitaFields && setReceitaFields(prev => ({ ...prev, [key]: val }));
@@ -89,10 +110,10 @@ export default function ReceitaAltaPreview({ accentColor, paletteColors = [], ed
 
       {/* Preview A4 */}
       <div style={{ width: '226px', height: '320px', position: 'relative', boxShadow: '0 6px 30px rgba(0,0,0,0.13)', borderRadius: '4px', overflow: 'hidden', background: '#fff', flexShrink: 0 }}>
-        {comBorda && patternSrc
+        {comBorda && patternSrc 
           ? <div style={{ position: 'absolute', inset: 0, backgroundImage: `url(${patternSrc})`, backgroundSize: `${(patternScale || 150) / 2.5}px`, backgroundRepeat: 'repeat' }} />
-          : <div style={{ position: 'absolute', inset: 0, background: solidColor }} />}
-
+          : <div style={{ position: 'absolute', inset: 0, background: solidColor }} />
+        }
         <div style={{ position: 'absolute', top: BORDER, left: BORDER, right: BORDER, bottom: BORDER, background: '#fff', display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
 
           {/* Header */}
@@ -191,9 +212,10 @@ export default function ReceitaAltaPreview({ accentColor, paletteColors = [], ed
   );
 }
 
-export function buildReceitaAltaHTML({ logoHtml, solidColor, paletteColors = [], clinicaNome, cartaoContacts, crmLine, marca, fields = {} }) {
-  const c0 = paletteColors[0] || solidColor;
-  const c1 = paletteColors[1] || c0;
+export function buildReceitaAltaHTML({ logoHtml, solidColor, paletteColors = [], clinicaNome, cartaoContacts, crmLine, marca, fields = {}, comBorda, patternSrc, patternScale }) {
+  const c0 = ensureLegibleColor(paletteColors[0] || solidColor);
+  const c1 = ensureLegibleColor(paletteColors[1] || c0);
+  const BORDER_P = 12; // Sempre tem borda (Estampa ou Sólida)
   const { med1Nome='Vitamina D 200UI/gota', med1Qty='1 vidro', med1Dose='2', med2Nome='Colidis', med2Qty='1 vidro', med2Dose='5 gotas 1 vez ao dia', med3Nome='Tylenol baby 140mg/ml', med3Qty='1 frasco', med3Dose='___', med4Nome='Mylicon / Simeticona', med4Qty='1 frasco', med4Dose='3', top1Nome='Bepantol baby', top2Nome='Álcool 70%', top3Nome='Rinossoro infantil', top4Nome='Sabonete Johnsons / Cetrilan', consulta='', obsExtra='' } = fields;
   const { whatsapp, telefone, site, instagram } = cartaoContacts || {};
   const mainPhone = whatsapp || telefone || '';
@@ -214,15 +236,21 @@ export function buildReceitaAltaHTML({ logoHtml, solidColor, paletteColors = [],
 
   return `<!DOCTYPE html><html><head><meta charset="utf-8"/>
 <link href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,300;0,400;0,600;0,700;0,800;0,900;1,700;1,800&display=swap" rel="stylesheet"/>
-<style>* { box-sizing:border-box; margin:0; padding:0; print-color-adjust:exact !important; -webkit-print-color-adjust:exact !important; } @page { size:A4 portrait; margin:0; }</style>
+<style>* { box-sizing:border-box; margin:0; padding:0; print-color-adjust:exact !important; -webkit-print-color-adjust:exact !important; } @page { size:158mm 220mm; margin:0; }</style>
 </head><body>
-<div style="width:210mm;height:297mm;background:#fff;display:flex;flex-direction:column;overflow:hidden;">
-  <div style="background:${solidColor};padding:8mm 10mm 6mm;display:flex;flex-direction:column;align-items:center;position:relative;overflow:hidden;flex-shrink:0;">
-    <div style="position:absolute;bottom:-20mm;left:50%;transform:translateX(-50%);width:220%;height:40mm;border-radius:50%;background:rgba(255,255,255,0.08);"></div>
-    <div style="filter:brightness(0) invert(1);margin-bottom:2mm;">${logoHtml}</div>
-    <div style="font-size:5.5mm;font-weight:900;color:#fff;font-family:Montserrat,sans-serif;text-transform:uppercase;letter-spacing:0.5mm;">Receita de Alta do Bebê</div>
+<div style="width:158mm;height:220mm;background:#fff;display:flex;flex-direction:column;overflow:hidden;position:relative;">
+  <!-- BACKGROUND / BORDER -->
+  ${comBorda && patternSrc 
+    ? `<div style="position:absolute;inset:0;background-image:url(${patternSrc});background-size:${(patternScale*0.4).toFixed(1)}mm;background-repeat:repeat;"></div>`
+    : `<div style="position:absolute;inset:0;background:${solidColor};"></div>`}
+
+  <div style="position:absolute;top:${BORDER_P + 5}mm;left:${BORDER_P + 5}mm;right:${BORDER_P + 5}mm;bottom:${BORDER_P + 5}mm;background:#fff;display:flex;flex-direction:column;overflow:hidden;">
+  <div style="background:${solidColor};padding:6mm 8mm 4mm;display:flex;flex-direction:column;align-items:center;position:relative;overflow:hidden;flex-shrink:0;">
+    <div style="position:absolute;bottom:-15mm;left:50%;transform:translateX(-50%);width:220%;height:30mm;border-radius:50%;background:rgba(255,255,255,0.08);"></div>
+    <div style="filter:brightness(0) invert(1);margin-bottom:1mm;transform:scale(0.85);">${logoHtml}</div>
+    <div style="font-size:4.2mm;font-weight:900;color:#fff;font-family:Montserrat,sans-serif;text-transform:uppercase;letter-spacing:0.4mm;">Receita de Alta do Bebê</div>
   </div>
-  <div style="flex:1;padding:6mm 16mm 4mm;overflow:hidden;">
+  <div style="flex:1;padding:4mm 10mm 2mm;overflow:hidden;">
     ${secTitle('📋 Uso Oral:', c0)}
     ${medLine(med1Nome, med1Qty, `Dar ${med1Dose} gotas por dia`, c0)}
     ${medLine(med2Nome, med2Qty, med2Dose, c0)}
@@ -233,25 +261,26 @@ export function buildReceitaAltaHTML({ logoHtml, solidColor, paletteColors = [],
     ${medLine(top2Nome, '1 frasco', 'Aplicar no coto umbilical a cada troca de fralda', c1)}
     ${medLine(top3Nome, '1 frasco', 'Aplicar 3 jatos em cada narina se obstrução nasal', c1)}
     ${medLine(top4Nome, '1 frasco', 'Dar banho diariamente', c1)}
-    ${obsExtra ? `<div style="margin-top:5mm;padding:3mm 5mm;background:${c0}12;border-radius:2mm;border:0.3mm solid ${c0}35;"><div style="font-size:2.8mm;font-family:Montserrat,sans-serif;color:#555;line-height:1.5;">${obsExtra}</div></div>` : ''}
+    ${obsExtra ? `<div style="margin-top:3mm;padding:2mm 4mm;background:${c0}12;border-radius:1.5mm;border:0.25mm solid ${c0}35;"><div style="font-size:2.6mm;font-family:Montserrat,sans-serif;color:#555;line-height:1.4;">${obsExtra}</div></div>` : ''}
   </div>
-  <div style="border-top:0.3mm solid ${c0}25;padding:5mm 16mm 5mm;flex-shrink:0;background:${c0}06;">
-    <div style="display:flex;align-items:baseline;font-size:3mm;font-family:Montserrat,sans-serif;color:#555;margin-bottom:6mm;">
-      <span style="font-weight:700;color:${c0};white-space:nowrap;">Consulta médica em:</span>
-      <span style="flex:1;border-bottom:0.4mm dashed #ccc;margin:0 4mm;"></span>
+  <div style="border-top:0.3mm solid ${c0}25;padding:4mm 10mm 4mm;flex-shrink:0;background:${c0}06;">
+    <div style="display:flex;align-items:baseline;font-size:2.8mm;font-family:Montserrat,sans-serif;color:#555;margin-bottom:4mm;">
+      <span style="font-weight:700;color:${c0};white-space:nowrap;">Próxima consulta em:</span>
+      <span style="flex:1;border-bottom:0.3mm dashed #ccc;margin:0 3mm;"></span>
       <span style="color:#888;">${consulta || '___/___/______'}</span>
     </div>
-    <div style="border:0.4mm dashed ${c0}40;border-radius:2mm;height:28mm;margin-bottom:5mm;display:flex;align-items:center;justify-content:center;">
-      <span style="font-size:2.5mm;color:#ccc;font-family:Montserrat,sans-serif;letter-spacing:0.5mm;text-transform:uppercase;">Carimbo</span>
+    <div style="border:0.3mm dashed ${c0}40;border-radius:1.5mm;height:22mm;margin-bottom:4mm;display:flex;align-items:center;justify-content:center;">
+      <span style="font-size:2.2mm;color:#ccc;font-family:Montserrat,sans-serif;letter-spacing:0.4mm;text-transform:uppercase;">Carimbo</span>
     </div>
-    <div style="display:flex;justify-content:flex-end;margin-bottom:3mm;">
-      <div style="display:flex;flex-direction:column;align-items:center;gap:1.5mm;min-width:65mm;">
-        <div style="width:65mm;border-bottom:0.3mm solid #999;margin-bottom:1mm;"></div>
-        <div style="font-size:2.8mm;font-family:Montserrat,sans-serif;color:#777;text-align:center;">${clinicaNome || marca || 'Médico(a) Responsável'}</div>
-        ${crmLine ? `<div style="font-size:2.5mm;font-family:Montserrat,sans-serif;color:#aaa;">${crmLine}</div>` : ''}
+    <div style="display:flex;justify-content:flex-end;margin-bottom:2mm;">
+      <div style="display:flex;flex-direction:column;align-items:center;gap:1mm;min-width:55mm;">
+        <div style="width:55mm;border-bottom:0.3mm solid #999;margin-bottom:0.8mm;"></div>
+        <div style="font-size:2.6mm;font-family:Montserrat,sans-serif;color:#777;text-align:center;">${clinicaNome || marca || 'Médico(a) Responsável'}</div>
+        ${crmLine ? `<div style="font-size:2.3mm;font-family:Montserrat,sans-serif;color:#aaa;">${crmLine}</div>` : ''}
       </div>
     </div>
-    ${contactLine ? `<div style="font-size:2.3mm;color:#bbb;font-family:Montserrat,sans-serif;text-align:center;">${contactLine}</div>` : ''}
+    ${contactLine ? `<div style="font-size:2.2mm;color:#bbb;font-family:Montserrat,sans-serif;text-align:center;">${contactLine}</div>` : ''}
+  </div>
   </div>
 </div>
 </body></html>`;

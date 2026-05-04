@@ -18,7 +18,7 @@ const PAPELARIA_CLINICA = [
   "Prontuário Médico", "Receita de Alta", "Ficha de Cadastro",
   "Certificado de Coragem", "Quadro de Incentivo", "Cartão de Aniversário Exclusivo",
   "Arte para Caneca/Brindes", "Gráfico de Crescimento", "Diário do Xixi", "Card de Orientação de Sono",
-  "Meu Pratinho", "Guia de Amamentação", "Fundo de Tira Dúvidas Instagram"
+  "Meu Pratinho", "Guia de Amamentação", "Pack Digital para Instagram"
 ];
 
 const PAPELARIA_INSTITUCIONAL = [

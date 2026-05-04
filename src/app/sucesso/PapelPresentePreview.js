@@ -21,7 +21,7 @@ export default function PapelPresentePreview({
   const size = SIZES[idx];
   const W = Math.round(size.w * size.scale);
   const H = Math.round(size.h * size.scale);
-  const bgSize = Math.round((patternScale || 150) * size.scale / 100);
+  const bgSize = Math.round((patternScale || 150) / 1.5);
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '20px', alignItems: 'center', width: '100%', padding: '20px 0' }}>
@@ -36,6 +36,41 @@ export default function PapelPresentePreview({
       </div>
 
       <BordaToggle comBorda={comBorda} setComBorda={setComBorda} accentColor={accentColor} paletteColors={paletteColors} borderColor={borderColor} setBorderColor={setBorderColor} patternScale={patternScale} setPatternScale={setPatternScale} />
+
+      {/* Mockup rolo */}
+      <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '8px' }}>
+        <span style={{ fontSize: '10px', fontWeight: 800, color: '#999', textTransform: 'uppercase', fontFamily: 'Montserrat,sans-serif' }}>Mockup</span>
+        <div style={{ position: 'relative', width: 420, height: 340, flexShrink: 0, borderRadius: 12, overflow: 'hidden', background: 'radial-gradient(ellipse at 25% 85%, #b8b2a8 0%, #d8d0c4 40%, #e8e0d0 70%)' }}>
+          {/* estampa clipada pelo alpha do object PNG, escala sincronizada com a arte flat */}
+          <div style={{
+            position: 'absolute', inset: 0,
+            backgroundImage: comBorda && patternSrc ? `url(${patternSrc})` : undefined,
+            backgroundSize: comBorda && patternSrc ? `${bgSize}px` : undefined,
+            backgroundRepeat: 'repeat',
+            backgroundColor: (!comBorda || !patternSrc) ? solidColor : 'transparent',
+            WebkitMaskImage: 'url(/papel-presente-object.png)',
+            WebkitMaskSize: '100% 100%',
+            WebkitMaskMode: 'alpha',
+            maskImage: 'url(/papel-presente-object.png)',
+            maskSize: '100% 100%',
+            maskMode: 'alpha',
+          }} />
+          {/* véu satin — gradiente diagonal simula reflexo de seda */}
+          <div style={{
+            position: 'absolute', inset: 0,
+            background: 'linear-gradient(135deg, rgba(255,255,255,0.32) 0%, rgba(255,255,255,0.04) 40%, rgba(255,255,255,0.22) 60%, rgba(255,255,255,0.06) 100%)',
+            WebkitMaskImage: 'url(/papel-presente-object.png)',
+            WebkitMaskSize: '100% 100%',
+            WebkitMaskMode: 'alpha',
+            maskImage: 'url(/papel-presente-object.png)',
+            maskSize: '100% 100%',
+            maskMode: 'alpha',
+            pointerEvents: 'none',
+          }} />
+          {/* sombras e dobras por cima */}
+          <img src="/papel-presente-object.png" alt="" style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'fill', mixBlendMode: 'multiply', pointerEvents: 'none' }} />
+        </div>
+      </div>
 
       {/* Arte flat */}
       <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '8px' }}>

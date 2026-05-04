@@ -33,10 +33,7 @@ import FolderSonoPage2 from './FolderSonoPage2';
 import FolderSonoPage3 from './FolderSonoPage3';
 import FolderSonoPage4 from './FolderSonoPage4';
 import FolderSonoPage5 from './FolderSonoPage5';
-import {
-  FolderAmamentacaoPage1, FolderAmamentacaoPage2, FolderAmamentacaoPage3, FolderAmamentacaoPage4,
-  FolderAmamentacaoPage5, FolderAmamentacaoPage6, FolderAmamentacaoPage7, FolderAmamentacaoPage8
-} from './FolderAmamentacaoPages';
+// FolderAmamentacaoPages defined locally below
 import html2canvas from 'html2canvas';
 import MeuPratinhoPreview from './MeuPratinhoPreview';
 import EtiquetaCorreiosPreview from './EtiquetaCorreiosPreview';
@@ -149,6 +146,32 @@ function tint(hex, amount) {
   const [r,g,b] = hexToRgb(hex);
   const t = v => Math.round(v + (255-v)*amount).toString(16).padStart(2,'0');
   return `#${t(r)}${t(g)}${t(b)}`;
+}
+
+function shade(hex, amount) {
+  const [r,g,b] = hexToRgb(hex);
+  const s = v => Math.round(v * (1-amount)).toString(16).padStart(2,'0');
+  return `#${s(r)}${s(g)}${s(b)}`;
+}
+
+function getLuminance(hex) {
+  const [r,g,b] = hexToRgb(hex);
+  return (0.299 * r + 0.587 * g + 0.114 * b) / 255;
+}
+
+function ensureLegibleColor(hex) {
+  if (!hex || hex === 'transparent' || hex.length < 4) return '#666';
+  const lum = getLuminance(hex);
+  if (lum > 0.65) return shade(hex, 0.4); 
+  return hex;
+}
+
+function getLegibleBgOpacity(hex) {
+  if (!hex || hex === 'transparent' || hex.length < 4) return '0d';
+  const lum = getLuminance(hex);
+  if (lum > 0.85) return '26'; // Cores muito claras (amarelo) - 15%
+  if (lum > 0.65) return '1a'; // Cores claras (pastel) - 10%
+  return '0f'; // Cores escuras - 6%
 }
 
 // Mesmo dicionário afetivo do BrandBoard — garante consistência
@@ -998,25 +1021,41 @@ function CartaoRetornoPreview({ accentColor, patternSrc, cartaoContacts, crmLine
   );
 }
 
-function CartaoDeVisitaPreview({ accentColor, patternSrc, cartaoContacts, crmLine, editData, logoColor, comBorda, setComBorda, clinicaNome, setClinicaNome, logoLayout, paletteColors, borderColor, setBorderColor, patternScale, setPatternScale, hideTagline }) {
+function CartaoDeVisitaPreview({ accentColor, patternSrc, cartaoContacts, crmLine, editData, logoColor, comBorda, setComBorda, clinicaNome, setClinicaNome, logoLayout, paletteColors, borderColor, setBorderColor, patternScale, setPatternScale, hideTagline, retrato: retratoExterno, setRetrato: setRetratoExterno }) {
+  const [retratoLocal, setRetratoLocal] = React.useState(false);
+  const retrato = retratoExterno !== undefined ? retratoExterno : retratoLocal;
+  const setRetrato = setRetratoExterno || setRetratoLocal;
   const brandFont = `'${editData?.fontFamily || 'Playfair Display'}', serif`;
   const { endereco, whatsapp, telefone, telefone2, instagram, email, site } = cartaoContacts || {};
   const mainPhone = whatsapp || telefone || '';
   const solidColor = borderColor || accentColor;
+  const CW = retrato ? 178 : 320;
+  const CH = retrato ? 320 : 178;
+  const isHorizontal = logoLayout === 'horizontal';
+  const logoScale = retrato
+    ? (isHorizontal ? 0.55 : 0.75)
+    : (isHorizontal ? 0.65 : 0.85);
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', alignItems: 'center', width: '100%' }}>
       <BordaToggle comBorda={comBorda} setComBorda={setComBorda} accentColor={accentColor} paletteColors={paletteColors} borderColor={borderColor} setBorderColor={setBorderColor} patternScale={patternScale} setPatternScale={setPatternScale} />
 
+      {/* Toggle retrato/paisagem */}
+      <div style={{ display: 'flex', gap: '8px', background: '#f0f0f0', borderRadius: '20px', padding: '4px' }}>
+        {[['Paisagem', false], ['Retrato', true]].map(([label, val]) => (
+          <button key={label} onClick={() => setRetrato(val)} style={{ padding: '5px 14px', borderRadius: '16px', border: 'none', cursor: 'pointer', fontFamily: 'Montserrat,sans-serif', fontSize: '11px', fontWeight: 700, background: retrato === val ? solidColor : 'transparent', color: retrato === val ? '#fff' : '#888', transition: 'all 0.2s' }}>{label}</button>
+        ))}
+      </div>
+
       <p style={{ fontSize: '0.6rem', color: '#aaa', letterSpacing: '2px', textTransform: 'uppercase' }}>Frente</p>
-      <div style={{ width: '320px', height: '178px', position: 'relative', background: '#fff', overflow: 'hidden', boxShadow: '0 4px 20px rgba(0,0,0,0.12)', borderRadius: '4px' }}>
+      <div style={{ width: `${CW}px`, height: `${CH}px`, position: 'relative', background: '#fff', overflow: 'hidden', boxShadow: '0 4px 20px rgba(0,0,0,0.12)', borderRadius: '4px' }}>
         {comBorda && patternSrc && <>
           <div style={{ position: 'absolute', inset: 0, backgroundImage: `url(${patternSrc})`, backgroundSize: `${(patternScale || 150) / 1.5}px`, backgroundRepeat: 'repeat', opacity: 0.9, zIndex: 0 }} />
           <div style={{ position: 'absolute', top: '16px', left: '16px', right: '16px', bottom: '16px', background: '#fff', zIndex: 1 }} />
         </>}
         <div style={{ position: 'absolute', inset: 0, zIndex: 2, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-          <div style={{ width: '52%', height: '52%', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-            <LogoPreviewHTML editData={editData} color={logoColor} layout={logoLayout} crm={crmLine} hideTagline={hideTagline} />
+          <div style={{ width: isHorizontal ? '70%' : '52%', height: '52%', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+            <LogoPreviewHTML editData={editData} color={logoColor} layout={logoLayout} crm={crmLine} hideTagline={hideTagline} scaleFactor={logoScale} />
           </div>
         </div>
       </div>
@@ -1024,7 +1063,7 @@ function CartaoDeVisitaPreview({ accentColor, patternSrc, cartaoContacts, crmLin
 
 
       <p style={{ fontSize: '0.6rem', color: '#aaa', letterSpacing: '2px', textTransform: 'uppercase' }}>Verso</p>
-      <div style={{ width: '320px', height: '178px', position: 'relative', overflow: 'hidden', boxShadow: '0 4px 20px rgba(0,0,0,0.12)', borderRadius: '4px' }}>
+      <div style={{ width: `${CW}px`, height: `${CH}px`, position: 'relative', overflow: 'hidden', boxShadow: '0 4px 20px rgba(0,0,0,0.12)', borderRadius: '4px' }}>
         {comBorda && patternSrc
           ? <div style={{ position: 'absolute', inset: 0, backgroundImage: `url(${patternSrc})`, backgroundSize: `${(patternScale || 150) / 1.5}px`, backgroundRepeat: 'repeat', zIndex: 0 }} />
           : <div style={{ position: 'absolute', inset: 0, background: borderColor || accentColor, zIndex: 0 }} />}
@@ -1123,7 +1162,7 @@ function CertificadoCoragemPreview({ accentColor, patternSrc, editData, logoColo
         <div style={{
           position: 'absolute', top: 0, left: 0, right: 0, bottom: 0,
           backgroundImage: effectiveSrc ? `url(${effectiveSrc})` : 'none',
-          backgroundSize: `${patternScale}%`,
+          backgroundSize: `${patternScale / 4}px`,
           backgroundColor: !effectiveSrc ? solidColor : 'transparent'
         }} />
 
@@ -1301,7 +1340,7 @@ function DiarioXixiPreview({ accentColor, patternSrc, editData, logoColor, logoL
   );
 
   const days = ['Segunda', 'Terça', 'Quarta', 'Quinta', 'Sexta', 'Sábado', 'Domingo'];
-  const weeks = [1, 2, 3, 4, 5, 6];
+  const weeks = [1, 2, 3, 4];
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', alignItems: 'center', width: '100%' }}>
@@ -1311,50 +1350,57 @@ function DiarioXixiPreview({ accentColor, patternSrc, editData, logoColor, logoL
           ? <div style={{ position: 'absolute', inset: 0, backgroundImage: `url(${effectiveSrc})`, backgroundSize: `${(patternScale || 150) / 2}px`, backgroundRepeat: 'repeat' }} />
           : <div style={{ position: 'absolute', inset: 0, background: solidColor }} />}
         
-        <div style={{ position: 'absolute', top: BORDER, left: BORDER, right: BORDER, bottom: BORDER + 2, background: '#fff', padding: '10px 12px', display: 'flex', flexDirection: 'column' }}>
+        <div style={{ position: 'absolute', top: BORDER, left: BORDER, right: BORDER, bottom: BORDER + 2, background: '#fff', padding: '10px 15px', display: 'flex', flexDirection: 'column' }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '8px' }}>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
-              <div style={{ background: '#f5f5f5', padding: '3px 10px', borderRadius: '4px', border: '0.4px solid #ddd', alignSelf: 'flex-start' }}>
-                <span style={{ fontSize: '10px', fontWeight: 800, color: '#333', letterSpacing: '1px' }}>DIÁRIO MICCIONAL NOTURNO</span>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+              <div style={{ background: '#f5f5f5', padding: '4px 12px', borderRadius: '4px', border: '0.4px solid #ddd', alignSelf: 'flex-start' }}>
+                <span style={{ fontSize: '11px', fontWeight: 800, color: '#333', letterSpacing: '1px' }}>DIÁRIO DO XIXI (HÁBITO MICCIONAL)</span>
               </div>
-              <div style={{ display: 'flex', gap: '4px', alignItems: 'flex-end', marginTop: '4px' }}>
+              <div style={{ fontSize: '7px', color: accentColor, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.5px' }}>Controle de Escapes e Enurese (Xixi na Cama)</div>
+              <div style={{ display: 'flex', gap: '6px', alignItems: 'flex-end', marginTop: '2px' }}>
                 <span style={{ fontSize: '11px', fontFamily: "'Montserrat', sans-serif", color: accentColor, fontWeight: 300, fontStyle: 'italic' }}>Nome:</span>
-                <div style={{ flex: 1, borderBottom: '1px dashed #ccc', width: '220px', marginBottom: '2px' }} />
+                <div style={{ flex: 1, borderBottom: '1px dashed #ccc', width: '230px', marginBottom: '2px' }} />
               </div>
             </div>
             <div style={{ width: '130px', display: 'flex', flexDirection: 'column', alignItems: 'flex-end', marginTop: '2px' }}>
-              <LogoPreviewHTML editData={editData} color={logoColor} layout={logoLayout} scaleFactor={0.48} crm={crmLine} hideTagline={hideTagline} />
+              <LogoPreviewHTML editData={editData} color={logoColor} layout={logoLayout} scaleFactor={0.5} crm={crmLine} hideTagline={hideTagline} />
             </div>
           </div>
 
-          <div style={{ display: 'flex', gap: '18px', alignItems: 'center', marginBottom: '6px' }}>
-            <div style={{ display: 'flex', gap: '5px', alignItems: 'center' }}>
-              <span style={{ fontSize: '6px', textTransform: 'uppercase', color: '#999', letterSpacing: '0.6px' }}>Quando estiver seco(a) pinte o sol</span>
-              <div style={{ color: '#ffcc00' }}>{SunIcon(9)}</div>
-            </div>
-            <div style={{ display: 'flex', gap: '5px', alignItems: 'center' }}>
-              <span style={{ fontSize: '6px', textTransform: 'uppercase', color: '#999', letterSpacing: '0.6px' }}>Quando estiver molhado(a) pinte a nuvem</span>
-              <div style={{ color: '#00ccff' }}>{CloudIcon(9)}</div>
+          <div style={{ display: 'flex', gap: '18px', alignItems: 'center', marginBottom: '10px' }}>
+            <div style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
+              <span style={{ fontSize: '7.5px', textTransform: 'uppercase', color: '#666', fontWeight: 800, letterSpacing: '0.8px' }}>Legenda:</span>
+              <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+                <span style={{ fontSize: '7px', color: '#888' }}><strong>0:</strong> Acordou Seco(a)</span>
+                <span style={{ fontSize: '7px', color: '#888' }}><strong>1:</strong> Gotas/Umidade</span>
+                <span style={{ fontSize: '7px', color: '#888' }}><strong>2:</strong> Molhou a Roupa/Fralda</span>
+                <span style={{ fontSize: '7px', color: '#888' }}><strong>3:</strong> Abundante (Molhou Cama)</span>
+              </div>
             </div>
           </div>
 
-          <div style={{ display: 'grid', gridTemplateColumns: '60px repeat(6, 1fr)', gap: '1px', background: '#f0f0f0', border: '1px solid #f0f0f0', flex: 1 }}>
-            <div style={{ background: '#fff' }} />
+          <div style={{ display: 'grid', gridTemplateColumns: '70px repeat(4, 1fr)', gap: '1px', background: '#eee', border: '1px solid #eee', flex: 1 }}>
+            <div style={{ background: '#fff', display: 'flex', alignItems: 'center', padding: '0 10px' }}>
+              <span style={{ fontSize: '7px', fontWeight: 800, color: '#bbb', textTransform: 'uppercase' }}>Marque 0 a 3</span>
+            </div>
             {weeks.map(w => (
-              <div key={w} style={{ background: '#fff', textAlign: 'center', padding: '3px 0' }}>
-                <div style={{ fontSize: '7px', fontWeight: 700, color: accentColor, textTransform: 'uppercase' }}>Semana {w}</div>
-                <div style={{ width: '18px', height: '0.8px', background: accentColor, margin: '1px auto' }} />
+              <div key={w} style={{ background: '#fff', textAlign: 'center', padding: '5px 0' }}>
+                <div style={{ fontSize: '8.5px', fontWeight: 700, color: accentColor, textTransform: 'uppercase' }}>Semana {w}</div>
+                <div style={{ width: '24px', height: '1px', background: accentColor, margin: '2px auto' }} />
               </div>
             ))}
             {days.map(day => (
               <React.Fragment key={day}>
-                <div style={{ background: '#fff', padding: '3px 6px', display: 'flex', alignItems: 'center' }}>
-                  <span style={{ fontSize: '8.5px', fontWeight: 700, color: accentColor, fontStyle: 'italic' }}>{day}</span>
+                <div style={{ background: '#fff', padding: '5px 10px', display: 'flex', alignItems: 'center' }}>
+                  <span style={{ fontSize: '10px', fontWeight: 800, color: accentColor, fontStyle: 'italic' }}>{day}</span>
                 </div>
                 {weeks.map(w => (
-                  <div key={`${day}-${w}`} style={{ background: '#fff', display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '4px', padding: '2px' }}>
-                    <div style={{ opacity: 0.22, color: '#444' }}>{SunIcon(11)}</div>
-                    <div style={{ opacity: 0.22, color: '#444' }}>{CloudIcon(11)}</div>
+                  <div key={`${day}-${w}`} style={{ background: '#fff', display: 'flex', justifyContent: 'center', alignItems: 'center', padding: '4px' }}>
+                    <div style={{ display: 'flex', gap: '6px' }}>
+                      {[0, 1, 2, 3].map(n => (
+                        <div key={n} style={{ width: '14px', height: '14px', border: '0.6px solid #ddd', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '8px', color: '#999' }}>{n}</div>
+                      ))}
+                    </div>
                   </div>
                 ))}
               </React.Fragment>
@@ -1663,15 +1709,17 @@ function ChecklistMaternidadePreview({ accentColor, patternSrc, editData, logoCo
     { titulo: 'check list acompanhante', itens: ['2 mudas de roupa','Produtos de higiene pessoal','Chinelo','Carregador de celular','Lanchinho'] },
   ];
 
-  const Secao = ({ titulo, itens }) => (
-    <div style={{ border: `0.5px solid ${accentColor}40`, borderRadius: '2px', padding: '3.5px 5px', display: 'flex', flexDirection: 'column', gap: '1px' }}>
-      <div style={{ fontFamily: 'Georgia, serif', fontStyle: 'italic', fontSize: '5px', fontWeight: 700, color: accentColor, marginBottom: '2.5px', borderBottom: `0.3px solid ${accentColor}30`, paddingBottom: '1.5px' }}>{titulo}</div>
-      {itens.map((item, i) => (
-        <div key={i} style={{ display: 'flex', alignItems: 'flex-start', gap: '2px', fontSize: '3px', color: '#444', lineHeight: 1.2 }}>
-          <div style={{ width: '4.2px', height: '4.2px', border: `0.4px solid ${accentColor}80`, borderRadius: '1px', flexShrink: 0, marginTop: '1px' }} />
-          <span>{item}</span>
-        </div>
-      ))}
+  const Secao = ({ titulo, itens, color }) => (
+    <div style={{ background: `${color}${getLegibleBgOpacity(color)}`, border: `0.5px solid ${color}35`, borderRadius: '3px', padding: '3px 6px', display: 'flex', flexDirection: 'column', gap: '1px', height: '100%' }}>
+      <div style={{ fontFamily: 'Georgia, serif', fontStyle: 'italic', fontSize: '4.8px', fontWeight: 700, color: ensureLegibleColor(color), marginBottom: '2.5px', borderBottom: `0.4px solid ${color}30`, paddingBottom: '1.5px', textTransform: 'lowercase' }}>{titulo}</div>
+      <div style={{ display: 'flex', flexDirection: 'column', gap: '1px' }}>
+        {itens.map((item, i) => (
+          <div key={i} style={{ display: 'flex', alignItems: 'flex-start', gap: '2px', fontSize: '3.2px', color: '#333', lineHeight: 1.2, fontWeight: 500, borderBottom: i === itens.length - 1 ? 'none' : '0.2px solid #00000008', paddingBottom: '1.2px', marginBottom: '1px' }}>
+            <div style={{ width: '4px', height: '4px', border: `0.5px solid ${ensureLegibleColor(color)}`, borderRadius: '1px', flexShrink: 0, marginTop: '0.4px', background: '#fff' }} />
+            <span style={{ flex: 1 }}>{item}</span>
+          </div>
+        ))}
+      </div>
     </div>
   );
 
@@ -1694,12 +1742,12 @@ function ChecklistMaternidadePreview({ accentColor, patternSrc, editData, logoCo
           {/* Conteúdo */}
           <div style={{ flex: 1, display: 'flex', flexDirection: 'column', padding: '12px 5px 3px 5px', gap: '3px', overflow: 'hidden' }}>
             {/* Logo centralizada no topo */}
-            <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', paddingBottom: '3px', borderBottom: `0.3px solid ${accentColor}20`, marginBottom: '2px' }}>
-              <LogoPreviewHTML editData={editData} color={logoColor} layout={logoLayout} scaleFactor={0.24} crm={crmLine} />
+            <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', padding: '4px 0 6px', borderBottom: `0.4px solid ${accentColor}25`, marginBottom: '4px' }}>
+              <LogoPreviewHTML editData={editData} color={logoColor} layout={logoLayout} scaleFactor={0.32} crm={crmLine} />
             </div>
             {/* Grid 2x2 */}
-            <div style={{ flex: 1, display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1.5px', overflow: 'hidden' }}>
-              {SECOES.map((s, i) => <Secao key={i} titulo={s.titulo} itens={s.itens} />)}
+            <div style={{ flex: 1, display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '4px', padding: '2px 4px 6px' }}>
+              {SECOES.map((s, i) => <Secao key={i} titulo={s.titulo} itens={s.itens} color={paletteColors[i % paletteColors.length] || accentColor} />)}
             </div>
             {/* Rodapé etiqueta */}
             <div style={{ borderTop: `0.3px solid ${accentColor}30`, paddingTop: '3px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '4px' }}>
@@ -1724,11 +1772,11 @@ function OrientacoesRNPreview({ accentColor, patternSrc, editData, logoColor, lo
   const { whatsapp, telefone, telefone2, email, site, instagram } = cartaoContacts || {};
   const mainPhone = [whatsapp || telefone, telefone2].filter(Boolean).join(' / ');
   const solidColor = borderColor || paletteColors[0] || accentColor;
-  const BORDER = comBorda ? 8 : 0;
-  const c0 = paletteColors[0] || accentColor;
-  const c1 = paletteColors[1] || accentColor;
-  const c2 = paletteColors[2] || paletteColors[0] || accentColor;
-  const c3 = paletteColors[3] || paletteColors[1] || accentColor;
+  const BORDER = 8; // Sempre tem borda (ou Estampa ou Sólida conforme BordaToggle)
+  const c0 = ensureLegibleColor(paletteColors[0] || accentColor);
+  const c1 = ensureLegibleColor(paletteColors[1] || accentColor);
+  const c2 = ensureLegibleColor(paletteColors[2] || paletteColors[0] || accentColor);
+  const c3 = ensureLegibleColor(paletteColors[3] || paletteColors[1] || accentColor);
 
   const { nomeBebe='', dataNasc='', peso='', altura='', umbigo='álcool 70%', soro='Rinosoro ou Salsep', med1='Luftal', dose1='', int1='8/8h', med2='Tylenol baby', dose2='', int2='6/6h', pomada='Desitin ou Bepantol', vitDMed='Baby-D ou Addera D3', vitDDose='1', bcgData='', hepBData='', consultaData='', consultaHora='', urgencia='' } = rnFields;
   const { setNomeBebe=()=>{}, setDataNasc=()=>{}, setPeso=()=>{}, setAltura=()=>{}, setUmbigo=()=>{}, setSoro=()=>{}, setMed1=()=>{}, setDose1=()=>{}, setInt1=()=>{}, setMed2=()=>{}, setDose2=()=>{}, setInt2=()=>{}, setPomada=()=>{}, setVitDMed=()=>{}, setVitDDose=()=>{}, setBcgData=()=>{}, setHepBData=()=>{}, setConsultaData=()=>{}, setConsultaHora=()=>{}, setUrgencia=()=>{} } = setRnFields;
@@ -1741,11 +1789,14 @@ function OrientacoesRNPreview({ accentColor, patternSrc, editData, logoColor, lo
         background: 'transparent', padding: '0 1px', textAlign: align,
         display: 'inline-block', verticalAlign: 'baseline' }} />
   );
-  const Label = ({ children, color }) => (
-    <div style={{ display: 'inline-block', background: (color||c0)+'22', border: `0.5px solid ${color||c0}55`, borderRadius: '10px', padding: '0.4px 4px', marginBottom: '1.5px' }}>
-      <span style={{ fontSize: '3.5px', fontWeight: 800, color: color||c0, fontFamily: 'Montserrat,sans-serif', fontStyle: 'italic' }}>{children}</span>
-    </div>
-  );
+  const Label = ({ children, color }) => {
+    const legible = ensureLegibleColor(color || c0);
+    return (
+      <div style={{ display: 'inline-block', background: legible + '18', border: `0.5px solid ${legible}45`, borderRadius: '10px', padding: '0.4px 5px', marginBottom: '1.5px' }}>
+        <span style={{ fontSize: '3.5px', fontWeight: 800, color: legible, fontFamily: 'Montserrat,sans-serif', fontStyle: 'italic' }}>{children}</span>
+      </div>
+    );
+  };
   const Sec = ({ label, color, children }) => (
     <div style={{ marginBottom: '3.5px' }}>
       <Label color={color}>{label}</Label>
@@ -1763,9 +1814,10 @@ function OrientacoesRNPreview({ accentColor, patternSrc, editData, logoColor, lo
     <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', alignItems: 'center' }}>
       <BordaToggle comBorda={comBorda} setComBorda={setComBorda} accentColor={accentColor} paletteColors={paletteColors} borderColor={borderColor} setBorderColor={setBorderColor} patternScale={patternScale} setPatternScale={setPatternScale} />
       <div style={{ width: '226px', height: '320px', position: 'relative', boxShadow: '0 6px 30px rgba(0,0,0,0.12)', borderRadius: '4px', overflow: 'hidden', background: '#fff' }}>
-        {comBorda && patternSrc
+        {comBorda && patternSrc 
           ? <div style={{ position: 'absolute', inset: 0, backgroundImage: `url(${patternSrc})`, backgroundSize: `${(patternScale||150)/2.5}px`, backgroundRepeat: 'repeat' }} />
-          : <div style={{ position: 'absolute', inset: 0, background: solidColor }} />}
+          : <div style={{ position: 'absolute', inset: 0, background: solidColor }} />
+        }
         <div style={{ position: 'absolute', top: BORDER, left: BORDER, right: BORDER, bottom: BORDER, background: '#fff', display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
 
           {/* CABEÇALHO */}
@@ -2764,15 +2816,15 @@ function PapelariaStep({ brand, accentColor, paletteColors, estampaPatterns, est
     "Guia de Cuidados", "Guia de Desenvolvimento", "Guia de Vacina c/ Calendário",
     "Cartão de Exame Pré-Natal", "Gráfico de Crescimento", "Checklist Maternidade", "Guia do Sono",
     "Orientações p/ Recém Nascidos", "Prontuário Médico", "Receita de Alta", "Ficha de Cadastro",
-    "Certificado de Coragem", "Quadro de Incentivo", "Cartão de Aniversário Exclusivo",
+    "Certificado de Coragem",
     "Arte para Caneca/Brindes", "Diário do Xixi",
-    "Meu Pratinho", "Guia de Amamentação", "Fundo de Tira Dúvidas Instagram",
+    "Meu Pratinho", "Guia de Amamentação", "Pack Digital para Instagram",
     "Papel Timbrado", "Papel de Presente", "Etiqueta para Correios",
-    "Assinatura de E-mail", "Tag para Sacola", "Sacola de Papel"
+    "Assinatura de E-mail", "Tag para Sacola"
   ];
    const [idx, setIdx] = useState(0);
   const [comBorda, setComBordaState] = useState(true);
-  const [patternScale, setPatternScaleState] = useState(150);
+  const [patternScale, setPatternScaleState] = useState(100);
   const [borderColor, setBorderColorState] = useState(() => accentColor);
   const [localSlogan, setLocalSlogan] = useState(editData?.tagline || '');
   const [folderRoof, setFolderRoof] = useState(() => brand?.niche?.toLowerCase()?.includes('pedi'));
@@ -2806,6 +2858,7 @@ function PapelariaStep({ brand, accentColor, paletteColors, estampaPatterns, est
   const [etiquetaSizeIdx, setEtiquetaSizeIdx] = useState(0);
   const [tagSacolaSizeIdx, setTagSacolaSizeIdx] = useState(0);
   const [papelPresenteSizeIdx, setPapelPresenteSizeIdx] = useState(1);
+  const [cartaoRetrato, setCartaoRetrato] = useState(false);
   const [storyTemplateIdx, setStoryTemplateIdx] = useState(0);
   const [storyFormatIdx, setStoryFormatIdx] = useState(0);
   const [etiquetaFraseIdx, setEtiquetaFraseIdx] = useState(0);
@@ -2834,7 +2887,7 @@ function PapelariaStep({ brand, accentColor, paletteColors, estampaPatterns, est
   }
 
   const currentIdx = estampaSelectedIdx || 0;
-  const currentItem = itens[idx];
+  const currentItem = itens[Math.min(idx, itens.length - 1)];
   const patternSrc = estampaPatterns?.[currentIdx] ? `data:${estampaPatterns[currentIdx].mimeType};base64,${estampaPatterns[currentIdx].base64}` : null;
   const isScript = editData?.fontStyle === 'script';
   const crmLine = isSaude && crmData?.crm
@@ -3050,14 +3103,22 @@ ${renderPage('menino','verso')}
       const _ffRN = brand.editData?.fontFamily || 'Playfair Display';
       const _lfRN = LOCAL_FONT_FACES[_ffRN];
       const fiRN = `<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;600;700;800&display=swap" rel="stylesheet">${_lfRN ? `<style>${_lfRN}</style>` : `<link href="https://fonts.googleapis.com/css2?family=${_ffRN.replace(/ /g,'+')}:wght@400;700&display=swap" rel="stylesheet">`}`;
-      const c0rn = paletteColors[0] || accentColor;
-      const c1rn = paletteColors[1] || accentColor;
-      const c2rn = paletteColors[2] || paletteColors[0] || accentColor;
-      const c3rn = paletteColors[3] || paletteColors[1] || accentColor;
+      const c0rn = ensureLegibleColor(paletteColors[0] || accentColor);
+      const c1rn = ensureLegibleColor(paletteColors[1] || accentColor);
+      const c2rn = ensureLegibleColor(paletteColors[2] || paletteColors[0] || accentColor);
+      const c3rn = ensureLegibleColor(paletteColors[3] || paletteColors[1] || accentColor);
+      const solidColor = borderColor || paletteColors[0] || accentColor;
+      const BORDER_RN = 12; // Sempre tem borda (ou Estampa ou Sólida)
+
       const f = (v, placeholder='') => v ? `<span style="color:#222;">${v}</span>` : `<span style="border-bottom:0.3mm solid ${c0rn}88;display:inline-block;min-width:12mm;color:#aaa;font-style:italic;">${placeholder}</span>`;
-      const lbl = (text, color) => `<span style="display:inline-block;background:${color}22;border:0.2mm solid ${color}55;border-radius:3mm;padding:0.5mm 2.5mm;font-weight:800;font-style:italic;color:${color};font-size:8pt;">${text}</span>`;
-      const sec = (label, color, content) => `<div style="margin-bottom:5mm;"><div>${lbl(label,color)}</div><div style="font-size:8.5pt;color:#444;line-height:1.5;margin-top:1mm;">${content}</div></div>`;
-      const bul = (text) => `<div style="display:flex;gap:1mm;margin-bottom:0.8mm;"><span style="color:${c0rn};">•</span><span style="font-size:6.5pt;color:#444;line-height:1.35;">${text}</span></div>`;
+      
+      const lbl = (text, color) => {
+        const legible = ensureLegibleColor(color);
+        return `<span style="display:inline-block;background:${legible}15;border:0.25mm solid ${legible}40;border-radius:4mm;padding:0.8mm 3.5mm;font-weight:800;font-style:italic;color:${legible};font-size:9pt;margin-bottom:1mm;">${text}</span>`;
+      };
+
+      const sec = (label, color, content) => `<div style="margin-bottom:6mm;"><div>${lbl(label,color)}</div><div style="font-size:9pt;color:#444;line-height:1.5;margin-top:1.5mm;font-weight:500;">${content}</div></div>`;
+      const bul = (text) => `<div style="display:flex;gap:1.5mm;margin-bottom:1.2mm;"><span style="color:${c0rn};font-weight:900;">•</span><span style="font-size:7.5pt;color:#444;line-height:1.4;">${text}</span></div>`;
       const logoHtmlRN = genPDFLogoHtml({ brand, color: '#fff', localSlogan, crmLine, fontPt: 18, lineH: 1.1, letterSp: '0.5pt', hideSlogan: true, crmSize: '0' });
 
       const html = `<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Orientações RN - ${marca}</title>${fiRN}
@@ -3066,79 +3127,86 @@ body { font-family:'Montserrat',sans-serif; background:#fff; }
 .page { width:210mm; height:297mm; position:relative; overflow:hidden; background:#fff; display:flex; flex-direction:column; }
 @media print { body { margin:0; } @page { size:210mm 297mm; margin:0; } }
 </style></head><body>
-<div class="page">
-  <!-- HEADER -->
-  <div style="background:${c0rn};padding:5mm 8mm;display:flex;align-items:center;justify-content:space-between;flex-shrink:0;">
-    <div style="font-size:13pt;font-weight:900;color:#fff;text-transform:uppercase;letter-spacing:0.5pt;line-height:1.2;">OS PRIMEIROS DIAS<br/>COM MEU BEBÊ</div>
-    <div style="zoom:1.0;">${logoHtmlRN}</div>
-  </div>
-
-  <!-- FAIXA BEBÊ -->
-  <div style="background:${c0rn}12;border-bottom:0.3mm solid ${c0rn}30;padding:2.5mm 8mm;display:flex;gap:6mm;align-items:center;flex-shrink:0;">
-    <div style="display:flex;align-items:center;gap:1.5mm;flex:2;"><span style="font-size:7pt;font-weight:700;color:${c0rn};white-space:nowrap;">Bebê:</span> ${f(rnNomeBebe,'nome do bebê')}</div>
-    <div style="display:flex;align-items:center;gap:1.5mm;"><span style="font-size:7pt;font-weight:700;color:${c0rn};white-space:nowrap;">Nasc:</span> ${f(rnDataNasc,'__/__/____')}</div>
-    <div style="display:flex;align-items:center;gap:1.5mm;"><span style="font-size:7pt;font-weight:700;color:${c0rn};">Peso:</span> ${f(rnPeso,'___')} kg</div>
-    <div style="display:flex;align-items:center;gap:1.5mm;"><span style="font-size:7pt;font-weight:700;color:${c0rn};">Alt:</span> ${f(rnAltura,'___')} cm</div>
-  </div>
-
-  <!-- CORPO -->
-  <div style="flex:1;display:flex;overflow:hidden;align-items:center;">
-    <div style="flex:0 0 47%;padding:7mm 5mm 4mm 8mm;border-right:0.3mm solid ${c0rn}20;display:flex;flex-direction:column;justify-content:center;">
-      ${sec('Alimentação:', c0rn, 'Aleitamento materno sob livre demanda (à vontade).')}
-      ${sec('Umbigo:', c1rn, `Limpeza com ${f(rnUmbigo,'álcool 70%')} a cada troca de fralda e após o banho.`)}
-      ${sec('Icterícia:', c2rn, 'Pele amarelada? Procure o pediatra imediatamente.')}
-      ${sec('Febre:', c3rn, 'Menores de 3 meses: emergência. Maiores de 3 meses: siga as orientações médicas.')}
-      ${sec('Higiene:', c0rn, '1 banho/dia com sabonete neutro. Sem talco ou perfume. Trocas com água morna e algodão.')}
+<div class="page" style="position:relative;">
+  <!-- BACKGROUND / BORDER -->
+  ${comBorda && patternSrc 
+    ? `<div style="position:absolute;inset:0;background-image:url(${patternSrc});background-size:${(patternScale*0.4).toFixed(1)}mm;background-repeat:repeat;"></div>`
+    : `<div style="position:absolute;inset:0;background:${solidColor};"></div>`}
+  
+  <div style="position:absolute;top:${BORDER_RN}mm;left:${BORDER_RN}mm;right:${BORDER_RN}mm;bottom:${BORDER_RN}mm;background:#fff;display:flex;flex-direction:column;overflow:hidden;">
+    <!-- HEADER -->
+    <div style="background:${c0rn};padding:6mm 10mm;display:flex;align-items:center;justify-content:space-between;flex-shrink:0;">
+      <div style="font-size:14pt;font-weight:900;color:#fff;text-transform:uppercase;letter-spacing:0.5pt;line-height:1.2;">OS PRIMEIROS DIAS<br/>COM MEU BEBÊ</div>
+      <div style="zoom:1.1;">${logoHtmlRN}</div>
     </div>
-    <div style="flex:1;padding:7mm 8mm 4mm 5mm;display:flex;flex-direction:column;justify-content:center;">
-      ${sec('Nariz:', c1rn, `Spray de soro 0,9% (${f(rnSoro,'Rinosoro ou Salsep')}) antes de cada mamada.`)}
-      ${sec('Cólicas:', c2rn, `Compressa morna. Se necessário: ${f(rnMed1,'Luftal')} ${f(rnDose1,'__')} gts ${f(rnInt1,'8/8h')}. Sem melhora: ${f(rnMed2,'Tylenol baby')} ${f(rnDose2,'__')} gts ${f(rnInt2,'6/6h')}.`)}
-      ${sec('Assaduras:', c3rn, `Secar bem antes de aplicar (${f(rnPomada,'Desitin ou Bepantol')}).`)}
-      ${sec('Vitamina D:', c0rn, `${f(rnVitDMed,'Baby-D ou Addera D3')} — ${f(rnVitDDose,'1')} gota/dia desde o nascimento.`)}
-    </div>
-  </div>
 
-  <!-- VACINAS + CONSULTA -->
-  <div style="border-top:0.3mm solid ${c0rn}25;padding:3mm 8mm;display:flex;gap:8mm;align-items:center;flex-shrink:0;background:${c1rn}0a;">
-    <div style="flex:1;">
-      <div style="font-size:7pt;font-weight:800;color:${c1rn};text-transform:uppercase;margin-bottom:1.5mm;">Vacinas na maternidade</div>
-      <div style="display:flex;gap:8mm;">
-        <div style="font-size:7pt;color:#555;display:flex;align-items:center;gap:1.5mm;">BCG: ${f(rnBcgData,'data')}</div>
-        <div style="font-size:7pt;color:#555;display:flex;align-items:center;gap:1.5mm;">Hepatite B: ${f(rnHepBData,'data')}</div>
+    <!-- FAIXA BEBÊ -->
+    <div style="background:${c0rn}12;border-bottom:0.3mm solid ${c0rn}30;padding:3.5mm 10mm;display:flex;gap:8mm;align-items:center;flex-shrink:0;">
+      <div style="display:flex;align-items:center;gap:2mm;flex:2;"><span style="font-size:8pt;font-weight:700;color:${c0rn};white-space:nowrap;">Bebê:</span> ${f(rnNomeBebe,'nome do bebê')}</div>
+      <div style="display:flex;align-items:center;gap:2mm;"><span style="font-size:8pt;font-weight:700;color:${c0rn};white-space:nowrap;">Nasc:</span> ${f(rnDataNasc,'__/__/____')}</div>
+      <div style="display:flex;align-items:center;gap:2mm;"><span style="font-size:8pt;font-weight:700;color:${c0rn};">Peso:</span> ${f(rnPeso,'___')} kg</div>
+      <div style="display:flex;align-items:center;gap:2mm;"><span style="font-size:8pt;font-weight:700;color:${c0rn};">Alt:</span> ${f(rnAltura,'___')} cm</div>
+    </div>
+
+    <!-- CORPO -->
+    <div style="flex:1;display:flex;overflow:hidden;align-items:center;">
+      <div style="flex:0 0 47%;padding:8mm 5mm 6mm 10mm;border-right:0.3mm solid ${c0rn}20;display:flex;flex-direction:column;justify-content:center;">
+        ${sec('Alimentação:', c0rn, 'Aleitamento materno sob livre demanda (à vontade).')}
+        ${sec('Umbigo:', c1rn, `Limpeza com ${f(rnUmbigo,'álcool 70%')} a cada troca de fralda e após o banho.`)}
+        ${sec('Icterícia:', c2rn, 'Pele amarelada? Procure o pediatra imediatamente.')}
+        ${sec('Febre:', c3rn, 'Menores de 3 meses: emergência. Maiores de 3 meses: siga as orientações médicas.')}
+        ${sec('Higiene:', c0rn, '1 banho/dia com sabonete neutro. Sem talco ou perfume. Trocas com água morna e algodão.')}
+      </div>
+      <div style="flex:1;padding:8mm 10mm 6mm 5mm;display:flex;flex-direction:column;justify-content:center;">
+        ${sec('Nariz:', c1rn, `Spray de soro 0,9% (${f(rnSoro,'Rinosoro ou Salsep')}) antes de cada mamada.`)}
+        ${sec('Cólicas:', c2rn, `Compressa morna. Se necessário: ${f(rnMed1,'Luftal')} ${f(rnDose1,'__')} gts ${f(rnInt1,'8/8h')}. Sem melhora: ${f(rnMed2,'Tylenol baby')} ${f(rnDose2,'__')} gts ${f(rnInt2,'6/6h')}.`)}
+        ${sec('Assaduras:', c3rn, `Secar bem antes de aplicar (${f(rnPomada,'Desitin ou Bepantol')}).`)}
+        ${sec('Vitamina D:', c0rn, `${f(rnVitDMed,'Baby-D ou Addera D3')} — ${f(rnVitDDose,'1')} gota/dia desde o nascimento.`)}
       </div>
     </div>
-    <div style="flex:1;background:${c2rn}18;border-radius:2mm;padding:2.5mm 4mm;border:0.2mm solid ${c2rn}40;">
-      <div style="font-size:7pt;font-weight:800;color:${c2rn};text-transform:uppercase;margin-bottom:1.5mm;">📅 Próxima consulta</div>
-      <div style="font-size:7.5pt;color:#444;display:flex;gap:3mm;align-items:center;">${f(rnConsultaData,'dd/mm/aaaa')} às ${f(rnConsultaHora,'00h00')}</div>
-    </div>
-  </div>
 
-  <!-- OBSERVAÇÕES -->
-  <div style="border-top:0.3mm solid ${c0rn}25;padding:3mm 8mm;flex-shrink:0;background:${c0rn}08;">
-    <div style="font-size:8pt;font-weight:900;color:${c0rn};font-style:italic;margin-bottom:2mm;">Observações:</div>
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:0 10mm;">
+    <!-- VACINAS + CONSULTA -->
+    <div style="border-top:0.3mm solid ${c0rn}25;padding:4mm 10mm;display:flex;gap:10mm;align-items:center;flex-shrink:0;background:${c1rn}0a;">
+      <div style="flex:1;">
+        <div style="font-size:8pt;font-weight:800;color:${c1rn};text-transform:uppercase;margin-bottom:2mm;">Vacinas na maternidade</div>
+        <div style="display:flex;gap:10mm;">
+          <div style="font-size:8pt;color:#555;display:flex;align-items:center;gap:2mm;">BCG: ${f(rnBcgData,'data')}</div>
+          <div style="font-size:8pt;color:#555;display:flex;align-items:center;gap:2mm;">Hepatite B: ${f(rnHepBData,'data')}</div>
+        </div>
+      </div>
+      <div style="flex:1;background:${c2rn}18;border-radius:2.5mm;padding:3mm 5mm;border:0.2mm solid ${c2rn}40;">
+        <div style="font-size:8pt;font-weight:800;color:${c2rn};text-transform:uppercase;margin-bottom:2mm;">📅 Próxima consulta</div>
+        <div style="font-size:8.5pt;color:#444;display:flex;gap:4mm;align-items:center;">${f(rnConsultaData,'dd/mm/aaaa')} às ${f(rnConsultaHora,'00h00')}</div>
+      </div>
+    </div>
+
+    <!-- OBSERVAÇÕES -->
+    <div style="border-top:0.3mm solid ${c0rn}25;padding:4mm 10mm;flex-shrink:0;background:${c0rn}08;">
+      <div style="font-size:9pt;font-weight:900;color:${c0rn};font-style:italic;margin-bottom:2.5mm;">Observações:</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:0 12mm;">
+        <div>
+          ${bul('Consulta entre 7 e 14 dias de vida.')}
+          ${bul('Levar ao Posto de Saúde para vacinação.')}
+          ${bul('Teste do Pezinho entre o 3º e 7º dia.')}
+          ${bul('Teste da Orelhinha o quanto antes.')}
+        </div>
+        <div>
+          ${bul('Dormir sempre de barriga para cima.')}
+          ${bul('Sem travesseiros ou cobertores pesados.')}
+          ${bul('Roupas leves no bebê.')}
+          ${bul('Sólidos só após os 6 meses com orientação.')}
+        </div>
+      </div>
+    </div>
+
+    <!-- RODAPÉ -->
+    <div style="border-top:0.3mm solid ${c0rn}30;padding:3.5mm 10mm;display:flex;justify-content:space-between;align-items:center;flex-shrink:0;">
       <div>
-        ${bul('Consulta entre 7 e 14 dias de vida.')}
-        ${bul('Levar ao Posto de Saúde para vacinação.')}
-        ${bul('Teste do Pezinho entre o 3º e 7º dia.')}
-        ${bul('Teste da Orelhinha o quanto antes.')}
+        <div style="font-size:8.5pt;font-weight:800;color:${c0rn};text-transform:uppercase;">${clinicaNome || marca}</div>
+        <div style="font-size:7pt;color:#888;">Urgências: ${f(rnUrgencia, mainPhone || 'telefone')}</div>
       </div>
-      <div>
-        ${bul('Dormir sempre de barriga para cima.')}
-        ${bul('Sem travesseiros ou cobertores pesados.')}
-        ${bul('Roupas leves no bebê.')}
-        ${bul('Sólidos só após os 6 meses com orientação.')}
-      </div>
+      <div style="font-size:6.5pt;color:#aaa;text-align:right;">${[mainPhone, site, instagram ? `@${instagram}` : ''].filter(Boolean).join('  ·  ')}</div>
     </div>
-  </div>
-
-  <!-- RODAPÉ -->
-  <div style="border-top:0.3mm solid ${c0rn}30;padding:2.5mm 8mm;display:flex;justify-content:space-between;align-items:center;flex-shrink:0;">
-    <div>
-      <div style="font-size:7.5pt;font-weight:800;color:${c0rn};text-transform:uppercase;">${clinicaNome || marca}</div>
-      <div style="font-size:6.5pt;color:#888;">Urgências: ${f(rnUrgencia, mainPhone || 'telefone')}</div>
-    </div>
-    <div style="font-size:6pt;color:#aaa;text-align:right;">${[mainPhone, site, instagram ? `@${instagram}` : ''].filter(Boolean).join('  ·  ')}</div>
   </div>
 </div>
 </body></html>`;
@@ -3316,6 +3384,9 @@ body { width: 480mm; height: 380mm; position: relative; overflow: hidden; backgr
     // ── CARTÃO DE VISITA ────────────────────────────────────────────
     if (item === 'Cartão de Visita') {
       const BLEED = 3;
+      const _isRetrato = cartaoRetrato;
+      const _cW = _isRetrato ? '61mm' : '96mm';
+      const _cH = _isRetrato ? '96mm' : '61mm';
       const _fontFamily = brand.editData?.fontFamily || 'Playfair Display';
       const _localFace = LOCAL_FONT_FACES[_fontFamily];
       const fontImports = `
@@ -3327,16 +3398,19 @@ body { width: 480mm; height: 380mm; position: relative; overflow: hidden; backgr
       `;
 
       const frenteBgHtml = comBorda && patternSrc
-        ? `<div style="position:absolute;inset:0;background-image:url(${patternSrc});background-size:${((patternScale || 150) * 0.22).toFixed(1)}mm;background-repeat:repeat;opacity:0.9;"></div>
-           <div style="position:absolute;top:${BLEED + 5}mm;left:${BLEED + 5}mm;right:${BLEED + 5}mm;bottom:${BLEED + 5}mm;background:#fff;"></div>`
+        ? `<div style="position:absolute;inset:0;background-image:url(${patternSrc});background-size:${((patternScale || 150) * 0.22).toFixed(1)}mm;background-repeat:repeat;opacity:0.9;"></div>`
         : `<div style="position:absolute;inset:0;background:#fff;"></div>`;
 
+      const _logoW = _isRetrato ? '74%' : '58%';
+      const _logoPad = _isRetrato ? '6mm 7mm' : '4mm 5mm';
       const frenteHtml = `
         <div class="card" style="position:relative;overflow:hidden;">
           ${frenteBgHtml}
           <div style="position:absolute;top:${BLEED}mm;left:${BLEED}mm;right:${BLEED}mm;bottom:${BLEED}mm;display:flex;align-items:center;justify-content:center;">
-            <div style="width:58%;display:flex;flex-direction:column;align-items:center;justify-content:center;">
-              ${logoHtmlWithCrm}
+            <div style="background:#fff;padding:${_logoPad};border-radius:1.5mm;width:${_logoW};display:flex;flex-direction:column;align-items:center;justify-content:center;">
+              <div style="transform:scale(${_isRetrato ? '0.55' : '0.75'});transform-origin:center center;">
+                ${logoHtmlWithCrm}
+              </div>
             </div>
           </div>
           <div class="cm cm-tl"></div><div class="cm cm-tr"></div><div class="cm cm-bl"></div><div class="cm cm-br"></div>
@@ -3365,7 +3439,7 @@ body { width: 480mm; height: 380mm; position: relative; overflow: hidden; backgr
         <div class="card" style="position:relative;overflow:hidden;">
           ${versoBgHtml}
           <div style="position:absolute;top:${BLEED}mm;left:${BLEED}mm;right:${BLEED}mm;bottom:${BLEED}mm;display:flex;align-items:center;justify-content:center;">
-            <div style="background:rgba(255,255,255,0.93);padding:3mm 5mm;border-radius:1.5mm;width:82%;text-align:center;font-family:'Montserrat',sans-serif;">
+            <div style="background:rgba(255,255,255,0.93);padding:${_isRetrato ? '2.5mm 4mm' : '3mm 5mm'};border-radius:1.5mm;width:${_isRetrato ? '86%' : '82%'};text-align:center;font-family:'Montserrat',sans-serif;font-size:${_isRetrato ? '0.82em' : '1em'};">
               ${contactLines || `<span style="font-size:5pt;color:#aaa;">Adicione seus dados no Cartão Digital</span>`}
             </div>
           </div>
@@ -3380,14 +3454,14 @@ body { width: 480mm; height: 380mm; position: relative; overflow: hidden; backgr
 ${fontImports}
 <style>
   * { box-sizing: border-box; margin: 0; padding: 0; }
-  .card { width: 96mm; height: 56mm; position: relative; }
+  .card { width: ${_cW}; height: ${_cH}; position: relative; }
   .cm { position: absolute; width: 2mm; height: 2mm; pointer-events: none; }
   .cm-tl { top: 3mm; left: 3mm; border-top: 0.3px solid rgba(0,0,0,0.4); border-left: 0.3px solid rgba(0,0,0,0.4); }
   .cm-tr { top: 3mm; right: 3mm; border-top: 0.3px solid rgba(0,0,0,0.4); border-right: 0.3px solid rgba(0,0,0,0.4); }
   .cm-bl { bottom: 3mm; left: 3mm; border-bottom: 0.3px solid rgba(0,0,0,0.4); border-left: 0.3px solid rgba(0,0,0,0.4); }
   .cm-br { bottom: 3mm; right: 3mm; border-bottom: 0.3px solid rgba(0,0,0,0.4); border-right: 0.3px solid rgba(0,0,0,0.4); }
   * { print-color-adjust: exact !important; -webkit-print-color-adjust: exact !important; }
-  @media print { body { margin: 0; } .card { page-break-after: always; } @page { size: 96mm 56mm; margin: 0; } }
+  @media print { body { margin: 0; } .card { page-break-after: always; } @page { size: ${_cW} ${_cH}; margin: 0; } }
 </style>
 </head>
 <body>
@@ -3531,7 +3605,10 @@ body { width:${totalW}mm; height:${totalH}mm; position:relative; overflow:hidden
     }
 
     if (item === 'Ficha de Cadastro') {
-      const BLEED = 3;
+      const BLEED = 5;
+      const W = 210, H = 297;
+      const totalW = W + BLEED * 2;
+      const totalH = H + BLEED * 2;
       const _ffC = brand.editData?.fontFamily || 'Playfair Display';
       const _lfC = LOCAL_FONT_FACES[_ffC];
       const fiC = `<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700;800&display=swap" rel="stylesheet">${_lfC ? `<style>${_lfC}</style>` : `<link href="https://fonts.googleapis.com/css2?family=${_ffC.replace(/ /g,'+')}:wght@400;700&display=swap" rel="stylesheet">`}`;
@@ -3539,7 +3616,7 @@ body { width:${totalW}mm; height:${totalH}mm; position:relative; overflow:hidden
       const genBg = (innerPad = 8) => comBorda && patternSrc
         ? `<div style="position:absolute;inset:0;background-image:url(${patternSrc});background-size:${(patternScale * 0.4).toFixed(1)}mm;background-repeat:repeat;opacity:0.9;"></div>
            <div style="position:absolute;top:${BLEED + innerPad}mm;left:${BLEED + innerPad}mm;right:${BLEED + innerPad}mm;bottom:${BLEED + innerPad}mm;background:#fff;"></div>`
-        : comBorda ? `<div style="position:absolute;inset:0;background:#fff;"></div>` : `<div style="position:absolute;inset:0;background:#fff;border:${BLEED + innerPad}mm solid ${borderColor || accentColor};"></div>`;
+        : comBorda ? `<div style="position:absolute;inset:0;background:#fff;"></div>` : `<div style="position:absolute;inset:0;background:#fff;border:${BLEED + innerPad}mm solid ${borderColor || accentColor};box-sizing:border-box;"></div>`;
 
       const formRow = (label, flex, bg='#cfd9e5', w='100%') => `
         <div style="display:flex;align-items:center;gap:3mm;flex:${flex};width:${w};">
@@ -3554,24 +3631,24 @@ body { width:${totalW}mm; height:${totalH}mm; position:relative; overflow:hidden
       `;
 
       const pageHtml = `
-        <div class="card" style="position:relative;overflow:hidden;width:210mm;height:297mm;background:#fff;">
+        <div class="card" style="position:relative;overflow:hidden;width:${totalW}mm;height:${totalH}mm;background:#fff;">
           ${genBg(8)}
           <div style="position:absolute;top:${BLEED + 8}mm;left:${BLEED + 8}mm;right:${BLEED + 8}mm;bottom:${BLEED + 8}mm;padding:12mm 15mm;display:flex;flex-direction:column;">
             
-            <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:12mm;">
+            <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:10mm;">
               <div style="padding-top:2mm;">
                 <h1 style="font-family:'Montserrat',sans-serif;font-size:18pt;font-weight:800;letter-spacing:1px;color:#111;margin:0;">CADASTRO DE PACIENTES</h1>
-                <div style="display:flex;align-items:center;gap:3mm;margin-top:6mm;">
+                <div style="display:flex;align-items:center;gap:3mm;margin-top:5mm;">
                   <span style="font-size:10pt;font-weight:400;color:#222;">DATA :</span>
                   <div style="width:40mm;height:6mm;background:#e2ddd7;border-radius:1px;"></div>
                 </div>
               </div>
-              <div style="width:75mm;text-align:right;transform:scale(1.45);transform-origin:top right;margin-top:8mm;">
+              <div style="width:70mm;text-align:right;transform:scale(1.2);transform-origin:top right;margin-top:5mm;">
                 ${logoHtmlWithCrm}
               </div>
             </div>
 
-            <div style="display:flex;flex-direction:column;gap:5.5mm;font-family:'Montserrat',sans-serif;width:100%;">
+            <div style="display:flex;flex-direction:column;gap:5mm;font-family:'Montserrat',sans-serif;width:100%;">
               ${formRow('NOME COMPLETO DA CRIANÇA :', 1)}
               <div style="display:flex;gap:5mm;">
                 ${formRow('DATA DE NASCIMENTO:', 0.45)}
@@ -3587,7 +3664,7 @@ body { width:${totalW}mm; height:${totalH}mm; position:relative; overflow:hidden
                 ${formRow('PROFISSÃO:', 0.65)}
                 ${formRow('CPF:', 0.35)}
               </div>
-              <div style="border:0.5mm solid #cfd9e5;border-radius:2mm;padding:4mm;background:#f8fafc;display:flex;flex-direction:column;gap:4mm;">
+              <div style="border:0.5mm solid #cfd9e5;border-radius:2mm;padding:4mm;background:#f8fafc;display:flex;flex-direction:column;gap:3.5mm;">
                 ${formRow('NOME DO (A) RESPONSÁVEL ACOMPANHANTE:', 1)}
                 <div style="display:flex;gap:5mm;">
                   ${formRow('GRAU DE PARENTESCO:', 0.6)}
@@ -3613,10 +3690,6 @@ body { width:${totalW}mm; height:${totalH}mm; position:relative; overflow:hidden
                 ${formRow('RESPONSÁVEL:', 1)}
               </div>
 
-              <div style="display:flex;gap:5mm;align-items:center;">
-                ${formRow('OUTROS TELEFONES :', 0.55)}
-                ${formText('RESIDENCIAL ( &nbsp; &nbsp;) &nbsp; COMERCIAL ( &nbsp; &nbsp;)', 0.45)}
-              </div>
               <div style="display:flex;gap:5mm;align-items:center;">
                 ${formRow('OUTROS TELEFONES :', 0.55)}
                 ${formText('RESIDENCIAL ( &nbsp; &nbsp;) &nbsp; COMERCIAL ( &nbsp; &nbsp;)', 0.45)}
@@ -3688,11 +3761,11 @@ body { width: 220mm; height: 307mm; position: relative; overflow: hidden; backgr
         <div class="page" style="position:relative;overflow:hidden;width:210mm;height:297mm;background:#fff;">
           ${genBg(8)}
           <div style="position:absolute;top:${BLEED + 8}mm;left:${BLEED + 8}mm;right:${BLEED + 8}mm;bottom:${BLEED + 8}mm;padding:12mm 15mm;display:flex;flex-direction:column;align-items:center;">
-            <div style="margin-bottom:10mm;display:flex;justify-content:center;width:100%;transform:scale(1.2);transform-origin:top center;">
+            <div style="margin-bottom:10mm;display:flex;flex-direction:column;align-items:center;justify-content:center;width:100%;transform:scale(1.2);transform-origin:top center;">
                ${logoHtmlWithCrm}
             </div>
             <div style="display:flex;flex-direction:column;gap:4mm;font-family:'Montserrat',sans-serif;width:100%;margin-top:1mm;border:0.25mm solid #eee;border-radius:1mm;padding:5mm 6mm;">
-              ${formRow('PACIENTE:', 'DATA DE NASCIMENTO:', 0.45)}
+              ${formRow('PACIENTE:', 'NASC:', 0.6)}
               ${formRow('NOME DA MÃE:', 'CPF:', 0.45)}
               ${formRow('TELEFONE:', 'EMAIL:', 0.45)}
               ${formRow('ENDEREÇO:', 'CIDADE:', 0.45)}
@@ -3721,14 +3794,14 @@ body { width: 220mm; height: 307mm; position: relative; overflow: hidden; backgr
 
       const html = `<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Prontuário Médico - ${marca}</title>${fiPr}
 <style>* { box-sizing:border-box; margin:0; padding:0; print-color-adjust:exact !important; -webkit-print-color-adjust:exact !important; }
-body { width: 210mm; height: 297mm; background: #fff; }
-.page { width: 210mm; height: 297mm; position: relative; }
+body { width: 220mm; height: 307mm; background: #fff; }
+.page { width: 220mm; height: 307mm; position: relative; }
 .cm { position: absolute; width: 5mm; height: 5mm; border-color: rgba(0,0,0,0.5); border-style: solid; border-width: 0; pointer-events: none; }
 .cm-tl { top:0; left:0; border-top:0.2mm solid; border-left:0.2mm solid; }
 .cm-tr { top:0; right:0; border-top:0.2mm solid; border-right:0.2mm solid; }
 .cm-bl { bottom:0; left:0; border-bottom:0.2mm solid; border-left:0.2mm solid; }
 .cm-br { bottom:0; right:0; border-bottom:0.2mm solid; border-right:0.2mm solid; }
-@media print { body { margin:0; } @page { size: 210mm 297mm; margin: 0; } }
+@media print { body { margin:0; } @page { size: 220mm 307mm; margin: 0; } }
 </style></head><body>${frenteHtml}${versoHtml}</body></html>`;
 
       const ex = document.getElementById('_gabarito_v2'); if (ex) ex.remove();
@@ -3742,6 +3815,7 @@ body { width: 210mm; height: 297mm; background: #fff; }
     }
 
     if (item === 'Checklist Maternidade') {
+      const BLEED = 5;
       const _bc = borderColor || accentColor;
       const _bwCk = '8mm';
       const _patCk = (comBorda && patternSrc)
@@ -3753,10 +3827,26 @@ body { width: 210mm; height: 297mm; background: #fff; }
         { titulo: 'check list documentos', itens: ['RG dos pais ou documento com foto','Carteirinha do plano de saúde','Cartão do pré natal!!!','Últimos exames feitos','Se pais casados: certidão de casamento'] },
         { titulo: 'check list acompanhante', itens: ['2 mudas de roupa','Produtos de higiene pessoal','Chinelo','Carregador de celular','Lanchinho'] },
       ];
-      const secaoHtmlCk = (s) => `<div style="border:0.3mm solid ${accentColor}40;border-radius:1mm;padding:2mm 2.5mm;display:flex;flex-direction:column;gap:0.5mm;"><div style="font-family:Georgia,serif;font-style:italic;font-size:8.5pt;font-weight:700;color:${accentColor};margin-bottom:0.8mm;border-bottom:0.2mm solid ${accentColor}30;padding-bottom:0.8mm;">${s.titulo}</div>${s.itens.map(it => `<div style="display:flex;align-items:flex-start;gap:1.5mm;font-family:'Montserrat',sans-serif;font-size:7pt;color:#444;line-height:1.2;"><div style="width:3mm;height:3mm;border:0.3mm solid ${accentColor}80;border-radius:0.5mm;flex-shrink:0;margin-top:0.8mm;"></div><span>${it}</span></div>`).join('')}</div>`;
+      const secaoHtmlCk = (s, idx) => {
+        const color = paletteColors[idx % paletteColors.length] || accentColor;
+        const op = getLegibleBgOpacity(color);
+        const legibleBorder = ensureLegibleColor(color);
+        return `
+          <div style="background:${color}${op}; border:0.35mm solid ${color}40; border-radius:1.5mm; padding:2.5mm 4mm; display:flex; flex-direction:column; gap:1mm; height:100%;">
+            <div style="font-family:Georgia,serif; font-style:italic; font-size:9.5pt; font-weight:700; color:${legibleBorder}; margin-bottom:1.5mm; border-bottom:0.25mm solid ${color}30; padding-bottom:1.5mm; text-transform:lowercase;">${s.titulo}</div>
+            <div style="display:flex; flex-direction:column; gap:0.5mm;">
+              ${s.itens.map((it, iIdx) => `
+                <div style="display:flex; align-items:flex-start; gap:2.5mm; font-family:'Montserrat',sans-serif; font-size:8.1pt; color:#333; line-height:1.3; font-weight:500; border-bottom:${iIdx === s.itens.length - 1 ? 'none' : '0.15mm solid #00000008'}; padding-bottom:1.2mm; margin-bottom:0.5mm;">
+                  <div style="width:3.5mm; height:3.5mm; border:0.4mm solid ${legibleBorder}; border-radius:0.8mm; flex-shrink:0; margin-top:0.4mm; background:#fff;"></div>
+                  <span style="flex:1;">${it}</span>
+                </div>
+              `).join('')}
+            </div>
+          </div>`;
+      };
       const _allPhonesCk = [whatsapp || telefone, telefone2].filter(Boolean).join(' / ');
-      const _logoCk = genPDFLogoHtml({ brand, color: accentColor, localSlogan, crmLine, fontPt: 24, lineH: 1.2, letterSp: brand.editData?.fontLetterSpacing || '0.5pt' });
-      const htmlCk = `<!DOCTYPE html><html><head><meta charset="UTF-8"><link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700;900&display=swap" rel="stylesheet"><style>*{margin:0;padding:0;box-sizing:border-box;}body{width:210mm;height:297mm;}@media print{body{margin:0;}@page{size:210mm 297mm;margin:0;}}</style></head><body><div style="position:relative;width:210mm;height:297mm;${_patCk}"><div style="position:absolute;top:${_bwCk};left:${_bwCk};right:${_bwCk};bottom:${_bwCk};background:#fff;display:flex;overflow:hidden;"><div style="width:14mm;flex-shrink:0;display:flex;align-items:center;justify-content:center;background:${accentColor}15;"><div style="transform:rotate(-90deg);white-space:nowrap;font-family:'Montserrat',sans-serif;font-size:13pt;font-weight:900;color:${accentColor};letter-spacing:3pt;text-transform:uppercase;">CHECKLIST MATERNIDADE</div></div><div style="flex:1;display:flex;flex-direction:column;padding:12mm 5mm 3mm 5mm;gap:2.5mm;overflow:hidden;"><div style="display:flex;justify-content:center;padding-bottom:5mm;border-bottom:0.2mm solid ${accentColor}20;">${_logoCk}</div><div style="flex:1;display:grid;grid-template-columns:1fr 1fr;gap:2mm;">${SECOES_CK.map(secaoHtmlCk).join('')}</div><div style="border-top:0.3mm solid ${accentColor}30;padding-top:2.5mm;display:flex;align-items:center;justify-content:space-between;gap:4mm;"><div style="font-family:'Montserrat',sans-serif;font-size:8pt;font-weight:800;color:${accentColor};text-transform:uppercase;letter-spacing:0.5pt;white-space:nowrap;">${clinicaNome || marca}</div><div style="font-family:'Montserrat',sans-serif;font-size:7pt;color:#888;text-align:center;line-height:1.4;">${endereco ? `<div>${endereco}</div>` : ''}${_allPhonesCk ? `<div>${_allPhonesCk}</div>` : ''}</div><div style="font-family:'Montserrat',sans-serif;font-size:7pt;color:#888;text-align:right;white-space:nowrap;">${site ? `<div>${site}</div>` : ''}${instagram ? `<div>@${instagram}</div>` : ''}</div></div></div></div></div></body></html>`;
+      const _logoCk = genPDFLogoHtml({ brand, color: accentColor, localSlogan, crmLine, fontPt: 24, lineH: 1.2, letterSp: brand.editData?.fontLetterSpacing || '0.5pt', layout: logoLayout });
+      const htmlCk = `<!DOCTYPE html><html><head><meta charset="UTF-8"><link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;700;900&display=swap" rel="stylesheet"><style>*{margin:0;padding:0;box-sizing:border-box;}body{width:220mm;height:307mm;}@media print{body{margin:0;}@page{size:220mm 307mm;margin:0;}}</style></head><body><div style="position:relative;width:220mm;height:307mm;${_patCk}"><div style="position:absolute;top:${BLEED + 8}mm;left:${BLEED + 8}mm;right:${BLEED + 8}mm;bottom:${BLEED + 8}mm;background:#fff;display:flex;overflow:hidden;"><div style="width:16mm;flex-shrink:0;display:flex;align-items:center;justify-content:center;background:${accentColor}15;"><div style="transform:rotate(-90deg);white-space:nowrap;font-family:'Montserrat',sans-serif;font-size:15pt;font-weight:900;color:${accentColor};letter-spacing:4pt;text-transform:uppercase;">CHECKLIST MATERNIDADE</div></div><div style="flex:1;display:flex;flex-direction:column;padding:12mm 8mm 10mm 8mm;gap:4mm;overflow:hidden;"><div style="display:flex;justify-content:center;padding-bottom:5mm;border-bottom:0.2mm solid ${accentColor}25;">${_logoCk}</div><div style="flex:1;display:grid;grid-template-columns:1fr 1fr;gap:4mm;">${SECOES_CK.map((s, idx) => secaoHtmlCk(s, idx)).join('')}</div><div style="border-top:0.3mm solid ${accentColor}30;padding:3mm 2mm 0;display:flex;align-items:center;justify-content:space-between;gap:6mm;"><div style="font-family:'Montserrat',sans-serif;font-size:9pt;font-weight:800;color:${accentColor};text-transform:uppercase;letter-spacing:0.5pt;white-space:nowrap;">${clinicaNome || marca}</div><div style="font-family:'Montserrat',sans-serif;font-size:7.5pt;color:#888;text-align:center;line-height:1.4;">${endereco ? `<div>${endereco}</div>` : ''}${_allPhonesCk ? `<div>${_allPhonesCk}</div>` : ''}</div><div style="font-family:'Montserrat',sans-serif;font-size:7.5pt;color:#888;text-align:right;white-space:nowrap;">${site ? `<div>${site}</div>` : ''}${instagram ? `<div>@${instagram}</div>` : ''}</div></div></div></div></div></body></html>`;
       const exCk = document.getElementById('_gabarito_iframe'); if (exCk) exCk.remove();
       const blobCk = new Blob([htmlCk], { type: 'text/html;charset=utf-8' });
       const blobUrlCk = URL.createObjectURL(blobCk);
@@ -3774,6 +3864,7 @@ body { width: 210mm; height: 297mm; background: #fff; }
       const _lf2 = LOCAL_FONT_FACES[_fa2];
       const fi2 = `<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;600;700&display=swap" rel="stylesheet">${_lf2 ? `<style>${_lf2}</style>` : `<link href="https://fonts.googleapis.com/css2?family=${_fa2.replace(/ /g,'+')}:wght@400;700&display=swap" rel="stylesheet">`}`;
       const _bw = '8mm';
+      const BLEED = 5;
       const _bc2 = borderColor || accentColor;
       const _pat2 = (comBorda && patternSrc)
         ? `<div style="position:absolute;inset:0;background-image:url(${patternSrc});background-size:${((patternScale || 150) * 0.35).toFixed(1)}mm;background-repeat:repeat;"></div><div style="position:absolute;top:${_bw};left:${_bw};right:${_bw};bottom:${_bw};background:#fff;"></div>`
@@ -3793,13 +3884,13 @@ body { width: 210mm; height: 297mm; background: #fff; }
       const _atBottom = _hasFooter ? `${7 + _footerH + 2}mm` : _bw;
       const _atHtml = `<!DOCTYPE html><html lang="pt-BR"><head><meta charset="UTF-8"><title>Atestado Médico - ${marca}</title>${fi2}
 <style>* { box-sizing:border-box; margin:0; padding:0; print-color-adjust:exact !important; -webkit-print-color-adjust:exact !important; }
-body { margin:0; } @media print { @page { size: A5 portrait; margin:0; } }
+body { margin:0; } @media print { @page { size: 158mm 220mm; margin:0; } }
 .blank { display:inline-block; border-bottom:0.8px solid #555; vertical-align:bottom; }
 </style></head><body>
-<div style="position:relative;width:148mm;height:210mm;overflow:hidden;">
+<div style="position:relative;width:158mm;height:220mm;overflow:hidden;">
   ${_pat2}
   ${_atFooterHtml}
-  <div style="position:absolute;top:${_bw};left:${_bw};right:${_bw};bottom:${_atBottom};font-family:'Montserrat',sans-serif;">
+  <div style="position:absolute;top:${BLEED + 8}mm;left:${BLEED + 8}mm;right:${BLEED + 8}mm;bottom:${BLEED + _footerH + 10}mm;font-family:'Montserrat',sans-serif;">
 
     <div style="position:absolute;top:16mm;left:50%;transform:translateX(-50%);width:48mm;display:inline-flex;flex-direction:column;align-items:center;">${logoHtml}</div>
 
@@ -3874,64 +3965,67 @@ body { margin:0; } @media print { @page { size: A5 portrait; margin:0; } }
       const CloudIcon = `<svg width="12mm" height="12mm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17.5 19c2.5 0 4.5-2 4.5-4.5 0-2.4-1.9-4.3-4.3-4.5-.6-3.1-3.3-5.5-6.7-5.5-3.1 0-5.8 2.1-6.5 5.1C2.1 10.3 0 12.5 0 15.5c0 3 2.4 5.5 5.5 5.5"/><path d="M8 20v2"/><path d="M12 20v2"/><path d="M16 20v2"/></svg>`;
 
       const days = ['Segunda', 'Terça', 'Quarta', 'Quinta', 'Sexta', 'Sábado', 'Domingo'];
-      const weeks = [1, 2, 3, 4, 5, 6];
+      const weeks = [1, 2, 3, 4];
 
       const html = `<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Diário do Xixi - ${marca}</title>${fiD}
 <style>* { box-sizing:border-box; margin:0; padding:0; print-color-adjust:exact !important; -webkit-print-color-adjust:exact !important; }
-body { width: 297mm; height: 210mm; position: relative; overflow: hidden; background: #fff; }
-.page { width: 297mm; height: 210mm; position: relative; overflow: hidden; }
+body { width: 307mm; height: 220mm; position: relative; overflow: hidden; background: #fff; }
+.page { width: 307mm; height: 220mm; position: relative; overflow: hidden; }
 .cm { position: absolute; width: 10mm; height: 10mm; pointer-events: none; }
 .cm-tl { top:0; left:0; border-top:0.2mm solid rgba(0,0,0,0.2); border-left:0.2mm solid rgba(0,0,0,0.2); }
 .cm-tr { top:0; right:0; border-top:0.2mm solid rgba(0,0,0,0.2); border-right:0.2mm solid rgba(0,0,0,0.2); }
 .cm-bl { bottom:0; left:0; border-bottom:0.2mm solid rgba(0,0,0,0.2); border-left:0.2mm solid rgba(0,0,0,0.2); }
 .cm-br { bottom:0; right:0; border-bottom:0.2mm solid rgba(0,0,0,0.2); border-right:0.2mm solid rgba(0,0,0,0.2); }
-@media print { body { margin:0; } @page { size: 297mm 210mm; margin: 0; } }
+@media print { body { margin:0; } @page { size: 307mm 220mm; margin: 0; } }
 </style></head><body>
 <div class="page">
     ${genBg(10)}
-    <div style="position:absolute;top:18mm;left:18mm;right:18mm;bottom:22mm;display:flex;flex-direction:column;">
+    <div style="position:absolute;top:${BLEED + 10}mm;left:${BLEED + 10}mm;right:${BLEED + 10}mm;bottom:${BLEED + 10}mm;display:flex;flex-direction:column;">
         <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:8mm;">
             <div style="display:flex;flex-direction:column;gap:6mm;">
                 <div style="background:#f5f5f5;padding:4mm 10mm;border-radius:1.5mm;border:0.4mm solid #ddd;display:inline-block;align-self:flex-start;">
-                    <span style="font-family:'Montserrat',sans-serif;font-size:16pt;font-weight:800;color:#333;letter-spacing:2pt;text-transform:uppercase;">DIÁRIO MICCIONAL NOTURNO</span>
+                    <span style="font-family:'Montserrat',sans-serif;font-size:16pt;font-weight:800;color:#333;letter-spacing:2pt;text-transform:uppercase;">DIÁRIO DO XIXI (HÁBITO MICCIONAL)</span>
                 </div>
+                <div style="font-family:'Montserrat',sans-serif;font-size:10pt;color:${accentColor};font-weight:700;text-transform:uppercase;letter-spacing:1pt;margin-top:2mm;">Controle de Escapes e Enurese (Xixi na Cama)</div>
                 <div style="display:flex;gap:5mm;align-items:flex-end;margin-top:2mm;">
                     <span style="font-family:'Montserrat',sans-serif;font-size:18pt;color:${accentColor};font-weight:300;font-style:italic;">Nome:</span>
                     <div style="flex:1;border-bottom:0.5mm dashed #ccc;min-width:140mm;margin-bottom:2mm;"></div>
                 </div>
             </div>
-            <div style="width:80mm;display:flex;flex-direction:column;align-items:flex-end;zoom:2.0;margin-top:2mm;">
+            <div style="width:80mm;display:flex;flex-direction:column;align-items:flex-end;zoom:1.4;margin-top:2mm;">
                 ${logoHtml}
             </div>
         </div>
 
         <div style="display:flex;gap:15mm;align-items:center;margin-bottom:8mm;font-family:'Montserrat',sans-serif;">
-            <div style="display:flex;gap:4mm;align-items:center;">
-                <span style="font-size:8pt;text-transform:uppercase;color:#999;letter-spacing:1pt;">Quando estiver seco(a) pinte o sol</span>
-                <div style="color:#ffcc00;zoom:0.6;">${SunIcon}</div>
-            </div>
-            <div style="display:flex;gap:4mm;align-items:center;">
-                <span style="font-size:8pt;text-transform:uppercase;color:#999;letter-spacing:1pt;">Quando estiver molhado(a) pinte a nuvem</span>
-                <div style="color:#00ccff;zoom:0.6;">${CloudIcon}</div>
+            <div style="display:flex;gap:6mm;align-items:center;">
+                <span style="font-size:11pt;text-transform:uppercase;color:#666;font-weight:800;letter-spacing:1pt;">Legenda:</span>
+                <span style="font-size:11pt;color:#888;"><strong>0:</strong> Acordou Seco(a) / Sem Escapes</span>
+                <span style="font-size:11pt;color:#888;"><strong>1:</strong> Gotas / Escape Leve</span>
+                <span style="font-size:11pt;color:#888;"><strong>2:</strong> Molhou a Roupa ou Fralda</span>
+                <span style="font-size:11pt;color:#888;"><strong>3:</strong> Abundante / Molhou a Cama</span>
             </div>
         </div>
 
-        <div style="display:grid;grid-template-columns:42mm repeat(6, 1fr);gap:0.3mm;background:#f0f0f0;border:0.3mm solid #f0f0f0;flex:1;">
-            <div style="background:#fff;"></div>
+        <div style="display:grid;grid-template-columns:45mm repeat(4, 1fr);gap:0.3mm;background:#eee;border:0.3mm solid #eee;flex:1;">
+            <div style="background:#fff;display:flex;align-items:center;padding-left:6mm;">
+                <span style="font-family:'Montserrat',sans-serif;font-size:9pt;font-weight:800;color:#bbb;text-transform:uppercase;">Marque 0 a 3</span>
+            </div>
             ${weeks.map(w => `
-              <div style="background:#fff;text-align:center;padding:3mm 0;display:flex;flex-direction:column;justify-content:center;align-items:center;">
-                <div style="font-family:'Montserrat',sans-serif;font-size:10pt;font-weight:800;color:${accentColor};text-transform:uppercase;">Semana ${w}</div>
-                <div style="width:12mm;height:0.5mm;background:${accentColor};margin-top:1.5mm;"></div>
+              <div style="background:#fff;text-align:center;padding:4mm 0;display:flex;flex-direction:column;justify-content:center;align-items:center;">
+                <div style="font-family:'Montserrat',sans-serif;font-size:11pt;font-weight:800;color:${accentColor};text-transform:uppercase;">Semana ${w}</div>
+                <div style="width:15mm;height:0.6mm;background:${accentColor};margin-top:2mm;"></div>
               </div>
             `).join('')}
             ${days.map(day => `
                 <div style="background:#fff;padding:3mm 6mm;display:flex;align-items:center;">
-                  <span style="font-family:'Montserrat',sans-serif;font-size:12pt;font-weight:700;color:${accentColor};font-style:italic;">${day}</span>
+                  <span style="font-family:'Montserrat',sans-serif;font-size:13pt;font-weight:800;color:${accentColor};font-style:italic;">${day}</span>
                 </div>
                 ${weeks.map(() => `
-                  <div style="background:#fff;display:flex;justify-content:center;align-items:center;gap:6mm;padding:2mm;">
-                    <div style="opacity:0.25;color:#444;zoom:0.75;">${SunIcon}</div>
-                    <div style="opacity:0.25;color:#444;zoom:0.75;">${CloudIcon}</div>
+                  <div style="background:#fff;display:flex;justify-content:center;align-items:center;padding:2mm;">
+                    <div style="display:flex;gap:3mm;">
+                      ${[0,1,2,3].map(n => `<div style="width:9mm;height:9mm;border:0.4mm solid #ddd;border-radius:50%;display:flex;align-items:center;justify-content:center;font-family:'Montserrat',sans-serif;font-size:9pt;color:#999;">${n}</div>`).join('')}
+                    </div>
                   </div>
                 `).join('')}
             `).join('')}
@@ -4171,7 +4265,7 @@ html, body { width:${selSize.w + BLEED_ET*2}mm; height:${selSize.h + BLEED_ET*2}
       const _lRA = logoColor || accentColor;
       const _lyRA = logoLayout || 'stacked';
       const logoHtmlRA = `<div style="width:50mm;display:flex;flex-direction:column;align-items:center;justify-content:center;">${ReactDOMServer.renderToString(<LogoPreviewHTML editData={brand.editData || {}} color="#fff" layout={_lyRA} scaleFactor={0.55} crm={null} hideTagline />)}</div>`;
-      const html = buildReceitaAltaHTML({ logoHtml: logoHtmlRA, solidColor, paletteColors, clinicaNome, cartaoContacts, crmLine, marca, fields: receitaFields });
+      const html = buildReceitaAltaHTML({ logoHtml: logoHtmlRA, solidColor, paletteColors, clinicaNome, cartaoContacts, crmLine, marca, fields: receitaFields, comBorda, patternSrc, patternScale });
       const htmlFinal = html.replace('<head>', `<head>${fiRA.replace(/<link[^>]*>/, '')}`);
       const exRA = document.getElementById('_gabarito_receita_alta'); if (exRA) exRA.remove();
       const iframeRA = document.createElement('iframe');
@@ -4219,7 +4313,7 @@ html, body { width:200mm; height:85mm; overflow:hidden; }
 
     if (item === 'Papel de Presente') {
       const solidColor = borderColor || accentColor;
-      const BLEED = 5; // 5mm sangria para papel de presente
+      const BLEED = 3; // 3mm sangria
       const SIZES_PP = [
         { label:'49,8 × 72,5 cm', w:498, h:725 },
         { label:'A4 — 21 × 29,7 cm', w:210, h:297 },
@@ -4228,7 +4322,7 @@ html, body { width:200mm; height:85mm; overflow:hidden; }
       const selPP = SIZES_PP[papelPresenteSizeIdx] || SIZES_PP[1];
       const totalW = selPP.w + BLEED*2, totalH = selPP.h + BLEED*2;
       const bgPP = comBorda && patternSrc
-        ? `background-image:url(${patternSrc});background-size:${(patternScale*0.5).toFixed(1)}mm;background-repeat:repeat;`
+        ? `background-image:url(${patternSrc});background-size:${(patternScale*0.93).toFixed(1)}mm;background-repeat:repeat;`
         : `background:${solidColor};`;
       const html = `<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Papel de Presente - ${marca}</title>
 <style>* { box-sizing:border-box; margin:0; padding:0; print-color-adjust:exact !important; -webkit-print-color-adjust:exact !important; }
@@ -4283,17 +4377,7 @@ html, body { width:${totalW}mm; height:${totalH}mm; overflow:hidden; }
         const frente = `
           <div style="width:${totalW}mm;height:${totalH}mm;position:relative;overflow:hidden;border-radius:${isCircle ? '50%' : '2mm'};">
             <div style="position:absolute;inset:0;${bgT}"></div>
-            ${!isCircle ? `<div style="position:absolute;top:${BLEED+2}mm;left:50%;transform:translateX(-50%);width:${holeD}mm;height:${holeD}mm;border-radius:50%;background:#fff;border:0.3mm solid rgba(0,0,0,0.15);z-index:3;"></div>` : ''}
             <div style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);text-align:center;z-index:2;">${logoWrap}</div>
-            <!-- Marcas de corte -->
-            <div style="position:absolute;top:0;left:0;width:3mm;height:0.2mm;background:#ccc;"></div><div style="position:absolute;top:0;left:0;width:0.2mm;height:3mm;background:#ccc;"></div>
-            <div style="position:absolute;top:0;right:0;width:3mm;height:0.2mm;background:#ccc;"></div><div style="position:absolute;top:0;right:0;width:0.2mm;height:3mm;background:#ccc;"></div>
-            <div style="position:absolute;bottom:0;left:0;width:3mm;height:0.2mm;background:#ccc;"></div><div style="position:absolute;bottom:0;left:0;width:0.2mm;height:3mm;background:#ccc;"></div>
-            <div style="position:absolute;bottom:0;right:0;width:3mm;height:0.2mm;background:#ccc;"></div><div style="position:absolute;bottom:0;right:0;width:0.2mm;height:3mm;background:#ccc;"></div>
-          </div>`;
-        const verso = `
-          <div style="width:${totalW}mm;height:${totalH}mm;position:relative;overflow:hidden;border-radius:${isCircle ? '50%' : '2mm'};background:#fff;border:0.5mm solid ${solidColor};">
-            ${!isCircle ? `<div style="position:absolute;top:${BLEED+2}mm;left:50%;transform:translateX(-50%);width:${holeD}mm;height:${holeD}mm;border-radius:50%;background:#f5f5f5;border:0.2mm solid #ddd;z-index:3;"></div>` : ''}
             <div style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:80%;display:flex;flex-direction:column;align-items:center;gap:${isCircle ? 1 : 2}mm;text-align:center;">
               ${clinicaNome ? `<div style="font-size:${isCircle ? 4 : 5}mm;color:${solidColor};font-family:'Brush Script MT','Segoe Script',cursive;">${clinicaNome}</div>` : ''}
               <div style="width:5mm;height:0.2mm;background:${solidColor}60;"></div>
@@ -4313,18 +4397,28 @@ html, body { width:${totalW}mm; height:${totalH}mm; overflow:hidden; }
 
       const selT = SIZES_T[tagSacolaSizeIdx] || SIZES_T[0];
       const totalW_T = selT.w + BLEED*2, totalH_T = selT.h + BLEED*2;
+      const isCircleT = selT.shape === 'circle';
+      const holeDT = (selT.w * 0.06).toFixed(1);
+      const bgSizeT = ((patternScale || 100) / 10).toFixed(1);
+      const bgTFixed = comBorda && patternSrc ? `background-image:url(${patternSrc});background-size:${bgSizeT}mm;background-repeat:repeat;` : `background:${solidColor};`;
+      const logoScaleT = selT.shape === 'square' ? 0.72 : selT.shape === 'circle' ? 0.68 : 0.65;
+      const logoHtmlT = `<div style="display:flex;flex-direction:column;align-items:center;justify-content:center;">${ReactDOMServer.renderToString(<LogoPreviewHTML editData={brand.editData||{}} color={comBorda&&patternSrc?solidColor:'#fff'} layout={logoLayout||'stacked'} scaleFactor={logoScaleT} crm={null} hideTagline={false} />)}</div>`;
+      const logoWrapT = (comBorda&&patternSrc) ? `<div style="display:inline-flex;align-items:center;justify-content:center;background:rgba(255,255,255,0.92);border-radius:${isCircleT?'50%':'3mm'};padding:${isCircleT?`${selT.w*0.16}mm`:selT.shape==='square'?'4.5mm 6mm':'3.5mm 6.5mm'};">${logoHtmlT}</div>` : `<div style="filter:brightness(0) invert(1);">${logoHtmlT}</div>`;
+      const _cms = `<div style="position:absolute;top:0;left:0;width:4mm;height:0.2mm;background:#ccc;"></div><div style="position:absolute;top:0;left:0;width:0.2mm;height:4mm;background:#ccc;"></div><div style="position:absolute;top:0;right:0;width:4mm;height:0.2mm;background:#ccc;"></div><div style="position:absolute;top:0;right:0;width:0.2mm;height:4mm;background:#ccc;"></div><div style="position:absolute;bottom:0;left:0;width:4mm;height:0.2mm;background:#ccc;"></div><div style="position:absolute;bottom:0;left:0;width:0.2mm;height:4mm;background:#ccc;"></div><div style="position:absolute;bottom:0;right:0;width:4mm;height:0.2mm;background:#ccc;"></div><div style="position:absolute;bottom:0;right:0;width:0.2mm;height:4mm;background:#ccc;"></div>`;
+      const frentePageT = `<div style="width:${totalW_T}mm;height:${totalH_T}mm;position:relative;overflow:hidden;border-radius:${isCircleT?'50%':'2mm'};"><div style="position:absolute;inset:0;${bgTFixed}"></div><div style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);text-align:center;z-index:2;">${logoWrapT}</div>${_cms}</div>`;
+      const versoPageT = `<div style="width:${totalW_T}mm;height:${totalH_T}mm;position:relative;overflow:hidden;border-radius:${isCircleT?'50%':'2mm'};background:#fff;border:0.5mm solid ${solidColor};"><div style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:80%;display:flex;flex-direction:column;align-items:center;gap:${isCircleT?1:2}mm;text-align:center;">${clinicaNome?`<div style="font-size:${isCircleT?4:5}mm;color:${solidColor};font-family:'Brush Script MT','Segoe Script',cursive;">${clinicaNome}</div>`:''}<div style="width:5mm;height:0.2mm;background:${solidColor}60;"></div>${mainPhone?`<div style="font-size:3mm;color:#888;font-family:'Montserrat',sans-serif;">${mainPhone}</div>`:''}${instagram?`<div style="font-size:3mm;color:#888;font-family:'Montserrat',sans-serif;">@${instagram.replace('@','')}</div>`:''}${site?`<div style="font-size:2.5mm;color:#bbb;font-family:'Montserrat',sans-serif;">${site}</div>`:''}</div>${_cms}</div>`;
       const html = `<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Tag para Sacola - ${marca}</title>${fiT}
 <style>* { box-sizing:border-box; margin:0; padding:0; print-color-adjust:exact !important; -webkit-print-color-adjust:exact !important; }
-html, body { width:${totalW_T + BLEED*2}mm; }
-body { background:#f0f0f0; display:flex; gap:8mm; padding:${BLEED}mm; justify-content:center; align-items:flex-start; }
-@media print { body { background:none; } @page { size:auto; margin:0; } }
+.page { width:${totalW_T}mm; height:${totalH_T}mm; display:flex; align-items:center; justify-content:center; page-break-after:always; }
+@media print { @page { size:${totalW_T}mm ${totalH_T}mm; margin:0; } }
 </style></head><body>
-${tagBlock(selT.w, selT.h, selT.shape)}
+<div class="page">${frentePageT}</div>
+<div class="page">${versoPageT}</div>
 </body></html>`;
       const exT = document.getElementById('_gabarito_tag'); if (exT) exT.remove();
       const iframeT = document.createElement('iframe');
       iframeT.id = '_gabarito_tag';
-      iframeT.style.cssText = 'position:fixed;top:-9999px;left:-9999px;width:400mm;height:600mm;border:none;visibility:hidden;';
+      iframeT.style.cssText = `position:fixed;top:-9999px;left:-9999px;width:${totalW_T+10}mm;height:${totalH_T*2+20}mm;border:none;visibility:hidden;`;
       document.body.appendChild(iframeT);
       iframeT.contentDocument.open(); iframeT.contentDocument.write(html); iframeT.contentDocument.close();
       iframeT.contentWindow.document.fonts.ready.then(() => { setTimeout(() => { iframeT.contentWindow.focus(); iframeT.contentWindow.print(); setTimeout(() => { iframeT.remove(); }, 3000); }, 1000); });
@@ -4548,8 +4642,8 @@ td { padding: 4mm 3mm; border: 0.2mm solid #eee; font-size: 10pt; color: #555; }
         const BLEED = 3;
 
         if (isAmamentacao) {
-          // Folder A4 (8 páginas - 4 de cada lado)
-          const W = 74.25, H = 210;
+          // Folder DL (8 páginas - 4 de cada lado)
+          const W = 100, H = 200;
           const totalW = (W * 4) + (BLEED * 2);
           const totalH = H + (BLEED * 2);
 
@@ -4557,11 +4651,11 @@ td { padding: 4mm 3mm; border: 0.2mm solid #eee; font-size: 10pt; color: #555; }
           const _lfAmam = LOCAL_FONT_FACES[_ffAmam];
           const fiAmam = `<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;600;700;800&family=Great+Vibes&display=swap" rel="stylesheet">${_lfAmam ? `<style>${_lfAmam}</style>` : `<link href="https://fonts.googleapis.com/css2?family=${_ffAmam.replace(/ /g,'+')}:wght@400;700&display=swap" rel="stylesheet">`}`;
 
-          const logoHtmlAmam = `<div style="width:30mm;display:flex;flex-direction:column;align-items:center;justify-content:center;">${ReactDOMServer.renderToString(<LogoPreviewHTML editData={brand.editData} color={accentColor} layout={logoLayout} scaleFactor={0.5} crm={crmLine} />)}</div>`;
+          const logoHtmlAmam = `<div style="width:30mm;display:flex;flex-direction:column;align-items:center;justify-content:center;">${ReactDOMServer.renderToString(<LogoPreviewHTML editData={brand.editData} color={accentColor} layout={logoLayout} scaleFactor={0.30} crm={crmLine} />)}</div>`;
           const illustSrc = "/breastfeeding-guide.png";
 
           const pages = [
-            ReactDOMServer.renderToString(<FolderAmamentacaoPage1 accentColor={accentColor} borderColor={borderColor} palette={paletteColors} logoComponent={<div dangerouslySetInnerHTML={{ __html: logoHtmlAmam }} />} illustrationsSrc={illustSrc} />),
+            ReactDOMServer.renderToString(<FolderAmamentacaoPage1 accentColor={accentColor} borderColor={borderColor} palette={paletteColors} logoComponent={<div dangerouslySetInnerHTML={{ __html: logoHtmlAmam }} />} folderRoof={folderRoof} />),
             ReactDOMServer.renderToString(<FolderAmamentacaoPage2 accentColor={accentColor} borderColor={borderColor} palette={paletteColors} />),
             ReactDOMServer.renderToString(<FolderAmamentacaoPage3 accentColor={accentColor} borderColor={borderColor} palette={paletteColors} />),
             ReactDOMServer.renderToString(<FolderAmamentacaoPage4 accentColor={accentColor} borderColor={borderColor} palette={paletteColors} clinicaNome={clinicaNome} endereco={endereco} allPhones={allPhones} brand={brand} />),
@@ -4588,8 +4682,8 @@ td { padding: 4mm 3mm; border: 0.2mm solid #eee; font-size: 10pt; color: #555; }
                     </div>
 
                     <!-- White Content Box -->
-                    <div style="position:absolute;top:1.5mm;left:1.5mm;right:1.5mm;bottom:1.5mm;background:#fff;border-radius:0.4mm;z-index:2;overflow:hidden;">
-                      <div style="position:relative;width:100%;height:100%;transform:scale(3.78);transform-origin:top left;zoom:0.2645;">${pages[idx]}</div>
+                    <div style="position:absolute;top:3.5mm;left:3.5mm;right:3.5mm;bottom:3.5mm;background:#fff;border-radius:0.4mm;z-index:2;overflow:hidden;${(idx === 0 && folderRoof) ? 'clip-path:polygon(0% 12%, 50% 0%, 100% 12%, 100% 100%, 0% 100%);' : ''}">
+                      <div style="width:${W}px;height:${H}px;transform:scale(3.45);transform-origin:top left;">${pages[idx]}</div>
                     </div>
 
                   </div>
@@ -4601,7 +4695,7 @@ td { padding: 4mm 3mm; border: 0.2mm solid #eee; font-size: 10pt; color: #555; }
           const html = `<!DOCTYPE html><html><head><meta charset="UTF-8"><title>${item} - ${marca}</title>${fiAmam}
 <style>* { box-sizing:border-box; margin:0; padding:0; print-color-adjust:exact !important; -webkit-print-color-adjust:exact !important; }
 body { font-family:'Montserrat',sans-serif; }
-.page { width:${totalW}mm; height:${totalH}mm; position:relative; overflow:hidden; background:#fff; }
+.page { width:${totalW}mm; height:${totalH}mm; position:relative; overflow:hidden; background:#fff; border: 1px solid #eee; }
 .face { display:flex; width:100%; height:100%; position:relative; }
 .panel { flex:1; height:100%; position:relative; overflow:hidden; }
 .cm { position:absolute; width:10mm; height:10mm; border-color:rgba(0,0,0,0.5); border-style:solid; border-width:0; pointer-events:none; z-index:10; }
@@ -4609,7 +4703,7 @@ body { font-family:'Montserrat',sans-serif; }
 .cm-tr { top:0; right:0; border-top:0.2mm solid; border-right:0.2mm solid; }
 .cm-bl { bottom:0; left:0; border-bottom:0.2mm solid; border-left:0.2mm solid; }
 .cm-br { bottom:0; right:0; border-bottom:0.2mm solid; border-right:0.2mm solid; }
-@media print { body { margin:0; } @page { size: ${totalW}mm ${totalH}mm; margin:0; } .page { page-break-after:always; } }
+@media print { body { margin:0; } @page { size: ${totalW}mm ${totalH}mm; margin:0; } .page { page-break-after:always; border:none; } }
 </style></head><body>
 <!-- FACE 1: Pág 4 | Pág 3 | Pág 2 | Pág 1 -->
 ${renderSide([3, 2, 1, 0])}
@@ -4755,8 +4849,8 @@ body { font-family:'Montserrat',sans-serif; }
         const p6Content = isVacina ? `<div style="width:148px; height:210px; transform:scale(3.78); transform-origin:top left;">${ReactDOMServer.renderToString(React.createElement(Art6, { accentColor, palette: paletteColors }))}</div>` : `
           <div style="width:100%; height:100%; position:relative; display:flex; flex-direction:column; align-items:center;">
             <div class="quote-box" style="position:absolute; top:48%; left:50%; transform:translate(-50%, -50%); width:88%; background:${paletteColors[0] || accentColor}; border:0.4mm solid ${paletteColors[0] || accentColor}; border-radius:4mm; padding:10mm 8mm; text-align:center; box-shadow:0 2mm 8mm rgba(0,0,0,0.1); z-index:3;">
-                <div style=”font-family:'Brush Script MT','Segoe Script',cursive; font-style:italic; color:#fff !important; -webkit-text-fill-color:#fff; font-size:30pt; margin-bottom:4mm; text-transform:none;”>${isSono ? '”Um bebê bem descansado é um bebê mais feliz!”' : isCuidados ? '”Você não precisa ser perfeita — precisa estar presente.”' : '”Brinque, converse e explore!”'}</div>
-                <div style=”font-family:'Montserrat',sans-serif;font-size:9pt;color:#fff !important;-webkit-text-fill-color:#fff;font-weight:500;line-height:1.5;”>
+                <div style="font-family:'Brush Script MT','Segoe Script',cursive; font-style:italic; color:#fff !important; -webkit-text-fill-color:#fff; font-size:30pt; margin-bottom:4mm; text-transform:none;">${isSono ? '"Um bebê bem descansado é um bebê mais feliz!"' : isCuidados ? '"Você não precisa ser perfeita — precisa estar presente."' : '"Brinque, converse e explore!"'}</div>
+                <div style="font-family:'Montserrat',sans-serif;font-size:9pt;color:#fff !important;-webkit-text-fill-color:#fff;font-weight:500;line-height:1.5;">
                    ${isSono ? 'O sono é uma necessidade fisiológica essencial para o desenvolvimento do seu bebê. Uma rotina consistente, ambiente seguro e respeito aos sinais de sono fazem toda a diferença. Você não está sozinha nessa jornada!' : isCuidados ? 'Cuidar de um bebê é aprender junto com ele. Cada dúvida é normal, cada conquista é sua também. Você está fazendo um trabalho incrível.' : 'As brincadeiras são mais do que momentos de diversão. Elas ajudam seu bebê a aprender, a desenvolver novas habilidades e a se sentir seguro e amado. Pergunte, cante, brinque de esconde-esconde e observe o quanto seu bebê cresce a cada dia.'}
                 </div>
             </div>
@@ -4788,8 +4882,8 @@ body { font-family:'Montserrat',sans-serif; }
                   </div>
               </div>
 
-              <div style="padding:2.5mm 10mm; background:${(isPrenatalPDF ? paletteColors[0] || accentColor : paletteColors[1] || accentColor) + '28'}; border-radius:15mm; border:0.25mm solid ${(isPrenatalPDF ? paletteColors[0] || accentColor : paletteColors[1] || accentColor) + '50'}; margin-top:5mm;">
-                  <div style="font-family:'Montserrat', sans-serif; font-size:10pt; font-weight:800; color:${_darkenHex(isPrenatalPDF ? paletteColors[0] || accentColor : paletteColors[1] || accentColor)}; text-transform:uppercase; letter-spacing:1pt;">${isSono ? 'DURMA BEM, CRESÇA BEM' : isCuidados ? 'DO PRIMEIRO DIA COM MUITO AMOR' : isDev ? 'CADA DIA UM NOVO DESCOBRIMENTO' : isVacina ? 'PROTEGIDO DESDE O PRIMEIRO DIA' : isPrenatalPDF ? 'CUIDANDO DA SAÚDE DA MAMÃE E DO BEBÊ' : 'NUTRIÇÃO QUE TRANSFORMA'}</div>
+              <div style="padding:2.5mm 10mm; background:${(isPrenatal ? paletteColors[0] || accentColor : paletteColors[1] || accentColor) + '28'}; border-radius:15mm; border:0.25mm solid ${(isPrenatal ? paletteColors[0] || accentColor : paletteColors[1] || accentColor) + '50'}; margin-top:5mm;">
+                  <div style="font-family:'Montserrat', sans-serif; font-size:10pt; font-weight:800; color:${_darkenHex(isPrenatal ? paletteColors[0] || accentColor : paletteColors[1] || accentColor)}; text-transform:uppercase; letter-spacing:1pt;">${isSono ? 'DURMA BEM, CRESÇA BEM' : isCuidados ? 'DO PRIMEIRO DIA COM MUITO AMOR' : isDev ? 'CADA DIA UM NOVO DESCOBRIMENTO' : isVacina ? 'PROTEGIDO DESDE O PRIMEIRO DIA' : isPrenatal ? 'CUIDANDO DA SAÚDE DA MAMÃE E DO BEBÊ' : 'NUTRIÇÃO QUE TRANSFORMA'}</div>
               </div>
           </div>`;
 
@@ -4910,7 +5004,7 @@ body { background:#eee; }
         return;
       }
 
-      if (item === 'Fundo de Tira Dúvidas Instagram') {
+      if (item === 'Pack Digital para Instagram') {
         const BLEED = 0;
         const _INSTA_FMTS = [{id:'story',rw:1080,rh:1920,W:108,H:192},{id:'post',rw:1080,rh:1080,W:108,H:108}];
         const _fmt = _INSTA_FMTS[storyFormatIdx] || _INSTA_FMTS[0];
@@ -4955,32 +5049,6 @@ html, body { width:${RW}px; height:${RH}px; overflow:hidden; background:#fff; }
      <div style="font-family:'Montserrat', sans-serif; font-size:7pt; color:#999; text-transform:uppercase; letter-spacing:1pt;">${clinicaNome}</div>
   </div>
 </div></body></html>`;
-
-        const ifrFI = document.createElement('iframe');
-        ifrFI.style.cssText = `position:fixed;top:-9999px;left:-9999px;width:${_fmt.rw}px;height:${_fmt.rh}px;border:none;visibility:hidden;`;
-        document.body.appendChild(ifrFI);
-        ifrFI.contentDocument.open(); ifrFI.contentDocument.write(html); ifrFI.contentDocument.close();
-        ifrFI.contentWindow.document.fonts.ready.then(() => {
-          setTimeout(async () => {
-            try {
-              const h2c = (await import('html2canvas')).default;
-              const canvas = await h2c(ifrFI.contentDocument.querySelector('.page'), {
-                scale: 2, useCORS: true, allowTaint: true, backgroundColor: null,
-                width: _fmt.rw, height: _fmt.rh,
-                windowWidth: _fmt.rw, windowHeight: _fmt.rh,
-                logging: false,
-              });
-              // Oferecer PNG e JPG
-              const fmt = window.confirm('Salvar como PNG?\n\nOK = PNG (fundo transparente)\nCancelar = JPG (menor tamanho)') ? 'png' : 'jpeg';
-              const url = canvas.toDataURL(fmt === 'png' ? 'image/png' : 'image/jpeg', 0.95);
-              const a = document.createElement('a');
-              a.href = url;
-              a.download = `${_storyTmpl.titulo.replace(/[^a-zA-Z0-9]/g,'-')}-${marca}.${fmt === 'png' ? 'png' : 'jpg'}`;
-              a.click();
-            } catch(e) { console.error(e); alert('Erro ao gerar imagem'); }
-            ifrFI.remove();
-          }, 1200);
-        });
         return;
       }
 
@@ -5007,7 +5075,7 @@ body { background:#eee; }
 <div style="position:absolute; inset:${BLEED}mm; overflow:hidden;">
   ${effectiveSrc
     ? `<div style="position:absolute; inset:0; background-image:url(${effectiveSrc}); background-size:50mm; background-repeat:repeat;"></div><div style="position:absolute; inset:${BORDER}mm; background:#fff;"></div>`
-    : `<div style="position:absolute; inset:0; background:#fff; border:${BORDER}mm solid ${solidColor};"></div>`}
+    : `<div style="position:absolute; inset:0; background:#fff; border:${BORDER}mm solid ${solidColor}; box-sizing:border-box;"></div>`}
   
   <div style="position:absolute; top:${BORDER + 10}mm; left:50%; transform:translateX(-50%); width:80mm; display:flex; justify-content:center;">
     ${genPDFLogoHtml({ brand, color: accentColor, localSlogan, crmLine, fontPt: 22, lineH: _lineH, letterSp: _letterSp })}
@@ -5034,8 +5102,8 @@ body { background:#eee; }
       }
 
       if (item.includes('Certificado')) {
-        const W = 297, H = 210;
-        const BLEED = 3;
+        const W = 210, H = 148; // A5 Horizontal
+        const BLEED = 5;
         const _brandData = brand.editData || {};
         const _ffCe = _brandData.fontFamily || 'Playfair Display';
         const _lfCe = LOCAL_FONT_FACES[_ffCe];
@@ -5048,7 +5116,7 @@ body { background:#eee; }
         
         const _lColor = logoColor || _accent;
         const _lLayout = logoLayout || 'stacked';
-        const logoHtmlCe = `<div style="display:flex;flex-direction:column;align-items:center;justify-content:center;">${ReactDOMServer.renderToString(<LogoPreviewHTML editData={_brandData} color={_lColor} layout={_lLayout} scaleFactor={1.1} hideTagline={false} />)}</div>`;
+        const logoHtmlCe = `<div style="display:flex;flex-direction:column;align-items:center;justify-content:center;">${ReactDOMServer.renderToString(<LogoPreviewHTML editData={_brandData} color={_lColor} layout={_lLayout} scaleFactor={0.8} hideTagline={false} />)}</div>`;
 
         const html = `<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Certificado de Coragem - ${marca}</title>${fiCe}
 <style>* { box-sizing:border-box; margin:0; padding:0; print-color-adjust:exact !important; -webkit-print-color-adjust:exact !important; }
@@ -5062,23 +5130,23 @@ body { width:${W + BLEED*2}mm; height:${H + BLEED*2}mm; position:relative; overf
 </style></head><body>
 <div style="position:relative;width:${W + BLEED*2}mm;height:${H + BLEED*2}mm;overflow:hidden;display:flex;align-items:center;justify-content:center;background:#fff;">
     <!-- Background -->
-    <div style="position:absolute;top:0;left:0;right:0;bottom:0;background-image:${effectiveSrc ? `url(${effectiveSrc})` : 'none'};background-size:${patternScale * 0.8}mm;background-color:${!effectiveSrc ? solidColor : 'transparent'};"></div>
+    <div style="position:absolute;inset:0;background-image:${effectiveSrc ? `url(${effectiveSrc})` : 'none'};background-size:${patternScale * 0.3}mm;background-color:${!effectiveSrc ? solidColor : 'transparent'};"></div>
     
     <!-- Casinha -->
-    <div style="position:absolute;top:${10 + BLEED}mm;left:${10 + BLEED}mm;right:${10 + BLEED}mm;bottom:${10 + BLEED}mm;background:#fff;clip-path:polygon(0% 20%, 50% 0%, 100% 20%, 100% 100%, 0% 100%);-webkit-clip-path:polygon(0% 20%, 50% 0%, 100% 20%, 100% 100%, 0% 100%);display:flex;flex-direction:column;align-items:center;padding:35mm 20mm 20mm;">
+    <div style="position:absolute;top:${BLEED + 6}mm;left:${BLEED + 6}mm;right:${BLEED + 6}mm;bottom:${BLEED + 6}mm;background:#fff;clip-path:polygon(0% 18%, 50% 0%, 100% 18%, 100% 100%, 0% 100%);-webkit-clip-path:polygon(0% 18%, 50% 0%, 100% 18%, 100% 100%, 0% 100%);display:flex;flex-direction:column;align-items:center;padding:12mm 10mm 10mm;">
         
-        <div style="height:35mm;margin-bottom:8mm;display:flex;justify-content:center;align-items:center;">
+        <div style="height:25mm;margin-bottom:4mm;display:flex;justify-content:center;align-items:center;">
             ${logoHtmlCe}
         </div>
 
-        <div style="font-family:'Montserrat',sans-serif;font-size:16pt;font-weight:600;color:#666;letter-spacing:1pt;margin-bottom:2mm;">
+        <div style="font-family:'Montserrat',sans-serif;font-size:10pt;font-weight:600;color:#666;letter-spacing:0.8pt;margin-bottom:1mm;">
             Certificado Pediátrico de
         </div>
-        <h2 style="font-family:'${_ffCe}',serif;font-size:55pt;font-weight:700;color:${solidColor};margin:0 0 20mm;letter-spacing:1pt;">
+        <h2 style="font-family:'${_ffCe}',serif;font-size:38pt;font-weight:700;color:${solidColor};margin:0 0 8mm;letter-spacing:1pt;">
             Coragem
         </h2>
 
-        <div style="font-family:'Brush Script MT','Segoe Script','Comic Sans MS',cursive;font-size:24pt;color:#735b44;text-align:center;line-height:1.5;width:90%;">
+        <div style="font-family:'Brush Script MT','Segoe Script','Comic Sans MS',cursive;font-size:18pt;color:#735b44;text-align:center;line-height:1.4;width:90%;">
             <div style="margin:0;">Certifico para os devidos e lúdicos fins, que __________________</div>
             <div style="margin:0;">idade _____ comportou-se corretamente na consulta de hoje,</div>
             <div style="margin:0;">sendo educado e demonstrando muita coragem e valentia.</div>
@@ -5092,7 +5160,7 @@ body { width:${W + BLEED*2}mm; height:${H + BLEED*2}mm; position:relative; overf
         const _ex = document.getElementById('_gabarito_iframe'); if (_ex) _ex.remove();
         const _if = document.createElement('iframe');
         _if.id = '_gabarito_iframe';
-        _if.style.cssText = 'position:fixed;top:-9999px;left:-9999px;width:303mm;height:216mm;border:none;visibility:hidden;';
+        _if.style.cssText = `position:fixed;top:-9999px;left:-9999px;width:${W + BLEED*2}mm;height:${H + BLEED*2}mm;border:none;visibility:hidden;`;
         document.body.appendChild(_if);
         _if.contentDocument.open(); _if.contentDocument.write(html); _if.contentDocument.close();
         _if.contentDocument.title = _dt;
@@ -5111,17 +5179,20 @@ body { width:${W + BLEED*2}mm; height:${H + BLEED*2}mm; position:relative; overf
         : `<link href="https://fonts.googleapis.com/css2?family=${_fontFamily2.replace(/ /g, '+')}:wght@400;700&display=swap" rel="stylesheet">`
       }`;
 
-    // Tamanho de página por item
+    // Tamanho de página por item (com sangria industrial de 5mm inclusa)
     const PAGE_SIZES = {
-      'Receituário':         { w: '148mm', h: '210mm', page: 'size: A5 portrait' },
-      'Timbrado':            { w: '210mm', h: '297mm', page: 'size: A4 portrait' },
-      'Cartão de Retorno':   { w: '105mm', h: '148mm', page: 'size: A6 portrait' },
-      'Envelope Ofício':     { w: '220mm', h: '113mm', page: 'size: 220mm 113mm landscape' },
-      'Recibo':              { w: '75mm',  h: '230mm', page: 'size: 75mm 230mm portrait' },
-      'Cartão de Aniversário': { w: '105mm', h: '148mm', page: 'size: A6 portrait' },
+      'Receituário':         { w: 148, h: 210, bleed: 5 },
+      'Timbrado':            { w: 210, h: 297, bleed: 5 },
+      'Cartão de Retorno':   { w: 105, h: 148, bleed: 5 },
+      'Envelope Ofício':     { w: 220, h: 113, bleed: 5 },
+      'Recibo':              { w: 148, h: 210, bleed: 5 }, // Padronizado A5
+      'Cartão de Aniversário': { w: 105, h: 148, bleed: 5 },
     };
     const psKey = Object.keys(PAGE_SIZES).find(k => item.includes(k));
-    const ps = PAGE_SIZES[psKey] || { w: '210mm', h: '297mm', page: 'size: A4 portrait' };
+    const ps = PAGE_SIZES[psKey] || { w: 210, h: 297, bleed: 5 };
+    const totalW_gen = ps.w + (ps.bleed * 2);
+    const totalH_gen = ps.h + (ps.bleed * 2);
+    const bleed_gen = ps.bleed;
 
     const BORDER_W = '8mm';
     const _bc3 = borderColor || accentColor;
@@ -5151,12 +5222,12 @@ body { width:${W + BLEED*2}mm; height:${H + BLEED*2}mm; position:relative; overf
       </div>` : '';
 
     const _logoWidthMm = logoLayout === 'horizontal'
-      ? Math.round(parseFloat(ps.w) * 0.72)
-      : Math.round(parseFloat(ps.w) * 0.28);
+      ? Math.round(ps.w * 0.72)
+      : Math.round(ps.w * 0.28);
     const pageHtml = `
-      <div style="position:relative;width:${ps.w};height:${ps.h};overflow:hidden;">
+      <div style="position:relative;width:${totalW_gen}mm;height:${totalH_gen}mm;overflow:hidden;">
         ${patternBorder}
-        <div style="position:absolute;top:${BORDER_W};left:50%;transform:translateX(-50%);width:${_logoWidthMm}mm;padding-top:5mm;display:flex;flex-direction:column;align-items:center;justify-content:center;">
+        <div style="position:absolute;top:${bleed_gen + 8}mm;left:50%;transform:translateX(-50%);width:${_logoWidthMm}mm;display:flex;flex-direction:column;align-items:center;justify-content:center;">
           ${logoHtml}
         </div>
         ${footerHtml}
@@ -5172,7 +5243,7 @@ ${fontImports2}
 <style>
   * { box-sizing: border-box; margin: 0; padding: 0; print-color-adjust: exact !important; -webkit-print-color-adjust: exact !important; }
   body { margin: 0; }
-  @media print { @page { ${ps.page}; margin: 0; } }
+  @media print { @page { size: ${totalW_gen}mm ${totalH_gen}mm; margin: 0; } }
 </style>
 </head>
 <body>${pageHtml}</body>
@@ -5253,7 +5324,7 @@ ${fontImports2}
       {/* Preview inline */}
       <div style={{ display: 'flex', justifyContent: 'center', paddingTop: '8px', paddingBottom: '8px' }}>
         {currentItem.includes('Cartão de Visita')
-          ? <CartaoDeVisitaPreview accentColor={accentColor} patternSrc={patternSrc} cartaoContacts={cartaoContacts} crmLine={crmLine} editData={{ ...editData, tagline: localSlogan }} logoColor={logoColor} comBorda={comBorda} setComBorda={setComBorda} clinicaNome={clinicaNome} setClinicaNome={setClinicaNome} logoLayout={logoLayout} paletteColors={paletteColors} borderColor={borderColor} setBorderColor={setBorderColor} patternScale={patternScale} setPatternScale={setPatternScale} />
+          ? <CartaoDeVisitaPreview accentColor={accentColor} patternSrc={patternSrc} cartaoContacts={cartaoContacts} crmLine={crmLine} editData={{ ...editData, tagline: localSlogan }} logoColor={logoColor} comBorda={comBorda} setComBorda={setComBorda} clinicaNome={clinicaNome} setClinicaNome={setClinicaNome} logoLayout={logoLayout} paletteColors={paletteColors} borderColor={borderColor} setBorderColor={setBorderColor} patternScale={patternScale} setPatternScale={setPatternScale} retrato={cartaoRetrato} setRetrato={setCartaoRetrato} />
           : currentItem.includes('Envelope Ofício')
             ? <EnvelopeOficioPreview accentColor={accentColor} patternSrc={patternSrc} logoColor={logoColor} logoLayout={logoLayout} comBorda={comBorda} setComBorda={setComBorda} paletteColors={paletteColors} borderColor={borderColor} setBorderColor={setBorderColor} patternScale={patternScale} setPatternScale={setPatternScale} cartaoContacts={cartaoContacts} crmLine={crmLine} localSlogan={localSlogan} brand={brand} editData={editData} clinicaNome={clinicaNome} storyTemplateIdx={storyTemplateIdx} setStoryTemplateIdx={setStoryTemplateIdx} storyFormatIdx={storyFormatIdx} setStoryFormatIdx={setStoryFormatIdx} />
           : currentItem.includes('Envelope Saco')
@@ -5292,7 +5363,7 @@ ${fontImports2}
           : currentItem === 'Meu Pratinho'
             ? <MeuPratinhoPreview accentColor={accentColor} patternSrc={patternSrc} editData={{ ...editData, tagline: localSlogan }} logoColor={logoColor} logoLayout={logoLayout} cartaoContacts={cartaoContacts} crmLine={crmLine} clinicaNome={clinicaNome} comBorda={comBorda} setComBorda={setComBorda} paletteColors={paletteColors} borderColor={borderColor} setBorderColor={setBorderColor} patternScale={patternScale} setPatternScale={setPatternScale} />
           : currentItem === 'Guia de Amamentação'
-            ? <GuiaAmamentacaoPreview brand={brand} logoColor={logoColor} logoLayout={logoLayout} comBorda={comBorda} setComBorda={setComBorda} patternSrc={patternSrc} patternScale={patternScale} setPatternScale={setPatternScale} accentColor={accentColor} borderColor={borderColor} setBorderColor={setBorderColor} paletteColors={paletteColors} cartaoContacts={cartaoContacts} crmLine={crmLine} illustrationsSrc="/breastfeeding-guide.png" />
+            ? <GuiaAmamentacaoPreview brand={brand} logoColor={logoColor} logoLayout={logoLayout} comBorda={comBorda} setComBorda={setComBorda} patternSrc={patternSrc} patternScale={patternScale} setPatternScale={setPatternScale} accentColor={accentColor} borderColor={borderColor} setBorderColor={setBorderColor} paletteColors={paletteColors} cartaoContacts={cartaoContacts} crmLine={crmLine} illustrationsSrc="/breastfeeding-guide.png" folderRoof={folderRoof} />
           : currentItem === 'Guia de Cuidados'
             ? <FolderTrifoldPreview brand={brand} logoColor={logoColor} logoLayout={logoLayout} comBorda={comBorda} setComBorda={setComBorda} patternSrc={patternSrc} patternScale={patternScale} setPatternScale={setPatternScale} accentColor={accentColor} borderColor={borderColor} setBorderColor={setBorderColor} paletteColors={paletteColors} title={currentItem} cartaoContacts={cartaoContacts} folderRoof={folderRoof} crmLine={crmLine} />
           : currentItem === 'Orientações p/ Recém Nascidos'
@@ -5310,7 +5381,7 @@ ${fontImports2}
             ? <PastaPreview brand={brand} editData={{ ...editData, tagline: localSlogan }} accentColor={accentColor} solidColor={paletteColors[0]} logoColor={logoColor} logoLayout={logoLayout} isSaude={isSaude} crmLine={crmLine} clinicaNome={clinicaNome} cartaoContacts={cartaoContacts} comBorda={comBorda} setComBorda={setComBorda} patternSrc={patternSrc} paletteColors={paletteColors} borderColor={borderColor} setBorderColor={setBorderColor} patternScale={patternScale} setPatternScale={setPatternScale} folderRoof={folderRoof} />
           : currentItem === 'Papel Timbrado'
             ? <PapelTimbradoPreview brand={brand} editData={editData} accentColor={accentColor} patternSrc={patternSrc} logoColor={logoColor} logoLayout={logoLayout} comBorda={comBorda} setComBorda={setComBorda} paletteColors={paletteColors} borderColor={borderColor} setBorderColor={setBorderColor} patternScale={patternScale} setPatternScale={setPatternScale} cartaoContacts={cartaoContacts} crmLine={crmLine} localSlogan={localSlogan} clinicaNome={clinicaNome} storyTemplateIdx={storyTemplateIdx} setStoryTemplateIdx={setStoryTemplateIdx} storyFormatIdx={storyFormatIdx} setStoryFormatIdx={setStoryFormatIdx} />
-          : currentItem === 'Fundo de Tira Dúvidas Instagram'
+          : currentItem === 'Pack Digital para Instagram'
             ? <FundoInstaPreview brand={brand} editData={editData} accentColor={accentColor} patternSrc={patternSrc} logoColor={logoColor} logoLayout={logoLayout} comBorda={comBorda} setComBorda={setComBorda} paletteColors={paletteColors} borderColor={borderColor} setBorderColor={setBorderColor} patternScale={patternScale} setPatternScale={setPatternScale} cartaoContacts={cartaoContacts} crmLine={crmLine} localSlogan={localSlogan} clinicaNome={clinicaNome} storyTemplateIdx={storyTemplateIdx} setStoryTemplateIdx={setStoryTemplateIdx} storyFormatIdx={storyFormatIdx} setStoryFormatIdx={setStoryFormatIdx} />
           : currentItem === 'Assinatura de E-mail'
             ? <AssinaturaEmailPreview brand={brand} editData={editData} accentColor={accentColor} logoColor={logoColor} logoLayout={logoLayout} cartaoContacts={cartaoContacts} crmLine={crmLine} localSlogan={localSlogan} clinicaNome={clinicaNome} storyTemplateIdx={storyTemplateIdx} setStoryTemplateIdx={setStoryTemplateIdx} storyFormatIdx={storyFormatIdx} setStoryFormatIdx={setStoryFormatIdx} />
@@ -5415,16 +5486,25 @@ ${fontImports2}
       {showPrintModal && (() => {
         const SPECS = {
           'Cartão de Visita':       { cat: 'Cartão de visita', tam: '8,5 × 5,5 cm', papel: 'Couché 300g', acabamento: 'Refile', preco: '~R$52,94 / 250 un.' },
-          'Receituário':            { cat: 'Receituário', tam: 'A5', papel: 'Offset 90g+', acabamento: 'Blocos 25, 50 ou 100 fls · Mínimo 10 blocos', preco: '~R$109,19 / 10 blocos de 25 fls' },
-          'Timbrado':               { cat: 'Timbrado', tam: 'A4', papel: 'Offset 90g+', acabamento: 'Refile', preco: '~R$170,85 / 250 un.' },
-          'Cartão de Retorno':      { cat: 'Cartão de visita', tam: '5 × 9 cm (vertical)', papel: 'Couché 300g', acabamento: 'Refile', preco: '~R$52,94 / 250 un.' },
-          'Pasta':                  { cat: 'Pasta com bolsa (sem orelha)', tam: '22 × 31 cm', papel: '', acabamento: '', preco: '~R$205,04 / 50 un.' },
-          'Envelope Ofício':        { cat: 'Envelope', tam: '22 × 11,3 cm', papel: 'Acima de 120g', acabamento: 'Refile', preco: '~R$319,24 / 50 un.' },
-          'Recibo':                 { cat: 'Recibo A5', tam: '14,8 × 21 cm', papel: 'Offset 120g', acabamento: 'Refile · Blocos', preco: '~R$120,84 / 10 blocos', obs: 'Formato A5 Padrão Printi. Pode ser produzido em blocos ou folhas avulsas.' },
-          'Caneca':                 { cat: 'Caneca', tam: 'Arte: 20 × 8 cm · 325ml', papel: '', acabamento: '', preco: '~R$33,93 / un.', obs: 'A impressão pode deixar bordas brancas de ~1cm nas laterais.' },
-          'Cartão de Aniversário':  { cat: 'Flyer', tam: 'A6', papel: 'Couché 240g+', acabamento: 'Frente e verso', preco: '~R$131,92 / 250 un.' },
-          'Caderneta':              { cat: 'Livreto', tam: 'A5 (14,8 × 21 cm)', papel: 'Miolo: Offset 120g · Capa: Couché 150g+', acabamento: 'Grampo · Shirink opcional', preco: '' },
-          'Livro de Atividades':    { cat: 'Livreto', tam: 'A5', papel: 'Miolo: Offset 120g · Capa: Couché 150g+', acabamento: 'Grampo', preco: '' },
+          'Receituário':            { cat: 'Receituário', tam: 'A5 (14,8 × 21 cm)', papel: 'Offset 90g+', acabamento: 'Blocos 25, 50 ou 100 fls', preco: '~R$109,19 / 10 blocos' },
+          'Timbrado':               { cat: 'Timbrado', tam: 'A4 (21 × 29,7 cm)', papel: 'Offset 90g+', acabamento: 'Folhas avulsas', preco: '~R$170,85 / 250 un.' },
+          'Cartão de Retorno':      { cat: 'Cartão de visita', tam: '5 × 9 cm', papel: 'Couché 300g', acabamento: 'Refile', preco: '~R$52,94 / 250 un.' },
+          'Pasta':                  { cat: 'Pasta com bolsa', tam: '22 × 31 cm (fechada)', papel: 'Couché 300g+', acabamento: 'Faca especial · Dobra', preco: '~R$205,04 / 50 un.' },
+          'Envelope Ofício':        { cat: 'Envelope', tam: '22 × 11,3 cm', papel: 'Offset 120g+', acabamento: 'Faca especial · Cola', preco: '~R$319,24 / 50 un.' },
+          'Envelope Saco':          { cat: 'Envelope Saco', tam: '24 × 34 cm', papel: 'Offset 120g+', acabamento: 'Faca especial · Cola', preco: '~R$400,00 / 50 un.' },
+          'Recibo':                 { cat: 'Recibo', tam: 'A5 (14,8 × 21 cm)', papel: 'Offset 90g+', acabamento: 'Blocos', preco: '~R$120,84 / 10 blocos' },
+          'Caneca':                 { cat: 'Caneca', tam: 'Arte: 20 × 8 cm', papel: 'Cerâmica', acabamento: 'Sublimação', preco: '~R$33,93 / un.' },
+          'Atestado Médico':        { cat: 'Atestado', tam: 'A5 (14,8 × 21 cm)', papel: 'Offset 90g+', acabamento: 'Blocos ou folhas', preco: '~R$109,19 / 10 blocos' },
+          'Receita de Alta':        { cat: 'Receituário Especial', tam: 'A5 (14,8 × 21 cm)', papel: 'Offset 120g+', acabamento: 'Folhas avulsas', preco: '' },
+          'Checklist Maternidade':  { cat: 'Checklist', tam: 'A4 (21 × 29,7 cm)', papel: 'Offset 120g+', acabamento: 'Folhas avulsas', preco: '' },
+          'Prontuário Médico':      { cat: 'Prontuário', tam: 'A4 (21 × 29,7 cm)', papel: 'Offset 120g+', acabamento: 'Refile · Frente e Verso', preco: '' },
+          'Diário do Xixi':         { cat: 'Diário de Controle', tam: 'A4 Horizontal', papel: 'Offset 120g+', acabamento: 'Refile', preco: '' },
+          'Meu Pratinho':           { cat: 'Guia Educativo', tam: 'A4 Horizontal', papel: 'Couché 240g+', acabamento: 'Refile · Frente e Verso', preco: '' },
+          'Ficha de Cadastro':      { cat: 'Ficha Cadastral', tam: 'A4 (21 × 29,7 cm)', papel: 'Offset 90g+', acabamento: 'Refile', preco: '' },
+          'Certificado de Coragem': { cat: 'Certificado', tam: 'A5 (14,8 × 21 cm)', papel: 'Couché 240g+', acabamento: 'Refile', preco: '' },
+          'Cartão de Aniversário':  { cat: 'Flyer', tam: 'A6 (10,5 × 14,8 cm)', papel: 'Couché 240g+', acabamento: 'Refile', preco: '' },
+          'Caderneta':              { cat: 'Livreto', tam: 'A5 (14,8 × 21 cm)', papel: 'Offset 120g+', acabamento: 'Grampo canoa', preco: '' },
+          'Livro de Atividades':    { cat: 'Livreto', tam: 'A5 (14,8 × 21 cm)', papel: 'Offset 120g+', acabamento: 'Grampo canoa', preco: '' },
         };
         const folderItems = ['Guia de Cuidados','Guia Alimentar','Guia de Desenvolvimento','Cartão de Vacina','Guia Pré-natal', 'Guia de Amamentação'];
         const spec = Object.keys(SPECS).find(k => pendingItem?.includes(k)) ? SPECS[Object.keys(SPECS).find(k => pendingItem?.includes(k))] : (folderItems.some(f => pendingItem?.includes(f)) ? { cat: 'Folder', tam: 'A5 (6 páginas)', papel: 'Couché ou Cartão 150g+', acabamento: '2 dobras (sanfonado)', preco: '~R$250,00 / 250 un.' } : null);
@@ -5481,10 +5561,10 @@ ${fontImports2}
 
       {/* Botão download */}
       <button
-        onClick={() => { if (currentItem === 'Fundo de Tira Dúvidas Instagram' || currentItem === 'Assinatura de E-mail') { openGabarito(currentItem); } else { setPendingItem(currentItem); setShowPrintModal(true); } }}
+        onClick={() => { if (currentItem === 'Pack Digital para Instagram' || currentItem === 'Assinatura de E-mail') { openGabarito(currentItem); } else { setPendingItem(currentItem); setShowPrintModal(true); } }}
         style={{ width: '100%', padding: '14px', background: accentColor, color: '#fff', border: 'none', borderRadius: '30px', fontWeight: 700, fontSize: '0.95rem', cursor: 'pointer' }}
       >
-        {currentItem === 'Fundo de Tira Dúvidas Instagram' ? `Baixar ${(INSTA_FORMATS[storyFormatIdx]||INSTA_FORMATS[0]).id === 'post' ? 'Post' : 'Story'} — PNG / JPG →` : currentItem === 'Assinatura de E-mail' ? 'Baixar Assinatura — PNG →' : 'Baixar PDF Padrão Gráfica →'}
+        {currentItem === 'Pack Digital para Instagram' ? `Baixar ${(INSTA_FORMATS[storyFormatIdx]||INSTA_FORMATS[0]).id === 'post' ? 'Post' : 'Story'} — PNG / JPG →` : currentItem === 'Assinatura de E-mail' ? 'Baixar Assinatura — PNG →' : 'Baixar PDF Padrão Gráfica →'}
       </button>
 
       {/* Navegação prev/next */}
@@ -6264,5 +6344,333 @@ export default function Sucesso() {
     <Suspense fallback={<div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', fontFamily: 'Montserrat, sans-serif', color: '#aaa' }}>Carregando sua marca...</div>}>
       <SucessoContent />
     </Suspense>
+  );
+}
+// FolderAmamentacaoPages logic moved here
+
+const getSafeColor = (hex, amount = 25) => {
+  if (!hex) return hex;
+  const h = hex.replace('#', '');
+  const r = parseInt(h.slice(0, 2), 16);
+  const g = parseInt(h.slice(2, 4), 16);
+  const b = parseInt(h.slice(4, 6), 16);
+  const brightness = (r * 299 + g * 587 + b * 114) / 1000;
+  if (brightness > 200) {
+    const darken = (v) => Math.max(0, Math.min(255, Math.floor(v * (1 - amount/100))));
+    return `#${darken(r).toString(16).padStart(2, '0')}${darken(g).toString(16).padStart(2, '0')}${darken(b).toString(16).padStart(2, '0')}`;
+  }
+  return hex;
+};
+
+// Quadrants for the generated image:
+// 1: Top-Left (Mother)
+// 2: Top-Right (Latch)
+// 3: Bottom-Left (Manual)
+// 4: Bottom-Right (Storage)
+const Illustration = ({ quadrant, src }) => {
+  const positions = [
+    '0% 0%',   // 1
+    '100% 0%', // 2
+    '0% 100%', // 3
+    '100% 100%' // 4
+  ];
+  if (!src) return <div style={{ width: '100%', height: '80px', background: '#f9f9f9', borderRadius: '4px', border: '1px dashed #ddd' }} />;
+  return (
+    <div style={{ 
+      width: '100%', 
+      aspectRatio: '1 / 1',
+      margin: '0 auto',
+      backgroundImage: `url(${src})`,
+      backgroundSize: '200% 200%',
+      backgroundPosition: positions[quadrant - 1],
+      backgroundRepeat: 'no-repeat',
+      borderRadius: '4px',
+      position: 'relative'
+    }} />
+  );
+};
+
+export function FolderAmamentacaoPage1({ accentColor, borderColor, palette = [], logoComponent, folderRoof = true }) {
+  const mainColor = borderColor || palette[0] || accentColor;
+  return (
+    <div style={{ 
+      width: '100%', 
+      display: 'flex', 
+      flexDirection: 'column', 
+      alignItems: 'center', 
+      padding: '15px 12px', 
+      boxSizing: 'border-box', 
+      background: '#fff',
+      position: 'relative',
+      clipPath: folderRoof ? 'polygon(0% 12%, 50% 0%, 100% 12%, 100% 100%, 0% 100%)' : 'none',
+      paddingTop: folderRoof ? '38px' : '15px'
+    }}>
+      <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '8px', marginBottom: '15px' }}>
+        <div style={{ marginBottom: '5px', display: 'flex', justifyContent: 'center' }}>{logoComponent}</div>
+        <div style={{ width: '35px', height: '1.5px', background: mainColor }} />
+      </div>
+
+      <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '20px', width: '100%', marginBottom: '15px' }}>
+        <div style={{ textAlign: 'center' }}>
+          <div style={{ fontSize: '5.5px', fontWeight: 400, color: '#888', letterSpacing: '2.5px', textTransform: 'uppercase' }}>GUIA DE</div>
+          <div style={{ fontSize: '9px', fontWeight: 900, color: '#333', letterSpacing: '0.6px', textTransform: 'uppercase', lineHeight: 1.1 }}>AMAMENTAÇÃO</div>
+        </div>
+        
+        <div style={{ 
+          padding: '2.5px 12px', 
+          background: `${mainColor}15`, 
+          borderRadius: '20px', 
+          border: `0.3px solid ${mainColor}30`,
+          maxWidth: '90%',
+          textAlign: 'center'
+        }}>
+           <div style={{ fontSize: '5px', fontWeight: 800, color: mainColor, textTransform: 'uppercase', letterSpacing: '0.8px' }}>ALEITAMENTO MATERNO EXCLUSIVO</div>
+        </div>
+      </div>
+
+      <div style={{ width: '100%', marginTop: '8px', display: 'flex', flexDirection: 'column', gap: '6px', padding: '0 5px', marginBottom: '5px' }}>
+        <div style={{ display: 'flex', alignItems: 'flex-end', gap: '4px' }}>
+           <span style={{ fontSize: '5px', fontWeight: 700, color: mainColor }}>NOME:</span>
+           <div style={{ flex: 1, borderBottom: `0.3px solid ${mainColor}40`, height: '7px' }} />
+        </div>
+        <div style={{ display: 'flex', alignItems: 'flex-end', gap: '4px' }}>
+           <span style={{ fontSize: '5px', fontWeight: 700, color: mainColor }}>NASCIMENTO:</span>
+           <div style={{ width: '10mm', borderBottom: `0.3px solid ${mainColor}40`, height: '7px' }} />
+           <span style={{ fontSize: '5px', color: mainColor }}>/</span>
+           <div style={{ width: '10mm', borderBottom: `0.3px solid ${mainColor}40`, height: '8px' }} />
+           <span style={{ fontSize: '5px', color: mainColor }}>/</span>
+           <div style={{ width: '10mm', borderBottom: `0.3px solid ${mainColor}40`, height: '8px' }} />
+        </div>
+      </div>
+    </div>
+  );
+}
+
+export function FolderAmamentacaoPage2({ accentColor, borderColor, palette = [] }) {
+  const mainColor = borderColor || palette[0] || accentColor;
+  return (
+    <div style={{ width: '100%', padding: '10px 8px', boxSizing: 'border-box', background: '#fff', fontSize: '4.2px', display: 'flex', flexDirection: 'column' }}>
+      <div style={{ background: mainColor, color: '#fff', padding: '4px 8px', fontWeight: 800, marginBottom: '8px', borderRadius: '1px', textAlign: 'center' }}>
+        ALIMENTAÇÃO DA MÃE
+      </div>
+      <p style={{ color: '#555', lineHeight: 1.45, marginBottom: '10px' }}>
+        Recomenda-se uma alimentação balanceada, rica em proteínas, fibras e vitaminas. Coma diversas vezes ao dia em pequenas porções para manter a energia.
+      </p>
+      <p style={{ color: '#555', lineHeight: 1.45, marginBottom: '15px' }}>
+        <strong>Água:</strong> consuma ao menos dois litros por dia. Mantenha copos d'água nos cômodos onde você mais amamenta.
+      </p>
+      
+      <div style={{ marginTop: '20px', border: `0.3px solid ${mainColor}40`, padding: '8px', borderRadius: '5px', background: `${mainColor}05` }}>
+        <div style={{ fontWeight: 800, color: mainColor, marginBottom: '8px', textAlign: 'center', fontSize: '5.2px', letterSpacing: '0.5px' }}>COMPOSIÇÃO DO LEITE MATERNO</div>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '2.5px' }}>
+          {[
+            { label: 'Agentes de proteção', w: '100%', c: mainColor },
+            { label: 'Crescimento', w: '90%', c: palette[1] || mainColor },
+            { label: 'Microbiota', w: '80%', c: palette[2] || mainColor },
+            { label: 'Energia', w: '70%', c: palette[3] || mainColor },
+            { label: 'Cérebro', w: '60%', c: palette[4] || mainColor },
+          ].map((item, i) => (
+            <div key={i} style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+              <div style={{ width: '38px', textAlign: 'right', fontSize: '3.4px', fontWeight: 600 }}>{item.label}</div>
+              <div style={{ flex: 1, height: '4.5px', background: `${item.c}20`, borderRadius: '10px', overflow: 'hidden' }}>
+                <div style={{ width: item.w, height: '100%', background: item.c }} />
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+export function FolderAmamentacaoPage3({ accentColor, borderColor, palette = [] }) {
+  const mainColor = borderColor || palette[0] || accentColor;
+  return (
+    <div style={{ width: '100%', padding: '10px 8px', boxSizing: 'border-box', background: '#fff', fontSize: '4.2px', display: 'flex', flexDirection: 'column' }}>
+      <div style={{ background: mainColor, color: '#fff', padding: '4px 8px', fontWeight: 800, marginBottom: '12px', borderRadius: '1px', textAlign: 'center' }}>
+        PROBLEMAS COMUNS
+      </div>
+      <div style={{ display: 'flex', flexDirection: 'column', gap: '15px' }}>
+        <section>
+          <div style={{ fontWeight: 800, color: mainColor, borderBottom: `0.3px solid ${mainColor}20`, marginBottom: '4px', fontSize: '4.6px' }}>Fissuras nos Mamilos</div>
+          <p style={{ lineHeight: 1.4 }}><strong>Causa:</strong> Má posição do bebê ou técnica incorreta.</p>
+          <p style={{ lineHeight: 1.4 }}><strong>Tratamento:</strong> Corrija a técnica, aplique leite materno após as mamadas.</p>
+        </section>
+        <section>
+          <div style={{ fontWeight: 800, color: mainColor, borderBottom: `0.3px solid ${mainColor}20`, marginBottom: '4px', fontSize: '4.6px' }}>Ingurgitamento Mamário</div>
+          <p style={{ lineHeight: 1.4 }}><strong>Causa:</strong> Desequilíbrio na produção e drenagem.</p>
+          <p style={{ lineHeight: 1.4 }}><strong>Alívio:</strong> Esvazie manualmente, faça massagens suaves na mama.</p>
+        </section>
+      </div>
+      
+      <div style={{ marginTop: '20px', display: 'flex', gap: '8px', marginBottom: '10px' }}>
+        <div style={{ flex: 1, background: '#f8f8f8', padding: '8px 5px', borderRadius: '5px', border: '0.2px solid #eee' }}>
+          <div style={{ fontWeight: 800, color: '#333', marginBottom: '5px', textAlign: 'center' }}>Antes do retorno:</div>
+          <div style={{ fontSize: '3.8px', lineHeight: 1.3 }}>• Aleitamento exclusivo;<br/>• Retirada no local.</div>
+        </div>
+        <div style={{ flex: 1, background: '#f8f8f8', padding: '8px 5px', borderRadius: '5px', border: '0.2px solid #eee' }}>
+          <div style={{ fontWeight: 800, color: '#333', marginBottom: '5px', textAlign: 'center' }}>Após o retorno:</div>
+          <div style={{ fontSize: '3.8px', lineHeight: 1.3 }}>• Amamentar em casa;<br/>• Ordenha no trabalho.</div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+export function FolderAmamentacaoPage4({ accentColor, borderColor, palette = [], clinicaNome, endereco, allPhones, brand }) {
+  const mainColor = borderColor || palette[0] || accentColor;
+  return (
+    <div style={{ width: '100%', padding: '10px 8px', boxSizing: 'border-box', background: '#fff', fontSize: '4.2px', display: 'flex', flexDirection: 'column' }}>
+      <div style={{ background: mainColor, color: '#fff', padding: '4px 8px', fontWeight: 800, marginBottom: '12px', borderRadius: '1px', textAlign: 'center' }}>
+        APOIO EMOCIONAL
+      </div>
+      <p style={{ fontWeight: 700, marginBottom: '8px', fontSize: '4.6px' }}>O apoio da família é fundamental:</p>
+      <ul style={{ paddingLeft: '10px', marginBottom: '10px', lineHeight: 1.5 }}>
+        <li>Ambiente calmo favorece a amamentação.</li>
+        <li>A mãe precisa de apoio em sua decisão.</li>
+        <li>Dividir as tarefas de casa é essencial.</li>
+      </ul>
+      <div style={{ background: '#f9f9f9', padding: '8px', borderRadius: '5px', border: `0.3px solid ${mainColor}30` }}>
+        <div style={{ fontWeight: 800, color: mainColor, marginBottom: '6px', fontSize: '4.8px' }}>Como Ajudar?</div>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '3px' }}>
+          {['Buscar ajuda profissional se necessário', 'Ambiente organizado e confortável', 'Auxiliar nas tarefas domésticas'].map((text, i) => (
+            <div key={i} style={{ display: 'flex', gap: '4px', alignItems: 'center' }}>
+              <div style={{ width: '5px', height: '5px', border: `0.3px solid ${mainColor}`, borderRadius: '1px' }} />
+              <span style={{ fontSize: '4px' }}>{text}</span>
+            </div>
+          ))}
+        </div>
+      </div>
+      
+      <div style={{ marginTop: '12px', textAlign: 'center', borderTop: `0.3px solid ${mainColor}20`, paddingTop: '8px', paddingBottom: '5px' }}>
+        <div style={{ fontSize: '5px', fontWeight: 800, color: mainColor, marginBottom: '1px' }}>{clinicaNome}</div>
+        <div style={{ fontSize: '3.8px', color: '#999', marginBottom: '3px' }}>{endereco}</div>
+        <div style={{ fontSize: '5px', fontWeight: 800, color: '#444' }}>{allPhones}</div>
+      </div>
+    </div>
+  );
+}
+
+export function FolderAmamentacaoPage5({ accentColor, borderColor, palette = [] }) {
+  const mainColor = borderColor || palette[0] || accentColor;
+  return (
+    <div style={{ width: '100%', padding: '10px 8px', boxSizing: 'border-box', background: '#fff', fontSize: '4.2px', display: 'flex', flexDirection: 'column' }}>
+      <p style={{ lineHeight: 1.5, marginBottom: '15px', fontSize: '4.6px' }}>
+        <strong>Amamentar é muito mais que nutrir.</strong> É interação, imunidade e desenvolvimento emocional para o bebê.
+      </p>
+      <div style={{ background: `${mainColor}10`, padding: '10px', borderRadius: '5px', border: `0.2px solid ${mainColor}20`, marginBottom: '15px' }}>
+        <p style={{ margin: 0, lineHeight: 1.4, textAlign: 'center' }}>
+          A OMS recomenda aleitamento materno exclusivo nos primeiros seis meses de vida.
+        </p>
+      </div>
+      
+      <div style={{ fontWeight: 800, color: mainColor, marginBottom: '10px', textTransform: 'uppercase', fontSize: '5.2px', letterSpacing: '0.5px', textAlign: 'center' }}>BENEFÍCIOS DO ALEITAMENTO</div>
+      <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+        {[
+          { t: 'Para o Bebê:', c: 'Melhor digestão, imunidade e redução de alergias.' },
+          { t: 'Para a Mamãe:', c: 'Auxilia na perda de peso e na saúde uterina.' },
+          { t: 'Para a Família:', c: 'Fortalece os vínculos e é prático no dia a dia.' },
+        ].map((box, i) => (
+          <div key={i} style={{ borderLeft: `2.5px solid ${mainColor}`, paddingLeft: '10px', background: `${mainColor}05`, padding: '6px 10px', borderRadius: '0 4px 4px 0' }}>
+            <div style={{ fontWeight: 800, color: mainColor, marginBottom: '2px' }}>{box.t}</div>
+            <div style={{ fontSize: '3.8px', color: '#666', lineHeight: 1.3 }}>{box.c}</div>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+export function FolderAmamentacaoPage6({ accentColor, borderColor, palette = [] }) {
+  const mainColor = borderColor || palette[0] || accentColor;
+  return (
+    <div style={{ width: '100%', padding: '10px 8px', boxSizing: 'border-box', background: '#fff', fontSize: '4.2px', display: 'flex', flexDirection: 'column' }}>
+      <div style={{ background: mainColor, color: '#fff', padding: '4px 8px', fontWeight: 800, marginBottom: '10px', borderRadius: '1px', textAlign: 'center' }}>
+        A PEGA CORRETA
+      </div>
+      <p style={{ lineHeight: 1.4, marginBottom: '12px', textAlign: 'center' }}>
+        Uma pega inadequada pode levar a mamilos doloridos e baixo ganho de peso do bebê.
+      </p>
+      
+      <div style={{ position: 'relative', width: '68px', margin: '0 auto', border: '0.4px solid #eee', borderRadius: '5px', overflow: 'hidden' }}>
+        <img src="/pega-correta.png" style={{ width: '100%', display: 'block' }} />
+      </div>
+      
+      <div style={{ marginTop: '15px', display: 'flex', gap: '8px', marginBottom: '10px' }}>
+        <div style={{ flex: 1, background: `${mainColor}10`, padding: '8px 5px', borderRadius: '5px', border: `0.3px solid ${mainColor}20` }}>
+          <div style={{ fontWeight: 800, color: mainColor, marginBottom: '4px', textAlign: 'center', fontSize: '4.8px' }}>Certo:</div>
+          <div style={{ fontSize: '3.6px', lineHeight: 1.25 }}>Boca bem aberta, lábios para fora, queixo na mama.</div>
+        </div>
+        <div style={{ flex: 1, background: '#fff5f5', padding: '8px 5px', borderRadius: '5px', border: '0.3px solid #feb2b2' }}>
+          <div style={{ fontWeight: 800, color: '#c53030', marginBottom: '4px', textAlign: 'center', fontSize: '4.8px' }}>Errado:</div>
+          <div style={{ fontSize: '3.6px', lineHeight: 1.25 }}>Boca pouco aberta, bochechas encovadas, dor.</div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+export function FolderAmamentacaoPage7({ accentColor, borderColor, palette = [] }) {
+  const mainColor = borderColor || palette[0] || accentColor;
+  return (
+    <div style={{ width: '100%', padding: '10px 8px', boxSizing: 'border-box', background: '#fff', fontSize: '4.2px', display: 'flex', flexDirection: 'column' }}>
+      <div style={{ background: mainColor, color: '#fff', padding: '4px 8px', fontWeight: 800, marginBottom: '15px', borderRadius: '1px', textAlign: 'center' }}>
+        ORDENHA MANUAL
+      </div>
+      <div style={{ display: 'grid', gridTemplateColumns: '1fr 60px', gap: '10px', alignItems: 'center', marginBottom: '20px' }}>
+        <div style={{ fontSize: '4px', lineHeight: 1.45 }}>
+          <p><strong>1.</strong> Lave bem mãos e antebraços.</p>
+          <p><strong>2.</strong> Massageie a mama suavemente.</p>
+          <p><strong>3.</strong> Polegar acima da aréola, dedos abaixo.</p>
+          <p><strong>4.</strong> Pressione para trás e solte.</p>
+        </div>
+        <div style={{ width: '100%', border: '0.4px solid #eee', borderRadius: '5px', overflow: 'hidden' }}>
+          <img src="/ordenha.png" style={{ width: '100%', display: 'block' }} />
+        </div>
+      </div>
+      <div style={{ marginTop: '20px', background: '#fdfdfd', padding: '10px', borderRadius: '5px', border: '0.2px dashed #ddd', textAlign: 'center' }}>
+        <p style={{ fontSize: '3.8px', fontStyle: 'italic', margin: 0, color: '#666' }}>
+          Dica: Use sempre um frasco de vidro esterilizado com tampa plástica para armazenar.
+        </p>
+      </div>
+    </div>
+  );
+}
+
+export function FolderAmamentacaoPage8({ accentColor, borderColor, palette = [] }) {
+  const mainColor = borderColor || palette[0] || accentColor;
+  return (
+    <div style={{ width: '100%', padding: '10px 8px', boxSizing: 'border-box', background: '#fff', fontSize: '4.2px' }}>
+      <div style={{ background: mainColor, color: '#fff', padding: '4px 8px', fontWeight: 800, marginBottom: '10px', borderRadius: '1px', textAlign: 'center' }}>
+        ARMAZENAMENTO E USO
+      </div>
+      
+      <div style={{ marginBottom: '6px' }}>
+        <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '4px' }}>
+          <thead>
+            <tr style={{ borderBottom: `1px solid ${mainColor}40` }}>
+              <th style={{ textAlign: 'left', padding: '4px' }}>Local</th>
+              <th style={{ textAlign: 'right', padding: '4px' }}>Tempo</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr style={{ borderBottom: '0.1px solid #eee' }}><td style={{ padding: '5px 4px' }}>Geladeira</td><td style={{ textAlign: 'right' }}>Até 12 horas</td></tr>
+            <tr style={{ borderBottom: '0.1px solid #eee' }}><td style={{ padding: '5px 4px' }}>Congelador</td><td style={{ textAlign: 'right' }}>Até 15 dias</td></tr>
+          </tbody>
+        </table>
+      </div>
+      
+      <div style={{ marginBottom: '10px', background: `${mainColor}05`, padding: '8px', borderRadius: '6px', border: `0.3px solid ${mainColor}15` }}>
+        <div style={{ fontWeight: 800, color: mainColor, marginBottom: '3px', fontSize: '4.6px' }}>Como Aquecer:</div>
+        <p style={{ lineHeight: 1.3, margin: '0 0 8px 0' }}>Banho-maria (fogo desligado). Nunca use o micro-ondas, para não perder as propriedades.</p>
+        
+        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '6px' }}>
+          <div style={{ width: '35px', height: '35px', position: 'relative', borderRadius: '50%', overflow: 'hidden', border: `0.5px solid ${mainColor}20`, background: '#fff' }}>
+            <img src="/banho_maria_circular_neutro_1777906864151.png" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+          </div>
+          <p style={{ fontSize: '3.4px', color: '#777', margin: 0, fontStyle: 'italic', fontWeight: 600, textAlign: 'center' }}>"O leite materno é o melhor alimento para o seu bebê."</p>
+        </div>
+      </div>
+    </div>
   );
 }

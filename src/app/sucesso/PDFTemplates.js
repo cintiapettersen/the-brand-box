@@ -12,7 +12,7 @@ export const PDFStyles = {
 /**
  * Gera a estrutura HTML da Logo para o PDF
  */
-export const genPDFLogoHtml = ({ brand, color, localSlogan, crmLine, fontPt, lineH, letterSp, hideSlogan = false, crmSize = '5pt', sloganSize = null }) => {
+export const genPDFLogoHtml = ({ brand, color, localSlogan, crmLine, fontPt, lineH, letterSp, hideSlogan = false, crmSize = '5pt', sloganSize = null, layout = 'stacked' }) => {
   const brandFont = `'${brand.editData?.fontFamily || 'Playfair Display'}', serif`;
   const isScript = brand.editData?.fontStyle === 'script';
   const marca = brand.name || brand.editData?.marca || 'Marca';
@@ -26,18 +26,24 @@ export const genPDFLogoHtml = ({ brand, color, localSlogan, crmLine, fontPt, lin
      lines = words;
   }
 
-  const effectiveSloganSize = sloganSize || (fontPt ? (parseFloat(fontPt) * 0.32).toFixed(1) + 'pt' : '6.5pt');
+  const effectiveSloganSize = sloganSize || (fontPt ? (parseFloat(fontPt) * 0.35).toFixed(1) + 'pt' : '7pt');
+  const isStacked = layout === 'stacked';
   
-  const logoBase = `
+  const logoMain = `
     <div style="text-align:center; font-family:${brandFont}; font-weight:${brand.editData?.fontWeight || 700}; font-size:${fontPt}pt; color:${color}; line-height:${lineH}; letter-spacing:${letterSp}; white-space:nowrap;">
       ${lines.map(l => `<div style="font-family:inherit;font-weight:inherit;white-space:nowrap;">${l}</div>`).join('')}
     </div>
-    ${(localSlogan && !hideSlogan) ? `<div style="${PDFStyles.montserrat} font-size:${effectiveSloganSize}; font-weight:700; letter-spacing:0.5pt; text-transform:uppercase; color:#666; margin-top:4pt; text-align:center; white-space:nowrap;">${localSlogan}</div>` : ''}
   `;
 
+  const sloganPart = (localSlogan && !hideSlogan) ? `<div style="${PDFStyles.montserrat} font-size:${effectiveSloganSize}; font-weight:700; letter-spacing:0.5pt; text-transform:uppercase; color:#666; margin-top:${isStacked ? '4pt' : '0'}; text-align:center; white-space:nowrap;">${localSlogan}</div>` : '';
+  
+  const crmPart = crmLine ? `<div style="${PDFStyles.montserrat} font-size:${crmSize}; letter-spacing:1pt; text-transform:uppercase; color:#bbb; margin-top:4pt; text-align:center; opacity:0.8;">${crmLine}</div>` : '';
+
   return `
-    ${logoBase}
-    ${crmLine ? `<div style="${PDFStyles.montserrat} font-size:${crmSize}; letter-spacing:1pt; text-transform:uppercase; color:#bbb; margin-top:4pt; text-align:center; opacity:0.8;">${crmLine}</div>` : ''}
+    <div style="display:flex; flex-direction:${isStacked ? 'column' : 'row'}; align-items:center; justify-content:center; gap:${isStacked ? '0' : '5mm'};">
+      ${logoMain}
+      ${isStacked ? sloganPart + crmPart : `<div style="display:flex; flex-direction:column; align-items:flex-start;">${sloganPart}${crmPart}</div>`}
+    </div>
   `;
 };
 

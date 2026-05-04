@@ -24,26 +24,22 @@ function TagCard({ size, solidColor, c0, c1, paletteColors, effectiveSrc, patter
   };
 
   const bgStyle = effectiveSrc
-    ? { position: 'absolute', inset: 0, backgroundImage: `url(${effectiveSrc})`, backgroundSize: `${(patternScale || 150) * size.scale / 150}px`, backgroundRepeat: 'repeat' }
+    ? { position: 'absolute', inset: 0, backgroundImage: `url(${effectiveSrc})`, backgroundSize: `${(patternScale || 100) * size.scale / 100}px`, backgroundRepeat: 'repeat' }
     : { position: 'absolute', inset: 0, background: solidColor };
 
   if (side === 'frente') {
     return (
       <div style={containerStyle}>
         <div style={bgStyle} />
-        {/* Furo */}
-        {!isCircle && (
-          <div style={{ position: 'absolute', top: Math.round(size.scale * 0.22), left: '50%', transform: 'translateX(-50%)', width: holeSize, height: holeSize, borderRadius: '50%', background: '#fff', border: `${Math.round(size.scale * 0.04)}px solid rgba(0,0,0,0.15)`, zIndex: 3 }} />
-        )}
         {/* Logo com fundo branco suave quando há estampa */}
-        <div style={{ position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%)', width: '72%', textAlign: 'center', zIndex: 2, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+        <div style={{ position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%)', width: '80%', textAlign: 'center', zIndex: 2, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
           {effectiveSrc ? (
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'rgba(255,255,255,0.85)', borderRadius: isCircle ? '50%' : '8px', padding: isCircle ? `${W * 0.12}px` : size.shape === 'square' ? '10px 18px' : '6px 14px', backdropFilter: 'blur(2px)', width: isCircle ? W * 0.78 : undefined, height: isCircle ? W * 0.78 : undefined }}>
-              <LogoPreviewHTML editData={editData} color={solidColor} layout={logoLayout} scaleFactor={size.shape === 'square' ? size.w * 0.095 : size.w * 0.076} hideTagline={false} />
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'rgba(255,255,255,0.92)', borderRadius: isCircle ? '50%' : '8px', padding: isCircle ? `${W * 0.15}px` : size.shape === 'square' ? '12px 20px' : '8px 18px', backdropFilter: 'blur(2px)', width: isCircle ? W * 0.85 : undefined, height: isCircle ? W * 0.85 : undefined }}>
+              <LogoPreviewHTML editData={editData} color={solidColor} layout={logoLayout} scaleFactor={size.shape === 'square' ? size.w * 0.12 : size.w * 0.09} hideTagline={false} />
             </div>
           ) : (
             <div style={{ filter: 'brightness(0) invert(1)' }}>
-              <LogoPreviewHTML editData={editData} color="#ffffff" layout={logoLayout} scaleFactor={size.shape === 'square' ? size.w * 0.095 : size.w * 0.076} hideTagline={false} />
+              <LogoPreviewHTML editData={editData} color="#ffffff" layout={logoLayout} scaleFactor={size.shape === 'square' ? size.w * 0.12 : size.w * 0.09} hideTagline={false} />
             </div>
           )}
         </div>
@@ -54,11 +50,6 @@ function TagCard({ size, solidColor, c0, c1, paletteColors, effectiveSrc, patter
   // Verso
   return (
     <div style={{ ...containerStyle, background: '#fff', border: `1.5px solid ${solidColor}` }}>
-      {/* Furo */}
-      {!isCircle && (
-        <div style={{ position: 'absolute', top: Math.round(size.scale * 0.22), left: '50%', transform: 'translateX(-50%)', width: holeSize, height: holeSize, borderRadius: '50%', background: '#f5f5f5', border: `1px solid #ddd`, zIndex: 3 }} />
-      )}
-
       {/* Conteúdo verso centralizado */}
       <div style={{ position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%)', width: '80%', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 10 }}>
         {clinicaNome && <div style={{ fontSize: 15, fontWeight: 400, color: solidColor, fontFamily: "'Brush Script MT','Segoe Script','Dancing Script',cursive", textAlign: 'center', lineHeight: 1.3 }}>{clinicaNome}</div>}

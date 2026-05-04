@@ -11,7 +11,7 @@ export default function GuiaAmamentacaoPreview({
   comBorda, setComBorda, 
   patternSrc, patternScale, setPatternScale, 
   accentColor, borderColor, setBorderColor, 
-  paletteColors, cartaoContacts, crmLine, illustrationsSrc 
+  paletteColors, cartaoContacts, crmLine, illustrationsSrc, folderRoof
 }) {
   const mainColor = paletteColors?.[0] || accentColor;
   const _brandData = brand?.editData || {};
@@ -51,7 +51,9 @@ export default function GuiaAmamentacaoPreview({
         borderRadius: '1.5px', 
         boxShadow: '0 2px 10px rgba(0,0,0,0.05)', 
         zIndex: 2, 
-        overflow: 'hidden' 
+        overflow: 'hidden',
+        clipPath: (num === 1 && folderRoof) ? 'polygon(0% 12%, 50% 0%, 100% 12%, 100% 100%, 0% 100%)' : 'none',
+        transition: 'clip-path 0.3s ease'
       }}>
         {children}
       </div>
@@ -79,7 +81,7 @@ export default function GuiaAmamentacaoPreview({
           <Page num={4}><FolderAmamentacaoPage4 accentColor={accentColor} borderColor={borderColor} palette={paletteColors} clinicaNome={clinicaNome} endereco={endereco} allPhones={allPhones} brand={brand} /></Page>
           <Page num={3}><FolderAmamentacaoPage3 accentColor={accentColor} borderColor={borderColor} palette={paletteColors} /></Page>
           <Page num={2}><FolderAmamentacaoPage2 accentColor={accentColor} borderColor={borderColor} palette={paletteColors} /></Page>
-          <Page num={1}><FolderAmamentacaoPage1 accentColor={accentColor} borderColor={borderColor} palette={paletteColors} logoComponent={logoHtml} illustrationsSrc={illustrationsSrc} /></Page>
+          <Page num={1}><FolderAmamentacaoPage1 accentColor={accentColor} borderColor={borderColor} palette={paletteColors} logoComponent={logoHtml} folderRoof={folderRoof} /></Page>
         </div>
       </div>
 
