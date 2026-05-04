@@ -5630,6 +5630,14 @@ function EntregaContent({ brand, plano }) {
   }, [estampaPatterns, estampaSelectedIdx]);
   const coresRef = useRef(null);
   const [downloadingCores, setDownloadingCores] = useState(false);
+  const [comBorda, setComBorda] = useState(true);
+  const [patternScale, setPatternScale] = useState(150);
+  const [borderColor, setBorderColor] = useState(null);
+  const [localSlogan, setLocalSlogan] = useState(brand?.editData?.tagline || '');
+  const [storyTemplateIdx, setStoryTemplateIdx] = useState(0);
+  const [storyFormatIdx, setStoryFormatIdx] = useState(0);
+  const currentIdx = estampaSelectedIdx || 0;
+  const patternSrc = estampaPatterns?.[currentIdx] ? `data:${estampaPatterns[currentIdx].mimeType};base64,${estampaPatterns[currentIdx].base64}` : null;
   const [cartaoContacts, setCartaoContacts] = useState(() => { try { return JSON.parse(localStorage.getItem('brandbox_cartao') || '{}').contacts || { telefone: '', whatsapp: '', email: '', site: '', instagram: '', endereco: '', telefone2: '' }; } catch { return { telefone: '', whatsapp: '', email: '', site: '', instagram: '', endereco: '', telefone2: '' }; } });
   const [cartaoQrLink, setCartaoQrLink] = useState(() => { try { return JSON.parse(localStorage.getItem('brandbox_cartao') || '{}').qrLink || ''; } catch { return ''; } });
   const [cartaoShowQR, setCartaoShowQR] = useState(() => { try { return JSON.parse(localStorage.getItem('brandbox_cartao') || '{}').showQR || false; } catch { return false; } });
@@ -5640,6 +5648,7 @@ function EntregaContent({ brand, plano }) {
 
   const atuacoesSaude = ['Pediatria / Saúde infantil', 'Obstetrícia / Saúde da mulher', 'Clínica / Saúde geral adulta', 'Terapia / Saúde mental', 'Estética / Bem-estar / Nutrição'];
   const isSaude = atuacoesSaude.includes(brand.formData?.atuacao);
+  const crmLine = isSaude && crmData?.crm ? `CRM/${crmData.uf || 'UF'} ${crmData.crm}` : null;
 
   const [clinicaNome, setClinicaNomeState] = useState(() => { try { return JSON.parse(localStorage.getItem('brandbox_papelaria') || '{}').clinicaNome || ''; } catch { return ''; } });
   const setClinicaNome = (v) => { setClinicaNomeState(v); try { const cur = JSON.parse(localStorage.getItem('brandbox_papelaria') || '{}'); localStorage.setItem('brandbox_papelaria', JSON.stringify({ ...cur, clinicaNome: v })); } catch {} };
@@ -5889,9 +5898,8 @@ function EntregaContent({ brand, plano }) {
 
         {/* Cartão digital */}
         {step === 'cartao' && <CartaoStep brand={brand} accentColor={accentColor} paletteColors={paletteColors} marca={marca} estampaPatterns={estampaPatterns} estampaSelectedIdx={estampaSelectedIdx} contacts={cartaoContacts} setContacts={setCartaoContacts} qrLink={cartaoQrLink} setQrLink={setCartaoQrLink} showQR={cartaoShowQR} setShowQR={setCartaoShowQR} logoLayout={logoLayout} editData={editData} logoColor={logoColor} setLayout={setLayout} />}
-        {(step === 'pack-instagram' || step === 'assinatura-email') && (
-          <PapelariaStep brand={{ ...brand, papelariaSelecionada: step === 'pack-instagram' ? ['Pack Digital para Instagram'] : ['Assinatura de E-mail'] }} accentColor={accentColor} paletteColors={paletteColors} estampaPatterns={estampaPatterns} estampaSelectedIdx={estampaSelectedIdx} cartaoContacts={cartaoContacts} setCartaoContacts={setCartaoContacts} plano={plano} isSaude={false} crmData={crmData} setCrmData={setCrmData} marca={marca} editData={editData} logoColor={logoColor} logoLayout={logoLayout} setLayout={setLayout} clinicaNome={clinicaNome} setClinicaNome={setClinicaNome} />
-        )}
+        {step === 'pack-instagram' && <FundoInstaPreview brand={brand} editData={editData} accentColor={accentColor} patternSrc={patternSrc} logoColor={logoColor} logoLayout={logoLayout} comBorda={comBorda} setComBorda={setComBorda} paletteColors={paletteColors} borderColor={borderColor} setBorderColor={setBorderColor} patternScale={patternScale} setPatternScale={setPatternScale} cartaoContacts={cartaoContacts} crmLine={crmLine} localSlogan={localSlogan} clinicaNome={clinicaNome} storyTemplateIdx={storyTemplateIdx} setStoryTemplateIdx={setStoryTemplateIdx} storyFormatIdx={storyFormatIdx} setStoryFormatIdx={setStoryFormatIdx} />}
+        {step === 'assinatura-email' && <AssinaturaEmailPreview brand={brand} editData={editData} accentColor={accentColor} logoColor={logoColor} logoLayout={logoLayout} cartaoContacts={cartaoContacts} crmLine={crmLine} localSlogan={localSlogan} clinicaNome={clinicaNome} storyTemplateIdx={storyTemplateIdx} setStoryTemplateIdx={setStoryTemplateIdx} storyFormatIdx={storyFormatIdx} setStoryFormatIdx={setStoryFormatIdx} />}
 
         {/* Guia da marca */}
         {step === 'guia' && <GuiaStep brand={brand} accentColor={accentColor} paletteColors={paletteColors} marca={marca} tagline={tagline} estampaPatterns={estampaPatterns} estampaSelectedIdx={estampaSelectedIdx} editData={editData} />}
