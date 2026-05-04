@@ -2937,9 +2937,20 @@ function PapelariaStep({ brand, accentColor, paletteColors, estampaPatterns, est
     return (
       <div style={{ display: 'flex', flexDirection: 'column', gap: '20px', padding: '8px 0' }}>
         <div style={{ background: '#fff8f0', border: '1px solid #fde8c8', borderRadius: '16px', padding: '18px 20px' }}>
-          <div style={{ fontSize: '0.82rem', fontWeight: 700, color: '#c87000', fontFamily: 'Montserrat,sans-serif', marginBottom: '4px' }}>📂 Papelaria não inclusa no seu plano</div>
-          <div style={{ fontSize: '0.75rem', color: '#999', fontFamily: 'Montserrat,sans-serif', lineHeight: 1.5 }}>
-            Selecione os itens que deseja adicionar. Cada item custa <strong style={{ color: '#c87000' }}>R$ 30,00</strong>.
+          <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: '12px' }}>
+            <div>
+              <div style={{ fontSize: '0.82rem', fontWeight: 700, color: '#c87000', fontFamily: 'Montserrat,sans-serif', marginBottom: '4px' }}>📂 Papelaria não inclusa no seu plano</div>
+              <div style={{ fontSize: '0.75rem', color: '#999', fontFamily: 'Montserrat,sans-serif', lineHeight: 1.5 }}>
+                Selecione os itens que deseja adicionar. Cada item custa <strong style={{ color: '#c87000' }}>R$ 30,00</strong>.
+              </div>
+            </div>
+            <button onClick={() => {
+              const todos = isSaude ? [...PAPELARIA_GERAL, ...PAPELARIA_MEDICA, ...DIGITAIS_MEDICOS] : PAPELARIA_GERAL;
+              const tudo = upsellSelecionados.length === todos.length;
+              setUpsellSelecionados(tudo ? [] : [...todos]);
+            }} style={{ flexShrink: 0, padding: '6px 14px', borderRadius: '20px', border: `1.5px solid #c87000`, background: 'transparent', color: '#c87000', fontSize: '0.72rem', fontWeight: 700, fontFamily: 'Montserrat,sans-serif', cursor: 'pointer', whiteSpace: 'nowrap' }}>
+              {upsellSelecionados.length === (isSaude ? PAPELARIA_GERAL.length + PAPELARIA_MEDICA.length + DIGITAIS_MEDICOS.length : PAPELARIA_GERAL.length) ? 'Desmarcar todos' : 'Marcar todos'}
+            </button>
           </div>
         </div>
 
@@ -6011,7 +6022,7 @@ function EntregaContent({ brand, plano }) {
         <div style={{ display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between', marginBottom: '1.2rem' }}>
           <div>
             <h1 style={{ fontSize: '1.4rem', fontWeight: 700, color: '#1a1a1a', lineHeight: 1.2 }}>
-              {step === 'logo' ? 'Sua Logo' : step === 'submarca' ? 'Sua Submarca' : step === 'estampa' ? 'Sua Estampa' : step === 'cores' ? 'Suas Cores' : step === 'cartao' ? 'Cartão Digital' : step === 'pack-instagram' ? 'Pack Digital para Instagram' : step === 'assinatura-email' ? 'Assinatura de E-mail' : step === 'guia' ? 'Guia da Marca' : 'Gabaritos'}
+              {step === 'logo' ? 'Sua Logo' : step === 'submarca' ? 'Sua Submarca' : step === 'estampa' ? 'Sua Estampa' : step === 'cores' ? 'Suas Cores' : step === 'cartao' ? 'Cartão Digital' : step === 'pack-instagram' ? 'Pack Digital para Instagram' : step === 'assinatura-email' ? 'Assinatura de E-mail' : step === 'guia' ? 'Guia da Marca' : 'Sua Papelaria'}
             </h1>
           </div>
         </div>
