@@ -2810,18 +2810,36 @@ function PastaPreview({ brand, editData, accentColor, solidColor, logoColor, log
 }
 
 function PapelariaStep({ brand, accentColor, paletteColors, estampaPatterns, estampaSelectedIdx, cartaoContacts, setCartaoContacts, plano, isSaude, crmData, setCrmData, marca, editData, logoColor, logoLayout, setLayout, clinicaNome, setClinicaNome }) {
-  const itens = [
-    "Cartão de Visita", "Receituário Padrão", "Atestado Médico", "Cartão de Retorno", "Pasta A4 Exclusiva",
-    "Envelope Ofício", "Envelope Saco", "Recibo", "Receituário de Controle Especial", "Guia Alimentar",
-    "Guia de Cuidados", "Guia de Desenvolvimento", "Guia de Vacina c/ Calendário",
-    "Cartão de Exame Pré-Natal", "Gráfico de Crescimento", "Checklist Maternidade", "Guia do Sono",
-    "Orientações p/ Recém Nascidos", "Prontuário Médico", "Receita de Alta", "Ficha de Cadastro",
-    "Certificado de Coragem",
-    "Arte para Caneca/Brindes", "Diário do Xixi",
-    "Meu Pratinho", "Guia de Amamentação", "Pack Digital para Instagram",
-    "Papel Timbrado", "Papel de Presente", "Etiqueta para Correios",
-    "Assinatura de E-mail", "Tag para Sacola"
+  // Digitais: sempre inclusos no plano PRO
+  const ITENS_DIGITAIS = ["Pack Digital para Instagram", "Assinatura de E-mail"];
+  // Papelaria disponível para não-médicos
+  const PAPELARIA_GERAL = [
+    "Cartão de Visita", "Papel Timbrado", "Papel de Presente", "Tag para Sacola",
+    "Etiqueta para Correios", "Envelope Ofício", "Envelope Saco", "Recibo",
+    "Pasta A4 Exclusiva", "Arte para Caneca/Brindes",
   ];
+  // Papelaria exclusiva para área médica
+  const PAPELARIA_MEDICA = [
+    "Receituário Padrão", "Atestado Médico", "Cartão de Retorno",
+    "Receituário de Controle Especial", "Prontuário Médico", "Receita de Alta",
+    "Ficha de Cadastro",
+  ];
+  // Digitais/clínicos médicos: sempre inclusos se isSaude
+  const DIGITAIS_MEDICOS = [
+    "Guia Alimentar", "Guia de Cuidados", "Guia de Desenvolvimento",
+    "Guia de Vacina c/ Calendário", "Cartão de Exame Pré-Natal",
+    "Gráfico de Crescimento", "Checklist Maternidade", "Guia do Sono",
+    "Orientações p/ Recém Nascidos", "Certificado de Coragem",
+    "Diário do Xixi", "Meu Pratinho", "Guia de Amamentação",
+  ];
+  // Monta lista final: papelaria selecionada no checkout + digitais automáticos
+  const papelariaSelecionada = brand?.papelariaSelecionada || [];
+  const papelariaDisponivel = isSaude ? [...PAPELARIA_GERAL, ...PAPELARIA_MEDICA] : PAPELARIA_GERAL;
+  const papelariaAtiva = papelariaSelecionada.length > 0
+    ? papelariaDisponivel.filter(i => papelariaSelecionada.includes(i))
+    : papelariaDisponivel;
+  const digitaisAtivos = [...ITENS_DIGITAIS, ...(isSaude ? DIGITAIS_MEDICOS : [])];
+  const itens = [...papelariaAtiva, ...digitaisAtivos];
    const [idx, setIdx] = useState(0);
   const [comBorda, setComBordaState] = useState(true);
   const [patternScale, setPatternScaleState] = useState(100);
@@ -2882,7 +2900,7 @@ function PapelariaStep({ brand, accentColor, paletteColors, estampaPatterns, est
   const [crmOpen, setCrmOpen] = useState(!crmData?.crm);
   const [contactOpen, setContactOpen] = useState(false);
 
-  if (plano !== 'complete' || itens.length === 0) {
+  if (plano !== 'pro' || itens.length === 0) {
      return <div style={{ textAlign: 'center', padding: '2rem 0', color: '#888' }}>Nenhuma papelaria inclusa no seu pacote.</div>;
   }
 
@@ -4639,7 +4657,7 @@ td { padding: 4mm 3mm; border: 0.2mm solid #eee; font-size: 10pt; color: #555; }
       if (['Guia Alimentar', 'Guia de Cuidados', 'Guia de Desenvolvimento', 'Guia de Vacina c/ Calendário', 'Cartão de Vacina', 'Cartão de Exame Pré-Natal', 'Cartão de Exames Pré-Natal', 'Guia de Amamentação', 'Guia do Sono'].includes(item)) {
         const isPrenatal = item.includes('Pré-Natal');
         const isAmamentacao = item.includes('Amamentação');
-        const BLEED = 3;
+        const BLEED = 5;
 
         if (isAmamentacao) {
           // Folder DL (8 páginas - 4 de cada lado)
@@ -5506,8 +5524,15 @@ ${fontImports2}
           'Caderneta':              { cat: 'Livreto', tam: 'A5 (14,8 × 21 cm)', papel: 'Offset 120g+', acabamento: 'Grampo canoa', preco: '' },
           'Livro de Atividades':    { cat: 'Livreto', tam: 'A5 (14,8 × 21 cm)', papel: 'Offset 120g+', acabamento: 'Grampo canoa', preco: '' },
         };
-        const folderItems = ['Guia de Cuidados','Guia Alimentar','Guia de Desenvolvimento','Cartão de Vacina','Guia Pré-natal', 'Guia de Amamentação'];
-        const spec = Object.keys(SPECS).find(k => pendingItem?.includes(k)) ? SPECS[Object.keys(SPECS).find(k => pendingItem?.includes(k))] : (folderItems.some(f => pendingItem?.includes(f)) ? { cat: 'Folder', tam: 'A5 (6 páginas)', papel: 'Couché ou Cartão 150g+', acabamento: '2 dobras (sanfonado)', preco: '~R$250,00 / 250 un.' } : null);
+        const folderItems = ['Guia de Cuidados','Guia Alimentar','Guia de Desenvolvimento','Cartão de Vacina','Guia Pré-natal', 'Guia do Sono'];
+        const isAmamentacaoModal = pendingItem?.includes('Amamentação');
+        
+        let spec = Object.keys(SPECS).find(k => pendingItem?.includes(k)) ? SPECS[Object.keys(SPECS).find(k => pendingItem?.includes(k))] : (folderItems.some(f => pendingItem?.includes(f)) ? { cat: 'Folder Trifold', tam: 'A4 Aberto / A5 Fechado (6 pág)', papel: 'Couché ou Cartão 150g+', acabamento: '2 dobras (sanfonado)', preco: '~R$250,00 / 250 un.' } : null);
+        
+        if (isAmamentacaoModal) {
+          spec = { cat: 'Folder Sanfonado', tam: 'DL (8 páginas - 10x20cm)', papel: 'Couché ou Cartão 150g+', acabamento: '3 dobras (sanfonado)', preco: '~R$280,00 / 250 un.' };
+        }
+
         return (
           <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.5)', zIndex: 9999, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '16px' }}
             onClick={() => setShowPrintModal(false)}>
@@ -5813,11 +5838,11 @@ function EntregaContent({ brand, plano }) {
             <div style={{ display: 'flex', gap: '8px', overflowX: 'auto', padding: '5px 0', scrollbarWidth: 'none' }} className="no-scrollbar">
               {[
                 { id: 'logo', label: 'Logo' },
-                { id: 'submarca', label: 'Selo' },
+                { id: 'submarca', label: 'Selo', planOnly: 'personalizado' },
                 { id: 'estampa', label: 'Estampa' },
                 { id: 'cores', label: 'Cores' },
                 { id: 'guia', label: 'Manifesto' }
-              ].map(item => (
+              ].filter(item => !item.planOnly || plano === item.planOnly).map(item => (
                 <button
                   key={item.id}
                   onClick={() => setStep(item.id)}
@@ -6078,8 +6103,8 @@ function EntregaContent({ brand, plano }) {
             )}
             {step === 'cartao' && (
               <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-                <button onClick={() => setStep(plano === 'complete' ? 'papelaria' : 'guia')} style={{ width: '100%', padding: '13px', background: `${accentColor}20`, color: accentColor, border: 'none', borderRadius: '30px', fontWeight: 700, fontSize: '0.9rem', cursor: 'pointer' }}>
-                  {plano === 'complete' ? 'Próximo: Papelaria →' : 'Próximo: Guia da Marca →'}
+                <button onClick={() => setStep(plano === 'pro' ? 'papelaria' : 'guia')} style={{ width: '100%', padding: '13px', background: `${accentColor}20`, color: accentColor, border: 'none', borderRadius: '30px', fontWeight: 700, fontSize: '0.9rem', cursor: 'pointer' }}>
+                  {plano === 'pro' ? 'Próximo: Papelaria →' : 'Próximo: Guia da Marca →'}
                 </button>
                 <button onClick={() => setStep('cores')} style={{ width: '100%', padding: '8px', background: 'none', color: '#bbb', border: 'none', fontSize: '0.75rem', fontWeight: 600, cursor: 'pointer' }}>
                   ← Voltar para as cores
@@ -6097,8 +6122,8 @@ function EntregaContent({ brand, plano }) {
               </div>
             )}
             {step === 'guia' && (
-              <button onClick={() => setStep(plano === 'complete' ? 'papelaria' : 'cartao')} style={{ width: '100%', padding: '10px', background: 'none', color: '#999', border: '1px solid #ddd', borderRadius: '30px', fontWeight: 600, fontSize: '0.8rem', cursor: 'pointer' }}>
-                {plano === 'complete' ? '← Voltar para a papelaria' : '← Voltar para o cartão'}
+              <button onClick={() => setStep(plano === 'pro' ? 'papelaria' : 'cartao')} style={{ width: '100%', padding: '10px', background: 'none', color: '#999', border: '1px solid #ddd', borderRadius: '30px', fontWeight: 600, fontSize: '0.8rem', cursor: 'pointer' }}>
+                {plano === 'pro' ? '← Voltar para a papelaria' : '← Voltar para o cartão'}
               </button>
             )}
           </div>
@@ -6130,9 +6155,9 @@ function SucessoContent() {
       if (stored) return stored;
       const delivery = JSON.parse(localStorage.getItem('brandbox_delivery') || '{}');
       if (delivery.plano) return delivery.plano;
-      if (delivery.papelariaSelecionada?.length > 0) return 'complete';
+      if (delivery.papelariaSelecionada?.length > 0) return 'pro';
     } catch {}
-    return 'experience';
+    return 'starter';
   });
 
   useEffect(() => {
@@ -6169,7 +6194,7 @@ function SucessoContent() {
           if (!error && data) {
             const brandFromDb = data.brand_data;
             setBrand(brandFromDb);
-            const planoFromDb = data.plano || planoParam || 'experience';
+            const planoFromDb = data.plano || planoParam || 'starter';
             setPlano(planoFromDb);
             localStorage.setItem('brandbox_plano', planoFromDb);
 
@@ -6232,10 +6257,10 @@ function SucessoContent() {
         } else {
           try {
             const delivery = JSON.parse(localStorage.getItem('brandbox_delivery') || '{}');
-            const derived = delivery.plano || (delivery.papelariaSelecionada ? 'complete' : 'experience');
+            const derived = delivery.plano || (delivery.papelariaSelecionada ? 'pro' : 'starter');
             localStorage.setItem('brandbox_plano', derived);
             setPlano(derived);
-          } catch { setPlano('experience'); }
+          } catch { setPlano('starter'); }
         }
       }
 
@@ -6312,7 +6337,7 @@ function SucessoContent() {
           </button>
 
           <p style={{ fontSize: '0.75rem', color: '#bbb', margin: 0 }}>
-            Pagamento confirmado · {plano === 'complete' ? 'Brand Box Complete' : 'Brand Box Experience'}
+            Pagamento confirmado · {plano === 'pro' ? 'Brand Box Pro' : 'Brand Box Starter'}
           </p>
         </div>
       </div>
@@ -6325,7 +6350,7 @@ function SucessoContent() {
         <div style={{ fontSize: '3.5rem', marginBottom: '1rem' }}>🎉</div>
         <h1 style={{ fontSize: '1.8rem', fontWeight: 700, marginBottom: '0.5rem', color: '#1a1a1a' }}>Pagamento confirmado!</h1>
         <p style={{ fontSize: '1rem', color: '#555', maxWidth: '400px', lineHeight: 1.7, marginBottom: '1.5rem' }}>
-          {plano === 'experience'
+          {plano === 'starter'
             ? 'Seus arquivos estão sendo preparados e você receberá tudo por e-mail em instantes.'
             : 'Entraremos em contato em até 2 dias úteis pelo e-mail cadastrado.'}
         </p>

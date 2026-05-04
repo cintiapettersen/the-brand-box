@@ -4,12 +4,12 @@ import Stripe from 'stripe';
 // to avoid breaking the Vercel build if the env var is missing during build time.
 const PLANOS = {
   experience: {
-    name: 'Brand Box Experience',
+    name: 'Brand Box Starter',
     description: 'Logo tipográfica + variações, estampa personalizada, paleta de cores, tipografia, guia de uso da marca e cartão de visita interativo. Arquivos entregues por e-mail imediatamente após o pagamento.',
     amount: 49700,
   },
   complete: {
-    name: 'Brand Box Complete',
+    name: 'Brand Box Pro',
     description: 'Tudo do Experience + papelaria personalizada, templates para Instagram, mockups, ícones, avatares, estampa exclusiva, manifesto e tom de voz da marca. Arquivos entregues por e-mail em até 2 dias úteis.',
     amount: 89700,
   },
@@ -41,7 +41,7 @@ export async function POST(request) {
       },
     ];
 
-    if (plano === 'complete' && extrasCount > 0) {
+    if (plano === 'pro' && extrasCount > 0) {
       line_items.push({
         price_data: {
           currency: 'brl',

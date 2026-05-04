@@ -1472,7 +1472,7 @@ export default function Home() {
                           const saveRes = await fetch('/api/salvar-entrega', {
                             method: 'POST',
                             headers: { 'Content-Type': 'application/json' },
-                            body: JSON.stringify({ brandState: cleanState, plano: 'experience', email: formData.email, marca: formData.marca }),
+                            body: JSON.stringify({ brandState: cleanState, plano: 'starter', email: formData.email, marca: formData.marca }),
                           });
                           const saveData = await saveRes.json();
                           if (saveData.sessionId) {
@@ -1485,7 +1485,7 @@ export default function Home() {
                         const res = await fetch('/api/checkout', {
                           method: 'POST',
                           headers: { 'Content-Type': 'application/json' },
-                          body: JSON.stringify({ plano: 'experience', marca: formData.marca, email: formData.email, sessionId: sessionIdExp }),
+                          body: JSON.stringify({ plano: 'starter', marca: formData.marca, email: formData.email, sessionId: sessionIdExp }),
                         });
                         const data = await res.json();
                         if (data.url) window.location.href = data.url;
@@ -1508,7 +1508,7 @@ export default function Home() {
                       {papelariaSelecionada.length > 5 && <span style={{ fontSize: '0.8rem', color: 'var(--accent-magenta)', fontWeight: 700, marginLeft: '8px' }}>(+ adicionais)</span>}
                     </span>
                     <ul style={{ fontSize: '0.85rem', margin: '0 0 12px 0', paddingLeft: '0', display: 'flex', flexDirection: 'column', gap: '5px', listStyle: 'none' }}>
-                      {['Tudo do Brand Box Experience', 'Papelaria personalizada para sua marca', 'Templates editáveis para Instagram', 'Elementos visuais (mockups, ícones, avatares)', '✨ Manifesto da sua marca', '✨ Tom de voz e comunicação da marca', '✨ Estampa exclusiva da marca'].map(i => {
+                      {['Tudo do Brand Box Starter', 'Papelaria personalizada para sua marca', 'Templates editáveis para Instagram', 'Elementos visuais (mockups, ícones, avatares)', '✨ Manifesto da sua marca', '✨ Tom de voz e comunicação da marca', '✨ Estampa exclusiva da marca'].map(i => {
                         const isPapelaria = i === 'Papelaria personalizada para sua marca';
                         return (
                           <li key={i} style={{ display: 'flex', alignItems: 'center', gap: '8px', color: '#4a1f3a', flexWrap: 'wrap' }}>
@@ -1543,12 +1543,12 @@ export default function Home() {
                           patternGenerationCount,
                           estampas,
                           papelariaSelecionada,
-                          plano: 'complete',
+                          plano: 'pro',
                         };
                         if (brandState.pattern) try { localStorage.setItem('brandbox_pattern', JSON.stringify(brandState.pattern)); } catch {}
                         try { localStorage.setItem('brandbox_delivery', JSON.stringify({ ...brandState, pattern: null })); } catch {}
                         ['brandbox_step', 'brandbox_cartao', 'brandbox_crm', 'brandbox_papelaria'].forEach(k => localStorage.removeItem(k));
-                        localStorage.setItem('brandbox_plano', 'complete');
+                        localStorage.setItem('brandbox_plano', 'pro');
                         const extrasCount = Math.max(0, papelariaSelecionada.length - 5);
 
                         // Salvar no Supabase para link permanente
@@ -1561,7 +1561,7 @@ export default function Home() {
                             headers: { 'Content-Type': 'application/json' },
                             body: JSON.stringify({
                               brandState: cleanState,
-                              plano: 'complete',
+                              plano: 'pro',
                               email: formData.email,
                               marca: formData.marca,
                             }),
@@ -1579,7 +1579,7 @@ export default function Home() {
                         const res = await fetch('/api/checkout', {
                           method: 'POST',
                           headers: { 'Content-Type': 'application/json' },
-                          body: JSON.stringify({ plano: 'complete', marca: formData.marca, email: formData.email, extrasCount, papelaria: papelariaSelecionada, sessionId }),
+                          body: JSON.stringify({ plano: 'pro', marca: formData.marca, email: formData.email, extrasCount, papelaria: papelariaSelecionada, sessionId }),
                         });
                         const data = await res.json();
                         if (data.url) window.location.href = data.url;
