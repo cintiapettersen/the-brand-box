@@ -2903,7 +2903,8 @@ function PapelariaStep({ brand, accentColor, paletteColors, estampaPatterns, est
   const [upsellLoading, setUpsellLoading] = React.useState(false);
   const [upsellErro, setUpsellErro] = React.useState('');
 
-  if (plano !== 'pro' || itens.length === 0) {
+  const isProPlan = plano === 'pro' || plano === 'complete';
+  if (!isProPlan || itens.length === 0) {
     const todosItens = isSaude
       ? [...PAPELARIA_GERAL, ...PAPELARIA_MEDICA, ...DIGITAIS_MEDICOS]
       : PAPELARIA_GERAL;
@@ -6326,12 +6327,13 @@ function SucessoContent() {
   const [brand, setBrand] = useState(null);
   const [loading, setLoading] = useState(true);
   const [showWelcome, setShowWelcome] = useState(false);
+  const normalizePlano = (p) => (p === 'complete' || p === 'experience') ? (p === 'complete' ? 'pro' : 'starter') : (p || 'starter');
   const [plano, setPlano] = useState(() => {
     try {
       const stored = localStorage.getItem('brandbox_plano');
-      if (stored) return stored;
+      if (stored) return stored === 'complete' ? 'pro' : stored === 'experience' ? 'starter' : stored;
       const delivery = JSON.parse(localStorage.getItem('brandbox_delivery') || '{}');
-      if (delivery.plano) return delivery.plano;
+      if (delivery.plano) return delivery.plano === 'complete' ? 'pro' : delivery.plano === 'experience' ? 'starter' : delivery.plano;
       if (delivery.papelariaSelecionada?.length > 0) return 'pro';
     } catch {}
     return 'starter';
@@ -6390,7 +6392,8 @@ function SucessoContent() {
               localStorage.setItem('brandbox_plano', 'pro');
             }
             setBrand(brandFromDb);
-            const planoFromDb = data.plano || planoParam || 'starter';
+            const rawPlano = data.plano || planoParam || 'starter';
+            const planoFromDb = rawPlano === 'complete' ? 'pro' : rawPlano;
             setPlano(planoFromDb);
             localStorage.setItem('brandbox_plano', planoFromDb);
 
