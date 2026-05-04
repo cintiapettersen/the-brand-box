@@ -2810,7 +2810,7 @@ function PastaPreview({ brand, editData, accentColor, solidColor, logoColor, log
   );
 }
 
-function PapelariaStep({ brand, accentColor, paletteColors, estampaPatterns, estampaSelectedIdx, cartaoContacts, setCartaoContacts, plano, isSaude, crmData, setCrmData, marca, editData, logoColor, logoLayout, setLayout, clinicaNome, setClinicaNome }) {
+function PapelariaStep({ brand, accentColor, paletteColors, estampaPatterns, estampaSelectedIdx, cartaoContacts, setCartaoContacts, plano, isSaude, crmData, setCrmData, marca, editData, logoColor, logoLayout, setLayout, clinicaNome, setClinicaNome, onNavSync, navIdx, setNavIdx }) {
   // Digitais: sempre inclusos no plano PRO
   const ITENS_DIGITAIS = []; // Pack Instagram e Assinatura ficam na aba Digital, não na Papelaria
   // Papelaria disponível para não-médicos
@@ -2837,10 +2837,14 @@ function PapelariaStep({ brand, accentColor, paletteColors, estampaPatterns, est
   const papelariaSelecionada = brand?.papelariaSelecionada || [];
   const TODOS_DISPONIVEIS = [...PAPELARIA_GERAL, ...(isSaude ? PAPELARIA_MEDICA : []),
     "Pack Digital para Instagram", "Assinatura de E-mail", ...(isSaude ? DIGITAIS_MEDICOS : [])];
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  React.useEffect(() => { if (onNavSync) onNavSync(itens); }, [itens.join(',')]);
   const itens = papelariaSelecionada.length > 0
     ? TODOS_DISPONIVEIS.filter(i => papelariaSelecionada.includes(i))
     : TODOS_DISPONIVEIS;
-   const [idx, setIdx] = useState(0);
+   const [idxLocal, setIdxLocal] = useState(0);
+  const idx = (navIdx !== undefined && setNavIdx) ? navIdx : idxLocal;
+  const setIdx = (setNavIdx && onNavSync) ? setNavIdx : setIdxLocal;
   const [comBorda, setComBordaState] = useState(true);
   const [patternScale, setPatternScaleState] = useState(100);
   const [borderColor, setBorderColorState] = useState(() => accentColor);
@@ -2879,6 +2883,8 @@ function PapelariaStep({ brand, accentColor, paletteColors, estampaPatterns, est
   const [cartaoRetrato, setCartaoRetrato] = useState(false);
   const [storyTemplateIdx, setStoryTemplateIdx] = useState(0);
   const [storyFormatIdx, setStoryFormatIdx] = useState(0);
+  const [papelariaNavIdx, setPapelariaNavIdx] = useState(0);
+  const [papelariaNavItens, setPapelariaNavItens] = useState([]);
   const [etiquetaFraseIdx, setEtiquetaFraseIdx] = useState(0);
   const [receitaFields, setReceitaFields] = useState({
     med1Nome:'Vitamina D 200UI/gota', med1Qty:'1 vidro', med1Dose:'2',
@@ -6002,7 +6008,7 @@ function EntregaContent({ brand, plano }) {
       <div style={{ maxWidth: '480px', margin: '0 auto', padding: '1.5rem 1.4rem 0' }}>
 
         {/* NOVO MENU DE NAVEGAÇÃO CATEGORIZADA */}
-        <BrandBoxNav step={step} setStep={setStep} plano={plano} />
+        <BrandBoxNav step={step} setStep={setStep} plano={plano} papelariaItens={papelariaNavItens} papelariaIdx={papelariaNavIdx} setPapelariaIdx={setPapelariaNavIdx} />
 
         {/* Header (Simplificado) */}
         <div style={{ display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between', marginBottom: '1.2rem' }}>
@@ -6028,7 +6034,7 @@ function EntregaContent({ brand, plano }) {
         {step === 'guia' && <GuiaStep brand={brand} accentColor={accentColor} paletteColors={paletteColors} marca={marca} tagline={tagline} estampaPatterns={estampaPatterns} estampaSelectedIdx={estampaSelectedIdx} editData={editData} />}
 
         {/* Papelaria / Gabaritos */}
-        {step === 'papelaria' && <PapelariaStep brand={brand} accentColor={accentColor} paletteColors={paletteColors} estampaPatterns={estampaPatterns} estampaSelectedIdx={estampaSelectedIdx} cartaoContacts={cartaoContacts} setCartaoContacts={setCartaoContacts} plano={plano} isSaude={isSaude} crmData={crmData} setCrmData={setCrmData} marca={marca} editData={editData} logoColor={logoColor} logoLayout={logoLayout} setLayout={setLayout} clinicaNome={clinicaNome} setClinicaNome={setClinicaNome} />}
+        {step === 'papelaria' && <PapelariaStep brand={brand} accentColor={accentColor} paletteColors={paletteColors} estampaPatterns={estampaPatterns} estampaSelectedIdx={estampaSelectedIdx} cartaoContacts={cartaoContacts} setCartaoContacts={setCartaoContacts} plano={plano} isSaude={isSaude} crmData={crmData} setCrmData={setCrmData} marca={marca} editData={editData} logoColor={logoColor} logoLayout={logoLayout} setLayout={setLayout} clinicaNome={clinicaNome} setClinicaNome={setClinicaNome} onNavSync={setPapelariaNavItens} navIdx={papelariaNavIdx} setNavIdx={setPapelariaNavIdx} />}
 
         {/* Área da logo */}
         {step !== 'estampa' && step !== 'cores' && step !== 'cartao' && step !== 'guia' && step !== 'papelaria' && step !== 'pack-instagram' && step !== 'assinatura-email' && <div

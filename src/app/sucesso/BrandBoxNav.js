@@ -1,15 +1,16 @@
 'use client';
 
 const BB_MARCA = '#65BDB9';
-const BB_DIGITAL = '#A83B5C';
+const BB_DIGITAL = '#dc3895'; // pink mais vibrante
 const BB_PAPELARIA = '#8DBD8E';
 
 const MARCA_STEPS = ['logo', 'submarca', 'estampa', 'cores', 'guia'];
 const DIGITAL_STEPS = ['cartao', 'pack-instagram', 'assinatura-email'];
 
-export default function BrandBoxNav({ step, setStep, plano }) {
+export default function BrandBoxNav({ step, setStep, plano, papelariaItens = [], papelariaIdx = 0, setPapelariaIdx }) {
   const isMarca = MARCA_STEPS.includes(step);
   const isDigital = DIGITAL_STEPS.includes(step);
+  const isPapelaria = step === 'papelaria';
   const activeCat = isMarca ? 'marca' : isDigital ? 'digital' : 'papelaria';
 
   const marcaItems = [
@@ -26,8 +27,7 @@ export default function BrandBoxNav({ step, setStep, plano }) {
     { id: 'assinatura-email', label: 'Assinatura E-mail' },
   ];
 
-  const subItems = isMarca ? marcaItems : isDigital ? digitalItems : [];
-  const subColor = isMarca ? BB_MARCA : BB_DIGITAL;
+  const subColor = isMarca ? BB_MARCA : isDigital ? BB_DIGITAL : BB_PAPELARIA;
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '0', marginBottom: '1.2rem' }}>
@@ -61,27 +61,34 @@ export default function BrandBoxNav({ step, setStep, plano }) {
         })}
       </div>
 
-      {/* Sub-menu colado abaixo da tab ativa */}
-      {subItems.length > 0 && (
-        <div style={{
-          background: subColor + '14',
-          borderRadius: '0 0 10px 10px',
-          padding: '6px 10px',
-          display: 'flex', gap: '4px', overflowX: 'auto', scrollbarWidth: 'none',
-        }}>
-          {subItems.map(item => (
-            <button
-              key={item.id}
-              onClick={() => setStep(item.id)}
-              style={{
-                whiteSpace: 'nowrap', padding: '5px 12px', borderRadius: '20px',
-                fontSize: '0.66rem', fontWeight: 700, border: 'none',
-                cursor: 'pointer', transition: 'all 0.15s',
-                background: step === item.id ? subColor : 'transparent',
-                color: step === item.id ? '#fff' : '#aaa',
-              }}
-            >
+      {/* Sub-menu: Marca */}
+      {isMarca && (
+        <div style={{ background: BB_MARCA + '14', borderRadius: '0 0 10px 10px', padding: '6px 10px', display: 'flex', gap: '4px', overflowX: 'auto', scrollbarWidth: 'none' }}>
+          {marcaItems.map(item => (
+            <button key={item.id} onClick={() => setStep(item.id)} style={{ whiteSpace: 'nowrap', padding: '5px 12px', borderRadius: '20px', fontSize: '0.66rem', fontWeight: 700, border: 'none', cursor: 'pointer', transition: 'all 0.15s', background: step === item.id ? BB_MARCA : 'transparent', color: step === item.id ? '#fff' : '#aaa' }}>
               {item.label}
+            </button>
+          ))}
+        </div>
+      )}
+
+      {/* Sub-menu: Digital */}
+      {isDigital && (
+        <div style={{ background: BB_DIGITAL + '14', borderRadius: '0 0 10px 10px', padding: '6px 10px', display: 'flex', gap: '4px', overflowX: 'auto', scrollbarWidth: 'none' }}>
+          {digitalItems.map(item => (
+            <button key={item.id} onClick={() => setStep(item.id)} style={{ whiteSpace: 'nowrap', padding: '5px 12px', borderRadius: '20px', fontSize: '0.66rem', fontWeight: 700, border: 'none', cursor: 'pointer', transition: 'all 0.15s', background: step === item.id ? BB_DIGITAL : 'transparent', color: step === item.id ? '#fff' : '#aaa' }}>
+              {item.label}
+            </button>
+          ))}
+        </div>
+      )}
+
+      {/* Sub-menu: Papelaria — lista de itens */}
+      {isPapelaria && papelariaItens.length > 0 && setPapelariaIdx && (
+        <div style={{ background: BB_PAPELARIA + '14', borderRadius: '0 0 10px 10px', padding: '6px 10px', display: 'flex', gap: '4px', overflowX: 'auto', scrollbarWidth: 'none' }}>
+          {papelariaItens.map((item, i) => (
+            <button key={item} onClick={() => setPapelariaIdx(i)} style={{ whiteSpace: 'nowrap', padding: '5px 12px', borderRadius: '20px', fontSize: '0.66rem', fontWeight: 700, border: 'none', cursor: 'pointer', transition: 'all 0.15s', background: papelariaIdx === i ? BB_PAPELARIA : 'transparent', color: papelariaIdx === i ? '#fff' : '#aaa' }}>
+              {item}
             </button>
           ))}
         </div>
