@@ -5900,7 +5900,7 @@ function EntregaContent({ brand, plano }) {
         {step === 'papelaria' && <PapelariaStep brand={brand} accentColor={accentColor} paletteColors={paletteColors} estampaPatterns={estampaPatterns} estampaSelectedIdx={estampaSelectedIdx} cartaoContacts={cartaoContacts} setCartaoContacts={setCartaoContacts} plano={plano} isSaude={isSaude} crmData={crmData} setCrmData={setCrmData} marca={marca} editData={editData} logoColor={logoColor} logoLayout={logoLayout} setLayout={setLayout} clinicaNome={clinicaNome} setClinicaNome={setClinicaNome} />}
 
         {/* Área da logo */}
-        {step !== 'estampa' && step !== 'cores' && step !== 'cartao' && step !== 'guia' && step !== 'papelaria' && <div
+        {step !== 'estampa' && step !== 'cores' && step !== 'cartao' && step !== 'guia' && step !== 'papelaria' && step !== 'pack-instagram' && step !== 'assinatura-email' && <div
           ref={logoRef}
           style={{
             width: '100%', aspectRatio: '1 / 1',
@@ -5927,7 +5927,7 @@ function EntregaContent({ brand, plano }) {
         </div>}
 
         {/* Controles */}
-        {step !== 'estampa' && step !== 'cores' && step !== 'cartao' && step !== 'guia' && step !== 'papelaria' &&
+        {step !== 'estampa' && step !== 'cores' && step !== 'cartao' && step !== 'guia' && step !== 'papelaria' && step !== 'pack-instagram' && step !== 'assinatura-email' &&
         <div style={{ marginTop: '1.4rem', display: 'flex', flexDirection: 'column', gap: '1rem' }}>
 
           {/* Editar texto */}
