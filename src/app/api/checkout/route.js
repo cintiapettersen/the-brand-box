@@ -44,7 +44,7 @@ export async function POST(request) {
         }],
         mode: 'payment',
         customer_email: email || undefined,
-        metadata: { plano: 'avulso', marca: marca || '', sessionId: sessionId || '', itens: itensSelecionados.join('|') },
+        metadata: { plano: 'avulso', marca: (marca || '').slice(0, 100), sessionId: sessionId || '', qtd_itens: String(itensSelecionados.length) },
         success_url: successUrl,
         cancel_url: `${origin}/sucesso?session=${sessionId || ''}&cancelado=1`,
       });
