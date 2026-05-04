@@ -17,24 +17,50 @@ const PLANOS = {
 
 export async function POST(request) {
   try {
-    const { plano, marca, email, extrasCount = 0, sessionId } = await request.json();
+    const { plano, marca, email, extrasCount = 0, sessionId, itensSelecionados } = await request.json();
     const stripe = new Stripe(process.env.STRIPE_SECRET_KEY || 'dummy_key_for_build');
+
+    const origin = request.headers.get('origin') || 'http://localhost:3000';
+
+    // Fluxo de itens avulsos (upsell da página de sucesso)
+    if (plano === 'avulso' && itensSelecionados?.length > 0) {
+      const itensParam = encodeURIComponent(JSON.stringify(itensSelecionados));
+      const successUrl = sessionId
+        ? `${origin}/sucesso?session=${sessionId}&plano=pro&novosItens=${itensParam}`
+        : `${origin}/sucesso?plano=pro&novosItens=${itensParam}`;
+
+      const session = await stripe.checkout.sessions.create({
+        payment_method_types: ['card', 'pix'],
+        line_items: [{
+          price_data: {
+            currency: 'brl',
+            product_data: {
+              name: 'Papelaria — Itens Avulsos',
+              description: `${itensSelecionados.length} itens: ${itensSelecionados.join(', ')}`,
+            },
+            unit_amount: 3000,
+          },
+          quantity: itensSelecionados.length,
+        }],
+        mode: 'payment',
+        customer_email: email || undefined,
+        metadata: { plano: 'avulso', marca: marca || '', sessionId: sessionId || '', itens: itensSelecionados.join('|') },
+        success_url: successUrl,
+        cancel_url: `${origin}/sucesso?session=${sessionId || ''}&cancelado=1`,
+      });
+      return Response.json({ url: session.url });
+    }
 
     const planoData = PLANOS[plano];
     if (!planoData) {
       return Response.json({ error: 'Plano inválido' }, { status: 400 });
     }
 
-    const origin = request.headers.get('origin') || 'http://localhost:3000';
-
     const line_items = [
       {
         price_data: {
           currency: 'brl',
-          product_data: {
-            name: planoData.name,
-            description: planoData.description,
-          },
+          product_data: { name: planoData.name, description: planoData.description },
           unit_amount: planoData.amount,
         },
         quantity: 1,
@@ -49,14 +75,12 @@ export async function POST(request) {
             name: 'Gabaritos Extras de Papelaria',
             description: `${extrasCount} itens avulsos de papelaria padrão-gráfica.`,
           },
-          unit_amount: 3000, // R$ 30,00 em centavos
+          unit_amount: 3000,
         },
         quantity: extrasCount,
       });
     }
 
-    // success_url usa o sessionId do Supabase se disponível,
-    // garantindo link permanente independente de localStorage
     const successUrl = sessionId
       ? `${origin}/sucesso?session=${sessionId}&plano=${plano}`
       : `${origin}/sucesso?plano=${plano}`;

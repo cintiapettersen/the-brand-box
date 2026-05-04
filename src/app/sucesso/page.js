@@ -2899,34 +2899,78 @@ function PapelariaStep({ brand, accentColor, paletteColors, estampaPatterns, est
   const [crmOpen, setCrmOpen] = useState(!crmData?.crm);
   const [contactOpen, setContactOpen] = useState(false);
 
+  const [upsellSelecionados, setUpsellSelecionados] = React.useState([]);
+  const [upsellLoading, setUpsellLoading] = React.useState(false);
+
   if (plano !== 'pro' || itens.length === 0) {
     const todosItens = isSaude
       ? [...PAPELARIA_GERAL, ...PAPELARIA_MEDICA, ...DIGITAIS_MEDICOS]
       : PAPELARIA_GERAL;
+    const total = upsellSelecionados.length * 30;
+
+    const handleUpsellCheckout = async () => {
+      if (upsellSelecionados.length === 0) return;
+      setUpsellLoading(true);
+      try {
+        const sessionId = localStorage.getItem('brandbox_session') || '';
+        const delivery = JSON.parse(localStorage.getItem('brandbox_delivery') || '{}');
+        const res = await fetch('/api/checkout', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            plano: 'avulso',
+            marca: delivery.formData?.marca || delivery.editData?.marca || '',
+            email: delivery.formData?.email || '',
+            sessionId,
+            itensSelecionados: upsellSelecionados,
+          }),
+        });
+        const data = await res.json();
+        if (data.url) window.location.href = data.url;
+      } catch (e) {
+        console.error(e);
+      } finally {
+        setUpsellLoading(false);
+      }
+    };
+
     return (
-      <div style={{ display: 'flex', flexDirection: 'column', gap: '24px', padding: '8px 0' }}>
-        <div style={{ background: '#fff8f0', border: '1px solid #fde8c8', borderRadius: '16px', padding: '20px 24px' }}>
-          <div style={{ fontSize: '0.85rem', fontWeight: 700, color: '#c87000', fontFamily: 'Montserrat,sans-serif', marginBottom: '6px' }}>📂 Papelaria não inclusa no seu plano</div>
-          <div style={{ fontSize: '0.78rem', color: '#888', fontFamily: 'Montserrat,sans-serif', lineHeight: 1.5 }}>
-            Seu plano atual não inclui papelaria. Quer adicionar alguns itens? Entre em contato pelo WhatsApp.
-          </div>
-          <a href="https://wa.me/5547992237087?text=Olá! Quero adicionar itens de papelaria ao meu Brand Box." target="_blank" rel="noopener noreferrer"
-            style={{ display: 'inline-block', marginTop: '12px', padding: '8px 20px', background: '#25D366', color: '#fff', borderRadius: '20px', fontSize: '0.78rem', fontWeight: 700, fontFamily: 'Montserrat,sans-serif', textDecoration: 'none' }}>
-            💬 Adicionar itens via WhatsApp
-          </a>
-        </div>
-        <div>
-          <div style={{ fontSize: '0.7rem', fontWeight: 800, color: '#bbb', textTransform: 'uppercase', letterSpacing: '1px', fontFamily: 'Montserrat,sans-serif', marginBottom: '12px' }}>
-            Itens disponíveis no plano PRO
-          </div>
-          <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
-            {todosItens.map(item => (
-              <div key={item} style={{ padding: '6px 14px', borderRadius: '20px', background: '#f5f5f5', border: '1px solid #eee', fontSize: '0.72rem', fontWeight: 600, color: '#aaa', fontFamily: 'Montserrat,sans-serif', display: 'flex', alignItems: 'center', gap: '6px' }}>
-                <span style={{ opacity: 0.4 }}>🔒</span> {item}
-              </div>
-            ))}
+      <div style={{ display: 'flex', flexDirection: 'column', gap: '20px', padding: '8px 0' }}>
+        <div style={{ background: '#fff8f0', border: '1px solid #fde8c8', borderRadius: '16px', padding: '18px 20px' }}>
+          <div style={{ fontSize: '0.82rem', fontWeight: 700, color: '#c87000', fontFamily: 'Montserrat,sans-serif', marginBottom: '4px' }}>📂 Papelaria não inclusa no seu plano</div>
+          <div style={{ fontSize: '0.75rem', color: '#999', fontFamily: 'Montserrat,sans-serif', lineHeight: 1.5 }}>
+            Selecione os itens que deseja adicionar. Cada item custa <strong style={{ color: '#c87000' }}>R$ 30,00</strong>.
           </div>
         </div>
+
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+          {todosItens.map(item => {
+            const sel = upsellSelecionados.includes(item);
+            return (
+              <label key={item} onClick={() => setUpsellSelecionados(sel ? upsellSelecionados.filter(i => i !== item) : [...upsellSelecionados, item])}
+                style={{ display: 'flex', alignItems: 'center', gap: '12px', padding: '10px 14px', borderRadius: '12px', border: `1.5px solid ${sel ? accentColor : '#eee'}`, background: sel ? `${accentColor}08` : '#fff', cursor: 'pointer', transition: 'all 0.15s' }}>
+                <div style={{ width: 18, height: 18, borderRadius: '5px', border: `2px solid ${sel ? accentColor : '#ddd'}`, background: sel ? accentColor : '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, transition: 'all 0.15s' }}>
+                  {sel && <svg viewBox="0 0 12 12" width="10" height="10"><polyline points="2,6 5,9 10,3" fill="none" stroke="#fff" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/></svg>}
+                </div>
+                <span style={{ fontSize: '0.8rem', fontWeight: sel ? 700 : 500, color: sel ? '#333' : '#666', fontFamily: 'Montserrat,sans-serif', flex: 1 }}>{item}</span>
+                <span style={{ fontSize: '0.72rem', color: '#aaa', fontFamily: 'Montserrat,sans-serif' }}>R$ 30</span>
+              </label>
+            );
+          })}
+        </div>
+
+        {upsellSelecionados.length > 0 && (
+          <div style={{ position: 'sticky', bottom: '16px', background: '#fff', borderRadius: '16px', boxShadow: '0 4px 24px rgba(0,0,0,0.12)', padding: '16px 20px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '12px' }}>
+            <div>
+              <div style={{ fontSize: '0.72rem', color: '#999', fontFamily: 'Montserrat,sans-serif' }}>{upsellSelecionados.length} iten{upsellSelecionados.length > 1 ? 's' : ''} selecionado{upsellSelecionados.length > 1 ? 's' : ''}</div>
+              <div style={{ fontSize: '1.1rem', fontWeight: 800, color: '#333', fontFamily: 'Montserrat,sans-serif' }}>R$ {total.toFixed(2).replace('.', ',')}</div>
+            </div>
+            <button onClick={handleUpsellCheckout} disabled={upsellLoading}
+              style={{ padding: '12px 24px', background: accentColor, color: '#fff', border: 'none', borderRadius: '30px', fontWeight: 700, fontSize: '0.85rem', fontFamily: 'Montserrat,sans-serif', cursor: 'pointer', opacity: upsellLoading ? 0.7 : 1 }}>
+              {upsellLoading ? 'Aguarde...' : 'Ir para pagamento →'}
+            </button>
+          </div>
+        )}
       </div>
     );
   }
@@ -6302,6 +6346,21 @@ function SucessoContent() {
               body: JSON.stringify({ email: emailToSend, marca: marcaToSend, sessionId: 'no-session', plano: planoParam }),
             }).then(() => localStorage.setItem('brandbox_email_sent', '1')).catch(() => {});
           }
+        } catch {}
+      }
+
+      // Itens comprados avulsos — adiciona à papelaria existente
+      const novosItensParam = params.get('novosItens');
+      if (novosItensParam) {
+        try {
+          const novos = JSON.parse(decodeURIComponent(novosItensParam));
+          const delivery = JSON.parse(localStorage.getItem('brandbox_delivery') || '{}');
+          const existentes = delivery.papelariaSelecionada || [];
+          const merged = [...new Set([...existentes, ...novos])];
+          delivery.papelariaSelecionada = merged;
+          localStorage.setItem('brandbox_delivery', JSON.stringify(delivery));
+          localStorage.setItem('brandbox_plano', 'pro');
+          setPlano('pro');
         } catch {}
       }
 
