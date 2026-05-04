@@ -2900,7 +2900,35 @@ function PapelariaStep({ brand, accentColor, paletteColors, estampaPatterns, est
   const [contactOpen, setContactOpen] = useState(false);
 
   if (plano !== 'pro' || itens.length === 0) {
-     return <div style={{ textAlign: 'center', padding: '2rem 0', color: '#888' }}>Nenhuma papelaria inclusa no seu pacote.</div>;
+    const todosItens = isSaude
+      ? [...PAPELARIA_GERAL, ...PAPELARIA_MEDICA, ...DIGITAIS_MEDICOS]
+      : PAPELARIA_GERAL;
+    return (
+      <div style={{ display: 'flex', flexDirection: 'column', gap: '24px', padding: '8px 0' }}>
+        <div style={{ background: '#fff8f0', border: '1px solid #fde8c8', borderRadius: '16px', padding: '20px 24px' }}>
+          <div style={{ fontSize: '0.85rem', fontWeight: 700, color: '#c87000', fontFamily: 'Montserrat,sans-serif', marginBottom: '6px' }}>📂 Papelaria não inclusa no seu plano</div>
+          <div style={{ fontSize: '0.78rem', color: '#888', fontFamily: 'Montserrat,sans-serif', lineHeight: 1.5 }}>
+            Seu plano atual não inclui papelaria. Quer adicionar alguns itens? Entre em contato pelo WhatsApp.
+          </div>
+          <a href="https://wa.me/5547992237087?text=Olá! Quero adicionar itens de papelaria ao meu Brand Box." target="_blank" rel="noopener noreferrer"
+            style={{ display: 'inline-block', marginTop: '12px', padding: '8px 20px', background: '#25D366', color: '#fff', borderRadius: '20px', fontSize: '0.78rem', fontWeight: 700, fontFamily: 'Montserrat,sans-serif', textDecoration: 'none' }}>
+            💬 Adicionar itens via WhatsApp
+          </a>
+        </div>
+        <div>
+          <div style={{ fontSize: '0.7rem', fontWeight: 800, color: '#bbb', textTransform: 'uppercase', letterSpacing: '1px', fontFamily: 'Montserrat,sans-serif', marginBottom: '12px' }}>
+            Itens disponíveis no plano PRO
+          </div>
+          <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
+            {todosItens.map(item => (
+              <div key={item} style={{ padding: '6px 14px', borderRadius: '20px', background: '#f5f5f5', border: '1px solid #eee', fontSize: '0.72rem', fontWeight: 600, color: '#aaa', fontFamily: 'Montserrat,sans-serif', display: 'flex', alignItems: 'center', gap: '6px' }}>
+                <span style={{ opacity: 0.4 }}>🔒</span> {item}
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+    );
   }
 
   const currentIdx = estampaSelectedIdx || 0;
