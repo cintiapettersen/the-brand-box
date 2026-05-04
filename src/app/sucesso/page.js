@@ -1,5 +1,6 @@
 'use client';
 import { useSearchParams } from 'next/navigation';
+import BrandBoxNav from './BrandBoxNav';
 import React, { Suspense, useState, useEffect, useRef } from 'react';
 import ReactDOMServer from 'react-dom/server';
 import BrandTemplateSVG from '../../components/BrandTemplateSVG';
@@ -6001,74 +6002,7 @@ function EntregaContent({ brand, plano }) {
       <div style={{ maxWidth: '480px', margin: '0 auto', padding: '1.5rem 1.4rem 0' }}>
 
         {/* NOVO MENU DE NAVEGAÇÃO CATEGORIZADA */}
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '5px', marginBottom: '1.5rem' }}>
-          <div style={{ display: 'flex', background: '#eee', padding: '3px', borderRadius: '12px', gap: '2px' }}>
-            {['marca', 'digital', 'papelaria'].map(cat => {
-              const isActive = (cat === 'marca' && ['logo','submarca','estampa','cores','guia'].includes(step)) ||
-                               (cat === 'digital' && ['cartao','pack-instagram','assinatura-email'].includes(step)) ||
-                               (cat === 'papelaria' && step === 'papelaria');
-              return (
-                <button
-                  key={cat}
-                  onClick={() => {
-                    if (cat === 'marca') setStep('logo');
-                    if (cat === 'digital') { if (!['cartao','pack-instagram','assinatura-email'].includes(step)) setStep('cartao'); }
-                    if (cat === 'papelaria') setStep('papelaria');
-                  }}
-                  style={{
-                    flex: 1, padding: '8px 4px', borderRadius: '10px', border: 'none',
-                    fontSize: '0.62rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '1px',
-                    background: isActive ? '#fff' : 'transparent',
-                    color: isActive ? '#1a1a1a' : '#999',
-                    boxShadow: isActive ? '0 2px 8px rgba(0,0,0,0.05)' : 'none',
-                    cursor: 'pointer', transition: 'all 0.2s ease'
-                  }}
-                >
-                  {cat === 'marca' ? '✨ A Marca' : cat === 'digital' ? '📱 O Digital' : '📂 Papelaria'}
-                </button>
-              );
-            })}
-          </div>
-
-          {/* Sub-menu para Marca */}
-          {['cartao','pack-instagram','assinatura-email'].includes(step) && (
-            <div style={{ display: 'flex', gap: '8px', overflowX: 'auto', padding: '5px 0', scrollbarWidth: 'none' }} className="no-scrollbar">
-              {[
-                { id: 'cartao', label: 'Cartão Digital' },
-                { id: 'pack-instagram', label: 'Pack Instagram' },
-                { id: 'assinatura-email', label: 'Assinatura E-mail' },
-              ].map(item => (
-                <button key={item.id} onClick={() => setStep(item.id)} style={{ whiteSpace: 'nowrap', padding: '6px 14px', borderRadius: '20px', fontSize: '0.68rem', fontWeight: 600, border: 'none', cursor: 'pointer', transition: 'all 0.2s', background: step === item.id ? accentColor : 'transparent', color: step === item.id ? '#fff' : '#999' }}>
-                  {item.label}
-                </button>
-              ))}
-            </div>
-          )}
-          {['logo','submarca','estampa','cores','guia'].includes(step) && (
-            <div style={{ display: 'flex', gap: '8px', overflowX: 'auto', padding: '5px 0', scrollbarWidth: 'none' }} className="no-scrollbar">
-              {[
-                { id: 'logo', label: 'Logo' },
-                { id: 'submarca', label: 'Selo', planOnly: 'personalizado' },
-                { id: 'estampa', label: 'Estampa' },
-                { id: 'cores', label: 'Cores' },
-                { id: 'guia', label: 'Manifesto' }
-              ].filter(item => !item.planOnly || plano === item.planOnly).map(item => (
-                <button
-                  key={item.id}
-                  onClick={() => setStep(item.id)}
-                  style={{
-                    whiteSpace: 'nowrap', padding: '6px 12px', borderRadius: '20px', fontSize: '0.68rem', fontWeight: 600,
-                    background: step === item.id ? `${accentColor}15` : 'transparent',
-                    color: step === item.id ? accentColor : '#bbb',
-                    border: 'none', cursor: 'pointer'
-                  }}
-                >
-                  {item.label}
-                </button>
-              ))}
-            </div>
-          )}
-        </div>
+        <BrandBoxNav step={step} setStep={setStep} plano={plano} />
 
         {/* Header (Simplificado) */}
         <div style={{ display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between', marginBottom: '1.2rem' }}>
