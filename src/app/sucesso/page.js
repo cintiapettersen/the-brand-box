@@ -3019,7 +3019,7 @@ function PapelariaStep({ brand, accentColor, paletteColors, estampaPatterns, est
         {isSaude && (
           <div>
             <div style={{ fontSize: '0.65rem', fontWeight: 800, color: '#bbb', textTransform: 'uppercase', letterSpacing: '1px', fontFamily: 'Montserrat,sans-serif', marginBottom: '8px' }}>
-              📱 Guias e Materiais Digitais
+              📋 Guias e Papelaria Pediátrica
             </div>
             <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
               {DIGITAIS_MEDICOS.map(item => {
@@ -5759,6 +5759,40 @@ ${fontImports2}
           </button>
         )}
       </div>
+
+      {/* Upsell: itens ainda não adquiridos */}
+      {(() => {
+        const todosDisponiveis = [...PAPELARIA_GERAL, ...(isSaude ? PAPELARIA_MEDICA : []), ...(isSaude ? DIGITAIS_MEDICOS : [])];
+        const faltando = todosDisponiveis.filter(i => !itens.includes(i));
+        if (faltando.length === 0) return null;
+        return (
+          <div style={{ marginTop: '8px', padding: '16px 18px', background: '#f9f9f9', border: '1px solid #eee', borderRadius: '16px' }}>
+            <div style={{ fontSize: '0.72rem', fontWeight: 800, color: '#bbb', textTransform: 'uppercase', letterSpacing: '1px', fontFamily: 'Montserrat,sans-serif', marginBottom: '10px' }}>
+              + Adicionar mais itens — R$ 30 cada
+            </div>
+            <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px' }}>
+              {faltando.map(item => (
+                <button key={item} onClick={() => {
+                  setUpsellSelecionados(prev => prev.includes(item) ? prev.filter(i => i !== item) : [...prev, item]);
+                }} style={{ padding: '5px 12px', borderRadius: '20px', border: `1.5px solid ${upsellSelecionados.includes(item) ? accentColor : '#ddd'}`, background: upsellSelecionados.includes(item) ? `${accentColor}12` : '#fff', fontSize: '0.72rem', fontWeight: 600, color: upsellSelecionados.includes(item) ? accentColor : '#888', fontFamily: 'Montserrat,sans-serif', cursor: 'pointer', transition: 'all 0.15s' }}>
+                  {upsellSelecionados.includes(item) ? '✓ ' : '+ '}{item}
+                </button>
+              ))}
+            </div>
+            {upsellSelecionados.length > 0 && (
+              <div style={{ marginTop: '12px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                <div style={{ fontSize: '0.8rem', fontWeight: 700, color: '#333', fontFamily: 'Montserrat,sans-serif' }}>
+                  {upsellSelecionados.length} item{upsellSelecionados.length > 1 ? 's' : ''} · <strong>R$ {(upsellSelecionados.length * 30).toFixed(2).replace('.', ',')}</strong>
+                </div>
+                <button onClick={handleUpsellCheckout} disabled={upsellLoading} style={{ padding: '8px 20px', background: accentColor, color: '#fff', border: 'none', borderRadius: '20px', fontWeight: 700, fontSize: '0.78rem', fontFamily: 'Montserrat,sans-serif', cursor: upsellLoading ? 'wait' : 'pointer', opacity: upsellLoading ? 0.7 : 1 }}>
+                  {upsellLoading ? 'Aguarde...' : 'Adicionar →'}
+                </button>
+              </div>
+            )}
+            {upsellErro && <div style={{ marginTop: '6px', fontSize: '0.7rem', color: '#e55', fontFamily: 'Montserrat,sans-serif' }}>{upsellErro}</div>}
+          </div>
+        );
+      })()}
     </div>
   );
 }
