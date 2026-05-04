@@ -5648,7 +5648,6 @@ function EntregaContent({ brand, plano }) {
 
   const atuacoesSaude = ['Pediatria / Saúde infantil', 'Obstetrícia / Saúde da mulher', 'Clínica / Saúde geral adulta', 'Terapia / Saúde mental', 'Estética / Bem-estar / Nutrição'];
   const isSaude = atuacoesSaude.includes(brand.formData?.atuacao);
-  const crmLine = isSaude && crmData?.crm ? `CRM/${crmData.uf || 'UF'} ${crmData.crm}` : null;
 
   const [clinicaNome, setClinicaNomeState] = useState(() => { try { return JSON.parse(localStorage.getItem('brandbox_papelaria') || '{}').clinicaNome || ''; } catch { return ''; } });
   const setClinicaNome = (v) => { setClinicaNomeState(v); try { const cur = JSON.parse(localStorage.getItem('brandbox_papelaria') || '{}'); localStorage.setItem('brandbox_papelaria', JSON.stringify({ ...cur, clinicaNome: v })); } catch {} };
@@ -5660,6 +5659,7 @@ function EntregaContent({ brand, plano }) {
       return next;
     });
   };
+  const crmLine = isSaude && crmData?.crm ? `CRM/${crmData.uf || 'UF'} ${crmData.crm}` : null;
 
   useEffect(() => {
     // Carregamento inicial de tudo
