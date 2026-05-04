@@ -2943,21 +2943,75 @@ function PapelariaStep({ brand, accentColor, paletteColors, estampaPatterns, est
           </div>
         </div>
 
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-          {todosItens.map(item => {
-            const sel = upsellSelecionados.includes(item);
-            return (
-              <label key={item} onClick={() => setUpsellSelecionados(sel ? upsellSelecionados.filter(i => i !== item) : [...upsellSelecionados, item])}
-                style={{ display: 'flex', alignItems: 'center', gap: '12px', padding: '10px 14px', borderRadius: '12px', border: `1.5px solid ${sel ? accentColor : '#eee'}`, background: sel ? `${accentColor}08` : '#fff', cursor: 'pointer', transition: 'all 0.15s' }}>
-                <div style={{ width: 18, height: 18, borderRadius: '5px', border: `2px solid ${sel ? accentColor : '#ddd'}`, background: sel ? accentColor : '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, transition: 'all 0.15s' }}>
-                  {sel && <svg viewBox="0 0 12 12" width="10" height="10"><polyline points="2,6 5,9 10,3" fill="none" stroke="#fff" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/></svg>}
-                </div>
-                <span style={{ fontSize: '0.8rem', fontWeight: sel ? 700 : 500, color: sel ? '#333' : '#666', fontFamily: 'Montserrat,sans-serif', flex: 1 }}>{item}</span>
-                <span style={{ fontSize: '0.72rem', color: '#aaa', fontFamily: 'Montserrat,sans-serif' }}>R$ 30</span>
-              </label>
-            );
-          })}
+        {/* Grupo: Papelaria Geral */}
+        <div>
+          <div style={{ fontSize: '0.65rem', fontWeight: 800, color: '#bbb', textTransform: 'uppercase', letterSpacing: '1px', fontFamily: 'Montserrat,sans-serif', marginBottom: '8px' }}>
+            📄 Papelaria
+          </div>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+            {PAPELARIA_GERAL.map(item => {
+              const sel = upsellSelecionados.includes(item);
+              return (
+                <label key={item} onClick={() => setUpsellSelecionados(sel ? upsellSelecionados.filter(i => i !== item) : [...upsellSelecionados, item])}
+                  style={{ display: 'flex', alignItems: 'center', gap: '12px', padding: '10px 14px', borderRadius: '12px', border: `1.5px solid ${sel ? accentColor : '#eee'}`, background: sel ? `${accentColor}08` : '#fff', cursor: 'pointer', transition: 'all 0.15s' }}>
+                  <div style={{ width: 18, height: 18, borderRadius: '5px', border: `2px solid ${sel ? accentColor : '#ddd'}`, background: sel ? accentColor : '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, transition: 'all 0.15s' }}>
+                    {sel && <svg viewBox="0 0 12 12" width="10" height="10"><polyline points="2,6 5,9 10,3" fill="none" stroke="#fff" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/></svg>}
+                  </div>
+                  <span style={{ fontSize: '0.8rem', fontWeight: sel ? 700 : 500, color: sel ? '#333' : '#666', fontFamily: 'Montserrat,sans-serif', flex: 1 }}>{item}</span>
+                  <span style={{ fontSize: '0.72rem', color: '#aaa', fontFamily: 'Montserrat,sans-serif' }}>R$ 30</span>
+                </label>
+              );
+            })}
+          </div>
         </div>
+
+        {/* Grupo: Papelaria Médica — só se isSaude */}
+        {isSaude && (
+          <div>
+            <div style={{ fontSize: '0.65rem', fontWeight: 800, color: '#bbb', textTransform: 'uppercase', letterSpacing: '1px', fontFamily: 'Montserrat,sans-serif', marginBottom: '8px' }}>
+              🩺 Papelaria Clínica
+            </div>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+              {PAPELARIA_MEDICA.map(item => {
+                const sel = upsellSelecionados.includes(item);
+                return (
+                  <label key={item} onClick={() => setUpsellSelecionados(sel ? upsellSelecionados.filter(i => i !== item) : [...upsellSelecionados, item])}
+                    style={{ display: 'flex', alignItems: 'center', gap: '12px', padding: '10px 14px', borderRadius: '12px', border: `1.5px solid ${sel ? accentColor : '#eee'}`, background: sel ? `${accentColor}08` : '#fff', cursor: 'pointer', transition: 'all 0.15s' }}>
+                    <div style={{ width: 18, height: 18, borderRadius: '5px', border: `2px solid ${sel ? accentColor : '#ddd'}`, background: sel ? accentColor : '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, transition: 'all 0.15s' }}>
+                      {sel && <svg viewBox="0 0 12 12" width="10" height="10"><polyline points="2,6 5,9 10,3" fill="none" stroke="#fff" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/></svg>}
+                    </div>
+                    <span style={{ fontSize: '0.8rem', fontWeight: sel ? 700 : 500, color: sel ? '#333' : '#666', fontFamily: 'Montserrat,sans-serif', flex: 1 }}>{item}</span>
+                    <span style={{ fontSize: '0.72rem', color: '#aaa', fontFamily: 'Montserrat,sans-serif' }}>R$ 30</span>
+                  </label>
+                );
+              })}
+            </div>
+          </div>
+        )}
+
+        {/* Grupo: Guias e Digitais Clínicos — só se isSaude */}
+        {isSaude && (
+          <div>
+            <div style={{ fontSize: '0.65rem', fontWeight: 800, color: '#bbb', textTransform: 'uppercase', letterSpacing: '1px', fontFamily: 'Montserrat,sans-serif', marginBottom: '8px' }}>
+              📱 Guias e Materiais Digitais
+            </div>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+              {DIGITAIS_MEDICOS.map(item => {
+                const sel = upsellSelecionados.includes(item);
+                return (
+                  <label key={item} onClick={() => setUpsellSelecionados(sel ? upsellSelecionados.filter(i => i !== item) : [...upsellSelecionados, item])}
+                    style={{ display: 'flex', alignItems: 'center', gap: '12px', padding: '10px 14px', borderRadius: '12px', border: `1.5px solid ${sel ? accentColor : '#eee'}`, background: sel ? `${accentColor}08` : '#fff', cursor: 'pointer', transition: 'all 0.15s' }}>
+                    <div style={{ width: 18, height: 18, borderRadius: '5px', border: `2px solid ${sel ? accentColor : '#ddd'}`, background: sel ? accentColor : '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, transition: 'all 0.15s' }}>
+                      {sel && <svg viewBox="0 0 12 12" width="10" height="10"><polyline points="2,6 5,9 10,3" fill="none" stroke="#fff" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/></svg>}
+                    </div>
+                    <span style={{ fontSize: '0.8rem', fontWeight: sel ? 700 : 500, color: sel ? '#333' : '#666', fontFamily: 'Montserrat,sans-serif', flex: 1 }}>{item}</span>
+                    <span style={{ fontSize: '0.72rem', color: '#aaa', fontFamily: 'Montserrat,sans-serif' }}>R$ 30</span>
+                  </label>
+                );
+              })}
+            </div>
+          </div>
+        )}
 
         {upsellSelecionados.length > 0 && (
           <div style={{ position: 'sticky', bottom: '16px', background: '#fff', borderRadius: '16px', boxShadow: '0 4px 24px rgba(0,0,0,0.12)', padding: '16px 20px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '12px' }}>

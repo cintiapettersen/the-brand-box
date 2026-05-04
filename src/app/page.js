@@ -1450,6 +1450,15 @@ export default function Home() {
                       className="btn-secondary"
                       style={{ width: '100%', padding: '12px', fontSize: '0.9rem' }}
                       onClick={async () => {
+                        // Lembrete: pelo menos 5 itens antes de prosseguir
+                        if (papelariaSelecionada.length === 0) {
+                          setShowPediatriaModal(true);
+                          return;
+                        }
+                        if (papelariaSelecionada.length < 5) {
+                          const confirmar = window.confirm(`Você selecionou apenas ${papelariaSelecionada.length} iten${papelariaSelecionada.length > 1 ? 's' : ''} de papelaria, mas seu plano inclui 5 grátis. Deseja continuar assim ou voltar para escolher mais?`);
+                          if (!confirmar) { setShowPediatriaModal(true); return; }
+                        }
                         const brandState = {
                           editData, formData, resultadoFinal,
                           selectedPaleta, selectedIcon, selectedTipo,
@@ -1708,10 +1717,17 @@ export default function Home() {
                        })}
                     </div>
 
-                    <div style={{ padding: '20px', background: '#fff', borderTop: '1px solid var(--border)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                    <div style={{ padding: '20px', background: '#fff', borderTop: '1px solid var(--border)', display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '12px', flexWrap: 'wrap' }}>
                        <div style={{ textAlign: 'left' }}>
                          <span style={{ fontWeight: 700, color: 'var(--text-primary)' }}>Selecionados: {papelariaSelecionada.length} de 5 grátis</span>
                          {papelariaSelecionada.length > 5 && <div style={{ fontSize: '0.8rem', color: 'var(--accent-magenta)', fontWeight: 700, marginTop: '2px' }}>+{papelariaSelecionada.length - 5} extras (+R$ {(papelariaSelecionada.length - 5)*30})</div>}
+                         <button onClick={() => {
+                           const lista = isSaude ? PAPELARIA_CLINICA : PAPELARIA_INSTITUCIONAL;
+                           const todos = lista.length === papelariaSelecionada.length;
+                           setPapelariaSelecionada(todos ? [] : [...lista]);
+                         }} style={{ display: 'block', marginTop: '4px', background: 'none', border: 'none', color: 'var(--accent-magenta)', fontSize: '0.75rem', fontWeight: 700, cursor: 'pointer', padding: 0, textDecoration: 'underline' }}>
+                           {(isSaude ? PAPELARIA_CLINICA : PAPELARIA_INSTITUCIONAL).length === papelariaSelecionada.length ? 'Desmarcar todos' : 'Marcar todos'}
+                         </button>
                        </div>
                        <button onClick={() => setShowPediatriaModal(false)} className="btn-primary" style={{ background: 'var(--accent-magenta)', width: '250px' }}>Salvar Escolhas</button>
                     </div>
