@@ -52,7 +52,40 @@ const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
 );
 
-export function LogoPreviewHTML({ editData, color, layout = 'stacked', scaleFactor = 1, crm = null, hideTagline = false }) {
+export function LogoPreviewHTML({ editData, color, layout = 'stacked', scaleFactor = 1, crm = null, hideTagline = false, customLogoSrc: customLogoSrcProp = null, customLogoScale: customLogoScaleProp = 100, maxWidth = null, maxHeight = null, withBackground = false }) {
+  const customLogoSrc = customLogoSrcProp || editData?.customLogoSrc || null;
+  const customLogoScale = customLogoSrcProp ? customLogoScaleProp : (editData?.customLogoScale || 100);
+  
+  if (customLogoSrc) {
+    const finalScale = customLogoScale * scaleFactor;
+    const imgStyle = { maxWidth: '100%', maxHeight: '100%', width: 'auto', height: 'auto', objectFit: 'contain', display: 'block' };
+    
+    if (withBackground) {
+      return (
+        <div style={{
+          display: 'inline-flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          background: 'rgba(255,255,255,0.92)',
+          padding: '4px 8px',
+          borderRadius: '4px',
+          boxSizing: 'border-box',
+        }}>
+          <img src={customLogoSrc} alt="logo" style={{ width: `${customLogoScale}%`, height: 'auto', display: 'block' }} />
+        </div>
+      );
+    }
+
+    return (
+      <div style={{ width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+        <img
+          src={customLogoSrc}
+          alt="logo"
+          style={{ maxWidth: `${customLogoScale}%`, maxHeight: `${customLogoScale}%`, width: 'auto', height: 'auto', objectFit: 'contain', display: 'block', mixBlendMode: 'multiply' }}
+        />
+      </div>
+    );
+  }
   const isScript = editData?.fontStyle === 'script';
   const sizeBoost = editData?.fontSizeBoost || 1;
   const marca = editData?.marca || '';
@@ -479,7 +512,7 @@ function CartaoStep({ brand, accentColor, paletteColors, marca, estampaPatterns,
   );
 }
 
-function EstampaStep({ brand, accentColor, marca, patterns, setPatterns, genCount, setGenCount, selectedIdx, setSelectedIdx, paletteColors }) {
+function EstampaStep({ brand, accentColor, marca, patterns, setPatterns, genCount, setGenCount, selectedIdx, setSelectedIdx, paletteColors, patternScale, setPatternScale }) {
   const [generating, setGenerating] = useState(false);
   const [showMockup, setShowMockup] = useState(false);
 
@@ -530,10 +563,19 @@ function EstampaStep({ brand, accentColor, marca, patterns, setPatterns, genCoun
 
   const download = () => {
     if (!patternSrc) return;
-    const link = document.createElement('a');
-    link.download = `${marca || 'estampa'}-padrao.png`;
-    link.href = patternSrc;
-    link.click();
+    const pattern = patterns[selectedIdx];
+    const binary = atob(pattern.base64);
+    const bytes = new Uint8Array(binary.length);
+    for (let i = 0; i < binary.length; i++) bytes[i] = binary.charCodeAt(i);
+    const blob = new Blob([bytes], { type: 'image/png' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `Estampa_${marca || 'marca'}.png`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    setTimeout(() => URL.revokeObjectURL(url), 1000);
   };
 
   return (
@@ -577,8 +619,7 @@ function EstampaStep({ brand, accentColor, marca, patterns, setPatterns, genCoun
               width: '100%', aspectRatio: '1 / 1', borderRadius: '16px',
               boxShadow: '0 8px 40px rgba(0,0,0,0.10)',
               backgroundImage: `url(${patternSrc})`,
-              backgroundSize: 'cover', backgroundRepeat: 'no-repeat',
-              backgroundPosition: 'center'
+              backgroundSize: `${patternScale || 120}px`, backgroundRepeat: 'repeat',
             }} />
           )}
           {patterns.length > 1 && (
@@ -628,10 +669,22 @@ function EstampaStep({ brand, accentColor, marca, patterns, setPatterns, genCoun
         </p>
       )}
 
+      {patternSrc && setPatternScale && (
+        <div style={{ display: 'flex', alignItems: 'center', gap: '10px', padding: '8px 14px', background: '#f7f7f5', borderRadius: '12px' }}>
+          <span style={{ fontSize: '0.68rem', color: '#999', textTransform: 'uppercase', letterSpacing: '1px', fontWeight: 600, whiteSpace: 'nowrap' }}>Tamanho</span>
+          <input type="range" min="50" max="300" step="10"
+            value={patternScale || 120}
+            onChange={e => setPatternScale(parseInt(e.target.value))}
+            style={{ flex: 1, cursor: 'pointer', accentColor: accentColor }}
+          />
+          <span style={{ fontSize: '0.68rem', color: '#aaa', width: '30px', textAlign: 'right' }}>{patternScale || 120}</span>
+        </div>
+      )}
+
       <div style={{ display: 'flex', gap: '8px' }}>
         {patternSrc && (
           <button onClick={download} style={{ flex: 1, padding: '13px 8px', background: accentColor, color: '#fff', border: 'none', borderRadius: '30px', fontWeight: 700, fontSize: '0.82rem', cursor: 'pointer' }}>
-            ⬇ Baixar
+            ⬇ Baixar Estampa
           </button>
         )}
         {remaining > 0 && (
@@ -1052,11 +1105,11 @@ function CartaoDeVisitaPreview({ accentColor, patternSrc, cartaoContacts, crmLin
       <div style={{ width: `${CW}px`, height: `${CH}px`, position: 'relative', background: '#fff', overflow: 'hidden', boxShadow: '0 4px 20px rgba(0,0,0,0.12)', borderRadius: '4px' }}>
         {comBorda && patternSrc && <>
           <div style={{ position: 'absolute', inset: 0, backgroundImage: `url(${patternSrc})`, backgroundSize: `${(patternScale || 150) / 1.5}px`, backgroundRepeat: 'repeat', opacity: 0.9, zIndex: 0 }} />
-          <div style={{ position: 'absolute', top: '16px', left: '16px', right: '16px', bottom: '16px', background: '#fff', zIndex: 1 }} />
+          <div style={{ position: 'absolute', top: '16px', left: '16px', right: '16px', bottom: '16px', background: 'transparent', zIndex: 1 }} />
         </>}
         <div style={{ position: 'absolute', inset: 0, zIndex: 2, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-          <div style={{ width: isHorizontal ? '70%' : '52%', height: '52%', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-            <LogoPreviewHTML editData={editData} color={logoColor} layout={logoLayout} crm={crmLine} hideTagline={hideTagline} scaleFactor={logoScale} />
+          <div style={{ width: isHorizontal ? '75%' : '60%', height: retrato ? '35%' : '42%', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+            <LogoPreviewHTML editData={editData} color={logoColor} layout={logoLayout} crm={crmLine} hideTagline={hideTagline} scaleFactor={0.7} withBackground={!!patternSrc} maxWidth="100%" maxHeight="100%" />
           </div>
         </div>
       </div>
@@ -1169,16 +1222,15 @@ function CertificadoCoragemPreview({ accentColor, patternSrc, editData, logoColo
 
         {/* Casinha Branca no meio */}
         <div style={{
-          position: 'absolute', top: '10px', left: '10px', right: '10px', bottom: '10px',
-          background: '#fff',
-          clipPath: 'polygon(0% 20%, 50% 0%, 100% 20%, 100% 100%, 0% 100%)',
-          display: 'flex', flexDirection: 'column', alignItems: 'center', padding: '30px 15px 15px'
+          position: 'absolute', top: '12px', left: '12px', right: '12px', bottom: '12px',
+          background: (comBorda && patternSrc) ? 'transparent' : '#fff',
+          clipPath: (comBorda && patternSrc) ? 'none' : 'polygon(0% 18%, 50% 0%, 100% 18%, 100% 100%, 0% 100%)',
+          display: 'flex', flexDirection: 'column', alignItems: 'center',
+          padding: '30px 15px 15px'
         }}>
           {/* Logo Rectangle / Space */}
-          <div style={{ height: '40px', marginBottom: '8px', display: 'flex', justifyContent: 'center', alignItems: 'center', background: '#fff' }}>
-            <div style={{ transform: 'scale(0.42)', transformOrigin: 'center' }}>
-              <LogoPreviewHTML editData={editData} color={logoColor} layout={logoLayout} hideTagline={hideTagline} />
-            </div>
+          <div style={{ width: '180px', height: '60px', display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: '8px' }}>
+            <LogoPreviewHTML editData={editData} color={logoColor} layout={logoLayout} scaleFactor={0.65} hideTagline={hideTagline} maxWidth="100%" maxHeight="100%" withBackground={comBorda && patternSrc} />
           </div>
 
           <div style={{ fontFamily: "'Montserrat', sans-serif", fontSize: '0.5rem', fontWeight: 600, color: '#666', letterSpacing: '1px', marginBottom: '2px' }}>
@@ -1203,26 +1255,44 @@ function CertificadoCoragemPreview({ accentColor, patternSrc, editData, logoColo
 }
 
 // Preview proporcional A5 — usado por receituário, timbrado, etc.
-function A5ItemPreview({ accentColor, patternSrc, editData, logoColor, logoLayout, cartaoContacts, crmLine, clinicaNome, comBorda, setComBorda, paletteColors, borderColor, setBorderColor, patternScale, setPatternScale, hideTagline }) {
+function A5ItemPreview({ accentColor, patternSrc, editData, logoColor, logoLayout, cartaoContacts, crmLine, clinicaNome, comBorda, setComBorda, paletteColors, borderColor, setBorderColor, patternScale, setPatternScale, hideTagline, folderRoof, setFolderRoof, paperSize, setPaperSize }) {
   const BORDER = 14;
   const { whatsapp, telefone, instagram, site, endereco } = cartaoContacts || {};
   const mainPhone = whatsapp || telefone || '';
   const effectiveSrc = comBorda ? patternSrc : null;
   const solidColor = borderColor || accentColor;
+  const hasCustomLogo = !!editData?.customLogoSrc;
+  const roofClip = folderRoof ? 'polygon(0% 8%, 50% 0%, 100% 8%, 100% 100%, 0% 100%)' : 'none';
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', alignItems: 'center' }}>
       <BordaToggle comBorda={comBorda} setComBorda={setComBorda} accentColor={accentColor} paletteColors={paletteColors} borderColor={borderColor} setBorderColor={setBorderColor} patternScale={patternScale} setPatternScale={setPatternScale} />
+      <div style={{ display: 'flex', gap: '6px', alignItems: 'center', flexWrap: 'wrap', justifyContent: 'center' }}>
+        {setFolderRoof && (
+          <button onClick={() => setFolderRoof(v => !v)} style={{ fontSize: '0.7rem', padding: '4px 12px', borderRadius: '20px', border: `1px solid ${accentColor}`, background: folderRoof ? accentColor : 'none', color: folderRoof ? '#fff' : accentColor, cursor: 'pointer', fontFamily: 'Montserrat,sans-serif', fontWeight: 700 }}>
+            {folderRoof ? '🏠 Casinha' : '⬜ Reto'}
+          </button>
+        )}
+        {setPaperSize && (
+          <div style={{ display: 'flex', background: '#f0f0f0', borderRadius: '20px', padding: '3px' }}>
+            {['a5', 'a4'].map(s => (
+              <button key={s} onClick={() => setPaperSize(s)} style={{ padding: '3px 12px', borderRadius: '16px', border: 'none', cursor: 'pointer', fontSize: '0.68rem', fontWeight: 700, fontFamily: 'Montserrat,sans-serif', background: paperSize === s ? accentColor : 'transparent', color: paperSize === s ? '#fff' : '#888', transition: 'all 0.15s' }}>
+                {s.toUpperCase()}
+              </button>
+            ))}
+          </div>
+        )}
+      </div>
     <div style={{ width: '226px', height: '320px', position: 'relative', boxShadow: '0 4px 20px rgba(0,0,0,0.12)', borderRadius: '4px', overflow: 'hidden', background: '#fff' }}>
-      {/* Borda de estampa */}
+      {/* Fundo — estampa ou cor sólida */}
       {effectiveSrc
         ? <div style={{ position: 'absolute', inset: 0, backgroundImage: `url(${effectiveSrc})`, backgroundSize: `${(patternScale || 150) / 2}px`, backgroundRepeat: 'repeat' }} />
         : <div style={{ position: 'absolute', inset: 0, background: solidColor }} />}
-      {/* Área branca interna */}
-      <div style={{ position: 'absolute', top: BORDER, left: BORDER, right: BORDER, bottom: BORDER, background: '#fff' }} />
-      {/* Logo no topo — ~20% da largura interna */}
-      <div style={{ position: 'absolute', top: BORDER + 14, left: '50%', transform: 'translateX(-50%)', width: '130px', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-        <LogoPreviewHTML editData={editData} color={logoColor} layout={logoLayout} scaleFactor={0.38} crm={crmLine} hideTagline={hideTagline} />
+      {/* Área branca com recorte casinha (funciona em ambos os modos) */}
+      <div style={{ position: 'absolute', top: BORDER, left: BORDER, right: BORDER, bottom: BORDER, background: '#fff', clipPath: roofClip }} />
+      {/* Logo no topo */}
+      <div style={{ position: 'absolute', top: BORDER + 6, left: '50%', transform: 'translateX(-50%)', width: '130px', height: '55px', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
+        <LogoPreviewHTML editData={editData} color={logoColor} layout={logoLayout} scaleFactor={0.55} crm={crmLine} hideTagline={hideTagline} />
       </div>
       {/* Rodapé — linha 1: clínica · telefone  /  linha 2: @ig · site · endereço */}
       <div style={{ position: 'absolute', bottom: BORDER + 3, left: BORDER + 4, right: BORDER + 4, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '2px' }}>
@@ -1992,12 +2062,12 @@ function GuiaCuidadosPreview({ brand, logoColor, logoLayout, comBorda, setComBor
     <div style={{ position:'absolute', right:0, top:0, width:'33.1%', height:'100%',
       pointerEvents:'none' }}>
       <div style={{ position:'absolute', top:'1.6%', left:'2.4%', right:'2.4%', bottom:'1.6%',
-        background:'#fff', borderRadius:'2px', display:'flex',
+        background: (comBorda && patternSrc) ? 'transparent' : '#fff', borderRadius:'2px', display:'flex',
         flexDirection:'column', alignItems:'center', justifyContent:'flex-start',
         paddingTop:'19px', textAlign:'center',
-        clipPath:'polygon(0% 8%, 50% 0%, 100% 8%, 100% 100%, 0% 100%)' }}>
-        <div style={{ transform:'scale(1.15)', marginBottom:'15px' }}>
-          <LogoPreviewHTML editData={editData} color={accentColor} layout={logoLayout} scaleFactor={0.16} crm={crmLine} />
+        clipPath: (comBorda && patternSrc) ? 'none' : 'polygon(0% 8%, 50% 0%, 100% 8%, 100% 100%, 0% 100%)' }}>
+        <div style={{ width: '80%', height: '65px', display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: '10px' }}>
+          <LogoPreviewHTML editData={editData} color={accentColor} layout={logoLayout} scaleFactor={0.65} crm={crmLine} withBackground={!!patternSrc} />
         </div>
         <div style={{ width:'13px', height:'0.7px', background:accentColor, marginBottom:'8px', borderRadius:'10px' }} />
         <div style={{ display:'flex', flexDirection:'column', alignItems:'center', gap:'0px' }}>
@@ -2033,9 +2103,9 @@ function GuiaCuidadosPreview({ brand, logoColor, logoLayout, comBorda, setComBor
   );
 }
 
-function FolderTrifoldPreview({ brand, logoColor, logoLayout, comBorda, setComBorda, patternSrc, patternScale, setPatternScale, accentColor, borderColor, setBorderColor, paletteColors, title, subtitle, cartaoContacts, folderRoof, crmLine }) {
+function FolderTrifoldPreview({ brand, editData, logoColor, logoLayout, comBorda, setComBorda, patternSrc, patternScale, setPatternScale, accentColor, borderColor, setBorderColor, paletteColors, title, subtitle, cartaoContacts, folderRoof, crmLine }) {
   const mainColor = paletteColors?.[0] || accentColor;
-  const _brandData = brand.editData || {};
+  const _brandData = editData || brand.editData || {};
   const instagram = cartaoContacts?.instagram || brand?.instagram || '';
   const site = cartaoContacts?.site || brand?.site || '';
   const clinicaNome = brand?.clinicaNome || brand?.editData?.clinicaNome || 'Sua Clínica';
@@ -2250,9 +2320,9 @@ function FolderTrifoldPreview({ brand, logoColor, logoLayout, comBorda, setComBo
   );
 }
 
-function FolderA5Preview({ brand, logoColor, logoLayout, comBorda, setComBorda, patternSrc, patternScale, setPatternScale, accentColor, borderColor, setBorderColor, paletteColors, title, cartaoContacts, crmLine, folderRoof }) {
+function FolderA5Preview({ brand, editData, logoColor, logoLayout, comBorda, setComBorda, patternSrc, patternScale, setPatternScale, accentColor, borderColor, setBorderColor, paletteColors, title, cartaoContacts, crmLine, folderRoof }) {
   const mainColor = paletteColors?.[0] || accentColor;
-  const _brandData = brand.editData || {};
+  const _brandData = editData || brand.editData || {};
   const logoHtml = <LogoPreviewHTML editData={_brandData} color={logoColor} layout={logoLayout} scaleFactor={0.16} crm={crmLine} />;
 
   const getTitleData = (raw) => {
@@ -2320,7 +2390,7 @@ function FolderA5Preview({ brand, logoColor, logoLayout, comBorda, setComBorda, 
   );
 }
 
-function AtestadoPreview({ accentColor, patternSrc, editData, logoColor, logoLayout, crmLine, clinicaNome, marca, cartaoContacts, comBorda, setComBorda, paletteColors, borderColor, setBorderColor, patternScale, setPatternScale, hideTagline }) {
+function AtestadoPreview({ accentColor, patternSrc, editData, logoColor, logoLayout, crmLine, clinicaNome, marca, cartaoContacts, comBorda, setComBorda, paletteColors, borderColor, setBorderColor, patternScale, setPatternScale, hideTagline, folderRoof, setFolderRoof, paperSize, setPaperSize }) {
   const BORDER = 14;
   const { whatsapp, telefone, instagram, site, endereco } = cartaoContacts || {};
   const mainPhone = whatsapp || telefone || '';
@@ -2331,21 +2401,39 @@ function AtestadoPreview({ accentColor, patternSrc, editData, logoColor, logoLay
   );
   const effectiveSrc = comBorda ? patternSrc : null;
   const solidColor = borderColor || accentColor;
+  const roofClip = folderRoof ? 'polygon(0% 8%, 50% 0%, 100% 8%, 100% 100%, 0% 100%)' : 'none';
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', alignItems: 'center' }}>
       <BordaToggle comBorda={comBorda} setComBorda={setComBorda} accentColor={accentColor} paletteColors={paletteColors} borderColor={borderColor} setBorderColor={setBorderColor} patternScale={patternScale} setPatternScale={setPatternScale} />
+      <div style={{ display: 'flex', gap: '6px', alignItems: 'center', flexWrap: 'wrap', justifyContent: 'center' }}>
+        {setFolderRoof && (
+          <button onClick={() => setFolderRoof(v => !v)} style={{ fontSize: '0.7rem', padding: '4px 12px', borderRadius: '20px', border: `1px solid ${accentColor}`, background: folderRoof ? accentColor : 'none', color: folderRoof ? '#fff' : accentColor, cursor: 'pointer', fontFamily: 'Montserrat,sans-serif', fontWeight: 700 }}>
+            {folderRoof ? '🏠 Casinha' : '⬜ Reto'}
+          </button>
+        )}
+        {setPaperSize && (
+          <div style={{ display: 'flex', background: '#f0f0f0', borderRadius: '20px', padding: '3px' }}>
+            {['a5', 'a4'].map(s => (
+              <button key={s} onClick={() => setPaperSize(s)} style={{ padding: '3px 12px', borderRadius: '16px', border: 'none', cursor: 'pointer', fontSize: '0.68rem', fontWeight: 700, fontFamily: 'Montserrat,sans-serif', background: paperSize === s ? accentColor : 'transparent', color: paperSize === s ? '#fff' : '#888', transition: 'all 0.15s' }}>
+                {s.toUpperCase()}
+              </button>
+            ))}
+          </div>
+        )}
+      </div>
     <div style={{ width: '226px', height: '320px', position: 'relative', boxShadow: '0 4px 120px rgba(0,0,0,0.12)', borderRadius: '4px', overflow: 'hidden', background: '#fff' }}>
       {effectiveSrc
-        ? <><div style={{ position: 'absolute', inset: 0, backgroundImage: `url(${effectiveSrc})`, backgroundSize: `${(patternScale || 150) / 2}px`, backgroundRepeat: 'repeat' }} /><div style={{ position: 'absolute', top: BORDER, left: BORDER, right: BORDER, bottom: BORDER, background: '#fff' }} /></>
-        : <div style={{ position: 'absolute', inset: 0, background: '#fff', border: `${BORDER}px solid ${solidColor}` }} />}
+        ? <div style={{ position: 'absolute', inset: 0, backgroundImage: `url(${effectiveSrc})`, backgroundSize: `${(patternScale || 150) / 2}px`, backgroundRepeat: 'repeat' }} />
+        : <div style={{ position: 'absolute', inset: 0, background: solidColor }} />}
+      <div style={{ position: 'absolute', top: BORDER, left: BORDER, right: BORDER, bottom: BORDER, background: '#fff', clipPath: roofClip }} />
 
-      {/* Logo: 16mm abaixo da área branca → ~34px */}
-      <div style={{ position: 'absolute', top: '34px', left: '50%', transform: 'translateX(-50%)', width: '109px', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-        <LogoPreviewHTML editData={editData} color={logoColor} layout={logoLayout} scaleFactor={0.38} crm={crmLine} hideTagline={hideTagline} />
+      {/* Logo no topo */}
+      <div style={{ position: 'absolute', top: `${BORDER + 6}px`, left: '50%', transform: 'translateX(-50%)', width: '109px', height: '50px', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
+        <LogoPreviewHTML editData={editData} color={logoColor} layout={logoLayout} scaleFactor={0.55} crm={crmLine} hideTagline={hideTagline} />
       </div>
 
-      {/* Título: SVG y=84.65 → 82px */}
-      <div style={{ position: 'absolute', top: '82px', left: 0, right: 0, fontFamily: "'Montserrat',sans-serif", fontWeight: 800, fontSize: '7.5px', letterSpacing: '1.2px', textAlign: 'center', color: '#1a1a2e' }}>ATESTADO MÉDICO</div>
+      {/* Título */}
+      <div style={{ position: 'absolute', top: '90px', left: 0, right: 0, fontFamily: "'Montserrat',sans-serif", fontWeight: 800, fontSize: '7.5px', letterSpacing: '1.2px', textAlign: 'center', color: '#1a1a2e' }}>ATESTADO MÉDICO</div>
 
       {/* Texto: padding horizontal de 9mm → ~25px */}
       <div style={{ position: 'absolute', top: '118px', left: '25px', right: '22px', fontFamily: "'Montserrat',sans-serif", fontSize: '5.5px', color: '#333', display: 'flex', flexDirection: 'column', gap: '8px', lineHeight: 1.2 }}>
@@ -2421,7 +2509,7 @@ function PapelTimbradoPreview({ brand, editData, accentColor, patternSrc, logoCo
           : <div style={{ position: 'absolute', inset: 0, background: '#fff', border: `${BORDER}px solid ${solidColor}` }} />}
         
         {/* Top Logo */}
-        <div style={{ position: 'absolute', top: BORDER + 20, left: '50%', transform: 'translateX(-50%)', width: '100px', display: 'flex', justifyContent: 'center' }}>
+        <div style={{ position: 'absolute', top: BORDER + 8, left: '50%', transform: 'translateX(-50%)', width: '100px', display: 'flex', justifyContent: 'center' }}>
           <LogoPreviewHTML editData={editData} color={logoColor} layout={logoLayout} scaleFactor={0.35} crm={crmLine} />
         </div>
 
@@ -2755,17 +2843,19 @@ function PastaPreview({ brand, editData, accentColor, solidColor, logoColor, log
 
         {/* Capa Esquerda (FRENTE no preview) */}
         <div style={{ position: 'absolute', top: 0, left: 0, width: '240px', height: '310px' }}>
-           <div style={{ 
-             position: 'absolute', 
-             bottom: '20px', left: '10px', right: '10px', top: '30px', 
-             background: '#fff', borderRadius: '2px',
-             clipPath: folderRoof 
-               ? 'polygon(0% 8%, 50% 0%, 100% 8%, 100% 100%, 0% 100%)' 
-               : 'none',
-             boxShadow: '0 4px 15px rgba(0,0,0,0.05)'
-           }} />
-           <div style={{ position: 'absolute', top: '55%', left: '50%', transform: 'translate(-50%, -50%)', width: '70%' }}>
-              <LogoPreviewHTML editData={editData} color={logoColor} layout={logoLayout} scaleFactor={0.58} hideTagline={hideTagline} />
+           {!patternSrc && (
+             <div style={{ 
+               position: 'absolute', 
+               bottom: '20px', left: '10px', right: '10px', top: '30px', 
+               background: '#fff', borderRadius: '2px',
+               clipPath: folderRoof 
+                 ? 'polygon(0% 8%, 50% 0%, 100% 8%, 100% 100%, 0% 100%)' 
+                 : 'none',
+               boxShadow: '0 4px 15px rgba(0,0,0,0.05)'
+             }} />
+           )}
+           <div style={{ position: 'absolute', top: '55%', left: '50%', transform: 'translate(-50%, -50%)', width: '60%', height: '75px', display:'flex', justifyContent:'center', alignItems: 'center' }}>
+              <LogoPreviewHTML editData={editData} color={logoColor} layout={logoLayout} scaleFactor={0.85} hideTagline={hideTagline} withBackground={!!patternSrc} maxWidth="100%" maxHeight="100%" />
            </div>
         </div>
 
@@ -2780,8 +2870,8 @@ function PastaPreview({ brand, editData, accentColor, solidColor, logoColor, log
                display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '10px',
                border: '0.1mm solid rgba(0,0,0,0.05)'
              }}>
-                <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '2px', width: '30%' }}>
-                  <LogoPreviewHTML editData={editData} color={logoColor} layout={logoLayout} scaleFactor={0.18} crm={crmLine} hideTagline={hideTagline} />
+                <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '2px', width: '30%', justifyContent: 'center' }}>
+                  <LogoPreviewHTML editData={editData} color={logoColor} layout={logoLayout} scaleFactor={0.48} crm={crmLine} hideTagline={hideTagline} />
                 </div>
                 <div style={{ 
                   display: 'flex', flexDirection: 'column', fontSize: '3.8px', color: '#555', 
@@ -2810,7 +2900,7 @@ function PastaPreview({ brand, editData, accentColor, solidColor, logoColor, log
   );
 }
 
-function PapelariaStep({ brand, accentColor, paletteColors, estampaPatterns, estampaSelectedIdx, cartaoContacts, setCartaoContacts, plano, isSaude, crmData, setCrmData, marca, editData, logoColor, logoLayout, setLayout, clinicaNome, setClinicaNome, onNavSync, navIdx, setNavIdx }) {
+function PapelariaStep({ brand, accentColor, paletteColors, estampaPatterns, estampaSelectedIdx, cartaoContacts, setCartaoContacts, plano, isSaude, crmData, setCrmData, marca, editData, logoColor, logoLayout, setLayout, clinicaNome, setClinicaNome, onNavSync, navIdx, setNavIdx, customLogoSrc, getCustomLogoScale, setCustomLogoScale, getCustomLogoScaleMax }) {
   // Digitais: sempre inclusos no plano PRO
   const ITENS_DIGITAIS = []; // Pack Instagram e Assinatura ficam na aba Digital, não na Papelaria
   // Papelaria disponível para não-médicos
@@ -2837,11 +2927,11 @@ function PapelariaStep({ brand, accentColor, paletteColors, estampaPatterns, est
   const papelariaSelecionada = brand?.papelariaSelecionada || [];
   const TODOS_DISPONIVEIS = [...PAPELARIA_GERAL, ...(isSaude ? PAPELARIA_MEDICA : []),
     "Pack Digital para Instagram", "Assinatura de E-mail", ...(isSaude ? DIGITAIS_MEDICOS : [])];
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  React.useEffect(() => { if (onNavSync) onNavSync(itens); }, [itens.join(',')]);
   const itens = papelariaSelecionada.length > 0
     ? TODOS_DISPONIVEIS.filter(i => papelariaSelecionada.includes(i))
     : TODOS_DISPONIVEIS;
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  React.useEffect(() => { if (onNavSync) onNavSync(itens); }, [itens.join(',')]);
    const [idxLocal, setIdxLocal] = useState(0);
   const idx = (navIdx !== undefined && setNavIdx) ? navIdx : idxLocal;
   const setIdx = (setNavIdx && onNavSync) ? setNavIdx : setIdxLocal;
@@ -2850,6 +2940,7 @@ function PapelariaStep({ brand, accentColor, paletteColors, estampaPatterns, est
   const [borderColor, setBorderColorState] = useState(() => accentColor);
   const [localSlogan, setLocalSlogan] = useState(editData?.tagline || '');
   const [folderRoof, setFolderRoof] = useState(() => brand?.niche?.toLowerCase()?.includes('pedi'));
+  const [paperSize, setPaperSize] = useState('a5'); // 'a5' | 'a4'
   const persistPapelaria = (updates) => { try { const cur = JSON.parse(localStorage.getItem('brandbox_papelaria') || '{}'); localStorage.setItem('brandbox_papelaria', JSON.stringify({ ...cur, ...updates })); } catch {} };
   const setComBorda = (v) => { setComBordaState(v); persistPapelaria({ comBorda: v }); };
   const setPatternScale = (v) => { setPatternScaleState(v); persistPapelaria({ patternScale: v }); };
@@ -2902,7 +2993,6 @@ function PapelariaStep({ brand, accentColor, paletteColors, estampaPatterns, est
       if (saved.borderColor) setBorderColorState(saved.borderColor);
     } catch {}
   }, []);
-  const [crmOpen, setCrmOpen] = useState(!crmData?.crm);
   const [contactOpen, setContactOpen] = useState(false);
 
   const [upsellSelecionados, setUpsellSelecionados] = React.useState([]);
@@ -2910,13 +3000,8 @@ function PapelariaStep({ brand, accentColor, paletteColors, estampaPatterns, est
   const [upsellErro, setUpsellErro] = React.useState('');
 
   const isProPlan = plano === 'pro' || plano === 'complete';
-  if (!isProPlan || itens.length === 0) {
-    const todosItens = isSaude
-      ? [...PAPELARIA_GERAL, ...PAPELARIA_MEDICA, ...DIGITAIS_MEDICOS]
-      : PAPELARIA_GERAL;
-    const total = upsellSelecionados.length * 30;
 
-    const handleUpsellCheckout = async () => {
+  const handleUpsellCheckout = async () => {
       if (upsellSelecionados.length === 0) return;
       setUpsellLoading(true);
       setUpsellErro('');
@@ -2953,8 +3038,9 @@ function PapelariaStep({ brand, accentColor, paletteColors, estampaPatterns, est
       } finally {
         setUpsellLoading(false);
       }
-    };
+  };
 
+  if (!isProPlan || itens.length === 0) {
     return (
       <div style={{ display: 'flex', flexDirection: 'column', gap: '20px', padding: '8px 0' }}>
         <div style={{ background: '#fff8f0', border: '1px solid #fde8c8', borderRadius: '16px', padding: '18px 20px' }}>
@@ -3066,11 +3152,40 @@ function PapelariaStep({ brand, accentColor, paletteColors, estampaPatterns, est
 
   const currentIdx = estampaSelectedIdx || 0;
   const currentItem = itens[Math.min(idx, itens.length - 1)];
+  // editData com scale correto para o item atual (sobrescreve customLogoScale)
+  const itemEditData = customLogoSrc && getCustomLogoScale
+    ? { ...editData, customLogoScale: getCustomLogoScale(currentItem) }
+    : editData;
   const patternSrc = estampaPatterns?.[currentIdx] ? `data:${estampaPatterns[currentIdx].mimeType};base64,${estampaPatterns[currentIdx].base64}` : null;
   const isScript = editData?.fontStyle === 'script';
   const crmLine = isSaude && crmData?.crm
     ? `CRM/${crmData.uf || 'UF'} ${crmData.crm}${crmData.rqe?.length > 0 ? ' · RQE ' + crmData.rqe.filter(Boolean).join(' / RQE ') : ''}`
     : null;
+
+  const ITEM_SIZES = {
+    'Cartão de Visita': '8,5x5,5cm', 'Cartão de Retorno': '5x9cm',
+    'Receituário Padrão': 'A5', 'Receituário de Controle Especial': 'A5',
+    'Atestado Médico': 'A5', 'Receita de Alta': 'A5',
+    'Certificado de Coragem': 'A5', 'Recibo': 'A5',
+    'Papel Timbrado': 'A4', 'Prontuário Médico': 'A4',
+    'Checklist Maternidade': 'A4', 'Ficha de Cadastro': 'A4',
+    'Guia Alimentar': 'FolderA5-6pag', 'Guia de Cuidados': 'FolderA5-6pag',
+    'Guia de Desenvolvimento': 'FolderA5-6pag', 'Guia de Vacina c/ Calendário': 'FolderA5-6pag',
+    'Gráfico de Crescimento': 'A4', 'Guia do Sono': 'FolderA5-6pag',
+    'Guia de Amamentação': 'FolderDL-8pag', 'Orientações p/ Recém Nascidos': 'A4',
+    'Cartão de Exame Pré-Natal': 'FolderA5-4pag',
+    'Diário do Xixi': 'A4-Horizontal', 'Meu Pratinho': 'A4-Horizontal',
+    'Pasta A4 Exclusiva': '22x31cm', 'Envelope Ofício': '22x11,3cm', 'Envelope Saco': '24x34cm',
+    'Arte para Caneca/Brindes': '20x8cm',
+    'Papel de Presente': '65x95cm', 'Tag para Sacola': 'tag',
+    'Etiqueta para Correios': '10x15cm',
+  };
+  const pdfTitle = (item) => {
+    const sizeKey = Object.keys(ITEM_SIZES).find(k => item.includes(k));
+    const size = sizeKey ? ITEM_SIZES[sizeKey] : null;
+    const slug = marca ? marca.replace(/\s+/g, '_') : 'marca';
+    return size ? `${item}_${size}_${slug}` : `${item}_${slug}`;
+  };
 
   const openGabarito = async (item) => {
     const patternSrc = estampaPatterns?.[currentIdx] ? `data:${estampaPatterns[currentIdx].mimeType};base64,${estampaPatterns[currentIdx].base64}` : null;
@@ -3111,7 +3226,7 @@ function PapelariaStep({ brand, accentColor, paletteColors, estampaPatterns, est
     
     const localSlogan = editData?.tagline || brand.editData?.tagline || '';
     
-    const logoHtmlWithCrm = genPDFLogoHtml({ brand, color: accentColor, localSlogan, crmLine, fontPt: _fontPt, lineH: _lineH, letterSp: _letterSp });
+    const logoHtmlWithCrm = genPDFLogoHtml({ brand, color: accentColor, localSlogan, crmLine, fontPt: _fontPt, lineH: _lineH, letterSp: _letterSp, customLogoSrc, customLogoScale: getCustomLogoScale(item), maxWidth: '65mm', maxHeight: '32mm' });
     const logoHtml = logoHtmlWithCrm;
 
     // Determinar componentes
@@ -3268,7 +3383,7 @@ ${renderPage('menino','verso')}
       const prevT = document.title;
       iframe.contentWindow.document.fonts.ready.then(() => {
         setTimeout(() => {
-          document.title = `Gráfico de Crescimento - ${marca}`;
+          document.title = pdfTitle('Gráfico de Crescimento');
           iframe.contentWindow.focus(); iframe.contentWindow.print();
           setTimeout(() => { document.title = prevT; iframe.remove(); }, 4000);
         }, 2000);
@@ -3297,7 +3412,7 @@ ${renderPage('menino','verso')}
 
       const sec = (label, color, content) => `<div style="margin-bottom:6mm;"><div>${lbl(label,color)}</div><div style="font-size:9pt;color:#444;line-height:1.5;margin-top:1.5mm;font-weight:500;">${content}</div></div>`;
       const bul = (text) => `<div style="display:flex;gap:1.5mm;margin-bottom:1.2mm;"><span style="color:${c0rn};font-weight:900;">•</span><span style="font-size:7.5pt;color:#444;line-height:1.4;">${text}</span></div>`;
-      const logoHtmlRN = genPDFLogoHtml({ brand, color: '#fff', localSlogan, crmLine, fontPt: 18, lineH: 1.1, letterSp: '0.5pt', hideSlogan: true, crmSize: '0' });
+      const logoHtmlRN = genPDFLogoHtml({ brand, color: '#fff', localSlogan, crmLine, fontPt: 18, lineH: 1.1, letterSp: '0.5pt', hideSlogan: true, crmSize: '0', customLogoSrc, customLogoScale: getCustomLogoScale(item), maxWidth: '60mm', maxHeight: '25mm' });
 
       const html = `<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Orientações RN - ${marca}</title>${fiRN}
 <style>* { box-sizing:border-box; margin:0; padding:0; print-color-adjust:exact !important; -webkit-print-color-adjust:exact !important; }
@@ -3394,7 +3509,7 @@ body { font-family:'Montserrat',sans-serif; background:#fff; }
       document.body.appendChild(iframe);
       iframe.contentDocument.open(); iframe.contentDocument.write(html); iframe.contentDocument.close();
       const prevT = document.title;
-      iframe.contentWindow.document.fonts.ready.then(() => { setTimeout(() => { document.title = `Orientações RN - ${marca}`; iframe.contentWindow.focus(); iframe.contentWindow.print(); setTimeout(() => { document.title = prevT; iframe.remove(); }, 3000); }, 1500); });
+      iframe.contentWindow.document.fonts.ready.then(() => { setTimeout(() => { document.title = pdfTitle('Orientações RN'); iframe.contentWindow.focus(); iframe.contentWindow.print(); setTimeout(() => { document.title = prevT; iframe.remove(); }, 3000); }, 1500); });
       return;
     }
 
@@ -3446,9 +3561,9 @@ body { width: 480mm; height: 380mm; position: relative; overflow: hidden; backgr
     
     <!-- Capa Direita (Frente Técnica) -->
     <div style="position:absolute;top:0;right:0;width:240mm;height:310mm;">
-        <div style="position:absolute;bottom:20mm;left:10mm;right:10mm;top:30mm;background:#fff;border-radius:2mm;${folderRoof ? 'clip-path:polygon(0% 8%, 50% 0%, 100% 8%, 100% 100%, 0% 100%);' : ''}"></div>
-        <div style="position:absolute;top:55%;left:50%;transform:translate(-50%,-50%);width:180mm;text-align:center;">
-            <div style="width:100%;height:auto;zoom:2.2;display:inline-block;text-align:center;">${logoHtmlWithCrm}</div>
+        ${!(comBorda && patternSrc) ? `<div style="position:absolute;bottom:20mm;left:10mm;right:10mm;top:30mm;background:#fff;border-radius:2mm;${folderRoof ? 'clip-path:polygon(0% 8%, 50% 0%, 100% 8%, 100% 100%, 0% 100%);' : ''}"></div>` : ''}
+        <div style="position:absolute;top:55%;left:50%;transform:translate(-50%,-50%);width:190mm;height:65mm;display:flex;align-items:center;justify-content:center;">
+            ${ReactDOMServer.renderToString(<LogoPreviewHTML editData={itemEditData} color={logoColor} layout={logoLayout} scaleFactor={0.9} hideTagline={hideTagline} withBackground={comBorda && patternSrc} maxWidth="100%" maxHeight="100%" />)}
         </div>
     </div>
 
@@ -3555,7 +3670,7 @@ body { width: 480mm; height: 380mm; position: relative; overflow: hidden; backgr
       iframe.contentDocument.open(); iframe.contentDocument.write(html); iframe.contentDocument.close();
       iframe.contentDocument.title = `Cartão de Retorno - ${marca}`;
       const prevT = document.title;
-      iframe.contentWindow.document.fonts.ready.then(() => { setTimeout(() => { document.title = `Cartão de Retorno - ${marca}`; iframe.contentWindow.focus(); iframe.contentWindow.print(); setTimeout(() => { document.title = prevT; iframe.remove(); }, 3000); }, 400); });
+      iframe.contentWindow.document.fonts.ready.then(() => { setTimeout(() => { document.title = pdfTitle('Cartão de Retorno'); iframe.contentWindow.focus(); iframe.contentWindow.print(); setTimeout(() => { document.title = prevT; iframe.remove(); }, 3000); }, 400); });
       return;
     }
 
@@ -3585,9 +3700,9 @@ body { width: 480mm; height: 380mm; position: relative; overflow: hidden; backgr
         <div class="card" style="position:relative;overflow:hidden;">
           ${frenteBgHtml}
           <div style="position:absolute;top:${BLEED}mm;left:${BLEED}mm;right:${BLEED}mm;bottom:${BLEED}mm;display:flex;align-items:center;justify-content:center;">
-            <div style="background:#fff;padding:${_logoPad};border-radius:1.5mm;width:${_logoW};display:flex;flex-direction:column;align-items:center;justify-content:center;">
-              <div style="transform:scale(${_isRetrato ? '0.55' : '0.75'});transform-origin:center center;">
-                ${logoHtmlWithCrm}
+            <div style="background:#fff;padding:2.5mm 4mm;border-radius:1.5mm;max-width:${_logoW};display:flex;flex-direction:column;align-items:center;justify-content:center;">
+              <div style="width:100%; height:100%; display:flex; justify-content:center; align-items:center;">
+                ${genPDFLogoHtml({ brand, color: accentColor, localSlogan, crmLine, fontPt: 14, lineH: _lineH, letterSp: _letterSp, customLogoSrc, customLogoScale: getCustomLogoScale(item), maxWidth: '40mm', maxHeight: '18mm' })}
               </div>
             </div>
           </div>
@@ -3657,7 +3772,7 @@ ${versoHtml}
       iframe2.contentDocument.open();
       iframe2.contentDocument.write(html);
       iframe2.contentDocument.close();
-      const _docTitle = `Cartão de Visita 9x5cm - ${marca}`;
+      const _docTitle = pdfTitle('Cartão de Visita');
       iframe2.contentDocument.title = _docTitle;
       const _prevTitle = document.title;
       iframe2.contentWindow.document.fonts.ready.then(() => {
@@ -3821,8 +3936,8 @@ body { width:${totalW}mm; height:${totalH}mm; position:relative; overflow:hidden
                   <div style="width:40mm;height:6mm;background:#e2ddd7;border-radius:1px;"></div>
                 </div>
               </div>
-              <div style="width:70mm;text-align:right;transform:scale(1.2);transform-origin:top right;margin-top:5mm;">
-                ${logoHtmlWithCrm}
+              <div style="width:70mm; height:35mm; display:flex; justify-content:flex-end; align-items:center; margin-top:5mm;">
+                ${genPDFLogoHtml({ brand, color: accentColor, localSlogan, crmLine, fontPt: 28, lineH: _lineH, letterSp: _letterSp, customLogoSrc, customLogoScale: getCustomLogoScale(item), maxWidth: '70mm', maxHeight: '35mm' })}
               </div>
             </div>
 
@@ -4023,7 +4138,7 @@ body { width: 220mm; height: 307mm; background: #fff; }
           </div>`;
       };
       const _allPhonesCk = [whatsapp || telefone, telefone2].filter(Boolean).join(' / ');
-      const _logoCk = genPDFLogoHtml({ brand, color: accentColor, localSlogan, crmLine, fontPt: 24, lineH: 1.2, letterSp: brand.editData?.fontLetterSpacing || '0.5pt', layout: logoLayout });
+      const _logoCk = genPDFLogoHtml({ brand, color: accentColor, localSlogan, crmLine, fontPt: 24, lineH: 1.2, letterSp: brand.editData?.fontLetterSpacing || '0.5pt', layout: logoLayout, customLogoSrc, customLogoScale: getCustomLogoScale(item), maxWidth: '100mm', maxHeight: '35mm' });
       const htmlCk = `<!DOCTYPE html><html><head><meta charset="UTF-8"><link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;700;900&display=swap" rel="stylesheet"><style>*{margin:0;padding:0;box-sizing:border-box;}body{width:220mm;height:307mm;}@media print{body{margin:0;}@page{size:220mm 307mm;margin:0;}}</style></head><body><div style="position:relative;width:220mm;height:307mm;${_patCk}"><div style="position:absolute;top:${BLEED + 8}mm;left:${BLEED + 8}mm;right:${BLEED + 8}mm;bottom:${BLEED + 8}mm;background:#fff;display:flex;overflow:hidden;"><div style="width:16mm;flex-shrink:0;display:flex;align-items:center;justify-content:center;background:${accentColor}15;"><div style="transform:rotate(-90deg);white-space:nowrap;font-family:'Montserrat',sans-serif;font-size:15pt;font-weight:900;color:${accentColor};letter-spacing:4pt;text-transform:uppercase;">CHECKLIST MATERNIDADE</div></div><div style="flex:1;display:flex;flex-direction:column;padding:12mm 8mm 10mm 8mm;gap:4mm;overflow:hidden;"><div style="display:flex;justify-content:center;padding-bottom:5mm;border-bottom:0.2mm solid ${accentColor}25;">${_logoCk}</div><div style="flex:1;display:grid;grid-template-columns:1fr 1fr;gap:4mm;">${SECOES_CK.map((s, idx) => secaoHtmlCk(s, idx)).join('')}</div><div style="border-top:0.3mm solid ${accentColor}30;padding:3mm 2mm 0;display:flex;align-items:center;justify-content:space-between;gap:6mm;"><div style="font-family:'Montserrat',sans-serif;font-size:9pt;font-weight:800;color:${accentColor};text-transform:uppercase;letter-spacing:0.5pt;white-space:nowrap;">${clinicaNome || marca}</div><div style="font-family:'Montserrat',sans-serif;font-size:7.5pt;color:#888;text-align:center;line-height:1.4;">${endereco ? `<div>${endereco}</div>` : ''}${_allPhonesCk ? `<div>${_allPhonesCk}</div>` : ''}</div><div style="font-family:'Montserrat',sans-serif;font-size:7.5pt;color:#888;text-align:right;white-space:nowrap;">${site ? `<div>${site}</div>` : ''}${instagram ? `<div>@${instagram}</div>` : ''}</div></div></div></div></div></body></html>`;
       const exCk = document.getElementById('_gabarito_iframe'); if (exCk) exCk.remove();
       const blobCk = new Blob([htmlCk], { type: 'text/html;charset=utf-8' });
@@ -4043,6 +4158,9 @@ body { width: 220mm; height: 307mm; background: #fff; }
       const fi2 = `<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;600;700&display=swap" rel="stylesheet">${_lf2 ? `<style>${_lf2}</style>` : `<link href="https://fonts.googleapis.com/css2?family=${_fa2.replace(/ /g,'+')}:wght@400;700&display=swap" rel="stylesheet">`}`;
       const _bw = '8mm';
       const BLEED = 5;
+      const _isA4 = paperSize === 'a4';
+      const _pw = _isA4 ? 220 : 158; // mm com bleed
+      const _ph = _isA4 ? 307 : 220;
       const _bc2 = borderColor || accentColor;
       const _pat2 = (comBorda && patternSrc)
         ? `<div style="position:absolute;inset:0;background-image:url(${patternSrc});background-size:${((patternScale || 150) * 0.35).toFixed(1)}mm;background-repeat:repeat;"></div><div style="position:absolute;top:${_bw};left:${_bw};right:${_bw};bottom:${_bw};background:#fff;"></div>`
@@ -4062,15 +4180,15 @@ body { width: 220mm; height: 307mm; background: #fff; }
       const _atBottom = _hasFooter ? `${7 + _footerH + 2}mm` : _bw;
       const _atHtml = `<!DOCTYPE html><html lang="pt-BR"><head><meta charset="UTF-8"><title>Atestado Médico - ${marca}</title>${fi2}
 <style>* { box-sizing:border-box; margin:0; padding:0; print-color-adjust:exact !important; -webkit-print-color-adjust:exact !important; }
-body { margin:0; } @media print { @page { size: 158mm 220mm; margin:0; } }
+body { margin:0; } @media print { @page { size: ${_pw}mm ${_ph}mm; margin:0; } }
 .blank { display:inline-block; border-bottom:0.8px solid #555; vertical-align:bottom; }
 </style></head><body>
-<div style="position:relative;width:158mm;height:220mm;overflow:hidden;">
+<div style="position:relative;width:${_pw}mm;height:${_ph}mm;overflow:hidden;">
   ${_pat2}
   ${_atFooterHtml}
   <div style="position:absolute;top:${BLEED + 8}mm;left:${BLEED + 8}mm;right:${BLEED + 8}mm;bottom:${BLEED + _footerH + 10}mm;font-family:'Montserrat',sans-serif;">
 
-    <div style="position:absolute;top:16mm;left:50%;transform:translateX(-50%);width:48mm;display:inline-flex;flex-direction:column;align-items:center;">${logoHtml}</div>
+    <div style="position:absolute;top:16mm;left:50%;transform:translateX(-50%);width:${Math.round((_pw - 2 * BLEED) * 0.32)}mm;display:inline-flex;flex-direction:column;align-items:center;">${logoHtml}</div>
 
     <div style="position:absolute;top:48mm;left:0;right:0;text-align:center;font-size:14pt;font-weight:800;letter-spacing:2.5pt;color:#1a1a2e;">ATESTADO MÉDICO</div>
 
@@ -4113,7 +4231,7 @@ body { margin:0; } @media print { @page { size: 158mm 220mm; margin:0; } }
 
   </div>
 </div></body></html>`;
-      const _dt = `Atestado Médico - ${marca}`;
+      const _dt = pdfTitle('Atestado Médico');
       const _ex = document.getElementById('_gabarito_iframe'); if (_ex) _ex.remove();
       const _if = document.createElement('iframe');
       _if.id = '_gabarito_iframe';
@@ -4380,7 +4498,7 @@ body { background:#fff; }
       const _ffEt = brand.editData?.fontFamily || 'Montserrat';
       const _lfEt = LOCAL_FONT_FACES[_ffEt];
       const fiEt = `<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700;800;900&display=swap" rel="stylesheet">${_lfEt ? `<style>${_lfEt}</style>` : ''}`;
-      const logoHtmlEt = `<div style="display:flex;flex-direction:column;align-items:center;">${ReactDOMServer.renderToString(<LogoPreviewHTML editData={brand.editData || {}} color={solidColor} layout={logoLayout || 'stacked'} scaleFactor={0.48} crm={null} hideTagline={false} />)}</div>`;
+      const logoHtmlEt = `<div style="display:flex;flex-direction:column;align-items:center;">${ReactDOMServer.renderToString(<LogoPreviewHTML editData={editData || {}} color={solidColor} layout={logoLayout || 'stacked'} scaleFactor={0.48} crm={null} hideTagline={false} />)}</div>`;
       const { instagram, telefone, whatsapp } = cartaoContacts || {};
       const mainPhone = whatsapp || telefone || '';
       const bgEt = comBorda && patternSrc
@@ -4442,7 +4560,7 @@ html, body { width:${selSize.w + BLEED_ET*2}mm; height:${selSize.h + BLEED_ET*2}
       const fiRA = `<link href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,300;0,400;0,600;0,700;0,800;0,900;1,700;1,800&display=swap" rel="stylesheet">${_lfRA ? `<style>${_lfRA}</style>` : ''}`;
       const _lRA = logoColor || accentColor;
       const _lyRA = logoLayout || 'stacked';
-      const logoHtmlRA = `<div style="width:50mm;display:flex;flex-direction:column;align-items:center;justify-content:center;">${ReactDOMServer.renderToString(<LogoPreviewHTML editData={brand.editData || {}} color="#fff" layout={_lyRA} scaleFactor={0.55} crm={null} hideTagline />)}</div>`;
+      const logoHtmlRA = `<div style="width:50mm;display:flex;flex-direction:column;align-items:center;justify-content:center;">${ReactDOMServer.renderToString(<LogoPreviewHTML editData={editData || {}} color="#fff" layout={_lyRA} scaleFactor={0.55} crm={null} hideTagline />)}</div>`;
       const html = buildReceitaAltaHTML({ logoHtml: logoHtmlRA, solidColor, paletteColors, clinicaNome, cartaoContacts, crmLine, marca, fields: receitaFields, comBorda, patternSrc, patternScale });
       const htmlFinal = html.replace('<head>', `<head>${fiRA.replace(/<link[^>]*>/, '')}`);
       const exRA = document.getElementById('_gabarito_receita_alta'); if (exRA) exRA.remove();
@@ -4460,7 +4578,7 @@ html, body { width:${selSize.w + BLEED_ET*2}mm; height:${selSize.h + BLEED_ET*2}
       const _ffC = brand.editData?.fontFamily || 'Montserrat';
       const _lfC = LOCAL_FONT_FACES[_ffC];
       const fiC = `<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700;800;900&display=swap" rel="stylesheet">${_lfC ? `<style>${_lfC}</style>` : ''}`;
-      const logoHtmlC = ReactDOMServer.renderToString(React.createElement(LogoPreviewHTML, {editData: brand.editData || {}, color: '#fff', layout: 'stacked', scaleFactor: 0.80, crm: null, hideTagline: true}));
+      const logoHtmlC = ReactDOMServer.renderToString(React.createElement(LogoPreviewHTML, {editData: editData || {}, color: '#fff', layout: 'stacked', scaleFactor: 0.80, crm: null, hideTagline: true}));
       const circleD = 32;
       const circleBgC = (comBorda && patternSrc) ? solidColor + 'cc' : 'rgba(255,255,255,0.22)';
       const bgStyleC = comBorda && patternSrc
@@ -4540,7 +4658,7 @@ html, body { width:${totalW}mm; height:${totalH}mm; overflow:hidden; }
       const bgT = comBorda && patternSrc
         ? `background-image:url(${patternSrc});background-size:${(patternScale*0.38).toFixed(1)}mm;background-repeat:repeat;`
         : `background:${solidColor};`;
-      const logoHtmlFrenteT = `<div style="display:flex;flex-direction:column;align-items:center;justify-content:center;">${ReactDOMServer.renderToString(<LogoPreviewHTML editData={brand.editData || {}} color={comBorda && patternSrc ? solidColor : '#fff'} layout={logoLayout || 'stacked'} scaleFactor={0.45} crm={null} hideTagline={false} />)}</div>`;
+      const logoHtmlFrenteT = `<div style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;">${ReactDOMServer.renderToString(<LogoPreviewHTML editData={editData || {}} color={comBorda && patternSrc ? solidColor : '#fff'} layout={logoLayout || 'stacked'} scaleFactor={0.45} crm={null} hideTagline={false} maxWidth="100%" maxHeight="100%" />)}</div>`;
       const { telefone, whatsapp, instagram, site } = cartaoContacts || {};
       const mainPhone = whatsapp || telefone || '';
 
@@ -4550,8 +4668,8 @@ html, body { width:${totalW}mm; height:${totalH}mm; overflow:hidden; }
         const totalW = w + BLEED*2, totalH = h + BLEED*2;
         const holeD = Math.round(w * 0.06);
         const logoWrap = (comBorda && patternSrc)
-          ? `<div style="display:inline-flex;align-items:center;justify-content:center;background:rgba(255,255,255,0.88);border-radius:${isCircle ? '50%' : '3mm'};padding:${isCircle ? `${w*0.12}mm` : isSquare ? '2.5mm 4mm' : '1.5mm 3mm'};">${logoHtmlFrenteT}</div>`
-          : `<div style="filter:brightness(0) invert(1);">${logoHtmlFrenteT}</div>`;
+          ? ReactDOMServer.renderToString(<LogoPreviewHTML editData={editData || {}} color={solidColor} layout={logoLayout || 'stacked'} scaleFactor={0.45} crm={null} hideTagline={false} withBackground={true} maxWidth={`${w*0.82}mm`} maxHeight={`${h*0.55}mm`} />)
+          : `<div style="filter:brightness(0) invert(1);max-width:${w*0.82}mm;max-height:${h*0.55}mm;overflow:hidden;">${logoHtmlFrenteT}</div>`;
         const frente = `
           <div style="width:${totalW}mm;height:${totalH}mm;position:relative;overflow:hidden;border-radius:${isCircle ? '50%' : '2mm'};">
             <div style="position:absolute;inset:0;${bgT}"></div>
@@ -4580,8 +4698,9 @@ html, body { width:${totalW}mm; height:${totalH}mm; overflow:hidden; }
       const bgSizeT = ((patternScale || 100) / 10).toFixed(1);
       const bgTFixed = comBorda && patternSrc ? `background-image:url(${patternSrc});background-size:${bgSizeT}mm;background-repeat:repeat;` : `background:${solidColor};`;
       const logoScaleT = selT.shape === 'square' ? 0.72 : selT.shape === 'circle' ? 0.68 : 0.65;
-      const logoHtmlT = `<div style="display:flex;flex-direction:column;align-items:center;justify-content:center;">${ReactDOMServer.renderToString(<LogoPreviewHTML editData={brand.editData||{}} color={comBorda&&patternSrc?solidColor:'#fff'} layout={logoLayout||'stacked'} scaleFactor={logoScaleT} crm={null} hideTagline={false} />)}</div>`;
-      const logoWrapT = (comBorda&&patternSrc) ? `<div style="display:inline-flex;align-items:center;justify-content:center;background:rgba(255,255,255,0.92);border-radius:${isCircleT?'50%':'3mm'};padding:${isCircleT?`${selT.w*0.16}mm`:selT.shape==='square'?'4.5mm 6mm':'3.5mm 6.5mm'};">${logoHtmlT}</div>` : `<div style="filter:brightness(0) invert(1);">${logoHtmlT}</div>`;
+      const logoWrapT = (comBorda&&patternSrc) 
+        ? ReactDOMServer.renderToString(<LogoPreviewHTML editData={editData||{}} color={solidColor} layout={logoLayout||'stacked'} scaleFactor={logoScaleT} crm={null} hideTagline={false} withBackground={true} maxWidth={`${selT.w*0.82}mm`} maxHeight={`${selT.h*0.55}mm`} />)
+        : `<div style="filter:brightness(0) invert(1);">${ReactDOMServer.renderToString(<LogoPreviewHTML editData={editData||{}} color={comBorda&&patternSrc?solidColor:'#fff'} layout={logoLayout||'stacked'} scaleFactor={logoScaleT} crm={null} hideTagline={false} />)}</div>`;
       const _cms = `<div style="position:absolute;top:0;left:0;width:4mm;height:0.2mm;background:#ccc;"></div><div style="position:absolute;top:0;left:0;width:0.2mm;height:4mm;background:#ccc;"></div><div style="position:absolute;top:0;right:0;width:4mm;height:0.2mm;background:#ccc;"></div><div style="position:absolute;top:0;right:0;width:0.2mm;height:4mm;background:#ccc;"></div><div style="position:absolute;bottom:0;left:0;width:4mm;height:0.2mm;background:#ccc;"></div><div style="position:absolute;bottom:0;left:0;width:0.2mm;height:4mm;background:#ccc;"></div><div style="position:absolute;bottom:0;right:0;width:4mm;height:0.2mm;background:#ccc;"></div><div style="position:absolute;bottom:0;right:0;width:0.2mm;height:4mm;background:#ccc;"></div>`;
       const frentePageT = `<div style="width:${totalW_T}mm;height:${totalH_T}mm;position:relative;overflow:hidden;border-radius:${isCircleT?'50%':'2mm'};"><div style="position:absolute;inset:0;${bgTFixed}"></div><div style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);text-align:center;z-index:2;">${logoWrapT}</div>${_cms}</div>`;
       const versoPageT = `<div style="width:${totalW_T}mm;height:${totalH_T}mm;position:relative;overflow:hidden;border-radius:${isCircleT?'50%':'2mm'};background:#fff;border:0.5mm solid ${solidColor};"><div style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:80%;display:flex;flex-direction:column;align-items:center;gap:${isCircleT?1:2}mm;text-align:center;">${clinicaNome?`<div style="font-size:${isCircleT?4:5}mm;color:${solidColor};font-family:'Brush Script MT','Segoe Script',cursive;">${clinicaNome}</div>`:''}<div style="width:5mm;height:0.2mm;background:${solidColor}60;"></div>${mainPhone?`<div style="font-size:3mm;color:#888;font-family:'Montserrat',sans-serif;">${mainPhone}</div>`:''}${instagram?`<div style="font-size:3mm;color:#888;font-family:'Montserrat',sans-serif;">@${instagram.replace('@','')}</div>`:''}${site?`<div style="font-size:2.5mm;color:#bbb;font-family:'Montserrat',sans-serif;">${site}</div>`:''}</div>${_cms}</div>`;
@@ -4640,7 +4759,7 @@ ${SIZES_S.map(s => arteFlat(s.w, s.h, s.label)).join('')}
 
       if (item.includes('Controle Especial')) {
         const BLEED = 3;
-        const _brandData = brand.editData || {};
+        const _brandData = editData || {};
         const _ffCe = _brandData.fontFamily || 'Playfair Display';
         const _lfCe = LOCAL_FONT_FACES[_ffCe];
         const fiCe = `<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;600;700;800&display=swap" rel="stylesheet">${_lfCe ? `<style>${_lfCe}</style>` : `<link href="https://fonts.googleapis.com/css2?family=${_ffCe.replace(/ /g,'+')}:wght@400;700&display=swap" rel="stylesheet">`}`;
@@ -4657,7 +4776,7 @@ ${SIZES_S.map(s => arteFlat(s.w, s.h, s.label)).join('')}
 
         const _lColor = logoColor || _accent;
         const _lLayout = logoLayout || 'stacked';
-        const logoHtmlCe = `<div style="width:38mm;display:flex;flex-direction:column;align-items:center;justify-content:center;">${ReactDOMServer.renderToString(<LogoPreviewHTML editData={_brandData} color={_lColor} layout={_lLayout} scaleFactor={0.62} crm={crmLine} hideTagline={false} />)}</div>`;
+        const logoHtmlCe = `<div style="width:38mm; height:25mm; display:flex; flex-direction:column; align-items:center; justify-content:center;">${ReactDOMServer.renderToString(<LogoPreviewHTML editData={_brandData} color={_lColor} layout={_lLayout} scaleFactor={0.62} crm={crmLine} hideTagline={false} maxWidth="38mm" maxHeight="25mm" />)}</div>`;
 
         const html = `<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Receituário Controle Especial - ${marca}</title>${fiCe}
 <style>* { box-sizing:border-box; margin:0; padding:0; print-color-adjust:exact !important; -webkit-print-color-adjust:exact !important; }
@@ -4734,7 +4853,7 @@ body { width:${W + BLEED*2}mm; height:${H + BLEED*2}mm; position:relative; overf
         document.body.appendChild(iframe);
         iframe.contentDocument.open(); iframe.contentDocument.write(html); iframe.contentDocument.close();
         const prevT = document.title;
-        iframe.contentWindow.document.fonts.ready.then(() => { setTimeout(() => { document.title = `Controle Especial - ${marca}`; iframe.contentWindow.focus(); iframe.contentWindow.print(); setTimeout(() => { document.title = prevT; iframe.remove(); }, 3000); }, 1000); });
+        iframe.contentWindow.document.fonts.ready.then(() => { setTimeout(() => { document.title = pdfTitle('Receituário de Controle Especial'); iframe.contentWindow.focus(); iframe.contentWindow.print(); setTimeout(() => { document.title = prevT; iframe.remove(); }, 3000); }, 1000); });
         return;
       }
       if (item === 'Recibo') {
@@ -4810,7 +4929,7 @@ td { padding: 4mm 3mm; border: 0.2mm solid #eee; font-size: 10pt; color: #555; }
         document.body.appendChild(iframe);
         iframe.contentDocument.open(); iframe.contentDocument.write(html); iframe.contentDocument.close();
         const prevT = document.title;
-        iframe.contentWindow.document.fonts.ready.then(() => { setTimeout(() => { document.title = `Recibo - ${marca}`; iframe.contentWindow.focus(); iframe.contentWindow.print(); setTimeout(() => { document.title = prevT; iframe.remove(); }, 3000); }, 1000); });
+        iframe.contentWindow.document.fonts.ready.then(() => { setTimeout(() => { document.title = pdfTitle('Recibo'); iframe.contentWindow.focus(); iframe.contentWindow.print(); setTimeout(() => { document.title = prevT; iframe.remove(); }, 3000); }, 1000); });
         return;
       }
 
@@ -4829,7 +4948,7 @@ td { padding: 4mm 3mm; border: 0.2mm solid #eee; font-size: 10pt; color: #555; }
           const _lfAmam = LOCAL_FONT_FACES[_ffAmam];
           const fiAmam = `<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;600;700;800&family=Great+Vibes&display=swap" rel="stylesheet">${_lfAmam ? `<style>${_lfAmam}</style>` : `<link href="https://fonts.googleapis.com/css2?family=${_ffAmam.replace(/ /g,'+')}:wght@400;700&display=swap" rel="stylesheet">`}`;
 
-          const logoHtmlAmam = `<div style="width:30mm;display:flex;flex-direction:column;align-items:center;justify-content:center;">${ReactDOMServer.renderToString(<LogoPreviewHTML editData={brand.editData} color={accentColor} layout={logoLayout} scaleFactor={0.30} crm={crmLine} />)}</div>`;
+          const logoHtmlAmam = `<div style="width:30mm;display:flex;flex-direction:column;align-items:center;justify-content:center;">${ReactDOMServer.renderToString(<LogoPreviewHTML editData={itemEditData} color={accentColor} layout={logoLayout} scaleFactor={0.30} crm={crmLine} />)}</div>`;
           const illustSrc = "/breastfeeding-guide.png";
 
           const pages = [
@@ -4894,7 +5013,7 @@ ${renderSide([4, 5, 6, 7])}
           document.body.appendChild(iframe);
           iframe.contentDocument.open(); iframe.contentDocument.write(html); iframe.contentDocument.close();
           const prevT = document.title;
-          iframe.contentWindow.document.fonts.ready.then(() => { setTimeout(() => { document.title = `${item} - ${marca}`; iframe.contentWindow.focus(); iframe.contentWindow.print(); setTimeout(() => { document.title = prevT; iframe.remove(); }, 3000); }, 1000); });
+          iframe.contentWindow.document.fonts.ready.then(() => { setTimeout(() => { document.title = pdfTitle(item); iframe.contentWindow.focus(); iframe.contentWindow.print(); setTimeout(() => { document.title = prevT; iframe.remove(); }, 3000); }, 1000); });
           return;
         }
 
@@ -4903,14 +5022,15 @@ ${renderSide([4, 5, 6, 7])}
           const W = 148, H = 210;
           const totalW = (W * 2) + (BLEED * 2);
           const totalH = H + (BLEED * 2);
+          const scaleF = (totalH / 2) / H;
 
           const _ffPrenatal = brand.editData?.fontFamily || 'Playfair Display';
           const _lfPrenatal = LOCAL_FONT_FACES[_ffPrenatal];
           const fiPrenatal = `<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;600;700;800&family=Great+Vibes&display=swap" rel="stylesheet">${_lfPrenatal ? `<style>${_lfPrenatal}</style>` : `<link href="https://fonts.googleapis.com/css2?family=${_ffPrenatal.replace(/ /g,'+')}:wght@400;700&display=swap" rel="stylesheet">`}`;
 
-          const logoHtmlPrenatal = `<div style="width:38mm;display:flex;flex-direction:column;align-items:center;justify-content:center;">${ReactDOMServer.renderToString(<LogoPreviewHTML editData={brand.editData} color={accentColor} layout={logoLayout} scaleFactor={0.16} crm={crmLine} />)}</div>`;
+          const logoHtmlPrenatal = `<div style="width:38mm;display:flex;flex-direction:column;align-items:center;justify-content:center;">${ReactDOMServer.renderToString(<LogoPreviewHTML editData={itemEditData} color={accentColor} layout={logoLayout} scaleFactor={0.16} crm={crmLine} />)}</div>`;
 
-          const themeTaglinePrenatal = item.includes('Pré-Natal') ? 'Cuidando da saúde da mamãe e do bebê desde o início...' : 'Saúde e Bem-Estar Pediátrico';
+          const themeTaglinePrenatal = item.includes('Pré-Natal') ? 'CUIDANDO DESDE O INÍCIO..' : 'Saúde e Bem-Estar Pediátrico';
           const finalTaglinePrenatal = (item.includes('Pré-Natal')) ? themeTaglinePrenatal : (brand.editData?.tagline || themeTaglinePrenatal);
 
           const p1 = ReactDOMServer.renderToString(<PrenatalPage1 accentColor={accentColor} palette={paletteColors} logoComponent={<div dangerouslySetInnerHTML={{ __html: logoHtmlPrenatal }} />} folderRoof={folderRoof} tagline={finalTaglinePrenatal} comBorda={comBorda} patternSrc={patternSrc} patternScale={patternScale} borderColor={borderColor} />);
@@ -4918,13 +5038,20 @@ ${renderSide([4, 5, 6, 7])}
           const p3 = ReactDOMServer.renderToString(<PrenatalPage3 accentColor={accentColor} palette={paletteColors} />);
           const p4 = ReactDOMServer.renderToString(<PrenatalPage4 accentColor={accentColor} palette={paletteColors} comBorda={comBorda} patternSrc={patternSrc} patternScale={patternScale} borderColor={borderColor} />);
 
+          // px por mm a 96dpi
+          const PX = 3.7795;
+          // Cada painel ocupa metade da largura total (inclui bleed lateral)
+          const panelWpx = (totalW / 2) * PX;   // (W + BLEED) * PX
+          const panelHpx = totalH * PX;           // (H + 2*BLEED) * PX
+          // Escala para preencher o painel com bleed (scaleX e scaleY ligeiramente diferentes)
+          const sX = (panelWpx / 148).toFixed(4);
+          const sY = (panelHpx / 210).toFixed(4);
+
           const html = `<!DOCTYPE html><html><head><meta charset="UTF-8"><title>${item} - ${marca}</title>${fiPrenatal}
 <style>* { box-sizing:border-box; margin:0; padding:0; print-color-adjust:exact !important; -webkit-print-color-adjust:exact !important; }
 body { font-family:'Montserrat',sans-serif; }
-.page { width:${totalW}mm; height:${totalH}mm; position:relative; overflow:hidden; background:#fff; }
-.face { display:flex; width:100%; height:100%; position:relative; }
-.panel { flex:1; height:100%; position:relative; overflow:hidden; }
-.content { position:absolute; inset:0; padding:0; display:flex; align-items:center; justify-content:center; }
+.page { width:${totalW}mm; height:${totalH}mm; position:relative; overflow:hidden; display:flex; }
+.panel { width:50%; height:100%; position:relative; overflow:hidden; flex-shrink:0; }
 .cm { position:absolute; width:10mm; height:10mm; border-color:rgba(0,0,0,0.5); border-style:solid; border-width:0; pointer-events:none; z-index:10; }
 .cm-tl { top:0; left:0; border-top:0.2mm solid; border-left:0.2mm solid; }
 .cm-tr { top:0; right:0; border-top:0.2mm solid; border-right:0.2mm solid; }
@@ -4932,27 +5059,23 @@ body { font-family:'Montserrat',sans-serif; }
 .cm-br { bottom:0; right:0; border-bottom:0.2mm solid; border-right:0.2mm solid; }
 @media print { body { margin:0; } @page { size: ${totalW}mm ${totalH}mm; margin:0; } .page { page-break-after:always; } }
 </style></head><body>
-<!-- FACE 1: Pág 4 | Pág 1 -->
+<!-- FACE 1: Pág 4 (verso capa) | Pág 1 (capa) -->
 <div class="page">
-  <div class="face" style="padding:${BLEED}mm;">
-    <div class="panel" style="border-right:0.1mm dashed #eee;">
-      <div style="width:148px;height:210px;transform:scale(3.77);transform-origin:top left;">${p4}</div>
-    </div>
-    <div class="panel">
-      <div style="width:148px;height:210px;transform:scale(3.77);transform-origin:top left;">${p1}</div>
-    </div>
+  <div class="panel" style="border-right:0.1mm dashed #ccc;">
+    <div style="width:148px;height:210px;transform:scaleX(${sX}) scaleY(${sY});transform-origin:top left;">${p4}</div>
+  </div>
+  <div class="panel">
+    <div style="width:148px;height:210px;transform:scaleX(${sX}) scaleY(${sY});transform-origin:top left;">${p1}</div>
   </div>
   <div class="cm cm-tl"></div><div class="cm cm-tr"></div><div class="cm cm-bl"></div><div class="cm cm-br"></div>
 </div>
 <!-- FACE 2: Pág 2 | Pág 3 -->
 <div class="page">
-  <div class="face" style="padding:${BLEED}mm;">
-    <div class="panel" style="border-right:0.1mm dashed #eee;">
-      <div style="width:148px;height:210px;transform:scale(3.77);transform-origin:top left;">${p2}</div>
-    </div>
-    <div class="panel">
-      <div style="width:148px;height:210px;transform:scale(3.77);transform-origin:top left;">${p3}</div>
-    </div>
+  <div class="panel" style="border-right:0.1mm dashed #ccc;">
+    <div style="width:148px;height:210px;transform:scaleX(${sX}) scaleY(${sY});transform-origin:top left;">${p2}</div>
+  </div>
+  <div class="panel">
+    <div style="width:148px;height:210px;transform:scaleX(${sX}) scaleY(${sY});transform-origin:top left;">${p3}</div>
   </div>
   <div class="cm cm-tl"></div><div class="cm cm-tr"></div><div class="cm cm-bl"></div><div class="cm cm-br"></div>
 </div>
@@ -4963,7 +5086,7 @@ body { font-family:'Montserrat',sans-serif; }
           document.body.appendChild(iframe);
           iframe.contentDocument.open(); iframe.contentDocument.write(html); iframe.contentDocument.close();
           const prevT = document.title;
-          iframe.contentWindow.document.fonts.ready.then(() => { setTimeout(() => { document.title = `${item} - ${marca}`; iframe.contentWindow.focus(); iframe.contentWindow.print(); setTimeout(() => { document.title = prevT; iframe.remove(); }, 3000); }, 1000); });
+          iframe.contentWindow.document.fonts.ready.then(() => { setTimeout(() => { document.title = pdfTitle(item); iframe.contentWindow.focus(); iframe.contentWindow.print(); setTimeout(() => { document.title = prevT; iframe.remove(); }, 3000); }, 1000); });
           return;
         }
 
@@ -5043,9 +5166,9 @@ body { font-family:'Montserrat',sans-serif; }
           </div>`;
 
         // Conteúdo da Pág 1 (Capa)
-        const p1Content = isVacina ? `<div style="width:148px; height:210px; transform:scale(3.78); transform-origin:top left;">${ReactDOMServer.renderToString(React.createElement(Art1, { accentColor, palette: paletteColors, logoComponent: <div dangerouslySetInnerHTML={{ __html: genPDFLogoHtml({ brand, color: accentColor, localSlogan, crmLine, fontPt: 8, lineH: _lineH, letterSp: _letterSp, hideSlogan: false, crmSize: '2.5pt' }) }} /> }))}</div>` : `
+        const p1Content = isVacina ? `<div style="width:148px; height:210px; transform:scale(3.78); transform-origin:top left;">${ReactDOMServer.renderToString(React.createElement(Art1, { accentColor, palette: paletteColors, logoComponent: <div dangerouslySetInnerHTML={{ __html: genPDFLogoHtml({ brand, color: accentColor, localSlogan, crmLine, fontPt: 8, lineH: _lineH, letterSp: _letterSp, hideSlogan: false, crmSize: '2.5pt', customLogoSrc, customLogoScale: getCustomLogoScale(item), maxWidth: '40mm', maxHeight: '15mm', withBackground: comBorda && patternSrc }) }} /> }))}</div>` : `
           <div style="display:flex;flex-direction:column;align-items:center;justify-content:center;padding:10mm;text-align:center;height:100%;">
-              <div style="margin-bottom:12mm;">${genPDFLogoHtml({ brand, color: accentColor, localSlogan, crmLine, fontPt: 32, lineH: _lineH, letterSp: _letterSp, hideSlogan: false, crmSize: '9pt' })}</div>
+              <div style="margin-bottom:12mm;">${genPDFLogoHtml({ brand, color: accentColor, localSlogan, crmLine, fontPt: 32, lineH: _lineH, letterSp: _letterSp, hideSlogan: false, crmSize: '9pt', customLogoSrc, customLogoScale: getCustomLogoScale(item), maxWidth: '120mm', maxHeight: '40mm', withBackground: comBorda && patternSrc })}</div>
               <div style="width:30mm;height:1.2mm;background:${accentColor};margin-top:4mm;margin-bottom:15mm;border-radius:1mm;"></div>
               
               <div style="display:flex;flex-direction:column;align-items:center;margin-bottom:10mm;">
@@ -5097,7 +5220,7 @@ body { background:#eee; }
           document.body.appendChild(iframe);
           iframe.contentDocument.open(); iframe.contentDocument.write(finalHtml); iframe.contentDocument.close();
           const prevT = document.title;
-          iframe.contentWindow.document.fonts.ready.then(() => { setTimeout(() => { document.title = `${item} - ${marca}`; iframe.contentWindow.focus(); iframe.contentWindow.print(); setTimeout(() => { document.title = prevT; iframe.remove(); }, 5000); }, 1500); });
+          iframe.contentWindow.document.fonts.ready.then(() => { setTimeout(() => { document.title = pdfTitle(item); iframe.contentWindow.focus(); iframe.contentWindow.print(); setTimeout(() => { document.title = prevT; iframe.remove(); }, 5000); }, 1500); });
         };
         try {
           const cssResp = await fetch('https://fonts.googleapis.com/css2?family=Great+Vibes&display=swap');
@@ -5129,7 +5252,7 @@ body { background:#eee; }
   <div style="position:absolute; top:0; right:0; width:25mm; height:25mm; background:${accentColor}10; border-radius:0 0 0 25mm;"></div>
   
   <div style="width:50mm; display:flex; justify-content:center; flex-shrink:0;">
-    ${genPDFLogoHtml({ brand, color: accentColor, localSlogan: '', crmLine: '', fontPt: 24, lineH: _lineH, letterSp: _letterSp, hideSlogan: true })}
+    ${genPDFLogoHtml({ brand, color: accentColor, localSlogan: '', crmLine: '', fontPt: 24, lineH: _lineH, letterSp: _letterSp, hideSlogan: true, customLogoSrc, customLogoScale: getCustomLogoScale(item), maxWidth: '40mm', maxHeight: '20mm' })}
   </div>
 
   <div style="width:0.5mm; height:70%; background:#eee;"></div>
@@ -5208,7 +5331,7 @@ html, body { width:${RW}px; height:${RH}px; overflow:hidden; background:#fff; }
   </div>
 
   <div style="position:absolute; top:${isPost ? Math.round(RH*0.09) : Math.round(RH*0.07)}px; left:0; right:0; display:flex; justify-content:center; transform:scale(${isPost ? 1.3 : 1.0}); transform-origin:top center;">
-    ${genPDFLogoHtml({ brand, color: accentColor, localSlogan, crmLine, fontPt: 32, lineH: _lineH, letterSp: _letterSp })}
+    ${genPDFLogoHtml({ brand, color: accentColor, localSlogan, crmLine, fontPt: 32, lineH: _lineH, letterSp: _letterSp, customLogoSrc, customLogoScale: getCustomLogoScale(item), maxWidth: '120mm', maxHeight: '45mm' })}
   </div>
 
   <div style="position:absolute; top:${isPost ? Math.round(RH*0.40) : Math.round(RH*0.28)}px; left:0; right:0; text-align:center;">
@@ -5256,11 +5379,11 @@ body { background:#eee; }
     : `<div style="position:absolute; inset:0; background:#fff; border:${BORDER}mm solid ${solidColor}; box-sizing:border-box;"></div>`}
   
   <div style="position:absolute; top:${BORDER + 10}mm; left:50%; transform:translateX(-50%); width:80mm; display:flex; justify-content:center;">
-    ${genPDFLogoHtml({ brand, color: accentColor, localSlogan, crmLine, fontPt: 22, lineH: _lineH, letterSp: _letterSp })}
+    ${genPDFLogoHtml({ brand, color: accentColor, localSlogan, crmLine, fontPt: 22, lineH: _lineH, letterSp: _letterSp, customLogoSrc, customLogoScale: getCustomLogoScale(item), maxWidth: '80mm', maxHeight: '30mm' })}
   </div>
 
   <div style="position:absolute; top:50%; left:50%; transform:translate(-50%, -50%); opacity:0.15; width:140mm; display:flex; justify-content:center; pointer-events:none;">
-    ${genPDFLogoHtml({ brand, color: accentColor, localSlogan, crmLine, fontPt: 48, lineH: _lineH, letterSp: _letterSp, hideSlogan: true })}
+    ${genPDFLogoHtml({ brand, color: accentColor, localSlogan, crmLine, fontPt: 48, lineH: _lineH, letterSp: _letterSp, hideSlogan: true, customLogoSrc, customLogoScale: getCustomLogoScale(item), maxWidth: '140mm', maxHeight: '60mm' })}
   </div>
 
   <div style="position:absolute; bottom:${BORDER + 10}mm; left:0; right:0; text-align:center;">
@@ -5275,7 +5398,7 @@ body { background:#eee; }
         document.body.appendChild(iframe);
         iframe.contentDocument.open(); iframe.contentDocument.write(html); iframe.contentDocument.close();
         const prevT = document.title;
-        iframe.contentWindow.document.fonts.ready.then(() => { setTimeout(() => { document.title = `${item} - ${marca}`; iframe.contentWindow.focus(); iframe.contentWindow.print(); setTimeout(() => { document.title = prevT; iframe.remove(); }, 3000); }, 1000); });
+        iframe.contentWindow.document.fonts.ready.then(() => { setTimeout(() => { document.title = pdfTitle(item); iframe.contentWindow.focus(); iframe.contentWindow.print(); setTimeout(() => { document.title = prevT; iframe.remove(); }, 3000); }, 1000); });
         return;
       }
 
@@ -5294,7 +5417,7 @@ body { background:#eee; }
         
         const _lColor = logoColor || _accent;
         const _lLayout = logoLayout || 'stacked';
-        const logoHtmlCe = `<div style="display:flex;flex-direction:column;align-items:center;justify-content:center;">${ReactDOMServer.renderToString(<LogoPreviewHTML editData={_brandData} color={_lColor} layout={_lLayout} scaleFactor={0.8} hideTagline={false} />)}</div>`;
+        const logoHtmlCe = `<div style="width:140mm; height:35mm; display:flex; align-items:center; justify-content:center;">${ReactDOMServer.renderToString(<LogoPreviewHTML editData={_brandData} color={_lColor} layout={_lLayout} scaleFactor={0.8} hideTagline={false} withBackground={comBorda && patternSrc} maxWidth="100%" maxHeight="100%" />)}</div>`;
 
         const html = `<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Certificado de Coragem - ${marca}</title>${fiCe}
 <style>* { box-sizing:border-box; margin:0; padding:0; print-color-adjust:exact !important; -webkit-print-color-adjust:exact !important; }
@@ -5334,7 +5457,7 @@ body { width:${W + BLEED*2}mm; height:${H + BLEED*2}mm; position:relative; overf
     <div class="cm cm-tl"></div><div class="cm cm-tr"></div><div class="cm cm-bl"></div><div class="cm cm-br"></div>
 </div></body></html>`;
 
-        const _dt = `Certificado de Coragem - ${marca}`;
+        const _dt = pdfTitle('Certificado de Coragem');
         const _ex = document.getElementById('_gabarito_iframe'); if (_ex) _ex.remove();
         const _if = document.createElement('iframe');
         _if.id = '_gabarito_iframe';
@@ -5363,11 +5486,15 @@ body { width:${W + BLEED*2}mm; height:${H + BLEED*2}mm; position:relative; overf
       'Timbrado':            { w: 210, h: 297, bleed: 5 },
       'Cartão de Retorno':   { w: 105, h: 148, bleed: 5 },
       'Envelope Ofício':     { w: 220, h: 113, bleed: 5 },
-      'Recibo':              { w: 148, h: 210, bleed: 5 }, // Padronizado A5
+      'Recibo':              { w: 148, h: 210, bleed: 5 },
       'Cartão de Aniversário': { w: 105, h: 148, bleed: 5 },
     };
     const psKey = Object.keys(PAGE_SIZES).find(k => item.includes(k));
-    const ps = PAGE_SIZES[psKey] || { w: 210, h: 297, bleed: 5 };
+    let ps = PAGE_SIZES[psKey] || { w: 210, h: 297, bleed: 5 };
+    // A4 upgrade para itens que suportam
+    if (paperSize === 'a4' && ['Receituário', 'Recibo', 'Ficha', 'Prontuário', 'Certificado', 'Checklist'].some(n => item.includes(n))) {
+      ps = { w: 210, h: 297, bleed: 5 };
+    }
     const totalW_gen = ps.w + (ps.bleed * 2);
     const totalH_gen = ps.h + (ps.bleed * 2);
     const bleed_gen = ps.bleed;
@@ -5411,7 +5538,7 @@ body { width:${W + BLEED*2}mm; height:${H + BLEED*2}mm; position:relative; overf
         ${footerHtml}
       </div>`;
 
-    const _docTitle2 = `${item} - ${marca}`;
+    const _docTitle2 = pdfTitle(item);
     const html = `<!DOCTYPE html>
 <html lang="pt-BR">
 <head>
@@ -5451,123 +5578,78 @@ ${fontImports2}
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '1.2rem' }}>
 
-      {/* Form CRM/RQE — colapsável */}
-      {isSaude && (
-        <div style={{ background: '#fdf0f7', border: '1px solid #f0c0dc', borderRadius: '12px', overflow: 'hidden' }}>
-          <button onClick={() => setCrmOpen(o => !o)} style={{ width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '10px 14px', background: 'none', border: 'none', cursor: 'pointer' }}>
-            <span style={{ fontWeight: 700, fontSize: '0.78rem', color: '#8a1a50' }}>
-              {crmData.crm ? `CRM/${crmData.uf || 'UF'} ${crmData.crm}${crmData.rqe.filter(Boolean).length > 0 ? ' · RQE ' + crmData.rqe.filter(Boolean).join(' / ') : ''}` : 'CRM / RQE (materiais médicos)'}
-            </span>
-            <span style={{ fontSize: '0.7rem', color: '#c080b0' }}>{crmOpen ? '▲' : '▼'}</span>
-          </button>
-          {crmOpen && (
-            <div style={{ padding: '0 14px 12px', display: 'flex', flexDirection: 'column', gap: '7px' }}>
-              <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
-                <span style={{ fontSize: '0.75rem', fontWeight: 600, color: '#555', whiteSpace: 'nowrap' }}>CRM /</span>
-                <input value={crmData.uf} onChange={e => setCrmData(d => ({ ...d, uf: e.target.value.toUpperCase().slice(0, 2) }))} placeholder="UF"
-                  style={{ width: '44px', padding: '6px', fontSize: '0.8rem', border: '1px solid #e0c0d0', borderRadius: '8px', textAlign: 'center', outline: 'none' }} />
-                <input value={crmData.crm} onChange={e => setCrmData(d => ({ ...d, crm: e.target.value }))} placeholder="Número"
-                  style={{ flex: 1, padding: '6px', fontSize: '0.8rem', border: '1px solid #e0c0d0', borderRadius: '8px', outline: 'none' }} />
-              </div>
-              {crmData.rqe.map((r, i) => (
-                <div key={i} style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
-                  <span style={{ fontSize: '0.75rem', fontWeight: 600, color: '#555' }}>RQE</span>
-                  <input value={r} onChange={e => setCrmData(d => { const rqe = [...d.rqe]; rqe[i] = e.target.value; return { ...d, rqe }; })} placeholder="Número"
-                    style={{ flex: 1, padding: '6px', fontSize: '0.8rem', border: '1px solid #e0c0d0', borderRadius: '8px', outline: 'none' }} />
-                  <button onClick={() => setCrmData(d => ({ ...d, rqe: d.rqe.filter((_, j) => j !== i) }))} style={{ background: 'none', border: 'none', color: '#c00', fontSize: '1rem', cursor: 'pointer' }}>×</button>
-                </div>
-              ))}
-              <button onClick={() => setCrmData(d => ({ ...d, rqe: [...d.rqe, ''] }))} style={{ background: 'none', border: '1px dashed #d090b8', color: '#a0408a', borderRadius: '8px', padding: '4px 10px', fontSize: '0.72rem', cursor: 'pointer', alignSelf: 'flex-start' }}>
-                + Adicionar RQE
-              </button>
-              {crmData.crm && <button onClick={() => setCrmOpen(false)} style={{ background: accentColor, border: 'none', color: '#fff', borderRadius: '8px', padding: '6px 14px', fontSize: '0.75rem', cursor: 'pointer', alignSelf: 'flex-end', fontWeight: 700 }}>Salvar</button>}
-            </div>
-          )}
-        </div>
-      )}
-
-      {/* Contador de item */}
-      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-        <span style={{ fontSize: '0.72rem', color: '#aaa', letterSpacing: '1.5px', textTransform: 'uppercase', fontWeight: 700 }}>Item {idx + 1} de {itens.length}</span>
-        <div style={{ display: 'flex', gap: '6px' }}>
-          {itens.map((_, i) => (
-            <button key={i} onClick={() => setIdx(i)} style={{ width: '8px', height: '8px', borderRadius: '50%', background: i === idx ? accentColor : '#ddd', border: 'none', cursor: 'pointer', padding: 0 }} />
-          ))}
-        </div>
-      </div>
-
       {/* Nome do item atual */}
       <div style={{ fontWeight: 700, fontSize: '1.1rem', color: '#1a1a1a' }}>{currentItem}</div>
 
       {/* Preview inline */}
       <div style={{ display: 'flex', justifyContent: 'center', paddingTop: '8px', paddingBottom: '8px' }}>
         {currentItem.includes('Cartão de Visita')
-          ? <CartaoDeVisitaPreview accentColor={accentColor} patternSrc={patternSrc} cartaoContacts={cartaoContacts} crmLine={crmLine} editData={{ ...editData, tagline: localSlogan }} logoColor={logoColor} comBorda={comBorda} setComBorda={setComBorda} clinicaNome={clinicaNome} setClinicaNome={setClinicaNome} logoLayout={logoLayout} paletteColors={paletteColors} borderColor={borderColor} setBorderColor={setBorderColor} patternScale={patternScale} setPatternScale={setPatternScale} retrato={cartaoRetrato} setRetrato={setCartaoRetrato} />
+          ? <CartaoDeVisitaPreview accentColor={accentColor} patternSrc={patternSrc} cartaoContacts={cartaoContacts} crmLine={crmLine} editData={{ ...itemEditData, tagline: localSlogan }} logoColor={logoColor} comBorda={comBorda} setComBorda={setComBorda} clinicaNome={clinicaNome} setClinicaNome={setClinicaNome} logoLayout={logoLayout} paletteColors={paletteColors} borderColor={borderColor} setBorderColor={setBorderColor} patternScale={patternScale} setPatternScale={setPatternScale} retrato={cartaoRetrato} setRetrato={setCartaoRetrato} />
           : currentItem.includes('Envelope Ofício')
-            ? <EnvelopeOficioPreview accentColor={accentColor} patternSrc={patternSrc} logoColor={logoColor} logoLayout={logoLayout} comBorda={comBorda} setComBorda={setComBorda} paletteColors={paletteColors} borderColor={borderColor} setBorderColor={setBorderColor} patternScale={patternScale} setPatternScale={setPatternScale} cartaoContacts={cartaoContacts} crmLine={crmLine} localSlogan={localSlogan} brand={brand} editData={editData} clinicaNome={clinicaNome} storyTemplateIdx={storyTemplateIdx} setStoryTemplateIdx={setStoryTemplateIdx} storyFormatIdx={storyFormatIdx} setStoryFormatIdx={setStoryFormatIdx} />
+            ? <EnvelopeOficioPreview accentColor={accentColor} patternSrc={patternSrc} logoColor={logoColor} logoLayout={logoLayout} comBorda={comBorda} setComBorda={setComBorda} paletteColors={paletteColors} borderColor={borderColor} setBorderColor={setBorderColor} patternScale={patternScale} setPatternScale={setPatternScale} cartaoContacts={cartaoContacts} crmLine={crmLine} localSlogan={localSlogan} brand={brand} editData={itemEditData} clinicaNome={clinicaNome} storyTemplateIdx={storyTemplateIdx} setStoryTemplateIdx={setStoryTemplateIdx} storyFormatIdx={storyFormatIdx} setStoryFormatIdx={setStoryFormatIdx} />
           : currentItem.includes('Envelope Saco')
-            ? <EnvelopeSacoPreview accentColor={accentColor} patternSrc={patternSrc} logoColor={logoColor} logoLayout={logoLayout} comBorda={comBorda} setComBorda={setComBorda} paletteColors={paletteColors} borderColor={borderColor} setBorderColor={setBorderColor} patternScale={patternScale} setPatternScale={setPatternScale} cartaoContacts={cartaoContacts} crmLine={crmLine} localSlogan={localSlogan} brand={brand} editData={editData} clinicaNome={clinicaNome} storyTemplateIdx={storyTemplateIdx} setStoryTemplateIdx={setStoryTemplateIdx} storyFormatIdx={storyFormatIdx} setStoryFormatIdx={setStoryFormatIdx} />
+            ? <EnvelopeSacoPreview accentColor={accentColor} patternSrc={patternSrc} logoColor={logoColor} logoLayout={logoLayout} comBorda={comBorda} setComBorda={setComBorda} paletteColors={paletteColors} borderColor={borderColor} setBorderColor={setBorderColor} patternScale={patternScale} setPatternScale={setPatternScale} cartaoContacts={cartaoContacts} crmLine={crmLine} localSlogan={localSlogan} brand={brand} editData={itemEditData} clinicaNome={clinicaNome} storyTemplateIdx={storyTemplateIdx} setStoryTemplateIdx={setStoryTemplateIdx} storyFormatIdx={storyFormatIdx} setStoryFormatIdx={setStoryFormatIdx} />
           : currentItem === 'Recibo'
-            ? <ReciboPreview accentColor={accentColor} patternSrc={patternSrc} cartaoContacts={cartaoContacts} crmLine={crmLine} editData={{ ...editData, tagline: localSlogan }} logoColor={logoColor} comBorda={comBorda} setComBorda={setComBorda} clinicaNome={clinicaNome} setClinicaNome={setClinicaNome} logoLayout={logoLayout} paletteColors={paletteColors} borderColor={borderColor} setBorderColor={setBorderColor} patternScale={patternScale} setPatternScale={setPatternScale} marca={marca} />
+            ? <ReciboPreview accentColor={accentColor} patternSrc={patternSrc} cartaoContacts={cartaoContacts} crmLine={crmLine} editData={{ ...itemEditData, tagline: localSlogan }} logoColor={logoColor} comBorda={comBorda} setComBorda={setComBorda} clinicaNome={clinicaNome} setClinicaNome={setClinicaNome} logoLayout={logoLayout} paletteColors={paletteColors} borderColor={borderColor} setBorderColor={setBorderColor} patternScale={patternScale} setPatternScale={setPatternScale} marca={marca} />
           : currentItem.includes('Cartão de Retorno')
-            ? <CartaoRetornoPreview accentColor={accentColor} patternSrc={patternSrc} cartaoContacts={cartaoContacts} crmLine={crmLine} editData={{ ...editData, tagline: localSlogan }} logoColor={logoColor} comBorda={comBorda} setComBorda={setComBorda} clinicaNome={clinicaNome} setClinicaNome={setClinicaNome} logoLayout={logoLayout} paletteColors={paletteColors} borderColor={borderColor} setBorderColor={setBorderColor} patternScale={patternScale} setPatternScale={setPatternScale} />
+            ? <CartaoRetornoPreview accentColor={accentColor} patternSrc={patternSrc} cartaoContacts={cartaoContacts} crmLine={crmLine} editData={{ ...itemEditData, tagline: localSlogan }} logoColor={logoColor} comBorda={comBorda} setComBorda={setComBorda} clinicaNome={clinicaNome} setClinicaNome={setClinicaNome} logoLayout={logoLayout} paletteColors={paletteColors} borderColor={borderColor} setBorderColor={setBorderColor} patternScale={patternScale} setPatternScale={setPatternScale} />
           : currentItem === 'Ficha de Cadastro'
-            ? <FichaCadastroPreview accentColor={accentColor} patternSrc={patternSrc} editData={{ ...editData, tagline: localSlogan }} logoColor={logoColor} logoLayout={logoLayout} cartaoContacts={cartaoContacts} crmLine={crmLine} clinicaNome={clinicaNome} comBorda={comBorda} setComBorda={setComBorda} paletteColors={paletteColors} borderColor={borderColor} setBorderColor={setBorderColor} patternScale={patternScale} setPatternScale={setPatternScale} />
+            ? <FichaCadastroPreview accentColor={accentColor} patternSrc={patternSrc} editData={{ ...itemEditData, tagline: localSlogan }} logoColor={logoColor} logoLayout={logoLayout} cartaoContacts={cartaoContacts} crmLine={crmLine} clinicaNome={clinicaNome} comBorda={comBorda} setComBorda={setComBorda} paletteColors={paletteColors} borderColor={borderColor} setBorderColor={setBorderColor} patternScale={patternScale} setPatternScale={setPatternScale} />
           : currentItem === 'Prontuário Médico'
-            ? <ProntuarioPreview accentColor={accentColor} patternSrc={patternSrc} editData={{ ...editData, tagline: localSlogan }} logoColor={logoColor} logoLayout={logoLayout} cartaoContacts={cartaoContacts} crmLine={crmLine} clinicaNome={clinicaNome} comBorda={comBorda} setComBorda={setComBorda} paletteColors={paletteColors} borderColor={borderColor} setBorderColor={setBorderColor} patternScale={patternScale} setPatternScale={setPatternScale} />
+            ? <ProntuarioPreview accentColor={accentColor} patternSrc={patternSrc} editData={{ ...itemEditData, tagline: localSlogan }} logoColor={logoColor} logoLayout={logoLayout} cartaoContacts={cartaoContacts} crmLine={crmLine} clinicaNome={clinicaNome} comBorda={comBorda} setComBorda={setComBorda} paletteColors={paletteColors} borderColor={borderColor} setBorderColor={setBorderColor} patternScale={patternScale} setPatternScale={setPatternScale} />
           : currentItem === 'Checklist Maternidade'
-            ? <ChecklistMaternidadePreview accentColor={accentColor} patternSrc={patternSrc} editData={{ ...editData, tagline: localSlogan }} logoColor={logoColor} logoLayout={logoLayout} cartaoContacts={cartaoContacts} crmLine={crmLine} clinicaNome={clinicaNome} comBorda={comBorda} setComBorda={setComBorda} paletteColors={paletteColors} borderColor={borderColor} setBorderColor={setBorderColor} patternScale={patternScale} setPatternScale={setPatternScale} />
+            ? <ChecklistMaternidadePreview accentColor={accentColor} patternSrc={patternSrc} editData={{ ...itemEditData, tagline: localSlogan }} logoColor={logoColor} logoLayout={logoLayout} cartaoContacts={cartaoContacts} crmLine={crmLine} clinicaNome={clinicaNome} comBorda={comBorda} setComBorda={setComBorda} paletteColors={paletteColors} borderColor={borderColor} setBorderColor={setBorderColor} patternScale={patternScale} setPatternScale={setPatternScale} />
           : currentItem.includes('Controle Especial')
-            ? <ControleEspecialPreview accentColor={accentColor} patternSrc={patternSrc} cartaoContacts={cartaoContacts} crmLine={crmLine} editData={{ ...editData, tagline: localSlogan }} logoColor={logoColor} comBorda={comBorda} setComBorda={setComBorda} clinicaNome={clinicaNome} setClinicaNome={setClinicaNome} logoLayout={logoLayout} paletteColors={paletteColors} borderColor={borderColor} setBorderColor={setBorderColor} patternScale={patternScale} setPatternScale={setPatternScale} marca={marca} />
+            ? <ControleEspecialPreview accentColor={accentColor} patternSrc={patternSrc} cartaoContacts={cartaoContacts} crmLine={crmLine} editData={{ ...itemEditData, tagline: localSlogan }} logoColor={logoColor} comBorda={comBorda} setComBorda={setComBorda} clinicaNome={clinicaNome} setClinicaNome={setClinicaNome} logoLayout={logoLayout} paletteColors={paletteColors} borderColor={borderColor} setBorderColor={setBorderColor} patternScale={patternScale} setPatternScale={setPatternScale} marca={marca} />
           : currentItem === 'Gráfico de Crescimento'
             ? <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', alignItems: 'center' }}>
                 <BordaToggle comBorda={comBorda} setComBorda={setComBorda} accentColor={accentColor} paletteColors={paletteColors} borderColor={borderColor} setBorderColor={setBorderColor} patternScale={patternScale} setPatternScale={setPatternScale} />
-                <GraficoCrescimentoPreview accentColor={accentColor} paletteColors={paletteColors} editData={editData} logoColor={logoColor} logoLayout={logoLayout} cartaoContacts={cartaoContacts} crmLine={crmLine} clinicaNome={clinicaNome} comBorda={comBorda} setComBorda={setComBorda} borderColor={borderColor} setBorderColor={setBorderColor} patternSrc={patternSrc} patternScale={patternScale} setPatternScale={setPatternScale} />
+                <GraficoCrescimentoPreview accentColor={accentColor} paletteColors={paletteColors} editData={itemEditData} logoColor={logoColor} logoLayout={logoLayout} cartaoContacts={cartaoContacts} crmLine={crmLine} clinicaNome={clinicaNome} comBorda={comBorda} setComBorda={setComBorda} borderColor={borderColor} setBorderColor={setBorderColor} patternSrc={patternSrc} patternScale={patternScale} setPatternScale={setPatternScale} />
               </div>
           : currentItem === 'Diário do Xixi'
-            ? <DiarioXixiPreview accentColor={accentColor} patternSrc={patternSrc} editData={{ ...editData, tagline: localSlogan }} logoColor={logoColor} logoLayout={logoLayout} cartaoContacts={cartaoContacts} crmLine={crmLine} clinicaNome={clinicaNome} comBorda={comBorda} setComBorda={setComBorda} paletteColors={paletteColors} borderColor={borderColor} setBorderColor={setBorderColor} patternScale={patternScale} setPatternScale={setPatternScale} />
+            ? <DiarioXixiPreview accentColor={accentColor} patternSrc={patternSrc} editData={{ ...itemEditData, tagline: localSlogan }} logoColor={logoColor} logoLayout={logoLayout} cartaoContacts={cartaoContacts} crmLine={crmLine} clinicaNome={clinicaNome} comBorda={comBorda} setComBorda={setComBorda} paletteColors={paletteColors} borderColor={borderColor} setBorderColor={setBorderColor} patternScale={patternScale} setPatternScale={setPatternScale} />
           : currentItem === 'Receita de Alta'
-            ? <ReceitaAltaPreview accentColor={accentColor} patternSrc={patternSrc} editData={{ ...editData, tagline: localSlogan }} logoColor={logoColor} logoLayout={logoLayout} cartaoContacts={cartaoContacts} crmLine={crmLine} clinicaNome={clinicaNome} comBorda={comBorda} setComBorda={setComBorda} paletteColors={paletteColors} borderColor={borderColor} setBorderColor={setBorderColor} patternScale={patternScale} setPatternScale={setPatternScale} receitaFields={receitaFields} setReceitaFields={setReceitaFields} />
+            ? <ReceitaAltaPreview accentColor={accentColor} patternSrc={patternSrc} editData={{ ...itemEditData, tagline: localSlogan }} logoColor={logoColor} logoLayout={logoLayout} cartaoContacts={cartaoContacts} crmLine={crmLine} clinicaNome={clinicaNome} comBorda={comBorda} setComBorda={setComBorda} paletteColors={paletteColors} borderColor={borderColor} setBorderColor={setBorderColor} patternScale={patternScale} setPatternScale={setPatternScale} receitaFields={receitaFields} setReceitaFields={setReceitaFields} />
           : currentItem === 'Arte para Caneca/Brindes' || currentItem === 'Arte para Caneca'
-            ? <CanecaPreview accentColor={accentColor} patternSrc={patternSrc} editData={{ ...editData, tagline: localSlogan }} logoColor={logoColor} logoLayout={logoLayout} cartaoContacts={cartaoContacts} crmLine={crmLine} clinicaNome={clinicaNome} comBorda={comBorda} setComBorda={setComBorda} paletteColors={paletteColors} borderColor={borderColor} setBorderColor={setBorderColor} patternScale={patternScale} setPatternScale={setPatternScale} />
+            ? <CanecaPreview accentColor={accentColor} patternSrc={patternSrc} editData={{ ...itemEditData, tagline: localSlogan }} logoColor={logoColor} logoLayout={logoLayout} cartaoContacts={cartaoContacts} crmLine={crmLine} clinicaNome={clinicaNome} comBorda={comBorda} setComBorda={setComBorda} paletteColors={paletteColors} borderColor={borderColor} setBorderColor={setBorderColor} patternScale={patternScale} setPatternScale={setPatternScale} />
           : currentItem === 'Papel de Presente'
             ? <PapelPresentePreview accentColor={accentColor} paletteColors={paletteColors} comBorda={comBorda} setComBorda={setComBorda} patternSrc={patternSrc} patternScale={patternScale} setPatternScale={setPatternScale} borderColor={borderColor} setBorderColor={setBorderColor} sizeIdx={papelPresenteSizeIdx} setSizeIdx={setPapelPresenteSizeIdx} />
           : currentItem === 'Tag para Sacola'
-            ? <TagSacolaPreview accentColor={accentColor} patternSrc={patternSrc} editData={{ ...editData, tagline: localSlogan }} logoColor={logoColor} logoLayout={logoLayout} cartaoContacts={cartaoContacts} crmLine={crmLine} clinicaNome={clinicaNome} comBorda={comBorda} setComBorda={setComBorda} paletteColors={paletteColors} borderColor={borderColor} setBorderColor={setBorderColor} patternScale={patternScale} setPatternScale={setPatternScale} sizeIdx={tagSacolaSizeIdx} setSizeIdx={setTagSacolaSizeIdx} />
+            ? <TagSacolaPreview accentColor={accentColor} patternSrc={patternSrc} editData={{ ...itemEditData, tagline: localSlogan }} logoColor={logoColor} logoLayout={logoLayout} cartaoContacts={cartaoContacts} crmLine={crmLine} clinicaNome={clinicaNome} comBorda={comBorda} setComBorda={setComBorda} paletteColors={paletteColors} borderColor={borderColor} setBorderColor={setBorderColor} patternScale={patternScale} setPatternScale={setPatternScale} sizeIdx={tagSacolaSizeIdx} setSizeIdx={setTagSacolaSizeIdx} />
           : currentItem === 'Sacola de Papel'
-            ? <SacolaPapelPreview accentColor={accentColor} patternSrc={patternSrc} editData={{ ...editData, tagline: localSlogan }} logoColor={logoColor} logoLayout={logoLayout} cartaoContacts={cartaoContacts} crmLine={crmLine} clinicaNome={clinicaNome} comBorda={comBorda} setComBorda={setComBorda} paletteColors={paletteColors} borderColor={borderColor} setBorderColor={setBorderColor} patternScale={patternScale} setPatternScale={setPatternScale} />
+            ? <SacolaPapelPreview accentColor={accentColor} patternSrc={patternSrc} editData={{ ...itemEditData, tagline: localSlogan }} logoColor={logoColor} logoLayout={logoLayout} cartaoContacts={cartaoContacts} crmLine={crmLine} clinicaNome={clinicaNome} comBorda={comBorda} setComBorda={setComBorda} paletteColors={paletteColors} borderColor={borderColor} setBorderColor={setBorderColor} patternScale={patternScale} setPatternScale={setPatternScale} />
           : currentItem === 'Etiqueta para Correios'
-            ? <EtiquetaCorreiosPreview accentColor={accentColor} patternSrc={patternSrc} editData={{ ...editData, tagline: localSlogan }} logoColor={logoColor} logoLayout={logoLayout} cartaoContacts={cartaoContacts} crmLine={crmLine} clinicaNome={clinicaNome} comBorda={comBorda} setComBorda={setComBorda} paletteColors={paletteColors} borderColor={borderColor} setBorderColor={setBorderColor} patternScale={patternScale} setPatternScale={setPatternScale} sizeIdx={etiquetaSizeIdx} setSizeIdx={setEtiquetaSizeIdx} fraseIdx={etiquetaFraseIdx} setFraseIdx={setEtiquetaFraseIdx} />
+            ? <EtiquetaCorreiosPreview accentColor={accentColor} patternSrc={patternSrc} editData={{ ...itemEditData, tagline: localSlogan }} logoColor={logoColor} logoLayout={logoLayout} cartaoContacts={cartaoContacts} crmLine={crmLine} clinicaNome={clinicaNome} comBorda={comBorda} setComBorda={setComBorda} paletteColors={paletteColors} borderColor={borderColor} setBorderColor={setBorderColor} patternScale={patternScale} setPatternScale={setPatternScale} sizeIdx={etiquetaSizeIdx} setSizeIdx={setEtiquetaSizeIdx} fraseIdx={etiquetaFraseIdx} setFraseIdx={setEtiquetaFraseIdx} />
           : currentItem === 'Meu Pratinho'
-            ? <MeuPratinhoPreview accentColor={accentColor} patternSrc={patternSrc} editData={{ ...editData, tagline: localSlogan }} logoColor={logoColor} logoLayout={logoLayout} cartaoContacts={cartaoContacts} crmLine={crmLine} clinicaNome={clinicaNome} comBorda={comBorda} setComBorda={setComBorda} paletteColors={paletteColors} borderColor={borderColor} setBorderColor={setBorderColor} patternScale={patternScale} setPatternScale={setPatternScale} />
+            ? <MeuPratinhoPreview accentColor={accentColor} patternSrc={patternSrc} editData={{ ...itemEditData, tagline: localSlogan }} logoColor={logoColor} logoLayout={logoLayout} cartaoContacts={cartaoContacts} crmLine={crmLine} clinicaNome={clinicaNome} comBorda={comBorda} setComBorda={setComBorda} paletteColors={paletteColors} borderColor={borderColor} setBorderColor={setBorderColor} patternScale={patternScale} setPatternScale={setPatternScale} />
           : currentItem === 'Guia de Amamentação'
             ? <GuiaAmamentacaoPreview brand={brand} logoColor={logoColor} logoLayout={logoLayout} comBorda={comBorda} setComBorda={setComBorda} patternSrc={patternSrc} patternScale={patternScale} setPatternScale={setPatternScale} accentColor={accentColor} borderColor={borderColor} setBorderColor={setBorderColor} paletteColors={paletteColors} cartaoContacts={cartaoContacts} crmLine={crmLine} illustrationsSrc="/breastfeeding-guide.png" folderRoof={folderRoof} />
           : currentItem === 'Guia de Cuidados'
-            ? <FolderTrifoldPreview brand={brand} logoColor={logoColor} logoLayout={logoLayout} comBorda={comBorda} setComBorda={setComBorda} patternSrc={patternSrc} patternScale={patternScale} setPatternScale={setPatternScale} accentColor={accentColor} borderColor={borderColor} setBorderColor={setBorderColor} paletteColors={paletteColors} title={currentItem} cartaoContacts={cartaoContacts} folderRoof={folderRoof} crmLine={crmLine} />
+            ? <FolderTrifoldPreview brand={brand} editData={itemEditData} logoColor={logoColor} logoLayout={logoLayout} comBorda={comBorda} setComBorda={setComBorda} patternSrc={patternSrc} patternScale={patternScale} setPatternScale={setPatternScale} accentColor={accentColor} borderColor={borderColor} setBorderColor={setBorderColor} paletteColors={paletteColors} title={currentItem} cartaoContacts={cartaoContacts} folderRoof={folderRoof} crmLine={crmLine} />
           : currentItem === 'Orientações p/ Recém Nascidos'
-            ? <OrientacoesRNPreview accentColor={accentColor} patternSrc={patternSrc} editData={editData} logoColor={logoColor} logoLayout={logoLayout} cartaoContacts={cartaoContacts} crmLine={crmLine} clinicaNome={clinicaNome} comBorda={comBorda} setComBorda={setComBorda} paletteColors={paletteColors} borderColor={borderColor} setBorderColor={setBorderColor} patternScale={patternScale} setPatternScale={setPatternScale}
+            ? <OrientacoesRNPreview accentColor={accentColor} patternSrc={patternSrc} editData={itemEditData} logoColor={logoColor} logoLayout={logoLayout} cartaoContacts={cartaoContacts} crmLine={crmLine} clinicaNome={clinicaNome} comBorda={comBorda} setComBorda={setComBorda} paletteColors={paletteColors} borderColor={borderColor} setBorderColor={setBorderColor} patternScale={patternScale} setPatternScale={setPatternScale}
                 rnFields={{ nomeBebe: rnNomeBebe, dataNasc: rnDataNasc, peso: rnPeso, altura: rnAltura, umbigo: rnUmbigo, soro: rnSoro, med1: rnMed1, dose1: rnDose1, int1: rnInt1, med2: rnMed2, dose2: rnDose2, int2: rnInt2, pomada: rnPomada, vitDMed: rnVitDMed, vitDDose: rnVitDDose, bcgData: rnBcgData, hepBData: rnHepBData, consultaData: rnConsultaData, consultaHora: rnConsultaHora, urgencia: rnUrgencia }}
                 setRnFields={{ setNomeBebe: setRnNomeBebe, setDataNasc: setRnDataNasc, setPeso: setRnPeso, setAltura: setRnAltura, setUmbigo: setRnUmbigo, setSoro: setRnSoro, setMed1: setRnMed1, setDose1: setRnDose1, setInt1: setRnInt1, setMed2: setRnMed2, setDose2: setRnDose2, setInt2: setRnInt2, setPomada: setRnPomada, setVitDMed: setRnVitDMed, setVitDDose: setRnVitDDose, setBcgData: setRnBcgData, setHepBData: setRnHepBData, setConsultaData: setRnConsultaData, setConsultaHora: setRnConsultaHora, setUrgencia: setRnUrgencia }}
               />
           : currentItem.includes('Pré-Natal')
-            ? <FolderA5Preview brand={brand} logoColor={logoColor} logoLayout={logoLayout} comBorda={comBorda} setComBorda={setComBorda} patternSrc={patternSrc} patternScale={patternScale} setPatternScale={setPatternScale} accentColor={accentColor} borderColor={borderColor} setBorderColor={setBorderColor} paletteColors={paletteColors} title={currentItem} cartaoContacts={cartaoContacts} crmLine={crmLine} folderRoof={folderRoof} />
+            ? <FolderA5Preview brand={brand} editData={itemEditData} logoColor={logoColor} logoLayout={logoLayout} comBorda={comBorda} setComBorda={setComBorda} patternSrc={patternSrc} patternScale={patternScale} setPatternScale={setPatternScale} accentColor={accentColor} borderColor={borderColor} setBorderColor={setBorderColor} paletteColors={paletteColors} title={currentItem} cartaoContacts={cartaoContacts} crmLine={crmLine} folderRoof={folderRoof} />
           : ['Guia Alimentar', 'Guia de Desenvolvimento', 'Guia de Vacina c/ Calendário', 'Cartão de Vacina', 'Guia do Sono'].some(n => currentItem === n)
-            ? <FolderTrifoldPreview brand={brand} logoColor={logoColor} logoLayout={logoLayout} comBorda={comBorda} setComBorda={setComBorda} patternSrc={patternSrc} patternScale={patternScale} setPatternScale={setPatternScale} accentColor={accentColor} borderColor={borderColor} setBorderColor={setBorderColor} paletteColors={paletteColors} title={currentItem} cartaoContacts={cartaoContacts} folderRoof={folderRoof} crmLine={crmLine} />
+            ? <FolderTrifoldPreview brand={brand} editData={itemEditData} logoColor={logoColor} logoLayout={logoLayout} comBorda={comBorda} setComBorda={setComBorda} patternSrc={patternSrc} patternScale={patternScale} setPatternScale={setPatternScale} accentColor={accentColor} borderColor={borderColor} setBorderColor={setBorderColor} paletteColors={paletteColors} title={currentItem} cartaoContacts={cartaoContacts} folderRoof={folderRoof} crmLine={crmLine} />
           : currentItem.includes('Atestado Médico')
-            ? <AtestadoPreview accentColor={accentColor} patternSrc={patternSrc} editData={{ ...editData, tagline: localSlogan }} logoColor={logoColor} logoLayout={logoLayout} crmLine={crmLine} clinicaNome={clinicaNome} marca={marca} cartaoContacts={cartaoContacts} comBorda={comBorda} setComBorda={setComBorda} paletteColors={paletteColors} borderColor={borderColor} setBorderColor={setBorderColor} patternScale={patternScale} setPatternScale={setPatternScale} />
+            ? <AtestadoPreview accentColor={accentColor} patternSrc={patternSrc} editData={{ ...itemEditData, tagline: localSlogan }} logoColor={logoColor} logoLayout={logoLayout} crmLine={crmLine} clinicaNome={clinicaNome} marca={marca} cartaoContacts={cartaoContacts} comBorda={comBorda} setComBorda={setComBorda} paletteColors={paletteColors} borderColor={borderColor} setBorderColor={setBorderColor} patternScale={patternScale} setPatternScale={setPatternScale} folderRoof={folderRoof} setFolderRoof={setFolderRoof} paperSize={paperSize} setPaperSize={setPaperSize} />
           : currentItem.includes('Pasta')
-            ? <PastaPreview brand={brand} editData={{ ...editData, tagline: localSlogan }} accentColor={accentColor} solidColor={paletteColors[0]} logoColor={logoColor} logoLayout={logoLayout} isSaude={isSaude} crmLine={crmLine} clinicaNome={clinicaNome} cartaoContacts={cartaoContacts} comBorda={comBorda} setComBorda={setComBorda} patternSrc={patternSrc} paletteColors={paletteColors} borderColor={borderColor} setBorderColor={setBorderColor} patternScale={patternScale} setPatternScale={setPatternScale} folderRoof={folderRoof} />
+            ? <PastaPreview brand={brand} editData={{ ...itemEditData, tagline: localSlogan }} accentColor={accentColor} solidColor={paletteColors[0]} logoColor={logoColor} logoLayout={logoLayout} isSaude={isSaude} crmLine={crmLine} clinicaNome={clinicaNome} cartaoContacts={cartaoContacts} comBorda={comBorda} setComBorda={setComBorda} patternSrc={patternSrc} paletteColors={paletteColors} borderColor={borderColor} setBorderColor={setBorderColor} patternScale={patternScale} setPatternScale={setPatternScale} folderRoof={folderRoof} />
           : currentItem === 'Papel Timbrado'
-            ? <PapelTimbradoPreview brand={brand} editData={editData} accentColor={accentColor} patternSrc={patternSrc} logoColor={logoColor} logoLayout={logoLayout} comBorda={comBorda} setComBorda={setComBorda} paletteColors={paletteColors} borderColor={borderColor} setBorderColor={setBorderColor} patternScale={patternScale} setPatternScale={setPatternScale} cartaoContacts={cartaoContacts} crmLine={crmLine} localSlogan={localSlogan} clinicaNome={clinicaNome} storyTemplateIdx={storyTemplateIdx} setStoryTemplateIdx={setStoryTemplateIdx} storyFormatIdx={storyFormatIdx} setStoryFormatIdx={setStoryFormatIdx} />
+            ? <PapelTimbradoPreview brand={brand} editData={itemEditData} accentColor={accentColor} patternSrc={patternSrc} logoColor={logoColor} logoLayout={logoLayout} comBorda={comBorda} setComBorda={setComBorda} paletteColors={paletteColors} borderColor={borderColor} setBorderColor={setBorderColor} patternScale={patternScale} setPatternScale={setPatternScale} cartaoContacts={cartaoContacts} crmLine={crmLine} localSlogan={localSlogan} clinicaNome={clinicaNome} storyTemplateIdx={storyTemplateIdx} setStoryTemplateIdx={setStoryTemplateIdx} storyFormatIdx={storyFormatIdx} setStoryFormatIdx={setStoryFormatIdx} />
           : currentItem === 'Pack Digital para Instagram'
-            ? <FundoInstaPreview brand={brand} editData={editData} accentColor={accentColor} patternSrc={patternSrc} logoColor={logoColor} logoLayout={logoLayout} comBorda={comBorda} setComBorda={setComBorda} paletteColors={paletteColors} borderColor={borderColor} setBorderColor={setBorderColor} patternScale={patternScale} setPatternScale={setPatternScale} cartaoContacts={cartaoContacts} crmLine={crmLine} localSlogan={localSlogan} clinicaNome={clinicaNome} storyTemplateIdx={storyTemplateIdx} setStoryTemplateIdx={setStoryTemplateIdx} storyFormatIdx={storyFormatIdx} setStoryFormatIdx={setStoryFormatIdx} />
+            ? <FundoInstaPreview brand={brand} editData={itemEditData} accentColor={accentColor} patternSrc={patternSrc} logoColor={logoColor} logoLayout={logoLayout} comBorda={comBorda} setComBorda={setComBorda} paletteColors={paletteColors} borderColor={borderColor} setBorderColor={setBorderColor} patternScale={patternScale} setPatternScale={setPatternScale} cartaoContacts={cartaoContacts} crmLine={crmLine} localSlogan={localSlogan} clinicaNome={clinicaNome} storyTemplateIdx={storyTemplateIdx} setStoryTemplateIdx={setStoryTemplateIdx} storyFormatIdx={storyFormatIdx} setStoryFormatIdx={setStoryFormatIdx} />
           : currentItem === 'Assinatura de E-mail'
-            ? <AssinaturaEmailPreview brand={brand} editData={editData} accentColor={accentColor} logoColor={logoColor} logoLayout={logoLayout} cartaoContacts={cartaoContacts} crmLine={crmLine} localSlogan={localSlogan} clinicaNome={clinicaNome} storyTemplateIdx={storyTemplateIdx} setStoryTemplateIdx={setStoryTemplateIdx} storyFormatIdx={storyFormatIdx} setStoryFormatIdx={setStoryFormatIdx} />
+            ? <AssinaturaEmailPreview brand={brand} editData={itemEditData} accentColor={accentColor} logoColor={logoColor} logoLayout={logoLayout} cartaoContacts={cartaoContacts} crmLine={crmLine} localSlogan={localSlogan} clinicaNome={clinicaNome} storyTemplateIdx={storyTemplateIdx} setStoryTemplateIdx={setStoryTemplateIdx} storyFormatIdx={storyFormatIdx} setStoryFormatIdx={setStoryFormatIdx} />
           : currentItem.includes('Certificado')
-            ? <CertificadoCoragemPreview accentColor={accentColor} patternSrc={patternSrc} editData={{ ...editData, tagline: localSlogan }} logoColor={logoColor} logoLayout={logoLayout} cartaoContacts={cartaoContacts} crmLine={crmLine} clinicaNome={clinicaNome} comBorda={comBorda} setComBorda={setComBorda} paletteColors={paletteColors} borderColor={borderColor} setBorderColor={setBorderColor} patternScale={patternScale} setPatternScale={setPatternScale} />
+            ? <CertificadoCoragemPreview accentColor={accentColor} patternSrc={patternSrc} editData={{ ...itemEditData, tagline: localSlogan }} logoColor={logoColor} logoLayout={logoLayout} cartaoContacts={cartaoContacts} crmLine={crmLine} clinicaNome={clinicaNome} comBorda={comBorda} setComBorda={setComBorda} paletteColors={paletteColors} borderColor={borderColor} setBorderColor={setBorderColor} patternScale={patternScale} setPatternScale={setPatternScale} />
           : ['Receituário','Timbrado','Cartão','Guia','Calendário','Atestado','Dicas','Ficha','Orientação','Checklist','Prontuário','Receita','Quadro','Gráfico','Diário','Card','Pratinho','Fundo','Arte','Etiqueta','Assinatura','Tag'].some(n => currentItem.includes(n))
-            ? <A5ItemPreview accentColor={accentColor} patternSrc={patternSrc} editData={{ ...editData, tagline: localSlogan }} logoColor={logoColor} logoLayout={logoLayout} cartaoContacts={cartaoContacts} crmLine={crmLine} clinicaNome={clinicaNome} comBorda={comBorda} setComBorda={setComBorda} paletteColors={paletteColors} borderColor={borderColor} setBorderColor={setBorderColor} patternScale={patternScale} setPatternScale={setPatternScale} />
-          : <GenericItemPreview item={currentItem} marca={marca} accentColor={accentColor} patternSrc={patternSrc} editData={{ ...editData, tagline: localSlogan }} logoColor={logoColor} logoLayout={logoLayout} comBorda={comBorda} setComBorda={setComBorda} paletteColors={paletteColors} borderColor={borderColor} setBorderColor={setBorderColor} patternScale={patternScale} setPatternScale={setPatternScale} />
+            ? <A5ItemPreview accentColor={accentColor} patternSrc={patternSrc} editData={{ ...itemEditData, tagline: localSlogan }} logoColor={logoColor} logoLayout={logoLayout} cartaoContacts={cartaoContacts} crmLine={crmLine} clinicaNome={clinicaNome} comBorda={comBorda} setComBorda={setComBorda} paletteColors={paletteColors} borderColor={borderColor} setBorderColor={setBorderColor} patternScale={patternScale} setPatternScale={setPatternScale} folderRoof={folderRoof} setFolderRoof={['Receituário','Atestado','Recibo','Ficha','Prontuário','Certificado','Checklist'].some(n => currentItem.includes(n)) ? setFolderRoof : undefined} paperSize={['Receituário','Recibo','Ficha','Prontuário','Certificado','Checklist'].some(n => currentItem.includes(n)) ? paperSize : undefined} setPaperSize={['Receituário','Recibo','Ficha','Prontuário','Certificado','Checklist'].some(n => currentItem.includes(n)) ? setPaperSize : undefined} />
+          : <GenericItemPreview item={currentItem} marca={marca} accentColor={accentColor} patternSrc={patternSrc} editData={{ ...itemEditData, tagline: localSlogan }} logoColor={logoColor} logoLayout={logoLayout} comBorda={comBorda} setComBorda={setComBorda} paletteColors={paletteColors} borderColor={borderColor} setBorderColor={setBorderColor} patternScale={patternScale} setPatternScale={setPatternScale} />
         }
       </div>
 
@@ -5590,7 +5672,7 @@ ${fontImports2}
           </div>
         )}
 
-        {marca.split(' ').length > 1 && (
+        {!customLogoSrc && marca.split(' ').length > 1 && (
           <div style={{ display: 'flex', justifyContent: 'center', gap: '6px' }}>
             {['horizontal', 'balanced', 'stacked'].map(l => (
               <button
@@ -5607,6 +5689,15 @@ ${fontImports2}
                 {l === 'horizontal' ? '⟵→' : l === 'balanced' ? '⊟' : '≡'} {l.charAt(0).toUpperCase() + l.slice(1)}
               </button>
             ))}
+          </div>
+        )}
+        {customLogoSrc && (
+          <div style={{ display: 'flex', alignItems: 'center', gap: '10px', padding: '4px 0' }}>
+            <span style={{ fontSize: '0.68rem', color: '#999', fontWeight: 600, fontFamily: 'Montserrat,sans-serif', whiteSpace: 'nowrap' }}>Tamanho da logo</span>
+            <input type="range" min="10" max="200" step="5" value={getCustomLogoScale(currentItem)}
+              onChange={e => setCustomLogoScale(currentItem, parseInt(e.target.value))}
+              style={{ flex: 1, accentColor }} />
+            <span style={{ fontSize: '0.68rem', color: '#aaa', width: '32px' }}>{getCustomLogoScale(currentItem)}%</span>
           </div>
         )}
       </div>
@@ -5630,14 +5721,36 @@ ${fontImports2}
               </div>
 
               <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '4px', paddingBottom: '8px', borderBottom: '1px solid #eee' }}>
-                <span style={{ fontSize: '0.72rem', color: '#888', width: '74px', flexShrink: 0 }}>Clínica</span>
+                <span style={{ fontSize: '0.72rem', color: '#888', width: '74px', flexShrink: 0 }}>Empresa</span>
                 <input
                   value={clinicaNome}
                   onChange={e => setClinicaNome(e.target.value)}
-                  placeholder="Nome no verso (opcional)"
+                  placeholder="Nome complementar (opcional)"
                   style={{ flex: 1, padding: '6px 10px', fontSize: '0.8rem', border: '1px solid #e0e0e0', borderRadius: '8px', outline: 'none' }}
                 />
               </div>
+              {isSaude && (
+                <div style={{ paddingBottom: '8px', borderBottom: '1px solid #eee', display: 'flex', flexDirection: 'column', gap: '7px' }}>
+                  <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+                    <span style={{ fontSize: '0.72rem', color: '#888', width: '74px', flexShrink: 0 }}>CRM /</span>
+                    <input value={crmData.uf} onChange={e => setCrmData(d => ({ ...d, uf: e.target.value.toUpperCase().slice(0, 2) }))} placeholder="UF"
+                      style={{ width: '44px', padding: '6px', fontSize: '0.8rem', border: '1px solid #e0e0e0', borderRadius: '8px', textAlign: 'center', outline: 'none' }} />
+                    <input value={crmData.crm} onChange={e => setCrmData(d => ({ ...d, crm: e.target.value }))} placeholder="Número"
+                      style={{ flex: 1, padding: '6px', fontSize: '0.8rem', border: '1px solid #e0e0e0', borderRadius: '8px', outline: 'none' }} />
+                  </div>
+                  {crmData.rqe.map((r, i) => (
+                    <div key={i} style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+                      <span style={{ fontSize: '0.72rem', color: '#888', width: '74px', flexShrink: 0 }}>RQE</span>
+                      <input value={r} onChange={e => setCrmData(d => { const rqe = [...d.rqe]; rqe[i] = e.target.value; return { ...d, rqe }; })} placeholder="Número"
+                        style={{ flex: 1, padding: '6px', fontSize: '0.8rem', border: '1px solid #e0e0e0', borderRadius: '8px', outline: 'none' }} />
+                      <button onClick={() => setCrmData(d => ({ ...d, rqe: d.rqe.filter((_, j) => j !== i) }))} style={{ background: 'none', border: 'none', color: '#c00', fontSize: '1rem', cursor: 'pointer' }}>×</button>
+                    </div>
+                  ))}
+                  <button onClick={() => setCrmData(d => ({ ...d, rqe: [...d.rqe, ''] }))} style={{ background: 'none', border: '1px dashed #ddd', color: '#888', borderRadius: '8px', padding: '4px 10px', fontSize: '0.72rem', cursor: 'pointer', alignSelf: 'flex-start' }}>
+                    + Adicionar RQE
+                  </button>
+                </div>
+              )}
               {[
                 { key: 'telefone', label: 'Telefone' },
                 { key: 'telefone2', label: 'Telefone 2' },
@@ -5691,6 +5804,10 @@ ${fontImports2}
         
         if (isAmamentacaoModal) {
           spec = { cat: 'Folder Sanfonado', tam: 'DL (8 páginas - 10x20cm)', papel: 'Couché ou Cartão 150g+', acabamento: '3 dobras (sanfonado)', preco: '~R$280,00 / 250 un.' };
+        }
+        // A4 upgrade para itens que suportam
+        if (spec && paperSize === 'a4' && ['Receituário', 'Recibo', 'Ficha', 'Prontuário', 'Certificado', 'Checklist', 'Atestado'].some(n => pendingItem?.includes(n))) {
+          spec = { ...spec, tam: 'A4 (21 × 29,7 cm)' };
         }
 
         return (
@@ -5752,25 +5869,12 @@ ${fontImports2}
         {currentItem === 'Pack Digital para Instagram' ? `Baixar ${(INSTA_FORMATS[storyFormatIdx]||INSTA_FORMATS[0]).id === 'post' ? 'Post' : 'Story'} — PNG / JPG →` : currentItem === 'Assinatura de E-mail' ? 'Baixar Assinatura — PNG →' : 'Baixar PDF Padrão Gráfica →'}
       </button>
 
-      {/* Navegação prev/next */}
-      <div style={{ display: 'flex', gap: '10px' }}>
-        {idx > 0 && (
-          <button onClick={() => setIdx(idx - 1)} style={{ flex: 1, padding: '12px', background: 'none', border: '1px solid #e0e0e0', borderRadius: '30px', fontWeight: 600, fontSize: '0.85rem', cursor: 'pointer', color: '#888' }}>
-            ← {itens[idx - 1]}
-          </button>
-        )}
-        {idx < itens.length - 1 && (
-          <button onClick={() => setIdx(idx + 1)} style={{ flex: 1, padding: '12px', background: 'none', border: '1px solid #e0e0e0', borderRadius: '30px', fontWeight: 600, fontSize: '0.85rem', cursor: 'pointer', color: '#888' }}>
-            {itens[idx + 1]} →
-          </button>
-        )}
-      </div>
-
-      {/* Upsell: itens ainda não adquiridos */}
+      {/* Upsell: só no último item */}
       {(() => {
+        const isLastItem = idx === itens.length - 1;
         const todosDisponiveis = [...PAPELARIA_GERAL, ...(isSaude ? PAPELARIA_MEDICA : []), ...(isSaude ? DIGITAIS_MEDICOS : [])];
         const faltando = todosDisponiveis.filter(i => !itens.includes(i));
-        if (faltando.length === 0) return null;
+        if (!isLastItem || faltando.length === 0) return null;
         return (
           <div style={{ marginTop: '8px', padding: '16px 18px', background: '#f9f9f9', border: '1px solid #eee', borderRadius: '16px' }}>
             <div style={{ fontSize: '0.72rem', fontWeight: 800, color: '#bbb', textTransform: 'uppercase', letterSpacing: '1px', fontFamily: 'Montserrat,sans-serif', marginBottom: '10px' }}>
@@ -5833,6 +5937,36 @@ function EntregaContent({ brand, plano }) {
   const [storyFormatIdx, setStoryFormatIdx] = useState(0);
   const [papelariaNavIdx, setPapelariaNavIdx] = useState(0);
   const [papelariaNavItens, setPapelariaNavItens] = useState([]);
+  const [customLogoSrc, setCustomLogoSrcState] = useState(() => { try { return localStorage.getItem('brandbox_custom_logo') || null; } catch { return null; } });
+  const setCustomLogoSrc = (v) => { setCustomLogoSrcState(v); try { if (v) localStorage.setItem('brandbox_custom_logo', v); else localStorage.removeItem('brandbox_custom_logo'); } catch {} };
+  const [customLogoScaleMap, setCustomLogoScaleMapState] = useState(() => {
+    try { return JSON.parse(localStorage.getItem('brandbox_custom_logo_scales') || '{}'); } catch { return {}; }
+  });
+  const LOGO_SCALE_DEFAULTS = {
+    'Envelope Saco': 135,
+    'Pasta A4 Exclusiva': 65,
+    'Receituário Padrão': 85, 'Receituário de Controle Especial': 85,
+    'Atestado Médico': 85, 'Recibo': 85, 'Cartão de Retorno': 85,
+    'Ficha de Cadastro': 85, 'Prontuário Médico': 85,
+    'Certificado de Coragem': 85,
+  };
+  const getCustomLogoScale = (item) => customLogoScaleMap[item] ?? (LOGO_SCALE_DEFAULTS[item] || 100);
+  const getCustomLogoScaleMax = () => 200;
+  const setCustomLogoScale = (item, v) => {
+    setCustomLogoScaleMapState(prev => {
+      const next = { ...prev, [item]: v };
+      try { localStorage.setItem('brandbox_custom_logo_scales', JSON.stringify(next)); } catch {}
+      return next;
+    });
+  };
+  // para aba logo (sem item específico) usa default geral
+  const customLogoScale = getCustomLogoScale('Cartão de Visita');
+  const [customLogoWarn, setCustomLogoWarn] = useState(null);
+  // editData enriquecido com logo customizada — flui automaticamente para LogoPreviewHTML via editData
+  const editDataWithLogo = React.useMemo(() => ({
+    ...brand.editData,
+    ...(customLogoSrc ? { customLogoSrc, customLogoScale } : {}),
+  }), [brand.editData, customLogoSrc, customLogoScale]);
   const currentIdx = estampaSelectedIdx || 0;
   const patternSrc = estampaPatterns?.[currentIdx] ? `data:${estampaPatterns[currentIdx].mimeType};base64,${estampaPatterns[currentIdx].base64}` : null;
   const [cartaoContacts, setCartaoContacts] = useState(() => { try { return JSON.parse(localStorage.getItem('brandbox_cartao') || '{}').contacts || { telefone: '', whatsapp: '', email: '', site: '', instagram: '', endereco: '', telefone2: '' }; } catch { return { telefone: '', whatsapp: '', email: '', site: '', instagram: '', endereco: '', telefone2: '' }; } });
@@ -5874,7 +6008,7 @@ function EntregaContent({ brand, plano }) {
     try {
       const canvas = await html2canvas(coresRef.current, { scale: 3, useCORS: true, backgroundColor: '#faf9f7' });
       const link = document.createElement('a');
-      link.download = `${marca || 'marca'}-paleta-cores.png`;
+      link.download = `Paleta-de-Cores_${marca || 'marca'}.png`;
       link.href = canvas.toDataURL('image/png');
       link.click();
     } finally {
@@ -5967,7 +6101,7 @@ function EntregaContent({ brand, plano }) {
     try {
       const canvas = await html2canvas(el, { scale: 4, useCORS: true, backgroundColor: bgColor });
       const link = document.createElement('a');
-      link.download = `${marca || 'logo'}-com-fundo.png`;
+      link.download = `Logo_com-fundo_${marca || 'marca'}.png`;
       link.href = canvas.toDataURL('image/png');
       link.click();
     } finally {
@@ -5985,7 +6119,7 @@ function EntregaContent({ brand, plano }) {
       const canvas = await html2canvas(el, { scale: 4, useCORS: true, backgroundColor: null });
       el.style.background = prev;
       const link = document.createElement('a');
-      link.download = `${marca || 'logo'}-sem-fundo.png`;
+      link.download = `Logo_transparente_${marca || 'marca'}.png`;
       link.href = canvas.toDataURL('image/png');
       link.click();
     } catch {
@@ -6021,21 +6155,21 @@ function EntregaContent({ brand, plano }) {
         </div>
 
         {/* Área da estampa */}
-        {step === 'estampa' && <EstampaStep brand={brand} accentColor={accentColor} marca={marca} patterns={estampaPatterns} setPatterns={setEstampaPatterns} genCount={estampaGenCount} setGenCount={setEstampaGenCount} selectedIdx={estampaSelectedIdx} setSelectedIdx={setEstampaSelectedIdx} paletteColors={paletteColors} />}
+        {step === 'estampa' && <EstampaStep brand={brand} accentColor={accentColor} marca={marca} patterns={estampaPatterns} setPatterns={setEstampaPatterns} genCount={estampaGenCount} setGenCount={setEstampaGenCount} selectedIdx={estampaSelectedIdx} setSelectedIdx={setEstampaSelectedIdx} paletteColors={paletteColors} patternScale={patternScale} setPatternScale={setPatternScale} />}
 
         {/* Área das cores */}
         {step === 'cores' && <CoresStep paletteColors={paletteColors} accentColor={accentColor} paletaNome={paletas?.find(p => p.id === brand.selectedPaleta)?.nome_variacao} coresRef={coresRef} />}
 
         {/* Cartão digital */}
-        {step === 'cartao' && <CartaoStep brand={brand} accentColor={accentColor} paletteColors={paletteColors} marca={marca} estampaPatterns={estampaPatterns} estampaSelectedIdx={estampaSelectedIdx} contacts={cartaoContacts} setContacts={setCartaoContacts} qrLink={cartaoQrLink} setQrLink={setCartaoQrLink} showQR={cartaoShowQR} setShowQR={setCartaoShowQR} logoLayout={logoLayout} editData={editData} logoColor={logoColor} setLayout={setLayout} />}
-        {step === 'pack-instagram' && <FundoInstaPreview brand={brand} editData={editData} accentColor={accentColor} patternSrc={patternSrc} logoColor={logoColor} logoLayout={logoLayout} comBorda={comBorda} setComBorda={setComBorda} paletteColors={paletteColors} borderColor={borderColor} setBorderColor={setBorderColor} patternScale={patternScale} setPatternScale={setPatternScale} cartaoContacts={cartaoContacts} crmLine={crmLine} localSlogan={localSlogan} clinicaNome={clinicaNome} storyTemplateIdx={storyTemplateIdx} setStoryTemplateIdx={setStoryTemplateIdx} storyFormatIdx={storyFormatIdx} setStoryFormatIdx={setStoryFormatIdx} />}
-        {step === 'assinatura-email' && <AssinaturaEmailPreview brand={brand} editData={editData} accentColor={accentColor} logoColor={logoColor} logoLayout={logoLayout} cartaoContacts={cartaoContacts} crmLine={crmLine} localSlogan={localSlogan} clinicaNome={clinicaNome} storyTemplateIdx={storyTemplateIdx} setStoryTemplateIdx={setStoryTemplateIdx} storyFormatIdx={storyFormatIdx} setStoryFormatIdx={setStoryFormatIdx} />}
+        {step === 'cartao' && <CartaoStep brand={brand} accentColor={accentColor} paletteColors={paletteColors} marca={marca} estampaPatterns={estampaPatterns} estampaSelectedIdx={estampaSelectedIdx} contacts={cartaoContacts} setContacts={setCartaoContacts} qrLink={cartaoQrLink} setQrLink={setCartaoQrLink} showQR={cartaoShowQR} setShowQR={setCartaoShowQR} logoLayout={logoLayout} editData={editDataWithLogo} logoColor={logoColor} setLayout={setLayout} />}
+        {step === 'pack-instagram' && <FundoInstaPreview brand={brand} editData={editDataWithLogo} accentColor={accentColor} patternSrc={patternSrc} logoColor={logoColor} logoLayout={logoLayout} comBorda={comBorda} setComBorda={setComBorda} paletteColors={paletteColors} borderColor={borderColor} setBorderColor={setBorderColor} patternScale={patternScale} setPatternScale={setPatternScale} cartaoContacts={cartaoContacts} crmLine={crmLine} localSlogan={localSlogan} clinicaNome={clinicaNome} storyTemplateIdx={storyTemplateIdx} setStoryTemplateIdx={setStoryTemplateIdx} storyFormatIdx={storyFormatIdx} setStoryFormatIdx={setStoryFormatIdx} />}
+        {step === 'assinatura-email' && <AssinaturaEmailPreview brand={brand} editData={editDataWithLogo} accentColor={accentColor} logoColor={logoColor} logoLayout={logoLayout} cartaoContacts={cartaoContacts} crmLine={crmLine} localSlogan={localSlogan} clinicaNome={clinicaNome} storyTemplateIdx={storyTemplateIdx} setStoryTemplateIdx={setStoryTemplateIdx} storyFormatIdx={storyFormatIdx} setStoryFormatIdx={setStoryFormatIdx} />}
 
         {/* Guia da marca */}
-        {step === 'guia' && <GuiaStep brand={brand} accentColor={accentColor} paletteColors={paletteColors} marca={marca} tagline={tagline} estampaPatterns={estampaPatterns} estampaSelectedIdx={estampaSelectedIdx} editData={editData} />}
+        {step === 'guia' && <GuiaStep brand={brand} accentColor={accentColor} paletteColors={paletteColors} marca={marca} tagline={tagline} estampaPatterns={estampaPatterns} estampaSelectedIdx={estampaSelectedIdx} editData={editDataWithLogo} />}
 
         {/* Papelaria / Gabaritos */}
-        {step === 'papelaria' && <PapelariaStep brand={brand} accentColor={accentColor} paletteColors={paletteColors} estampaPatterns={estampaPatterns} estampaSelectedIdx={estampaSelectedIdx} cartaoContacts={cartaoContacts} setCartaoContacts={setCartaoContacts} plano={plano} isSaude={isSaude} crmData={crmData} setCrmData={setCrmData} marca={marca} editData={editData} logoColor={logoColor} logoLayout={logoLayout} setLayout={setLayout} clinicaNome={clinicaNome} setClinicaNome={setClinicaNome} onNavSync={setPapelariaNavItens} navIdx={papelariaNavIdx} setNavIdx={setPapelariaNavIdx} />}
+        {step === 'papelaria' && <PapelariaStep brand={brand} accentColor={accentColor} paletteColors={paletteColors} estampaPatterns={estampaPatterns} estampaSelectedIdx={estampaSelectedIdx} cartaoContacts={cartaoContacts} setCartaoContacts={setCartaoContacts} plano={plano} isSaude={isSaude} crmData={crmData} setCrmData={setCrmData} marca={marca} editData={editDataWithLogo} logoColor={logoColor} logoLayout={logoLayout} setLayout={setLayout} clinicaNome={clinicaNome} setClinicaNome={setClinicaNome} onNavSync={setPapelariaNavItens} navIdx={papelariaNavIdx} setNavIdx={setPapelariaNavIdx} customLogoSrc={customLogoSrc} getCustomLogoScale={getCustomLogoScale} setCustomLogoScale={setCustomLogoScale} getCustomLogoScaleMax={getCustomLogoScaleMax} />}
 
         {/* Área da logo */}
         {step !== 'estampa' && step !== 'cores' && step !== 'cartao' && step !== 'guia' && step !== 'papelaria' && step !== 'pack-instagram' && step !== 'assinatura-email' && <div
@@ -6052,7 +6186,7 @@ function EntregaContent({ brand, plano }) {
         >
           <div style={{ width: '68%', height: '68%' }}>
             {step === 'logo'
-              ? <LogoPreviewHTML editData={editData} color={logoColor} layout={logoLayout} />
+              ? <LogoPreviewHTML editData={editDataWithLogo} color={logoColor} layout={logoLayout} />
               : <BrandTemplateSVG
                   data={seloData}
                   color={logoColor}
@@ -6068,8 +6202,120 @@ function EntregaContent({ brand, plano }) {
         {step !== 'estampa' && step !== 'cores' && step !== 'cartao' && step !== 'guia' && step !== 'papelaria' && step !== 'pack-instagram' && step !== 'assinatura-email' &&
         <div style={{ marginTop: '1.4rem', display: 'flex', flexDirection: 'column', gap: '1rem' }}>
 
-          {/* Editar texto */}
-          <div>
+          {/* Upload logo própria */}
+          {step === 'logo' && (
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+              <SectionLabel>Usar logo própria</SectionLabel>
+              <div style={{ display: 'flex', gap: '6px' }}>
+                <button
+                  onClick={() => { setCustomLogoSrc(null); setCustomLogoWarn(null); }}
+                  style={{ flex: 1, padding: '10px 8px', border: `1.5px solid ${!customLogoSrc ? accentColor : '#e0e0e0'}`, borderRadius: '12px', cursor: 'pointer', textAlign: 'center', fontSize: '0.75rem', fontWeight: 700, fontFamily: 'Montserrat,sans-serif', background: !customLogoSrc ? `${accentColor}12` : '#fff', color: !customLogoSrc ? accentColor : '#aaa', transition: 'all 0.15s' }}
+                >
+                  ✨ Logo sugerida
+                </button>
+                <label style={{ flex: 1, padding: '10px 8px', border: `1.5px solid ${customLogoSrc ? accentColor : '#e0e0e0'}`, borderRadius: '12px', cursor: 'pointer', textAlign: 'center', fontSize: '0.75rem', fontWeight: 700, fontFamily: 'Montserrat,sans-serif', background: customLogoSrc ? `${accentColor}12` : '#fff', color: customLogoSrc ? accentColor : '#aaa', transition: 'all 0.15s' }}>
+                  {customLogoSrc ? '✓ Minha logo' : '+ Minha logo'}
+                  <input type="file" accept="image/png" style={{ display: 'none' }} onClick={e => { e.target.value = null; }} onChange={e => {
+                    const file = e.target.files[0];
+                    if (!file) return;
+                    if (file.type !== 'image/png') {
+                      setCustomLogoWarn('Por favor envie um arquivo PNG.');
+                      return;
+                    }
+                    if (file.size > 5 * 1024 * 1024) {
+                      setCustomLogoWarn('Arquivo muito grande (máx. 5MB). Otimize o PNG e tente novamente.');
+                      return;
+                    }
+                    const reader = new FileReader();
+                    reader.onload = ev => {
+                      const src = ev.target.result;
+                      // Verifica fundo transparente via canvas
+                      const img = new Image();
+                      img.onload = () => {
+                        const minDim = Math.min(img.width, img.height);
+                        if (minDim < 500) {
+                          setCustomLogoWarn(`Imagem muito pequena (${img.width}×${img.height}px). Envie pelo menos 500×500px para garantir qualidade na impressão.`);
+                          return;
+                        }
+                        const canvas = document.createElement('canvas');
+                        canvas.width = img.width; canvas.height = img.height;
+                        const ctx = canvas.getContext('2d');
+                        ctx.drawImage(img, 0, 0);
+                        const pts = [
+                          [0, 0], [img.width - 1, 0], [0, img.height - 1], [img.width - 1, img.height - 1],
+                          [Math.floor(img.width / 2), 0], [Math.floor(img.width / 2), img.height - 1],
+                        ];
+                        const hasOpaqueCorner = pts.some(([x, y]) => ctx.getImageData(x, y, 1, 1).data[3] > 20);
+                        const warn = hasOpaqueCorner
+                          ? '⚠️ A logo parece ter fundo. Para melhor resultado, use PNG com fundo transparente.'
+                          : minDim < 1000
+                          ? `✓ Logo carregada (${img.width}×${img.height}px). Para impressão de alta qualidade, recomendamos acima de 1000px.`
+                          : null;
+                        setCustomLogoWarn(warn);
+
+                        // Auto-trim: remove espaço transparente ao redor da logo
+                        if (!hasOpaqueCorner) {
+                          const data = ctx.getImageData(0, 0, img.width, img.height).data;
+                          let top = img.height, bottom = 0, left = img.width, right = 0;
+                          for (let y = 0; y < img.height; y++) {
+                            for (let x = 0; x < img.width; x++) {
+                              if (data[(y * img.width + x) * 4 + 3] > 10) {
+                                if (y < top) top = y;
+                                if (y > bottom) bottom = y;
+                                if (x < left) left = x;
+                                if (x > right) right = x;
+                              }
+                            }
+                          }
+                          if (right > left && bottom > top) {
+                            const pad = Math.round(Math.max(img.width, img.height) * 0.02);
+                            const tx = Math.max(0, left - pad), ty = Math.max(0, top - pad);
+                            const tw = Math.min(img.width, right + pad) - tx;
+                            const th = Math.min(img.height, bottom + pad) - ty;
+                            const trimCanvas = document.createElement('canvas');
+                            trimCanvas.width = tw; trimCanvas.height = th;
+                            const trimCtx = trimCanvas.getContext('2d');
+                            trimCtx.drawImage(canvas, tx, ty, tw, th, 0, 0, tw, th);
+                            // Remove pixels quase-brancos das bordas (fundo branco residual)
+                            const trimData = trimCtx.getImageData(0, 0, tw, th);
+                            const d = trimData.data;
+                            for (let i = 0; i < d.length; i += 4) {
+                              if (d[i] > 240 && d[i+1] > 240 && d[i+2] > 240 && d[i+3] > 200) {
+                                d[i+3] = 0; // torna transparente
+                              }
+                            }
+                            trimCtx.putImageData(trimData, 0, 0);
+                            setCustomLogoSrc(trimCanvas.toDataURL('image/png'));
+                            return;
+                          }
+                        }
+                        setCustomLogoSrc(src);
+                      };
+                      img.src = src;
+                    };
+                    reader.readAsDataURL(file);
+                  }} />
+                </label>
+              </div>
+              {customLogoWarn && (
+                <div style={{ fontSize: '0.72rem', color: '#b87000', background: '#fff8e1', border: '1px solid #ffe082', borderRadius: '8px', padding: '8px 12px', fontFamily: 'Montserrat,sans-serif', lineHeight: 1.4 }}>
+                  {customLogoWarn}
+                </div>
+              )}
+              {customLogoSrc && (
+                <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                  <span style={{ fontSize: '0.68rem', color: '#999', fontWeight: 600, fontFamily: 'Montserrat,sans-serif', whiteSpace: 'nowrap' }}>Escala</span>
+                  <input type="range" min="10" max="200" step="5" value={customLogoScale}
+                    onChange={e => setCustomLogoScale(parseInt(e.target.value))}
+                    style={{ flex: 1, accentColor }} />
+                  <span style={{ fontSize: '0.68rem', color: '#aaa', width: '32px' }}>{customLogoScale}%</span>
+                </div>
+              )}
+            </div>
+          )}
+
+          {/* Editar texto — esconde quando logo própria ativa */}
+          {!customLogoSrc && <div>
             <button
               onClick={() => setShowEdit(v => !v)}
               style={{ background: 'none', border: 'none', padding: 0, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '6px' }}
@@ -6092,10 +6338,10 @@ function EntregaContent({ brand, plano }) {
                 />
               </div>
             )}
-          </div>
+          </div>}
 
           {/* Layout da logo */}
-          {step === 'logo' && marca.split(' ').length > 1 && (
+          {!customLogoSrc && step === 'logo' && marca.split(' ').length > 1 && (
             <div>
               <SectionLabel>Layout</SectionLabel>
               <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap' }}>
@@ -6197,89 +6443,26 @@ function EntregaContent({ brand, plano }) {
               <button
                 onClick={downloadTransparent}
                 disabled={!!downloading}
-                style={{ flex: 1, padding: '14px 8px', background: '#1a1a1a', color: '#fff', border: 'none', borderRadius: '12px', fontWeight: 700, fontSize: '0.8rem', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', opacity: downloading === 'png' ? 0.6 : 1 }}
+                style={{ flex: 1, padding: '14px 8px', background: accentColor, color: '#fff', border: 'none', borderRadius: '30px', fontWeight: 700, fontSize: '0.85rem', cursor: 'pointer', opacity: downloading === 'png' ? 0.6 : 1 }}
               >
-                {downloading === 'png' ? '...' : <><span style={{ fontSize: '1.1rem' }}>⬇</span> PNG Transparente</>}
+                {downloading === 'png' ? '...' : 'PNG Transparente →'}
               </button>
               <button
                 onClick={downloadComFundo}
                 disabled={!!downloading}
-                style={{ flex: 1, padding: '14px 8px', background: '#fff', color: '#1a1a1a', border: '2px solid #1a1a1a', borderRadius: '12px', fontWeight: 700, fontSize: '0.8rem', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', opacity: downloading === 'fundo' ? 0.6 : 1 }}
+                style={{ flex: 1, padding: '14px 8px', background: 'none', color: accentColor, border: `2px solid ${accentColor}`, borderRadius: '30px', fontWeight: 700, fontSize: '0.85rem', cursor: 'pointer', opacity: downloading === 'fundo' ? 0.6 : 1 }}
               >
-                {downloading === 'fundo' ? '...' : <><span style={{ fontSize: '1.1rem' }}>⬇</span> Com Fundo</>}
+                {downloading === 'fundo' ? '...' : 'Com Fundo →'}
               </button>
             </div>
           )}
 
           {step === 'cores' && (
-            <button onClick={downloadCoresPNG} disabled={downloadingCores} style={{ width: '100%', padding: '14px', background: '#1a1a1a', color: '#fff', border: 'none', borderRadius: '12px', fontWeight: 700, fontSize: '0.85rem', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '10px', opacity: downloadingCores ? 0.6 : 1 }}>
-              {downloadingCores ? '...' : <><span style={{ fontSize: '1.1rem' }}>⬇</span> Baixar Paleta de Cores (PNG)</>}
+            <button onClick={downloadCoresPNG} disabled={downloadingCores} style={{ width: '100%', padding: '14px', background: accentColor, color: '#fff', border: 'none', borderRadius: '30px', fontWeight: 700, fontSize: '0.95rem', cursor: 'pointer', opacity: downloadingCores ? 0.6 : 1 }}>
+              {downloadingCores ? '...' : 'Baixar Paleta de Cores (PNG) →'}
             </button>
           )}
 
-          {/* BOTÃO DE NAVEGAÇÃO (CONECTOR) */}
-          <div style={{ marginTop: '5px' }}>
-            {step === 'logo' && (
-              <button onClick={() => setStep('submarca')} style={{ width: '100%', padding: '13px', background: `${accentColor}20`, color: accentColor, border: 'none', borderRadius: '30px', fontWeight: 700, fontSize: '0.9rem', cursor: 'pointer' }}>
-                Próximo: Submarca →
-              </button>
-            )}
-            {step === 'submarca' && (
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-                <button onClick={() => setStep('estampa')} style={{ width: '100%', padding: '13px', background: `${accentColor}20`, color: accentColor, border: 'none', borderRadius: '30px', fontWeight: 700, fontSize: '0.9rem', cursor: 'pointer' }}>
-                  Próximo: Estampa →
-                </button>
-                <button onClick={() => setStep('logo')} style={{ width: '100%', padding: '8px', background: 'none', color: '#bbb', border: 'none', fontSize: '0.75rem', fontWeight: 600, cursor: 'pointer' }}>
-                  ← Voltar para a logo
-                </button>
-              </div>
-            )}
-            {step === 'estampa' && (
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-                <button onClick={() => setStep('cores')} style={{ width: '100%', padding: '13px', background: `${accentColor}20`, color: accentColor, border: 'none', borderRadius: '30px', fontWeight: 700, fontSize: '0.9rem', cursor: 'pointer' }}>
-                  Próximo: Cores →
-                </button>
-                <button onClick={() => setStep('submarca')} style={{ width: '100%', padding: '8px', background: 'none', color: '#bbb', border: 'none', fontSize: '0.75rem', fontWeight: 600, cursor: 'pointer' }}>
-                  ← Voltar para a submarca
-                </button>
-              </div>
-            )}
-            {step === 'cores' && (
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-                <button onClick={() => setStep('cartao')} style={{ width: '100%', padding: '13px', background: `${accentColor}20`, color: accentColor, border: 'none', borderRadius: '30px', fontWeight: 700, fontSize: '0.9rem', cursor: 'pointer' }}>
-                  Próximo: Cartão Digital →
-                </button>
-                <button onClick={() => setStep('estampa')} style={{ width: '100%', padding: '8px', background: 'none', color: '#bbb', border: 'none', fontSize: '0.75rem', fontWeight: 600, cursor: 'pointer' }}>
-                  ← Voltar para a estampa
-                </button>
-              </div>
-            )}
-            {step === 'cartao' && (
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-                <button onClick={() => setStep(plano === 'pro' ? 'papelaria' : 'guia')} style={{ width: '100%', padding: '13px', background: `${accentColor}20`, color: accentColor, border: 'none', borderRadius: '30px', fontWeight: 700, fontSize: '0.9rem', cursor: 'pointer' }}>
-                  {plano === 'pro' ? 'Próximo: Papelaria →' : 'Próximo: Guia da Marca →'}
-                </button>
-                <button onClick={() => setStep('cores')} style={{ width: '100%', padding: '8px', background: 'none', color: '#bbb', border: 'none', fontSize: '0.75rem', fontWeight: 600, cursor: 'pointer' }}>
-                  ← Voltar para as cores
-                </button>
-              </div>
-            )}
-            {step === 'papelaria' && (
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-                <button onClick={() => setStep('guia')} style={{ width: '100%', padding: '13px', background: `${accentColor}20`, color: accentColor, border: 'none', borderRadius: '30px', fontWeight: 700, fontSize: '0.9rem', cursor: 'pointer' }}>
-                  Próximo: Guia da Marca →
-                </button>
-                <button onClick={() => setStep('cartao')} style={{ width: '100%', padding: '8px', background: 'none', color: '#bbb', border: 'none', fontSize: '0.75rem', fontWeight: 600, cursor: 'pointer' }}>
-                  ← Voltar para o cartão
-                </button>
-              </div>
-            )}
-            {step === 'guia' && (
-              <button onClick={() => setStep(plano === 'pro' ? 'papelaria' : 'cartao')} style={{ width: '100%', padding: '10px', background: 'none', color: '#999', border: '1px solid #ddd', borderRadius: '30px', fontWeight: 600, fontSize: '0.8rem', cursor: 'pointer' }}>
-                {plano === 'pro' ? '← Voltar para a papelaria' : '← Voltar para o cartão'}
-              </button>
-            )}
-          </div>
         </div>
 
         {/* Link de reset para testes */}

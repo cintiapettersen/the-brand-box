@@ -12,7 +12,27 @@ export const PDFStyles = {
 /**
  * Gera a estrutura HTML da Logo para o PDF
  */
-export const genPDFLogoHtml = ({ brand, color, localSlogan, crmLine, fontPt, lineH, letterSp, hideSlogan = false, crmSize = '5pt', sloganSize = null, layout = 'stacked' }) => {
+export const genPDFLogoHtml = ({ brand, color, localSlogan, crmLine, fontPt, lineH, letterSp, hideSlogan = false, crmSize = '5pt', sloganSize = null, layout = 'stacked', customLogoSrc = null, customLogoScale = 100, maxWidth = null, maxHeight = null, withBackground = false }) => {
+  const finalLogoSrc = customLogoSrc || brand.editData?.customLogoSrc || null;
+  const finalLogoScale = customLogoSrc ? customLogoScale : (brand.editData?.customLogoScale || 100);
+
+  const wrapperStyle = `display:flex; align-items:center; justify-content:center; ${maxWidth ? `width:${maxWidth};` : 'width:100%;'} ${maxHeight ? `height:${maxHeight};` : ''}`;
+
+  if (finalLogoSrc) {
+    if (withBackground) {
+      return `
+        <div style="display:inline-flex; align-items:center; justify-content:center; background:rgba(255,255,255,0.92); padding:2px 6px; border-radius:4px; width:fit-content; max-width:${maxWidth || `${finalLogoScale}%`}; max-height:${maxHeight || '100%'}; overflow:hidden; box-sizing:border-box; line-height:0;">
+          <img src="${finalLogoSrc}" style="max-width:100%; max-height:100%; width:auto; height:auto; object-fit:contain; display:block;" />
+        </div>
+      `;
+    }
+    return `
+      <div style="${wrapperStyle}">
+        <img src="${finalLogoSrc}" style="max-width:${finalLogoScale}%; max-height:${finalLogoScale}%; width:auto; height:auto; object-fit:contain; display:block;" />
+      </div>
+    `;
+  }
+
   const brandFont = `'${brand.editData?.fontFamily || 'Playfair Display'}', serif`;
   const isScript = brand.editData?.fontStyle === 'script';
   const marca = brand.name || brand.editData?.marca || 'Marca';
@@ -39,12 +59,18 @@ export const genPDFLogoHtml = ({ brand, color, localSlogan, crmLine, fontPt, lin
   
   const crmPart = crmLine ? `<div style="${PDFStyles.montserrat} font-size:${crmSize}; letter-spacing:1pt; text-transform:uppercase; color:#bbb; margin-top:4pt; text-align:center; opacity:0.8;">${crmLine}</div>` : '';
 
-  return `
+  const finalLogo = `
     <div style="display:flex; flex-direction:${isStacked ? 'column' : 'row'}; align-items:center; justify-content:center; gap:${isStacked ? '0' : '5mm'};">
       ${logoMain}
       ${isStacked ? sloganPart + crmPart : `<div style="display:flex; flex-direction:column; align-items:flex-start;">${sloganPart}${crmPart}</div>`}
     </div>
   `;
+
+  if (withBackground) {
+    return `<div style="display:inline-flex; align-items:center; justify-content:center; background:rgba(255,255,255,0.92); padding:4px 8px; border-radius:4px; width:fit-content; max-width:${maxWidth || '100%'}; max-height:${maxHeight || '100%'}; overflow:hidden; box-sizing:border-box;">${finalLogo}</div>`;
+  }
+
+  return finalLogo;
 };
 
 /**
@@ -126,11 +152,11 @@ export const genPDFFooter = ({ clinicaNome, endereco, allPhones, email, site, in
   <div style="position:absolute; bottom:8mm; left:18mm; right:18mm; background:#fff; border:0.15mm solid ${accentColor}20; border-radius:1.5mm; padding:4.5mm; z-index:4; display:flex; align-items:center; justify-content:${logoHtml ? 'space-between' : 'center'}; box-shadow:0 0.5mm 2mm rgba(0,0,0,0.05); min-height:24mm;">
       
       ${logoHtml ? `
-      <div style="display:flex; flex-direction:column; align-items:center; gap:2mm; width:35%; overflow:visible;">
-          <div style="width:100%; text-align:center; transform:scale(1.4); transform-origin:center center; margin-bottom:-10mm;">
+      <div style="display:flex; flex-direction:column; align-items:center; justify-content:center; width:45mm; min-height:18mm;">
+          <div style="width:100%; display:flex; justify-content:center;">
             ${logoHtml}
           </div>
-          ${crmLine ? `<div style="${PDFStyles.montserrat} font-size:6.5pt; color:#999; text-transform:uppercase; letter-spacing:0.5px; margin-top:12mm; text-align:center;">${crmLine}</div>` : ''}
+          ${crmLine ? `<div style="${PDFStyles.montserrat} font-size:6.5pt; color:#999; text-transform:uppercase; letter-spacing:0.5px; margin-top:2mm; text-align:center;">${crmLine}</div>` : ''}
       </div>
       ` : ''}
 

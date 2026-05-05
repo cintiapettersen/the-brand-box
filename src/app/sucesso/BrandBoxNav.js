@@ -15,7 +15,7 @@ export default function BrandBoxNav({ step, setStep, plano, papelariaItens = [],
 
   const marcaItems = [
     { id: 'logo', label: 'Logo' },
-    { id: 'submarca', label: 'Selo', planOnly: 'personalizado' },
+    { id: 'submarca', label: 'Selo', planOnly: 'pro' },
     { id: 'estampa', label: 'Estampa' },
     { id: 'cores', label: 'Cores' },
     { id: 'guia', label: 'Manifesto' },

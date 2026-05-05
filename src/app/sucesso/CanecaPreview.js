@@ -14,8 +14,15 @@ const CIRCLE_FLAT = Math.round(CIRCLE_BASE * 1.35); // arte flat ligeiramente ma
 const LOGO_SF     = +(CIRCLE_BASE * 0.0065).toFixed(2); // ex: 78 → 0.51
 const LOGO_SF_F   = +(CIRCLE_FLAT * 0.0065).toFixed(2);
 
-// LogoBg: círculo exato atrás da logo
-function LogoBg({ children, solidColor, size = 80 }) {
+// LogoBg: círculo exato atrás da logo (omitido quando logo customizada)
+function LogoBg({ children, solidColor, size = 80, hideCircle = false }) {
+  if (hideCircle) {
+    return (
+      <div style={{ width: size, height: size, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+        {children}
+      </div>
+    );
+  }
   return (
     <div style={{ position: 'relative', width: size, height: size, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
       <div style={{ position: 'absolute', inset: 0, background: `${solidColor}d0`, borderRadius: '50%' }} />
@@ -31,6 +38,7 @@ export default function CanecaPreview({
 }) {
   const solidColor = borderColor || accentColor;
   const usePattern = comBorda && patternSrc;
+  const hasCustomLogo = !!editData?.customLogoSrc;
 
   // Dimensões do mockup
   const MW = 500;
@@ -75,7 +83,7 @@ export default function CanecaPreview({
               }
               {/* Círculo sempre visível — cor sólida no fundo sólido, solidColor no padrão */}
               <div style={{ position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%)', textAlign: 'center' }}>
-                <LogoBg solidColor={usePattern ? solidColor : 'rgba(255,255,255,0.22)'} size={CIRCLE_BASE}>
+                <LogoBg solidColor={usePattern ? solidColor : 'rgba(255,255,255,0.22)'} size={CIRCLE_BASE} hideCircle={hasCustomLogo}>
                   <LogoPreviewHTML editData={editData} color="#ffffff" layout="stacked" scaleFactor={LOGO_SF} hideTagline={true} />
                 </LogoBg>
               </div>
@@ -119,7 +127,7 @@ export default function CanecaPreview({
           {/* Logo repetida 2× — frente e verso do wrap */}
           {['25%', '75%'].map(left => (
             <div key={left} style={{ position: 'absolute', top: '50%', left, transform: 'translate(-50%, -50%)', textAlign: 'center' }}>
-              <LogoBg solidColor={usePattern ? solidColor : 'rgba(255,255,255,0.22)'} size={CIRCLE_FLAT}>
+              <LogoBg solidColor={usePattern ? solidColor : 'rgba(255,255,255,0.22)'} size={CIRCLE_FLAT} hideCircle={hasCustomLogo}>
                 <LogoPreviewHTML editData={editData} color="#ffffff" layout="stacked" scaleFactor={LOGO_SF_F} hideTagline={true} />
               </LogoBg>
             </div>

@@ -87,20 +87,23 @@ export default function PrenatalPage1({ accentColor, palette = [], logoComponent
         {/* Tagline Area (Standardized) - Closer now */}
         <div style={{ 
           marginTop: '3px',
-          padding: '2px 10px',
+          padding: '2px 8px',
           background: (palette[0] || accentColor) + '20',
           borderRadius: '20px',
           border: `0.5px solid ${(palette[0] || accentColor) + '40'}`,
-          maxWidth: '85%'
+          maxWidth: '82%',
+          overflow: 'hidden'
         }}>
           <div style={{ 
-            fontSize: '4.8px', 
-            fontWeight: 800, 
-            color: palette[0] || accentColor, 
+            fontSize: '4.5px',
+            fontWeight: 800,
+            color: palette[0] || accentColor,
             letterSpacing: '0.3px',
-            fontFamily: '"Myriad Pro Condensed", "MyriadPro-Cond", sans-serif',
+            fontFamily: "'Montserrat', sans-serif",
             textTransform: 'uppercase',
-            whiteSpace: 'nowrap'
+            whiteSpace: 'nowrap',
+            textAlign: 'center',
+            lineHeight: 1.1
           }}>
             {displayTagline}
           </div>
