@@ -14,21 +14,23 @@ export const PDFStyles = {
  */
 export const genPDFLogoHtml = ({ brand, color, localSlogan, crmLine, fontPt, lineH, letterSp, hideSlogan = false, crmSize = '5pt', sloganSize = null, layout = 'stacked', customLogoSrc = null, customLogoScale = 100, maxWidth = null, maxHeight = null, withBackground = false }) => {
   const finalLogoSrc = customLogoSrc || brand.editData?.customLogoSrc || null;
-  const finalLogoScale = customLogoSrc ? customLogoScale : (brand.editData?.customLogoScale || 100);
+  const customLogoScaleValue = customLogoSrc ? customLogoScale : (brand.editData?.customLogoScale || 100);
+  const customBaseScale = brand.editData?.customBaseScale || 1;
+  const finalLogoScale = customLogoScaleValue * customBaseScale;
 
   const wrapperStyle = `display:flex; align-items:center; justify-content:center; ${maxWidth ? `width:${maxWidth};` : 'width:100%;'} ${maxHeight ? `height:${maxHeight};` : ''}`;
 
   if (finalLogoSrc) {
     if (withBackground) {
       return `
-        <div style="display:inline-flex; align-items:center; justify-content:center; background:rgba(255,255,255,0.92); padding:2px 6px; border-radius:4px; width:fit-content; max-width:${maxWidth || `${finalLogoScale}%`}; max-height:${maxHeight || '100%'}; overflow:hidden; box-sizing:border-box; line-height:0;">
+        <div style="display:inline-flex; align-items:center; justify-content:center; background:rgba(255,255,255,0.92); padding:2px 4px; border-radius:4px; width:fit-content; max-width:${maxWidth || `${finalLogoScale}%`}; max-height:${maxHeight || '100%'}; overflow:hidden; box-sizing:border-box; line-height:0;">
           <img src="${finalLogoSrc}" style="max-width:100%; max-height:100%; width:auto; height:auto; object-fit:contain; display:block;" />
         </div>
       `;
     }
     return `
       <div style="${wrapperStyle}">
-        <img src="${finalLogoSrc}" style="max-width:${finalLogoScale}%; max-height:${finalLogoScale}%; width:auto; height:auto; object-fit:contain; display:block;" />
+        <img src="${finalLogoSrc}" style="width:${finalLogoScale}%; height:auto; object-fit:contain; display:block;" />
       </div>
     `;
   }
@@ -67,7 +69,7 @@ export const genPDFLogoHtml = ({ brand, color, localSlogan, crmLine, fontPt, lin
   `;
 
   if (withBackground) {
-    return `<div style="display:inline-flex; align-items:center; justify-content:center; background:rgba(255,255,255,0.92); padding:4px 8px; border-radius:4px; width:fit-content; max-width:${maxWidth || '100%'}; max-height:${maxHeight || '100%'}; overflow:hidden; box-sizing:border-box;">${finalLogo}</div>`;
+    return `<div style="display:inline-flex; align-items:center; justify-content:center; background:rgba(255,255,255,0.92); padding:2px 4px; border-radius:4px; width:fit-content; max-width:${maxWidth || '100%'}; max-height:${maxHeight || '100%'}; overflow:hidden; box-sizing:border-box;">${finalLogo}</div>`;
   }
 
   return finalLogo;

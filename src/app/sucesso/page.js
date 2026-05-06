@@ -52,12 +52,35 @@ const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
 );
 
+export const ITEM_CUSTOM_BASE_SCALES = {
+  'Envelope Saco': 1.35,
+  'Pasta A4 Exclusiva': 0.65,
+  'Receituário Padrão': 0.85, 
+  'Receituário de Controle Especial': 1.1, // 110% as requested
+  'Atestado Médico': 0.85, 'Recibo': 0.85, 'Cartão de Retorno': 0.85,
+  'Ficha de Cadastro': 0.85, 'Prontuário Médico': 0.85,
+  'Certificado de Coragem': 0.85,
+  // Folders with scale(1.95) wrapper on cover: (0.51 * ideal)
+  'Guia Alimentar': 0.69,
+  'Guia de Cuidados': 0.69,
+  'Guia de Desenvolvimento': 0.69, // Mesma proporção
+  'Cartão de Exame Pré-Natal': 0.43, // 0.51 * 85%
+  'Guia do Sono': 0.69,
+  
+  // Other requested specific adjustments:
+  'Checklist Maternidade': 0.70,
+  'Envelope Saco': 1.42, // 1.35 * 105%
+  'Envelope Ofício': 0.85,
+  'Etiqueta para Correios': 0.75,
+  'Tag para Sacola': 0.70,
+};
+
 export function LogoPreviewHTML({ editData, color, layout = 'stacked', scaleFactor = 1, crm = null, hideTagline = false, customLogoSrc: customLogoSrcProp = null, customLogoScale: customLogoScaleProp = 100, maxWidth = null, maxHeight = null, withBackground = false }) {
   const customLogoSrc = customLogoSrcProp || editData?.customLogoSrc || null;
   const customLogoScale = customLogoSrcProp ? customLogoScaleProp : (editData?.customLogoScale || 100);
   
   if (customLogoSrc) {
-    const finalScale = customLogoScale * scaleFactor;
+    const finalScale = customLogoScale;
     const imgStyle = { maxWidth: '100%', maxHeight: '100%', width: 'auto', height: 'auto', objectFit: 'contain', display: 'block' };
     
     if (withBackground) {
@@ -67,11 +90,11 @@ export function LogoPreviewHTML({ editData, color, layout = 'stacked', scaleFact
           alignItems: 'center',
           justifyContent: 'center',
           background: 'rgba(255,255,255,0.92)',
-          padding: '4px 8px',
+          padding: '2px 4px',
           borderRadius: '4px',
           boxSizing: 'border-box',
         }}>
-          <img src={customLogoSrc} alt="logo" style={{ width: `${customLogoScale}%`, height: 'auto', display: 'block' }} />
+          <img src={customLogoSrc} alt="logo" style={{ width: `${finalScale}%`, height: 'auto', display: 'block' }} />
         </div>
       );
     }
@@ -81,7 +104,7 @@ export function LogoPreviewHTML({ editData, color, layout = 'stacked', scaleFact
         <img
           src={customLogoSrc}
           alt="logo"
-          style={{ maxWidth: `${customLogoScale}%`, maxHeight: `${customLogoScale}%`, width: 'auto', height: 'auto', objectFit: 'contain', display: 'block', mixBlendMode: 'multiply' }}
+          style={{ maxWidth: `${finalScale}%`, maxHeight: `${finalScale}%`, width: 'auto', height: 'auto', objectFit: 'contain', display: 'block', mixBlendMode: 'multiply' }}
         />
       </div>
     );
@@ -3154,7 +3177,7 @@ function PapelariaStep({ brand, accentColor, paletteColors, estampaPatterns, est
   const currentItem = itens[Math.min(idx, itens.length - 1)];
   // editData com scale correto para o item atual (sobrescreve customLogoScale)
   const itemEditData = customLogoSrc && getCustomLogoScale
-    ? { ...editData, customLogoScale: getCustomLogoScale(currentItem) }
+    ? { ...editData, customLogoScale: getCustomLogoScale(currentItem) * (ITEM_CUSTOM_BASE_SCALES[currentItem] || 1) }
     : editData;
   const patternSrc = estampaPatterns?.[currentIdx] ? `data:${estampaPatterns[currentIdx].mimeType};base64,${estampaPatterns[currentIdx].base64}` : null;
   const isScript = editData?.fontStyle === 'script';
@@ -3226,7 +3249,7 @@ function PapelariaStep({ brand, accentColor, paletteColors, estampaPatterns, est
     
     const localSlogan = editData?.tagline || brand.editData?.tagline || '';
     
-    const logoHtmlWithCrm = genPDFLogoHtml({ brand, color: accentColor, localSlogan, crmLine, fontPt: _fontPt, lineH: _lineH, letterSp: _letterSp, customLogoSrc, customLogoScale: getCustomLogoScale(item), maxWidth: '65mm', maxHeight: '32mm' });
+    const logoHtmlWithCrm = genPDFLogoHtml({ brand, color: accentColor, localSlogan, crmLine, fontPt: _fontPt, lineH: _lineH, letterSp: _letterSp, customLogoSrc, customLogoScale: getCustomLogoScale(item) * (ITEM_CUSTOM_BASE_SCALES[item] || 1), maxWidth: '65mm', maxHeight: '32mm' });
     const logoHtml = logoHtmlWithCrm;
 
     // Determinar componentes
@@ -3412,7 +3435,7 @@ ${renderPage('menino','verso')}
 
       const sec = (label, color, content) => `<div style="margin-bottom:6mm;"><div>${lbl(label,color)}</div><div style="font-size:9pt;color:#444;line-height:1.5;margin-top:1.5mm;font-weight:500;">${content}</div></div>`;
       const bul = (text) => `<div style="display:flex;gap:1.5mm;margin-bottom:1.2mm;"><span style="color:${c0rn};font-weight:900;">•</span><span style="font-size:7.5pt;color:#444;line-height:1.4;">${text}</span></div>`;
-      const logoHtmlRN = genPDFLogoHtml({ brand, color: '#fff', localSlogan, crmLine, fontPt: 18, lineH: 1.1, letterSp: '0.5pt', hideSlogan: true, crmSize: '0', customLogoSrc, customLogoScale: getCustomLogoScale(item), maxWidth: '60mm', maxHeight: '25mm' });
+      const logoHtmlRN = genPDFLogoHtml({ brand, color: '#fff', localSlogan, crmLine, fontPt: 18, lineH: 1.1, letterSp: '0.5pt', hideSlogan: true, crmSize: '0', customLogoSrc, customLogoScale: getCustomLogoScale(item) * (ITEM_CUSTOM_BASE_SCALES[item] || 1), maxWidth: '60mm', maxHeight: '25mm' });
 
       const html = `<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Orientações RN - ${marca}</title>${fiRN}
 <style>* { box-sizing:border-box; margin:0; padding:0; print-color-adjust:exact !important; -webkit-print-color-adjust:exact !important; }
@@ -3702,7 +3725,7 @@ body { width: 480mm; height: 380mm; position: relative; overflow: hidden; backgr
           <div style="position:absolute;top:${BLEED}mm;left:${BLEED}mm;right:${BLEED}mm;bottom:${BLEED}mm;display:flex;align-items:center;justify-content:center;">
             <div style="background:#fff;padding:2.5mm 4mm;border-radius:1.5mm;max-width:${_logoW};display:flex;flex-direction:column;align-items:center;justify-content:center;">
               <div style="width:100%; height:100%; display:flex; justify-content:center; align-items:center;">
-                ${genPDFLogoHtml({ brand, color: accentColor, localSlogan, crmLine, fontPt: 14, lineH: _lineH, letterSp: _letterSp, customLogoSrc, customLogoScale: getCustomLogoScale(item), maxWidth: '40mm', maxHeight: '18mm' })}
+                ${genPDFLogoHtml({ brand, color: accentColor, localSlogan, crmLine, fontPt: 14, lineH: _lineH, letterSp: _letterSp, customLogoSrc, customLogoScale: getCustomLogoScale(item) * (ITEM_CUSTOM_BASE_SCALES[item] || 1), maxWidth: '40mm', maxHeight: '18mm' })}
               </div>
             </div>
           </div>
@@ -3937,7 +3960,7 @@ body { width:${totalW}mm; height:${totalH}mm; position:relative; overflow:hidden
                 </div>
               </div>
               <div style="width:70mm; height:35mm; display:flex; justify-content:flex-end; align-items:center; margin-top:5mm;">
-                ${genPDFLogoHtml({ brand, color: accentColor, localSlogan, crmLine, fontPt: 28, lineH: _lineH, letterSp: _letterSp, customLogoSrc, customLogoScale: getCustomLogoScale(item), maxWidth: '70mm', maxHeight: '35mm' })}
+                ${genPDFLogoHtml({ brand, color: accentColor, localSlogan, crmLine, fontPt: 28, lineH: _lineH, letterSp: _letterSp, customLogoSrc, customLogoScale: getCustomLogoScale(item) * (ITEM_CUSTOM_BASE_SCALES[item] || 1), maxWidth: '70mm', maxHeight: '35mm' })}
               </div>
             </div>
 
@@ -4138,7 +4161,7 @@ body { width: 220mm; height: 307mm; background: #fff; }
           </div>`;
       };
       const _allPhonesCk = [whatsapp || telefone, telefone2].filter(Boolean).join(' / ');
-      const _logoCk = genPDFLogoHtml({ brand, color: accentColor, localSlogan, crmLine, fontPt: 24, lineH: 1.2, letterSp: brand.editData?.fontLetterSpacing || '0.5pt', layout: logoLayout, customLogoSrc, customLogoScale: getCustomLogoScale(item), maxWidth: '100mm', maxHeight: '35mm' });
+      const _logoCk = genPDFLogoHtml({ brand, color: accentColor, localSlogan, crmLine, fontPt: 24, lineH: 1.2, letterSp: brand.editData?.fontLetterSpacing || '0.5pt', layout: logoLayout, customLogoSrc, customLogoScale: getCustomLogoScale(item) * (ITEM_CUSTOM_BASE_SCALES[item] || 1), maxWidth: '100mm', maxHeight: '35mm' });
       const htmlCk = `<!DOCTYPE html><html><head><meta charset="UTF-8"><link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;700;900&display=swap" rel="stylesheet"><style>*{margin:0;padding:0;box-sizing:border-box;}body{width:220mm;height:307mm;}@media print{body{margin:0;}@page{size:220mm 307mm;margin:0;}}</style></head><body><div style="position:relative;width:220mm;height:307mm;${_patCk}"><div style="position:absolute;top:${BLEED + 8}mm;left:${BLEED + 8}mm;right:${BLEED + 8}mm;bottom:${BLEED + 8}mm;background:#fff;display:flex;overflow:hidden;"><div style="width:16mm;flex-shrink:0;display:flex;align-items:center;justify-content:center;background:${accentColor}15;"><div style="transform:rotate(-90deg);white-space:nowrap;font-family:'Montserrat',sans-serif;font-size:15pt;font-weight:900;color:${accentColor};letter-spacing:4pt;text-transform:uppercase;">CHECKLIST MATERNIDADE</div></div><div style="flex:1;display:flex;flex-direction:column;padding:12mm 8mm 10mm 8mm;gap:4mm;overflow:hidden;"><div style="display:flex;justify-content:center;padding-bottom:5mm;border-bottom:0.2mm solid ${accentColor}25;">${_logoCk}</div><div style="flex:1;display:grid;grid-template-columns:1fr 1fr;gap:4mm;">${SECOES_CK.map((s, idx) => secaoHtmlCk(s, idx)).join('')}</div><div style="border-top:0.3mm solid ${accentColor}30;padding:3mm 2mm 0;display:flex;align-items:center;justify-content:space-between;gap:6mm;"><div style="font-family:'Montserrat',sans-serif;font-size:9pt;font-weight:800;color:${accentColor};text-transform:uppercase;letter-spacing:0.5pt;white-space:nowrap;">${clinicaNome || marca}</div><div style="font-family:'Montserrat',sans-serif;font-size:7.5pt;color:#888;text-align:center;line-height:1.4;">${endereco ? `<div>${endereco}</div>` : ''}${_allPhonesCk ? `<div>${_allPhonesCk}</div>` : ''}</div><div style="font-family:'Montserrat',sans-serif;font-size:7.5pt;color:#888;text-align:right;white-space:nowrap;">${site ? `<div>${site}</div>` : ''}${instagram ? `<div>@${instagram}</div>` : ''}</div></div></div></div></div></body></html>`;
       const exCk = document.getElementById('_gabarito_iframe'); if (exCk) exCk.remove();
       const blobCk = new Blob([htmlCk], { type: 'text/html;charset=utf-8' });
@@ -4188,7 +4211,7 @@ body { margin:0; } @media print { @page { size: ${_pw}mm ${_ph}mm; margin:0; } }
   ${_atFooterHtml}
   <div style="position:absolute;top:${BLEED + 8}mm;left:${BLEED + 8}mm;right:${BLEED + 8}mm;bottom:${BLEED + _footerH + 10}mm;font-family:'Montserrat',sans-serif;">
 
-    <div style="position:absolute;top:16mm;left:50%;transform:translateX(-50%);width:${Math.round((_pw - 2 * BLEED) * 0.32)}mm;display:inline-flex;flex-direction:column;align-items:center;">${logoHtml}</div>
+    <div style="position:absolute;top:16mm;left:50%;transform:translateX(-50%);width:${Math.round((_pw - 2 * BLEED) * 0.57)}mm;display:inline-flex;flex-direction:column;align-items:center;">${logoHtml}</div>
 
     <div style="position:absolute;top:48mm;left:0;right:0;text-align:center;font-size:14pt;font-weight:800;letter-spacing:2.5pt;color:#1a1a2e;">ATESTADO MÉDICO</div>
 
@@ -5166,9 +5189,9 @@ body { font-family:'Montserrat',sans-serif; }
           </div>`;
 
         // Conteúdo da Pág 1 (Capa)
-        const p1Content = isVacina ? `<div style="width:148px; height:210px; transform:scale(3.78); transform-origin:top left;">${ReactDOMServer.renderToString(React.createElement(Art1, { accentColor, palette: paletteColors, logoComponent: <div dangerouslySetInnerHTML={{ __html: genPDFLogoHtml({ brand, color: accentColor, localSlogan, crmLine, fontPt: 8, lineH: _lineH, letterSp: _letterSp, hideSlogan: false, crmSize: '2.5pt', customLogoSrc, customLogoScale: getCustomLogoScale(item), maxWidth: '40mm', maxHeight: '15mm', withBackground: comBorda && patternSrc }) }} /> }))}</div>` : `
+        const p1Content = isVacina ? `<div style="width:148px; height:210px; transform:scale(3.78); transform-origin:top left;">${ReactDOMServer.renderToString(React.createElement(Art1, { accentColor, palette: paletteColors, logoComponent: <div dangerouslySetInnerHTML={{ __html: genPDFLogoHtml({ brand, color: accentColor, localSlogan, crmLine, fontPt: 8, lineH: _lineH, letterSp: _letterSp, hideSlogan: false, crmSize: '2.5pt', customLogoSrc, customLogoScale: getCustomLogoScale(item) * (ITEM_CUSTOM_BASE_SCALES[item] || 1), maxWidth: '40mm', maxHeight: '15mm', withBackground: comBorda && patternSrc }) }} /> }))}</div>` : `
           <div style="display:flex;flex-direction:column;align-items:center;justify-content:center;padding:10mm;text-align:center;height:100%;">
-              <div style="margin-bottom:12mm;">${genPDFLogoHtml({ brand, color: accentColor, localSlogan, crmLine, fontPt: 32, lineH: _lineH, letterSp: _letterSp, hideSlogan: false, crmSize: '9pt', customLogoSrc, customLogoScale: getCustomLogoScale(item), maxWidth: '120mm', maxHeight: '40mm', withBackground: comBorda && patternSrc })}</div>
+              <div style="margin-bottom:12mm;">${genPDFLogoHtml({ brand, color: accentColor, localSlogan, crmLine, fontPt: 32, lineH: _lineH, letterSp: _letterSp, hideSlogan: false, crmSize: '9pt', customLogoSrc, customLogoScale: getCustomLogoScale(item) * (ITEM_CUSTOM_BASE_SCALES[item] || 1), maxWidth: '120mm', maxHeight: '40mm', withBackground: comBorda && patternSrc })}</div>
               <div style="width:30mm;height:1.2mm;background:${accentColor};margin-top:4mm;margin-bottom:15mm;border-radius:1mm;"></div>
               
               <div style="display:flex;flex-direction:column;align-items:center;margin-bottom:10mm;">
@@ -5252,7 +5275,7 @@ body { background:#eee; }
   <div style="position:absolute; top:0; right:0; width:25mm; height:25mm; background:${accentColor}10; border-radius:0 0 0 25mm;"></div>
   
   <div style="width:50mm; display:flex; justify-content:center; flex-shrink:0;">
-    ${genPDFLogoHtml({ brand, color: accentColor, localSlogan: '', crmLine: '', fontPt: 24, lineH: _lineH, letterSp: _letterSp, hideSlogan: true, customLogoSrc, customLogoScale: getCustomLogoScale(item), maxWidth: '40mm', maxHeight: '20mm' })}
+    ${genPDFLogoHtml({ brand, color: accentColor, localSlogan: '', crmLine: '', fontPt: 24, lineH: _lineH, letterSp: _letterSp, hideSlogan: true, customLogoSrc, customLogoScale: getCustomLogoScale(item) * (ITEM_CUSTOM_BASE_SCALES[item] || 1), maxWidth: '40mm', maxHeight: '20mm' })}
   </div>
 
   <div style="width:0.5mm; height:70%; background:#eee;"></div>
@@ -5331,7 +5354,7 @@ html, body { width:${RW}px; height:${RH}px; overflow:hidden; background:#fff; }
   </div>
 
   <div style="position:absolute; top:${isPost ? Math.round(RH*0.09) : Math.round(RH*0.07)}px; left:0; right:0; display:flex; justify-content:center; transform:scale(${isPost ? 1.3 : 1.0}); transform-origin:top center;">
-    ${genPDFLogoHtml({ brand, color: accentColor, localSlogan, crmLine, fontPt: 32, lineH: _lineH, letterSp: _letterSp, customLogoSrc, customLogoScale: getCustomLogoScale(item), maxWidth: '120mm', maxHeight: '45mm' })}
+    ${genPDFLogoHtml({ brand, color: accentColor, localSlogan, crmLine, fontPt: 32, lineH: _lineH, letterSp: _letterSp, customLogoSrc, customLogoScale: getCustomLogoScale(item) * (ITEM_CUSTOM_BASE_SCALES[item] || 1), maxWidth: '120mm', maxHeight: '45mm' })}
   </div>
 
   <div style="position:absolute; top:${isPost ? Math.round(RH*0.40) : Math.round(RH*0.28)}px; left:0; right:0; text-align:center;">
@@ -5379,11 +5402,11 @@ body { background:#eee; }
     : `<div style="position:absolute; inset:0; background:#fff; border:${BORDER}mm solid ${solidColor}; box-sizing:border-box;"></div>`}
   
   <div style="position:absolute; top:${BORDER + 10}mm; left:50%; transform:translateX(-50%); width:80mm; display:flex; justify-content:center;">
-    ${genPDFLogoHtml({ brand, color: accentColor, localSlogan, crmLine, fontPt: 22, lineH: _lineH, letterSp: _letterSp, customLogoSrc, customLogoScale: getCustomLogoScale(item), maxWidth: '80mm', maxHeight: '30mm' })}
+    ${genPDFLogoHtml({ brand, color: accentColor, localSlogan, crmLine, fontPt: 22, lineH: _lineH, letterSp: _letterSp, customLogoSrc, customLogoScale: getCustomLogoScale(item) * (ITEM_CUSTOM_BASE_SCALES[item] || 1), maxWidth: '80mm', maxHeight: '30mm' })}
   </div>
 
   <div style="position:absolute; top:50%; left:50%; transform:translate(-50%, -50%); opacity:0.15; width:140mm; display:flex; justify-content:center; pointer-events:none;">
-    ${genPDFLogoHtml({ brand, color: accentColor, localSlogan, crmLine, fontPt: 48, lineH: _lineH, letterSp: _letterSp, hideSlogan: true, customLogoSrc, customLogoScale: getCustomLogoScale(item), maxWidth: '140mm', maxHeight: '60mm' })}
+    ${genPDFLogoHtml({ brand, color: accentColor, localSlogan, crmLine, fontPt: 48, lineH: _lineH, letterSp: _letterSp, hideSlogan: true, customLogoSrc, customLogoScale: getCustomLogoScale(item) * (ITEM_CUSTOM_BASE_SCALES[item] || 1), maxWidth: '140mm', maxHeight: '60mm' })}
   </div>
 
   <div style="position:absolute; bottom:${BORDER + 10}mm; left:0; right:0; text-align:center;">
@@ -5528,7 +5551,7 @@ body { width:${W + BLEED*2}mm; height:${H + BLEED*2}mm; position:relative; overf
 
     const _logoWidthMm = logoLayout === 'horizontal'
       ? Math.round(ps.w * 0.72)
-      : Math.round(ps.w * 0.28);
+      : Math.round(ps.w * 0.57);
     const pageHtml = `
       <div style="position:relative;width:${totalW_gen}mm;height:${totalH_gen}mm;overflow:hidden;">
         ${patternBorder}
@@ -5942,13 +5965,14 @@ function EntregaContent({ brand, plano }) {
   const [customLogoScaleMap, setCustomLogoScaleMapState] = useState(() => {
     try { return JSON.parse(localStorage.getItem('brandbox_custom_logo_scales') || '{}'); } catch { return {}; }
   });
+  
   const LOGO_SCALE_DEFAULTS = {
-    'Envelope Saco': 135,
-    'Pasta A4 Exclusiva': 65,
-    'Receituário Padrão': 85, 'Receituário de Controle Especial': 85,
-    'Atestado Médico': 85, 'Recibo': 85, 'Cartão de Retorno': 85,
-    'Ficha de Cadastro': 85, 'Prontuário Médico': 85,
-    'Certificado de Coragem': 85,
+    'Guia de Desenvolvimento': 100,
+    'Cartão de Exame Pré-Natal': 120,
+    'Checklist Maternidade': 100,
+    'Etiqueta para Correios': 95,
+    'Tag para Sacola': 110,
+    'Pasta A4 Exclusiva': 140,
   };
   const getCustomLogoScale = (item) => customLogoScaleMap[item] ?? (LOGO_SCALE_DEFAULTS[item] || 100);
   const getCustomLogoScaleMax = () => 200;
@@ -5962,11 +5986,13 @@ function EntregaContent({ brand, plano }) {
   // para aba logo (sem item específico) usa default geral
   const customLogoScale = getCustomLogoScale('Cartão de Visita');
   const [customLogoWarn, setCustomLogoWarn] = useState(null);
+  
   // editData enriquecido com logo customizada — flui automaticamente para LogoPreviewHTML via editData
   const editDataWithLogo = React.useMemo(() => ({
     ...brand.editData,
     ...(customLogoSrc ? { customLogoSrc, customLogoScale } : {}),
   }), [brand.editData, customLogoSrc, customLogoScale]);
+  
   const currentIdx = estampaSelectedIdx || 0;
   const patternSrc = estampaPatterns?.[currentIdx] ? `data:${estampaPatterns[currentIdx].mimeType};base64,${estampaPatterns[currentIdx].base64}` : null;
   const [cartaoContacts, setCartaoContacts] = useState(() => { try { return JSON.parse(localStorage.getItem('brandbox_cartao') || '{}').contacts || { telefone: '', whatsapp: '', email: '', site: '', instagram: '', endereco: '', telefone2: '' }; } catch { return { telefone: '', whatsapp: '', email: '', site: '', instagram: '', endereco: '', telefone2: '' }; } });
