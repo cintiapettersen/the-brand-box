@@ -34,13 +34,9 @@ function TagCard({ size, solidColor, c0, c1, paletteColors, effectiveSrc, patter
         {/* Logo com fundo branco suave quando há estampa */}
         <div style={{ position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%)', width: '80%', textAlign: 'center', zIndex: 2, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
           {effectiveSrc ? (
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'rgba(255,255,255,0.92)', borderRadius: isCircle ? '50%' : '8px', padding: isCircle ? `${W * 0.15}px` : size.shape === 'square' ? '12px 20px' : '8px 18px', backdropFilter: 'blur(2px)', width: isCircle ? W * 0.85 : undefined, height: isCircle ? W * 0.85 : undefined }}>
-              <LogoPreviewHTML editData={editData} color={solidColor} layout={logoLayout} scaleFactor={size.shape === 'square' ? size.w * 0.12 : size.w * 0.09} hideTagline={false} />
-            </div>
+            <LogoPreviewHTML editData={editData} color={solidColor} layout={logoLayout} scaleFactor={size.shape === 'square' ? size.w * 0.28 : size.w * 0.22} hideTagline={false} withBackground={true} />
           ) : (
-            <div style={{ filter: 'brightness(0) invert(1)' }}>
-              <LogoPreviewHTML editData={editData} color="#ffffff" layout={logoLayout} scaleFactor={size.shape === 'square' ? size.w * 0.12 : size.w * 0.09} hideTagline={false} />
-            </div>
+            <LogoPreviewHTML editData={editData} color="#ffffff" layout={logoLayout} scaleFactor={size.shape === 'square' ? size.w * 0.28 : size.w * 0.22} hideTagline={false} />
           )}
         </div>
       </div>

@@ -6,19 +6,19 @@ import {
 } from './FolderAmamentacaoPages';
 import { LogoPreviewHTML, BordaToggle } from './page';
 
-export default function GuiaAmamentacaoPreview({ 
-  brand, logoColor, logoLayout, 
-  comBorda, setComBorda, 
-  patternSrc, patternScale, setPatternScale, 
-  accentColor, borderColor, setBorderColor, 
-  paletteColors, cartaoContacts, crmLine, illustrationsSrc, folderRoof
+export default function GuiaAmamentacaoPreview({
+  brand, editData, logoColor, logoLayout,
+  comBorda, setComBorda,
+  patternSrc, patternScale, setPatternScale,
+  accentColor, borderColor, setBorderColor,
+  paletteColors, cartaoContacts, crmLine, illustrationsSrc, folderRoof, setFolderRoof
 }) {
   const mainColor = paletteColors?.[0] || accentColor;
-  const _brandData = brand?.editData || {};
+  const _brandData = editData || brand?.editData || {};
   const clinicaNome = brand?.clinicaNome || _brandData?.marca || 'Sua Clínica';
   const endereco = cartaoContacts?.endereco || brand?.endereco || _brandData?.endereco || '';
   const allPhones = [cartaoContacts?.whatsapp, cartaoContacts?.telefone].filter(Boolean).join(' · ');
-  
+
   const logoHtml = <LogoPreviewHTML editData={_brandData} color={logoColor} layout={logoLayout} scaleFactor={0.16} crm={crmLine} />;
 
   const Page = ({ num, children }) => (
@@ -63,12 +63,17 @@ export default function GuiaAmamentacaoPreview({
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '30px', width: '100%', alignItems: 'center', paddingBottom: '40px' }}>
       
-      <BordaToggle 
-        comBorda={comBorda} setComBorda={setComBorda} 
-        accentColor={accentColor} paletteColors={paletteColors} 
-        borderColor={borderColor} setBorderColor={setBorderColor} 
-        patternScale={patternScale} setPatternScale={setPatternScale} 
+      <BordaToggle
+        comBorda={comBorda} setComBorda={setComBorda}
+        accentColor={accentColor} paletteColors={paletteColors}
+        borderColor={borderColor} setBorderColor={setBorderColor}
+        patternScale={patternScale} setPatternScale={setPatternScale}
       />
+      {setFolderRoof && (
+        <button onClick={() => setFolderRoof(v => !v)} style={{ fontSize: '0.7rem', padding: '4px 12px', borderRadius: '20px', border: `1px solid ${folderRoof ? accentColor : '#eee'}`, background: folderRoof ? `${accentColor}10` : '#fff', color: folderRoof ? accentColor : '#aaa', cursor: 'pointer', fontFamily: 'Montserrat,sans-serif', fontWeight: folderRoof ? 700 : 400 }}>
+          {folderRoof ? '🏠 Recorte Casinha ATIVO' : '⬜️ Recorte Reto ATIVO'}
+        </button>
+      )}
 
       {/* SIDE A: 4 | 3 | 2 | 1 (Cover) */}
       <div style={{ textAlign: 'center' }}>

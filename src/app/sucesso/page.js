@@ -54,7 +54,7 @@ const supabase = createClient(
 
 export const ITEM_CUSTOM_BASE_SCALES = {
   'Envelope Saco': 1.35,
-  'Pasta A4 Exclusiva': 0.65,
+  'Pasta A4': 0.65,
   'Receituário Padrão': 0.85, 
   'Receituário de Controle Especial': 1.1, // 110% as requested
   'Atestado Médico': 0.85, 'Recibo': 0.85, 'Cartão de Retorno': 0.85,
@@ -80,31 +80,27 @@ export function LogoPreviewHTML({ editData, color, layout = 'stacked', scaleFact
   const customLogoScale = customLogoSrcProp ? customLogoScaleProp : (editData?.customLogoScale || 100);
   
   if (customLogoSrc) {
-    const finalScale = customLogoScale;
-    const imgStyle = { maxWidth: '100%', maxHeight: '100%', width: 'auto', height: 'auto', objectFit: 'contain', display: 'block' };
-    
+    const finalScale = customLogoScale; // percentual do container (0-200)
+    // scaleFactor controla o tamanho máximo em px, proporcional ao contexto (cabeçalho pequeno vs tela grande)
+    const imgMaxH = maxHeight || `${Math.round(scaleFactor * 150)}px`;
+    const imgMaxW = maxWidth || `${finalScale}%`;
+
     if (withBackground) {
       return (
         <div style={{
-          display: 'inline-flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          background: 'rgba(255,255,255,0.92)',
-          padding: '2px 4px',
-          borderRadius: '4px',
-          boxSizing: 'border-box',
+          display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
+          background: 'rgba(255,255,255,0.92)', padding: '2px 4px', borderRadius: '4px', boxSizing: 'border-box',
         }}>
-          <img src={customLogoSrc} alt="logo" style={{ width: `${finalScale}%`, height: 'auto', display: 'block' }} />
+          <img src={customLogoSrc} alt="logo" style={{ maxWidth: imgMaxW, maxHeight: imgMaxH, width: 'auto', height: 'auto', display: 'block' }} />
         </div>
       );
     }
 
     return (
-      <div style={{ width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+      <div style={{ width: `${finalScale}%`, maxWidth: imgMaxW, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
         <img
-          src={customLogoSrc}
-          alt="logo"
-          style={{ maxWidth: `${finalScale}%`, maxHeight: `${finalScale}%`, width: 'auto', height: 'auto', objectFit: 'contain', display: 'block', mixBlendMode: 'multiply' }}
+          src={customLogoSrc} alt="logo"
+          style={{ width: '100%', maxHeight: imgMaxH, height: 'auto', objectFit: 'contain', display: 'block', mixBlendMode: 'multiply' }}
         />
       </div>
     );
@@ -1246,27 +1242,27 @@ function CertificadoCoragemPreview({ accentColor, patternSrc, editData, logoColo
         {/* Casinha Branca no meio */}
         <div style={{
           position: 'absolute', top: '12px', left: '12px', right: '12px', bottom: '12px',
-          background: (comBorda && patternSrc) ? 'transparent' : '#fff',
-          clipPath: (comBorda && patternSrc) ? 'none' : 'polygon(0% 18%, 50% 0%, 100% 18%, 100% 100%, 0% 100%)',
+          background: '#fff',
+          clipPath: 'polygon(0% 18%, 50% 0%, 100% 18%, 100% 100%, 0% 100%)',
           display: 'flex', flexDirection: 'column', alignItems: 'center',
           padding: '30px 15px 15px'
         }}>
           {/* Logo Rectangle / Space */}
           <div style={{ width: '180px', height: '60px', display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: '8px' }}>
-            <LogoPreviewHTML editData={editData} color={logoColor} layout={logoLayout} scaleFactor={0.65} hideTagline={hideTagline} maxWidth="100%" maxHeight="100%" withBackground={comBorda && patternSrc} />
+            <LogoPreviewHTML editData={editData} color={logoColor} layout={logoLayout} scaleFactor={0.65} hideTagline={hideTagline} maxHeight="60px" />
           </div>
 
-          <div style={{ fontFamily: "'Montserrat', sans-serif", fontSize: '0.5rem', fontWeight: 600, color: '#666', letterSpacing: '1px', marginBottom: '2px' }}>
+          <div style={{ fontFamily: "'Montserrat', sans-serif", fontSize: '0.5rem', fontWeight: 600, color: '#7a7a7a', letterSpacing: '1px', marginBottom: '2px' }}>
             Certificado Pediátrico de
           </div>
-          <h2 style={{ 
+          <h2 style={{
             fontFamily: `'${editData?.fontFamily || 'Playfair Display'}', serif`,
             fontSize: '1.5rem', fontWeight: 700, color: solidColor, margin: '0 0 18px', letterSpacing: '1px'
           }}>
             Coragem
           </h2>
 
-          <div style={{ fontFamily: scriptFont, fontSize: '0.6rem', color: '#735b44', textAlign: 'center', lineHeight: 1.5, marginTop: '2px', width: '90%' }}>
+          <div style={{ fontFamily: scriptFont, fontSize: '0.6rem', color: '#5a5a5a', textAlign: 'center', lineHeight: 1.5, marginTop: '2px', width: '90%' }}>
             <div style={{ margin: 0 }}>Certifico para os devidos e lúdicos fins, que __________________</div>
             <div style={{ margin: 0 }}>idade _____ comportou-se corretamente na consulta de hoje,</div>
             <div style={{ margin: 0 }}>sendo educado e demonstrando muita coragem e valentia.</div>
@@ -1292,8 +1288,8 @@ function A5ItemPreview({ accentColor, patternSrc, editData, logoColor, logoLayou
       <BordaToggle comBorda={comBorda} setComBorda={setComBorda} accentColor={accentColor} paletteColors={paletteColors} borderColor={borderColor} setBorderColor={setBorderColor} patternScale={patternScale} setPatternScale={setPatternScale} />
       <div style={{ display: 'flex', gap: '6px', alignItems: 'center', flexWrap: 'wrap', justifyContent: 'center' }}>
         {setFolderRoof && (
-          <button onClick={() => setFolderRoof(v => !v)} style={{ fontSize: '0.7rem', padding: '4px 12px', borderRadius: '20px', border: `1px solid ${accentColor}`, background: folderRoof ? accentColor : 'none', color: folderRoof ? '#fff' : accentColor, cursor: 'pointer', fontFamily: 'Montserrat,sans-serif', fontWeight: 700 }}>
-            {folderRoof ? '🏠 Casinha' : '⬜ Reto'}
+          <button onClick={() => setFolderRoof(v => !v)} style={{ fontSize: '0.7rem', padding: '4px 12px', borderRadius: '20px', border: `1px solid ${folderRoof ? accentColor : '#eee'}`, background: folderRoof ? `${accentColor}10` : '#fff', color: folderRoof ? accentColor : '#aaa', cursor: 'pointer', fontFamily: 'Montserrat,sans-serif', fontWeight: folderRoof ? 700 : 400 }}>
+            {folderRoof ? '🏠 Recorte Casinha ATIVO' : '⬜️ Recorte Reto ATIVO'}
           </button>
         )}
         {setPaperSize && (
@@ -1908,11 +1904,11 @@ function OrientacoesRNPreview({ accentColor, patternSrc, editData, logoColor, lo
     <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', alignItems: 'center' }}>
       <BordaToggle comBorda={comBorda} setComBorda={setComBorda} accentColor={accentColor} paletteColors={paletteColors} borderColor={borderColor} setBorderColor={setBorderColor} patternScale={patternScale} setPatternScale={setPatternScale} />
       <div style={{ width: '226px', height: '320px', position: 'relative', boxShadow: '0 6px 30px rgba(0,0,0,0.12)', borderRadius: '4px', overflow: 'hidden', background: '#fff' }}>
-        {comBorda && patternSrc 
-          ? <div style={{ position: 'absolute', inset: 0, backgroundImage: `url(${patternSrc})`, backgroundSize: `${(patternScale||150)/2.5}px`, backgroundRepeat: 'repeat' }} />
-          : <div style={{ position: 'absolute', inset: 0, background: solidColor }} />
+        {comBorda && patternSrc
+          ? <div style={{ position: 'absolute', inset: 0, backgroundImage: `url(${patternSrc})`, backgroundSize: `${(patternScale||150)/2.5}px`, backgroundRepeat: 'repeat', zIndex: 0 }} />
+          : <div style={{ position: 'absolute', inset: 0, background: solidColor, zIndex: 0 }} />
         }
-        <div style={{ position: 'absolute', top: BORDER, left: BORDER, right: BORDER, bottom: BORDER, background: '#fff', display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
+        <div style={{ position: 'absolute', top: BORDER, left: BORDER, right: BORDER, bottom: BORDER, background: '#fff', display: 'flex', flexDirection: 'column', overflow: 'hidden', zIndex: 1, isolation: 'isolate' }}>
 
           {/* CABEÇALHO */}
           <div style={{ background: c0, padding: '3px 6px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexShrink: 0 }}>
@@ -2126,7 +2122,7 @@ function GuiaCuidadosPreview({ brand, logoColor, logoLayout, comBorda, setComBor
   );
 }
 
-function FolderTrifoldPreview({ brand, editData, logoColor, logoLayout, comBorda, setComBorda, patternSrc, patternScale, setPatternScale, accentColor, borderColor, setBorderColor, paletteColors, title, subtitle, cartaoContacts, folderRoof, crmLine }) {
+function FolderTrifoldPreview({ brand, editData, logoColor, logoLayout, comBorda, setComBorda, patternSrc, patternScale, setPatternScale, accentColor, borderColor, setBorderColor, paletteColors, title, subtitle, cartaoContacts, folderRoof, setFolderRoof, crmLine }) {
   const mainColor = paletteColors?.[0] || accentColor;
   const _brandData = editData || brand.editData || {};
   const instagram = cartaoContacts?.instagram || brand?.instagram || '';
@@ -2203,6 +2199,11 @@ function FolderTrifoldPreview({ brand, editData, logoColor, logoLayout, comBorda
       <style dangerouslySetInnerHTML={{__html: "@import url('https://fonts.googleapis.com/css2?family=Great+Vibes&display=swap');"}} />
       
       <BordaToggle comBorda={comBorda} setComBorda={setComBorda} accentColor={accentColor} paletteColors={paletteColors} borderColor={borderColor} setBorderColor={setBorderColor} patternScale={patternScale} setPatternScale={setPatternScale} />
+      {setFolderRoof && (
+        <button onClick={() => setFolderRoof(v => !v)} style={{ fontSize: '0.7rem', padding: '4px 12px', borderRadius: '20px', border: `1px solid ${folderRoof ? accentColor : '#eee'}`, background: folderRoof ? `${accentColor}10` : '#fff', color: folderRoof ? accentColor : '#aaa', cursor: 'pointer', fontFamily: 'Montserrat,sans-serif', fontWeight: folderRoof ? 700 : 400 }}>
+          {folderRoof ? '🏠 Recorte Casinha ATIVO' : '⬜️ Recorte Reto ATIVO'}
+        </button>
+      )}
 
       {/* LADO EXTERNO (5 | 6 | 1) */}
       <div style={{ textAlign: 'center' }}>
@@ -2430,8 +2431,8 @@ function AtestadoPreview({ accentColor, patternSrc, editData, logoColor, logoLay
       <BordaToggle comBorda={comBorda} setComBorda={setComBorda} accentColor={accentColor} paletteColors={paletteColors} borderColor={borderColor} setBorderColor={setBorderColor} patternScale={patternScale} setPatternScale={setPatternScale} />
       <div style={{ display: 'flex', gap: '6px', alignItems: 'center', flexWrap: 'wrap', justifyContent: 'center' }}>
         {setFolderRoof && (
-          <button onClick={() => setFolderRoof(v => !v)} style={{ fontSize: '0.7rem', padding: '4px 12px', borderRadius: '20px', border: `1px solid ${accentColor}`, background: folderRoof ? accentColor : 'none', color: folderRoof ? '#fff' : accentColor, cursor: 'pointer', fontFamily: 'Montserrat,sans-serif', fontWeight: 700 }}>
-            {folderRoof ? '🏠 Casinha' : '⬜ Reto'}
+          <button onClick={() => setFolderRoof(v => !v)} style={{ fontSize: '0.7rem', padding: '4px 12px', borderRadius: '20px', border: `1px solid ${folderRoof ? accentColor : '#eee'}`, background: folderRoof ? `${accentColor}10` : '#fff', color: folderRoof ? accentColor : '#aaa', cursor: 'pointer', fontFamily: 'Montserrat,sans-serif', fontWeight: folderRoof ? 700 : 400 }}>
+            {folderRoof ? '🏠 Recorte Casinha ATIVO' : '⬜️ Recorte Reto ATIVO'}
           </button>
         )}
         {setPaperSize && (
@@ -2841,7 +2842,7 @@ function EnvelopeOficioPreview({ brand, editData, accentColor, patternSrc, logoC
   );
 }
 
-function PastaPreview({ brand, editData, accentColor, solidColor, logoColor, logoLayout, isSaude, crmData, comBorda, setComBorda, patternSrc, cartaoContacts, crmLine, paletteColors, borderColor, setBorderColor, patternScale, setBorderColorState, patternScaleState, setPatternScaleState, setPatternScale, hideTagline, folderRoof }) {
+function PastaPreview({ brand, editData, accentColor, solidColor, logoColor, logoLayout, isSaude, crmData, comBorda, setComBorda, patternSrc, cartaoContacts, crmLine, paletteColors, borderColor, setBorderColor, patternScale, setBorderColorState, patternScaleState, setPatternScaleState, setPatternScale, hideTagline, folderRoof, setFolderRoof }) {
   const brandFont = editData?.fontFamily || 'Playfair Display';
   const marca = editData?.marca || '';
   const clinicaNome = cartaoContacts?.clinica || '';
@@ -2852,7 +2853,12 @@ function PastaPreview({ brand, editData, accentColor, solidColor, logoColor, log
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '15px', alignItems: 'center', width: '100%' }}>
       <BordaToggle comBorda={comBorda} setComBorda={setComBorda} accentColor={accentColor} paletteColors={paletteColors} borderColor={borderColor} setBorderColor={setBorderColor} patternScale={patternScale} setPatternScale={setPatternScale} />
-      
+      {setFolderRoof && (
+        <button onClick={() => setFolderRoof(v => !v)} style={{ fontSize: '0.7rem', padding: '4px 12px', borderRadius: '20px', border: `1px solid ${folderRoof ? accentColor : '#eee'}`, background: folderRoof ? `${accentColor}10` : '#fff', color: folderRoof ? accentColor : '#aaa', cursor: 'pointer', fontFamily: 'Montserrat,sans-serif', fontWeight: folderRoof ? 700 : 400 }}>
+          {folderRoof ? '🏠 Recorte Casinha ATIVO' : '⬜️ Recorte Reto ATIVO'}
+        </button>
+      )}
+
       <p style={{ fontSize: '0.7rem', color: '#aaa', letterSpacing: '2px', textTransform: 'uppercase' }}>Preview da Pasta (Frente e Verso)</p>
       
       <div style={{ width: '480px', height: '310px', position: 'relative', background: '#f5f5f5', borderRadius: '4px', boxShadow: '0 15px 45px rgba(0,0,0,0.15)', overflow: 'hidden' }}>
@@ -2866,20 +2872,16 @@ function PastaPreview({ brand, editData, accentColor, solidColor, logoColor, log
 
         {/* Capa Esquerda (FRENTE no preview) */}
         <div style={{ position: 'absolute', top: 0, left: 0, width: '240px', height: '310px' }}>
-           {!patternSrc && (
-             <div style={{ 
-               position: 'absolute', 
-               bottom: '20px', left: '10px', right: '10px', top: '30px', 
-               background: '#fff', borderRadius: '2px',
-               clipPath: folderRoof 
-                 ? 'polygon(0% 8%, 50% 0%, 100% 8%, 100% 100%, 0% 100%)' 
-                 : 'none',
-               boxShadow: '0 4px 15px rgba(0,0,0,0.05)'
-             }} />
-           )}
-           <div style={{ position: 'absolute', top: '55%', left: '50%', transform: 'translate(-50%, -50%)', width: '60%', height: '75px', display:'flex', justifyContent:'center', alignItems: 'center' }}>
-              <LogoPreviewHTML editData={editData} color={logoColor} layout={logoLayout} scaleFactor={0.85} hideTagline={hideTagline} withBackground={!!patternSrc} maxWidth="100%" maxHeight="100%" />
-           </div>
+          <div style={{
+            position: 'absolute',
+            bottom: '20px', left: '10px', right: '10px', top: '30px',
+            background: '#fff', borderRadius: '2px',
+            clipPath: folderRoof ? 'polygon(0% 8%, 50% 0%, 100% 8%, 100% 100%, 0% 100%)' : 'none',
+            boxShadow: '0 4px 15px rgba(0,0,0,0.05)'
+          }} />
+          <div style={{ position: 'absolute', top: '55%', left: '50%', transform: 'translate(-50%, -50%)', width: '60%', height: '75px', display:'flex', justifyContent:'center', alignItems: 'center', zIndex: 1 }}>
+            <LogoPreviewHTML editData={editData} color={logoColor} layout={logoLayout} scaleFactor={0.85} hideTagline={hideTagline} maxWidth="100%" maxHeight="100%" />
+          </div>
         </div>
 
         {/* Linha de Dobra Central */}
@@ -2887,9 +2889,9 @@ function PastaPreview({ brand, editData, accentColor, solidColor, logoColor, log
 
         {/* Capa Direita (VERSO no preview) */}
         <div style={{ position: 'absolute', top: 0, right: 0, width: '240px', height: '310px', display: 'flex', flexDirection: 'column', justifyContent: 'flex-end' }}>
-             <div style={{ 
+             <div style={{
                background: 'rgba(255,255,255,0.88)', backdropFilter: 'blur(5px)',
-               margin: '0 10px 45px', padding: '6px 12px', borderRadius: '1.5px', 
+               margin: '0 10px 45px', padding: '6px 12px', borderRadius: '1.5px',
                display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '10px',
                border: '0.1mm solid rgba(0,0,0,0.05)'
              }}>
@@ -2930,7 +2932,7 @@ function PapelariaStep({ brand, accentColor, paletteColors, estampaPatterns, est
   const PAPELARIA_GERAL = [
     "Cartão de Visita", "Papel Timbrado", "Papel de Presente", "Tag para Sacola",
     "Etiqueta para Correios", "Envelope Ofício", "Envelope Saco", "Recibo",
-    "Pasta A4 Exclusiva", "Arte para Caneca/Brindes",
+    "Pasta A4", "Arte para Caneca",
   ];
   // Papelaria exclusiva para área médica
   const PAPELARIA_MEDICA = [
@@ -2950,8 +2952,11 @@ function PapelariaStep({ brand, accentColor, paletteColors, estampaPatterns, est
   const papelariaSelecionada = brand?.papelariaSelecionada || [];
   const TODOS_DISPONIVEIS = [...PAPELARIA_GERAL, ...(isSaude ? PAPELARIA_MEDICA : []),
     "Pack Digital para Instagram", "Assinatura de E-mail", ...(isSaude ? DIGITAIS_MEDICOS : [])];
-  const itens = papelariaSelecionada.length > 0
-    ? TODOS_DISPONIVEIS.filter(i => papelariaSelecionada.includes(i))
+  // Normaliza nomes legados para compatibilidade com dados salvos anteriormente
+  const LEGACY_NAMES = { 'Pasta A4 Exclusiva': 'Pasta A4', 'Papel Timbrado': 'Timbrado', 'Arte para Caneca/Brindes': 'Arte para Caneca' };
+  const papelariaNorm = papelariaSelecionada.map(n => LEGACY_NAMES[n] || n);
+  const itens = papelariaNorm.length > 0
+    ? TODOS_DISPONIVEIS.filter(i => papelariaNorm.includes(i))
     : TODOS_DISPONIVEIS;
   // eslint-disable-next-line react-hooks/exhaustive-deps
   React.useEffect(() => { if (onNavSync) onNavSync(itens); }, [itens.join(',')]);
@@ -3198,8 +3203,8 @@ function PapelariaStep({ brand, accentColor, paletteColors, estampaPatterns, est
     'Guia de Amamentação': 'FolderDL-8pag', 'Orientações p/ Recém Nascidos': 'A4',
     'Cartão de Exame Pré-Natal': 'FolderA5-4pag',
     'Diário do Xixi': 'A4-Horizontal', 'Meu Pratinho': 'A4-Horizontal',
-    'Pasta A4 Exclusiva': '22x31cm', 'Envelope Ofício': '22x11,3cm', 'Envelope Saco': '24x34cm',
-    'Arte para Caneca/Brindes': '20x8cm',
+    'Pasta A4': '22x31cm', 'Envelope Ofício': '22x11,3cm', 'Envelope Saco': '24x34cm',
+    'Arte para Caneca': '20x8cm',
     'Papel de Presente': '65x95cm', 'Tag para Sacola': 'tag',
     'Etiqueta para Correios': '10x15cm',
   };
@@ -3586,7 +3591,7 @@ body { width: 480mm; height: 380mm; position: relative; overflow: hidden; backgr
     <div style="position:absolute;top:0;right:0;width:240mm;height:310mm;">
         ${!(comBorda && patternSrc) ? `<div style="position:absolute;bottom:20mm;left:10mm;right:10mm;top:30mm;background:#fff;border-radius:2mm;${folderRoof ? 'clip-path:polygon(0% 8%, 50% 0%, 100% 8%, 100% 100%, 0% 100%);' : ''}"></div>` : ''}
         <div style="position:absolute;top:55%;left:50%;transform:translate(-50%,-50%);width:190mm;height:65mm;display:flex;align-items:center;justify-content:center;">
-            ${ReactDOMServer.renderToString(<LogoPreviewHTML editData={itemEditData} color={logoColor} layout={logoLayout} scaleFactor={0.9} hideTagline={hideTagline} withBackground={comBorda && patternSrc} maxWidth="100%" maxHeight="100%" />)}
+            ${ReactDOMServer.renderToString(<LogoPreviewHTML editData={itemEditData} color={logoColor} layout={logoLayout} scaleFactor={0.9} hideTagline={false} withBackground={comBorda && patternSrc} maxWidth="100%" maxHeight="100%" />)}
         </div>
     </div>
 
@@ -4596,7 +4601,7 @@ html, body { width:${selSize.w + BLEED_ET*2}mm; height:${selSize.h + BLEED_ET*2}
       return;
     }
 
-    if (item === 'Arte para Caneca/Brindes' || item === 'Arte para Caneca') {
+    if (item === 'Arte para Caneca' || item === 'Arte para Caneca') {
       const solidColor = borderColor || accentColor;
       const _ffC = brand.editData?.fontFamily || 'Montserrat';
       const _lfC = LOCAL_FONT_FACES[_ffC];
@@ -5633,7 +5638,7 @@ ${fontImports2}
             ? <DiarioXixiPreview accentColor={accentColor} patternSrc={patternSrc} editData={{ ...itemEditData, tagline: localSlogan }} logoColor={logoColor} logoLayout={logoLayout} cartaoContacts={cartaoContacts} crmLine={crmLine} clinicaNome={clinicaNome} comBorda={comBorda} setComBorda={setComBorda} paletteColors={paletteColors} borderColor={borderColor} setBorderColor={setBorderColor} patternScale={patternScale} setPatternScale={setPatternScale} />
           : currentItem === 'Receita de Alta'
             ? <ReceitaAltaPreview accentColor={accentColor} patternSrc={patternSrc} editData={{ ...itemEditData, tagline: localSlogan }} logoColor={logoColor} logoLayout={logoLayout} cartaoContacts={cartaoContacts} crmLine={crmLine} clinicaNome={clinicaNome} comBorda={comBorda} setComBorda={setComBorda} paletteColors={paletteColors} borderColor={borderColor} setBorderColor={setBorderColor} patternScale={patternScale} setPatternScale={setPatternScale} receitaFields={receitaFields} setReceitaFields={setReceitaFields} />
-          : currentItem === 'Arte para Caneca/Brindes' || currentItem === 'Arte para Caneca'
+          : currentItem === 'Arte para Caneca' || currentItem === 'Arte para Caneca'
             ? <CanecaPreview accentColor={accentColor} patternSrc={patternSrc} editData={{ ...itemEditData, tagline: localSlogan }} logoColor={logoColor} logoLayout={logoLayout} cartaoContacts={cartaoContacts} crmLine={crmLine} clinicaNome={clinicaNome} comBorda={comBorda} setComBorda={setComBorda} paletteColors={paletteColors} borderColor={borderColor} setBorderColor={setBorderColor} patternScale={patternScale} setPatternScale={setPatternScale} />
           : currentItem === 'Papel de Presente'
             ? <PapelPresentePreview accentColor={accentColor} paletteColors={paletteColors} comBorda={comBorda} setComBorda={setComBorda} patternSrc={patternSrc} patternScale={patternScale} setPatternScale={setPatternScale} borderColor={borderColor} setBorderColor={setBorderColor} sizeIdx={papelPresenteSizeIdx} setSizeIdx={setPapelPresenteSizeIdx} />
@@ -5646,9 +5651,9 @@ ${fontImports2}
           : currentItem === 'Meu Pratinho'
             ? <MeuPratinhoPreview accentColor={accentColor} patternSrc={patternSrc} editData={{ ...itemEditData, tagline: localSlogan }} logoColor={logoColor} logoLayout={logoLayout} cartaoContacts={cartaoContacts} crmLine={crmLine} clinicaNome={clinicaNome} comBorda={comBorda} setComBorda={setComBorda} paletteColors={paletteColors} borderColor={borderColor} setBorderColor={setBorderColor} patternScale={patternScale} setPatternScale={setPatternScale} />
           : currentItem === 'Guia de Amamentação'
-            ? <GuiaAmamentacaoPreview brand={brand} logoColor={logoColor} logoLayout={logoLayout} comBorda={comBorda} setComBorda={setComBorda} patternSrc={patternSrc} patternScale={patternScale} setPatternScale={setPatternScale} accentColor={accentColor} borderColor={borderColor} setBorderColor={setBorderColor} paletteColors={paletteColors} cartaoContacts={cartaoContacts} crmLine={crmLine} illustrationsSrc="/breastfeeding-guide.png" folderRoof={folderRoof} />
+            ? <GuiaAmamentacaoPreview brand={brand} editData={itemEditData} logoColor={logoColor} logoLayout={logoLayout} comBorda={comBorda} setComBorda={setComBorda} patternSrc={patternSrc} patternScale={patternScale} setPatternScale={setPatternScale} accentColor={accentColor} borderColor={borderColor} setBorderColor={setBorderColor} paletteColors={paletteColors} cartaoContacts={cartaoContacts} crmLine={crmLine} illustrationsSrc="/breastfeeding-guide.png" folderRoof={folderRoof} setFolderRoof={setFolderRoof} />
           : currentItem === 'Guia de Cuidados'
-            ? <FolderTrifoldPreview brand={brand} editData={itemEditData} logoColor={logoColor} logoLayout={logoLayout} comBorda={comBorda} setComBorda={setComBorda} patternSrc={patternSrc} patternScale={patternScale} setPatternScale={setPatternScale} accentColor={accentColor} borderColor={borderColor} setBorderColor={setBorderColor} paletteColors={paletteColors} title={currentItem} cartaoContacts={cartaoContacts} folderRoof={folderRoof} crmLine={crmLine} />
+            ? <FolderTrifoldPreview brand={brand} editData={itemEditData} logoColor={logoColor} logoLayout={logoLayout} comBorda={comBorda} setComBorda={setComBorda} patternSrc={patternSrc} patternScale={patternScale} setPatternScale={setPatternScale} accentColor={accentColor} borderColor={borderColor} setBorderColor={setBorderColor} paletteColors={paletteColors} title={currentItem} cartaoContacts={cartaoContacts} folderRoof={folderRoof} setFolderRoof={setFolderRoof} crmLine={crmLine} />
           : currentItem === 'Orientações p/ Recém Nascidos'
             ? <OrientacoesRNPreview accentColor={accentColor} patternSrc={patternSrc} editData={itemEditData} logoColor={logoColor} logoLayout={logoLayout} cartaoContacts={cartaoContacts} crmLine={crmLine} clinicaNome={clinicaNome} comBorda={comBorda} setComBorda={setComBorda} paletteColors={paletteColors} borderColor={borderColor} setBorderColor={setBorderColor} patternScale={patternScale} setPatternScale={setPatternScale}
                 rnFields={{ nomeBebe: rnNomeBebe, dataNasc: rnDataNasc, peso: rnPeso, altura: rnAltura, umbigo: rnUmbigo, soro: rnSoro, med1: rnMed1, dose1: rnDose1, int1: rnInt1, med2: rnMed2, dose2: rnDose2, int2: rnInt2, pomada: rnPomada, vitDMed: rnVitDMed, vitDDose: rnVitDDose, bcgData: rnBcgData, hepBData: rnHepBData, consultaData: rnConsultaData, consultaHora: rnConsultaHora, urgencia: rnUrgencia }}
@@ -5657,11 +5662,11 @@ ${fontImports2}
           : currentItem.includes('Pré-Natal')
             ? <FolderA5Preview brand={brand} editData={itemEditData} logoColor={logoColor} logoLayout={logoLayout} comBorda={comBorda} setComBorda={setComBorda} patternSrc={patternSrc} patternScale={patternScale} setPatternScale={setPatternScale} accentColor={accentColor} borderColor={borderColor} setBorderColor={setBorderColor} paletteColors={paletteColors} title={currentItem} cartaoContacts={cartaoContacts} crmLine={crmLine} folderRoof={folderRoof} />
           : ['Guia Alimentar', 'Guia de Desenvolvimento', 'Guia de Vacina c/ Calendário', 'Cartão de Vacina', 'Guia do Sono'].some(n => currentItem === n)
-            ? <FolderTrifoldPreview brand={brand} editData={itemEditData} logoColor={logoColor} logoLayout={logoLayout} comBorda={comBorda} setComBorda={setComBorda} patternSrc={patternSrc} patternScale={patternScale} setPatternScale={setPatternScale} accentColor={accentColor} borderColor={borderColor} setBorderColor={setBorderColor} paletteColors={paletteColors} title={currentItem} cartaoContacts={cartaoContacts} folderRoof={folderRoof} crmLine={crmLine} />
+            ? <FolderTrifoldPreview brand={brand} editData={itemEditData} logoColor={logoColor} logoLayout={logoLayout} comBorda={comBorda} setComBorda={setComBorda} patternSrc={patternSrc} patternScale={patternScale} setPatternScale={setPatternScale} accentColor={accentColor} borderColor={borderColor} setBorderColor={setBorderColor} paletteColors={paletteColors} title={currentItem} cartaoContacts={cartaoContacts} folderRoof={folderRoof} setFolderRoof={setFolderRoof} crmLine={crmLine} />
           : currentItem.includes('Atestado Médico')
             ? <AtestadoPreview accentColor={accentColor} patternSrc={patternSrc} editData={{ ...itemEditData, tagline: localSlogan }} logoColor={logoColor} logoLayout={logoLayout} crmLine={crmLine} clinicaNome={clinicaNome} marca={marca} cartaoContacts={cartaoContacts} comBorda={comBorda} setComBorda={setComBorda} paletteColors={paletteColors} borderColor={borderColor} setBorderColor={setBorderColor} patternScale={patternScale} setPatternScale={setPatternScale} folderRoof={folderRoof} setFolderRoof={setFolderRoof} paperSize={paperSize} setPaperSize={setPaperSize} />
           : currentItem.includes('Pasta')
-            ? <PastaPreview brand={brand} editData={{ ...itemEditData, tagline: localSlogan }} accentColor={accentColor} solidColor={paletteColors[0]} logoColor={logoColor} logoLayout={logoLayout} isSaude={isSaude} crmLine={crmLine} clinicaNome={clinicaNome} cartaoContacts={cartaoContacts} comBorda={comBorda} setComBorda={setComBorda} patternSrc={patternSrc} paletteColors={paletteColors} borderColor={borderColor} setBorderColor={setBorderColor} patternScale={patternScale} setPatternScale={setPatternScale} folderRoof={folderRoof} />
+            ? <PastaPreview brand={brand} editData={{ ...itemEditData, tagline: localSlogan }} accentColor={accentColor} solidColor={paletteColors[0]} logoColor={logoColor} logoLayout={logoLayout} isSaude={isSaude} crmLine={crmLine} clinicaNome={clinicaNome} cartaoContacts={cartaoContacts} comBorda={comBorda} setComBorda={setComBorda} patternSrc={patternSrc} paletteColors={paletteColors} borderColor={borderColor} setBorderColor={setBorderColor} patternScale={patternScale} setPatternScale={setPatternScale} folderRoof={folderRoof} setFolderRoof={setFolderRoof} />
           : currentItem === 'Papel Timbrado'
             ? <PapelTimbradoPreview brand={brand} editData={itemEditData} accentColor={accentColor} patternSrc={patternSrc} logoColor={logoColor} logoLayout={logoLayout} comBorda={comBorda} setComBorda={setComBorda} paletteColors={paletteColors} borderColor={borderColor} setBorderColor={setBorderColor} patternScale={patternScale} setPatternScale={setPatternScale} cartaoContacts={cartaoContacts} crmLine={crmLine} localSlogan={localSlogan} clinicaNome={clinicaNome} storyTemplateIdx={storyTemplateIdx} setStoryTemplateIdx={setStoryTemplateIdx} storyFormatIdx={storyFormatIdx} setStoryFormatIdx={setStoryFormatIdx} />
           : currentItem === 'Pack Digital para Instagram'
@@ -5678,22 +5683,6 @@ ${fontImports2}
 
       {/* Atalho de Layout na Papelaria */}
       <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', marginBottom: '14px' }}>
-        {['Pasta', 'Guia Alimentar', 'Guia de Cuidados', 'Guia de Desenvolvimento', 'Guia de Vacina c/ Calendário', 'Cartão de Vacina', 'Cartão de Exame Pré-Natal', 'Guia de Amamentação'].some(n => currentItem.includes(n)) && (
-          <div style={{ display: 'flex', justifyContent: 'center', gap: '8px', marginBottom: '4px' }}>
-            <button 
-              onClick={() => setFolderRoof(!folderRoof)}
-              style={{
-                padding: '6px 12px', borderRadius: '20px', fontSize: '0.7rem',
-                border: '1px solid', borderColor: folderRoof ? accentColor : '#eee',
-                background: folderRoof ? `${accentColor}10` : '#fff',
-                color: folderRoof ? accentColor : '#aaa', cursor: 'pointer',
-                fontWeight: folderRoof ? 700 : 400, display: 'flex', alignItems: 'center', gap: '5px'
-              }}
-            >
-              {folderRoof ? '🏠 Recorte Casinha ATIVO' : '⬜️ Recorte Reto ATIVO'}
-            </button>
-          </div>
-        )}
 
         {!customLogoSrc && marca.split(' ').length > 1 && (
           <div style={{ display: 'flex', justifyContent: 'center', gap: '6px' }}>
@@ -5972,7 +5961,8 @@ function EntregaContent({ brand, plano }) {
     'Checklist Maternidade': 100,
     'Etiqueta para Correios': 95,
     'Tag para Sacola': 110,
-    'Pasta A4 Exclusiva': 140,
+    'Pasta A4': 140,
+    'Certificado de Coragem': 90,
   };
   const getCustomLogoScale = (item) => customLogoScaleMap[item] ?? (LOGO_SCALE_DEFAULTS[item] || 100);
   const getCustomLogoScaleMax = () => 200;

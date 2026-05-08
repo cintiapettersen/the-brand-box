@@ -84,7 +84,7 @@ export default function CanecaPreview({
               {/* Círculo sempre visível — cor sólida no fundo sólido, solidColor no padrão */}
               <div style={{ position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%)', textAlign: 'center' }}>
                 <LogoBg solidColor={usePattern ? solidColor : 'rgba(255,255,255,0.22)'} size={CIRCLE_BASE} hideCircle={hasCustomLogo}>
-                  <LogoPreviewHTML editData={editData} color="#ffffff" layout="stacked" scaleFactor={LOGO_SF} hideTagline={true} />
+                  <LogoPreviewHTML editData={editData} color="#ffffff" layout="stacked" scaleFactor={LOGO_SF} hideTagline={true} withBackground={usePattern && hasCustomLogo} />
                 </LogoBg>
               </div>
             </div>
@@ -128,7 +128,7 @@ export default function CanecaPreview({
           {['25%', '75%'].map(left => (
             <div key={left} style={{ position: 'absolute', top: '50%', left, transform: 'translate(-50%, -50%)', textAlign: 'center' }}>
               <LogoBg solidColor={usePattern ? solidColor : 'rgba(255,255,255,0.22)'} size={CIRCLE_FLAT} hideCircle={hasCustomLogo}>
-                <LogoPreviewHTML editData={editData} color="#ffffff" layout="stacked" scaleFactor={LOGO_SF_F} hideTagline={true} />
+                <LogoPreviewHTML editData={editData} color="#ffffff" layout="stacked" scaleFactor={LOGO_SF_F} hideTagline={true} withBackground={usePattern && hasCustomLogo} />
               </LogoBg>
             </div>
           ))}
