@@ -18,19 +18,24 @@ export const genPDFLogoHtml = ({ brand, color, localSlogan, crmLine, fontPt, lin
   const customBaseScale = brand.editData?.customBaseScale || 1;
   const finalLogoScale = customLogoScaleValue * customBaseScale;
 
-  const wrapperStyle = `display:flex; align-items:center; justify-content:center; ${maxWidth ? `width:${maxWidth};` : 'width:100%;'} ${maxHeight ? `height:${maxHeight};` : ''}`;
+  const wrapperStyle = `display:inline-flex; align-items:center; justify-content:center; ${maxWidth ? `max-width:${maxWidth};` : ''}`;
 
   if (finalLogoSrc) {
+    // Altura derivada do maxHeight (referência 100%) escalada pelo slider
+    const baseHmm = maxHeight ? parseFloat(maxHeight) : 20;
+    const displayHmm = (baseHmm * finalLogoScale / 100).toFixed(1);
+    const imgStyle = `max-height:${displayHmm}mm; max-width:${maxWidth || '100%'}; width:auto; height:auto; object-fit:contain; display:block;`;
+
     if (withBackground) {
       return `
-        <div style="display:inline-flex; align-items:center; justify-content:center; background:rgba(255,255,255,0.92); padding:2px 4px; border-radius:4px; width:fit-content; max-width:${maxWidth || `${finalLogoScale}%`}; max-height:${maxHeight || '100%'}; overflow:hidden; box-sizing:border-box; line-height:0;">
-          <img src="${finalLogoSrc}" style="max-width:100%; max-height:100%; width:auto; height:auto; object-fit:contain; display:block;" />
+        <div style="display:inline-flex; align-items:center; justify-content:center; background:rgba(255,255,255,0.92); padding:2px 4px; border-radius:4px; line-height:0;">
+          <img src="${finalLogoSrc}" style="${imgStyle}" />
         </div>
       `;
     }
     return `
       <div style="${wrapperStyle}">
-        <img src="${finalLogoSrc}" style="width:${finalLogoScale}%; height:auto; object-fit:contain; display:block;" />
+        <img src="${finalLogoSrc}" style="${imgStyle}" />
       </div>
     `;
   }

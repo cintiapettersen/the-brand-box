@@ -80,7 +80,7 @@ export default function EtiquetaCorreiosPreview({
 
           {/* Fundo: estampa ou cor */}
           {usePattern
-            ? <div style={{ position: 'absolute', inset: 0, backgroundImage: `url(${patternSrc})`, backgroundSize: `${(patternScale || 150) * size.scale / 150}px`, backgroundRepeat: 'repeat' }} />
+            ? <div style={{ position: 'absolute', inset: 0, backgroundImage: `url(${patternSrc})`, backgroundSize: `${(patternScale || 120) * size.scale / 50}px`, backgroundRepeat: 'repeat' }} />
             : <div style={{ position: 'absolute', inset: 0, background: solidColor }} />
           }
 
@@ -99,7 +99,7 @@ export default function EtiquetaCorreiosPreview({
             <div style={{ width: '30%', height: '0.5px', background: solidColor + '50' }} />
 
             {/* Logo */}
-            <div style={{ textAlign: 'center' }}>
+            <div style={{ display: 'flex', justifyContent: 'center', width: '100%' }}>
               <LogoPreviewHTML editData={editData} color={solidColor} layout={logoLayout} scaleFactor={size.w * 0.044} hideTagline={false} />
             </div>
 

@@ -1,9 +1,11 @@
 import React from 'react';
 
+const textColor = (hex) => { const h = (hex || '#000').replace('#',''); const r = parseInt(h.substr(0,2),16); const g = parseInt(h.substr(2,2),16); const b = parseInt(h.substr(4,2),16); return (0.299*r+0.587*g+0.114*b)/255 > 0.6 ? '#333' : '#fff'; };
+
 const Card = ({ title, color, items, style }) => (
   <div style={{ background: '#fff', border: `0.5px solid ${color}40`, borderRadius: '3px', overflow: 'hidden', ...style }}>
-    <div style={{ background: color, padding: '1px 3px' }}>
-      <span style={{ fontSize: '3.5px', fontWeight: 900, color: '#fff', textTransform: 'uppercase', letterSpacing: '0.2px', fontFamily: 'Montserrat,sans-serif' }}>{title}</span>
+    <div style={{ background: color, padding: '1px 3px', textAlign: 'center' }}>
+      <span style={{ fontSize: '3.5px', fontWeight: 900, color: textColor(color), textTransform: 'uppercase', textAlign: 'center', letterSpacing: '0.2px', fontFamily: 'Montserrat,sans-serif' }}>{title}</span>
     </div>
     <div style={{ padding: '2px 3px', display: 'flex', flexDirection: 'column', gap: '1px' }}>
       {items.map((item, i) => (
@@ -18,7 +20,7 @@ const Card = ({ title, color, items, style }) => (
 
 const Tip = ({ text, color }) => (
   <div style={{ background: color + '15', border: `0.4px solid ${color}40`, borderRadius: '2px', padding: '1.5px 3px', display: 'flex', gap: '2px', alignItems: 'flex-start' }}>
-    <span style={{ fontSize: '3.5px', flexShrink: 0 }}>💡</span>
+    <span style={{ fontSize: '3.5px', flexShrink: 0 }}></span>
     <span style={{ fontSize: '2.5px', color: '#555', lineHeight: 1.25, fontFamily: 'Montserrat,sans-serif', fontStyle: 'italic' }}>{text}</span>
   </div>
 );
@@ -46,8 +48,8 @@ export default function FolderCuidadosPage4({ accentColor, palette = [], fields 
 
       {/* CÓLICAS */}
       <div style={{ background: '#fff', border: `0.5px solid ${c0}40`, borderRadius: '3px', overflow: 'hidden' }}>
-        <div style={{ background: c0, padding: '1px 3px' }}>
-          <span style={{ fontSize: '3.5px', fontWeight: 900, color: '#fff', textTransform: 'uppercase', letterSpacing: '0.2px', fontFamily: 'Montserrat,sans-serif' }}>😣 Cólicas</span>
+        <div style={{ background: c0, padding: '1px 3px', textAlign: 'center' }}>
+          <span style={{ fontSize: '3.5px', fontWeight: 900, color: '#333', textTransform: 'uppercase', textAlign: 'center', letterSpacing: '0.2px', fontFamily: 'Montserrat,sans-serif' }}>Cólicas</span>
         </div>
         <div style={{ padding: '2px 3px', display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.5px 4px' }}>
           {[
@@ -72,7 +74,7 @@ export default function FolderCuidadosPage4({ accentColor, palette = [], fields 
 
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '2px' }}>
         {/* NARIZ ENTUPIDO */}
-        <Card color={c1} title="👃 Nariz Entupido" items={[
+        <Card color={c1} title="Nariz Entupido" items={[
           'Soro 0,9% antes das mamadas.',
           'Conta-gotas: 2–3 gotas, bebê deitado.',
           'Spray jato contínuo: 1 jato, bebê ereto.',
@@ -82,7 +84,7 @@ export default function FolderCuidadosPage4({ accentColor, palette = [], fields 
         ]} />
 
         {/* ASSADURAS */}
-        <Card color={c2} title="🍑 Assaduras" items={[
+        <Card color={c2} title="Assaduras" items={[
           'Limpar com água morna + algodão.',
           'Secar com toque suave — não esfregar.',
           'Arejar antes da nova fralda.',
@@ -95,8 +97,8 @@ export default function FolderCuidadosPage4({ accentColor, palette = [], fields 
 
       {/* VISITAS & AMBIENTE */}
       <div style={{ background: '#fff', border: `0.5px solid ${c3}40`, borderRadius: '3px', overflow: 'hidden' }}>
-        <div style={{ background: c3, padding: '1px 3px' }}>
-          <span style={{ fontSize: '3.5px', fontWeight: 900, color: '#fff', textTransform: 'uppercase', letterSpacing: '0.2px', fontFamily: 'Montserrat,sans-serif' }}>🏠 Visitas, Passeios & Ambiente</span>
+        <div style={{ background: c3, padding: '1px 3px', textAlign: 'center' }}>
+          <span style={{ fontSize: '3.5px', fontWeight: 900, color: '#333', textTransform: 'uppercase', textAlign: 'center', letterSpacing: '0.2px', fontFamily: 'Montserrat,sans-serif' }}>Visitas, Passeios & Ambiente</span>
         </div>
         <div style={{ padding: '2px 3px', display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.5px 4px' }}>
           {[

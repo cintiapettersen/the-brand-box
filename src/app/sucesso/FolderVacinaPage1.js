@@ -39,7 +39,7 @@ export default function FolderVacinaPage1({ accentColor, palette = [], logoCompo
         justifyContent: 'center',
         gap: '8px'
       }}>
-        <div style={{ width: '100%', display: 'flex', justifyContent: 'center', marginBottom: '10px' }}>
+        <div style={{ width: '100%', height: '30px', display: 'flex', justifyContent: 'center', alignItems: 'center', marginBottom: '10px', overflow: 'hidden' }}>
           {logoComponent}
         </div>
 

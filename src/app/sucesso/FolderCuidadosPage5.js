@@ -1,9 +1,11 @@
 import React from 'react';
 
+const textColor = (hex) => { const h = (hex || '#000').replace('#',''); const r = parseInt(h.substr(0,2),16); const g = parseInt(h.substr(2,2),16); const b = parseInt(h.substr(4,2),16); return (0.299*r+0.587*g+0.114*b)/255 > 0.6 ? '#333' : '#fff'; };
+
 const Card = ({ title, color, items, style }) => (
   <div style={{ background: '#fff', border: `0.5px solid ${color}40`, borderRadius: '3px', overflow: 'hidden', ...style }}>
-    <div style={{ background: color, padding: '1px 3px' }}>
-      <span style={{ fontSize: '3.5px', fontWeight: 900, color: '#fff', textTransform: 'uppercase', letterSpacing: '0.2px', fontFamily: 'Montserrat,sans-serif' }}>{title}</span>
+    <div style={{ background: color, padding: '1px 3px', textAlign: 'center' }}>
+      <span style={{ fontSize: '3.5px', fontWeight: 900, color: textColor(color), textTransform: 'uppercase', textAlign: 'center', letterSpacing: '0.2px', fontFamily: 'Montserrat,sans-serif' }}>{title}</span>
     </div>
     <div style={{ padding: '2px 3px', display: 'flex', flexDirection: 'column', gap: '1px' }}>
       {items.map((item, i) => (
@@ -40,8 +42,8 @@ export default function FolderCuidadosPage5({ accentColor, palette = [] }) {
 
       {/* SINAIS DE ALERTA */}
       <div style={{ background: '#fff', border: '0.5px solid #ffaaaa', borderRadius: '3px', overflow: 'hidden' }}>
-        <div style={{ background: '#e05c5c', padding: '1px 3px' }}>
-          <span style={{ fontSize: '3.5px', fontWeight: 900, color: '#fff', textTransform: 'uppercase', letterSpacing: '0.2px', fontFamily: 'Montserrat,sans-serif' }}>🚨 Quando Ir ao Pronto-Socorro</span>
+        <div style={{ background: '#e05c5c', padding: '1px 3px', textAlign: 'center' }}>
+          <span style={{ fontSize: '3.5px', fontWeight: 900, color: '#333', textTransform: 'uppercase', textAlign: 'center', letterSpacing: '0.2px', fontFamily: 'Montserrat,sans-serif' }}>Quando Ir ao Pronto-Socorro</span>
         </div>
         <div style={{ padding: '2px 3px', display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.5px 4px' }}>
           {alertas.map((a, i) => (
@@ -57,8 +59,8 @@ export default function FolderCuidadosPage5({ accentColor, palette = [] }) {
 
         {/* TRIAGENS NEONATAIS */}
         <div style={{ background: '#fff', border: `0.5px solid ${c0}40`, borderRadius: '3px', overflow: 'hidden' }}>
-          <div style={{ background: c0, padding: '1px 3px' }}>
-            <span style={{ fontSize: '3.5px', fontWeight: 900, color: '#fff', textTransform: 'uppercase', letterSpacing: '0.2px', fontFamily: 'Montserrat,sans-serif' }}>📋 Triagens Neonatais</span>
+          <div style={{ background: c0, padding: '1px 3px', textAlign: 'center' }}>
+            <span style={{ fontSize: '3.5px', fontWeight: 900, color: '#333', textTransform: 'uppercase', textAlign: 'center', letterSpacing: '0.2px', fontFamily: 'Montserrat,sans-serif' }}>Triagens Neonatais</span>
           </div>
           <div style={{ padding: '2px 3px', display: 'flex', flexDirection: 'column', gap: '1px' }}>
             {[
@@ -81,8 +83,8 @@ export default function FolderCuidadosPage5({ accentColor, palette = [] }) {
 
         {/* BEM-ESTAR DA MAMÃE */}
         <div style={{ background: '#fff', border: `0.5px solid ${c1}40`, borderRadius: '3px', overflow: 'hidden' }}>
-          <div style={{ background: c1, padding: '1px 3px' }}>
-            <span style={{ fontSize: '3.5px', fontWeight: 900, color: '#fff', textTransform: 'uppercase', letterSpacing: '0.2px', fontFamily: 'Montserrat,sans-serif' }}>🤍 Bem-estar da Mamãe</span>
+          <div style={{ background: c1, padding: '1px 3px', textAlign: 'center' }}>
+            <span style={{ fontSize: '3.5px', fontWeight: 900, color: '#333', textTransform: 'uppercase', textAlign: 'center', letterSpacing: '0.2px', fontFamily: 'Montserrat,sans-serif' }}>Bem-estar da Mamãe</span>
           </div>
           <div style={{ padding: '2px 3px', display: 'flex', flexDirection: 'column', gap: '1px' }}>
             {[
@@ -107,8 +109,8 @@ export default function FolderCuidadosPage5({ accentColor, palette = [] }) {
 
       {/* SONO SEGURO */}
       <div style={{ background: '#fff', border: `0.5px solid ${c2}40`, borderRadius: '3px', overflow: 'hidden' }}>
-        <div style={{ background: c2, padding: '1px 3px' }}>
-          <span style={{ fontSize: '3.5px', fontWeight: 900, color: '#fff', textTransform: 'uppercase', letterSpacing: '0.2px', fontFamily: 'Montserrat,sans-serif' }}>💤 Sono Seguro</span>
+        <div style={{ background: c2, padding: '1px 3px', textAlign: 'center' }}>
+          <span style={{ fontSize: '3.5px', fontWeight: 900, color: '#333', textTransform: 'uppercase', textAlign: 'center', letterSpacing: '0.2px', fontFamily: 'Montserrat,sans-serif' }}>Sono Seguro</span>
         </div>
         <div style={{ padding: '2px 3px', display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.5px 4px' }}>
           {[
