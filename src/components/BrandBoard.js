@@ -84,7 +84,7 @@ const SectionHeader = ({ title }) => (
   </div>
 );
 
-const BrandBoard = ({ data, palette, color, patternImage, iconPath }) => {
+const BrandBoard = ({ data, palette, color, patternImage, iconPath, customLogoSrc }) => {
   const { marca, tagline } = data;
   const activeColor = color || '#d22f5a';
 
@@ -106,7 +106,11 @@ const BrandBoard = ({ data, palette, color, patternImage, iconPath }) => {
 
       {/* LOGO PRINCIPAL */}
       <SectionHeader title="Logomarca Principal" />
-      {(() => {
+      {customLogoSrc ? (
+        <div style={{ height: '180px', width: '350px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+          <img src={customLogoSrc} alt={marca} style={{ maxHeight: '140px', maxWidth: '300px', objectFit: 'contain' }} />
+        </div>
+      ) : (() => {
         const isScript = data.fontStyle === 'script';
         const rawWords = (marca || 'SUA MARCA').split(' ');
         // Script: Title Case manual. Outras: uppercase

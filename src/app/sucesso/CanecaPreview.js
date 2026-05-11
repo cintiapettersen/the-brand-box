@@ -7,26 +7,23 @@ const WRAP_W_CM = 20;
 const WRAP_H_CM = 8.5;
 const WRAP_SCALE = 22; // px/cm para exibição flat
 
-// Tamanho base do círculo logo — ajuste aqui para mudar os dois juntos
-// scaleFactor da logo = CIRCLE_BASE * 0.0065 (garante margem interna)
+// Tamanho base do círculo logo
 const CIRCLE_BASE = 78;
-const CIRCLE_FLAT = Math.round(CIRCLE_BASE * 1.35); // arte flat ligeiramente maior
-const LOGO_SF     = +(CIRCLE_BASE * 0.0065).toFixed(2); // ex: 78 → 0.51
-const LOGO_SF_F   = +(CIRCLE_FLAT * 0.0065).toFixed(2);
+const CIRCLE_FLAT = Math.round(CIRCLE_BASE * 1.35);
+// scaleFactor base — o customLogoScale do slider vai multiplicar por cima
+const LOGO_SF     = +(CIRCLE_BASE * 0.008).toFixed(2);
+const LOGO_SF_F   = +(CIRCLE_FLAT * 0.008).toFixed(2);
 
 // LogoBg: círculo exato atrás da logo (omitido quando logo customizada)
 function LogoBg({ children, solidColor, size = 80, hideCircle = false }) {
-  if (hideCircle) {
-    return (
-      <div style={{ width: size, height: size, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-        {children}
-      </div>
-    );
-  }
+  // Círculo decorativo fica por baixo com tamanho fixo
+  // O texto pode crescer além do círculo horizontalmente
   return (
-    <div style={{ position: 'relative', width: size, height: size, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-      <div style={{ position: 'absolute', inset: 0, background: `${solidColor}d0`, borderRadius: '50%' }} />
-      <div style={{ position: 'relative', zIndex: 1, textAlign: 'center', display: 'flex', alignItems: 'center', justifyContent: 'center', width: '100%', height: '100%' }}>{children}</div>
+    <div style={{ position: 'relative', display: 'flex', alignItems: 'center', justifyContent: 'center', minWidth: size, minHeight: size }}>
+      {!hideCircle && (
+        <div style={{ position: 'absolute', width: size, height: size, background: `${solidColor}d0`, borderRadius: '50%' }} />
+      )}
+      <div style={{ position: 'relative', zIndex: 1, textAlign: 'center' }}>{children}</div>
     </div>
   );
 }
@@ -39,6 +36,11 @@ export default function CanecaPreview({
   const solidColor = borderColor || accentColor;
   const usePattern = comBorda && patternSrc;
   const hasCustomLogo = !!editData?.customLogoSrc;
+  // Com estampa: força 2 linhas para caber no círculo; sem estampa: usa layout livre
+  const effectiveLayout = usePattern && !hasCustomLogo ? 'balanced' : (logoLayout || 'stacked');
+  // Tamanho reduzido quando há círculo (padrão)
+  const LOGO_SF_PATTERN = +(CIRCLE_BASE * 0.005).toFixed(2);
+  const LOGO_SF_PATTERN_F = +(CIRCLE_FLAT * 0.005).toFixed(2);
 
   // Dimensões do mockup
   const MW = 500;
@@ -82,9 +84,9 @@ export default function CanecaPreview({
                 : <div style={{ position: 'absolute', inset: 0, background: solidColor }} />
               }
               {/* Círculo sempre visível — cor sólida no fundo sólido, solidColor no padrão */}
-              <div style={{ position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%)', textAlign: 'center' }}>
-                <LogoBg solidColor={usePattern ? solidColor : 'rgba(255,255,255,0.22)'} size={CIRCLE_BASE} hideCircle={hasCustomLogo}>
-                  <LogoPreviewHTML editData={editData} color="#ffffff" layout="stacked" scaleFactor={LOGO_SF} hideTagline={true} withBackground={usePattern && hasCustomLogo} />
+              <div style={{ position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%)', textAlign: 'center', width: `${Math.round(artWidth * 0.88)}px`, overflow: 'hidden' }}>
+                <LogoBg solidColor={solidColor} size={CIRCLE_BASE} hideCircle={!usePattern || hasCustomLogo}>
+                  <LogoPreviewHTML editData={editData} color="#ffffff" layout={effectiveLayout} scaleFactor={usePattern ? LOGO_SF_PATTERN : LOGO_SF} hideTagline={true} withBackground={hasCustomLogo} maxWidth="100%" />
                 </LogoBg>
               </div>
             </div>
@@ -126,9 +128,9 @@ export default function CanecaPreview({
           }
           {/* Logo repetida 2× — frente e verso do wrap */}
           {['25%', '75%'].map(left => (
-            <div key={left} style={{ position: 'absolute', top: '50%', left, transform: 'translate(-50%, -50%)', textAlign: 'center' }}>
-              <LogoBg solidColor={usePattern ? solidColor : 'rgba(255,255,255,0.22)'} size={CIRCLE_FLAT} hideCircle={hasCustomLogo}>
-                <LogoPreviewHTML editData={editData} color="#ffffff" layout="stacked" scaleFactor={LOGO_SF_F} hideTagline={true} withBackground={usePattern && hasCustomLogo} />
+            <div key={left} style={{ position: 'absolute', top: '50%', left, transform: 'translate(-50%, -50%)', textAlign: 'center', width: `${Math.round(WRAP_W * 0.44)}px`, overflow: 'hidden' }}>
+              <LogoBg solidColor={solidColor} size={CIRCLE_FLAT} hideCircle={!usePattern || hasCustomLogo}>
+                <LogoPreviewHTML editData={editData} color="#ffffff" layout={effectiveLayout} scaleFactor={usePattern ? LOGO_SF_PATTERN_F : LOGO_SF_F} hideTagline={true} withBackground={hasCustomLogo} maxWidth="100%" />
               </LogoBg>
             </div>
           ))}

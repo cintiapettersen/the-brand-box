@@ -45,7 +45,7 @@ function TagCard({ size, solidColor, c0, c1, paletteColors, effectiveSrc, patter
 
   // Verso
   return (
-    <div style={{ ...containerStyle, background: '#fff', border: `1.5px solid ${solidColor}` }}>
+    <div style={{ ...containerStyle, background: '#fff', border: `6px solid ${solidColor}` }}>
       {/* Conteúdo verso centralizado */}
       <div style={{ position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%)', width: '80%', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 10 }}>
         {clinicaNome && <div style={{ fontSize: 15, fontWeight: 400, color: solidColor, fontFamily: "'Brush Script MT','Segoe Script','Dancing Script',cursive", textAlign: 'center', lineHeight: 1.3 }}>{clinicaNome}</div>}
