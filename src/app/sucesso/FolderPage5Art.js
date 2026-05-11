@@ -30,14 +30,14 @@ export default function FolderPage5Art({ accentColor = '#879A6C', palette = [] }
           src: local('Myriad Pro Condensed'), local('MyriadPro-Cond');
         }
       `}</style>
-      <div style={{ 
-        fontSize: '5.2px', 
-        fontWeight: 800, 
-        color: titleColor, 
-        textTransform: 'uppercase', 
-        marginBottom: '20px', 
-        lineHeight: 1.1, 
-        padding: '0 4px',
+      <div style={{
+        fontSize: '4.2px',
+        fontWeight: 800,
+        color: titleColor,
+        textTransform: 'uppercase',
+        marginBottom: '20px',
+        lineHeight: 1.3,
+        padding: '0 14px',
         fontFamily: '"Montserrat", "Myriad Pro Condensed", sans-serif',
         letterSpacing: '0.05px',
         display: 'flex',

@@ -84,7 +84,7 @@ const SectionHeader = ({ title }) => (
   </div>
 );
 
-const BrandBoard = ({ data, palette, color, patternImage, iconPath, customLogoSrc }) => {
+const BrandBoard = ({ data, palette, color, seloColor, seloTextColor, patternImage, iconPath, customLogoSrc }) => {
   const { marca, tagline } = data;
   const activeColor = color || '#d22f5a';
 
@@ -214,7 +214,8 @@ const BrandBoard = ({ data, palette, color, patternImage, iconPath, customLogoSr
             <div style={{ width: '130px', height: '130px' }}>
                <BrandTemplateSVG
                  data={data.fontStyle === 'script' ? { ...data, fontFamily: 'Montserrat', fontWeight: 700, fontStyle: 'display' } : data}
-                 color={color}
+                 color={seloColor || color}
+                 textColor={seloTextColor || '#ffffff'}
                  side="verso"
                  hideBackground={true}
                  iconPath={iconPath}

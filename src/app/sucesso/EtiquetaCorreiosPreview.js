@@ -105,7 +105,7 @@ export default function EtiquetaCorreiosPreview({
 
             {/* Contatos com ícones */}
             {(instagram || mainPhone) && (
-              <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 4 }}>
+              <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 4, marginTop: W * 0.04 }}>
                 {instagram && (
                   <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
                     <IgIcon size={iconSz} color={solidColor} />

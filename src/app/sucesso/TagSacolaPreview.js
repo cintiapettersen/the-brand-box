@@ -36,7 +36,7 @@ function TagCard({ size, solidColor, c0, c1, paletteColors, effectiveSrc, patter
           {effectiveSrc ? (
             <LogoPreviewHTML editData={editData} color={solidColor} layout={logoLayout} scaleFactor={size.shape === 'square' ? size.w * 0.28 : size.w * 0.22} hideTagline={false} withBackground={true} />
           ) : (
-            <LogoPreviewHTML editData={editData} color="#ffffff" layout={logoLayout} scaleFactor={size.shape === 'square' ? size.w * 0.28 : size.w * 0.22} hideTagline={false} />
+            <LogoPreviewHTML editData={editData} color="#ffffff" layout={logoLayout} scaleFactor={size.shape === 'square' ? size.w * 0.28 : size.w * 0.22} hideTagline={false} taglineColor="rgba(255,255,255,0.75)" />
           )}
         </div>
       </div>

@@ -13,8 +13,7 @@ export default function FolderVacinaPage1({ accentColor, palette = [], logoCompo
       fontFamily: "'Montserrat', sans-serif", 
       boxSizing: 'border-box',
       background: '#fff',
-      position: 'relative',
-      overflow: 'hidden'
+      position: 'relative'
     }}>
       {/* Top decorative pattern/background */}
       <div style={{ 
@@ -39,7 +38,7 @@ export default function FolderVacinaPage1({ accentColor, palette = [], logoCompo
         justifyContent: 'center',
         gap: '8px'
       }}>
-        <div style={{ width: '100%', height: '30px', display: 'flex', justifyContent: 'center', alignItems: 'center', marginBottom: '10px', overflow: 'hidden' }}>
+        <div style={{ width: '100%', minHeight: '30px', maxHeight: '55px', display: 'flex', justifyContent: 'center', alignItems: 'center', marginBottom: '10px', overflow: 'visible' }}>
           {logoComponent}
         </div>
 

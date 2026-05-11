@@ -41,15 +41,15 @@ export default function FolderCuidadosPage5({ accentColor, palette = [] }) {
     <div style={{ width: '100%', height: '210px', display: 'flex', flexDirection: 'column', fontFamily: 'Montserrat,sans-serif', boxSizing: 'border-box', padding: '4px 5px 3px', gap: '2px', background: '#f8f8f8', overflow: 'hidden' }}>
 
       {/* SINAIS DE ALERTA */}
-      <div style={{ background: '#fff', border: '0.5px solid #ffaaaa', borderRadius: '3px', overflow: 'hidden' }}>
-        <div style={{ background: '#e05c5c', padding: '1px 3px', textAlign: 'center' }}>
-          <span style={{ fontSize: '3.5px', fontWeight: 900, color: '#333', textTransform: 'uppercase', textAlign: 'center', letterSpacing: '0.2px', fontFamily: 'Montserrat,sans-serif' }}>Quando Ir ao Pronto-Socorro</span>
+      <div style={{ background: '#fff', border: `0.5px solid ${c0}60`, borderRadius: '3px', overflow: 'hidden' }}>
+        <div style={{ background: c0, padding: '1px 3px', textAlign: 'center' }}>
+          <span style={{ fontSize: '3.5px', fontWeight: 900, color: textColor(c0), textTransform: 'uppercase', textAlign: 'center', letterSpacing: '0.2px', fontFamily: 'Montserrat,sans-serif' }}>Quando Ir ao Pronto-Socorro</span>
         </div>
         <div style={{ padding: '2px 3px', display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.5px 4px' }}>
           {alertas.map((a, i) => (
             <div key={i} style={{ display: 'flex', gap: '1.5px', alignItems: 'flex-start' }}>
-              <span style={{ fontSize: '3px', color: '#e05c5c', flexShrink: 0, fontWeight: 900, fontFamily: 'Montserrat,sans-serif' }}>›</span>
-              <span style={{ fontSize: '2.6px', color: '#c00', lineHeight: 1.25, fontFamily: 'Montserrat,sans-serif' }}>{a}</span>
+              <span style={{ fontSize: '3px', color: c0, flexShrink: 0, fontWeight: 900, fontFamily: 'Montserrat,sans-serif' }}>›</span>
+              <span style={{ fontSize: '2.6px', color: '#444', lineHeight: 1.25, fontFamily: 'Montserrat,sans-serif' }}>{a}</span>
             </div>
           ))}
         </div>

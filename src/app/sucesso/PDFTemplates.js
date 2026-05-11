@@ -12,9 +12,10 @@ export const PDFStyles = {
 /**
  * Gera a estrutura HTML da Logo para o PDF
  */
-export const genPDFLogoHtml = ({ brand, color, localSlogan, crmLine, fontPt, lineH, letterSp, hideSlogan = false, crmSize = '5pt', sloganSize = null, layout = 'stacked', customLogoSrc = null, customLogoScale = 100, maxWidth = null, maxHeight = null, withBackground = false }) => {
-  const finalLogoSrc = customLogoSrc || brand.editData?.customLogoSrc || null;
-  const customLogoScaleValue = customLogoSrc ? customLogoScale : (brand.editData?.customLogoScale || 100);
+export const genPDFLogoHtml = ({ brand, editDataOverride = null, color, localSlogan, crmLine, fontPt, lineH, letterSp, hideSlogan = false, crmSize = '5pt', sloganSize = null, layout = 'stacked', customLogoSrc = null, customLogoScale = 100, maxWidth = null, maxHeight = null, withBackground = false, sloganColor = null }) => {
+  const _ed = editDataOverride || brand.editData || {};
+  const finalLogoSrc = customLogoSrc || _ed.customLogoSrc || null;
+  const customLogoScaleValue = customLogoSrc ? customLogoScale : (_ed.customLogoScale || 100);
   const customBaseScale = brand.editData?.customBaseScale || 1;
   const finalLogoScale = customLogoScaleValue * customBaseScale;
 
@@ -40,36 +41,39 @@ export const genPDFLogoHtml = ({ brand, color, localSlogan, crmLine, fontPt, lin
     `;
   }
 
-  const brandFont = `'${brand.editData?.fontFamily || 'Playfair Display'}', serif`;
-  const isScript = brand.editData?.fontStyle === 'script';
-  const marca = brand.name || brand.editData?.marca || 'Marca';
+  const brandFont = `'${_ed.fontFamily || 'Playfair Display'}', serif`;
+  const isScript = _ed.fontStyle === 'script';
+  const marca = brand.name || _ed.marca || 'Marca';
   const words = marca.split(' ').map(w => isScript ? w.charAt(0).toUpperCase() + w.slice(1).toLowerCase() : w.toUpperCase());
   
   let lines = [words.join(' ')];
-  if (words.length >= 3 && marca.length > 15) {
-     const m = Math.ceil(words.length / 2);
-     lines = [words.slice(0, m).join(' '), words.slice(m).join(' ')];
-  } else if (words.length === 2 && marca.length > 12) {
-     lines = words;
+  if (layout !== 'horizontal') {
+    if (words.length >= 3 && marca.length > 15) {
+       const m = Math.ceil(words.length / 2);
+       lines = [words.slice(0, m).join(' '), words.slice(m).join(' ')];
+    } else if (words.length === 2 && marca.length > 12) {
+       lines = words;
+    }
   }
 
   const effectiveSloganSize = sloganSize || (fontPt ? (parseFloat(fontPt) * 0.35).toFixed(1) + 'pt' : '7pt');
-  const isStacked = layout === 'stacked';
-  
+  const isStacked = true; // slogan sempre embaixo — "horizontal" só afeta quebra de linha do nome
+
   const logoMain = `
-    <div style="text-align:center; font-family:${brandFont}; font-weight:${brand.editData?.fontWeight || 700}; font-size:${fontPt}pt; color:${color}; line-height:${lineH}; letter-spacing:${letterSp}; white-space:nowrap;">
+    <div style="text-align:center; font-family:${brandFont}; font-weight:${_ed.fontWeight || 700}; font-size:${fontPt}pt; color:${color}; line-height:${lineH}; letter-spacing:${letterSp}; white-space:nowrap;">
       ${lines.map(l => `<div style="font-family:inherit;font-weight:inherit;white-space:nowrap;">${l}</div>`).join('')}
     </div>
   `;
 
-  const sloganPart = (localSlogan && !hideSlogan) ? `<div style="${PDFStyles.montserrat} font-size:${effectiveSloganSize}; font-weight:700; letter-spacing:0.5pt; text-transform:uppercase; color:#666; margin-top:${isStacked ? '4pt' : '0'}; text-align:center; white-space:nowrap;">${localSlogan}</div>` : '';
+  const _sloganColor = sloganColor || '#666';
+  const sloganPart = (localSlogan && !hideSlogan) ? `<div style="${PDFStyles.montserrat} font-size:${effectiveSloganSize}; font-weight:700; letter-spacing:0.5pt; text-transform:uppercase; color:${_sloganColor}; margin-top:${isStacked ? '4pt' : '0'}; text-align:center; white-space:nowrap;">${localSlogan}</div>` : '';
   
   const crmPart = crmLine ? `<div style="${PDFStyles.montserrat} font-size:${crmSize}; letter-spacing:1pt; text-transform:uppercase; color:#bbb; margin-top:4pt; text-align:center; opacity:0.8;">${crmLine}</div>` : '';
 
   const finalLogo = `
     <div style="display:flex; flex-direction:${isStacked ? 'column' : 'row'}; align-items:center; justify-content:center; gap:${isStacked ? '0' : '5mm'};">
       ${logoMain}
-      ${isStacked ? sloganPart + crmPart : `<div style="display:flex; flex-direction:column; align-items:flex-start;">${sloganPart}${crmPart}</div>`}
+      ${sloganPart}${crmPart}
     </div>
   `;
 

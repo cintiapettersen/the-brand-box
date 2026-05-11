@@ -103,6 +103,7 @@ export default function ReceitaAltaPreview({ accentColor, paletteColors = [], ed
   const { whatsapp, telefone, site, instagram } = cartaoContacts || {};
   const mainPhone = whatsapp || telefone || '';
   const contactLine = [mainPhone, site, instagram ? `@${instagram}` : ''].filter(Boolean).join('  ·  ');
+  const [painelAberto, setPainelAberto] = React.useState(false);
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '16px', alignItems: 'center', width: '100%', padding: '20px 0' }}>
@@ -170,8 +171,12 @@ export default function ReceitaAltaPreview({ accentColor, paletteColors = [], ed
       </div>
 
       {/* Painel de edição */}
-      <div style={{ width: '100%', maxWidth: '420px', background: '#fafafa', borderRadius: '10px', border: '1px solid #eee', padding: '14px 16px', display: 'flex', flexDirection: 'column', gap: '10px' }}>
-        <div style={{ fontSize: '11px', fontWeight: 800, color: '#666', fontFamily: 'Montserrat,sans-serif', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Personalizar Receita</div>
+      <div style={{ width: '100%', maxWidth: '420px', background: '#fafafa', borderRadius: '10px', border: '1px solid #eee', overflow: 'hidden' }}>
+        <button onClick={() => setPainelAberto(v => !v)} style={{ width: '100%', padding: '12px 16px', background: 'none', border: 'none', cursor: 'pointer', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+          <span style={{ fontSize: '11px', fontWeight: 800, color: '#666', fontFamily: 'Montserrat,sans-serif', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Personalizar Receita</span>
+          <span style={{ fontSize: '14px', color: '#aaa', fontWeight: 700 }}>{painelAberto ? '▲' : '▼'}</span>
+        </button>
+      {painelAberto && <div style={{ padding: '0 16px 14px', display: 'flex', flexDirection: 'column', gap: '10px' }}>
 
         <div style={{ fontSize: '10px', fontWeight: 700, color: c0, fontFamily: 'Montserrat,sans-serif', textTransform: 'uppercase' }}>Uso Oral</div>
         {[
@@ -207,6 +212,7 @@ export default function ReceitaAltaPreview({ accentColor, paletteColors = [], ed
         <FieldRow label="Observações extras (opcional)">
           <input value={obsExtra} onChange={e => setObsExtra(e.target.value)} placeholder="texto livre…" style={{ width: '100%', border: 'none', borderBottom: '1px solid #ccc', outline: 'none', fontSize: '12px', fontFamily: 'Montserrat,sans-serif', color: solidColor, background: 'transparent', padding: '2px 0' }} />
         </FieldRow>
+      </div>}
       </div>
     </div>
   );
@@ -247,7 +253,7 @@ export function buildReceitaAltaHTML({ logoHtml, solidColor, paletteColors = [],
   <div style="position:absolute;top:${BORDER_P + 5}mm;left:${BORDER_P + 5}mm;right:${BORDER_P + 5}mm;bottom:${BORDER_P + 5}mm;background:#fff;display:flex;flex-direction:column;overflow:hidden;">
   <div style="background:${solidColor};padding:6mm 8mm 4mm;display:flex;flex-direction:column;align-items:center;position:relative;overflow:hidden;flex-shrink:0;">
     <div style="position:absolute;bottom:-15mm;left:50%;transform:translateX(-50%);width:220%;height:30mm;border-radius:50%;background:rgba(255,255,255,0.08);"></div>
-    <div style="margin-bottom:1mm;transform:scale(0.85);">${logoHtml}</div>
+    <div style="margin-top:3mm;margin-bottom:3mm;transform:scale(0.85);">${logoHtml}</div>
     <div style="font-size:4.2mm;font-weight:900;color:#fff;font-family:Montserrat,sans-serif;text-transform:uppercase;letter-spacing:0.4mm;">Receita de Alta do Bebê</div>
   </div>
   <div style="flex:1;padding:4mm 10mm 2mm;overflow:hidden;">
