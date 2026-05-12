@@ -95,7 +95,7 @@ export function LogoPreviewHTML({ editData, color, layout = 'stacked', scaleFact
     const containerStyle = {
       display: 'flex', alignItems: 'center', justifyContent: 'center',
       height: `${reservedH}px`, // altura reservada fixa — não empurra layout
-      overflow: 'hidden',
+      overflow: 'visible', // clipping feito pelo container pai do item
       flexShrink: 0,
     };
 
@@ -2091,7 +2091,7 @@ function CartaoDeVisitaPreview({ accentColor, patternSrc, cartaoContacts, crmLin
           <div style={{ position: 'absolute', top: '16px', left: '16px', right: '16px', bottom: '16px', background: 'transparent', zIndex: 1 }} />
         </>}
         <div style={{ position: 'absolute', inset: 0, zIndex: 2, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-          <div style={{ width: isHorizontal ? '75%' : '60%', height: retrato ? '35%' : '42%', display: 'flex', alignItems: 'center', justifyContent: 'center', overflow: 'hidden' }}>
+          <div style={{ width: isHorizontal ? '75%' : '65%', height: retrato ? '42%' : '45%', display: 'flex', alignItems: 'center', justifyContent: 'center', overflow: 'hidden' }}>
             <LogoPreviewHTML editData={editData} color={logoColor} layout={logoLayout} crm={crmLine} hideTagline={hideTagline} scaleFactor={0.7} withBackground={!!patternSrc} maxWidth="100%" maxHeight="100%" />
           </div>
         </div>
