@@ -12,14 +12,14 @@ export const PDFStyles = {
 /**
  * Gera a estrutura HTML da Logo para o PDF
  */
-export const genPDFLogoHtml = ({ brand, editDataOverride = null, color, localSlogan, crmLine, fontPt, lineH, letterSp, hideSlogan = false, crmSize = '5pt', sloganSize = null, layout = 'stacked', customLogoSrc = null, customLogoScale = 100, maxWidth = null, maxHeight = null, withBackground = false, sloganColor = null }) => {
+export const genPDFLogoHtml = ({ brand, editDataOverride = null, color, localSlogan, crmLine, fontPt, lineH, letterSp, hideSlogan = false, crmSize = '5pt', sloganSize = null, layout = 'stacked', customLogoSrc = null, customLogoScale = 100, maxWidth = null, maxHeight = null, withBackground = false, sloganColor = null, alignLeft = false }) => {
   const _ed = editDataOverride || brand.editData || {};
   const finalLogoSrc = customLogoSrc || _ed.customLogoSrc || null;
   const customLogoScaleValue = customLogoSrc ? customLogoScale : (_ed.customLogoScale || 100);
   const customBaseScale = brand.editData?.customBaseScale || 1;
   const finalLogoScale = customLogoScaleValue * customBaseScale;
 
-  const wrapperStyle = `display:inline-flex; align-items:center; justify-content:center; ${maxWidth ? `max-width:${maxWidth};` : ''}`;
+  const wrapperStyle = `display:inline-flex; align-items:center; justify-content:${alignLeft ? 'flex-start' : 'center'}; ${maxWidth ? `max-width:${maxWidth};` : ''}`;
 
   if (finalLogoSrc) {
     // Altura derivada do maxHeight (referência 100%) escalada pelo slider

@@ -93,8 +93,7 @@ export function LogoPreviewHTML({ editData, color, layout = 'stacked', scaleFact
     const imgMaxW = maxWidth || '100%';
 
     const containerStyle = {
-      display: 'flex', alignItems: 'center', justifyContent: 'center',
-      // maxHeight em vez de height: não força tamanho no layout, pai faz o clipping
+      display: 'flex', alignItems: 'center', justifyContent: alignLeft ? 'flex-start' : 'center',
       maxHeight: `${reservedH}px`,
       overflow: 'visible',
       flexShrink: 0,
@@ -6059,7 +6058,7 @@ td { padding: 4mm 3mm; border: 0.2mm solid #eee; font-size: 10pt; color: #555; }
     <div style="position:absolute;top:${BLEED + BORDER + 8}mm;left:${BLEED + BORDER + 12}mm;right:${BLEED + BORDER + 12}mm;bottom:${BLEED + BORDER + 18}mm;display:flex;flex-direction:column;">
         
         <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12mm;padding-bottom:4mm;border-bottom:0.1mm solid #f0f0f0;">
-            <div style="width:65mm;display:flex;justify-content:flex-start;text-align:left;">${logoHtmlWithCrm.replace(/text-align:center/g, 'text-align:left')}</div>
+            <div style="width:65mm;display:flex;justify-content:flex-start;">${genPDFLogoHtml({ brand, editDataOverride: editData, color: logoColor, layout: logoLayout, localSlogan, crmLine, fontPt: _fontPt, lineH: _lineH, letterSp: _letterSp, customLogoSrc, customLogoScale: getCustomLogoScale(item) * (ITEM_CUSTOM_BASE_SCALES[item] || 1), maxWidth: '60mm', maxHeight: '32mm', alignLeft: true })}</div>
             <div style="text-align:right;">
                 <div style="font-size:18pt;font-weight:800;color:${accentColor};opacity:0.1;letter-spacing:4pt;line-height:1;">RECIBO</div>
             </div>
