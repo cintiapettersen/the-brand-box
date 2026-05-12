@@ -5161,8 +5161,8 @@ body { width: 220mm; height: 307mm; position: relative; overflow: hidden; backgr
             <div style="flex:1;width:100%;">
               ${lines(25, '10.5mm')}
             </div>
-            <div style="align-self:flex-end;margin-top:5mm;opacity:0.4;transform:scale(0.8);transform-origin:bottom right;">
-               ${logoHtml}
+            <div style="align-self:flex-end;margin-top:5mm;opacity:0.35;">
+               ${genPDFLogoHtml({ brand, editDataOverride: editData, color: logoColor, layout: logoLayout, localSlogan: '', crmLine: null, fontPt: _fontPt, lineH: _lineH, letterSp: _letterSp, hideSlogan: true, customLogoSrc, customLogoScale: getCustomLogoScale(item) * (ITEM_CUSTOM_BASE_SCALES[item] || 1), maxWidth: '40mm', maxHeight: '22mm' })}
             </div>
           </div>
           <div class="cm-h cm-tl-h"></div><div class="cm-v cm-tl-v"></div>
