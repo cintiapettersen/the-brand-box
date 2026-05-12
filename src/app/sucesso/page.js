@@ -6863,6 +6863,13 @@ ${fontImports2}
         }
       </div>
 
+      {/* Aviso preview ilustrativo */}
+      <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginBottom: '8px', padding: '6px 10px', background: '#f9f9f9', borderRadius: '8px', border: '1px solid #eee' }}>
+        <span style={{ fontSize: '0.6rem', color: '#aaa', fontFamily: 'Montserrat,sans-serif', lineHeight: 1.4 }}>
+          ℹ️ <strong style={{ color: '#bbb' }}>Preview ilustrativo.</strong> Proporções e tamanhos podem variar. Confira as dimensões reais no PDF antes de enviar para a gráfica.
+        </span>
+      </div>
+
       {/* Escala da logo na papelaria */}
       <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '14px', padding: '4px 0' }}>
         <span style={{ fontSize: '0.68rem', color: '#999', fontWeight: 600, fontFamily: 'Montserrat,sans-serif', whiteSpace: 'nowrap' }}>Escala da logo</span>
