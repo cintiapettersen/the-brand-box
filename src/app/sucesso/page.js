@@ -3110,7 +3110,7 @@ function FolderTrifoldPreview({ brand, editData, logoColor, logoLayout, comBorda
   const endereco = cartaoContacts?.endereco || brand?.endereco || brand?.editData?.endereco || 'Endereço não informado';
 
   const allPhones = [cartaoContacts?.whatsapp, cartaoContacts?.telefone].filter(Boolean).join(' · ');
-  const logoHtml = <LogoPreviewHTML editData={_brandData} color={logoColor} layout={logoLayout} scaleFactor={0.16} crm={crmLine} />;
+  const logoHtml = <LogoPreviewHTML editData={_brandData} color={logoColor} layout={logoLayout} scaleFactor={0.31} crm={crmLine} />;
   const _borderColor = borderColor || accentColor;
   
   // Página do Folder (A5 148x210mm)
@@ -3271,7 +3271,7 @@ function FolderTrifoldPreview({ brand, editData, logoColor, logoLayout, comBorda
                   </div>
                 ) : (
                   <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'flex-start', paddingTop: '32px', textAlign: 'center', width: '100%', height: '100%' }}>
-                    <div style={{ transform: 'scale(1.95)', marginBottom: '25px' }}>{logoHtml}</div>
+                    <div style={{ marginBottom: '16px' }}>{logoHtml}</div>
                     <div style={{ width: '22px', height: '1.2px', background: accentColor, marginBottom: '14px', borderRadius: '10px' }} />
                     <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '0px' }}>
                        <div style={{ fontSize: '5.2px', fontWeight: 800, color: `${accentColor}cc`, textTransform: 'uppercase', letterSpacing: '0.6px', fontStyle: 'italic' }}>{pre}</div>
@@ -3326,7 +3326,7 @@ function FolderTrifoldPreview({ brand, editData, logoColor, logoLayout, comBorda
 function FolderA5Preview({ brand, editData, logoColor, logoLayout, comBorda, setComBorda, patternSrc, patternScale, setPatternScale, accentColor, borderColor, setBorderColor, paletteColors, title, cartaoContacts, crmLine, folderRoof }) {
   const mainColor = paletteColors?.[0] || accentColor;
   const _brandData = editData || brand.editData || {};
-  const logoHtml = <LogoPreviewHTML editData={_brandData} color={logoColor} layout={logoLayout} scaleFactor={0.16} crm={crmLine} />;
+  const logoHtml = <LogoPreviewHTML editData={_brandData} color={logoColor} layout={logoLayout} scaleFactor={0.31} crm={crmLine} />;
 
   const getTitleData = (raw) => {
     if (raw.includes('Alimentar')) return { pre: 'GUIA DE', main: 'INTRODUÇÃO ALIMENTAR', tagline: 'Nutrição e Saúde para o seu Bebê' };
