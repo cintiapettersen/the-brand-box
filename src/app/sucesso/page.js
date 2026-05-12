@@ -4233,7 +4233,7 @@ function PapelariaStep({ brand, accentColor, paletteColors, estampaPatterns, est
     else { _lines = _words; _basePt = _words.length >= 3 ? (marca.length > 15 ? 14 : 17) : _words.length === 2 ? 22 : 29; }
     const _fontPt = (_basePt * _boost).toFixed(1);
     const _lineH = editData?.fontLineHeight || (_isScript ? 0.9 : 1.1);
-    const _letterSp = editData?.fontLetterSpacing || (_isScript ? '0pt' : '0.5pt');
+    const _letterSp = editData?.fontLetterSpacing || (_isScript ? '0pt' : '1px');
     const _brandFont = `'${editData?.fontFamily || 'Playfair Display'}', serif`;
     const { endereco, whatsapp, telefone, telefone2, instagram, email, site } = cartaoContacts;
     const mainPhone = whatsapp || telefone || '';
