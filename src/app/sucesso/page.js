@@ -83,10 +83,11 @@ export function LogoPreviewHTML({ editData, color, layout = 'stacked', scaleFact
   
   if (customLogoSrc) {
     const finalScale = customLogoScale; // slider 0-200
-    // Altura em px: scaleFactor define o tamanho base, finalScale ajusta proporcionalmente
-    // maxHeight explícito em px tem prioridade; string % é ignorada (usa cálculo)
-    const baseH = Math.round(scaleFactor * 150 * (finalScale / 100));
-    const maxHpx = (maxHeight && !String(maxHeight).includes('%')) ? parseInt(maxHeight) : Infinity;
+    // Altura base do item = scaleFactor * 120px (espaço reservado para logo neste item)
+    // Slider do usuário ajusta dentro desse espaço, maxHeight explícito tem prioridade
+    const itemMaxH = Math.round(scaleFactor * 120);
+    const baseH = Math.round(itemMaxH * (finalScale / 100));
+    const maxHpx = (maxHeight && !String(maxHeight).includes('%')) ? parseInt(maxHeight) : itemMaxH;
     const displayH = `${Math.min(baseH, maxHpx)}px`;
     const imgMaxW = maxWidth || '100%';
 
@@ -99,7 +100,7 @@ export function LogoPreviewHTML({ editData, color, layout = 'stacked', scaleFact
     }
 
     return (
-      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', maxHeight: `${maxHpx}px`, overflow: 'hidden' }}>
         <img
           src={customLogoSrc} alt="logo"
           style={{ height: displayH, width: 'auto', maxWidth: imgMaxW, objectFit: 'contain', display: 'block', mixBlendMode: 'multiply' }}
