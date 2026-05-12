@@ -24,8 +24,8 @@ export const genPDFLogoHtml = ({ brand, editDataOverride = null, color, localSlo
   if (finalLogoSrc) {
     // Altura derivada do maxHeight (referência 100%) escalada pelo slider
     const baseHmm = maxHeight ? parseFloat(maxHeight) : 20;
-    const displayHmm = (baseHmm * finalLogoScale / 100).toFixed(1);
-    const imgStyle = `max-height:${displayHmm}mm; max-width:${maxWidth || '100%'}; width:auto; height:auto; object-fit:contain; display:block;`;
+    const displayHmm = Math.min(baseHmm, (baseHmm * finalLogoScale / 100)).toFixed(1);
+    const imgStyle = `height:${displayHmm}mm; max-height:${baseHmm}mm; width:auto; max-width:${maxWidth || '100%'}; object-fit:contain; display:block;`;
 
     if (withBackground) {
       return `
