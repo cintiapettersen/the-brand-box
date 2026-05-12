@@ -5734,15 +5734,20 @@ html, body { width:${totalW}mm; height:${totalH}mm; overflow:hidden; }
         <div style="position:absolute;bottom:0;left:${BC}mm;width:0.2mm;height:${BC-0.5}mm;background:#000;"></div>
         <div style="position:absolute;bottom:${BC}mm;right:0;width:${BC-0.5}mm;height:0.2mm;background:#000;"></div>
         <div style="position:absolute;bottom:0;right:${BC}mm;width:0.2mm;height:${BC-0.5}mm;background:#000;"></div>`;
+      const hasPattern = comBorda && patternSrc;
+      // Modo estampa: logo dentro do círculo. Modo sólido: logo direta, sem círculo
+      const logoPos = (leftPct) => hasPattern
+        ? mkCircle(leftPct)
+        : `<div style="position:absolute;top:50%;left:${leftPct};transform:translate(-50%,-50%);display:flex;align-items:center;justify-content:center;">${logoHtmlC}</div>`;
       const html = `<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Arte Caneca - ${marca}</title>${fiC}
 <style>* { box-sizing:border-box; margin:0; padding:0; print-color-adjust:exact !important; -webkit-print-color-adjust:exact !important; }
 html, body { width:${TW}mm; height:${TH}mm; overflow:hidden; }
 @page { size:${TW}mm ${TH}mm; margin:0; }
 </style></head><body>
-<div style="width:${TW}mm;height:${TH}mm;position:relative;overflow:hidden;">
-  <div style="position:absolute;top:${BC}mm;left:${BC}mm;width:200mm;height:80mm;overflow:hidden;${bgStyleC}">
-    ${mkCircle('25%')}
-    ${mkCircle('75%')}
+<div style="width:${TW}mm;height:${TH}mm;position:relative;overflow:hidden;${bgStyleC}">
+  <div style="position:absolute;top:${BC}mm;left:${BC}mm;width:200mm;height:80mm;overflow:hidden;">
+    ${logoPos('25%')}
+    ${logoPos('75%')}
     <div style="position:absolute;top:10%;bottom:10%;left:50%;width:0.3mm;background:rgba(255,255,255,0.25);"></div>
   </div>
   ${cmsC}
