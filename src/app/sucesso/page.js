@@ -5294,7 +5294,7 @@ body { margin:0; } @media print { @page { size: ${_pw}mm ${_ph}mm; margin:0; } }
   ${_atFooterHtml}
   <div style="position:absolute;top:${BLEED + 8}mm;left:${BLEED + 8}mm;right:${BLEED + 8}mm;bottom:${BLEED + _footerH + 10}mm;font-family:'Montserrat',sans-serif;">
 
-    <div style="position:absolute;top:8mm;left:50%;transform:translateX(-50%);width:${Math.round((_pw - 2 * BLEED) * 0.57)}mm;display:inline-flex;flex-direction:column;align-items:center;">${logoHtml}</div>
+    <div style="position:absolute;top:8mm;left:50%;transform:translateX(-50%);width:${Math.round((_pw - 2 * BLEED) * 0.57)}mm;display:inline-flex;flex-direction:column;align-items:center;">${genPDFLogoHtml({ brand, editDataOverride: editData, color: logoColor, layout: logoLayout, localSlogan, crmLine, fontPt: _fontPt, lineH: _lineH, letterSp: _letterSp, customLogoSrc, customLogoScale: getCustomLogoScale(item) * (ITEM_CUSTOM_BASE_SCALES[item] || 1), maxWidth: `${Math.round((_pw - 2 * BLEED) * 0.55)}mm`, maxHeight: '48mm' })}</div>
 
     <div style="position:absolute;top:52mm;left:0;right:0;text-align:center;font-size:14pt;font-weight:800;letter-spacing:2.5pt;color:#1a1a2e;">ATESTADO MÉDICO</div>
 
