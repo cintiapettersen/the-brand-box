@@ -133,10 +133,12 @@ export function LogoPreviewHTML({ editData, color, layout = 'stacked', scaleFact
   const sansPenalty = (isSansBold && effectiveScaleFactor > 1.5) ? (marca.length > 18 ? 0.42 : marca.length > 12 ? 0.55 : marca.length > 8 ? 0.68 : 1) : 1;
   const logoSizeRem = baseSize * sizeBoost * effectiveScaleFactor * sansPenalty;
   const fontSize = `${logoSizeRem.toFixed(2)}rem`;
-  // Slogan: 22% do tamanho da logo, mínimo legível, máximo controlado
-  const taglineSizeRem = Math.min(Math.max(logoSizeRem * 0.22, 0.38 * effectiveScaleFactor), 0.6);
-  const taglineGapPx = Math.min(Math.round(5 * effectiveScaleFactor), 8);
-  // Letter-spacing do slogan proporcional ao tamanho: max 3px mas nunca mais que 30% da fonte
+  // Slogan: sempre 22% do nome — proporcional puro, sem teto nem piso
+  // Se menor que 0.12rem é ilegível de qualquer forma, oculta
+  const taglineSizeRem = logoSizeRem * 0.22;
+  const taglineVisible = taglineSizeRem >= 0.12;
+  const taglineGapPx = Math.round(taglineSizeRem * 16 * 0.4);
+  // Letter-spacing proporcional: 30% da fonte, máx 3px
   const taglineLetterSpacing = `${Math.min(3, taglineSizeRem * 16 * 0.3).toFixed(1)}px`;
 
   const textContent = (
@@ -161,7 +163,7 @@ export function LogoPreviewHTML({ editData, color, layout = 'stacked', scaleFact
           }}>{line}</div>
         ))}
       </div>
-      {(editData?.tagline && !hideTagline) && (
+      {(editData?.tagline && !hideTagline && taglineVisible) && (
         <div style={{ fontFamily: "'Montserrat', sans-serif", fontSize: `${taglineSizeRem.toFixed(2)}rem`, letterSpacing: taglineLetterSpacing, textTransform: 'uppercase', color: taglineColor || '#666', marginTop: `${taglineGapPx}px`, textAlign: 'center', lineHeight: 1.2, maxWidth: '100%', overflow: 'hidden', whiteSpace: 'nowrap' }}>
           {editData.tagline}
         </div>
