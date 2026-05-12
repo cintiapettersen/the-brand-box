@@ -5694,7 +5694,7 @@ html, body { width:${totalW}mm; height:${totalH}mm; overflow:hidden; }
       const _lfRA = LOCAL_FONT_FACES[_ffRA];
       const fiRA = `<link href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,300;0,400;0,600;0,700;0,800;0,900;1,700;1,800&display=swap" rel="stylesheet">${_lfRA ? `<style>${_lfRA}</style>` : `<link href="https://fonts.googleapis.com/css2?family=${encodeURIComponent(_ffRA)}:wght@400;700&display=swap" rel="stylesheet">`}`;
       const _lyRA = logoLayout || 'stacked';
-      const logoHtmlRA = `<div style="width:50mm;display:flex;flex-direction:column;align-items:center;justify-content:center;overflow:hidden;">${ReactDOMServer.renderToString(<LogoPreviewHTML editData={itemEditData} color="#fff" layout={_lyRA} scaleFactor={0.50} crm={null} hideTagline />)}</div>`;
+      const logoHtmlRA = `<div style="width:80mm;display:flex;flex-direction:column;align-items:center;justify-content:center;overflow:hidden;">${ReactDOMServer.renderToString(<LogoPreviewHTML editData={itemEditData} color="#fff" layout={_lyRA} scaleFactor={1.0} crm={null} hideTagline />)}</div>`;
       const html = buildReceitaAltaHTML({ logoHtml: logoHtmlRA, solidColor, paletteColors, clinicaNome, cartaoContacts, crmLine, marca, fields: receitaFields, comBorda, patternSrc, patternScale });
       const htmlFinal = html.replace('<head>', `<head>${fiRA.replace(/<link[^>]*>/, '')}`);
       const exRA = document.getElementById('_gabarito_receita_alta'); if (exRA) exRA.remove();
