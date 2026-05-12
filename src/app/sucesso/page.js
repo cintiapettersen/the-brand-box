@@ -4182,19 +4182,19 @@ function PapelariaStep({ brand, accentColor, paletteColors, estampaPatterns, est
     : null;
 
   const ITEM_SIZES = {
-    'Cartão de Visita': '8,5x5,5cm', 'Cartão de Retorno': '5x9cm',
-    'Receituário Padrão': 'A5', 'Receituário de Controle Especial': 'A5',
-    'Atestado Médico': 'A5', 'Receita de Alta': 'A5',
-    'Certificado de Coragem': 'A5', 'Recibo': 'A5',
+    'Cartão de Visita': '9x4,8cm', 'Cartão de Retorno': '9x4,8cm',
+    'Receituário': 'A5', 'Receita de Alta': 'A4',
+    'Atestado Médico': 'A5-ouA4', 'Recibo': 'A5',
+    'Certificado de Coragem': 'A5-Horizontal',
     'Papel Timbrado': 'A4', 'Prontuário Médico': 'A4',
     'Checklist Maternidade': 'A4', 'Ficha de Cadastro': 'A4',
     'Guia Alimentar': 'FolderA5-6pag', 'Guia de Cuidados': 'FolderA5-6pag',
-    'Guia de Desenvolvimento': 'FolderA5-6pag', 'Guia de Vacina c/ Calendário': 'FolderA5-6pag',
-    'Gráfico de Crescimento': 'A4', 'Guia do Sono': 'FolderA5-6pag',
-    'Guia de Amamentação': 'FolderDL-8pag', 'Orientações p/ Recém Nascidos': 'A4',
-    'Cartão de Exame Pré-Natal': 'FolderA5-4pag',
+    'Guia de Desenvolvimento': 'FolderA5-6pag', 'Guia de Vacina': 'FolderA5-6pag',
+    'Gráfico de Crescimento': 'A4-4pag', 'Guia do Sono': 'FolderA5-6pag',
+    'Guia de Amamentação': 'FolderDL-8pag', 'Orientação': 'A4',
+    'Pré-Natal': 'FolderA5-4pag',
     'Diário do Xixi': 'A4-Horizontal', 'Meu Pratinho': 'A4-Horizontal',
-    'Pasta A4': '22x31cm', 'Envelope Ofício': '22x11,3cm', 'Envelope Saco': '24x34cm',
+    'Pasta': '22x31cm', 'Envelope Ofício': '22x11,3cm', 'Envelope Saco': '22,5x31,1cm',
     'Arte para Caneca': '20x8cm',
     'Papel de Presente': '65x95cm', 'Tag para Sacola': 'tag',
     'Etiqueta para Correios': '10x15cm',
@@ -4879,7 +4879,8 @@ body { width:${totalW}mm; height:${totalH}mm; position:relative; overflow:hidden
       iframe.style.cssText = 'position:fixed;top:-9999px;left:-9999px;width:500mm;height:400mm;border:none;visibility:hidden;';
       document.body.appendChild(iframe);
       iframe.contentDocument.open(); iframe.contentDocument.write(html); iframe.contentDocument.close();
-      iframe.contentWindow.document.fonts.ready.then(() => { setTimeout(() => { iframe.contentWindow.focus(); iframe.contentWindow.print(); setTimeout(() => { iframe.remove(); }, 3000); }, 500); });
+      const _pT_4882 = document.title; document.title = pdfTitle('Envelope Saco');
+      iframe.contentWindow.document.fonts.ready.then(() => { setTimeout(() => { document.title = _pT_4882; iframe.contentWindow.focus(); iframe.contentWindow.print(); setTimeout(() => { document.title = _pT_4882; iframe.remove(); }, 3000); }, 500); });
       return;
     }
 
@@ -4942,7 +4943,8 @@ body { width:${totalW}mm; height:${totalH}mm; position:relative; overflow:hidden
       iframe.style.cssText = 'position:fixed;top:-9999px;left:-9999px;width:300mm;height:300mm;border:none;visibility:hidden;';
       document.body.appendChild(iframe);
       iframe.contentDocument.open(); iframe.contentDocument.write(html); iframe.contentDocument.close();
-      iframe.contentWindow.document.fonts.ready.then(() => { setTimeout(() => { iframe.contentWindow.focus(); iframe.contentWindow.print(); setTimeout(() => { iframe.remove(); }, 3000); }, 500); });
+      const _pT_4945 = document.title; document.title = pdfTitle('Envelope Ofício');
+      iframe.contentWindow.document.fonts.ready.then(() => { setTimeout(() => { document.title = _pT_4945; iframe.contentWindow.focus(); iframe.contentWindow.print(); setTimeout(() => { document.title = _pT_4945; iframe.remove(); }, 3000); }, 500); });
       return;
     }
 
@@ -5088,7 +5090,8 @@ body { width: 220mm; height: 307mm; position: relative; overflow: hidden; backgr
       iframe.style.cssText = 'position:fixed;top:-9999px;left:-9999px;width:1000mm;height:1000mm;border:none;visibility:hidden;';
       document.body.appendChild(iframe);
       iframe.contentDocument.open(); iframe.contentDocument.write(html); iframe.contentDocument.close();
-      iframe.contentWindow.document.fonts.ready.then(() => { setTimeout(() => { iframe.contentWindow.focus(); iframe.contentWindow.print(); setTimeout(() => { iframe.remove(); }, 3000); }, 1000); });
+      const _pT_5091 = document.title; document.title = pdfTitle('Ficha de Cadastro');
+      iframe.contentWindow.document.fonts.ready.then(() => { setTimeout(() => { document.title = _pT_5091; iframe.contentWindow.focus(); iframe.contentWindow.print(); setTimeout(() => { document.title = _pT_5091; iframe.remove(); }, 3000); }, 1000); });
       return;
     }
 
@@ -5183,7 +5186,8 @@ body { width: 220mm; height: 307mm; background: #fff; }
       iframe.style.cssText = 'position:fixed;top:-9999px;left:-9999px;width:1000mm;height:1000mm;border:none;visibility:hidden;';
       document.body.appendChild(iframe);
       iframe.contentDocument.open(); iframe.contentDocument.write(html); iframe.contentDocument.close();
-      iframe.contentWindow.document.fonts.ready.then(() => { setTimeout(() => { iframe.contentWindow.focus(); iframe.contentWindow.print(); setTimeout(() => { iframe.remove(); }, 3000); }, 1000); });
+      const _pT_5186 = document.title; document.title = pdfTitle('Prontuário Médico');
+      iframe.contentWindow.document.fonts.ready.then(() => { setTimeout(() => { document.title = _pT_5186; iframe.contentWindow.focus(); iframe.contentWindow.print(); setTimeout(() => { document.title = _pT_5186; iframe.remove(); }, 3000); }, 1000); });
       return;
     }
 
@@ -5238,7 +5242,8 @@ body { width: 220mm; height: 307mm; background: #fff; }
       iframeCk.style.cssText = 'position:fixed;top:-9999px;left:-9999px;width:210mm;height:297mm;border:none;visibility:hidden;';
       document.body.appendChild(iframeCk);
       iframeCk.src = blobUrlCk;
-      iframeCk.onload = () => setTimeout(() => { iframeCk.contentWindow.focus(); iframeCk.contentWindow.print(); setTimeout(() => { iframeCk.remove(); URL.revokeObjectURL(blobUrlCk); }, 2000); }, 800);
+      const _pT_5241 = document.title; document.title = pdfTitle('Checklist Maternidade');
+      iframeCk.onload = () => setTimeout(() => { document.title = _pT_5241; iframeCk.contentWindow.focus(); iframeCk.contentWindow.print(); setTimeout(() => { document.title = _pT_5241; iframeCk.remove(); URL.revokeObjectURL(blobUrlCk); }, 2000); }, 800);
       return;
     }
 
@@ -5437,7 +5442,8 @@ body { width: 303mm; height: 216mm; position: relative; overflow: hidden; backgr
       iframeD.style.cssText = 'position:fixed;top:-9999px;left:-9999px;width:1000mm;height:1000mm;border:none;visibility:hidden;';
       document.body.appendChild(iframeD);
       iframeD.contentDocument.open(); iframeD.contentDocument.write(html); iframeD.contentDocument.close();
-      iframeD.contentWindow.document.fonts.ready.then(() => { setTimeout(() => { iframeD.contentWindow.focus(); iframeD.contentWindow.print(); setTimeout(() => { iframeD.remove(); }, 3000); }, 1000); });
+      const _pT_5440 = document.title; document.title = pdfTitle('Diário do Xixi');
+      iframeD.contentWindow.document.fonts.ready.then(() => { setTimeout(() => { document.title = _pT_5440; iframeD.contentWindow.focus(); iframeD.contentWindow.print(); setTimeout(() => { document.title = _pT_5440; iframeD.remove(); }, 3000); }, 1000); });
       return;
     }
 
@@ -5590,7 +5596,8 @@ body { background:#fff; }
       iframeP.style.cssText = 'position:fixed;top:-9999px;left:-9999px;width:1000mm;height:1000mm;border:none;visibility:hidden;';
       document.body.appendChild(iframeP);
       iframeP.contentDocument.open(); iframeP.contentDocument.write(html); iframeP.contentDocument.close();
-      iframeP.contentWindow.document.fonts.ready.then(() => { setTimeout(() => { iframeP.contentWindow.focus(); iframeP.contentWindow.print(); setTimeout(() => { iframeP.remove(); }, 3000); }, 1000); });
+      const _pT_5593 = document.title; document.title = pdfTitle('Meu Pratinho');
+      iframeP.contentWindow.document.fonts.ready.then(() => { setTimeout(() => { document.title = _pT_5593; iframeP.contentWindow.focus(); iframeP.contentWindow.print(); setTimeout(() => { document.title = _pT_5593; iframeP.remove(); }, 3000); }, 1000); });
       return;
     }
 
@@ -5662,7 +5669,8 @@ html, body { width:${totalW}mm; height:${totalH}mm; overflow:hidden; }
       iframeE.style.cssText = 'position:fixed;top:-9999px;left:-9999px;width:600mm;height:400mm;border:none;visibility:hidden;';
       document.body.appendChild(iframeE);
       iframeE.contentDocument.open(); iframeE.contentDocument.write(html); iframeE.contentDocument.close();
-      iframeE.contentWindow.document.fonts.ready.then(() => { setTimeout(() => { iframeE.contentWindow.focus(); iframeE.contentWindow.print(); setTimeout(() => { iframeE.remove(); }, 3000); }, 1000); });
+      const _pT_5665 = document.title; document.title = pdfTitle('Etiqueta para Correios');
+      iframeE.contentWindow.document.fonts.ready.then(() => { setTimeout(() => { document.title = _pT_5665; iframeE.contentWindow.focus(); iframeE.contentWindow.print(); setTimeout(() => { document.title = _pT_5665; iframeE.remove(); }, 3000); }, 1000); });
       return;
     }
 
@@ -5681,7 +5689,8 @@ html, body { width:${totalW}mm; height:${totalH}mm; overflow:hidden; }
       iframeRA.style.cssText = 'position:fixed;top:-9999px;left:-9999px;width:210mm;height:297mm;border:none;visibility:hidden;';
       document.body.appendChild(iframeRA);
       iframeRA.contentDocument.open(); iframeRA.contentDocument.write(html); iframeRA.contentDocument.close();
-      iframeRA.contentWindow.document.fonts.ready.then(() => { setTimeout(() => { iframeRA.contentWindow.focus(); iframeRA.contentWindow.print(); setTimeout(() => { iframeRA.remove(); }, 3000); }, 1000); });
+      const _pT_5684 = document.title; document.title = pdfTitle('Receita de Alta');
+      iframeRA.contentWindow.document.fonts.ready.then(() => { setTimeout(() => { document.title = _pT_5684; iframeRA.contentWindow.focus(); iframeRA.contentWindow.print(); setTimeout(() => { document.title = _pT_5684; iframeRA.remove(); }, 3000); }, 1000); });
       return;
     }
 
@@ -5731,7 +5740,8 @@ html, body { width:${TW}mm; height:${TH}mm; overflow:hidden; }
       iframeC.style.cssText = 'position:fixed;top:-9999px;left:-9999px;width:400mm;height:200mm;border:none;visibility:hidden;';
       document.body.appendChild(iframeC);
       iframeC.contentDocument.open(); iframeC.contentDocument.write(html); iframeC.contentDocument.close();
-      iframeC.contentWindow.document.fonts.ready.then(() => { setTimeout(() => { iframeC.contentWindow.focus(); iframeC.contentWindow.print(); setTimeout(() => { iframeC.remove(); }, 3000); }, 1000); });
+      const _pT_5734 = document.title; document.title = pdfTitle('Arte para Caneca');
+      iframeC.contentWindow.document.fonts.ready.then(() => { setTimeout(() => { document.title = _pT_5734; iframeC.contentWindow.focus(); iframeC.contentWindow.print(); setTimeout(() => { document.title = _pT_5734; iframeC.remove(); }, 3000); }, 1000); });
       return;
     }
 
@@ -5769,7 +5779,8 @@ html, body { width:${totalW}mm; height:${totalH}mm; overflow:hidden; }
       iframePP.style.cssText = `position:fixed;top:-9999px;left:-9999px;width:${totalW+10}mm;height:${totalH+10}mm;border:none;visibility:hidden;`;
       document.body.appendChild(iframePP);
       iframePP.contentDocument.open(); iframePP.contentDocument.write(html); iframePP.contentDocument.close();
-      iframePP.contentWindow.document.fonts.ready.then(() => { setTimeout(() => { iframePP.contentWindow.focus(); iframePP.contentWindow.print(); setTimeout(() => { iframePP.remove(); }, 3000); }, 800); });
+      const _pT_5772 = document.title; document.title = pdfTitle('Papel de Presente');
+      iframePP.contentWindow.document.fonts.ready.then(() => { setTimeout(() => { document.title = _pT_5772; iframePP.contentWindow.focus(); iframePP.contentWindow.print(); setTimeout(() => { document.title = _pT_5772; iframePP.remove(); }, 3000); }, 800); });
       return;
     }
 
@@ -5858,7 +5869,8 @@ html, body { width:${totalW}mm; height:${totalH}mm; overflow:hidden; }
       iframeT.style.cssText = `position:fixed;top:-9999px;left:-9999px;width:${totalW_T+10}mm;height:${totalH_T*2+20}mm;border:none;visibility:hidden;`;
       document.body.appendChild(iframeT);
       iframeT.contentDocument.open(); iframeT.contentDocument.write(html); iframeT.contentDocument.close();
-      iframeT.contentWindow.document.fonts.ready.then(() => { setTimeout(() => { iframeT.contentWindow.focus(); iframeT.contentWindow.print(); setTimeout(() => { iframeT.remove(); }, 3000); }, 1000); });
+      const _pT_5861 = document.title; document.title = pdfTitle('Tag para Sacola');
+      iframeT.contentWindow.document.fonts.ready.then(() => { setTimeout(() => { document.title = _pT_5861; iframeT.contentWindow.focus(); iframeT.contentWindow.print(); setTimeout(() => { document.title = _pT_5861; iframeT.remove(); }, 3000); }, 1000); });
       return;
     }
 
@@ -5893,7 +5905,8 @@ ${SIZES_S.map(s => arteFlat(s.w, s.h, s.label)).join('')}
       iframeS.style.cssText = 'position:fixed;top:-9999px;left:-9999px;width:1200mm;height:1000mm;border:none;visibility:hidden;';
       document.body.appendChild(iframeS);
       iframeS.contentDocument.open(); iframeS.contentDocument.write(html); iframeS.contentDocument.close();
-      iframeS.contentWindow.document.fonts.ready.then(() => { setTimeout(() => { iframeS.contentWindow.focus(); iframeS.contentWindow.print(); setTimeout(() => { iframeS.remove(); }, 3000); }, 1000); });
+      const _pT_5896 = document.title; document.title = pdfTitle('Sacola de Papel');
+      iframeS.contentWindow.document.fonts.ready.then(() => { setTimeout(() => { document.title = _pT_5896; iframeS.contentWindow.focus(); iframeS.contentWindow.print(); setTimeout(() => { document.title = _pT_5896; iframeS.remove(); }, 3000); }, 1000); });
       return;
     }
 
