@@ -4991,7 +4991,7 @@ body { width:${totalW}mm; height:${totalH}mm; position:relative; overflow:hidden
                   <div style="width:40mm;height:6mm;background:#e2ddd7;border-radius:1px;"></div>
                 </div>
               </div>
-              <div style="width:75mm; height:42mm; display:flex; justify-content:flex-end; align-items:center; margin-top:5mm;">
+              <div style="width:75mm; height:42mm; display:flex; justify-content:flex-end; align-items:flex-start;">
                 ${genPDFLogoHtml({ brand, editDataOverride: editData, color: logoColor, localSlogan, crmLine, fontPt: _fontPt, lineH: _lineH, letterSp: _letterSp, customLogoSrc, customLogoScale: getCustomLogoScale(item) * (ITEM_CUSTOM_BASE_SCALES[item] || 1), maxWidth: '75mm', maxHeight: '42mm' })}
               </div>
             </div>
