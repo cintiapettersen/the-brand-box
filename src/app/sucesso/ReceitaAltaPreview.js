@@ -242,9 +242,9 @@ export function buildReceitaAltaHTML({ logoHtml, solidColor, paletteColors = [],
 
   return `<!DOCTYPE html><html><head><meta charset="utf-8"/>
 <link href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,300;0,400;0,600;0,700;0,800;0,900;1,700;1,800&display=swap" rel="stylesheet"/>
-<style>* { box-sizing:border-box; margin:0; padding:0; print-color-adjust:exact !important; -webkit-print-color-adjust:exact !important; } @page { size:158mm 220mm; margin:0; }</style>
+<style>* { box-sizing:border-box; margin:0; padding:0; print-color-adjust:exact !important; -webkit-print-color-adjust:exact !important; } @page { size:220mm 307mm; margin:0; }</style>
 </head><body>
-<div style="width:158mm;height:220mm;background:#fff;display:flex;flex-direction:column;overflow:hidden;position:relative;">
+<div style="width:220mm;height:307mm;background:#fff;display:flex;flex-direction:column;overflow:hidden;position:relative;">
   <!-- BACKGROUND / BORDER -->
   ${comBorda && patternSrc 
     ? `<div style="position:absolute;inset:0;background-image:url(${patternSrc});background-size:${(patternScale*0.4).toFixed(1)}mm;background-repeat:repeat;"></div>`

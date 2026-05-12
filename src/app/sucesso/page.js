@@ -4580,23 +4580,18 @@ body { font-family:'Montserrat',sans-serif; background:#fff; }
 
       const html = `<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Pasta - ${marca}</title>${fiP}
 <style>* { box-sizing:border-box; margin:0; padding:0; print-color-adjust:exact !important; -webkit-print-color-adjust:exact !important; }
-body { width: 480mm; height: 380mm; position: relative; overflow: hidden; background: #fff; }
-.page { width: 480mm; height: 380mm; position: relative; overflow: hidden; }
-.cm { position: absolute; width: 10mm; height: 10mm; border-color: rgba(0,0,0,0.5); border-style: solid; border-width: 0; pointer-events: none; }
-.cm-tl { top:${BLEED}mm; left:${BLEED}mm; border-top:0.2mm solid; border-left:0.2mm solid; }
-.cm-tr { top:${BLEED}mm; right:${BLEED}mm; border-top:0.2mm solid; border-right:0.2mm solid; }
-.cm-bl { bottom:${BLEED}mm; left:${BLEED}mm; border-bottom:0.2mm solid; border-left:0.2mm solid; }
-.cm-br { bottom:${BLEED}mm; right:${BLEED}mm; border-bottom:0.2mm solid; border-right:0.2mm solid; }
+body { width: 485.775mm; height: 385.233mm; position: relative; overflow: hidden; background: #fff; }
+.page { width: 485.775mm; height: 385.233mm; position: relative; overflow: hidden; }
 .fold { position: absolute; opacity: 0.3; pointer-events: none; border-color: #000; }
-.fold-v { top: 0; bottom: 0; left: 240mm; border-left: 0.1mm dashed; height: 100%; }
-.fold-h { left: 0; right: 0; bottom: 70mm; border-top: 0.1mm dashed; width: 100%; }
-@media print { body { margin:0; } @page { size: 480mm 380mm; margin: 0; } }
+.fold-v { top: 0; bottom: 0; left: 242.888mm; border-left: 0.1mm dashed; height: 100%; }
+.fold-h { left: 0; right: 0; bottom: 75mm; border-top: 0.1mm dashed; width: 100%; }
+@media print { body { margin:0; } @page { size: 485.775mm 385.233mm; margin: 0; } }
 </style></head><body>
 <div class="page">
     ${genBgP()}
     
     <!-- Capa Direita (Frente Técnica) -->
-    <div style="position:absolute;top:0;right:0;width:240mm;height:310mm;">
+    <div style="position:absolute;top:0;right:0;width:242.888mm;height:310mm;">
         <div style="position:absolute;bottom:12mm;left:10mm;right:10mm;top:30mm;background:#fff;border-radius:2mm;${folderRoof ? 'clip-path:polygon(0% 8%, 50% 0%, 100% 8%, 100% 100%, 0% 100%);' : ''}"></div>
         <div style="position:absolute;top:55%;left:50%;transform:translate(-50%,-50%);width:190mm;height:80mm;display:flex;align-items:center;justify-content:center;">
             <div style="zoom:3.78;">${ReactDOMServer.renderToString(<LogoPreviewHTML editData={itemEditData} color={logoColor} layout={logoLayout||'stacked'} scaleFactor={0.85} hideTagline={false} maxWidth="100%" maxHeight="100%" />)}</div>
@@ -4604,7 +4599,7 @@ body { width: 480mm; height: 380mm; position: relative; overflow: hidden; backgr
     </div>
 
     <!-- Capa Esquerda (Verso Técnico) -->
-    <div style="position:absolute;top:0;left:0;width:240mm;height:310mm;display:flex;flex-direction:column;justify-content:flex-end;">
+    <div style="position:absolute;top:0;left:0;width:242.888mm;height:310mm;display:flex;flex-direction:column;justify-content:flex-end;">
         ${_footerP}
     </div>
 
@@ -5706,7 +5701,7 @@ html, body { width:${totalW}mm; height:${totalH}mm; overflow:hidden; }
         : `background:${solidColor};`;
       const mkCircle = (leftPct) => `<div style="position:absolute;top:50%;left:${leftPct};transform:translate(-50%,-50%);width:${circleD}mm;height:${circleD}mm;border-radius:50%;background:${circleBgC};display:flex;align-items:center;justify-content:center;text-align:center;">${logoHtmlC}</div>`;
       const BC = 3; // bleed 3mm
-      const TW = 200 + BC*2, TH = 85 + BC*2;
+      const TW = 200 + BC*2, TH = 80 + BC*2;
       const cmsC = `
         <div style="position:absolute;top:${BC}mm;left:0;width:${BC-0.5}mm;height:0.2mm;background:#000;"></div>
         <div style="position:absolute;top:0;left:${BC}mm;width:0.2mm;height:${BC-0.5}mm;background:#000;"></div>
@@ -5722,7 +5717,7 @@ html, body { width:${TW}mm; height:${TH}mm; overflow:hidden; }
 @page { size:${TW}mm ${TH}mm; margin:0; }
 </style></head><body>
 <div style="width:${TW}mm;height:${TH}mm;position:relative;overflow:hidden;">
-  <div style="position:absolute;top:${BC}mm;left:${BC}mm;width:200mm;height:85mm;overflow:hidden;${bgStyleC}">
+  <div style="position:absolute;top:${BC}mm;left:${BC}mm;width:200mm;height:80mm;overflow:hidden;${bgStyleC}">
     ${mkCircle('25%')}
     ${mkCircle('75%')}
     <div style="position:absolute;top:10%;bottom:10%;left:50%;width:0.3mm;background:rgba(255,255,255,0.25);"></div>
@@ -6659,7 +6654,7 @@ body { width:${W + BLEED*2}mm; height:${H + BLEED*2}mm; position:relative; overf
     const PAGE_SIZES = {
       'Receituário':         { w: 148, h: 210, bleed: 5 },
       'Timbrado':            { w: 210, h: 297, bleed: 5 },
-      'Cartão de Retorno':   { w: 105, h: 148, bleed: 5 },
+      'Cartão de Retorno':   { w: 90, h: 48, bleed: 3 },
       'Envelope Ofício':     { w: 220, h: 113, bleed: 5 },
       'Recibo':              { w: 148, h: 210, bleed: 5 },
       'Cartão de Aniversário': { w: 105, h: 148, bleed: 5 },
@@ -6924,23 +6919,25 @@ ${fontImports2}
       {/* Modal de instruções de impressão */}
       {showPrintModal && (() => {
         const SPECS = {
-          'Cartão de Visita':       { cat: 'Cartão de visita', tam: '8,5 × 5,5 cm', papel: 'Couché 300g', acabamento: 'Refile', preco: '~R$52,94 / 250 un.' },
-          'Receituário':            { cat: 'Receituário', tam: 'A5 (14,8 × 21 cm)', papel: 'Offset 90g+', acabamento: 'Blocos 25, 50 ou 100 fls', preco: '~R$109,19 / 10 blocos' },
+          'Cartão de Visita':       { cat: 'Cartão de visita', tam: '9 × 4,8 cm', papel: 'Couché 300g', acabamento: 'Refile', preco: '~R$52,94 / 250 un.' },
+          'Receituário':            { cat: 'Receituário', tam: 'A5 (14,8×21 cm) ou A4 (21×29,7 cm)', papel: 'Offset 90g', acabamento: 'Blocado Colado · 25 vias', preco: '~R$109,19 / 10 blocos' },
           'Timbrado':               { cat: 'Timbrado', tam: 'A4 (21 × 29,7 cm)', papel: 'Offset 90g+', acabamento: 'Folhas avulsas', preco: '~R$170,85 / 250 un.' },
-          'Cartão de Retorno':      { cat: 'Cartão de visita', tam: '5 × 9 cm', papel: 'Couché 300g', acabamento: 'Refile', preco: '~R$52,94 / 250 un.' },
-          'Pasta':                  { cat: 'Pasta com bolsa', tam: '22 × 31 cm (fechada)', papel: 'Couché 300g+', acabamento: 'Faca especial · Dobra', preco: '~R$205,04 / 50 un.' },
-          'Envelope Ofício':        { cat: 'Envelope', tam: '22 × 11,3 cm', papel: 'Offset 120g+', acabamento: 'Faca especial · Cola', preco: '~R$319,24 / 50 un.' },
-          'Envelope Saco':          { cat: 'Envelope Saco', tam: '24 × 34 cm', papel: 'Offset 120g+', acabamento: 'Faca especial · Cola', preco: '~R$400,00 / 50 un.' },
-          'Recibo':                 { cat: 'Recibo', tam: 'A5 (14,8 × 21 cm)', papel: 'Offset 90g+', acabamento: 'Blocos', preco: '~R$120,84 / 10 blocos' },
+          'Cartão de Retorno':      { cat: 'Cartão de visita', tam: '9 × 4,8 cm', papel: 'Couché Fosco 300g', acabamento: 'Refile', preco: '~R$52,94 / 250 un.' },
+          'Pasta':                  { cat: 'Pasta com bolsa', tam: '22 × 31 cm fechada · gabarito 485×385mm', papel: 'Cartão 300g', acabamento: 'Faca c/ Bolsa · Vinco · Dobra', preco: '~R$205,04 / 50 un.' },
+          'Envelope Ofício':        { cat: 'Envelope', tam: '22 × 11,3 cm', papel: 'Offset 90g', acabamento: 'Faca especial · Cola', preco: '~R$319,24 / 50 un.' },
+          'Envelope Saco':          { cat: 'Envelope Saco', tam: '22,5 × 31,1 cm', papel: 'Offset 90g', acabamento: 'Faca especial · Cola', preco: '~R$400,00 / 50 un.' },
+          'Recibo':                 { cat: 'Recibo', tam: 'A5 (14,8 × 21 cm)', papel: 'Offset 90g', acabamento: 'Blocado Colado · 25 vias', preco: '~R$120,84 / 10 blocos' },
           'Caneca':                 { cat: 'Caneca', tam: 'Arte: 20 × 8 cm', papel: 'Cerâmica', acabamento: 'Sublimação', preco: '~R$33,93 / un.' },
-          'Atestado Médico':        { cat: 'Atestado', tam: 'A5 (14,8 × 21 cm)', papel: 'Offset 90g+', acabamento: 'Blocos ou folhas', preco: '~R$109,19 / 10 blocos' },
-          'Receita de Alta':        { cat: 'Receituário Especial', tam: 'A5 (14,8 × 21 cm)', papel: 'Offset 120g+', acabamento: 'Folhas avulsas', preco: '' },
-          'Checklist Maternidade':  { cat: 'Checklist', tam: 'A4 (21 × 29,7 cm)', papel: 'Offset 120g+', acabamento: 'Folhas avulsas', preco: '' },
-          'Prontuário Médico':      { cat: 'Prontuário', tam: 'A4 (21 × 29,7 cm)', papel: 'Offset 120g+', acabamento: 'Refile · Frente e Verso', preco: '' },
-          'Diário do Xixi':         { cat: 'Diário de Controle', tam: 'A4 Horizontal', papel: 'Offset 120g+', acabamento: 'Refile', preco: '' },
-          'Meu Pratinho':           { cat: 'Guia Educativo', tam: 'A4 Horizontal', papel: 'Couché 240g+', acabamento: 'Refile · Frente e Verso', preco: '' },
-          'Ficha de Cadastro':      { cat: 'Ficha Cadastral', tam: 'A4 (21 × 29,7 cm)', papel: 'Offset 90g+', acabamento: 'Refile', preco: '' },
-          'Certificado de Coragem': { cat: 'Certificado', tam: 'A5 (14,8 × 21 cm)', papel: 'Couché 240g+', acabamento: 'Refile', preco: '' },
+          'Atestado Médico':        { cat: 'Atestado', tam: 'A5 (14,8×21 cm) ou A4 (21×29,7 cm)', papel: 'Offset 90g', acabamento: 'Blocado Colado · 25 vias', preco: '~R$109,19 / 10 blocos' },
+          'Receita de Alta':        { cat: 'Receituário Especial', tam: 'A4 (21 × 29,7 cm)', papel: 'Offset 90g', acabamento: 'Blocado Colado · 50 vias', preco: '' },
+          'Checklist Maternidade':  { cat: 'Checklist', tam: 'A4 (21 × 29,7 cm)', papel: 'Offset 120g', acabamento: 'Refile · Frente', preco: '~R$261,07 / 250 un.' },
+          'Prontuário Médico':      { cat: 'Prontuário', tam: 'A4 (21 × 29,7 cm)', papel: 'Couché Fosco 150g (ou 300g premium)', acabamento: 'Refile · Frente e Verso', preco: '' },
+          'Gráfico de Crescimento':  { cat: 'Gráfico Clínico', tam: 'A4 (21 × 29,7 cm) · 4 páginas', papel: 'Offset 120g', acabamento: 'Refile · Frente e Verso', preco: '~R$244,59 / 250 un.' },
+          'Orientação':              { cat: 'Orientação Médica', tam: 'A4 (21 × 29,7 cm)', papel: 'Offset 120g', acabamento: 'Refile · Frente', preco: '~R$261,07 / 250 un.' },          'Diário do Xixi':         { cat: 'Diário de Controle', tam: 'A4 Horizontal', papel: 'Offset 120g+', acabamento: 'Refile', preco: '' },
+          'Meu Pratinho':           { cat: 'Guia Educativo', tam: 'A4 Horizontal', papel: 'Couché Fosco 115g', acabamento: 'Refile · Frente e Verso', preco: '~R$318,80 / 250 un.' },
+          'Ficha de Cadastro':      { cat: 'Ficha Cadastral', tam: 'A4 (21 × 29,7 cm)', papel: 'Offset 120g', acabamento: 'Blocado Colado · 50 vias', preco: '' },
+          'Certificado de Coragem': { cat: 'Certificado', tam: 'A5 (14,8 × 21 cm)', papel: 'Cartão 300g', acabamento: 'Refile · Frente', preco: '~R$409,09 / 250 un.' },
+          'Tag para Sacola':        { cat: 'Tag / Etiqueta', tam: '9×4,8 cm · 4,8×4,8 cm · 6×6 cm', papel: 'Couché 300g+', acabamento: 'Refile · Furo', preco: '' },
           'Cartão de Aniversário':  { cat: 'Flyer', tam: 'A6 (10,5 × 14,8 cm)', papel: 'Couché 240g+', acabamento: 'Refile', preco: '' },
           'Caderneta':              { cat: 'Livreto', tam: 'A5 (14,8 × 21 cm)', papel: 'Offset 120g+', acabamento: 'Grampo canoa', preco: '' },
           'Livro de Atividades':    { cat: 'Livreto', tam: 'A5 (14,8 × 21 cm)', papel: 'Offset 120g+', acabamento: 'Grampo canoa', preco: '' },
@@ -6948,10 +6945,13 @@ ${fontImports2}
         const folderItems = ['Guia de Cuidados','Guia Alimentar','Guia de Desenvolvimento','Cartão de Vacina','Guia Pré-natal', 'Guia do Sono'];
         const isAmamentacaoModal = pendingItem?.includes('Amamentação');
         
-        let spec = Object.keys(SPECS).find(k => pendingItem?.includes(k)) ? SPECS[Object.keys(SPECS).find(k => pendingItem?.includes(k))] : (folderItems.some(f => pendingItem?.includes(f)) ? { cat: 'Folder Trifold', tam: 'A4 Aberto / A5 Fechado (6 pág)', papel: 'Couché ou Cartão 150g+', acabamento: '2 dobras (sanfonado)', preco: '~R$250,00 / 250 un.' } : null);
+        let spec = Object.keys(SPECS).find(k => pendingItem?.includes(k)) ? SPECS[Object.keys(SPECS).find(k => pendingItem?.includes(k))] : (folderItems.some(f => pendingItem?.includes(f)) ? { cat: 'Folder Trifold', tam: 'A5 fechado (14,8×21 cm) · 6 páginas', papel: 'Couché Fosco 90g', acabamento: 'Carteira · 2 Dobras', preco: '~R$326,56 / 250 un.' } : null);
         
         if (isAmamentacaoModal) {
-          spec = { cat: 'Folder Sanfonado', tam: 'DL (8 páginas - 10x20cm)', papel: 'Couché ou Cartão 150g+', acabamento: '3 dobras (sanfonado)', preco: '~R$280,00 / 250 un.' };
+          spec = { cat: 'Folder Sanfonado', tam: 'DL (10×20 cm) · 8 páginas', papel: 'Couché Fosco 90g', acabamento: 'Sanfona · 3 Dobras', preco: '~R$337,60 / 250 un.' };
+        }
+        if (pendingItem?.includes('Pré-Natal') || pendingItem?.includes('Pre-Natal')) {
+          spec = { cat: 'Folder Simples', tam: 'A5 fechado (14,8×21 cm) · 4 páginas', papel: 'Couché Fosco 150g', acabamento: 'Simples · 1 Dobra', preco: '~R$430,95 / 250 un.' };
         }
         // A4 upgrade para itens que suportam
         if (spec && paperSize === 'a4' && ['Receituário', 'Recibo', 'Ficha', 'Prontuário', 'Certificado', 'Checklist', 'Atestado'].some(n => pendingItem?.includes(n))) {
