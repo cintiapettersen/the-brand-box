@@ -87,9 +87,9 @@ export function LogoPreviewHTML({ editData, color, layout = 'stacked', scaleFact
     const reservedH = explicitMaxH || Math.round(scaleFactor * 160);
     // Tamanho padrão (slider 100%) = 70% do espaço reservado — deixa margem
     const defaultH = Math.round(reservedH * 0.7);
-    // Slider ajusta de 10% a 200% do defaultH, sem ultrapassar reservedH
+    // Slider ajusta livremente — clipping feito pelo container pai de cada item
     const scaledH = Math.round(defaultH * (customLogoScale / 100));
-    const displayH = `${Math.min(scaledH, reservedH)}px`;
+    const displayH = `${scaledH}px`;
     const imgMaxW = maxWidth || '100%';
 
     const containerStyle = {
@@ -6363,7 +6363,7 @@ body { font-family:'Montserrat',sans-serif; }
         // No contexto scale(3.78): 1mm = 3.78px na tela → usar px equivalentes (Xmm / 3.78 = Xpx)
         // No contexto scale(3.78): 1px = 1mm no papel — scaleFactor igual ao preview
         const _vacinaLogoHtml = ReactDOMServer.renderToString(
-          <LogoPreviewHTML editData={itemEditData} color={logoColor} layout={logoLayout||'stacked'} scaleFactor={0.32} crm={crmLine} hideTagline={false} withBackground={!!(comBorda && patternSrc)} maxWidth="80px" maxHeight="28px" />
+          <LogoPreviewHTML editData={itemEditData} color={logoColor} layout={logoLayout||'stacked'} scaleFactor={0.64} crm={crmLine} hideTagline={false} withBackground={!!(comBorda && patternSrc)} maxWidth="80px" maxHeight="56px" />
         );
         const p1Content = isVacina ? `<div style="width:148px; height:210px; transform:scale(3.78); transform-origin:top left;">${ReactDOMServer.renderToString(React.createElement(Art1, { accentColor, palette: paletteColors, logoComponent: <div dangerouslySetInnerHTML={{ __html: _vacinaLogoHtml }} /> }))}</div>` : `
           <div style="display:flex;flex-direction:column;align-items:center;justify-content:center;padding:10mm;text-align:center;height:100%;">
