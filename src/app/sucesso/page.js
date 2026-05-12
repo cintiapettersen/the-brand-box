@@ -5715,7 +5715,7 @@ html, body { width:${totalW}mm; height:${totalH}mm; overflow:hidden; }
       const fiC = `<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700;800;900&display=swap" rel="stylesheet">${_lfC ? `<style>${_lfC}</style>` : `<link href="https://fonts.googleapis.com/css2?family=${encodeURIComponent(_ffC)}:wght@400;700&display=swap" rel="stylesheet">`}`;
       const hasCustomLogoC = !!itemEditData?.customLogoSrc;
       const effectiveLayoutC = (comBorda && patternSrc && !hasCustomLogoC) ? 'balanced' : (logoLayout || 'stacked');
-      const _sfC = (comBorda && patternSrc) ? 0.53 : 0.84;
+      const _sfC = (comBorda && patternSrc) ? 1.06 : 1.68; // 2x vs preview (logo no PDF era metade)
       const logoHtmlC = ReactDOMServer.renderToString(<LogoPreviewHTML editData={itemEditData} color="#ffffff" layout={effectiveLayoutC} scaleFactor={_sfC} crm={null} hideTagline={true} withBackground={hasCustomLogoC} />);
       const circleD = 32;
       const circleBgC = (comBorda && patternSrc) ? solidColor + 'cc' : 'rgba(255,255,255,0.22)';
