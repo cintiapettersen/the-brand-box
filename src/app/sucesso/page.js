@@ -1819,23 +1819,13 @@ function FonteStep({ brand, accentColor, marca, tagline, editData, logoLayout, o
 
       {/* Preview principal — igual ao quadro da aba Logo */}
       <div style={{ width: '100%', aspectRatio: '1/1', background: '#fff', borderRadius: '16px', boxShadow: '0 8px 40px rgba(0,0,0,0.10)', display: 'flex', alignItems: 'center', justifyContent: 'center', overflow: 'hidden' }}>
-        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: '8px', padding: '24px' }}>
-          <div style={{
-            fontFamily: `'${preview.fontFamily}', serif`,
-            fontWeight: preview.weight || 700,
-            fontSize: `${2.2 * (preview.sizeBoost || 1)}rem`,
-            color: accentColor,
-            lineHeight: 1.1,
-            letterSpacing: preview.style === 'script' ? '0' : '2px',
-            textAlign: 'center',
-          }}>
-            {formatName(preview)}
-          </div>
-          {tagline && (
-            <div style={{ fontFamily: 'Montserrat,sans-serif', fontSize: '0.55rem', letterSpacing: '3px', textTransform: 'uppercase', color: '#aaa' }}>
-              {tagline}
-            </div>
-          )}
+        <div style={{ width: '70%', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+          <LogoPreviewHTML
+            editData={{ ...editData, fontFamily: preview.fontFamily, fontWeight: preview.weight || 700, fontStyle: preview.style, fontSizeBoost: preview.sizeBoost || 1, tagline }}
+            color={accentColor}
+            layout={logoLayout}
+            scaleFactor={1}
+          />
         </div>
       </div>
 
@@ -7412,7 +7402,7 @@ function EntregaContent({ brand, plano }) {
         >
           <div style={{ width: '68%', height: '68%', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
             {step === 'logo'
-              ? <LogoPreviewHTML editData={editDataWithLogo} color={logoColor} layout={logoLayout} maxWidth="100%" maxHeight="100%" />
+              ? <LogoPreviewHTML editData={editDataWithLogo} color={logoColor} layout={logoLayout} scaleFactor={1.5} maxWidth="100%" maxHeight="100%" />
               : <BrandTemplateSVG
                   data={seloData}
                   color={submarcaColor || accentColor}
