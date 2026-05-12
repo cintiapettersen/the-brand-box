@@ -126,7 +126,11 @@ const BrandBoard = ({ data, palette, color, seloColor, seloTextColor, patternIma
         // Aplicar sizeBoost para fontes que renderizam menor (ex: Vellary)
         const sizeBoost = data.fontSizeBoost || 1;
         const fontSize = `${(baseFontSize * sizeBoost).toFixed(1)}rem`;
-        
+        // Slogan: 22% do nome, mesmo cálculo do LogoPreviewHTML
+        const logoSizeRem = baseFontSize * sizeBoost;
+        const taglineSizeRem = Math.min(Math.max(logoSizeRem * 0.22, 0.38), 0.6);
+        const taglineLetterSpacing = `${Math.min(3, taglineSizeRem * 16 * 0.3).toFixed(1)}px`;
+
         return (
           <div style={{ height: '180px', width: '350px', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
             {words.length === 2 ? (
@@ -161,11 +165,11 @@ const BrandBoard = ({ data, palette, color, seloColor, seloTextColor, patternIma
                 ) : words.join(' ')}
               </h1>
             )}
-            <p style={{ 
-              fontFamily: "'Montserrat', sans-serif", 
-              fontSize: '0.6rem', 
-              letterSpacing: '3px', 
-              textTransform: 'uppercase', 
+            <p style={{
+              fontFamily: "'Montserrat', sans-serif",
+              fontSize: `${taglineSizeRem.toFixed(2)}rem`,
+              letterSpacing: taglineLetterSpacing,
+              textTransform: 'uppercase',
               color: '#666',
               marginTop: '8px',
               textAlign: 'center',
