@@ -101,16 +101,14 @@ export default function MeuPratinhoPreview({
             </div>
 
             {/* Coluna direita: logo canto direito + prato */}
-            <div style={{ flex: 1, display: 'flex', flexDirection: 'column', padding: '10px 10px 20px 6px' }}>
+            <div style={{ flex: 1, display: 'flex', flexDirection: 'column', padding: '4px 8px 10px 6px' }}>
               {/* Logo alinhada à direita */}
               <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: '4px' }}>
-                <div style={{ width: '145px' }}>
-                  <LogoPreviewHTML editData={editData} color={logoColor} layout={logoLayout} scaleFactor={0.42} hideTagline={false} />
-                </div>
+                <LogoPreviewHTML editData={editData} color={logoColor} layout={logoLayout} scaleFactor={0.42} hideTagline={false} />
               </div>
               {/* Prato com anel colorido da paleta */}
               <div style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                <div style={{ position: 'relative', width: '215px', height: '215px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                <div style={{ position: 'relative', width: '195px', height: '195px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                   {/* Anel externo */}
                   <div style={{ position: 'absolute', inset: 0, borderRadius: '50%', background: `conic-gradient(${c0} 0deg 180deg, ${c1} 180deg 360deg)` }} />
                   {/* Espaço branco entre anel e prato */}
