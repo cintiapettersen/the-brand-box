@@ -82,25 +82,35 @@ export function LogoPreviewHTML({ editData, color, layout = 'stacked', scaleFact
   const customLogoScale = customLogoSrcProp ? customLogoScaleProp : (editData?.customLogoScale || 100);
   
   if (customLogoSrc) {
-    const finalScale = customLogoScale; // slider 0-200
-    // Altura base do item = scaleFactor * 120px (espaço reservado para logo neste item)
-    // Slider do usuário ajusta dentro desse espaço, maxHeight explícito tem prioridade
-    const itemMaxH = Math.round(scaleFactor * 120);
-    const baseH = Math.round(itemMaxH * (finalScale / 100));
-    const maxHpx = (maxHeight && !String(maxHeight).includes('%')) ? parseInt(maxHeight) : itemMaxH;
-    const displayH = `${Math.min(baseH, maxHpx)}px`;
+    // Espaço reservado para logo neste item (container fixo, nunca muda)
+    // scaleFactor * 160px = altura máxima que o item "tem" para a logo
+    const reservedH = Math.round(scaleFactor * 160);
+    // Tamanho padrão (slider 100%) = 70% do espaço reservado — deixa margem
+    const defaultH = Math.round(reservedH * 0.7);
+    // Slider ajusta de 10% a 200% do defaultH, sem ultrapassar reservedH
+    const scaledH = Math.round(defaultH * (customLogoScale / 100));
+    const displayH = `${Math.min(scaledH, reservedH)}px`;
     const imgMaxW = maxWidth || '100%';
+
+    const containerStyle = {
+      display: 'flex', alignItems: 'center', justifyContent: 'center',
+      height: `${reservedH}px`, // altura reservada fixa — não empurra layout
+      overflow: 'hidden',
+      flexShrink: 0,
+    };
 
     if (withBackground) {
       return (
-        <div style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', background: 'rgba(255,255,255,0.92)', padding: '2px 4px', borderRadius: '4px', boxSizing: 'border-box' }}>
-          <img src={customLogoSrc} alt="logo" style={{ height: displayH, width: 'auto', maxWidth: imgMaxW, display: 'block', objectFit: 'contain' }} />
+        <div style={containerStyle}>
+          <div style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', background: 'rgba(255,255,255,0.92)', padding: '2px 4px', borderRadius: '4px' }}>
+            <img src={customLogoSrc} alt="logo" style={{ height: displayH, width: 'auto', maxWidth: imgMaxW, display: 'block', objectFit: 'contain' }} />
+          </div>
         </div>
       );
     }
 
     return (
-      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', maxHeight: `${maxHpx}px`, overflow: 'hidden' }}>
+      <div style={containerStyle}>
         <img
           src={customLogoSrc} alt="logo"
           style={{ height: displayH, width: 'auto', maxWidth: imgMaxW, objectFit: 'contain', display: 'block', mixBlendMode: 'multiply' }}
