@@ -5735,8 +5735,9 @@ html, body { width:${totalW}mm; height:${totalH}mm; overflow:hidden; }
         <div style="position:absolute;bottom:${BC}mm;right:0;width:${BC-0.5}mm;height:0.2mm;background:#000;"></div>
         <div style="position:absolute;bottom:0;right:${BC}mm;width:0.2mm;height:${BC-0.5}mm;background:#000;"></div>`;
       const hasPattern = comBorda && patternSrc;
-      // Modo estampa: logo dentro do círculo. Modo sólido: logo direta, sem círculo
-      const logoPos = (leftPct) => hasPattern
+      // Círculo: só para logo de texto com estampa. Logo imagem já tem fundo branco próprio.
+      const useCircle = hasPattern && !hasCustomLogoC;
+      const logoPos = (leftPct) => useCircle
         ? mkCircle(leftPct)
         : `<div style="position:absolute;top:50%;left:${leftPct};transform:translate(-50%,-50%);display:flex;align-items:center;justify-content:center;">${logoHtmlC}</div>`;
       const html = `<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Arte Caneca - ${marca}</title>${fiC}
