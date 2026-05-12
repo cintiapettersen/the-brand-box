@@ -64,18 +64,20 @@ export default function FolderVacinaPage1({ accentColor, palette = [], logoCompo
           </div>
         </div>
 
-        <div style={{ width: '100%', marginTop: '20px', display: 'flex', flexDirection: 'column', gap: '10px' }}>
-          <div style={{ display: 'flex', alignItems: 'flex-end', gap: '4px' }}>
-            <span style={{ fontSize: '7px', fontWeight: 700, color: mainColor }}>NOME:</span>
-            <div style={{ flex: 1, borderBottom: `0.5px solid ${mainColor}40`, height: '8px' }} />
+        <div style={{ width: '88%', marginTop: '16px', display: 'flex', flexDirection: 'column', gap: '7px' }}>
+          {/* Etiqueta NOME */}
+          <div style={{ background: `${mainColor}12`, borderRadius: '20px', padding: '4px 10px', display: 'flex', alignItems: 'center', gap: '5px', border: `0.5px solid ${mainColor}25` }}>
+            <span style={{ fontSize: '6px', fontWeight: 700, color: mainColor, letterSpacing: '0.8px', textTransform: 'uppercase', whiteSpace: 'nowrap' }}>Nome</span>
+            <div style={{ flex: 1, borderBottom: `0.4px solid ${mainColor}30`, height: '7px' }} />
           </div>
-          <div style={{ display: 'flex', alignItems: 'flex-end', gap: '4px' }}>
-            <span style={{ fontSize: '7px', fontWeight: 700, color: mainColor }}>NASCIMENTO:</span>
-            <div style={{ width: '12mm', borderBottom: `0.5px solid ${mainColor}40`, height: '8px' }} />
-            <span style={{ fontSize: '7px', color: mainColor }}>/</span>
-            <div style={{ width: '12mm', borderBottom: `0.5px solid ${mainColor}40`, height: '8px' }} />
-            <span style={{ fontSize: '7px', color: mainColor }}>/</span>
-            <div style={{ width: '12mm', borderBottom: `0.5px solid ${mainColor}40`, height: '8px' }} />
+          {/* Etiqueta NASCIMENTO */}
+          <div style={{ background: `${mainColor}12`, borderRadius: '20px', padding: '4px 10px', display: 'flex', alignItems: 'center', gap: '5px', border: `0.5px solid ${mainColor}25` }}>
+            <span style={{ fontSize: '6px', fontWeight: 700, color: mainColor, letterSpacing: '0.8px', textTransform: 'uppercase', whiteSpace: 'nowrap' }}>Nasc.</span>
+            <div style={{ flex: 1, borderBottom: `0.4px solid ${mainColor}30`, height: '7px' }} />
+            <span style={{ fontSize: '6px', color: `${mainColor}60` }}>/</span>
+            <div style={{ width: '10px', borderBottom: `0.4px solid ${mainColor}30`, height: '7px' }} />
+            <span style={{ fontSize: '6px', color: `${mainColor}60` }}>/</span>
+            <div style={{ width: '10px', borderBottom: `0.4px solid ${mainColor}30`, height: '7px' }} />
           </div>
         </div>
       </div>
