@@ -288,6 +288,15 @@ export function buildReceitaAltaHTML({ logoHtml, solidColor, paletteColors = [],
     ${contactLine ? `<div style="font-size:2.2mm;color:#bbb;font-family:Montserrat,sans-serif;text-align:center;">${contactLine}</div>` : ''}
   </div>
   </div>
+  <!-- Crop marks BLEED=5mm -->
+  <div style="position:absolute;top:5mm;left:0;width:4mm;height:0.2mm;background:#000;z-index:100;"></div>
+  <div style="position:absolute;top:0;left:5mm;width:0.2mm;height:4mm;background:#000;z-index:100;"></div>
+  <div style="position:absolute;top:5mm;right:0;width:4mm;height:0.2mm;background:#000;z-index:100;"></div>
+  <div style="position:absolute;top:0;right:5mm;width:0.2mm;height:4mm;background:#000;z-index:100;"></div>
+  <div style="position:absolute;bottom:5mm;left:0;width:4mm;height:0.2mm;background:#000;z-index:100;"></div>
+  <div style="position:absolute;bottom:0;left:5mm;width:0.2mm;height:4mm;background:#000;z-index:100;"></div>
+  <div style="position:absolute;bottom:5mm;right:0;width:4mm;height:0.2mm;background:#000;z-index:100;"></div>
+  <div style="position:absolute;bottom:0;right:5mm;width:0.2mm;height:4mm;background:#000;z-index:100;"></div>
 </div>
 </body></html>`;
 }
