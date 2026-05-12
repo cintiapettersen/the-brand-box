@@ -133,10 +133,10 @@ export function LogoPreviewHTML({ editData, color, layout = 'stacked', scaleFact
   const sansPenalty = (isSansBold && effectiveScaleFactor > 1.5) ? (marca.length > 18 ? 0.42 : marca.length > 12 ? 0.55 : marca.length > 8 ? 0.68 : 1) : 1;
   const logoSizeRem = baseSize * sizeBoost * effectiveScaleFactor * sansPenalty;
   const fontSize = `${logoSizeRem.toFixed(2)}rem`;
-  // Slogan: sempre 35% do nome — proporcional puro, sem teto nem piso
-  // Se menor que 0.10rem é ilegível de qualquer forma, oculta
-  const taglineSizeRem = logoSizeRem * 0.35;
-  const taglineVisible = taglineSizeRem >= 0.10;
+  // Slogan: 35% do nome (proporção tipográfica 1/3), piso proporcional ao scale para visibilidade
+  // Sem teto — logos grandes mantêm proporção. Oculta apenas se < 0.08rem (verdadeiramente invisível)
+  const taglineSizeRem = Math.max(logoSizeRem * 0.35, 0.38 * effectiveScaleFactor);
+  const taglineVisible = taglineSizeRem >= 0.08;
   const taglineGapPx = Math.round(taglineSizeRem * 16 * 0.4);
   // Letter-spacing proporcional: 30% da fonte, máx 3px
   const taglineLetterSpacing = `${Math.min(3, taglineSizeRem * 16 * 0.3).toFixed(1)}px`;
