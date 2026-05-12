@@ -154,7 +154,7 @@ const BrandBoard = ({ data, palette, color, seloColor, seloTextColor, patternIma
                 color: activeColor,
                 textAlign: 'center',
                 lineHeight: data.fontLineHeight || 1.15,
-                letterSpacing: isScript ? '0px' : '1px',
+                letterSpacing: data.fontLetterSpacing || (isScript ? '0px' : '1px'),
               }}>
                 {data.fontFeatureSettings ? (
                   <><span style={{ fontFeatureSettings: data.fontFeatureSettings, fontFamily: 'inherit', fontWeight: 'inherit' }}>{words.join(' ')[0]}</span><span style={{ fontFeatureSettings: 'normal', fontFamily: 'inherit', fontWeight: 'inherit' }}>{words.join(' ').slice(1)}</span></>

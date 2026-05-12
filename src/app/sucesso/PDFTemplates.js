@@ -65,8 +65,8 @@ export const genPDFLogoHtml = ({ brand, editDataOverride = null, color, localSlo
     </div>
   `;
 
-  const _sloganColor = sloganColor || '#999';
-  const sloganPart = (localSlogan && !hideSlogan) ? `<div style="${PDFStyles.montserrat} font-size:${effectiveSloganSize}; font-weight:700; letter-spacing:0.25em; text-transform:uppercase; color:${_sloganColor}; margin-top:${isStacked ? '4pt' : '0'}; text-align:center; white-space:nowrap;">${localSlogan}</div>` : '';
+  const _sloganColor = sloganColor || '#666';
+  const sloganPart = (localSlogan && !hideSlogan) ? `<div style="${PDFStyles.montserrat} font-size:${effectiveSloganSize}; font-weight:700; letter-spacing:3px; text-transform:uppercase; color:${_sloganColor}; margin-top:${isStacked ? '4pt' : '0'}; text-align:center; white-space:nowrap;">${localSlogan}</div>` : '';
   
   const crmPart = crmLine ? `<div style="${PDFStyles.montserrat} font-size:${crmSize}; letter-spacing:1pt; text-transform:uppercase; color:#bbb; margin-top:4pt; text-align:center; opacity:0.8;">${crmLine}</div>` : '';
 

@@ -160,7 +160,7 @@ export function LogoPreviewHTML({ editData, color, layout = 'stacked', scaleFact
         ))}
       </div>
       {(editData?.tagline && !hideTagline) && (
-        <div style={{ fontFamily: "'Montserrat', sans-serif", fontSize: `${taglineSizeRem.toFixed(2)}rem`, letterSpacing: '0.25em', textTransform: 'uppercase', color: taglineColor || '#999', marginTop: `${taglineGapPx}px`, textAlign: 'center', lineHeight: 1.2, maxWidth: '100%', whiteSpace: 'nowrap' }}>
+        <div style={{ fontFamily: "'Montserrat', sans-serif", fontSize: `${taglineSizeRem.toFixed(2)}rem`, letterSpacing: '3px', textTransform: 'uppercase', color: taglineColor || '#666', marginTop: `${taglineGapPx}px`, textAlign: 'center', lineHeight: 1.2, maxWidth: '100%', whiteSpace: 'nowrap' }}>
           {editData.tagline}
         </div>
       )}
