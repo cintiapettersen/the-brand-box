@@ -5452,11 +5452,11 @@ body { width: 303mm; height: 216mm; position: relative; overflow: hidden; backgr
     }
 
     if (item === 'Meu Pratinho') {
-      // Busca o SVG antes de montar o HTML para evitar img externo no iframe de impressão
-      const pratinhoSvgText = await fetch('/pratinho-plate.svg').then(r => r.text()).catch(() => '');
-      const pratinhoSvgInline = pratinhoSvgText
-        ? pratinhoSvgText.replace(/<\?xml[^>]*\?>/, '').replace(/<!DOCTYPE[^>]*>/i, '').trim()
-        : '';
+      // Converte SVG para data URL para funcionar no iframe de impressão sem request externo
+      const pratinhoDataUrl = await fetch('/pratinho-plate.svg')
+        .then(r => r.blob())
+        .then(blob => new Promise(resolve => { const fr = new FileReader(); fr.onload = e => resolve(e.target.result); fr.readAsDataURL(blob); }))
+        .catch(() => '/pratinho-plate.svg');
       const BLEED = 3;
       const W = 297, H = 210;
       const BORDER = 10;
@@ -5551,8 +5551,8 @@ body { background:#fff; }
         <div style="position:relative;width:126mm;height:126mm;display:flex;align-items:center;justify-content:center;">
           <div style="position:absolute;inset:0;border-radius:50%;background:conic-gradient(${_c0} 0deg 180deg,${_c1} 180deg 360deg);"></div>
           <div style="position:absolute;inset:3.5mm;border-radius:50%;background:#fff;"></div>
-          <div style="position:absolute;inset:5mm;border-radius:50%;overflow:hidden;display:flex;align-items:center;justify-content:center;">
-            ${pratinhoSvgInline ? `<div style="width:100%;height:100%;">${pratinhoSvgInline}</div>` : ''}
+          <div style="position:absolute;inset:5mm;border-radius:50%;overflow:hidden;">
+            <img src="${pratinhoDataUrl}" style="width:100%;height:100%;object-fit:cover;" />
           </div>
         </div>
       </div>
