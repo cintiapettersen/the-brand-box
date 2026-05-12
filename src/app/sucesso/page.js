@@ -133,13 +133,12 @@ export function LogoPreviewHTML({ editData, color, layout = 'stacked', scaleFact
   const sansPenalty = (isSansBold && effectiveScaleFactor > 1.5) ? (marca.length > 18 ? 0.42 : marca.length > 12 ? 0.55 : marca.length > 8 ? 0.68 : 1) : 1;
   const logoSizeRem = baseSize * sizeBoost * effectiveScaleFactor * sansPenalty;
   const fontSize = `${logoSizeRem.toFixed(2)}rem`;
-  // Slogan: 35% do nome (proporção tipográfica 1/3), piso proporcional ao scale para visibilidade
-  // Sem teto — logos grandes mantêm proporção. Oculta apenas se < 0.08rem (verdadeiramente invisível)
-  const taglineSizeRem = Math.max(logoSizeRem * 0.35, 0.38 * effectiveScaleFactor);
+  // Slogan: 40% do nome, piso proporcional ao scale para visibilidade
+  // Letter-spacing em 'em' — escala junto com a fonte, visual idêntico em qualquer escala
+  const taglineSizeRem = Math.max(logoSizeRem * 0.40, 0.38 * effectiveScaleFactor);
   const taglineVisible = taglineSizeRem >= 0.08;
   const taglineGapPx = Math.round(taglineSizeRem * 16 * 0.4);
-  // Letter-spacing proporcional: 30% da fonte, máx 3px
-  const taglineLetterSpacing = `${Math.min(3, taglineSizeRem * 16 * 0.3).toFixed(1)}px`;
+  const taglineLetterSpacing = '0.35em';
 
   const textContent = (
     <div style={{ width: '100%', height: '100%', display: 'flex', flexDirection: 'column', alignItems: alignLeft ? 'flex-start' : 'center', justifyContent: 'center', overflow: 'hidden' }}>

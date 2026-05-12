@@ -57,11 +57,10 @@ export const genPDFLogoHtml = ({ brand, editDataOverride = null, color, localSlo
   }
 
   // Slogan: sempre 22% do nome — proporcional puro, igual ao LogoPreviewHTML
-  const effectiveSloganSize = sloganSize || (fontPt ? (parseFloat(fontPt) * 0.35).toFixed(1) + 'pt' : '0pt');
+  // Slogan: 40% do nome, letter-spacing em 'em' — consistente com LogoPreviewHTML
+  const effectiveSloganSize = sloganSize || (fontPt ? (parseFloat(fontPt) * 0.40).toFixed(1) + 'pt' : '0pt');
   const isStacked = true; // slogan sempre embaixo — "horizontal" só afeta quebra de linha do nome
-  // Letter-spacing proporcional: 30% da fonte, max 3px
-  const _sloganPt = parseFloat(effectiveSloganSize) || 0;
-  const _sloganLs = Math.min(3, _sloganPt * 0.3).toFixed(1) + 'px';
+  const _sloganLs = '0.35em';
 
   const logoMain = `
     <div style="text-align:center; font-family:${brandFont}; font-weight:${_ed.fontWeight || 700}; font-size:${fontPt}pt; color:${color}; line-height:${lineH}; letter-spacing:${letterSp}; white-space:nowrap;">

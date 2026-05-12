@@ -126,10 +126,10 @@ const BrandBoard = ({ data, palette, color, seloColor, seloTextColor, patternIma
         // Aplicar sizeBoost para fontes que renderizam menor (ex: Vellary)
         const sizeBoost = data.fontSizeBoost || 1;
         const fontSize = `${(baseFontSize * sizeBoost).toFixed(1)}rem`;
-        // Slogan: 35% do nome, sem teto — igual ao LogoPreviewHTML em escala grande
+        // Slogan: 40% do nome, letter-spacing em 'em' — igual ao LogoPreviewHTML
         const logoSizeRem = baseFontSize * sizeBoost;
-        const taglineSizeRem = logoSizeRem * 0.35;
-        const taglineLetterSpacing = `${Math.min(3, taglineSizeRem * 16 * 0.3).toFixed(1)}px`;
+        const taglineSizeRem = logoSizeRem * 0.40;
+        const taglineLetterSpacing = '0.35em';
 
         return (
           <div style={{ height: '180px', width: '350px', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
