@@ -5452,9 +5452,7 @@ body { width: 303mm; height: 216mm; position: relative; overflow: hidden; backgr
     }
 
     if (item === 'Meu Pratinho') {
-      // Cria blob URL do SVG — curta, mesmo origin, carrega no iframe sem problemas
-      const pratinhoBlob = await fetch('/pratinho-plate.svg').then(r => r.blob()).catch(() => null);
-      const pratinhoDataUrl = pratinhoBlob ? URL.createObjectURL(pratinhoBlob) : '/pratinho-plate.svg';
+      const pratinhoBlob = null; // unused, kept for cleanup logic below
       const BLEED = 3;
       const W = 297, H = 210;
       const BORDER = 10;
@@ -5550,7 +5548,7 @@ body { background:#fff; }
           <div style="position:absolute;inset:0;border-radius:50%;background:conic-gradient(${_c0} 0deg 180deg,${_c1} 180deg 360deg);"></div>
           <div style="position:absolute;inset:3.5mm;border-radius:50%;background:#fff;"></div>
           <div style="position:absolute;inset:5mm;border-radius:50%;overflow:hidden;">
-            <img src="${pratinhoDataUrl}" style="width:100%;height:100%;object-fit:cover;" />
+            <img src="${window.location.origin}/pratinho-plate.svg" style="width:100%;height:100%;object-fit:cover;" />
           </div>
         </div>
       </div>
