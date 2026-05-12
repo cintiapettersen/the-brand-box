@@ -136,6 +136,8 @@ export function LogoPreviewHTML({ editData, color, layout = 'stacked', scaleFact
   // Slogan: 22% do tamanho da logo, mínimo legível, máximo controlado
   const taglineSizeRem = Math.min(Math.max(logoSizeRem * 0.22, 0.38 * effectiveScaleFactor), 0.6);
   const taglineGapPx = Math.min(Math.round(5 * effectiveScaleFactor), 8);
+  // Letter-spacing do slogan proporcional ao tamanho: max 3px mas nunca mais que 30% da fonte
+  const taglineLetterSpacing = `${Math.min(3, taglineSizeRem * 16 * 0.3).toFixed(1)}px`;
 
   const textContent = (
     <div style={{ width: '100%', height: '100%', display: 'flex', flexDirection: 'column', alignItems: alignLeft ? 'flex-start' : 'center', justifyContent: 'center', overflow: 'hidden' }}>
@@ -160,7 +162,7 @@ export function LogoPreviewHTML({ editData, color, layout = 'stacked', scaleFact
         ))}
       </div>
       {(editData?.tagline && !hideTagline) && (
-        <div style={{ fontFamily: "'Montserrat', sans-serif", fontSize: `${taglineSizeRem.toFixed(2)}rem`, letterSpacing: '3px', textTransform: 'uppercase', color: taglineColor || '#666', marginTop: `${taglineGapPx}px`, textAlign: 'center', lineHeight: 1.2, maxWidth: '100%', whiteSpace: 'nowrap' }}>
+        <div style={{ fontFamily: "'Montserrat', sans-serif", fontSize: `${taglineSizeRem.toFixed(2)}rem`, letterSpacing: taglineLetterSpacing, textTransform: 'uppercase', color: taglineColor || '#666', marginTop: `${taglineGapPx}px`, textAlign: 'center', lineHeight: 1.2, maxWidth: '100%', overflow: 'hidden', whiteSpace: 'nowrap' }}>
           {editData.tagline}
         </div>
       )}

@@ -58,6 +58,9 @@ export const genPDFLogoHtml = ({ brand, editDataOverride = null, color, localSlo
 
   const effectiveSloganSize = sloganSize || (fontPt ? (parseFloat(fontPt) * 0.35).toFixed(1) + 'pt' : '7pt');
   const isStacked = true; // slogan sempre embaixo — "horizontal" só afeta quebra de linha do nome
+  // Letter-spacing proporcional: max 3px, nunca mais que 30% do tamanho da fonte do slogan
+  const _sloganPt = parseFloat(effectiveSloganSize) || 7;
+  const _sloganLs = Math.min(3, _sloganPt * 0.3).toFixed(1) + 'px';
 
   const logoMain = `
     <div style="text-align:center; font-family:${brandFont}; font-weight:${_ed.fontWeight || 700}; font-size:${fontPt}pt; color:${color}; line-height:${lineH}; letter-spacing:${letterSp}; white-space:nowrap;">
@@ -66,7 +69,7 @@ export const genPDFLogoHtml = ({ brand, editDataOverride = null, color, localSlo
   `;
 
   const _sloganColor = sloganColor || '#666';
-  const sloganPart = (localSlogan && !hideSlogan) ? `<div style="${PDFStyles.montserrat} font-size:${effectiveSloganSize}; font-weight:700; letter-spacing:3px; text-transform:uppercase; color:${_sloganColor}; margin-top:${isStacked ? '4pt' : '0'}; text-align:center; white-space:nowrap;">${localSlogan}</div>` : '';
+  const sloganPart = (localSlogan && !hideSlogan) ? `<div style="${PDFStyles.montserrat} font-size:${effectiveSloganSize}; font-weight:700; letter-spacing:${_sloganLs}; text-transform:uppercase; color:${_sloganColor}; margin-top:${isStacked ? '4pt' : '0'}; text-align:center; white-space:nowrap; overflow:hidden;">${localSlogan}</div>` : '';
   
   const crmPart = crmLine ? `<div style="${PDFStyles.montserrat} font-size:${crmSize}; letter-spacing:1pt; text-transform:uppercase; color:#bbb; margin-top:4pt; text-align:center; opacity:0.8;">${crmLine}</div>` : '';
 
