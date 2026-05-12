@@ -6866,8 +6866,10 @@ ${fontImports2}
       {/* Escala da logo na papelaria */}
       <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '14px', padding: '4px 0' }}>
         <span style={{ fontSize: '0.68rem', color: '#999', fontWeight: 600, fontFamily: 'Montserrat,sans-serif', whiteSpace: 'nowrap' }}>Escala da logo</span>
-        <input type="range" min="10" max={getCustomLogoScaleMax(currentItem)} step="5"
-          value={getCustomLogoScale(currentItem)}
+        <input type="range" min="10"
+          max={currentItem.includes('Cartão de Visita') && cartaoRetrato ? 105 : getCustomLogoScaleMax(currentItem)}
+          step="5"
+          value={Math.min(getCustomLogoScale(currentItem), currentItem.includes('Cartão de Visita') && cartaoRetrato ? 105 : getCustomLogoScaleMax(currentItem))}
           onChange={e => setCustomLogoScale(currentItem, parseInt(e.target.value))}
           style={{ flex: 1, accentColor }} />
         <span style={{ fontSize: '0.68rem', color: '#aaa', width: '32px' }}>{getCustomLogoScale(currentItem)}%</span>
