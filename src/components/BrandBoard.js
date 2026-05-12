@@ -126,9 +126,9 @@ const BrandBoard = ({ data, palette, color, seloColor, seloTextColor, patternIma
         // Aplicar sizeBoost para fontes que renderizam menor (ex: Vellary)
         const sizeBoost = data.fontSizeBoost || 1;
         const fontSize = `${(baseFontSize * sizeBoost).toFixed(1)}rem`;
-        // Slogan: 22% do nome, mesmo cálculo do LogoPreviewHTML
+        // Slogan: 22% do nome, mínimo 0.55rem pois a Placa exibe em escala grande
         const logoSizeRem = baseFontSize * sizeBoost;
-        const taglineSizeRem = Math.min(Math.max(logoSizeRem * 0.22, 0.38), 0.6);
+        const taglineSizeRem = Math.min(Math.max(logoSizeRem * 0.22, 0.55), 0.7);
         const taglineLetterSpacing = `${Math.min(3, taglineSizeRem * 16 * 0.3).toFixed(1)}px`;
 
         return (
