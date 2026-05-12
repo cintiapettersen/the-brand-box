@@ -82,9 +82,9 @@ export function LogoPreviewHTML({ editData, color, layout = 'stacked', scaleFact
   const customLogoScale = customLogoSrcProp ? customLogoScaleProp : (editData?.customLogoScale || 100);
   
   if (customLogoSrc) {
-    // Espaço reservado para logo neste item (container fixo, nunca muda)
-    // scaleFactor * 160px = altura máxima que o item "tem" para a logo
-    const reservedH = Math.round(scaleFactor * 160);
+    // Espaço reservado: scaleFactor * 160px, mas maxHeight explícito tem prioridade
+    const explicitMaxH = (maxHeight && !String(maxHeight).includes('%')) ? parseInt(maxHeight) : null;
+    const reservedH = explicitMaxH || Math.round(scaleFactor * 160);
     // Tamanho padrão (slider 100%) = 70% do espaço reservado — deixa margem
     const defaultH = Math.round(reservedH * 0.7);
     // Slider ajusta de 10% a 200% do defaultH, sem ultrapassar reservedH
@@ -2416,8 +2416,8 @@ function DiarioXixiPreview({ accentColor, patternSrc, editData, logoColor, logoL
                 <div style={{ flex: 1, borderBottom: '1px dashed #ccc', width: '230px', marginBottom: '2px' }} />
               </div>
             </div>
-            <div style={{ width: '130px', display: 'flex', flexDirection: 'column', alignItems: 'flex-end', marginTop: '2px' }}>
-              <LogoPreviewHTML editData={editData} color={logoColor} layout={logoLayout} scaleFactor={0.5} crm={crmLine} hideTagline={hideTagline} />
+            <div style={{ width: '130px', maxHeight: '55px', overflow: 'hidden', display: 'flex', flexDirection: 'column', alignItems: 'flex-end', marginTop: '2px' }}>
+              <LogoPreviewHTML editData={editData} color={logoColor} layout={logoLayout} scaleFactor={0.32} crm={crmLine} hideTagline={hideTagline} maxHeight="50px" />
             </div>
           </div>
 
