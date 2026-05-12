@@ -3277,7 +3277,7 @@ function FolderTrifoldPreview({ brand, editData, logoColor, logoLayout, comBorda
             <div style={{ position: 'absolute', top: '10px', left: '10px', right: '10px', bottom: '10px', background: '#fff', borderRadius: '2px', boxShadow: '0 2px 10px rgba(0,0,0,0.1)', zIndex: 2, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', overflow: 'hidden', border: `0.5px solid ${accentColor}15`, clipPath: folderRoof ? 'polygon(0% 12%, 50% 0%, 100% 12%, 100% 100%, 0% 100%)' : 'none', transition: 'clip-path 0.3s ease' }}>
                 {isVacina ? (
                   <div style={{ width: '100%', height: '100%', transform: 'scale(0.92)', transformOrigin: 'center center' }}>
-                    <Art1 accentColor={accentColor} palette={paletteColors} logoComponent={<LogoPreviewHTML editData={_brandData} color={logoColor} layout={logoLayout} scaleFactor={0.22} crm={crmLine} />} />
+                    <Art1 accentColor={accentColor} palette={paletteColors} logoComponent={<LogoPreviewHTML editData={_brandData} color={logoColor} layout={logoLayout} scaleFactor={0.31} crm={crmLine} />} />
                   </div>
                 ) : (
                   <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'flex-start', paddingTop: '32px', textAlign: 'center', width: '100%', height: '100%' }}>
