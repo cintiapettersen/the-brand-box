@@ -5452,11 +5452,9 @@ body { width: 303mm; height: 216mm; position: relative; overflow: hidden; backgr
     }
 
     if (item === 'Meu Pratinho') {
-      // Converte SVG para data URL para funcionar no iframe de impressão sem request externo
-      const pratinhoDataUrl = await fetch('/pratinho-plate.svg')
-        .then(r => r.blob())
-        .then(blob => new Promise(resolve => { const fr = new FileReader(); fr.onload = e => resolve(e.target.result); fr.readAsDataURL(blob); }))
-        .catch(() => '/pratinho-plate.svg');
+      // Cria blob URL do SVG — curta, mesmo origin, carrega no iframe sem problemas
+      const pratinhoBlob = await fetch('/pratinho-plate.svg').then(r => r.blob()).catch(() => null);
+      const pratinhoDataUrl = pratinhoBlob ? URL.createObjectURL(pratinhoBlob) : '/pratinho-plate.svg';
       const BLEED = 3;
       const W = 297, H = 210;
       const BORDER = 10;
@@ -5606,7 +5604,16 @@ body { background:#fff; }
       document.body.appendChild(iframeP);
       iframeP.contentDocument.open(); iframeP.contentDocument.write(html); iframeP.contentDocument.close();
       const _pT_5593 = document.title; document.title = pdfTitle('Meu Pratinho');
-      iframeP.contentWindow.document.fonts.ready.then(() => { setTimeout(() => { iframeP.contentWindow.focus(); iframeP.contentWindow.print(); setTimeout(() => { iframeP.remove(); }, 3000); }, 1000); });
+      iframeP.contentWindow.document.fonts.ready.then(() => {
+        const imgs = Array.from(iframeP.contentDocument.images);
+        const waitImgs = imgs.map(img => img.complete ? Promise.resolve() : new Promise(r => { img.onload = r; img.onerror = r; }));
+        Promise.all(waitImgs).then(() => {
+          setTimeout(() => {
+            iframeP.contentWindow.focus(); iframeP.contentWindow.print();
+            setTimeout(() => { if (pratinhoBlob) URL.revokeObjectURL(pratinhoDataUrl); iframeP.remove(); }, 3000);
+          }, 400);
+        });
+      });
       return;
     }
 
