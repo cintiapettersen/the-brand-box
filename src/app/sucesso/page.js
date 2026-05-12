@@ -5397,8 +5397,8 @@ body { width: 303mm; height: 216mm; position: relative; overflow: hidden; backgr
                     <div style="flex:1;border-bottom:0.5mm dashed #ccc;min-width:140mm;margin-bottom:2mm;"></div>
                 </div>
             </div>
-            <div style="width:90mm;display:flex;flex-direction:column;align-items:flex-end;zoom:2.0;margin-top:2mm;">
-                ${logoHtml}
+            <div style="width:70mm;display:flex;flex-direction:column;align-items:flex-end;margin-top:2mm;">
+                ${genPDFLogoHtml({ brand, editDataOverride: editData, color: logoColor, layout: logoLayout, localSlogan, crmLine, fontPt: _fontPt, lineH: _lineH, letterSp: _letterSp, customLogoSrc, customLogoScale: getCustomLogoScale(item) * (ITEM_CUSTOM_BASE_SCALES[item] || 1), maxWidth: '70mm', maxHeight: '20mm' })}
             </div>
         </div>
 
