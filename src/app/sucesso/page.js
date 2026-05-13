@@ -159,10 +159,9 @@ export function LogoPreviewHTML({ editData, color, layout = 'stacked', scaleFact
         fontSize,
         color: color,
         textAlign: alignLeft ? 'left' : 'center',
-        lineHeight: editData?.fontLineHeight || (isScript ? 0.9 : 1.1),
+        lineHeight: editData?.fontLineHeight || (isScript ? 1.6 : 1.1),
         letterSpacing: editData?.fontLetterSpacing || (isScript ? '0px' : '1px'),
         maxWidth: '100%',
-        overflow: 'hidden',
       }}>
         {lines.map((line, i) => (
           <div key={i} style={{ 
