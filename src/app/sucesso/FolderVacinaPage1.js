@@ -24,14 +24,15 @@ export default function FolderVacinaPage1({ accentColor, palette = [], logoCompo
         alignItems: 'center',
         justifyContent: 'space-between',
       }}>
-        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '4px', width: '100%' }}>
-          <div style={{ width: '100%', maxHeight: '70px', display: 'flex', justifyContent: 'center', alignItems: 'center', overflow: 'visible' }}>
-            {logoComponent}
-          </div>
-          <div style={{ textAlign: 'center', marginTop: '4px' }}>
-            <div style={{ fontSize: '7px', fontWeight: 400, color: '#888', letterSpacing: '2px', textTransform: 'uppercase' }}>Guia de</div>
-            <div style={{ fontSize: '16px', fontWeight: 900, color: '#1a1a1a', letterSpacing: '0.8px', textTransform: 'uppercase', lineHeight: 1 }}>VACINA</div>
-          </div>
+        {/* Logo no topo */}
+        <div style={{ width: '100%', maxHeight: '70px', display: 'flex', justifyContent: 'center', alignItems: 'center', overflow: 'visible' }}>
+          {logoComponent}
+        </div>
+
+        {/* Título no meio */}
+        <div style={{ textAlign: 'center' }}>
+          <div style={{ fontSize: '7px', fontWeight: 400, color: '#888', letterSpacing: '2px', textTransform: 'uppercase' }}>Guia de</div>
+          <div style={{ fontSize: '16px', fontWeight: 900, color: '#1a1a1a', letterSpacing: '0.8px', textTransform: 'uppercase', lineHeight: 1 }}>VACINA</div>
         </div>
 
         {/* Etiqueta única */}
