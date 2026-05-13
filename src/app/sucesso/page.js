@@ -6796,8 +6796,20 @@ ${fontImports2}
       {/* Nome do item atual */}
       <div style={{ fontWeight: 700, fontSize: '1.1rem', color: '#1a1a1a' }}>{currentItem}</div>
 
+      {/* Escala da logo — acima do preview para ajuste em tempo real */}
+      <div style={{ display: 'flex', alignItems: 'center', gap: '10px', padding: '4px 0' }}>
+        <span style={{ fontSize: '0.68rem', color: '#999', fontWeight: 600, fontFamily: 'Montserrat,sans-serif', whiteSpace: 'nowrap' }}>Escala da logo</span>
+        <input type="range" min="10"
+          max={currentItem.includes('Cartão de Visita') && cartaoRetrato ? 105 : getCustomLogoScaleMax(currentItem)}
+          step="5"
+          value={Math.min(getCustomLogoScale(currentItem), currentItem.includes('Cartão de Visita') && cartaoRetrato ? 105 : getCustomLogoScaleMax(currentItem))}
+          onChange={e => setCustomLogoScale(currentItem, parseInt(e.target.value))}
+          style={{ flex: 1, accentColor }} />
+        <span style={{ fontSize: '0.68rem', color: '#aaa', width: '32px' }}>{getCustomLogoScale(currentItem)}%</span>
+      </div>
+
       {/* Preview inline */}
-      <div style={{ display: 'flex', justifyContent: 'center', paddingTop: '8px', paddingBottom: '8px' }}>
+      <div style={{ display: 'flex', justifyContent: 'center', paddingTop: '4px', paddingBottom: '8px' }}>
         {currentItem.includes('Cartão de Visita')
           ? <CartaoDeVisitaPreview accentColor={accentColor} patternSrc={patternSrc} cartaoContacts={cartaoContacts} crmLine={crmLine} editData={{ ...itemEditData, tagline: localSlogan }} logoColor={logoColor} comBorda={comBorda} setComBorda={setComBorda} clinicaNome={clinicaNome} setClinicaNome={setClinicaNome} logoLayout={logoLayout} paletteColors={paletteColors} borderColor={borderColor} setBorderColor={setBorderColor} patternScale={patternScale} setPatternScale={setPatternScale} retrato={cartaoRetrato} setRetrato={setCartaoRetrato} />
           : currentItem.includes('Envelope Ofício')
@@ -6873,18 +6885,6 @@ ${fontImports2}
         <span style={{ fontSize: '0.6rem', color: '#aaa', fontFamily: 'Montserrat,sans-serif', lineHeight: 1.4 }}>
           ℹ️ <strong style={{ color: '#bbb' }}>Preview ilustrativo.</strong> Proporções e tamanhos podem variar. Confira as dimensões reais no PDF antes de enviar para a gráfica.
         </span>
-      </div>
-
-      {/* Escala da logo na papelaria */}
-      <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '14px', padding: '4px 0' }}>
-        <span style={{ fontSize: '0.68rem', color: '#999', fontWeight: 600, fontFamily: 'Montserrat,sans-serif', whiteSpace: 'nowrap' }}>Escala da logo</span>
-        <input type="range" min="10"
-          max={currentItem.includes('Cartão de Visita') && cartaoRetrato ? 105 : getCustomLogoScaleMax(currentItem)}
-          step="5"
-          value={Math.min(getCustomLogoScale(currentItem), currentItem.includes('Cartão de Visita') && cartaoRetrato ? 105 : getCustomLogoScaleMax(currentItem))}
-          onChange={e => setCustomLogoScale(currentItem, parseInt(e.target.value))}
-          style={{ flex: 1, accentColor }} />
-        <span style={{ fontSize: '0.68rem', color: '#aaa', width: '32px' }}>{getCustomLogoScale(currentItem)}%</span>
       </div>
 
       {/* Editar contatos — acordeão (todos os itens exceto caneca) */}
