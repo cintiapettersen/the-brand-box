@@ -1775,7 +1775,7 @@ function TomDeVozStep({ accentColor, marca, tagline, brand, editData }) {
 const FONTE_CURADA = [
   { label: 'Cursiva',     fontFamily: 'Amelie',            weight: 400, style: 'script',  sizeBoost: 1.4, googleFont: false },
   { label: 'Delicada',    fontFamily: 'Sacramento',        weight: 400, style: 'script',  sizeBoost: 1.5, googleFont: true  },
-  { label: 'Elegante',    fontFamily: 'Montecarlo',        weight: 400, style: 'script',  sizeBoost: 1.8, googleFont: true  },
+  { label: 'Elegante',    fontFamily: 'Alex Brush',        weight: 400, style: 'script',  sizeBoost: 1.6, googleFont: true  },
   { label: 'Clássica',    fontFamily: 'Cormorant Garamond',weight: 300, style: 'serif',   sizeBoost: 1.0, googleFont: true  },
   { label: 'Moderna',     fontFamily: 'Raleway',           weight: 700, style: 'sans',    sizeBoost: 1.0, googleFont: true  },
   { label: 'Lúdica',      fontFamily: 'LittleFriend',      weight: 400, style: 'display', sizeBoost: 1.0, googleFont: false },
