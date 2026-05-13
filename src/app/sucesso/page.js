@@ -152,7 +152,7 @@ export function LogoPreviewHTML({ editData, color, layout = 'stacked', scaleFact
   const taglineLetterSpacing = '0.35em';
 
   const textContent = (
-    <div style={{ width: '100%', height: '100%', display: 'flex', flexDirection: 'column', alignItems: alignLeft ? 'flex-start' : 'center', justifyContent: 'center', overflow: 'visible' }}>
+    <div style={{ width: '100%', display: 'flex', flexDirection: 'column', alignItems: alignLeft ? 'flex-start' : 'center', justifyContent: 'center', overflow: 'visible' }}>
       <div style={{
         fontFamily: `'${editData?.fontFamily || 'Playfair Display'}', serif`,
         fontWeight: editData?.fontWeight || 700,
@@ -1775,7 +1775,7 @@ function TomDeVozStep({ accentColor, marca, tagline, brand, editData }) {
 const FONTE_CURADA = [
   { label: 'Cursiva',     fontFamily: 'Amelie',            weight: 400, style: 'script',  sizeBoost: 1.4, googleFont: false },
   { label: 'Delicada',    fontFamily: 'Sacramento',        weight: 400, style: 'script',  sizeBoost: 1.5, googleFont: true  },
-  { label: 'Montecarlo',  fontFamily: 'Montecarlo',        weight: 400, style: 'script',  sizeBoost: 1.8, googleFont: true  },
+  { label: 'Elegante',    fontFamily: 'Montecarlo',        weight: 400, style: 'script',  sizeBoost: 1.8, googleFont: true  },
   { label: 'Clássica',    fontFamily: 'Cormorant Garamond',weight: 300, style: 'serif',   sizeBoost: 1.0, googleFont: true  },
   { label: 'Moderna',     fontFamily: 'Raleway',           weight: 700, style: 'sans',    sizeBoost: 1.0, googleFont: true  },
   { label: 'Lúdica',      fontFamily: 'LittleFriend',      weight: 400, style: 'display', sizeBoost: 1.0, googleFont: false },
