@@ -1833,9 +1833,9 @@ function FonteStep({ brand, accentColor, marca, tagline, editData, logoLayout, o
       <div style={{ width: '100%', aspectRatio: '1/1', background: '#fff', borderRadius: '16px', boxShadow: '0 8px 40px rgba(0,0,0,0.10)', display: 'flex', alignItems: 'center', justifyContent: 'center', overflow: 'hidden' }}>
         <div style={{ width: '70%', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
           <LogoPreviewHTML
-            editData={{ ...editData, fontFamily: preview.fontFamily, fontWeight: preview.weight || 700, fontStyle: preview.style, fontSizeBoost: preview.sizeBoost || 1, tagline }}
+            editData={{ ...editData, fontFamily: preview.fontFamily, fontWeight: preview.weight || 700, fontStyle: preview.style, fontSizeBoost: preview.sizeBoost || 1, tagline: null }}
             color={accentColor}
-            layout={logoLayout}
+            layout="horizontal"
             scaleFactor={1}
           />
         </div>
