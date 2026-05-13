@@ -15,13 +15,10 @@ export default function FolderVacinaPage1({ accentColor, palette = [], logoCompo
       background: '#fff',
       position: 'relative'
     }}>
-      {/* Top decorative strip */}
-      <div style={{ height: '18%', width: '100%', background: `${mainColor}20` }} />
-
       {/* Main Content */}
       <div style={{
         flex: 1,
-        padding: '4px 8px 6px',
+        padding: '10px 8px 16px',
         display: 'flex',
         flexDirection: 'column',
         alignItems: 'center',
