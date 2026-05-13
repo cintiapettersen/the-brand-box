@@ -6363,7 +6363,7 @@ body { font-family:'Montserrat',sans-serif; }
         // No contexto scale(3.78): 1mm = 3.78px na tela → usar px equivalentes (Xmm / 3.78 = Xpx)
         // No contexto scale(3.78): 1px = 1mm no papel — scaleFactor igual ao preview
         const _vacinaLogoHtml = ReactDOMServer.renderToString(
-          <LogoPreviewHTML editData={itemEditData} color={logoColor} layout={logoLayout||'stacked'} scaleFactor={0.64} crm={crmLine} hideTagline={false} withBackground={!!(comBorda && patternSrc)} maxWidth="80px" maxHeight="56px" />
+          <LogoPreviewHTML editData={itemEditData} color={logoColor} layout={logoLayout||'stacked'} scaleFactor={0.31} crm={crmLine} hideTagline={false} withBackground={!!(comBorda && patternSrc)} maxWidth="80px" maxHeight="80px" />
         );
         const p1Content = isVacina ? `<div style="width:148px; height:210px; transform:scale(3.78); transform-origin:top left;">${ReactDOMServer.renderToString(React.createElement(Art1, { accentColor, palette: paletteColors, logoComponent: <div dangerouslySetInnerHTML={{ __html: _vacinaLogoHtml }} /> }))}</div>` : `
           <div style="display:flex;flex-direction:column;align-items:center;justify-content:center;padding:10mm;text-align:center;height:100%;">
