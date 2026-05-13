@@ -152,7 +152,7 @@ export function LogoPreviewHTML({ editData, color, layout = 'stacked', scaleFact
   const taglineLetterSpacing = '0.35em';
 
   const textContent = (
-    <div style={{ width: '100%', height: '100%', display: 'flex', flexDirection: 'column', alignItems: alignLeft ? 'flex-start' : 'center', justifyContent: 'center', overflow: 'hidden' }}>
+    <div style={{ width: '100%', height: '100%', display: 'flex', flexDirection: 'column', alignItems: alignLeft ? 'flex-start' : 'center', justifyContent: 'center', overflow: 'visible' }}>
       <div style={{
         fontFamily: `'${editData?.fontFamily || 'Playfair Display'}', serif`,
         fontWeight: editData?.fontWeight || 700,
