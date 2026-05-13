@@ -4657,7 +4657,7 @@ body { width: 485.775mm; height: 385.233mm; position: relative; overflow: hidden
           ${Array.from({ length: count }).map(() => `<div style="display:flex;border-bottom:0.3pt solid #eee;height:${rowH};"><div style="flex:1;border-right:0.3pt solid #eee;"></div><div style="flex:1;"></div></div>`).join('')}
         </div>`;
 
-      const logoHtmlR = genPDFLogoHtml({ brand, editDataOverride: editData, color: logoColor, localSlogan, crmLine, fontPt: (parseFloat(_fontPt) * 0.5).toFixed(1), lineH: _lineH, letterSp: _letterSp, customLogoSrc, customLogoScale: getCustomLogoScale(item) * (ITEM_CUSTOM_BASE_SCALES[item] || 1), maxWidth: '48mm', maxHeight: '12mm' });
+      const logoHtmlR = genPDFLogoHtml({ brand, editDataOverride: editData, color: logoColor, localSlogan, crmLine, fontPt: (parseFloat(_fontPt) * 0.5).toFixed(1), lineH: _lineH, letterSp: _letterSp, layout: logoLayout, customLogoSrc, customLogoScale: getCustomLogoScale(item) * (ITEM_CUSTOM_BASE_SCALES[item] || 1), maxWidth: '48mm', maxHeight: '12mm' });
 
       const frenteR = `
         <div class="card" style="position:relative;overflow:hidden;">
@@ -4721,7 +4721,7 @@ body { width: 485.775mm; height: 385.233mm; position: relative; overflow: hidden
       const _isRetrato = cartaoRetrato;
       const _cW = _isRetrato ? '61mm' : '96mm';
       const _cH = _isRetrato ? '96mm' : '61mm';
-      const _fontFamily = brand.editData?.fontFamily || 'Playfair Display';
+      const _fontFamily = editData?.fontFamily || brand.editData?.fontFamily || 'Playfair Display';
       const _localFace = LOCAL_FONT_FACES[_fontFamily];
       const fontImports = `
         <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;600;700&display=swap" rel="stylesheet">
@@ -5002,7 +5002,7 @@ body { width:${totalW}mm; height:${totalH}mm; position:relative; overflow:hidden
                 </div>
               </div>
               <div style="width:75mm; height:42mm; display:flex; justify-content:flex-end; align-items:flex-start;">
-                ${genPDFLogoHtml({ brand, editDataOverride: editData, color: logoColor, localSlogan, crmLine, fontPt: _fontPt, lineH: _lineH, letterSp: _letterSp, customLogoSrc, customLogoScale: getCustomLogoScale(item) * (ITEM_CUSTOM_BASE_SCALES[item] || 1), maxWidth: '75mm', maxHeight: '42mm' })}
+                ${genPDFLogoHtml({ brand, editDataOverride: editData, color: logoColor, localSlogan, crmLine, fontPt: _fontPt, lineH: _lineH, letterSp: _letterSp, layout: logoLayout, customLogoSrc, customLogoScale: getCustomLogoScale(item) * (ITEM_CUSTOM_BASE_SCALES[item] || 1), maxWidth: '75mm', maxHeight: '42mm' })}
               </div>
             </div>
 
@@ -5111,7 +5111,7 @@ body { width: 220mm; height: 307mm; position: relative; overflow: hidden; backgr
 
     if (item === 'Prontuário Médico') {
       const BLEED = 5;
-      const _ffPr = brand.editData?.fontFamily || 'Playfair Display';
+      const _ffPr = editData?.fontFamily || brand.editData?.fontFamily || 'Playfair Display';
       const _lfPr = LOCAL_FONT_FACES[_ffPr];
       const fiPr = `<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700;800&display=swap" rel="stylesheet">${_lfPr ? `<style>${_lfPr}</style>` : `<link href="https://fonts.googleapis.com/css2?family=${_ffPr.replace(/ /g,'+')}:wght@400;700&display=swap" rel="stylesheet">`}`;
       
@@ -5237,6 +5237,8 @@ body { width: 220mm; height: 307mm; background: #fff; }
       };
       const _allPhonesCk = [whatsapp || telefone, telefone2].filter(Boolean).join(' / ');
       const _ffCk = editData?.fontFamily || brand.editData?.fontFamily || 'Playfair Display';
+      const _lfCk = LOCAL_FONT_FACES[_ffCk];
+      const _fiCk = _lfCk ? `<style>${_lfCk}</style>` : `<link href="https://fonts.googleapis.com/css2?family=${encodeURIComponent(_ffCk)}:wght@400;700&display=swap" rel="stylesheet">`;
       const _logoCk = genPDFLogoHtml({ brand, editDataOverride: editData, color: logoColor, localSlogan, crmLine, fontPt: 24, lineH: 1.2, letterSp: editData?.fontLetterSpacing || brand.editData?.fontLetterSpacing || '0.5pt', layout: logoLayout, customLogoSrc, customLogoScale: getCustomLogoScale(item) * (ITEM_CUSTOM_BASE_SCALES[item] || 1), maxWidth: '100mm', maxHeight: '35mm' });
       const _cmCk = `
         <div style="position:absolute;top:${BLEED}mm;left:0;width:${BLEED-0.5}mm;height:0.2mm;background:#000;z-index:100;"></div>
@@ -5247,7 +5249,7 @@ body { width: 220mm; height: 307mm; background: #fff; }
         <div style="position:absolute;bottom:0;left:${BLEED}mm;width:0.2mm;height:${BLEED-0.5}mm;background:#000;z-index:100;"></div>
         <div style="position:absolute;bottom:${BLEED}mm;right:0;width:${BLEED-0.5}mm;height:0.2mm;background:#000;z-index:100;"></div>
         <div style="position:absolute;bottom:0;right:${BLEED}mm;width:0.2mm;height:${BLEED-0.5}mm;background:#000;z-index:100;"></div>`;
-      const htmlCk = `<!DOCTYPE html><html><head><meta charset="UTF-8"><link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;700;900&display=swap" rel="stylesheet"><style>*{margin:0;padding:0;box-sizing:border-box;}body{width:220mm;height:307mm;}@media print{body{margin:0;}@page{size:220mm 307mm;margin:0;}}</style></head><body><div style="position:relative;width:220mm;height:307mm;${_patCk}">${_cmCk}<div style="position:absolute;top:${BLEED + 8}mm;left:${BLEED + 8}mm;right:${BLEED + 8}mm;bottom:${BLEED + 8}mm;background:#fff;display:flex;overflow:hidden;"><div style="width:16mm;flex-shrink:0;display:flex;align-items:center;justify-content:center;background:${accentColor}15;"><div style="transform:rotate(-90deg);white-space:nowrap;font-family:'Montserrat',sans-serif;font-size:15pt;font-weight:900;color:${accentColor};letter-spacing:4pt;text-transform:uppercase;">CHECKLIST MATERNIDADE</div></div><div style="flex:1;display:flex;flex-direction:column;padding:12mm 8mm 10mm 8mm;gap:4mm;overflow:hidden;"><div style="display:flex;justify-content:center;padding-bottom:5mm;border-bottom:0.2mm solid ${accentColor}25;">${_logoCk}</div><div style="flex:1;display:grid;grid-template-columns:1fr 1fr;gap:4mm;">${SECOES_CK.map((s, idx) => secaoHtmlCk(s, idx)).join('')}</div><div style="border-top:0.3mm solid ${accentColor}30;padding:3mm 2mm 0;display:flex;align-items:center;justify-content:space-between;gap:6mm;"><div style="font-family:'Montserrat',sans-serif;font-size:9pt;font-weight:800;color:${accentColor};text-transform:uppercase;letter-spacing:0.5pt;white-space:nowrap;">${clinicaNome || marca}</div><div style="font-family:'Montserrat',sans-serif;font-size:7.5pt;color:#888;text-align:center;line-height:1.4;">${endereco ? `<div>${endereco}</div>` : ''}${_allPhonesCk ? `<div>${_allPhonesCk}</div>` : ''}</div><div style="font-family:'Montserrat',sans-serif;font-size:7.5pt;color:#888;text-align:right;white-space:nowrap;">${site ? `<div>${site}</div>` : ''}${instagram ? `<div>@${instagram}</div>` : ''}</div></div></div></div></div></body></html>`;
+      const htmlCk = `<!DOCTYPE html><html><head><meta charset="UTF-8"><link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;700;900&display=swap" rel="stylesheet">${_fiCk}<style>*{margin:0;padding:0;box-sizing:border-box;}body{width:220mm;height:307mm;}@media print{body{margin:0;}@page{size:220mm 307mm;margin:0;}}</style></head><body><div style="position:relative;width:220mm;height:307mm;${_patCk}">${_cmCk}<div style="position:absolute;top:${BLEED + 8}mm;left:${BLEED + 8}mm;right:${BLEED + 8}mm;bottom:${BLEED + 8}mm;background:#fff;display:flex;overflow:hidden;"><div style="width:16mm;flex-shrink:0;display:flex;align-items:center;justify-content:center;background:${accentColor}15;"><div style="transform:rotate(-90deg);white-space:nowrap;font-family:'Montserrat',sans-serif;font-size:15pt;font-weight:900;color:${accentColor};letter-spacing:4pt;text-transform:uppercase;">CHECKLIST MATERNIDADE</div></div><div style="flex:1;display:flex;flex-direction:column;padding:12mm 8mm 10mm 8mm;gap:4mm;overflow:hidden;"><div style="display:flex;justify-content:center;padding-bottom:5mm;border-bottom:0.2mm solid ${accentColor}25;">${_logoCk}</div><div style="flex:1;display:grid;grid-template-columns:1fr 1fr;gap:4mm;">${SECOES_CK.map((s, idx) => secaoHtmlCk(s, idx)).join('')}</div><div style="border-top:0.3mm solid ${accentColor}30;padding:3mm 2mm 0;display:flex;align-items:center;justify-content:space-between;gap:6mm;"><div style="font-family:'Montserrat',sans-serif;font-size:9pt;font-weight:800;color:${accentColor};text-transform:uppercase;letter-spacing:0.5pt;white-space:nowrap;">${clinicaNome || marca}</div><div style="font-family:'Montserrat',sans-serif;font-size:7.5pt;color:#888;text-align:center;line-height:1.4;">${endereco ? `<div>${endereco}</div>` : ''}${_allPhonesCk ? `<div>${_allPhonesCk}</div>` : ''}</div><div style="font-family:'Montserrat',sans-serif;font-size:7.5pt;color:#888;text-align:right;white-space:nowrap;">${site ? `<div>${site}</div>` : ''}${instagram ? `<div>@${instagram}</div>` : ''}</div></div></div></div></div></body></html>`;
       const exCk = document.getElementById('_gabarito_iframe'); if (exCk) exCk.remove();
       const blobCk = new Blob([htmlCk], { type: 'text/html;charset=utf-8' });
       const blobUrlCk = URL.createObjectURL(blobCk);
@@ -5262,7 +5264,7 @@ body { width: 220mm; height: 307mm; background: #fff; }
     }
 
     if (item === 'Atestado Médico') {
-      const _fa2 = brand.editData?.fontFamily || 'Playfair Display';
+      const _fa2 = editData?.fontFamily || brand.editData?.fontFamily || 'Playfair Display';
       const _lf2 = LOCAL_FONT_FACES[_fa2];
       const fi2 = `<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;600;700&display=swap" rel="stylesheet">${_lf2 ? `<style>${_lf2}</style>` : `<link href="https://fonts.googleapis.com/css2?family=${_fa2.replace(/ /g,'+')}:wght@400;700&display=swap" rel="stylesheet">`}`;
       const _bw = '8mm';
@@ -5712,7 +5714,7 @@ html, body { width:${totalW}mm; height:${totalH}mm; overflow:hidden; }
       iframeRA.id = '_gabarito_receita_alta';
       iframeRA.style.cssText = 'position:fixed;top:-9999px;left:-9999px;width:210mm;height:297mm;border:none;visibility:hidden;';
       document.body.appendChild(iframeRA);
-      iframeRA.contentDocument.open(); iframeRA.contentDocument.write(html); iframeRA.contentDocument.close();
+      iframeRA.contentDocument.open(); iframeRA.contentDocument.write(htmlFinal); iframeRA.contentDocument.close();
       const _pT_5684 = document.title; document.title = pdfTitle('Receita de Alta');
       iframeRA.contentWindow.document.fonts.ready.then(() => { setTimeout(() => { iframeRA.contentWindow.focus(); iframeRA.contentWindow.print(); setTimeout(() => { iframeRA.remove(); }, 3000); }, 1000); });
       return;
@@ -5816,7 +5818,7 @@ html, body { width:${totalW}mm; height:${totalH}mm; overflow:hidden; }
 
         if (item === 'Tag para Sacola') {
       const solidColor = borderColor || accentColor;
-      const _ffT = brand.editData?.fontFamily || 'Montserrat';
+      const _ffT = editData?.fontFamily || brand.editData?.fontFamily || 'Montserrat';
       const _lfT = LOCAL_FONT_FACES[_ffT];
       const fiT = `<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;600;700;800&display=swap" rel="stylesheet">${_lfT ? `<style>${_lfT}</style>` : ''}`;
       const BLEED = 3;
@@ -5907,7 +5909,7 @@ html, body { width:${totalW}mm; height:${totalH}mm; overflow:hidden; }
         if (item === 'Sacola de Papel') {
       const SIZES_S = [{ label:'P — 18×25cm', w:180, h:250 }, { label:'M — 24×31cm', w:240, h:310 }, { label:'G — 30×40cm', w:300, h:400 }];
       const solidColor = borderColor || accentColor;
-      const _ffS = brand.editData?.fontFamily || 'Montserrat';
+      const _ffS = editData?.fontFamily || brand.editData?.fontFamily || 'Montserrat';
       const _lfS = LOCAL_FONT_FACES[_ffS];
       const fiS = `<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700;800;900&display=swap" rel="stylesheet">${_lfS ? `<style>${_lfS}</style>` : ''}`;
 
@@ -6041,7 +6043,7 @@ body { width:${W + BLEED*2}mm; height:${H + BLEED*2}mm; position:relative; overf
       }
       if (item === 'Recibo') {
         const BLEED = 3;
-        const _ffRec = brand.editData?.fontFamily || 'Playfair Display';
+        const _ffRec = editData?.fontFamily || brand.editData?.fontFamily || 'Playfair Display';
         const _lfRec = LOCAL_FONT_FACES[_ffRec];
         const fiRec = `<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;600;700;800&display=swap" rel="stylesheet">${_lfRec ? `<style>${_lfRec}</style>` : `<link href="https://fonts.googleapis.com/css2?family=${_ffRec.replace(/ /g,'+')}:wght@400;700&display=swap" rel="stylesheet">`}`;
         
@@ -7357,6 +7359,34 @@ function EntregaContent({ brand, plano }) {
     }
   };
 
+  const trimCanvas = (canvas, padding = 20) => {
+    const ctx = canvas.getContext('2d');
+    const { width, height } = canvas;
+    const data = ctx.getImageData(0, 0, width, height).data;
+    let minX = width, minY = height, maxX = 0, maxY = 0;
+    for (let y = 0; y < height; y++) {
+      for (let x = 0; x < width; x++) {
+        const alpha = data[(y * width + x) * 4 + 3];
+        if (alpha > 8) {
+          if (x < minX) minX = x;
+          if (x > maxX) maxX = x;
+          if (y < minY) minY = y;
+          if (y > maxY) maxY = y;
+        }
+      }
+    }
+    minX = Math.max(0, minX - padding);
+    minY = Math.max(0, minY - padding);
+    maxX = Math.min(width - 1, maxX + padding);
+    maxY = Math.min(height - 1, maxY + padding);
+    const w = maxX - minX + 1;
+    const h = maxY - minY + 1;
+    const out = document.createElement('canvas');
+    out.width = w; out.height = h;
+    out.getContext('2d').drawImage(canvas, minX, minY, w, h, 0, 0, w, h);
+    return out;
+  };
+
   const downloadTransparent = async () => {
     if (!logoRef.current) return;
     setDownloading('png');
@@ -7366,9 +7396,10 @@ function EntregaContent({ brand, plano }) {
       el.style.background = 'transparent';
       const canvas = await html2canvas(el, { scale: 4, useCORS: true, backgroundColor: null });
       el.style.background = prev;
+      const trimmed = trimCanvas(canvas, 24);
       const link = document.createElement('a');
       link.download = `Logo_transparente_${marca || 'marca'}.png`;
-      link.href = canvas.toDataURL('image/png');
+      link.href = trimmed.toDataURL('image/png');
       link.click();
     } catch {
       el.style.background = prev;
@@ -7447,9 +7478,9 @@ function EntregaContent({ brand, plano }) {
             transition: 'background 0.2s ease',
           }}
         >
-          <div style={{ width: '68%', height: '68%', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+          <div style={{ width: '85%', height: '68%', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
             {step === 'logo'
-              ? <LogoPreviewHTML editData={editDataWithLogo} color={logoColor} layout={logoLayout} scaleFactor={1.5} maxWidth="100%" maxHeight="100%" />
+              ? <LogoPreviewHTML editData={editDataWithLogo} color={logoColor} layout={logoLayout} scaleFactor={1.1} maxWidth="100%" maxHeight="100%" />
               : <BrandTemplateSVG
                   data={seloData}
                   color={submarcaColor || accentColor}

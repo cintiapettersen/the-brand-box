@@ -68,7 +68,7 @@ function SubMenu({ items, activeId, onSelect, color, renderLabel }) {
   );
 }
 
-const MARCA_STEPS = ['placa', 'manifesto', 'tomdevoz', 'logo', 'fonte', 'submarca', 'estampa', 'cores', 'paleta', 'guia'];
+const MARCA_STEPS = ['placa', 'manifesto', 'tomdevoz', 'fonte', 'logo', 'submarca', 'estampa', 'cores', 'paleta', 'guia'];
 const DIGITAL_STEPS = ['cartao', 'pack-instagram', 'assinatura-email'];
 
 export default function BrandBoxNav({ step, setStep, plano, papelariaItens = [], papelariaIdx = 0, setPapelariaIdx }) {
@@ -81,8 +81,8 @@ export default function BrandBoxNav({ step, setStep, plano, papelariaItens = [],
     { id: 'placa', label: 'Placa' },
     { id: 'manifesto', label: 'Manifesto' },
     { id: 'tomdevoz', label: 'Tom de Voz' },
-    { id: 'logo', label: 'Logo' },
     { id: 'fonte', label: 'Fonte' },
+    { id: 'logo', label: 'Logo' },
     { id: 'submarca', label: 'Selo', planOnly: 'pro' },
     { id: 'estampa', label: 'Estampa' },
     { id: 'cores', label: 'Cores' },
