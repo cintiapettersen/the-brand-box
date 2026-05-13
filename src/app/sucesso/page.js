@@ -1840,37 +1840,48 @@ function FonteStep({ brand, accentColor, marca, tagline, editData, logoLayout, o
         </div>
       </div>
 
-      {/* Mini botões de opção */}
-      <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap', justifyContent: 'center' }}>
-        {opcoes.map(f => {
-          const active = isActive(f);
-          const previewing = preview.fontFamily === f.fontFamily;
-          return (
-            <button
-              key={f.fontFamily}
-              onMouseEnter={() => setPreview(f)}
-              onClick={() => { setPreview(f); onFontChange(f); }}
-              style={{
-                padding: '8px 16px', borderRadius: '20px', cursor: 'pointer',
-                fontFamily: 'Montserrat,sans-serif', fontSize: '0.68rem', fontWeight: 700,
-                transition: 'all 0.15s',
-                borderWidth: '1.5px', borderStyle: 'solid',
-                borderColor: active ? accentColor : previewing ? accentColor + '66' : '#ddd',
-                background: active ? accentColor : previewing ? accentColor + '10' : '#fff',
-                color: active ? '#fff' : previewing ? accentColor : '#888',
-                boxShadow: active ? `0 2px 10px ${accentColor}44` : 'none',
-              }}
-            >
-              {f.label}
-              {active && <span style={{ marginLeft: '4px' }}>✓</span>}
-            </button>
-          );
-        })}
-      </div>
+      {/* Fonte ativa em destaque */}
+      {(() => {
+        const activeFont = opcoes.find(f => isActive(f));
+        return activeFont ? (
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '10px 14px', background: `${accentColor}10`, borderRadius: '12px', border: `1.5px solid ${accentColor}30` }}>
+            <div>
+              <div style={{ fontSize: '0.58rem', fontWeight: 700, color: accentColor, textTransform: 'uppercase', letterSpacing: '1px', fontFamily: 'Montserrat,sans-serif', marginBottom: '2px' }}>Fonte ativa</div>
+              <div style={{ fontSize: '0.82rem', fontWeight: 800, color: '#1a1a1a', fontFamily: 'Montserrat,sans-serif' }}>{activeFont.label}</div>
+            </div>
+            <div style={{ background: accentColor, color: '#fff', borderRadius: '20px', padding: '4px 12px', fontSize: '0.65rem', fontWeight: 700, fontFamily: 'Montserrat,sans-serif' }}>✓ Aplicada</div>
+          </div>
+        ) : null;
+      })()}
 
-      <p style={{ textAlign: 'center', fontSize: '0.65rem', color: '#bbb', fontFamily: 'Montserrat,sans-serif' }}>
-        Passe o mouse para ver • Clique para aplicar
-      </p>
+      {/* Alternativas */}
+      <div>
+        <p style={{ fontSize: '0.65rem', color: '#aaa', fontFamily: 'Montserrat,sans-serif', marginBottom: '8px' }}>Quero tentar outra →</p>
+        <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap' }}>
+          {opcoes.filter(f => !isActive(f)).map(f => {
+            const previewing = preview.fontFamily === f.fontFamily;
+            return (
+              <button
+                key={f.fontFamily}
+                onMouseEnter={() => setPreview(f)}
+                onMouseLeave={() => { const active = opcoes.find(x => isActive(x)); if (active) setPreview(active); }}
+                onClick={() => { setPreview(f); onFontChange(f); }}
+                style={{
+                  padding: '7px 14px', borderRadius: '20px', cursor: 'pointer',
+                  fontFamily: 'Montserrat,sans-serif', fontSize: '0.68rem', fontWeight: 600,
+                  transition: 'all 0.15s',
+                  borderWidth: '1.5px', borderStyle: 'solid',
+                  borderColor: previewing ? accentColor + '88' : '#e0e0e0',
+                  background: previewing ? accentColor + '10' : '#fff',
+                  color: previewing ? accentColor : '#666',
+                }}
+              >
+                {f.label}
+              </button>
+            );
+          })}
+        </div>
+      </div>
     </div>
   );
 }
