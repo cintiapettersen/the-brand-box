@@ -1,6 +1,6 @@
 import React from 'react';
 
-export default function FolderVacinaPage1({ accentColor, palette = [], logoComponent }) {
+export default function FolderVacinaPage1({ accentColor, palette = [], logoComponent, pdfMode = false }) {
   const mainColor = palette[0] || accentColor;
   
   return (
@@ -18,7 +18,7 @@ export default function FolderVacinaPage1({ accentColor, palette = [], logoCompo
       {/* Main Content */}
       <div style={{
         flex: 1,
-        padding: '10px 8px 16px',
+        padding: pdfMode ? '10px 8px 24px' : '4px 8px 6px',
         display: 'flex',
         flexDirection: 'column',
         alignItems: 'center',
