@@ -7398,6 +7398,36 @@ function EntregaContent({ brand, plano }) {
   const isSaude = atuacoesSaude.includes(brand.formData?.atuacao);
 
   const [clinicaNome, setClinicaNomeState] = useState(() => { try { return JSON.parse(localStorage.getItem('brandbox_papelaria') || '{}').clinicaNome || ''; } catch { return ''; } });
+  const [resendingEmail, setResendingEmail] = useState(false);
+  const [resendStatus, setResendStatus] = useState(null);
+
+  const handleResendEmail = async () => {
+    if (resendingEmail) return;
+    setResendingEmail(true);
+    setResendStatus(null);
+    try {
+      const emailToSend = brand.formData?.email;
+      const marcaToSend = brand.editData?.marca || brand.name;
+      const sessionId = brand.sessionId || brand.id || new URLSearchParams(window.location.search).get('session') || 'no-session';
+      
+      const res = await fetch('/api/send-email', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email: emailToSend, marca: marcaToSend, sessionId, plano: plano || brand.plano }),
+      });
+      const data = await res.json();
+      if (data.sent) {
+        setResendStatus('✓ E-mail enviado!');
+      } else {
+        setResendStatus('❌ Erro: ' + (data.error || 'Falha no envio'));
+      }
+    } catch (e) {
+      setResendStatus('❌ Erro de conexão');
+    } finally {
+      setResendingEmail(false);
+      setTimeout(() => setResendStatus(null), 3000);
+    }
+  };
   const setClinicaNome = (v) => { setClinicaNomeState(v); try { const cur = JSON.parse(localStorage.getItem('brandbox_papelaria') || '{}'); localStorage.setItem('brandbox_papelaria', JSON.stringify({ ...cur, clinicaNome: v })); } catch {} };
   const [crmData, setCrmDataState] = useState({ crm: '', uf: '', rqe: [] });
   const setCrmData = (updater) => {
@@ -7606,6 +7636,13 @@ function EntregaContent({ brand, plano }) {
               {step === 'placa' ? 'Placa da Marca' : step === 'manifesto' ? 'Manifesto da Marca' : step === 'tomdevoz' ? 'Tom de Voz' : step === 'fonte' ? 'Fonte da Marca' : step === 'logo' ? 'Sua Logo' : step === 'submarca' ? 'Sua Submarca' : step === 'estampa' ? 'Sua Estampa' : step === 'cores' ? 'Suas Cores' : step === 'paleta' ? 'Sua Paleta' : step === 'cartao' ? 'Cartão Digital' : step === 'pack-instagram' ? 'Pack Digital para Instagram' : step === 'assinatura-email' ? 'Assinatura de E-mail' : step === 'guia' ? 'Guia da Marca' : 'Sua Papelaria'}
             </h1>
           </div>
+          <button 
+            onClick={handleResendEmail} 
+            disabled={resendingEmail}
+            style={{ padding: '6px 12px', background: resendStatus?.includes('✓') ? '#e8f7f5' : '#fff', color: resendStatus?.includes('✓') ? '#1a7a6e' : '#888', border: '1px solid #e0e0e0', borderRadius: '20px', fontSize: '0.65rem', fontWeight: 700, cursor: resendingEmail ? 'wait' : 'pointer', transition: 'all 0.2s', display: 'flex', alignItems: 'center', gap: '4px' }}
+          >
+            {resendingEmail ? 'Enviando...' : resendStatus || '📧 Reenviar e-mail'}
+          </button>
         </div>
 
         {/* Área da estampa */}
