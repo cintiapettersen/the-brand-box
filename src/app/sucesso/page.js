@@ -8086,31 +8086,27 @@ function SucessoContent() {
             setPlano(planoFromDb);
             localStorage.setItem('brandbox_plano', planoFromDb);
 
-            // Disparar e-mail na primeira visita
+            // Disparar e-mail na primeira visita (sem travar o carregamento da tela)
             if (!data.email_enviado && data.email) {
-              try {
-                await fetch('/api/send-email', {
-                  method: 'POST',
-                  headers: { 'Content-Type': 'application/json' },
-                  body: JSON.stringify({
-                    email: data.email,
-                    marca: data.marca,
-                    sessionId: sessionParam,
-                    plano: planoFromDb,
-                  }),
-                });
-                // Marcar como enviado no Supabase
+              fetch('/api/send-email', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                  email: data.email,
+                  marca: data.marca,
+                  sessionId: sessionParam,
+                  plano: planoFromDb,
+                }),
+              }).then(async () => {
                 await supabase
                   .from('entregas')
                   .update({ email_enviado: true })
                   .eq('id', sessionParam);
-              } catch (e) {
-                console.warn('Email dispatch failed:', e);
-              }
+              }).catch(e => console.warn('Background email dispatch failed:', e));
             }
 
-            setShowWelcome(true);
             setLoading(false);
+            setShowWelcome(true);
             return;
           }
         } catch (e) {
