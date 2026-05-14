@@ -1736,9 +1736,13 @@ export default function Home() {
                   </button>
                   <button
                     onClick={() => {
-                      localStorage.removeItem('brandbox_progress');
+                      // Limpeza total de qualquer rastro de projetos anteriores
+                      Object.keys(localStorage).forEach(key => {
+                        if (key.startsWith('brandbox_')) localStorage.removeItem(key);
+                      });
                       setShowResumePrompt(false);
                       setSavedProgress(null);
+                      window.location.reload(); // Recarrega para garantir estado limpo
                     }}
                     className="btn-secondary"
                     style={{ width: '100%' }}
