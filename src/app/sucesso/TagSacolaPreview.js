@@ -32,11 +32,11 @@ function TagCard({ size, solidColor, c0, c1, paletteColors, effectiveSrc, patter
       <div style={containerStyle}>
         <div style={bgStyle} />
         {/* Logo com fundo branco suave quando há estampa */}
-        <div style={{ position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%)', width: '80%', textAlign: 'center', zIndex: 2, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+        <div style={{ position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%)', width: '80%', height: '80%', textAlign: 'center', zIndex: 2, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
           {effectiveSrc ? (
-            <LogoPreviewHTML editData={editData} color={solidColor} layout={logoLayout} scaleFactor={size.shape === 'square' ? size.w * 0.28 : size.w * 0.22} hideTagline={false} withBackground={true} />
+            <LogoPreviewHTML item="Tag para Sacola" editData={editData} color={solidColor} layout={logoLayout} scaleFactor={0.8} hideTagline={false} withBackground={true} maxWidth="100%" maxHeight="100%" />
           ) : (
-            <LogoPreviewHTML editData={editData} color="#ffffff" layout={logoLayout} scaleFactor={size.shape === 'square' ? size.w * 0.28 : size.w * 0.22} hideTagline={false} taglineColor="rgba(255,255,255,0.75)" />
+            <LogoPreviewHTML item="Tag para Sacola" editData={editData} color="#ffffff" layout={logoLayout} scaleFactor={0.8} hideTagline={false} taglineColor="rgba(255,255,255,0.75)" maxWidth="100%" maxHeight="100%" />
           )}
         </div>
       </div>

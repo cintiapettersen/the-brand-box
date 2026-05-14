@@ -99,8 +99,8 @@ export default function EtiquetaCorreiosPreview({
             <div style={{ width: '30%', height: '0.5px', background: solidColor + '50' }} />
 
             {/* Logo */}
-            <div style={{ display: 'flex', justifyContent: 'center', width: '100%' }}>
-              <LogoPreviewHTML editData={editData} color={solidColor} layout={logoLayout} scaleFactor={size.w * 0.044} hideTagline={false} />
+            <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', width: '100%', height: size.h * 6 }}>
+              <LogoPreviewHTML editData={editData} color={solidColor} layout={logoLayout} scaleFactor={0.6} hideTagline={false} maxWidth="100%" maxHeight="100%" />
             </div>
 
             {/* Contatos com ícones */}

@@ -92,6 +92,7 @@ export default function Home() {
   const [generatedPatterns, setGeneratedPatterns] = useState([]);
   const [selectedPattern, setSelectedPattern] = useState(null);
   const [patternLoading, setPatternLoading] = useState(false);
+  const [loadingVariacoes, setLoadingVariacoes] = useState(false);
   
   const [selectedPaleta, setSelectedPaleta] = useState(null);
   const [selectedTipo, setSelectedTipo] = useState(null);
@@ -147,17 +148,25 @@ export default function Home() {
 
     // Re-busca paletas/tipografias do Supabase se estava em etapa avançada
     if (parsed.resultadoFinal?.estiloId && parsed.step >= 10) {
-      const id = parsed.resultadoFinal.estiloId;
-      const { data: varData } = await supabase.from('variacoes_curadas').select('*').eq('estilo_id', id);
-      if (varData) {
-        setPaletas(varData.filter(d => d.tipo === 'PALETA'));
-        setTipografias(varData.filter(d => d.tipo === 'TIPOGRAFIA'));
-        setEstampas(varData.filter(d => d.tipo === 'ESTAMPA'));
+      setLoadingVariacoes(true);
+      try {
+        const id = parsed.resultadoFinal.estiloId;
+        const res = await fetch(`/api/variacoes?id=${id}`);
+        const data = await res.json();
+        
+        if (data.variacoes) {
+          setPaletas(data.variacoes.filter(d => d.tipo === 'PALETA'));
+          setTipografias(data.variacoes.filter(d => d.tipo === 'TIPOGRAFIA'));
+          setEstampas(data.variacoes.filter(d => d.tipo === 'ESTAMPA'));
+        }
+        setMoodboards(data.moodboard || []);
+      } catch (e) {
+        console.error("Erro ao restaurar variações via API:", e);
+      } finally {
+        if (parsed.selectedPaleta) setSelectedPaleta(parsed.selectedPaleta);
+        if (parsed.selectedTipo) setSelectedTipo(parsed.selectedTipo);
+        setLoadingVariacoes(false);
       }
-      const { data: moodData } = await supabase.from('moodboards').select('*').eq('estilo_id', id);
-      setMoodboards(moodData || []);
-      if (parsed.selectedPaleta) setSelectedPaleta(parsed.selectedPaleta);
-      if (parsed.selectedTipo) setSelectedTipo(parsed.selectedTipo);
     }
     if (parsed.selectedIcon) setSelectedIcon(parsed.selectedIcon);
   };
@@ -301,30 +310,48 @@ export default function Home() {
 
   const fetchVariacoes = async () => {
     const id = resultadoFinal?.estiloId || 1;
+    setLoadingVariacoes(true);
     
-    // Buscar paletas e tipografias
-    const { data: varData } = await supabase.from('variacoes_curadas').select('*').eq('estilo_id', id);
-    if(varData) {
-       setPaletas(varData.filter(d => d.tipo === 'PALETA'));
-       setTipografias(varData.filter(d => d.tipo === 'TIPOGRAFIA'));
-       setEstampas(varData.filter(d => d.tipo === 'ESTAMPA'));
-    }
-
-    // Buscar imagens do moodboard daquela raiz
-    const { data: moodData } = await supabase.from('moodboards').select('*').eq('estilo_id', id);
-    setMoodboards(moodData || []);
-    setSelectedTipo(null);
-    setSelectedPaleta(null);
-    
-    if (resultadoFinal) {
-      setStep(10);
-      setEditData(prev => ({ 
-        ...prev, 
-        marca: formData.marca, 
-        tagline: 'Identidade Visual', // Sugestão base
-        instagram: formData.marca.toLowerCase().replace(/\s/g, ''),
-        whatsapp: '(11) 99999-9999'
-      }));
+    try {
+      console.log('--- DIAGNÓSTICO BRAND BOX ---');
+      console.log('Solicitando variações para estilo:', id);
+      
+      setCustomStep('tipo'); // Reset para o primeiro passo do refinamento
+      
+      const res = await fetch(`/api/variacoes?id=${id}&t=${Date.now()}`);
+      if (!res.ok) throw new Error(`Erro HTTP: ${res.status}`);
+      
+      const data = await res.json();
+      console.log('Dados recebidos da API:', data);
+      
+      if (data.variacoes && data.variacoes.length > 0) {
+         setPaletas(data.variacoes.filter(d => d.tipo === 'PALETA'));
+         setTipografias(data.variacoes.filter(d => d.tipo === 'TIPOGRAFIA'));
+         setEstampas(data.variacoes.filter(d => d.tipo === 'ESTAMPA'));
+         console.log(`Sucesso: ${data.variacoes.length} variações carregadas.`);
+      } else {
+         console.error('API retornou lista de variações vazia.');
+      }
+      
+      setMoodboards(data.moodboard || []);
+    } catch (err) {
+      console.error('ERRO FATAL NO DIAGNÓSTICO:', err.message);
+      alert(`Erro ao carregar estilos: ${err.message}. Verifique a conexão com o banco.`);
+    } finally {
+      setLoadingVariacoes(false);
+      setSelectedTipo(null);
+      setSelectedPaleta(null);
+      
+      if (resultadoFinal) {
+        setStep(10);
+        setEditData(prev => ({ 
+          ...prev, 
+          marca: formData.marca, 
+          tagline: editData.tagline || 'Identidade Visual',
+          instagram: formData.marca.toLowerCase().replace(/\s/g, ''),
+          whatsapp: prev.whatsapp || '(11) 99999-9999'
+        }));
+      }
     }
   };
 
@@ -858,9 +885,20 @@ export default function Home() {
 
               <div style={{ flex: 1, position: 'relative', overflow: 'hidden' }}>
                 <AnimatePresence mode="wait">
-                  {customStep === 'tipo' && (
+                  {loadingVariacoes ? (
+                    <motion.div key="loading" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} style={{ position: 'absolute', width: '100%', height: '100%', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: '15px' }}>
+                       <div className="spinner" style={{ width: '40px', height: '40px', border: '3px solid var(--border)', borderTop: '3px solid var(--accent-turquoise)', borderRadius: '50%', animation: 'spin 1s linear infinite' }} />
+                       <p style={{ fontSize: '0.9rem', color: 'var(--text-secondary)' }}>Carregando estilos exclusivos...</p>
+                    </motion.div>
+                  ) : customStep === 'tipo' && (
                      <motion.div key="ctipo" variants={slideVariants} initial="initial" animate="animate" exit="exit" transition={{ duration: 0.3 }} style={{ position: 'absolute', width: '100%', height: '100%', display: 'grid', gridTemplateColumns: 'minmax(0, 1fr) minmax(0, 1fr)', gap: '15px', overflowY: 'auto', paddingBottom: '2rem' }}>
-                        {tipografias.map(t => {
+                        {tipografias.length === 0 ? (
+                          <div style={{ gridColumn: 'span 2', textAlign: 'center', padding: '2rem', background: '#fff0f0', borderRadius: '12px', border: '1px solid #ffcccc' }}>
+                            <p style={{ color: '#d32f2f', fontSize: '0.95rem', fontWeight: 600, marginBottom: '10px' }}>Ops! Não conseguimos carregar as tipografias.</p>
+                            <p style={{ color: '#666', fontSize: '0.8rem', lineHeight: 1.5 }}>Isso pode ser um erro de conexão temporário ou falta de dados para o estilo <strong>{resultadoFinal?.estiloNome}</strong>.</p>
+                            <button onClick={fetchVariacoes} style={{ marginTop: '15px', padding: '8px 16px', background: '#d32f2f', color: '#fff', border: 'none', borderRadius: '8px', cursor: 'pointer', fontSize: '0.8rem' }}>Tentar carregar novamente</button>
+                          </div>
+                        ) : tipografias.map(t => {
                           const fontInfo = FONT_MAP[t.nome_variacao];
                           const fontFamily = fontInfo?.fontFamily || 'Outfit';
                           const fontWeight = fontInfo?.weight || 400;

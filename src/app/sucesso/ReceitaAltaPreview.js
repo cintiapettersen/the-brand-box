@@ -121,7 +121,7 @@ export default function ReceitaAltaPreview({ accentColor, paletteColors = [], ed
           <div style={{ background: solidColor, padding: '5px 6px 4px', flexShrink: 0, display: 'flex', flexDirection: 'column', alignItems: 'center', position: 'relative', overflow: 'hidden' }}>
             <div style={{ position: 'absolute', bottom: '-30px', left: '50%', transform: 'translateX(-50%)', width: '200%', height: '50px', borderRadius: '50%', background: 'rgba(255,255,255,0.10)' }} />
             <div style={{ transform: 'scale(0.55)', transformOrigin: 'center center' }}>
-              <LogoPreviewHTML editData={editData} color="#fff" layout={logoLayout} scaleFactor={0.42} crm={null} hideTagline />
+              <LogoPreviewHTML item="Receita de Alta" editData={editData} color="#fff" layout={logoLayout} scaleFactor={0.42} crm={null} hideTagline />
             </div>
             <div style={{ fontSize: '5.5px', fontWeight: 900, color: '#fff', fontFamily: 'Montserrat,sans-serif', textTransform: 'uppercase', letterSpacing: '0.4px', marginTop: '-1px' }}>Receita de Alta do Bebê</div>
           </div>

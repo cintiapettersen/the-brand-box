@@ -25,7 +25,7 @@ export default function FolderVacinaPage1({ accentColor, palette = [], logoCompo
         justifyContent: 'space-between',
       }}>
         {/* Logo no topo */}
-        <div style={{ width: '100%', maxHeight: '70px', display: 'flex', justifyContent: 'center', alignItems: 'center', overflow: 'visible' }}>
+        <div style={{ width: '100%', height: '50px', display: 'flex', justifyContent: 'center', alignItems: 'center', overflow: 'hidden', marginTop: pdfMode ? '8px' : '22px' }}>
           {logoComponent}
         </div>
 

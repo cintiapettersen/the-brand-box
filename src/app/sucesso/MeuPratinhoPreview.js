@@ -103,8 +103,8 @@ export default function MeuPratinhoPreview({
             {/* Coluna direita: logo canto direito + prato */}
             <div style={{ flex: 1, display: 'flex', flexDirection: 'column', padding: '4px 8px 10px 6px' }}>
               {/* Logo alinhada à direita */}
-              <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: '4px' }}>
-                <LogoPreviewHTML editData={editData} color={logoColor} layout={logoLayout} scaleFactor={0.42} hideTagline={false} />
+              <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: '4px', marginTop: '6px' }}>
+                <LogoPreviewHTML item="Meu Pratinho" editData={editData} color={logoColor} layout={logoLayout} scaleFactor={0.42} hideTagline={false} />
               </div>
               {/* Prato com anel colorido da paleta */}
               <div style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>

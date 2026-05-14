@@ -19,23 +19,18 @@ export const genPDFLogoHtml = ({ brand, editDataOverride = null, color, localSlo
   const customBaseScale = brand.editData?.customBaseScale || 1;
   const finalLogoScale = customLogoScaleValue * customBaseScale;
 
-  const wrapperStyle = `display:inline-flex; align-items:center; justify-content:${alignLeft ? 'flex-start' : 'center'}; ${maxWidth ? `max-width:${maxWidth};` : ''}`;
+  const wrapperStyle = `display:inline-flex; align-items:center; justify-content:${alignLeft ? 'flex-start' : 'center'}; ${maxWidth ? `max-width:${maxWidth};` : ''} ${maxHeight ? `max-height:${maxHeight};` : ''} overflow:hidden;`;
 
   if (finalLogoSrc) {
-    // Altura derivada do maxHeight (referência 100%) escalada pelo slider
-    const baseHmm = maxHeight ? parseFloat(maxHeight) : 20;
-    const displayHmm = Math.min(baseHmm, (baseHmm * finalLogoScale / 100)).toFixed(1);
-    const imgStyle = `height:${displayHmm}mm; max-height:${baseHmm}mm; width:auto; max-width:${maxWidth || '100%'}; object-fit:contain; display:block;`;
+    // Para imagens, usamos uma altura base fixa (16mm) que é então escalada pelo slider.
+    // Isso pareia com os ~60px usados no preview da tela.
+    const baseHmm = 16; 
+    const displayHmm = (baseHmm * finalLogoScale / 100).toFixed(1);
+    const imgStyle = `height:${displayHmm}mm; max-height:${maxHeight || '100%'}; width:auto; max-width:${maxWidth || '100%'}; object-fit:contain; display:block;`;
 
-    if (withBackground) {
-      return `
-        <div style="display:inline-flex; align-items:center; justify-content:center; background:rgba(255,255,255,0.92); padding:2px 4px; border-radius:4px; line-height:0;">
-          <img src="${finalLogoSrc}" style="${imgStyle}" />
-        </div>
-      `;
-    }
+    const bgStyle = withBackground ? 'background:rgba(255,255,255,0.92); padding:2px 4px; border-radius:4px;' : '';
     return `
-      <div style="${wrapperStyle}">
+      <div style="${wrapperStyle} ${bgStyle}">
         <img src="${finalLogoSrc}" style="${imgStyle}" />
       </div>
     `;
@@ -43,7 +38,7 @@ export const genPDFLogoHtml = ({ brand, editDataOverride = null, color, localSlo
 
   const brandFont = `'${_ed.fontFamily || 'Playfair Display'}', serif`;
   const isScript = _ed.fontStyle === 'script';
-  const marca = brand.name || _ed.marca || 'Marca';
+  const marca = _ed.marca || brand.name || 'Marca';
   const words = marca.split(' ').map(w => isScript ? w.charAt(0).toUpperCase() + w.slice(1).toLowerCase() : w.toUpperCase());
   
   let lines = [words.join(' ')];
@@ -56,35 +51,49 @@ export const genPDFLogoHtml = ({ brand, editDataOverride = null, color, localSlo
     }
   }
 
-  // Slogan: sempre 22% do nome — proporcional puro, igual ao LogoPreviewHTML
   // Slogan: 40% do nome, letter-spacing em 'em' — consistente com LogoPreviewHTML
-  const effectiveSloganSize = sloganSize || (fontPt ? (parseFloat(fontPt) * 0.40).toFixed(1) + 'pt' : '0pt');
+  const _scaleMultiplier = finalLogoScale / 100;
+  const _finalFontPt = fontPt ? (parseFloat(fontPt) * _scaleMultiplier).toFixed(1) : '14';
+  const effectiveSloganSize = sloganSize || (fontPt ? (parseFloat(fontPt) * _scaleMultiplier * 0.40).toFixed(1) + 'pt' : '0pt');
   const isStacked = true; // slogan sempre embaixo — "horizontal" só afeta quebra de linha do nome
   const _sloganLs = '0.35em';
 
   const logoMain = `
-    <div style="text-align:center; font-family:${brandFont}; font-weight:${_ed.fontWeight || 700}; font-size:${fontPt}pt; color:${color}; line-height:${lineH}; letter-spacing:${letterSp}; white-space:nowrap;">
+    <div style="text-align:center; font-family:${brandFont}; font-weight:${_ed.fontWeight || 700}; font-size:${_finalFontPt}pt; color:${color}; line-height:${lineH}; letter-spacing:${letterSp}; white-space:nowrap;">
       ${lines.map(l => `<div style="font-family:inherit;font-weight:inherit;white-space:nowrap;">${l}</div>`).join('')}
     </div>
   `;
 
   const _sloganColor = sloganColor || '#666';
-  const sloganPart = (localSlogan && !hideSlogan) ? `<div style="${PDFStyles.montserrat} font-size:${effectiveSloganSize}; font-weight:700; letter-spacing:${_sloganLs}; text-transform:uppercase; color:${_sloganColor}; margin-top:${isStacked ? '4pt' : '0'}; text-align:center; white-space:nowrap; overflow:hidden;">${localSlogan}</div>` : '';
+  const _sloganGap = (2 * _scaleMultiplier).toFixed(1);
+  const sloganPart = (localSlogan && !hideSlogan) ? `<div style="${PDFStyles.montserrat} font-size:${effectiveSloganSize}; font-weight:700; letter-spacing:${_sloganLs}; text-transform:uppercase; color:${_sloganColor}; margin-top:${isStacked ? _sloganGap + 'pt' : '0'}; text-align:center; white-space:nowrap;">${localSlogan}</div>` : '';
   
-  const crmPart = crmLine ? `<div style="${PDFStyles.montserrat} font-size:${crmSize}; letter-spacing:1pt; text-transform:uppercase; color:#bbb; margin-top:4pt; text-align:center; opacity:0.8;">${crmLine}</div>` : '';
+  const effectiveCrmSize = crmSize.includes('pt') ? (parseFloat(crmSize) * _scaleMultiplier).toFixed(1) + 'pt' : crmSize;
+  const _crmGap = (2 * _scaleMultiplier).toFixed(1);
+  const crmPart = crmLine ? `<div style="${PDFStyles.montserrat} font-size:${effectiveCrmSize}; letter-spacing:1pt; text-transform:uppercase; color:#bbb; margin-top:${_crmGap}pt; text-align:center; opacity:0.8;">${crmLine}</div>` : '';
 
-  const finalLogo = `
-    <div style="display:flex; flex-direction:${isStacked ? 'column' : 'row'}; align-items:center; justify-content:center; gap:${isStacked ? '0' : '5mm'};">
-      ${logoMain}
-      ${sloganPart}${crmPart}
+  const _sloganLen = (localSlogan && !hideSlogan) ? localSlogan.length : 0;
+  const _crmLen = crmLine ? crmLine.length : 0;
+  
+  // Melhor estimativa de largura: fonte + letter-spacing (0.35em = 35% do tamanho da fonte)
+  const _logoW_pt = lines.reduce((max, l) => Math.max(max, l.length), 0) * (parseFloat(_finalFontPt) * 0.55);
+  const _sloganW_pt = _sloganLen * (parseFloat(effectiveSloganSize) * 0.75 + parseFloat(effectiveSloganSize) * 0.35);
+  const _crmW_pt = _crmLen * (parseFloat(effectiveCrmSize) * 0.75);
+  
+  const _estimatedWidthPt = Math.max(_logoW_pt, _sloganW_pt, _crmW_pt);
+  const _maxWidthPt = maxWidth ? parseFloat(maxWidth) * 2.83465 : 9999;
+  const _autoZoom = (_estimatedWidthPt > _maxWidthPt) ? (_maxWidthPt / _estimatedWidthPt) : 1;
+
+  const finalWrapper = `
+    <div style="display:inline-flex; flex-direction:column; align-items:center; justify-content:center; ${maxWidth ? `max-width:${maxWidth};` : ''} ${maxHeight ? `max-height:${maxHeight};` : ''} box-sizing:border-box; ${withBackground ? 'background:rgba(255,255,255,0.92); padding:2px 4px; border-radius:4px;' : ''} ${_autoZoom < 1 ? `zoom:${_autoZoom.toFixed(3)};` : ''}">
+      <div style="display:flex; flex-direction:${isStacked ? 'column' : 'row'}; align-items:center; justify-content:center; gap:${isStacked ? '0' : '5mm'};">
+        ${logoMain}
+        ${sloganPart}${crmPart}
+      </div>
     </div>
   `;
 
-  if (withBackground) {
-    return `<div style="display:inline-flex; align-items:center; justify-content:center; background:rgba(255,255,255,0.92); padding:2px 4px; border-radius:4px; width:fit-content; max-width:${maxWidth || '100%'}; max-height:${maxHeight || '100%'}; overflow:hidden; box-sizing:border-box;">${finalLogo}</div>`;
-  }
-
-  return finalLogo;
+  return finalWrapper;
 };
 
 /**

@@ -49,7 +49,7 @@ export default function SacolaPapelPreview({
             transform: 'translate(-50%, -50%) rotate(-5deg)',
             width: '36%',
           }}>
-            <LogoPreviewHTML editData={editData} color="#ffffff" layout={logoLayout} scaleFactor={0.38} hideTagline={false} />
+            <LogoPreviewHTML editData={editData} color="#ffffff" layout={logoLayout} scaleFactor={0.38} hideTagline={false} withBackground={comBorda && !!patternSrc} />
           </div>
         </div>
 
@@ -78,7 +78,7 @@ export default function SacolaPapelPreview({
           }
           {/* Logo proporcional ao tamanho da sacola */}
           <div style={{ position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%,-50%)', width: '60%' }}>
-            <LogoPreviewHTML editData={editData} color={comBorda ? logoColor : '#fff'} layout={logoLayout} scaleFactor={size.w * 0.018} hideTagline={false} />
+            <LogoPreviewHTML editData={editData} color={comBorda ? logoColor : '#fff'} layout={logoLayout} scaleFactor={size.w * 0.018} hideTagline={false} withBackground={comBorda && !!patternSrc} />
           </div>
         </div>
       </div>

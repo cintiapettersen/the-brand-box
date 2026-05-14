@@ -52,7 +52,7 @@ export default function PrenatalPage1({ accentColor, palette = [], logoComponent
       }}>
         
         {/* Logo Area */}
-        <div style={{ marginBottom: '25px', display: 'flex', justifyContent: 'center', width: '100%' }}>
+        <div style={{ width: '120px', height: '40px', marginBottom: '25px', display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
           {logoComponent}
         </div>
 
