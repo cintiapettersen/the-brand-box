@@ -8078,11 +8078,10 @@ function SucessoContent() {
     return 'starter';
   });
 
+  const sessionParam = params.get('session');
+  const planoParam = params.get('plano');
+
   useEffect(() => {
-
-    const sessionParam = params.get('session');
-    const planoParam = params.get('plano');
-
     if (params.get('reset') === '1') {
       localStorage.removeItem('brandbox_step');
       localStorage.removeItem('brandbox_crm');
@@ -8099,14 +8098,7 @@ function SucessoContent() {
     localStorage.removeItem('brandbox_step');
 
     const loadData = async () => {
-      // 0. Upsell pago — itens já estão no localStorage (salvos antes do redirect pro Stripe)
-      if (params.get('upsell') === '1') {
-        localStorage.setItem('brandbox_plano', 'pro');
-        setPlano('pro');
-        localStorage.removeItem('brandbox_pending_upsell');
-      }
-
-      // 1. Se tem session na URL, busca no Supabase (link permanente)
+      // 1. Prioridade: Supabase (URL session param)
       if (sessionParam) {
         localStorage.setItem('brandbox_session', sessionParam);
         try {
@@ -8116,99 +8108,52 @@ function SucessoContent() {
             .eq('id', sessionParam)
             .single();
 
-          if (!error && data) {
+          if (!error && data && data.brand_data) {
             const brandFromDb = data.brand_data;
-            // Sincroniza localStorage com os dados oficiais do banco para evitar conflito entre abas
             try {
               localStorage.setItem('brandbox_delivery', JSON.stringify(brandFromDb));
               localStorage.setItem('brandbox_plano', data.plano || 'pro');
-            } catch (e) { console.warn('Falha ao sincronizar localStorage:', e); }
-            // Se veio de upsell, força plano pro
-            if (params.get('upsell') === '1') {
-              setPlano('pro');
-              localStorage.setItem('brandbox_plano', 'pro');
-            }
+            } catch (e) { console.warn('Sync failed:', e); }
+            
             setBrand(brandFromDb);
-            const rawPlano = data.plano || planoParam || 'starter';
-            const planoFromDb = rawPlano === 'complete' ? 'pro' : rawPlano;
-            setPlano(planoFromDb);
-            localStorage.setItem('brandbox_plano', planoFromDb);
+            const derivedPlano = (data.plano === 'complete' ? 'pro' : (data.plano || 'starter'));
+            setPlano(derivedPlano);
+            
+            if (planoParam) setShowWelcome(true);
+            setLoading(false);
 
-            // Disparar e-mail na primeira visita (sem travar o carregamento da tela)
+            // Background email dispatch
             if (!data.email_enviado && data.email) {
               fetch('/api/send-email', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                  email: data.email,
-                  marca: data.marca,
-                  sessionId: sessionParam,
-                  plano: planoFromDb,
-                }),
-              }).then(async () => {
-                await supabase
-                  .from('entregas')
-                  .update({ email_enviado: true })
-                  .eq('id', sessionParam);
-              }).catch(e => console.warn('Background email dispatch failed:', e));
+                body: JSON.stringify({ email: data.email, marca: data.marca, sessionId: sessionParam, plano: derivedPlano }),
+              }).then(() => {
+                supabase.from('entregas').update({ email_enviado: true }).eq('id', sessionParam).then();
+              }).catch(() => {});
             }
-
-            if (brandFromDb) {
-              setBrand(brandFromDb);
-              setLoading(false);
-              setShowWelcome(true);
-              return;
-            }
+            return; 
           }
-        } catch (e) {
-          console.warn('Supabase fetch failed, fallback para localStorage:', e);
-        }
+        } catch (e) { console.warn('Supabase fetch failed:', e); }
       }
 
-      // 2. Fallback: lê do localStorage (sem sessão Supabase)
-      // Se veio do Stripe (tem planoParam) e email ainda não foi enviado, dispara agora
-      if (planoParam && !localStorage.getItem('brandbox_email_sent')) {
-        try {
-          const delivery = JSON.parse(localStorage.getItem('brandbox_delivery') || '{}');
-          const emailToSend = delivery.formData?.email;
-          const marcaToSend = delivery.formData?.marca || delivery.editData?.marca;
-          if (emailToSend) {
-            fetch('/api/send-email', {
-              method: 'POST',
-              headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify({ email: emailToSend, marca: marcaToSend, sessionId: 'no-session', plano: planoParam }),
-            }).then(() => localStorage.setItem('brandbox_email_sent', '1')).catch(() => {});
-          }
-        } catch {}
-      }
-
-      if (planoParam) {
-        localStorage.setItem('brandbox_plano', planoParam);
-        setPlano(planoParam);
-      } else {
-        const savedPlano = localStorage.getItem('brandbox_plano');
-        if (savedPlano) {
-          setPlano(savedPlano);
-        } else {
-          try {
-            const delivery = JSON.parse(localStorage.getItem('brandbox_delivery') || '{}');
-            const derived = delivery.plano || (delivery.papelariaSelecionada ? 'pro' : 'starter');
-            localStorage.setItem('brandbox_plano', derived);
-            setPlano(derived);
-          } catch { setPlano('starter'); }
-        }
-      }
-
+      // 2. Fallback: LocalStorage
       try {
         const saved = localStorage.getItem('brandbox_delivery');
-        if (saved) setBrand(JSON.parse(saved));
-      } catch {}
-      if (planoParam) setShowWelcome(true);
+        if (saved) {
+          const parsed = JSON.parse(saved);
+          setBrand(parsed);
+          const savedPlano = localStorage.getItem('brandbox_plano') || (parsed.plano === 'complete' ? 'pro' : (parsed.plano || 'starter'));
+          setPlano(savedPlano);
+          if (planoParam) setShowWelcome(true);
+        }
+      } catch (e) { console.error('LocalStorage load failed:', e); }
+      
       setLoading(false);
     };
 
     loadData();
-  }, []);
+  }, [sessionParam, planoParam]);
 
 
   if (loading) return null;
