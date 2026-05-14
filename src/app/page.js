@@ -125,16 +125,22 @@ export default function Home() {
 
   // Restaura progresso salvo ao montar
   useEffect(() => {
+    console.log('🔍 Verificando progresso salvo...');
     try {
       const saved = localStorage.getItem('brandbox_progress');
       if (saved) {
         const parsed = JSON.parse(saved);
-        if (parsed.step && parsed.step > 1 && parsed.formData?.nome) {
+        console.log('✨ Progresso encontrado:', parsed.formData?.marca || 'Sem nome');
+        if (parsed.step && parsed.step > 1) {
           setSavedProgress(parsed);
           setShowResumePrompt(true);
         }
+      } else {
+        console.log('ℹ️ Nenhum progresso anterior encontrado no localStorage.');
       }
-    } catch(e) { /* ignora dados corrompidos */ }
+    } catch(e) { 
+      console.error('❌ Erro ao ler progresso:', e);
+    }
   }, []);
 
   const restoreProgress = async (parsed) => {
