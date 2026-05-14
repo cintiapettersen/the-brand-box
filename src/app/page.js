@@ -120,6 +120,7 @@ export default function Home() {
   const [selectedIcon, setSelectedIcon] = useState(null);
   const [showResumePrompt, setShowResumePrompt] = useState(false);
   const [savedProgress, setSavedProgress] = useState(null);
+  const [loadingCheckout, setLoadingCheckout] = useState(false);
   const brandBoardRef = useRef(null);
 
   // Restaura progresso salvo ao montar
@@ -1486,9 +1487,13 @@ export default function Home() {
                     </div>
                     <button
                       className="btn-secondary"
-                      style={{ width: '100%', padding: '12px', fontSize: '0.9rem' }}
-                      onClick={async () => {
-                        const brandState = {
+                      style={{ width: '100%', padding: '12px', fontSize: '0.9rem', position: 'relative' }}
+                      disabled={loadingCheckout}
+                      onClick={async (e) => {
+                        setLoadingCheckout('starter');
+                        console.log('🚀 Iniciando checkout Starter...');
+                        try {
+                          const brandState = {
                           editData, formData, resultadoFinal,
                           selectedPaleta, selectedIcon, selectedTipo,
                           paletas, tipografias,
@@ -1527,8 +1532,14 @@ export default function Home() {
                         });
                         const data = await res.json();
                         if (data.url) window.location.href = data.url;
-                      }}
-                    >Começar minha marca</button>
+                      } catch (err) {
+                        console.error('Checkout error:', err);
+                        setLoadingCheckout(false);
+                      }
+                    }}
+                  >
+                    {loadingCheckout === 'starter' ? 'Processando...' : 'Começar minha marca'}
+                  </button>
                   </motion.div>
 
                   <p style={{ textAlign: 'center', color: 'var(--text-secondary)', fontSize: '0.85rem', fontStyle: 'italic', padding: '0 1rem', lineHeight: 1.6 }}>Você pode seguir sozinha —<br/>ou ter alguém criando com você.</p>
@@ -1566,72 +1577,68 @@ export default function Home() {
                     </div>
                     <button
                       className="btn-primary"
-                      style={{ width: '100%', padding: '12px', background: 'var(--accent-magenta)', color: '#fff', fontWeight: 700, fontSize: '0.9rem' }}
-                      onClick={async () => {
-                        // Lembrete: pelo menos 5 itens antes de prosseguir no Plano Complete
+                      style={{ width: '100%', padding: '12px', background: 'var(--accent-magenta)', color: '#fff', fontWeight: 700, fontSize: '0.9rem', position: 'relative' }}
+                      disabled={loadingCheckout}
+                      onClick={async (e) => {
+                        setLoadingCheckout('pro');
                         if (papelariaSelecionada.length === 0) {
                           setShowPediatriaModal(true);
+                          setLoadingCheckout(false);
                           return;
                         }
                         if (papelariaSelecionada.length < 5) {
                           const confirmar = window.confirm(`Você selecionou apenas ${papelariaSelecionada.length} iten${papelariaSelecionada.length > 1 ? 's' : ''} de papelaria, mas seu plano inclui 5 grátis. Deseja continuar assim ou voltar para escolher mais?`);
-                          if (!confirmar) { setShowPediatriaModal(true); return; }
+                          if (!confirmar) { setShowPediatriaModal(true); setLoadingCheckout(false); return; }
                         }
-                        const brandState = {
-                          editData, formData, resultadoFinal,
-                          selectedPaleta, selectedIcon, selectedTipo,
-                          currentPaletteColors: paletas?.find(p => p.id === selectedPaleta)?.paleta_hex || [],
-                          paletas, tipografias,
-                          activeColor: editData.corAtiva,
-                          pattern: selectedPattern !== null && generatedPatterns[selectedPattern] && !generatedPatterns[selectedPattern]._devPlaceholder
-                            ? { mimeType: generatedPatterns[selectedPattern].mimeType, base64: generatedPatterns[selectedPattern].base64 }
-                            : null,
-                          iconPath: getIconById(resultadoFinal?.estiloNome, selectedIcon)?.path || null,
-                          patternGenerationCount,
-                          estampas,
-                          papelariaSelecionada,
-                          plano: 'pro',
-                        };
-                        if (brandState.pattern) try { localStorage.setItem('brandbox_pattern', JSON.stringify(brandState.pattern)); } catch {}
-                        try { localStorage.setItem('brandbox_delivery', JSON.stringify({ ...brandState, pattern: null })); } catch {}
-                        ['brandbox_step', 'brandbox_cartao', 'brandbox_crm', 'brandbox_papelaria'].forEach(k => localStorage.removeItem(k));
-                        localStorage.setItem('brandbox_plano', 'pro');
-                        const extrasCount = Math.max(0, papelariaSelecionada.length - 5);
-
-                        // Salvar no Supabase para link permanente
-                        let sessionId = null;
                         try {
-                          // Limpar dados pesados (base64) antes de salvar
-                          const cleanState = { ...brandState, pattern: null, estampas: null, generatedPatterns: null };
-                          const saveRes = await fetch('/api/salvar-entrega', {
+                          const brandState = {
+                            editData, formData, resultadoFinal,
+                            selectedPaleta, selectedIcon, selectedTipo,
+                            currentPaletteColors: paletas?.find(p => p.id === selectedPaleta)?.paleta_hex || [],
+                            paletas, tipografias,
+                            activeColor: editData.corAtiva,
+                            pattern: selectedPattern !== null && generatedPatterns[selectedPattern] && !generatedPatterns[selectedPattern]._devPlaceholder
+                              ? { mimeType: generatedPatterns[selectedPattern].mimeType, base64: generatedPatterns[selectedPattern].base64 }
+                              : null,
+                            iconPath: getIconById(resultadoFinal?.estiloNome, selectedIcon)?.path || null,
+                            patternGenerationCount,
+                            estampas,
+                            papelariaSelecionada,
+                            plano: 'pro',
+                          };
+                          if (brandState.pattern) try { localStorage.setItem('brandbox_pattern', JSON.stringify(brandState.pattern)); } catch {}
+                          try { localStorage.setItem('brandbox_delivery', JSON.stringify({ ...brandState, pattern: null })); } catch {}
+                          ['brandbox_step', 'brandbox_cartao', 'brandbox_crm', 'brandbox_papelaria'].forEach(k => localStorage.removeItem(k));
+                          localStorage.setItem('brandbox_plano', 'pro');
+                          const extrasCount = Math.max(0, papelariaSelecionada.length - 5);
+
+                          let sessionId = null;
+                          try {
+                            const cleanState = { ...brandState, pattern: null, estampas: null, generatedPatterns: null };
+                            const saveRes = await fetch('/api/salvar-entrega', {
+                              method: 'POST',
+                              headers: { 'Content-Type': 'application/json' },
+                              body: JSON.stringify({ brandState: cleanState, plano: 'pro', email: formData.email, marca: formData.marca }),
+                            });
+                            const saveData = await saveRes.json();
+                            if (saveData.sessionId) sessionId = saveData.sessionId;
+                          } catch (e) { console.warn('Supabase save failed:', e); }
+
+                          const res = await fetch('/api/checkout', {
                             method: 'POST',
                             headers: { 'Content-Type': 'application/json' },
-                            body: JSON.stringify({
-                              brandState: cleanState,
-                              plano: 'pro',
-                              email: formData.email,
-                              marca: formData.marca,
-                            }),
+                            body: JSON.stringify({ plano: 'pro', marca: formData.marca, email: formData.email, extrasCount, papelaria: papelariaSelecionada, sessionId }),
                           });
-                          const saveData = await saveRes.json();
-                          console.log('salvar-entrega response:', saveData);
-                          if (saveData.sessionId) {
-                            sessionId = saveData.sessionId;
-                            localStorage.setItem('brandbox_session', sessionId);
-                          }
-                        } catch (e) {
-                          console.warn('Supabase save failed, continuando sem sessionId:', e);
+                          const data = await res.json();
+                          if (data.url) window.location.href = data.url;
+                        } catch (err) {
+                          console.error('Checkout error:', err);
+                          setLoadingCheckout(false);
                         }
-
-                        const res = await fetch('/api/checkout', {
-                          method: 'POST',
-                          headers: { 'Content-Type': 'application/json' },
-                          body: JSON.stringify({ plano: 'pro', marca: formData.marca, email: formData.email, extrasCount, papelaria: papelariaSelecionada, sessionId }),
-                        });
-                        const data = await res.json();
-                        if (data.url) window.location.href = data.url;
                       }}
-                    >Quero minha marca completa</button>
+                    >
+                      {loadingCheckout === 'pro' ? 'Processando...' : 'Quero minha marca completa'}
+                    </button>
                   </motion.div>
 
                   {/* PLANO 3 — Signature */}
