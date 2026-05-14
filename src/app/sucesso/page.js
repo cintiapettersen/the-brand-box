@@ -8118,13 +8118,11 @@ function SucessoContent() {
 
           if (!error && data) {
             const brandFromDb = data.brand_data;
-            // Recupera papelariaSelecionada do localStorage (atualizado com novosItens)
+            // Sincroniza localStorage com os dados oficiais do banco para evitar conflito entre abas
             try {
-              const localDelivery = JSON.parse(localStorage.getItem('brandbox_delivery') || '{}');
-              if (localDelivery.papelariaSelecionada?.length > 0) {
-                brandFromDb.papelariaSelecionada = localDelivery.papelariaSelecionada;
-              }
-            } catch {}
+              localStorage.setItem('brandbox_delivery', JSON.stringify(brandFromDb));
+              localStorage.setItem('brandbox_plano', data.plano || 'pro');
+            } catch (e) { console.warn('Falha ao sincronizar localStorage:', e); }
             // Se veio de upsell, força plano pro
             if (params.get('upsell') === '1') {
               setPlano('pro');
