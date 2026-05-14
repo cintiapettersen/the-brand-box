@@ -1468,9 +1468,9 @@ export default function Home() {
                 
                 {/* Cabeçalho */}
                 <div style={{ textAlign: 'center', marginBottom: '1.5rem' }}>
-                  <p style={{ color: 'var(--text-secondary)', textTransform: 'uppercase', fontSize: '0.75rem', letterSpacing: '3px', fontWeight: 600, marginBottom: '0.5rem' }}>sua marca ganhou forma</p>
-                  <h2 style={{ fontSize: '1.6rem', color: 'var(--text-primary)', marginBottom: '0.5rem', lineHeight: 1.3 }}>Escolha como você quer<br/>viver sua marca</h2>
-                  <p style={{ color: 'var(--text-secondary)', fontSize: '0.9rem', lineHeight: 1.6 }}>Sua marca já começou a ganhar forma.<br/>Agora é hora de levar isso para o mundo.</p>
+                  <p style={{ color: 'var(--text-secondary)', textTransform: 'uppercase', fontSize: '0.7rem', letterSpacing: '3px', fontWeight: 700, marginBottom: '0.5rem' }}>Clareza criativa, mesmo para quem nunca criou uma marca antes.</p>
+                  <h2 style={{ fontSize: '1.6rem', color: 'var(--text-primary)', marginBottom: '0.5rem', lineHeight: 1.3 }}>Escolha a experiência ideal para sua marca.<br/>Do essencial ao extraordinário.</h2>
+                  <p style={{ color: 'var(--text-secondary)', fontSize: '0.9rem', lineHeight: 1.6 }}>Sua identidade visual está pronta para deixar de ser ideia e começar a existir de verdade.</p>
                 </div>
 
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
@@ -1480,7 +1480,7 @@ export default function Home() {
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '8px' }}>
                       <div>
                         <p style={{ fontSize: '0.7rem', color: 'var(--text-secondary)', letterSpacing: '2px', textTransform: 'uppercase', fontWeight: 600, marginBottom: '2px' }}>brand box</p>
-                        <h3 style={{ color: 'var(--text-primary)', fontSize: '1.2rem', fontWeight: 600 }}>Experience</h3>
+                        <h3 style={{ color: 'var(--text-primary)', fontSize: '1.2rem', fontWeight: 700 }}>ESSENCE</h3>
                       </div>
                       <span style={{ fontWeight: 700, color: 'var(--text-primary)', fontSize: '1.3rem', whiteSpace: 'nowrap' }}>R$ 497</span>
                     </div>
@@ -1489,7 +1489,7 @@ export default function Home() {
                       {['Logo tipográfica + variações', 'Estampa exclusiva da marca', 'Manifesto e Tom de Voz', 'Paleta de cores + tipografia', 'Guia da Marca completo (PDF)'].map(i => <li key={i} style={{ display: 'flex', alignItems: 'center', gap: '8px' }}><span style={{ color: 'var(--accent-turquoise)', fontWeight: 700 }}>✔</span>{i}</li>)}
                     </ul>
                     <div style={{ background: '#f7f9ff', borderRadius: '10px', padding: '10px 12px', marginBottom: '12px', fontSize: '0.8rem', color: '#3a5a8a', lineHeight: 1.5 }}>
-                      ✨ Você mesmo cria e baixa tudo imediatamente após o pagamento.
+                      ✨ O essencial para começar sua marca
                     </div>
                     <button
                       className="btn-secondary"
@@ -1560,7 +1560,7 @@ export default function Home() {
                     <div style={{ position: 'absolute', top: '12px', right: '12px', background: 'rgba(220,52,149,0.15)', borderRadius: '20px', padding: '3px 10px', fontSize: '0.7rem', fontWeight: 700, letterSpacing: '1px', color: 'var(--accent-magenta)' }}>MAIS ESCOLHIDO</div>
                     <div style={{ marginBottom: '8px', paddingRight: '90px' }}>
                       <p style={{ fontSize: '0.7rem', color: 'var(--accent-magenta)', letterSpacing: '2px', textTransform: 'uppercase', fontWeight: 600, marginBottom: '2px' }}>brand box</p>
-                      <h3 style={{ color: '#3a1a2e', fontSize: '1.2rem', fontWeight: 700 }}>Complete</h3>
+                      <h3 style={{ color: '#3a1a2e', fontSize: '1.2rem', fontWeight: 700 }}>STUDIO</h3>
                     </div>
                     <span style={{ display: 'inline-block', background: 'rgba(220,52,149,0.12)', color: 'var(--accent-magenta)', fontSize: '0.7rem', fontWeight: 700, borderRadius: '20px', padding: '3px 10px', letterSpacing: '0.5px', marginBottom: '10px' }}>Marca + Digital + Papelaria</span>
                     <span style={{ fontWeight: 700, fontSize: '1.4rem', display: 'block', marginBottom: '10px', color: '#3a1a2e' }}>
@@ -1584,7 +1584,7 @@ export default function Home() {
                       })}
                     </ul>
                     <div style={{ background: 'rgba(255,255,255,0.6)', borderRadius: '10px', padding: '10px 12px', marginBottom: '12px', fontSize: '0.8rem', color: '#5a2a4a', lineHeight: 1.5 }}>
-                      🚀 Liberação imediata. Você cria sua marca e papelaria sozinho com nosso guia.
+                      ✨ Sua marca pronta para o mundo
                     </div>
                     <button
                       className="btn-primary"
@@ -1663,8 +1663,8 @@ export default function Home() {
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '12px' }}>
                       <div>
                         <p style={{ fontSize: '0.7rem', color: 'rgba(255,255,255,0.5)', letterSpacing: '2px', textTransform: 'uppercase', fontWeight: 600, marginBottom: '2px' }}>brand box</p>
-                        <h3 style={{ color: '#fff', fontSize: '1.2rem', fontWeight: 600 }}>Signature</h3>
-                        <p style={{ color: 'rgba(255,255,255,0.65)', fontSize: '0.82rem', marginTop: '4px', lineHeight: 1.5 }}>Para quem quer uma marca exclusiva,<br/>criada junto com uma designer.</p>
+                        <h3 style={{ color: '#fff', fontSize: '1.2rem', fontWeight: 700 }}>SIGNATURE</h3>
+                        <p style={{ color: 'rgba(255,255,255,0.65)', fontSize: '0.82rem', marginTop: '4px', lineHeight: 1.5 }}>✨ Uma experiência exclusiva criada junto com uma designer</p>
                       </div>
                       <span style={{ fontWeight: 700, color: '#fff', fontSize: '1rem', whiteSpace: 'nowrap', opacity: 0.8 }}>A partir de<br/>R$ 2.900</span>
                     </div>
