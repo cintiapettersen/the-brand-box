@@ -1531,14 +1531,20 @@ export default function Home() {
                         } catch (e) {
                           console.warn('Supabase save failed, continuando sem sessionId:', e);
                         }
-                        const res = await fetch('/api/checkout', {
-                          method: 'POST',
-                          headers: { 'Content-Type': 'application/json' },
-                          body: JSON.stringify({ plano: 'starter', marca: formData.marca, email: formData.email, sessionId: sessionIdExp }),
-                        });
-                        const data = await res.json();
-                        if (data.url) window.location.href = data.url;
-                      } catch (err) {
+                          const res = await fetch('/api/checkout', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({ plano: 'starter', marca: formData.marca, email: formData.email, sessionId: sessionIdExp }),
+                          });
+                          const data = await res.json();
+                          if (data.url) {
+                            window.location.href = data.url;
+                          } else {
+                            console.error('Checkout error:', data.error);
+                            alert('Houve um problema ao iniciar o pagamento: ' + (data.error || 'Erro desconhecido'));
+                            setLoadingCheckout(false);
+                          }
+                        } catch (err) {
                         console.error('Checkout error:', err);
                         setLoadingCheckout(false);
                       }
@@ -1559,7 +1565,7 @@ export default function Home() {
                     </div>
                     <span style={{ display: 'inline-block', background: 'rgba(220,52,149,0.12)', color: 'var(--accent-magenta)', fontSize: '0.7rem', fontWeight: 700, borderRadius: '20px', padding: '3px 10px', letterSpacing: '0.5px', marginBottom: '10px' }}>Marca + Digital + Papelaria</span>
                     <span style={{ fontWeight: 700, fontSize: '1.4rem', display: 'block', marginBottom: '10px', color: '#3a1a2e' }}>
-                      R$ {1617 + Math.max(0, papelariaSelecionada.length - 5) * 30}
+                      R$ {897 + Math.max(0, papelariaSelecionada.length - 5) * 30}
                       {papelariaSelecionada.length > 5 && <span style={{ fontSize: '0.8rem', color: 'var(--accent-magenta)', fontWeight: 700, marginLeft: '8px' }}>(+ adicionais)</span>}
                     </span>
                     <ul style={{ fontSize: '0.85rem', margin: '0 0 12px 0', paddingLeft: '0', display: 'flex', flexDirection: 'column', gap: '5px', listStyle: 'none' }}>
@@ -1636,7 +1642,13 @@ export default function Home() {
                             body: JSON.stringify({ plano: 'pro', marca: formData.marca, email: formData.email, extrasCount, papelaria: papelariaSelecionada, sessionId }),
                           });
                           const data = await res.json();
-                          if (data.url) window.location.href = data.url;
+                          if (data.url) {
+                            window.location.href = data.url;
+                          } else {
+                            console.error('Checkout error:', data.error);
+                            alert('Houve um problema ao iniciar o pagamento: ' + (data.error || 'Erro desconhecido'));
+                            setLoadingCheckout(false);
+                          }
                         } catch (err) {
                           console.error('Checkout error:', err);
                           setLoadingCheckout(false);

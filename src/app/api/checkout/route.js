@@ -3,14 +3,14 @@ import Stripe from 'stripe';
 // The Stripe instance will be created inside the POST handler 
 // to avoid breaking the Vercel build if the env var is missing during build time.
 const PLANOS = {
-  experience: {
+  starter: {
     name: 'Brand Box Starter',
     description: 'Logo tipográfica + variações, estampa personalizada, paleta de cores, tipografia, guia de uso da marca e cartão de visita interativo. Arquivos entregues por e-mail imediatamente após o pagamento.',
     amount: 49700,
   },
-  complete: {
+  pro: {
     name: 'Brand Box Pro',
-    description: 'Tudo do Experience + papelaria personalizada, templates para Instagram, mockups, ícones, avatares, estampa exclusiva, manifesto e tom de voz da marca. Arquivos entregues por e-mail em até 2 dias úteis.',
+    description: 'Tudo do Starter + papelaria personalizada, templates para Instagram, mockups, ícones, avatares, estampa exclusiva, manifesto e tom de voz da marca. Arquivos entregues por e-mail imediatamente.',
     amount: 89700,
   },
 };
