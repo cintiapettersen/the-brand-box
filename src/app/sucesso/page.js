@@ -8105,9 +8105,12 @@ function SucessoContent() {
               }).catch(e => console.warn('Background email dispatch failed:', e));
             }
 
-            setLoading(false);
-            setShowWelcome(true);
-            return;
+            if (brandFromDb) {
+              setBrand(brandFromDb);
+              setLoading(false);
+              setShowWelcome(true);
+              return;
+            }
           }
         } catch (e) {
           console.warn('Supabase fetch failed, fallback para localStorage:', e);
@@ -8230,17 +8233,20 @@ function SucessoContent() {
 
   if (!brand) {
     return (
-      <div style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '2rem', textAlign: 'center', fontFamily: 'Montserrat, sans-serif' }}>
-        <div style={{ fontSize: '3.5rem', marginBottom: '1rem' }}>🎉</div>
-        <h1 style={{ fontSize: '1.8rem', fontWeight: 700, marginBottom: '0.5rem', color: '#1a1a1a' }}>Pagamento confirmado!</h1>
-        <p style={{ fontSize: '1rem', color: '#555', maxWidth: '400px', lineHeight: 1.7, marginBottom: '1.5rem' }}>
-          {plano === 'starter'
-            ? 'Seus arquivos estão sendo preparados e você receberá tudo por e-mail em instantes.'
-            : 'Entraremos em contato em até 2 dias úteis pelo e-mail cadastrado.'}
+      <div style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '2rem', textAlign: 'center', fontFamily: 'Montserrat, sans-serif', background: '#fff' }}>
+        <div style={{ fontSize: '3.5rem', marginBottom: '1.5rem' }}>🔍</div>
+        <h1 style={{ fontSize: '1.8rem', fontWeight: 800, marginBottom: '1rem', color: '#1a1a1a' }}>Ops! Não encontramos sua marca</h1>
+        <p style={{ fontSize: '1rem', color: '#666', maxWidth: '400px', lineHeight: 1.7, marginBottom: '2rem' }}>
+          Não conseguimos localizar os dados da sua identidade visual. Isso pode acontecer se o link expirou ou se houve um erro na finalização.
         </p>
-        <a href="/" style={{ padding: '12px 28px', background: '#dc3495', color: '#fff', borderRadius: '30px', fontWeight: 700, fontSize: '0.9rem', textDecoration: 'none' }}>
-          Voltar ao início
-        </a>
+        <div style={{ display: 'flex', gap: '12px' }}>
+          <a href="/" style={{ padding: '14px 28px', background: '#dc3495', color: '#fff', borderRadius: '30px', fontWeight: 700, fontSize: '0.9rem', textDecoration: 'none', boxShadow: '0 8px 20px rgba(220,52,149,0.2)' }}>
+            Criar nova marca
+          </a>
+          <button onClick={() => window.location.reload()} style={{ padding: '14px 28px', background: '#f5f5f5', color: '#333', border: 'none', borderRadius: '30px', fontWeight: 700, fontSize: '0.9rem', cursor: 'pointer' }}>
+            Tentar novamente
+          </button>
+        </div>
       </div>
     );
   }
