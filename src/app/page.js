@@ -1488,15 +1488,6 @@ export default function Home() {
                       className="btn-secondary"
                       style={{ width: '100%', padding: '12px', fontSize: '0.9rem' }}
                       onClick={async () => {
-                        // Lembrete: pelo menos 5 itens antes de prosseguir
-                        if (papelariaSelecionada.length === 0) {
-                          setShowPediatriaModal(true);
-                          return;
-                        }
-                        if (papelariaSelecionada.length < 5) {
-                          const confirmar = window.confirm(`Você selecionou apenas ${papelariaSelecionada.length} iten${papelariaSelecionada.length > 1 ? 's' : ''} de papelaria, mas seu plano inclui 5 grátis. Deseja continuar assim ou voltar para escolher mais?`);
-                          if (!confirmar) { setShowPediatriaModal(true); return; }
-                        }
                         const brandState = {
                           editData, formData, resultadoFinal,
                           selectedPaleta, selectedIcon, selectedTipo,
@@ -1577,6 +1568,15 @@ export default function Home() {
                       className="btn-primary"
                       style={{ width: '100%', padding: '12px', background: 'var(--accent-magenta)', color: '#fff', fontWeight: 700, fontSize: '0.9rem' }}
                       onClick={async () => {
+                        // Lembrete: pelo menos 5 itens antes de prosseguir no Plano Complete
+                        if (papelariaSelecionada.length === 0) {
+                          setShowPediatriaModal(true);
+                          return;
+                        }
+                        if (papelariaSelecionada.length < 5) {
+                          const confirmar = window.confirm(`Você selecionou apenas ${papelariaSelecionada.length} iten${papelariaSelecionada.length > 1 ? 's' : ''} de papelaria, mas seu plano inclui 5 grátis. Deseja continuar assim ou voltar para escolher mais?`);
+                          if (!confirmar) { setShowPediatriaModal(true); return; }
+                        }
                         const brandState = {
                           editData, formData, resultadoFinal,
                           selectedPaleta, selectedIcon, selectedTipo,
