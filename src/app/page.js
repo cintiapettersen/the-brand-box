@@ -1556,7 +1556,7 @@ export default function Home() {
                     </span>
                     <ul style={{ fontSize: '0.85rem', margin: '0 0 12px 0', paddingLeft: '0', display: 'flex', flexDirection: 'column', gap: '5px', listStyle: 'none' }}>
                       {['Tudo do Brand Box Starter', '5 Itens de papelaria à escolha', 'Pack completo para Instagram', 'Cartão Digital + Assinatura de E-mail'].map(i => {
-                        const isPapelaria = i === 'Papelaria personalizada para sua marca';
+                        const isPapelaria = i === '5 Itens de papelaria à escolha';
                         return (
                           <li key={i} style={{ display: 'flex', alignItems: 'center', gap: '8px', color: '#4a1f3a', flexWrap: 'wrap' }}>
                             {!i.startsWith('✨') && <span style={{ color: 'var(--accent-magenta)', fontWeight: 700 }}>✔</span>}
