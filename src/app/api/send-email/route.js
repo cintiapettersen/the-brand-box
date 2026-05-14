@@ -111,12 +111,6 @@ export async function POST(request) {
 </body>
 </html>`;
 
-        </table>
-      </td>
-    </tr>
-  </table>
-</body>
-</html>`;
 
     // InMotion SMTP
     const transporter = nodemailer.createTransport({
