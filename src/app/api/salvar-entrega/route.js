@@ -32,7 +32,10 @@ export async function POST(request) {
     }
 
     // Disparo imediato do e-mail (background)
-    const appUrl = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000';
+    const host = request.headers.get('host');
+    const protocol = host.includes('localhost') ? 'http' : 'https';
+    const appUrl = `${protocol}://${host}`;
+
     fetch(`${appUrl}/api/send-email`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
