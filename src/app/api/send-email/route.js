@@ -1,4 +1,4 @@
-import nodemailer from 'nodemailer'; // trigger resave
+import nodemailer from 'nodemailer'; // deployment verified clean
 
 export async function POST(request) {
   try {
