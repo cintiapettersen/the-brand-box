@@ -58,8 +58,10 @@ export const ITEM_CUSTOM_BASE_SCALES = {
   'Envelope Saco (24x34cm)': 2.0,
   'Envelope Saco': 2.0,
   'Pasta A4': 2.0,
+  'Receituário Padrão (A4 e A5)': 2.0,
   'Receituário Padrão': 2.0, 
   'Receituário de Controle Especial': 2.0,
+  'Atestado Médico (A4 e A5)': 2.0,
   'Atestado Médico': 2.0, 'Recibo': 2.0, 'Cartão de Retorno': 2.0,
   'Ficha de Cadastro': 2.0, 'Prontuário Médico': 2.0,
   'Certificado de Coragem': 2.0,
@@ -4027,7 +4029,7 @@ function PapelariaStep({ brand, accentColor, paletteColors, estampaPatterns, est
   ];
   // Papelaria exclusiva para área médica
   const PAPELARIA_MEDICA = [
-    "Receituário Padrão", "Atestado Médico", "Cartão de Retorno",
+    "Receituário Padrão (A4 e A5)", "Atestado Médico (A4 e A5)", "Cartão de Retorno",
     "Receituário de Controle Especial", "Prontuário Médico", "Receita de Alta",
     "Ficha de Cadastro",
   ];
@@ -7147,6 +7149,9 @@ ${fontImports2}
           'Envelope Saco':          { cat: 'Envelope Saco', tam: '24 × 34 cm', papel: 'Offset 120g', acabamento: 'Faca especial · Cola', preco: '~R$400,00 / 50 un.' },
           'Recibo':                 { cat: 'Recibo', tam: 'A5 (14,8 × 21 cm)', papel: 'Offset 90g', acabamento: 'Blocado Colado · 25 vias', preco: '~R$120,84 / 10 blocos' },
           'Caneca':                 { cat: 'Caneca', tam: 'Arte: 20 × 8 cm', papel: 'Cerâmica', acabamento: 'Sublimação', preco: '~R$33,93 / un.' },
+          'Receituário Padrão (A4 e A5)': { cat: 'Receituário', tam: 'A5 (14,8×21 cm) ou A4 (21×29,7 cm)', papel: 'Offset 90g', acabamento: 'Blocado Colado · 25 vias', preco: '~R$109,19 / 10 blocos' },
+          'Receituário Padrão':      { cat: 'Receituário', tam: 'A5 (14,8×21 cm) ou A4 (21×29,7 cm)', papel: 'Offset 90g', acabamento: 'Blocado Colado · 25 vias', preco: '~R$109,19 / 10 blocos' },
+          'Atestado Médico (A4 e A5)': { cat: 'Atestado', tam: 'A5 (14,8×21 cm) ou A4 (21×29,7 cm)', papel: 'Offset 90g', acabamento: 'Blocado Colado · 25 vias', preco: '~R$109,19 / 10 blocos' },
           'Atestado Médico':        { cat: 'Atestado', tam: 'A5 (14,8×21 cm) ou A4 (21×29,7 cm)', papel: 'Offset 90g', acabamento: 'Blocado Colado · 25 vias', preco: '~R$109,19 / 10 blocos' },
           'Receita de Alta':        { cat: 'Receituário Especial', tam: 'A4 (21 × 29,7 cm)', papel: 'Offset 90g', acabamento: 'Blocado Colado · 50 vias', preco: '' },
           'Checklist Maternidade':  { cat: 'Checklist', tam: 'A4 (21 × 29,7 cm)', papel: 'Offset 120g', acabamento: 'Refile · Frente', preco: '~R$261,07 / 250 un.' },

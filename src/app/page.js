@@ -11,9 +11,9 @@ import FONT_MAP from '../lib/fontMap';
 import { STYLE_ICONS, getIconById } from '../lib/styleIcons';
 
 const PAPELARIA_CLINICA = [
-  "Cartão de Visita", "Receituário Padrão", "Atestado Médico", "Cartão de Retorno", "Pasta A4 Exclusiva",
+  "Cartão de Visita", "Receituário Padrão (A4 e A5)", "Atestado Médico (A4 e A5)", "Cartão de Retorno", "Pasta A4 Exclusiva",
   "Envelope Ofício (23x11,5cm)", "Envelope Saco (24x34cm)", "Recibo", "Receituário de Controle Especial", 
-  "Dicas de Introdução Alimentar", "Guia de Vacina c/ Calendário", "Ficha de Acompanhamento", "Orientação Pré-Natal",
+  "Dicas de Introdução Alimentar", "Guia de Vacina c/ Calendário", "Guia de Desenvolvimento", "Orientação Pré-Natal",
   "Cartão de Exames", "Checklist Maternidade", "Guia do Sono", "Orientações p/ Recém Nascidos",
   "Prontuário Médico", "Receita de Alta", "Ficha de Cadastro",
   "Certificado de Coragem", "Quadro de Incentivo",
