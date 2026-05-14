@@ -19,7 +19,7 @@ export async function POST(request) {
     const origin = process.env.NEXT_PUBLIC_APP_URL || 'https://brandbox.sonhodepapel.com';
     const link = `${origin}/sucesso?session=${sessionId}`;
     const marcaDisplay = marca || 'sua marca';
-    const isComplete = plano === 'complete';
+    const isComplete = plano === 'complete' || plano === 'pro';
 
     const htmlBody = `
 <!DOCTYPE html>
@@ -111,6 +111,8 @@ export async function POST(request) {
       },
     });
 
+    console.log(`📧 Tentando enviar e-mail para: ${email} (Plano: ${plano}, Marca: ${marca})`);
+
     await transporter.sendMail({
       from: `"The Brand Box" <${smtpEmail}>`,
       to: email,
@@ -120,9 +122,10 @@ export async function POST(request) {
       html: htmlBody,
     });
 
+    console.log('✅ E-mail enviado com sucesso!');
     return Response.json({ sent: true });
   } catch (err) {
-    console.error('send-email error:', err);
+    console.error('❌ Erro crítico no send-email:', err);
     return Response.json({ error: err.message }, { status: 500 });
   }
 }
