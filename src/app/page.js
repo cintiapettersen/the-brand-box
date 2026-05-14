@@ -1554,7 +1554,6 @@ export default function Home() {
                   </button>
                   </motion.div>
 
-                  <p style={{ textAlign: 'center', color: 'var(--text-secondary)', fontSize: '0.85rem', fontStyle: 'italic', padding: '0 1rem', lineHeight: 1.6 }}>Você pode seguir sozinha —<br/>ou ter alguém criando com você.</p>
 
                   {/* PLANO 2 — Complete (DESTAQUE) */}
                   <motion.div whileHover={{ scale: 1.01 }} style={{ background: '#f5d6e8', borderRadius: '16px', padding: '20px', color: '#3a1a2e', boxShadow: '0 8px 30px rgba(220,52,149,0.1)', position: 'relative', overflow: 'hidden' }}>
