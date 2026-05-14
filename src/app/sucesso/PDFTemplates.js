@@ -51,12 +51,15 @@ export const genPDFLogoHtml = ({ brand, editDataOverride = null, color, localSlo
     }
   }
 
-  // Slogan: 40% do nome, letter-spacing em 'em' — consistente com LogoPreviewHTML
+  // Slogan dinâmico: quanto mais longo, menor a fonte e maior o espaçamento (tracking)
+  const _sloganLenRaw = (localSlogan && !hideSlogan) ? localSlogan.length : 0;
+  const _sloganScale = _sloganLenRaw > 40 ? 0.22 : _sloganLenRaw > 25 ? 0.28 : 0.35;
+  
   const _scaleMultiplier = finalLogoScale / 100;
   const _finalFontPt = fontPt ? (parseFloat(fontPt) * _scaleMultiplier).toFixed(1) : '14';
-  const effectiveSloganSize = sloganSize || (fontPt ? (parseFloat(fontPt) * _scaleMultiplier * 0.40).toFixed(1) + 'pt' : '0pt');
-  const isStacked = true; // slogan sempre embaixo — "horizontal" só afeta quebra de linha do nome
-  const _sloganLs = '0.35em';
+  const effectiveSloganSize = sloganSize || (fontPt ? (parseFloat(fontPt) * _scaleMultiplier * _sloganScale).toFixed(1) + 'pt' : '0pt');
+  const isStacked = true; // slogan sempre embaixo
+  const _sloganLs = _sloganLenRaw > 30 ? '0.5em' : _sloganLenRaw > 15 ? '0.42em' : '0.35em';
 
   const logoMain = `
     <div style="text-align:center; font-family:${brandFont}; font-weight:${_ed.fontWeight || 700}; font-size:${_finalFontPt}pt; color:${color}; line-height:${lineH}; letter-spacing:${letterSp}; white-space:nowrap;">

@@ -209,10 +209,14 @@ export function LogoPreviewHTML({ item = null, editData, color, layout = 'stacke
   const sansPenalty = (isSansBold && effectiveScaleFactor > 1.5) ? (marca.length > 18 ? 0.42 : marca.length > 12 ? 0.55 : marca.length > 8 ? 0.68 : 1) : 1;
   const logoSizeRem = baseSize * sizeBoost * effectiveScaleFactor * sansPenalty;
   const fontSize = `${logoSizeRem.toFixed(2)}rem`;
-  const taglineSizeRem = Math.max(logoSizeRem * 0.40, 0.38 * effectiveScaleFactor);
+  const taglineText = editData?.tagline || '';
+  const taglineLen = taglineText.length;
+  // Slogan dinâmico: quanto mais longo, menor a fonte e maior o espaçamento (tracking)
+  const taglineScale = taglineLen > 40 ? 0.22 : taglineLen > 25 ? 0.28 : 0.35;
+  const taglineSizeRem = Math.max(logoSizeRem * taglineScale, 0.32 * effectiveScaleFactor);
   const taglineVisible = taglineSizeRem >= 0.08;
-  const taglineGapPx = Math.round(taglineSizeRem * 16 * 0.4);
-  const taglineLetterSpacing = '0.35em';
+  const taglineGapPx = Math.round(taglineSizeRem * 16 * 0.6);
+  const taglineLetterSpacing = taglineLen > 30 ? '0.5em' : taglineLen > 15 ? '0.42em' : '0.35em';
 
 
 
