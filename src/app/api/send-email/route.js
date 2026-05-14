@@ -117,8 +117,8 @@ export async function POST(request) {
       from: `"The Brand Box" <${smtpEmail}>`,
       to: email,
       subject: isComplete
-        ? `✨ ${marcaDisplay} – Sua identidade visual está no forno!`
-        : `🎉 ${marcaDisplay} – Seus arquivos estão prontos!`,
+        ? `Sua marca ${marcaDisplay} está sendo preparada!`
+        : `Acesso aos arquivos da marca ${marcaDisplay}`,
       html: htmlBody,
     });
 
