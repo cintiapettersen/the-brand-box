@@ -12,17 +12,17 @@ import { STYLE_ICONS, getIconById } from '../lib/styleIcons';
 
 const PAPELARIA_CLINICA = [
   "Cartão de Visita", "Receituário Padrão", "Atestado Médico", "Cartão de Retorno", "Pasta A4 Exclusiva",
-  "Envelope", "Recibo", "Receituário de Controle Especial", "Dicas de Introdução Alimentar",
-  "Guia de Vacina c/ Calendário", "Ficha de Acompanhamento", "Orientação Pré-Natal",
+  "Envelope Ofício (23x11,5cm)", "Envelope Saco (24x34cm)", "Recibo", "Receituário de Controle Especial", 
+  "Dicas de Introdução Alimentar", "Guia de Vacina c/ Calendário", "Ficha de Acompanhamento", "Orientação Pré-Natal",
   "Cartão de Exames", "Checklist Maternidade", "Guia do Sono", "Orientações p/ Recém Nascidos",
   "Prontuário Médico", "Receita de Alta", "Ficha de Cadastro",
-  "Certificado de Coragem", "Quadro de Incentivo", "Cartão de Aniversário Exclusivo",
+  "Certificado de Coragem", "Quadro de Incentivo",
   "Arte para Caneca/Brindes", "Gráfico de Crescimento", "Diário do Xixi", "Card de Orientação de Sono",
-  "Meu Pratinho", "Guia de Amamentação", "Pack Digital para Instagram"
+  "Meu Pratinho", "Guia de Amamentação"
 ];
 
 const PAPELARIA_INSTITUCIONAL = [
-  "Cartão de Visita", "Pasta A4 Exclusiva", "Envelope Saco", "Papel Timbrado", 
+  "Cartão de Visita", "Pasta A4 Exclusiva", "Envelope Ofício (23x11,5cm)", "Envelope Saco (24x34cm)", "Papel Timbrado", 
   "Cartão de Agradecimento (10x15cm)", "Etiqueta para Correios", "Recibo Comercial",
   "Cartão de Retorno/Fidelidade", "Assinatura de E-mail", "Tag para Sacola"
 ];

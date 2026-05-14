@@ -55,6 +55,7 @@ const supabase = createClient(
 );
 
 export const ITEM_CUSTOM_BASE_SCALES = {
+  'Envelope Saco (24x34cm)': 2.0,
   'Envelope Saco': 2.0,
   'Pasta A4': 2.0,
   'Receituário Padrão': 2.0, 
@@ -76,6 +77,7 @@ export const ITEM_CUSTOM_BASE_SCALES = {
   'Tag para Sacola': 2.0,
   'Etiqueta para Correios': 2.0,
   'Checklist Maternidade': 2.0,
+  'Envelope Ofício (23x11,5cm)': 2.0,
   'Envelope Ofício': 2.0,
   'Orientações p/ Recém Nascidos': 2.0,
   'Sacola de Papel': 2.0,
@@ -4020,7 +4022,7 @@ function PapelariaStep({ brand, accentColor, paletteColors, estampaPatterns, est
   // Papelaria disponível para não-médicos
   const PAPELARIA_GERAL = [
     "Cartão de Visita", "Papel Timbrado", "Papel de Presente", "Tag para Sacola",
-    "Etiqueta para Correios", "Envelope Ofício", "Envelope Saco", "Recibo",
+    "Etiqueta para Correios", "Envelope Ofício (23x11,5cm)", "Envelope Saco (24x34cm)", "Recibo",
     "Pasta A4", "Arte para Caneca",
   ];
   // Papelaria exclusiva para área médica
@@ -4295,7 +4297,7 @@ function PapelariaStep({ brand, accentColor, paletteColors, estampaPatterns, est
     'Guia de Amamentação': 'FolderDL-8pag', 'Orientação': 'A4',
     'Pré-Natal': 'FolderA5-4pag',
     'Diário do Xixi': 'A4-Horizontal', 'Meu Pratinho': 'A4-Horizontal',
-    'Pasta': '22x31cm', 'Envelope Ofício': '22x11,3cm', 'Envelope Saco': '22,5x31,1cm',
+    'Pasta': '22x31cm', 'Envelope Ofício (23x11,5cm)': '23x11,5cm', 'Envelope Saco (24x34cm)': '24x34cm', 'Envelope Ofício': '23x11,5cm', 'Envelope Saco': '24x34cm',
     'Arte para Caneca': '20x8cm',
     'Papel de Presente': '65x95cm', 'Tag para Sacola': 'tag',
     'Etiqueta para Correios': '10x15cm',
@@ -7139,8 +7141,10 @@ ${fontImports2}
           'Timbrado':               { cat: 'Timbrado', tam: 'A4 (21 × 29,7 cm)', papel: 'Offset 90g+', acabamento: 'Folhas avulsas', preco: '~R$170,85 / 250 un.' },
           'Cartão de Retorno':      { cat: 'Cartão de visita', tam: '9 × 4,8 cm', papel: 'Couché Fosco 300g', acabamento: 'Refile', preco: '~R$52,94 / 250 un.' },
           'Pasta':                  { cat: 'Pasta com bolsa', tam: '22 × 31 cm fechada · gabarito 485×385mm', papel: 'Cartão 300g', acabamento: 'Faca c/ Bolsa · Vinco · Dobra', preco: '~R$205,04 / 50 un.' },
-          'Envelope Ofício':        { cat: 'Envelope', tam: '22 × 11,3 cm', papel: 'Offset 90g', acabamento: 'Faca especial · Cola', preco: '~R$319,24 / 50 un.' },
-          'Envelope Saco':          { cat: 'Envelope Saco', tam: '22,5 × 31,1 cm', papel: 'Offset 90g', acabamento: 'Faca especial · Cola', preco: '~R$400,00 / 50 un.' },
+          'Envelope Ofício (23x11,5cm)': { cat: 'Envelope', tam: '23 × 11,5 cm', papel: 'Offset 90g', acabamento: 'Faca especial · Cola', preco: '~R$319,24 / 50 un.' },
+          'Envelope Saco (24x34cm)':   { cat: 'Envelope Saco', tam: '24 × 34 cm', papel: 'Offset 120g', acabamento: 'Faca especial · Cola', preco: '~R$400,00 / 50 un.' },
+          'Envelope Ofício':        { cat: 'Envelope', tam: '23 × 11,5 cm', papel: 'Offset 90g', acabamento: 'Faca especial · Cola', preco: '~R$319,24 / 50 un.' },
+          'Envelope Saco':          { cat: 'Envelope Saco', tam: '24 × 34 cm', papel: 'Offset 120g', acabamento: 'Faca especial · Cola', preco: '~R$400,00 / 50 un.' },
           'Recibo':                 { cat: 'Recibo', tam: 'A5 (14,8 × 21 cm)', papel: 'Offset 90g', acabamento: 'Blocado Colado · 25 vias', preco: '~R$120,84 / 10 blocos' },
           'Caneca':                 { cat: 'Caneca', tam: 'Arte: 20 × 8 cm', papel: 'Cerâmica', acabamento: 'Sublimação', preco: '~R$33,93 / un.' },
           'Atestado Médico':        { cat: 'Atestado', tam: 'A5 (14,8×21 cm) ou A4 (21×29,7 cm)', papel: 'Offset 90g', acabamento: 'Blocado Colado · 25 vias', preco: '~R$109,19 / 10 blocos' },
