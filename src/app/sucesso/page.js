@@ -8101,40 +8101,56 @@ function SucessoContent() {
       // 1. Prioridade: Supabase (URL session param)
       if (sessionParam) {
         localStorage.setItem('brandbox_session', sessionParam);
-        try {
-          const { data, error } = await supabase
-            .from('entregas')
-            .select('brand_data, plano, email, marca, email_enviado')
-            .eq('id', sessionParam)
-            .single();
+        
+        let attempts = 0;
+        const maxAttempts = 3;
+        let success = false;
 
-          if (!error && data && data.brand_data) {
-            const brandFromDb = data.brand_data;
-            try {
-              localStorage.setItem('brandbox_delivery', JSON.stringify(brandFromDb));
-              localStorage.setItem('brandbox_plano', data.plano || 'pro');
-            } catch (e) { console.warn('Sync failed:', e); }
-            
-            setBrand(brandFromDb);
-            const derivedPlano = (data.plano === 'complete' ? 'pro' : (data.plano || 'starter'));
-            setPlano(derivedPlano);
-            
-            if (planoParam) setShowWelcome(true);
-            setLoading(false);
+        while (attempts < maxAttempts && !success) {
+          attempts++;
+          try {
+            const { data, error } = await supabase
+              .from('entregas')
+              .select('brand_data, plano, email, marca, email_enviado')
+              .eq('id', sessionParam)
+              .single();
 
-            // Background email dispatch
-            if (!data.email_enviado && data.email) {
-              fetch('/api/send-email', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ email: data.email, marca: data.marca, sessionId: sessionParam, plano: derivedPlano }),
-              }).then(() => {
-                supabase.from('entregas').update({ email_enviado: true }).eq('id', sessionParam).then();
-              }).catch(() => {});
+            if (!error && data && data.brand_data) {
+              const brandFromDb = data.brand_data;
+              try {
+                localStorage.setItem('brandbox_delivery', JSON.stringify(brandFromDb));
+                localStorage.setItem('brandbox_plano', data.plano || 'pro');
+              } catch (e) { console.warn('Sync failed:', e); }
+              
+              setBrand(brandFromDb);
+              const derivedPlano = (data.plano === 'complete' ? 'pro' : (data.plano || 'starter'));
+              setPlano(derivedPlano);
+              
+              if (planoParam) setShowWelcome(true);
+              setLoading(false);
+
+              // Background email dispatch
+              if (!data.email_enviado && data.email) {
+                fetch('/api/send-email', {
+                  method: 'POST',
+                  headers: { 'Content-Type': 'application/json' },
+                  body: JSON.stringify({ email: data.email, marca: data.marca, sessionId: sessionParam, plano: derivedPlano }),
+                }).then(() => {
+                  supabase.from('entregas').update({ email_enviado: true }).eq('id', sessionParam).then();
+                }).catch(() => {});
+              }
+              success = true;
+              return; 
             }
-            return; 
+          } catch (e) { 
+            console.warn(`Supabase fetch attempt ${attempts} failed:`, e); 
           }
-        } catch (e) { console.warn('Supabase fetch failed:', e); }
+          
+          if (!success && attempts < maxAttempts) {
+            // Espera 1.5s antes de tentar de novo
+            await new Promise(resolve => setTimeout(resolve, 1500));
+          }
+        }
       }
 
       // 2. Fallback: LocalStorage
@@ -8232,13 +8248,16 @@ function SucessoContent() {
         <p style={{ fontSize: '1rem', color: '#666', maxWidth: '400px', lineHeight: 1.7, marginBottom: '2rem' }}>
           Não conseguimos localizar os dados da sua identidade visual. Isso pode acontecer se o link expirou ou se houve um erro na finalização.
         </p>
-        <div style={{ display: 'flex', gap: '12px' }}>
+        <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap', justifyContent: 'center' }}>
           <a href="/" style={{ padding: '14px 28px', background: '#dc3495', color: '#fff', borderRadius: '30px', fontWeight: 700, fontSize: '0.9rem', textDecoration: 'none', boxShadow: '0 8px 20px rgba(220,52,149,0.2)' }}>
             Criar nova marca
           </a>
           <button onClick={() => window.location.reload()} style={{ padding: '14px 28px', background: '#f5f5f5', color: '#333', border: 'none', borderRadius: '30px', fontWeight: 700, fontSize: '0.9rem', cursor: 'pointer' }}>
             Tentar novamente
           </button>
+          <a href="https://wa.me/5511999999999" target="_blank" style={{ padding: '14px 28px', background: '#25D366', color: '#fff', borderRadius: '30px', fontWeight: 700, fontSize: '0.9rem', textDecoration: 'none', boxShadow: '0 8px 20px rgba(37,211,102,0.2)' }}>
+            Falar com suporte
+          </a>
         </div>
       </div>
     );
