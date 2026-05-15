@@ -53,13 +53,17 @@ export const genPDFLogoHtml = ({ brand, editDataOverride = null, color, localSlo
 
   // Slogan dinâmico: quanto mais longo, menor a fonte e maior o espaçamento (tracking)
   const _sloganLenRaw = (localSlogan && !hideSlogan) ? localSlogan.length : 0;
-  const _sloganScale = _sloganLenRaw > 40 ? 0.22 : _sloganLenRaw > 25 ? 0.28 : 0.35;
+  // Ajuste mais agressivo para slogans gigantes (>50 caracteres) para não travar a logo
+  const _sloganScale = _sloganLenRaw > 50 ? 0.16 : _sloganLenRaw > 40 ? 0.20 : _sloganLenRaw > 25 ? 0.26 : 0.35;
+  const _sloganGapMultiplier = _sloganLenRaw > 40 ? 0.45 : 0.6;
   
   const _scaleMultiplier = finalLogoScale / 100;
   const _finalFontPt = fontPt ? (parseFloat(fontPt) * _scaleMultiplier).toFixed(1) : '14';
   const effectiveSloganSize = sloganSize || (fontPt ? (parseFloat(fontPt) * _scaleMultiplier * _sloganScale).toFixed(1) + 'pt' : '0pt');
   const isStacked = true; // slogan sempre embaixo
-  const _sloganLs = _sloganLenRaw > 30 ? '0.5em' : _sloganLenRaw > 15 ? '0.42em' : '0.35em';
+  
+  // Tracking (letter-spacing) compensatório para slogans longos
+  const _sloganLs = _sloganLenRaw > 45 ? '0.55em' : _sloganLenRaw > 30 ? '0.48em' : _sloganLenRaw > 15 ? '0.4em' : '0.35em';
 
   const logoMain = `
     <div style="text-align:center; font-family:${brandFont}; font-weight:${_ed.fontWeight || 700}; font-size:${_finalFontPt}pt; color:${color}; line-height:${lineH}; letter-spacing:${letterSp}; white-space:nowrap;">
@@ -68,7 +72,8 @@ export const genPDFLogoHtml = ({ brand, editDataOverride = null, color, localSlo
   `;
 
   const _sloganColor = sloganColor || '#666';
-  const _sloganGap = (2 * _scaleMultiplier).toFixed(1);
+  // Gap adaptativo baseado no tamanho da fonte do slogan e complexidade
+  const _sloganGap = (parseFloat(effectiveSloganSize) * _sloganGapMultiplier).toFixed(1);
   const sloganPart = (localSlogan && !hideSlogan) ? `<div style="${PDFStyles.montserrat} font-size:${effectiveSloganSize}; font-weight:700; letter-spacing:${_sloganLs}; text-transform:uppercase; color:${_sloganColor}; margin-top:${isStacked ? _sloganGap + 'pt' : '0'}; text-align:center; white-space:nowrap;">${localSlogan}</div>` : '';
   
   const effectiveCrmSize = crmSize.includes('pt') ? (parseFloat(crmSize) * _scaleMultiplier).toFixed(1) + 'pt' : crmSize;

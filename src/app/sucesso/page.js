@@ -211,12 +211,19 @@ export function LogoPreviewHTML({ item = null, editData, color, layout = 'stacke
   const fontSize = `${logoSizeRem.toFixed(2)}rem`;
   const taglineText = editData?.tagline || '';
   const taglineLen = taglineText.length;
+  
   // Slogan dinâmico: quanto mais longo, menor a fonte e maior o espaçamento (tracking)
-  const taglineScale = taglineLen > 40 ? 0.22 : taglineLen > 25 ? 0.28 : 0.35;
+  // Ajuste mais agressivo para slogans gigantes (>50 caracteres)
+  const taglineScale = taglineLen > 50 ? 0.16 : taglineLen > 40 ? 0.20 : taglineLen > 25 ? 0.26 : 0.35;
   const taglineSizeRem = Math.max(logoSizeRem * taglineScale, 0.32 * effectiveScaleFactor);
   const taglineVisible = taglineSizeRem >= 0.08;
-  const taglineGapPx = Math.round(taglineSizeRem * 16 * 0.6);
-  const taglineLetterSpacing = taglineLen > 30 ? '0.5em' : taglineLen > 15 ? '0.42em' : '0.35em';
+  
+  // Reduz o gap se o slogan for muito longo para não estourar a altura
+  const gapMultiplier = taglineLen > 40 ? 0.45 : 0.6;
+  const taglineGapPx = Math.round(taglineSizeRem * 16 * gapMultiplier);
+  
+  // Tracking (letter-spacing) compensatório
+  const taglineLetterSpacing = taglineLen > 45 ? '0.55em' : taglineLen > 30 ? '0.48em' : taglineLen > 15 ? '0.4em' : '0.35em';
 
 
 
