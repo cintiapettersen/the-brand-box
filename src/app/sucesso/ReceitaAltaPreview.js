@@ -253,7 +253,7 @@ export function buildReceitaAltaHTML({ logoHtml, solidColor, paletteColors = [],
   <div style="position:absolute;top:${BORDER_P + 5}mm;left:${BORDER_P + 5}mm;right:${BORDER_P + 5}mm;bottom:${BORDER_P + 5}mm;background:#fff;display:flex;flex-direction:column;overflow:hidden;">
   <div style="background:${solidColor};padding:6mm 8mm 4mm;display:flex;flex-direction:column;align-items:center;position:relative;overflow:hidden;flex-shrink:0;">
     <div style="position:absolute;bottom:-15mm;left:50%;transform:translateX(-50%);width:220%;height:30mm;border-radius:50%;background:rgba(255,255,255,0.08);"></div>
-    <div style="margin-top:3mm;margin-bottom:3mm;">${logoHtml}</div>
+    <div style="width:100mm; height:32mm; display:flex; align-items:center; justify-content:center; margin-bottom:2mm; overflow:hidden;">${logoHtml}</div>
     <div style="font-size:4.2mm;font-weight:900;color:#fff;font-family:Montserrat,sans-serif;text-transform:uppercase;letter-spacing:0.4mm;">Receita de Alta do Bebê</div>
   </div>
   <div style="flex:1;padding:4mm 10mm 2mm;overflow:hidden;">

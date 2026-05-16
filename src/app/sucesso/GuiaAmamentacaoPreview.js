@@ -19,7 +19,7 @@ export default function GuiaAmamentacaoPreview({
   const endereco = cartaoContacts?.endereco || brand?.endereco || _brandData?.endereco || '';
   const allPhones = [cartaoContacts?.whatsapp, cartaoContacts?.telefone].filter(Boolean).join(' · ');
 
-  const logoHtml = <LogoPreviewHTML item="Guia de Amamentação" editData={_brandData} color={logoColor} layout={logoLayout} scaleFactor={0.16} crm={crmLine} maxWidth="100%" maxHeight="100%" />;
+  const logoHtml = <LogoPreviewHTML item="Guia de Amamentação" editData={_brandData} color={logoColor} layout={logoLayout} scaleFactor={0.55} crm={crmLine} maxWidth="90px" maxHeight="35px" />;
 
   const Page = ({ num, children }) => (
     <div style={{ 

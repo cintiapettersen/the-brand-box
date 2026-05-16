@@ -42,12 +42,12 @@ export const genPDFLogoHtml = ({ brand, editDataOverride = null, color, localSlo
   const words = marca.split(' ').map(w => isScript ? w.charAt(0).toUpperCase() + w.slice(1).toLowerCase() : w.toUpperCase());
   
   let lines = [words.join(' ')];
-  if (layout !== 'horizontal') {
-    if (words.length >= 3 && marca.length > 15) {
-       const m = Math.ceil(words.length / 2);
-       lines = [words.slice(0, m).join(' '), words.slice(m).join(' ')];
-    } else if (words.length === 2 && marca.length > 12) {
-       lines = words;
+  if (layout === 'stacked' || layout === 'balanced') {
+    if (words.length === 2) {
+      lines = words;
+    } else if (words.length >= 3) {
+      const m = Math.ceil(words.length / 2);
+      lines = [words.slice(0, m).join(' '), words.slice(m).join(' ')];
     }
   }
 
@@ -55,7 +55,8 @@ export const genPDFLogoHtml = ({ brand, editDataOverride = null, color, localSlo
   const _sloganLenRaw = (localSlogan && !hideSlogan) ? localSlogan.length : 0;
   // Ajuste mais agressivo para slogans gigantes (>50 caracteres) para não travar a logo
   const _sloganScale = _sloganLenRaw > 50 ? 0.16 : _sloganLenRaw > 40 ? 0.20 : _sloganLenRaw > 25 ? 0.26 : 0.35;
-  const _sloganGapMultiplier = _sloganLenRaw > 40 ? 0.45 : 0.6;
+  // Gap customizável via taglineGap (fallback para o cálculo dinâmico)
+  const _sloganGapMultiplier = _ed?.taglineGap !== undefined ? parseFloat(_ed.taglineGap) : (_sloganLenRaw > 40 ? 0.20 : 0.35);
   
   const _scaleMultiplier = finalLogoScale / 100;
   const _finalFontPt = fontPt ? (parseFloat(fontPt) * _scaleMultiplier).toFixed(1) : '14';
@@ -74,10 +75,24 @@ export const genPDFLogoHtml = ({ brand, editDataOverride = null, color, localSlo
   const _sloganColor = sloganColor || '#666';
   // Gap adaptativo baseado no tamanho da fonte do slogan e complexidade
   const _sloganGap = (parseFloat(effectiveSloganSize) * _sloganGapMultiplier).toFixed(1);
-  const sloganPart = (localSlogan && !hideSlogan) ? `<div style="${PDFStyles.montserrat} font-size:${effectiveSloganSize}; font-weight:700; letter-spacing:${_sloganLs}; text-transform:uppercase; color:${_sloganColor}; margin-top:${isStacked ? _sloganGap + 'pt' : '0'}; text-align:center; white-space:nowrap;">${localSlogan}</div>` : '';
+  
+  const _shouldWrap = _ed?.taglineWrap !== undefined ? _ed.taglineWrap : (_sloganLenRaw > 35);
+
+  const displaySloganLines = (localSlogan && _shouldWrap)
+    ? (() => {
+        const words = localSlogan.split(' ');
+        const mid = Math.ceil(words.length / 2);
+        return [words.slice(0, mid).join(' '), words.slice(mid).join(' ')];
+      })()
+    : [localSlogan];
+
+  const sloganPart = (localSlogan && !hideSlogan) ? `
+    <div style="${PDFStyles.montserrat} font-size:${effectiveSloganSize}; font-weight:700; letter-spacing:${_sloganLs}; text-transform:uppercase; color:${_sloganColor}; margin-top:${isStacked ? _sloganGap + 'pt' : '0'}; text-align:center;">
+      ${displaySloganLines.map(l => `<div style="white-space:nowrap;">${l}</div>`).join('')}
+    </div>` : '';
   
   const effectiveCrmSize = crmSize.includes('pt') ? (parseFloat(crmSize) * _scaleMultiplier).toFixed(1) + 'pt' : crmSize;
-  const _crmGap = (2 * _scaleMultiplier).toFixed(1);
+  const _crmGap = (0.5 * _scaleMultiplier).toFixed(1);
   const crmPart = crmLine ? `<div style="${PDFStyles.montserrat} font-size:${effectiveCrmSize}; letter-spacing:1pt; text-transform:uppercase; color:#bbb; margin-top:${_crmGap}pt; text-align:center; opacity:0.8;">${crmLine}</div>` : '';
 
   const _sloganLen = (localSlogan && !hideSlogan) ? localSlogan.length : 0;
@@ -205,6 +220,18 @@ export const genPDFFooter = ({ clinicaNome, endereco, allPhones, email, site, in
           <div style="${PDFStyles.montserrat} font-size:6pt; color:#888; font-weight:500; letter-spacing:0.2px;">
               ${[email, site, instagram ? `@${instagram}` : ''].filter(Boolean).join('  ·  ')}
           </div>
+      </div>
+  </div>
+`;
+
+/**
+ * Gera o Rodapé Minimalista (Apenas texto e linha)
+ */
+export const genPDFSimpleFooter = ({ allPhones, email, site, instagram }) => `
+  <div style="position:absolute; bottom:12mm; left:12mm; right:12mm; border-top:0.5px solid #e0e0e0; padding-top:4mm; text-align:center; z-index:4;">
+      <div style="${PDFStyles.montserrat} font-size:7.5pt; font-weight:700; color:#444; margin-bottom:1mm;">${allPhones}</div>
+      <div style="${PDFStyles.montserrat} font-size:6.5pt; color:#999; font-weight:500; letter-spacing:0.2px;">
+          ${[instagram ? `@${instagram}` : '', email, site].filter(Boolean).join('  ·  ')}
       </div>
   </div>
 `;

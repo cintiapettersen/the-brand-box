@@ -59,7 +59,7 @@ export function FolderAmamentacaoPage1({ accentColor, borderColor, palette = [],
       paddingTop: folderRoof ? '38px' : '15px'
     }}>
       <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '8px', marginBottom: '15px' }}>
-        <div style={{ marginBottom: '5px', display: 'flex', justifyContent: 'center' }}>{logoComponent}</div>
+        <div style={{ marginBottom: '5px', display: 'flex', justifyContent: 'center', width: '100%', padding: '0 10px', boxSizing: 'border-box' }}>{logoComponent}</div>
         <div style={{ width: '35px', height: '1.5px', background: mainColor }} />
       </div>
 

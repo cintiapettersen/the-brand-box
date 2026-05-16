@@ -3,8 +3,8 @@ import React, { useState } from 'react';
 import { LogoPreviewHTML, BordaToggle } from './page';
 
 const SIZES = [
-  { label: '9 × 4,8 cm', w: 9, h: 4.8, shape: 'rect', scale: 28 },
   { label: '4,8 × 4,8 cm', w: 4.8, h: 4.8, shape: 'square', scale: 36 },
+  { label: '9 × 4,8 cm', w: 9, h: 4.8, shape: 'rect', scale: 28 },
   { label: '6 × 6 cm', w: 6, h: 6, shape: 'circle', scale: 30 },
 ];
 
@@ -32,11 +32,11 @@ function TagCard({ size, solidColor, c0, c1, paletteColors, effectiveSrc, patter
       <div style={containerStyle}>
         <div style={bgStyle} />
         {/* Logo com fundo branco suave quando há estampa */}
-        <div style={{ position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%)', width: '80%', height: '80%', textAlign: 'center', zIndex: 2, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+        <div style={{ position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%)', width: isCircle ? '60%' : '80%', height: isCircle ? '60%' : '80%', textAlign: 'center', zIndex: 2, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
           {effectiveSrc ? (
-            <LogoPreviewHTML item="Tag para Sacola" editData={editData} color={solidColor} layout={logoLayout} scaleFactor={0.8} hideTagline={false} withBackground={true} maxWidth="100%" maxHeight="100%" />
+            <LogoPreviewHTML item="Tag para Sacola" editData={editData} color={solidColor} layout={logoLayout} scaleFactor={isCircle ? 0.35 : 0.5} hideTagline={false} withBackground={true} maxWidth="100%" maxHeight="100%" />
           ) : (
-            <LogoPreviewHTML item="Tag para Sacola" editData={editData} color="#ffffff" layout={logoLayout} scaleFactor={0.8} hideTagline={false} taglineColor="rgba(255,255,255,0.75)" maxWidth="100%" maxHeight="100%" />
+            <LogoPreviewHTML item="Tag para Sacola" editData={editData} color="#ffffff" layout={logoLayout} scaleFactor={isCircle ? 0.35 : 0.5} hideTagline={false} taglineColor="rgba(255,255,255,0.75)" maxWidth="100%" maxHeight="100%" />
           )}
         </div>
       </div>

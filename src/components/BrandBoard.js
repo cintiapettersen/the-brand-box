@@ -127,9 +127,24 @@ const BrandBoard = ({ data, palette, color, seloColor, seloTextColor, patternIma
         const sizeBoost = data.fontSizeBoost || 1;
         const fontSize = `${(baseFontSize * sizeBoost).toFixed(1)}rem`;
         // Slogan: 40% do nome, letter-spacing em 'em' — igual ao LogoPreviewHTML
+        // Slogan dinâmico: quanto mais longo, menor a fonte e maior o espaçamento (tracking)
         const logoSizeRem = baseFontSize * sizeBoost;
         const taglineSizeRem = logoSizeRem * 0.40;
         const taglineLetterSpacing = '0.35em';
+        
+        // Slogan wrap e gap (respeitando editData)
+        const taglineText = tagline || '';
+        const shouldWrap = data.taglineWrap !== undefined ? data.taglineWrap : (taglineText.length > 35);
+        const displaySlogan = (taglineText && shouldWrap)
+          ? (() => {
+              const words = taglineText.split(' ');
+              const mid = Math.ceil(words.length / 2);
+              return [words.slice(0, mid).join(' '), words.slice(mid).join(' ')];
+            })()
+          : [taglineText];
+
+        const gapMultiplier = data.taglineGap !== undefined ? data.taglineGap : (taglineText.length > 35 ? 0.6 : 0.35);
+        const taglineGapPx = Math.round(taglineSizeRem * 16 * gapMultiplier);
 
         return (
           <div style={{ height: '180px', width: '350px', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
@@ -141,7 +156,7 @@ const BrandBoard = ({ data, palette, color, seloColor, seloTextColor, patternIma
                     fontWeight: data.fontWeight || 700,
                     fontSize,
                     color: activeColor,
-                    lineHeight: data.fontLineHeight || (isScript ? 0.85 : 1.1),
+                    lineHeight: data.fontLineHeight || (isScript ? 0.9 : 1.1),
                     letterSpacing: data.fontLetterSpacing || (isScript ? '0px' : '1px'),
                   }}>
                     {data.fontFeatureSettings && i === 0 ? (
@@ -157,7 +172,7 @@ const BrandBoard = ({ data, palette, color, seloColor, seloTextColor, patternIma
                 fontSize,
                 color: activeColor,
                 textAlign: 'center',
-                lineHeight: data.fontLineHeight || 1.15,
+                lineHeight: data.fontLineHeight || (isScript ? 0.9 : 1.15),
                 letterSpacing: data.fontLetterSpacing || (isScript ? '0px' : '1px'),
               }}>
                 {data.fontFeatureSettings ? (
@@ -165,18 +180,20 @@ const BrandBoard = ({ data, palette, color, seloColor, seloTextColor, patternIma
                 ) : words.join(' ')}
               </h1>
             )}
-            <p style={{
+            <div style={{
               fontFamily: "'Montserrat', sans-serif",
               fontSize: `${taglineSizeRem.toFixed(2)}rem`,
               letterSpacing: taglineLetterSpacing,
               textTransform: 'uppercase',
               color: '#666',
-              marginTop: '8px',
+              marginTop: `${taglineGapPx}px`,
               textAlign: 'center',
-              lineHeight: 1.4
+              lineHeight: 1.2
             }}>
-              {tagline || 'Identidade Visual'}
-            </p>
+              {displaySlogan.map((line, i) => (
+                <div key={i} style={{ whiteSpace: 'nowrap' }}>{line}</div>
+              ))}
+            </div>
           </div>
         );
       })()}

@@ -58,11 +58,11 @@ export const ITEM_CUSTOM_BASE_SCALES = {
   'Envelope Saco (24x34cm)': 2.0,
   'Envelope Saco': 2.0,
   'Pasta A4': 2.0,
-  'Receituário Padrão (A4 e A5)': 2.0,
-  'Receituário Padrão': 2.0, 
-  'Receituário de Controle Especial': 2.0,
-  'Atestado Médico (A4 e A5)': 2.0,
-  'Atestado Médico': 2.0, 'Recibo': 2.0, 'Cartão de Retorno': 2.0,
+  'Receituário Padrão (A4 e A5)': 1.0,
+  'Receituário Padrão': 1.0, 
+  'Receituário de Controle Especial': 1.0,
+  'Atestado Médico (A4 e A5)': 1.0,
+  'Atestado Médico': 2.0, 'Recibo': 1.0, 'Cartão de Retorno': 1.0,
   'Ficha de Cadastro': 2.0, 'Prontuário Médico': 2.0,
   'Certificado de Coragem': 2.0,
   // Folders and other standardized items
@@ -146,10 +146,11 @@ export function LogoPreviewHTML({ item = null, editData, color, layout = 'stacke
       if (maxHeight && String(maxHeight).includes('%') && realParent && realParent.clientHeight > 0) {
          tMaxH = Math.min(targetMaxH, realParent.clientHeight * (parseFloat(maxHeight)/100));
       }
-      if (withBackground) {
-        tMaxW = Math.max(10, tMaxW - 28);
-        tMaxH = Math.max(10, tMaxH - 16);
-      }
+      // Sempre subtrair um respiro mínimo para não colar nas bordas
+      const paddingW = withBackground ? 28 : 12;
+      const paddingH = withBackground ? 32 : 10;
+      tMaxW = Math.max(10, tMaxW - paddingW);
+      tMaxH = Math.max(10, tMaxH - paddingH);
       const sx = tMaxW / natW;
       const sy = tMaxH / natH;
       const scale = Math.min(sx, sy, 1.15);
@@ -218,14 +219,21 @@ export function LogoPreviewHTML({ item = null, editData, color, layout = 'stacke
   const taglineSizeRem = Math.max(logoSizeRem * taglineScale, 0.32 * effectiveScaleFactor);
   const taglineVisible = taglineSizeRem >= 0.08;
   
-  // Reduz o gap se o slogan for muito longo para não estourar a altura
-  const gapMultiplier = taglineLen > 40 ? 0.45 : 0.6;
+  // Gap customizável via taglineGap (fallback para o cálculo dinâmico)
+  const gapMultiplier = editData?.taglineGap !== undefined ? editData.taglineGap : (taglineLen > 40 ? 0.20 : 0.35);
   const taglineGapPx = Math.round(taglineSizeRem * 16 * gapMultiplier);
   
   // Tracking (letter-spacing) compensatório
   const taglineLetterSpacing = taglineLen > 45 ? '0.55em' : taglineLen > 30 ? '0.48em' : taglineLen > 15 ? '0.4em' : '0.35em';
-
-
+  // Slogan wrap dinâmico ou manual
+  const shouldWrap = editData?.taglineWrap !== undefined ? editData.taglineWrap : (taglineLen > 35);
+  const displaySlogan = (taglineText && shouldWrap)
+    ? (() => {
+        const words = taglineText.split(' ');
+        const mid = Math.ceil(words.length / 2);
+        return [words.slice(0, mid).join(' '), words.slice(mid).join(' ')];
+      })()
+    : [taglineText];
 
   const innerContent = (
     <>
@@ -235,7 +243,7 @@ export function LogoPreviewHTML({ item = null, editData, color, layout = 'stacke
         fontSize,
         color: color,
         textAlign: alignLeft ? 'left' : 'center',
-        lineHeight: editData?.fontLineHeight || (isScript ? 1.6 : 1.1),
+        lineHeight: editData?.fontLineHeight || (isScript ? 0.9 : 1.1),
         letterSpacing: editData?.fontLetterSpacing || (isScript ? '0px' : '1px'),
       }}>
         {lines.map((line, i) => (
@@ -243,12 +251,14 @@ export function LogoPreviewHTML({ item = null, editData, color, layout = 'stacke
         ))}
       </div>
       {(editData?.tagline && !hideTagline && taglineVisible) && (
-        <div style={{ fontFamily: "'Montserrat', sans-serif", fontSize: `${taglineSizeRem.toFixed(2)}rem`, letterSpacing: taglineLetterSpacing, textTransform: 'uppercase', color: taglineColor || '#666', marginTop: `${taglineGapPx}px`, textAlign: 'center', lineHeight: 1.2, whiteSpace: 'nowrap' }}>
-          {editData.tagline}
+        <div style={{ fontFamily: "'Montserrat', sans-serif", fontSize: `${taglineSizeRem.toFixed(2)}rem`, letterSpacing: taglineLetterSpacing, textTransform: 'uppercase', color: taglineColor || '#666', marginTop: `${taglineGapPx}px`, textAlign: 'center', lineHeight: 1.2 }}>
+          {displaySlogan.map((line, idx) => (
+            <div key={idx} style={{ whiteSpace: 'nowrap' }}>{line}</div>
+          ))}
         </div>
       )}
       {crm && (
-        <div style={{ fontFamily: "'Montserrat', sans-serif", fontSize: `${(taglineSizeRem * 0.75).toFixed(2)}rem`, letterSpacing: '1px', textTransform: 'uppercase', color: '#bbb', marginTop: `${Math.round(taglineGapPx * 0.5)}px`, textAlign: 'center', opacity: 0.8, whiteSpace: 'nowrap' }}>
+        <div style={{ fontFamily: "'Montserrat', sans-serif", fontSize: `${(taglineSizeRem * 0.75).toFixed(2)}rem`, letterSpacing: '1px', textTransform: 'uppercase', color: '#bbb', marginTop: `${Math.max(1, Math.round(taglineGapPx * 0.35))}px`, textAlign: 'center', opacity: 0.8, whiteSpace: 'nowrap' }}>
           {crm}
         </div>
       )}
@@ -289,7 +299,7 @@ export function LogoPreviewHTML({ item = null, editData, color, layout = 'stacke
 
   if (withBackground) {
     return (
-      <div ref={_rootRef} style={{ display: 'inline-flex', alignItems: 'center', justifyContent: alignLeft ? 'flex-start' : 'center', background: 'rgba(255,255,255,0.92)', padding: '8px 14px', borderRadius: '4px', backdropFilter: 'blur(2px)', maxWidth: '100%', maxHeight: '100%', boxSizing: 'border-box' }}>
+      <div ref={_rootRef} style={{ display: 'inline-flex', alignItems: 'center', justifyContent: alignLeft ? 'flex-start' : 'center', background: 'rgba(255,255,255,0.92)', padding: '18px 14px 14px', borderRadius: '4px', backdropFilter: 'blur(2px)', maxWidth: '100%', maxHeight: '100%', boxSizing: 'border-box' }}>
         {textContent}
       </div>
     );
@@ -989,7 +999,7 @@ function EstampaStep({ brand, accentColor, marca, patterns, setPatterns, genCoun
       {patternSrc && setPatternScale && (
         <div style={{ display: 'flex', alignItems: 'center', gap: '10px', padding: '8px 14px', background: '#f7f7f5', borderRadius: '12px' }}>
           <span style={{ fontSize: '0.68rem', color: '#999', textTransform: 'uppercase', letterSpacing: '1px', fontWeight: 600, whiteSpace: 'nowrap' }}>Tamanho</span>
-          <input type="range" min="50" max="300" step="10"
+          <input type="range" min="50" max="600" step="10"
             value={patternScale || 120}
             onChange={e => setPatternScale(parseInt(e.target.value))}
             style={{ flex: 1, cursor: 'pointer', accentColor: accentColor }}
@@ -1000,7 +1010,7 @@ function EstampaStep({ brand, accentColor, marca, patterns, setPatterns, genCoun
 
       <div style={{ display: 'flex', gap: '8px' }}>
         {patternSrc && (
-          <button onClick={download} style={{ flex: 1, padding: '13px 8px', background: accentColor, color: '#fff', border: 'none', borderRadius: '30px', fontWeight: 700, fontSize: '0.82rem', cursor: 'pointer' }}>
+          <button onClick={download} style={{ flex: 1, padding: '13px 8px', background: '#fff', color: accentColor, border: `1.5px solid ${accentColor}`, borderRadius: '30px', fontWeight: 700, fontSize: '0.82rem', cursor: 'pointer' }}>
             ⬇ Baixar Estampa
           </button>
         )}
@@ -1486,7 +1496,7 @@ function ManifestoDisplay({ manifesto, accentColor, marca, tagline, fontFamily, 
       </div>
 
       <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
-        <button onClick={handleBaixarPlaca} style={{ flex: 1, padding: '12px', borderRadius: '20px', border: 'none', background: accentColor, color: '#fff', fontWeight: 700, fontSize: '0.75rem', cursor: 'pointer', fontFamily: 'Montserrat, sans-serif' }}>
+        <button onClick={handleBaixarPlaca} style={{ flex: 1, padding: '12px', borderRadius: '20px', background: '#fff', color: accentColor, border: `1.5px solid ${accentColor}`, fontWeight: 700, fontSize: '0.75rem', cursor: 'pointer', fontFamily: 'Montserrat, sans-serif' }}>
           ⬇ Baixar PNG
         </button>
         <button onClick={handleCopiar} style={{ flex: 1, padding: '12px', borderRadius: '20px', border: `1.5px solid ${accentColor}`, background: copiado ? accentColor : 'transparent', color: copiado ? '#fff' : accentColor, fontWeight: 700, fontSize: '0.75rem', cursor: 'pointer', fontFamily: 'Montserrat, sans-serif', transition: 'all 0.2s' }}>
@@ -1616,7 +1626,7 @@ function PlacaStep({ brand, accentColor, paletteColors, estampaPatterns, estampa
       </div>
       <button
         onClick={handleBaixar}
-        style={{ width: '100%', padding: '14px', background: accentColor, color: '#fff', border: 'none', borderRadius: '30px', fontWeight: 700, fontSize: '0.88rem', cursor: 'pointer', fontFamily: 'Montserrat, sans-serif' }}
+        style={{ width: '100%', padding: '14px', background: '#fff', color: accentColor, border: `1.5px solid ${accentColor}`, borderRadius: '30px', fontWeight: 700, fontSize: '0.88rem', cursor: 'pointer', fontFamily: 'Montserrat, sans-serif' }}
       >
         ⬇ Baixar Placa da Marca
       </button>
@@ -2070,7 +2080,7 @@ function GuiaStep({ brand, accentColor, paletteColors, marca, tagline, estampaPa
       {/* Botão */}
       <button
         onClick={openPrint}
-        style={{ width: '100%', padding: '15px', background: accentColor, color: '#fff', border: 'none', borderRadius: '30px', fontWeight: 700, fontSize: '0.9rem', cursor: 'pointer', fontFamily: 'Montserrat, sans-serif' }}
+        style={{ width: '100%', padding: '15px', background: '#fff', color: accentColor, border: `1.5px solid ${accentColor}`, borderRadius: '30px', fontWeight: 700, fontSize: '0.9rem', cursor: 'pointer', fontFamily: 'Montserrat, sans-serif' }}
       >
         ⬇ Baixar Guia em PDF
       </button>
@@ -2110,7 +2120,7 @@ function CartaoRetornoPreview({ accentColor, patternSrc, cartaoContacts, crmLine
             
             <div style={{ position: 'absolute', top: '14px', left: '14px', right: '14px', bottom: '14px', background: '#fff', zIndex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', padding: '12px 10px' }}>
               <div style={{ width: '100%', height: '60px', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', marginBottom: '12px' }}>
-                <LogoPreviewHTML item="Cartão de Retorno" editData={editData} color={logoColor} layout={logoLayout} scaleFactor={0.24} withBackground={comBorda && !!patternSrc} maxWidth="100%" maxHeight="100%" />
+                <LogoPreviewHTML item="Cartão de Retorno" editData={editData} color={logoColor} layout={logoLayout} scaleFactor={0.65} withBackground={comBorda && !!patternSrc} maxWidth="100%" maxHeight="100%" />
               </div>
               {crmLine && <div style={{ fontFamily: "'Montserrat',sans-serif", fontSize: '3.3px', color: '#999', letterSpacing: '0.8px', textTransform: 'uppercase', textAlign: 'center', marginBottom: '10px', marginTop: '-6px', whiteSpace: 'nowrap' }}>{crmLine}</div>}
               
@@ -2263,7 +2273,7 @@ export function BordaToggle({ comBorda, setComBorda, accentColor, paletteColors,
         <div style={{ display: 'flex', alignItems: 'center', gap: '8px', borderLeft: '1px solid #eee', paddingLeft: '12px', marginLeft: '4px' }}>
           <span style={{ fontSize: '0.62rem', color: '#999', textTransform: 'uppercase', letterSpacing: '1px', fontWeight: 600 }}>Tamanho:</span>
           <input 
-            type="range" min="50" max="300" step="10"
+            type="range" min="50" max="600" step="10"
             value={patternScale || 120} 
             onChange={(e) => setPatternScale(parseInt(e.target.value))}
             style={{ width: '80px', height: '4px', cursor: 'pointer', accentColor: accentColor }}
@@ -2325,7 +2335,7 @@ function CertificadoCoragemPreview({ accentColor, patternSrc, editData, logoColo
         }}>
           {/* Logo Rectangle / Space */}
           <div style={{ width: '180px', height: '60px', display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: '8px' }}>
-            <LogoPreviewHTML item="Certificado de Coragem" editData={editData} color={logoColor} layout={logoLayout} scaleFactor={0.24} hideTagline={hideTagline} withBackground={comBorda && !!patternSrc} maxWidth="100%" maxHeight="100%" />
+            <LogoPreviewHTML item="Certificado de Coragem" editData={editData} color={logoColor} layout={logoLayout} scaleFactor={0.65} hideTagline={hideTagline} withBackground={comBorda && !!patternSrc} maxWidth="100%" maxHeight="100%" />
           </div>
 
           <div style={{ fontFamily: "'Montserrat', sans-serif", fontSize: '0.5rem', fontWeight: 600, color: '#7a7a7a', letterSpacing: '1px', marginBottom: '2px' }}>
@@ -2386,8 +2396,8 @@ function A5ItemPreview({ item, accentColor, patternSrc, editData, logoColor, log
       {/* Área branca com recorte casinha (funciona em ambos os modos) */}
       <div style={{ position: 'absolute', top: BORDER, left: BORDER, right: BORDER, bottom: BORDER, background: '#fff', clipPath: roofClip }} />
       {/* Logo no topo */}
-      <div style={{ position: 'absolute', top: BORDER + 6, left: '50%', transform: 'translateX(-50%)', width: '90px', height: '35px', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', overflow: 'hidden' }}>
-        <LogoPreviewHTML item={item} editData={editData} color={logoColor} layout={logoLayout} scaleFactor={0.3} crm={crmLine} hideTagline={hideTagline} withBackground={!!effectiveSrc} maxWidth="100%" maxHeight="100%" />
+      <div style={{ position: 'absolute', top: BORDER + 18, left: '50%', transform: 'translateX(-50%)', width: '180px', height: '60px', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
+        <LogoPreviewHTML item={item} editData={editData} color={logoColor} layout={logoLayout} scaleFactor={0.65} crm={crmLine} hideTagline={hideTagline} withBackground={false} maxWidth="100%" maxHeight="100%" />
       </div>
       {/* Rodapé — linha 1: clínica · telefone  /  linha 2: @ig · site · endereço */}
       <div style={{ position: 'absolute', bottom: BORDER + 3, left: BORDER + 4, right: BORDER + 4, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '2px' }}>
@@ -2439,8 +2449,8 @@ function ProntuarioPreview({ accentColor, patternSrc, editData, logoColor, logoL
             ? <div style={{ position: 'absolute', inset: 0, backgroundImage: `url(${effectiveSrc})`, backgroundSize: `${(patternScale || 150) / 2.5}px`, backgroundRepeat: 'repeat' }} />
             : <div style={{ position: 'absolute', inset: 0, background: solidColor }} />}
           <div style={{ position: 'absolute', top: BORDER, left: BORDER, right: BORDER, bottom: BORDER, background: '#fff', padding: '12px 14px' }}>
-            <div style={{ width: '100%', height: '50px', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', marginBottom: '10px' }}>
-              <LogoPreviewHTML item="Prontuário Médico" editData={editData} color={logoColor} layout={logoLayout} scaleFactor={0.24} crm={crmLine} hideTagline={hideTagline} withBackground={comBorda && !!patternSrc} maxWidth="100%" maxHeight="100%" />
+            <div style={{ width: '100%', height: '80px', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', marginBottom: '10px' }}>
+              <LogoPreviewHTML item="Prontuário Médico" editData={editData} color={logoColor} layout={logoLayout} scaleFactor={1.0} crm={crmLine} hideTagline={hideTagline} withBackground={comBorda && !!patternSrc} maxWidth="100%" maxHeight="100%" />
             </div>
             <div style={{ border: '0.4px solid #eee', borderRadius: '2px', padding: '6px 7px', display: 'flex', flexDirection: 'column', gap: '3.5px', marginTop: '2px' }}>
               {formRow('PACIENTE:', 'DATA DE NASCIMENTO:')}
@@ -2528,8 +2538,8 @@ function DiarioXixiPreview({ accentColor, patternSrc, editData, logoColor, logoL
                 <div style={{ flex: 1, borderBottom: '1px dashed #ccc', width: '230px', marginBottom: '2px' }} />
               </div>
             </div>
-            <div style={{ width: '130px', height: '60px', overflow: 'hidden', display: 'flex', flexDirection: 'column', alignItems: 'flex-end', justifyContent: 'center', marginTop: '2px' }}>
-              <LogoPreviewHTML item="Diário do Xixi" editData={editData} color={logoColor} layout={logoLayout} scaleFactor={0.3} crm={crmLine} hideTagline={hideTagline} withBackground={comBorda && !!patternSrc} maxWidth="100%" maxHeight="100%" />
+            <div style={{ width: '110px', height: '55px', overflow: 'hidden', display: 'flex', flexDirection: 'column', alignItems: 'flex-end', justifyContent: 'center', marginTop: '2px' }}>
+              <LogoPreviewHTML item="Diário do Xixi" editData={editData} color={logoColor} layout={logoLayout} scaleFactor={0.22} crm={crmLine} hideTagline={hideTagline} withBackground={comBorda && !!patternSrc} maxWidth="100%" maxHeight="100%" />
             </div>
           </div>
 
@@ -2741,7 +2751,7 @@ function ReciboPreview({ accentColor, patternSrc, editData, logoColor, logoLayou
           
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '12px', paddingBottom: '4px', borderBottom: '0.1mm solid #f0f0f0' }}>
             <div style={{ width: '120px', height: '40px', display: 'flex', alignItems: 'center', overflow: 'hidden' }}>
-               <LogoPreviewHTML item="Recibo" editData={editData} color={logoColor} layout={logoLayout} scaleFactor={0.24} crm={crmLine} hideTagline={hideTagline} withBackground={!!effectiveSrc} alignLeft={true} maxWidth="100%" maxHeight="100%" />
+               <LogoPreviewHTML item="Recibo" editData={editData} color={logoColor} layout={logoLayout} scaleFactor={0.65} crm={crmLine} hideTagline={hideTagline} withBackground={!!effectiveSrc} alignLeft={true} maxWidth="100%" maxHeight="100%" />
             </div>
             <div style={{ textAlign: 'right' }}>
               <div style={{ fontSize: '12px', fontWeight: 800, color: accentColor, opacity: 0.12, letterSpacing: '2px' }}>RECIBO</div>
@@ -2833,7 +2843,7 @@ function ControleEspecialPreview({ accentColor, patternSrc, editData, logoColor,
             {/* Logo e Vias */}
             <div style={{ flex: 1.6, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: '4px', overflow: 'hidden' }}>
               <div style={{ width: '100%', height: '50px', display: 'flex', alignItems: 'center', justifyContent: 'center', overflow: 'hidden' }}>
-               <LogoPreviewHTML item="Receituário de Controle Especial" editData={editData} color={logoColor} layout={logoLayout} scaleFactor={0.24} crm={crmLine} hideTagline={hideTagline} withBackground={!!effectiveSrc} maxWidth="100%" maxHeight="100%" />
+               <LogoPreviewHTML item="Receituário de Controle Especial" editData={editData} color={logoColor} layout={logoLayout} scaleFactor={0.65} crm={crmLine} hideTagline={hideTagline} withBackground={!!effectiveSrc} maxWidth="100%" maxHeight="100%" />
               </div>
                <div style={{ fontSize: '3.5px', color: '#aaa', textTransform: 'uppercase', letterSpacing: '0.3px', textAlign: 'center', marginTop: '2px' }}>
                   1ª VIA FARMÁCIA<br/>2ª VIA PACIENTE
@@ -2934,7 +2944,7 @@ function ChecklistMaternidadePreview({ accentColor, patternSrc, editData, logoCo
           <div style={{ flex: 1, display: 'flex', flexDirection: 'column', padding: '12px 5px 3px 5px', gap: '3px', overflow: 'hidden' }}>
             {/* Logo centralizada no topo */}
             <div style={{ width: '100%', height: '40px', display: 'flex', justifyContent: 'center', alignItems: 'center', padding: '4px 0 6px', borderBottom: `0.4px solid ${accentColor}25`, marginBottom: '4px' }}>
-              <LogoPreviewHTML item="Checklist Maternidade" editData={editData} color={logoColor} layout={logoLayout} scaleFactor={0.24} crm={crmLine} withBackground={comBorda && !!patternSrc} maxWidth="100%" maxHeight="100%" />
+              <LogoPreviewHTML item="Checklist Maternidade" editData={editData} color={logoColor} layout={logoLayout} scaleFactor={0.65} crm={crmLine} withBackground={comBorda && !!patternSrc} maxWidth="100%" maxHeight="100%" />
             </div>
             {/* Grid 2x2 */}
             <div style={{ flex: 1, display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '4px', padding: '2px 4px 6px' }}>
@@ -3264,7 +3274,7 @@ function FolderTrifoldPreview({ brand, editData, logoColor, logoLayout, comBorda
     if (raw.includes('Alimentar')) return { pre: 'GUIA DE', main: 'INTRODUÇÃO ALIMENTAR', tagline: 'Nutrição e Saúde para o seu Bebê' };
     if (raw.includes('Cuidados')) return { pre: 'CUIDADOS', main: 'COM O BEBÊ', tagline: 'Carinho e Atenção em Cada Detalhe' };
     if (raw.includes('Desenvolvimento')) return { pre: 'GUIA DE', main: 'DESENVOLVIMENTO', tagline: 'Acompanhe Cada Passo do Crescimento do Seu Bebê' };
-    if (raw.includes('Vacina')) return { pre: 'GUIA DE', main: 'VACINA', tagline: 'Calendário e Acompanhamento de Imunização' };
+    if (raw.includes('Vacina')) return { pre: 'GUIA DE', main: 'VACINAÇÃO', tagline: 'Calendário e Acompanhamento de Imunização' };
     if (raw.includes('Sono')) return { pre: 'GUIA DO', main: 'SONO SAUDÁVEL', tagline: 'Rotina e Segurança para o Sono do Bebê' };
     if (raw.includes('Pré-Natal')) return { pre: 'CARTÃO DE', main: 'EXAME PRÉ-NATAL', tagline: 'Cuidando da saúde do bebê e da mamãe desde o início...' };
     return { pre: 'GUIA DE', main: raw.toUpperCase(), tagline: 'Saúde e Bem-Estar Pediátrico' };
@@ -3340,26 +3350,19 @@ function FolderTrifoldPreview({ brand, editData, logoColor, logoLayout, comBorda
             </div>
             
              <div style={{ position: 'absolute', top: '6px', left: '6px', right: '6px', bottom: '6px', background: '#fff', borderRadius: '1.5px', boxShadow: '0 2px 5px rgba(0,0,0,0.05)', zIndex: 2, display: 'flex', flexDirection: 'column', alignItems: 'center', overflow: 'hidden' }}>
-              {isVacina ? (
-                <Art6 accentColor={accentColor} palette={paletteColors} />
-              ) : (
-                <>
-                  <div style={{ position: 'absolute', top: '48%', left: '10px', right: '10px', zIndex: 3, display: 'flex', justifyContent: 'center', transform: 'translateY(-50%)' }}>
-                    <div style={{ width: '92%', background: mainColor, borderRadius: '4px', padding: '12px 14px', textAlign: 'center', position: 'relative', border: `0.4px solid ${mainColor}`, boxShadow: '0 4px 12px rgba(0,0,0,0.1)' }}>
-                       <div style={{ fontFamily: `'Great Vibes', cursive`, color: '#fff', fontSize: '9px', marginBottom: '4px', textTransform: 'none' }}>{isSono ? '"Um bebê bem descansado é um bebê mais feliz!"' : isCuidados ? '"Você não precisa ser perfeita — precisa estar presente."' : '"Brinque, converse e explore!"'}</div>
-                       <div style={{ fontSize: '3.5px', color: '#fff', fontWeight: 500, lineHeight: 1.5, fontFamily: 'Montserrat, sans-serif' }}>
-                         {isSono ? 'O sono é uma necessidade fisiológica essencial para o desenvolvimento do seu bebê. Uma rotina consistente, ambiente seguro e respeito aos sinais de sono fazem toda a diferença.' : isCuidados ? 'Cuidar de um bebê é aprender junto com ele. Cada dúvida é normal, cada conquista é sua também. Você está fazendo um trabalho incrível.' : 'As brincadeiras são mais do que momentos de diversão. Elas ajudam seu bebê a aprender, a desenvolver novas habilidades e a se sentir seguro e amado. Pergunte, cante, brinque de esconde-esconde e observe o quanto seu bebê cresce a cada dia.'}
-                       </div>
-                    </div>
-                 </div>
-
+                <div style={{ position: 'absolute', top: '48%', left: '10px', right: '10px', zIndex: 3, display: 'flex', justifyContent: 'center', transform: 'translateY(-50%)' }}>
+                  <div style={{ width: '92%', background: mainColor, borderRadius: '4px', padding: '12px 14px', textAlign: 'center', position: 'relative', border: `0.4px solid ${mainColor}`, boxShadow: '0 4px 12px rgba(0,0,0,0.1)' }}>
+                     <div style={{ fontFamily: `'Great Vibes', cursive`, color: '#fff', fontSize: '9px', marginBottom: '4px', textTransform: 'none' }}>{isSono ? '"Um bebê bem descansado é um bebê mais feliz!"' : isCuidados ? '"Você não precisa ser perfeita — precisa estar presente."' : isVacina ? '"Proteção que começa desde o primeiro dia."' : '"Brinque, converse e explore!"'}</div>
+                     <div style={{ fontSize: '3.5px', color: '#fff', fontWeight: 500, lineHeight: 1.5, fontFamily: 'Montserrat, sans-serif' }}>
+                        {isSono ? 'O sono é uma necessidade fisiológica essencial para o desenvolvimento do seu bebê. Uma rotina consistente, ambiente seguro e respeito aos sinais de sono fazem toda a diferença.' : isCuidados ? 'Cuidar de um bebê é aprender junto com ele. Cada dúvida é normal, cada conquista é sua também. Você está fazendo um trabalho incrível.' : isVacina ? 'A vacinação é o maior gesto de amor e cuidado. Ela protege não apenas o seu bebê, mas toda a comunidade ao redor.' : 'As brincadeiras são mais do que momentos de divertimento. Elas ajudam seu bebê a aprender, a desenvolver novas habilidades e a se sentir seguro e amado.'}
+                     </div>
+                  </div>
+                </div>
                 <div style={{ position: 'absolute', top: '75%', left: 0, right: 0, display: 'flex', justifyContent: 'center', gap: '4px', opacity: 0.18 }}>
                    {Array.from({length: 8}).map((_, i) => (
                      <div key={i} style={{ width: '3px', height: '3px', background: mainColor, borderRadius: '50%' }} />
                    ))}
                 </div>
-              </>
-              )}
             </div>
 
             {/* ETIQUETA DE DADOS NO RODAPÉ (DISCRETA E ELEGANTE) */}
@@ -3387,36 +3390,30 @@ function FolderTrifoldPreview({ brand, editData, logoColor, logoLayout, comBorda
                <div style={{ position: 'absolute', inset: 0, background: !patternSrc && comBorda ? `${accentColor}15` : 'transparent' }} />
             </div>
             <div style={{ position: 'absolute', top: '10px', left: '10px', right: '10px', bottom: '10px', background: '#fff', borderRadius: '2px', boxShadow: '0 2px 10px rgba(0,0,0,0.1)', zIndex: 2, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', overflow: 'hidden', border: `0.5px solid ${accentColor}15`, clipPath: folderRoof ? 'polygon(0% 12%, 50% 0%, 100% 12%, 100% 100%, 0% 100%)' : 'none', transition: 'clip-path 0.3s ease' }}>
-                {isVacina ? (
-                  <div style={{ width: '100%', height: '100%', transform: 'scale(0.92)', transformOrigin: 'center center' }}>
-                    <Art1 accentColor={accentColor} palette={paletteColors} logoComponent={<LogoPreviewHTML editData={_brandData} color={logoColor} layout={logoLayout} scaleFactor={0.16} crm={crmLine} maxWidth="100%" maxHeight="100%" />} />
+                <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'flex-start', paddingTop: '32px', textAlign: 'center', width: '100%', height: '100%' }}>
+                  <div style={{ width: '120px', height: '40px', display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: '16px' }}>{logoHtml}</div>
+                  <div style={{ width: '22px', height: '1.2px', background: accentColor, marginBottom: '14px', borderRadius: '10px' }} />
+                  <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '0px' }}>
+                      <div style={{ fontSize: '5.2px', fontWeight: 800, color: `${accentColor}cc`, textTransform: 'uppercase', letterSpacing: '0.6px', fontStyle: 'italic' }}>{pre}</div>
+                      <div style={{ fontSize: '9.2px', fontWeight: 800, color: '#333', textTransform: 'uppercase', letterSpacing: '0.8px', lineHeight: 1.2 }}>{main}</div>
                   </div>
-                ) : (
-                  <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'flex-start', paddingTop: '32px', textAlign: 'center', width: '100%', height: '100%' }}>
-                    <div style={{ width: '120px', height: '40px', display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: '16px' }}>{logoHtml}</div>
-                    <div style={{ width: '22px', height: '1.2px', background: accentColor, marginBottom: '14px', borderRadius: '10px' }} />
-                    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '0px' }}>
-                       <div style={{ fontSize: '5.2px', fontWeight: 800, color: `${accentColor}cc`, textTransform: 'uppercase', letterSpacing: '0.6px', fontStyle: 'italic' }}>{pre}</div>
-                       <div style={{ fontSize: '9.2px', fontWeight: 800, color: '#333', textTransform: 'uppercase', letterSpacing: '0.8px', lineHeight: 1.2 }}>{main}</div>
-                    </div>
+                  <div style={{
+                    marginTop: '5px',
+                    padding: '2px 10px',
+                    background: (isPrenatal ? paletteColors[0] || accentColor : paletteColors[1] || accentColor) + '28',
+                    borderRadius: '20px',
+                    border: `0.5px solid ${(isPrenatal ? paletteColors[0] || accentColor : paletteColors[1] || accentColor) + '50'}`
+                  }}>
                     <div style={{
-                      marginTop: '5px',
-                      padding: '2px 10px',
-                      background: (isPrenatal ? paletteColors[0] || accentColor : paletteColors[1] || accentColor) + '28',
-                      borderRadius: '20px',
-                      border: `0.5px solid ${(isPrenatal ? paletteColors[0] || accentColor : paletteColors[1] || accentColor) + '50'}`
-                    }}>
-                      <div style={{
-                        fontSize: '4.8px',
-                        fontWeight: 800,
-                        color: darkenHex(isPrenatal ? paletteColors[0] || accentColor : paletteColors[1] || accentColor),
-                        letterSpacing: '0.2px',
-                        fontFamily: '"Myriad Pro Condensed", "MyriadPro-Cond", sans-serif',
-                        textTransform: 'uppercase'
-                      }}>{isSono ? 'DURMA BEM, CRESÇA BEM' : isCuidados ? 'DO PRIMEIRO DIA COM MUITO AMOR' : isDev ? 'CADA DIA UM NOVO DESCOBRIMENTO' : isVacina ? 'PROTEGIDO DESDE O PRIMEIRO DIA' : isPrenatal ? 'CUIDANDO DA SAÚDE DA MAMÃE E DO BEBÊ' : 'NUTRIÇÃO QUE TRANSFORMA'}</div>
-                    </div>
+                      fontSize: '4.8px',
+                      fontWeight: 800,
+                      color: darkenHex(isPrenatal ? paletteColors[0] || accentColor : paletteColors[1] || accentColor),
+                      letterSpacing: '0.2px',
+                      fontFamily: '"Myriad Pro Condensed", "MyriadPro-Cond", sans-serif',
+                      textTransform: 'uppercase'
+                    }}>{isSono ? 'DURMA BEM, CRESÇA BEM' : isCuidados ? 'DO PRIMEIRO DIA COM MUITO AMOR' : isDev ? 'CADA DIA UM NOVO DESCOBRIMENTO' : isVacina ? 'PROTEGIDO DESDE O PRIMEIRO DIA' : isPrenatal ? 'CUIDANDO DA SAÚDE DA MAMÃE E DO BEBÊ' : 'NUTRIÇÃO QUE TRANSFORMA'}</div>
                   </div>
-                )}
+                </div>
             </div>
           </Page>
         </div>
@@ -3553,15 +3550,15 @@ function AtestadoPreview({ accentColor, patternSrc, editData, logoColor, logoLay
       <div style={{ position: 'absolute', top: BORDER, left: BORDER, right: BORDER, bottom: BORDER, background: '#fff', clipPath: roofClip }} />
 
       {/* Logo no topo */}
-      <div style={{ position: 'absolute', top: `${BORDER + 6}px`, left: '50%', transform: 'translateX(-50%)', width: '180px', height: '60px', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
-        <LogoPreviewHTML item="Atestado Médico" editData={editData} color={logoColor} layout={logoLayout} scaleFactor={0.24} crm={crmLine} hideTagline={hideTagline} withBackground={comBorda && !!patternSrc} maxWidth="100%" maxHeight="100%" />
+      <div style={{ position: 'absolute', top: `${BORDER + 18}px`, left: '50%', transform: 'translateX(-50%)', width: '180px', height: '60px', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
+        <LogoPreviewHTML item="Atestado Médico" editData={editData} color={logoColor} layout={logoLayout} scaleFactor={0.65} crm={crmLine} hideTagline={hideTagline} withBackground={false} maxWidth="100%" maxHeight="100%" />
       </div>
 
       {/* Título */}
-      <div style={{ position: 'absolute', top: '90px', left: 0, right: 0, fontFamily: "'Montserrat',sans-serif", fontWeight: 800, fontSize: '7.5px', letterSpacing: '1.2px', textAlign: 'center', color: '#1a1a2e' }}>ATESTADO MÉDICO</div>
+      <div style={{ position: 'absolute', top: '110px', left: 0, right: 0, fontFamily: "'Montserrat',sans-serif", fontWeight: 800, fontSize: '7.5px', letterSpacing: '1.2px', textAlign: 'center', color: '#1a1a2e' }}>ATESTADO MÉDICO</div>
 
       {/* Texto: padding horizontal de 9mm → ~25px */}
-      <div style={{ position: 'absolute', top: '118px', left: '25px', right: '22px', fontFamily: "'Montserrat',sans-serif", fontSize: '5.5px', color: '#333', display: 'flex', flexDirection: 'column', gap: '8px', lineHeight: 1.2 }}>
+      <div style={{ position: 'absolute', top: '135px', left: '25px', right: '22px', fontFamily: "'Montserrat',sans-serif", fontSize: '5.5px', color: '#333', display: 'flex', flexDirection: 'column', gap: '8px', lineHeight: 1.2 }}>
         {[
           [['Declaro para os devidos fins, que', false], ['', true]],
           [['', true], [', esteve em consulta, das', false], ['', 'fixed:14px'], ['hs às', false], ['', 'fixed:14px'], ['hs,', false]],
@@ -3860,8 +3857,8 @@ function EnvelopeSacoPreview({ brand, editData, accentColor, patternSrc, logoCol
             {/* Aba superior */}
             <div style={{ position: 'absolute', top: 0, left: 0, right: 0, height: '45px', background: abaColor, opacity: 0.9, zIndex: 5 }} />
             {/* Etiqueta com logo — centralizada na área abaixo da aba */}
-            <div style={{ position: 'absolute', top: '172px', left: '50%', transform: 'translate(-50%, -50%)', padding: '8px 14px', background: 'rgba(255,255,255,0.97)', backdropFilter: 'blur(4px)', borderRadius: '2px', border: '0.5px solid #ddd', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', width: '150px', height: '50px' }}>
-              <LogoPreviewHTML item="Envelope Saco" editData={{ ...editData, tagline: localSlogan }} color={logoColor} layout={logoLayout} scaleFactor={0.4} crm={crmLine} withBackground={comBorda && !!patternSrc} maxWidth="100%" maxHeight="100%" />
+            <div style={{ position: 'absolute', top: '172px', left: '50%', transform: 'translate(-50%, -50%)', padding: '8px 12px', background: 'rgba(255,255,255,0.97)', backdropFilter: 'blur(4px)', borderRadius: '2px', border: '0.5px solid #ddd', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', width: '110px', height: '55px' }}>
+              <LogoPreviewHTML item="Envelope Saco" editData={{ ...editData, tagline: localSlogan }} color={logoColor} layout={logoLayout} scaleFactor={0.7} crm={crmLine} withBackground={false} maxWidth="100%" maxHeight="100%" />
             </div>
           </div>
         </div>
@@ -3914,7 +3911,13 @@ function EnvelopeOficioPreview({ brand, editData, accentColor, patternSrc, logoC
             {/* Aba sólida no preview frontal */}
             <div style={{ position: 'absolute', top: 0, left: 0, right: 0, height: '35px', background: abaColor, opacity: 0.9, zIndex: 2 }} />
             <div style={{ position: 'absolute', bottom: '8px', right: '8px', width: '120px', height: '45px', display: 'flex', justifyContent: 'flex-end', alignItems: 'center' }}>
-              <LogoPreviewHTML item="Envelope Ofício" editData={{ ...editData, tagline: localSlogan }} color={logoColor} layout={logoLayout} scaleFactor={0.35} crm={crmLine} withBackground={!!effectiveSrc} maxWidth="100%" maxHeight="100%" />
+              {effectiveSrc ? (
+                <div style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', background: 'rgba(255,255,255,0.92)', padding: '6px 12px', borderRadius: '4px', backdropFilter: 'blur(2px)', maxWidth: '100%', height: '100%' }}>
+                  <LogoPreviewHTML item="Envelope Ofício" editData={{ ...editData, tagline: localSlogan }} color={logoColor} layout={logoLayout} scaleFactor={1.8} crm={crmLine} withBackground={false} maxWidth="116px" maxHeight="43px" />
+                </div>
+              ) : (
+                <LogoPreviewHTML item="Envelope Ofício" editData={{ ...editData, tagline: localSlogan }} color={logoColor} layout={logoLayout} scaleFactor={1.8} crm={crmLine} withBackground={false} maxWidth="120px" maxHeight="45px" />
+              )}
             </div>
           </div>
         </div>
@@ -3984,7 +3987,7 @@ function PastaPreview({ brand, editData, accentColor, solidColor, logoColor, log
             boxShadow: '0 4px 15px rgba(0,0,0,0.05)'
           }} />
           <div style={{ position: 'absolute', top: '48%', left: '50%', transform: 'translate(-50%, -50%)', width: '60%', height: '75px', display:'flex', justifyContent:'center', alignItems: 'center', zIndex: 1 }}>
-            <LogoPreviewHTML item="Pasta" editData={editData} color={logoColor} layout={logoLayout} scaleFactor={0.85} hideTagline={hideTagline} withBackground={comBorda && !!patternSrc} maxWidth="100%" maxHeight="100%" />
+            <LogoPreviewHTML item="Pasta" editData={editData} color={logoColor} layout={logoLayout} scaleFactor={0.80} hideTagline={hideTagline} withBackground={comBorda && !!patternSrc} maxWidth="100%" maxHeight="100%" />
           </div>
         </div>
 
@@ -3999,8 +4002,8 @@ function PastaPreview({ brand, editData, accentColor, solidColor, logoColor, log
                display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '10px',
                border: '0.1mm solid rgba(0,0,0,0.05)'
              }}>
-                <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start', gap: '2px', width: '45%', justifyContent: 'center', overflow: 'hidden', flexShrink: 0 }}>
-                  <LogoPreviewHTML item="Pasta" editData={editData} color={logoColor} layout={logoLayout} scaleFactor={0.38} crm={crmLine} hideTagline={hideTagline} alignLeft={true} withBackground={comBorda && !!patternSrc} maxWidth="100%" />
+                <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start', gap: '2px', width: '45%', height: '100%', justifyContent: 'center', overflow: 'hidden', flexShrink: 0 }}>
+                  <LogoPreviewHTML item="Pasta" editData={editData} color={logoColor} layout={logoLayout} scaleFactor={0.35} crm={crmLine} hideTagline={hideTagline} alignLeft={true} withBackground={comBorda && !!patternSrc} maxWidth="100%" maxHeight="100%" />
                 </div>
                 <div style={{ 
                   display: 'flex', flexDirection: 'column', fontSize: '3.8px', color: '#555', 
@@ -4363,8 +4366,8 @@ function PapelariaStep({ brand, accentColor, paletteColors, estampaPatterns, est
     
     const _psLower = (paperSize || '').toLowerCase();
     const _isA4Global = _psLower.includes('a4') || ['Receita de Alta', 'Timbrado', 'Diário', 'Ficha', 'Cadastro', 'Prontuário', 'Checklist', 'Orientação'].some(n => item.includes(n));
-    const _globalBoost = (['Receituário', 'Recibo', 'Ficha', 'Prontuário', 'Certificado', 'Atestado'].some(n => item.includes(n)) || _isA4Global) ? 1.5 : 1.0;
-    const _logoWidthMmGlobal = logoLayout === 'horizontal' ? Math.round(65 * 1.2) : 65;
+    const _globalBoost = (['Receituário', 'Recibo', 'Ficha', 'Prontuário', 'Certificado', 'Atestado'].some(n => item.includes(n)) || _isA4Global) ? 1.0 : 1.0;
+    const _logoWidthMmGlobal = _isA4Global ? 150 : 100;
     
     const logoHtmlWithCrm = genPDFLogoHtml({ 
       brand, 
@@ -4577,7 +4580,7 @@ ${renderPage('menino','verso')}
 
       const sec = (label, color, content) => `<div style="margin-bottom:6mm;"><div>${lbl(label,color)}</div><div style="font-size:9pt;color:#444;line-height:1.5;margin-top:1.5mm;font-weight:500;">${content}</div></div>`;
       const bul = (text) => `<div style="display:flex;gap:1.5mm;margin-bottom:1.2mm;"><span style="color:${c0rn};font-weight:900;">•</span><span style="font-size:7.5pt;color:#444;line-height:1.4;">${text}</span></div>`;
-      const logoHtmlRN = genPDFLogoHtml({ brand, editDataOverride: editData, color: '#fff', localSlogan, crmLine, fontPt: 18, lineH: 1.1, letterSp: editData?.fontLetterSpacing || brand.editData?.fontLetterSpacing || '0.5pt', layout: logoLayout, hideSlogan: true, crmSize: '0', customLogoSrc, customLogoScale: getCustomLogoScale(item) * (ITEM_CUSTOM_BASE_SCALES[item] || 1), maxWidth: '60mm', maxHeight: '25mm', withBackground: comBorda && patternSrc });
+      const logoHtmlRN = genPDFLogoHtml({ brand, editDataOverride: editData, color: '#fff', localSlogan, crmLine, fontPt: 24, lineH: 1.1, letterSp: editData?.fontLetterSpacing || brand.editData?.fontLetterSpacing || '0.5pt', layout: logoLayout, hideSlogan: true, crmSize: '0', customLogoSrc, customLogoScale: getCustomLogoScale(item) * (ITEM_CUSTOM_BASE_SCALES[item] || 1), maxWidth: '55mm', maxHeight: '22mm', withBackground: false });
 
       const html = `<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Orientações RN - ${marca}</title>${fiRN}
 <style>* { box-sizing:border-box; margin:0; padding:0; print-color-adjust:exact !important; -webkit-print-color-adjust:exact !important; }
@@ -4603,7 +4606,7 @@ body { font-family:'Montserrat',sans-serif; background:#fff; }
     <!-- HEADER -->
     <div style="background:${c0rn};padding:6mm 10mm;display:flex;align-items:center;justify-content:space-between;flex-shrink:0;">
       <div style="font-size:14pt;font-weight:900;color:#fff;text-transform:uppercase;letter-spacing:0.5pt;line-height:1.2;">OS PRIMEIROS DIAS<br/>COM MEU BEBÊ</div>
-      <div style="zoom:1.1;">${logoHtmlRN}</div>
+      <div style="width:65mm;height:24mm;display:flex;align-items:center;justify-content:center;overflow:hidden;">${logoHtmlRN}</div>
     </div>
 
     <!-- FAIXA BEBÊ -->
@@ -4856,9 +4859,9 @@ body { width: 485.775mm; height: 385.233mm; position: relative; overflow: hidden
         ? `<div style="position:absolute;inset:0;background-image:url(${patternSrc});background-size:${((patternScale || 150) * 0.22).toFixed(1)}mm;background-repeat:repeat;opacity:0.9;"></div>`
         : `<div style="position:absolute;inset:0;background:#fff;"></div>`;
 
-      const _logoW = logoLayout === 'horizontal' ? '65%' : '50%';
-      const _availW = (_isRetrato ? 61 : 96) * (logoLayout === 'horizontal' ? 0.65 : 0.50) - 8;
-      const _availH = (_isRetrato ? 96 : 61) * (_isRetrato ? 0.40 : 0.50) - 5;
+      const _logoW = logoLayout === 'horizontal' ? '85%' : '70%';
+      const _availW = (_isRetrato ? 61 : 96) * (logoLayout === 'horizontal' ? 0.85 : 0.70) - 8;
+      const _availH = (_isRetrato ? 96 : 61) * (_isRetrato ? 0.45 : 0.55) - 5;
       const frenteHtml = `
         <div class="card" style="position:relative;overflow:hidden;">
           ${frenteBgHtml}
@@ -5123,8 +5126,8 @@ body { width:${totalW}mm; height:${totalH}mm; position:relative; overflow:hidden
                   <div style="width:40mm;height:6mm;background:#e2ddd7;border-radius:1px;"></div>
                 </div>
               </div>
-              <div style="width:85mm; height:25mm; display:flex; justify-content:flex-end; align-items:flex-start; overflow:hidden;">
-                ${genPDFLogoHtml({ brand, editDataOverride: editData, color: logoColor, localSlogan, crmLine, fontPt: (parseFloat(_fontPt) * 1.5).toFixed(1), lineH: _lineH, letterSp: _letterSp, layout: logoLayout, customLogoSrc, customLogoScale: getCustomLogoScale(item) * (ITEM_CUSTOM_BASE_SCALES[item] || 1), maxWidth: '85mm', maxHeight: '25mm', withBackground: comBorda && patternSrc })}
+              <div style="width:80mm; height:35mm; display:flex; justify-content:flex-end; align-items:center; overflow:hidden; padding-top:4mm;">
+                ${genPDFLogoHtml({ brand, editDataOverride: editData, color: logoColor, localSlogan, crmLine, fontPt: (parseFloat(_fontPt) * 1.5).toFixed(1), lineH: _lineH, letterSp: _letterSp, layout: logoLayout, customLogoSrc, customLogoScale: getCustomLogoScale(item) * (ITEM_CUSTOM_BASE_SCALES[item] || 1), maxWidth: '80mm', maxHeight: '32mm', withBackground: comBorda && patternSrc })}
               </div>
             </div>
 
@@ -5266,8 +5269,8 @@ body { width: 220mm; height: 307mm; position: relative; overflow: hidden; backgr
         <div class="page" style="position:relative;overflow:hidden;background:#fff;">
           ${genBg(8)}
           <div style="position:absolute;top:${BLEED + 8}mm;left:${BLEED + 8}mm;right:${BLEED + 8}mm;bottom:${BLEED + 8}mm;padding:12mm 15mm;display:flex;flex-direction:column;align-items:center;overflow:hidden;">
-            <div style="margin-bottom:10mm;display:flex;flex-direction:column;align-items:center;justify-content:center;width:100%;height:32mm;overflow:hidden;">
-               ${logoHtmlWithCrm}
+            <div style="margin-bottom:10mm;display:flex;flex-direction:column;align-items:center;justify-content:center;width:100%;min-height:38mm;padding-top:12mm;">
+               ${genPDFLogoHtml({ brand, editDataOverride: editData, color: logoColor, layout: logoLayout, localSlogan, crmLine, fontPt: (parseFloat(_fontPt) * 1.5).toFixed(1), lineH: _lineH, letterSp: _letterSp, customLogoSrc, customLogoScale: getCustomLogoScale(item) * (ITEM_CUSTOM_BASE_SCALES[item] || 1), maxWidth: '100mm', maxHeight: '30mm', withBackground: comBorda && patternSrc })}
             </div>
             <div style="display:flex;flex-direction:column;gap:4mm;font-family:'Montserrat',sans-serif;width:100%;margin-top:1mm;border:0.25mm solid #eee;border-radius:1mm;padding:5mm 6mm;">
               ${formRow('PACIENTE:', 'NASC:', 0.6)}
@@ -5385,7 +5388,7 @@ body { width: 220mm; height: 307mm; background: #fff; }
       return;
     }
 
-    if (item === 'Atestado Médico') {
+    if (item.includes('Atestado Médico')) {
       const _fa2 = editData?.fontFamily || brand.editData?.fontFamily || 'Playfair Display';
       const _lf2 = LOCAL_FONT_FACES[_fa2];
       const fi2 = `<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;600;700&display=swap" rel="stylesheet">${_lf2 ? `<style>${_lf2}</style>` : `<link href="https://fonts.googleapis.com/css2?family=${_fa2.replace(/ /g,'+')}:wght@400;700&display=swap" rel="stylesheet">`}`;
@@ -5428,7 +5431,7 @@ body { margin:0; } @media print { @page { size: ${_pw}mm ${_ph}mm; margin:0; } }
   ${_atFooterHtml}
   <div style="position:absolute;top:${BLEED + 8}mm;left:${BLEED + 8}mm;right:${BLEED + 8}mm;bottom:${BLEED + _footerH + 10}mm;font-family:'Montserrat',sans-serif;">
 
-    <div style="position:absolute;top:${_isA4 ? 18 : 16}mm;left:50%;transform:translateX(-50%);width:${Math.round((_pw - 2 * BLEED) * 0.75)}mm;display:inline-flex;flex-direction:column;align-items:center;">${genPDFLogoHtml({ brand, editDataOverride: editData, color: logoColor, layout: logoLayout, localSlogan, crmLine, fontPt: (parseFloat(_fontPt) * 1.5).toFixed(1), lineH: _lineH, letterSp: _letterSp, customLogoSrc, customLogoScale: getCustomLogoScale(item) * (ITEM_CUSTOM_BASE_SCALES[item] || 1), maxWidth: `${Math.round((_pw - 2 * BLEED) * 0.70)}mm`, maxHeight: _isA4 ? '64mm' : '48mm', withBackground: comBorda && patternSrc })}</div>
+    <div style="position:absolute;top:${_isA4 ? 12 : 11}mm;left:50%;transform:translateX(-50%);width:${Math.round((_pw - 2 * BLEED) * 0.90)}mm;display:inline-flex;flex-direction:column;align-items:center;">${genPDFLogoHtml({ brand, editDataOverride: editData, color: logoColor, layout: logoLayout, localSlogan, crmLine, fontPt: (parseFloat(_fontPt) * 1.0).toFixed(1), lineH: _lineH, letterSp: _letterSp, customLogoSrc, customLogoScale: getCustomLogoScale(item) * (ITEM_CUSTOM_BASE_SCALES[item] || 1), maxWidth: `${_isA4 ? 150 : 100}mm`, maxHeight: _isA4 ? '70mm' : '52mm', withBackground: false, hideSlogan: false })}</div>
 
     <div style="position:absolute;top:${_isA4 ? 76 : 52}mm;left:0;right:0;text-align:center;font-size:${_isA4 ? 18 : 14}pt;font-weight:800;letter-spacing:2.5pt;color:#1a1a2e;">ATESTADO MÉDICO</div>
 
@@ -5531,8 +5534,8 @@ body { width: 303mm; height: 216mm; position: relative; overflow: hidden; backgr
                     <div style="flex:1;border-bottom:0.5mm dashed #ccc;min-width:140mm;margin-bottom:2mm;"></div>
                 </div>
             </div>
-            <div style="width:70mm;display:flex;flex-direction:column;align-items:flex-end;margin-top:2mm;">
-                ${genPDFLogoHtml({ brand, editDataOverride: editData, color: logoColor, layout: logoLayout, localSlogan, crmLine, fontPt: (parseFloat(_fontPt) * 2.0).toFixed(1), lineH: _lineH, letterSp: _letterSp, customLogoSrc, customLogoScale: getCustomLogoScale(item) * (ITEM_CUSTOM_BASE_SCALES[item] || 1), maxWidth: '70mm', maxHeight: '20mm', withBackground: comBorda && patternSrc })}
+            <div style="width:60mm;display:flex;flex-direction:column;align-items:flex-end;margin-top:10mm;margin-right:28mm;">
+                ${genPDFLogoHtml({ brand, editDataOverride: editData, color: logoColor, layout: logoLayout, localSlogan, crmLine, fontPt: (parseFloat(_fontPt) * 2.3).toFixed(1), lineH: _lineH, letterSp: _letterSp, customLogoSrc, customLogoScale: getCustomLogoScale(item) * (ITEM_CUSTOM_BASE_SCALES[item] || 1), maxWidth: '60mm', maxHeight: '20mm', withBackground: comBorda && patternSrc })}
             </div>
         </div>
 
@@ -5828,7 +5831,7 @@ html, body { width:${totalW}mm; height:${totalH}mm; overflow:hidden; }
       const _lfRA = LOCAL_FONT_FACES[_ffRA];
       const fiRA = `<link href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,300;0,400;0,600;0,700;0,800;0,900;1,700;1,800&display=swap" rel="stylesheet">${_lfRA ? `<style>${_lfRA}</style>` : `<link href="https://fonts.googleapis.com/css2?family=${encodeURIComponent(_ffRA)}:wght@400;700&display=swap" rel="stylesheet">`}`;
       const _lyRA = logoLayout || 'stacked';
-      const logoHtmlRA = genPDFLogoHtml({ brand, editDataOverride: editData, color: '#fff', layout: _lyRA, localSlogan, crmLine: null, fontPt: 22, lineH: 1.1, letterSp: _letterSp, customLogoSrc, customLogoScale: getCustomLogoScale(item) * (ITEM_CUSTOM_BASE_SCALES[item] || 1), maxWidth: '140mm', maxHeight: '45mm', withBackground: comBorda && patternSrc });
+      const logoHtmlRA = genPDFLogoHtml({ brand, editDataOverride: editData, color: '#fff', layout: _lyRA, localSlogan, crmLine: null, fontPt: 28, lineH: 1.1, letterSp: _letterSp, customLogoSrc, customLogoScale: getCustomLogoScale(item) * (ITEM_CUSTOM_BASE_SCALES[item] || 1), maxWidth: '95mm', maxHeight: '30mm', withBackground: false });
       const html = buildReceitaAltaHTML({ logoHtml: logoHtmlRA, solidColor, paletteColors, clinicaNome, cartaoContacts, crmLine, marca, fields: receitaFields, comBorda, patternSrc, patternScale });
       const htmlFinal = html.replace('<head>', `<head>${fiRA.replace(/<link[^>]*>/, '')}`);
       const exRA = document.getElementById('_gabarito_receita_alta'); if (exRA) exRA.remove();
@@ -5849,12 +5852,12 @@ html, body { width:${totalW}mm; height:${totalH}mm; overflow:hidden; }
       const fiC = `<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700;800;900&display=swap" rel="stylesheet">${_lfC ? `<style>${_lfC}</style>` : `<link href="https://fonts.googleapis.com/css2?family=${encodeURIComponent(_ffC)}:wght@400;700&display=swap" rel="stylesheet">`}`;
       const hasCustomLogoC = !!itemEditData?.customLogoSrc;
       const effectiveLayoutC = (comBorda && patternSrc && !hasCustomLogoC) ? 'balanced' : (logoLayout || 'stacked');
-      const _sfC = (comBorda && patternSrc) ? 1.06 : 1.68; // 2x vs preview (logo no PDF era metade)
+      const _sfC = (comBorda && patternSrc) ? 0.8 : 1.2; 
       const logoHtmlC = ReactDOMServer.renderToString(<LogoPreviewHTML editData={itemEditData} color="#ffffff" layout={effectiveLayoutC} scaleFactor={_sfC} crm={null} hideTagline={true} withBackground={hasCustomLogoC} />);
-      const circleD = 32;
-      const circleBgC = (comBorda && patternSrc) ? solidColor + 'cc' : 'rgba(255,255,255,0.22)';
+      const circleD = 44;
+      const circleBgC = (comBorda && patternSrc) ? solidColor + 'd0' : 'rgba(255,255,255,0.22)';
       const bgStyleC = comBorda && patternSrc
-        ? `background-image:url(${patternSrc});background-size:${(patternScale*0.35).toFixed(1)}mm;background-repeat:repeat;`
+        ? `background-image:url(${patternSrc});background-size:${(patternScale*0.15).toFixed(1)}mm;background-repeat:repeat;`
         : `background:${solidColor};`;
       const mkCircle = (leftPct) => `<div style="position:absolute;top:50%;left:${leftPct};transform:translate(-50%,-50%);width:${circleD}mm;height:${circleD}mm;border-radius:50%;background:${circleBgC};display:flex;align-items:center;justify-content:center;text-align:center;">${logoHtmlC}</div>`;
       const BC = 3; // bleed 3mm
@@ -5945,8 +5948,8 @@ html, body { width:${totalW}mm; height:${totalH}mm; overflow:hidden; }
       const fiT = `<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;600;700;800&display=swap" rel="stylesheet">${_lfT ? `<style>${_lfT}</style>` : ''}`;
       const BLEED = 3;
       const SIZES_T = [
-        { label:'9 × 4,8 cm', w:90, h:48, shape:'rect' },
         { label:'4,8 × 4,8 cm', w:48, h:48, shape:'square' },
+        { label:'9 × 4,8 cm', w:90, h:48, shape:'rect' },
         { label:'6 × 6 cm', w:60, h:60, shape:'circle' },
       ];
       const bgT = comBorda && patternSrc
@@ -5962,8 +5965,8 @@ html, body { width:${totalW}mm; height:${totalH}mm; overflow:hidden; }
         const totalW = w + BLEED*2, totalH = h + BLEED*2;
         const holeD = Math.round(w * 0.06);
         const logoWrap = (comBorda && patternSrc)
-          ? ReactDOMServer.renderToString(<LogoPreviewHTML editData={editData || {}} color={solidColor} layout={logoLayout || 'stacked'} scaleFactor={0.45} crm={null} hideTagline={false} withBackground={true} maxWidth={`${w*0.82}mm`} maxHeight={`${h*0.55}mm`} />)
-          : ReactDOMServer.renderToString(<LogoPreviewHTML editData={editData || {}} color={'#fff'} layout={logoLayout || 'stacked'} scaleFactor={0.45} crm={null} hideTagline={false} taglineColor="rgba(255,255,255,0.75)" maxWidth="100%" maxHeight="100%" />);
+          ? ReactDOMServer.renderToString(<LogoPreviewHTML editData={editData || {}} color={solidColor} layout={logoLayout || 'stacked'} scaleFactor={isCircle ? 0.28 : 0.25} crm={null} hideTagline={false} withBackground={true} maxWidth={`${isCircle ? w*0.55 : w*0.65}mm`} maxHeight={`${isCircle ? h*0.55 : h*0.45}mm`} />)
+          : ReactDOMServer.renderToString(<LogoPreviewHTML editData={editData || {}} color={'#fff'} layout={logoLayout || 'stacked'} scaleFactor={isCircle ? 0.28 : 0.25} crm={null} hideTagline={false} taglineColor="rgba(255,255,255,0.75)" maxWidth="100%" maxHeight="100%" />);
         const frente = `
           <div style="width:${totalW}mm;height:${totalH}mm;position:relative;overflow:hidden;border-radius:${isCircle ? '50%' : '2mm'};">
             <div style="position:absolute;inset:0;${bgT}"></div>
@@ -5992,12 +5995,11 @@ html, body { width:${totalW}mm; height:${totalH}mm; overflow:hidden; }
       const bgSizeT = ((patternScale || 100) / 10).toFixed(1);
       const bgTFixed = comBorda && patternSrc ? `background-image:url(${patternSrc});background-size:${bgSizeT}mm;background-repeat:repeat;` : `background:${solidColor};`;
       const logoScaleT = selT.shape === 'square' ? 0.72 : selT.shape === 'circle' ? 0.68 : 0.65;
-      const _tagSF = selT.shape === 'square' ? (selT.w/10) * 0.28 : (selT.w/10) * 0.22;
-      const _tagZoom = (3.78 / 2.8).toFixed(3); // PDF px/mm ÷ preview px/mm = 1.35x boost
+      const _tagSF = selT.shape === 'square' ? 0.28 : selT.shape === 'circle' ? 0.32 : 0.25;
       const _tagLogoInner = (comBorda&&patternSrc)
-        ? ReactDOMServer.renderToString(<LogoPreviewHTML item="Tag para Sacola" editData={itemEditData} color={solidColor} layout={logoLayout||'stacked'} scaleFactor={_tagSF} crm={null} hideTagline={false} withBackground={true} maxWidth={`${(selT.w+BLEED*2)*3.78}px`} maxHeight={`${(selT.h+BLEED*2)*3.78}px`} />)
-        : ReactDOMServer.renderToString(<LogoPreviewHTML item="Tag para Sacola" editData={itemEditData} color={'#fff'} layout={logoLayout||'stacked'} scaleFactor={_tagSF} crm={null} hideTagline={false} taglineColor="rgba(255,255,255,0.75)" maxWidth={`${(selT.w+BLEED*2)*3.78}px`} maxHeight={`${(selT.h+BLEED*2)*3.78}px`} />);
-      const logoWrapT = `<div style="zoom:${_tagZoom};">${_tagLogoInner}</div>`;
+        ? ReactDOMServer.renderToString(<LogoPreviewHTML item="Tag para Sacola" editData={itemEditData} color={solidColor} layout={logoLayout||'stacked'} scaleFactor={_tagSF} crm={null} hideTagline={false} withBackground={true} maxWidth="80%" maxHeight="70%" />)
+        : ReactDOMServer.renderToString(<LogoPreviewHTML item="Tag para Sacola" editData={itemEditData} color={'#fff'} layout={logoLayout||'stacked'} scaleFactor={_tagSF} crm={null} hideTagline={false} taglineColor="rgba(255,255,255,0.75)" maxWidth="80%" maxHeight="70%" />);
+      const logoWrapT = `<div style="display:flex;align-items:center;justify-content:center;">${_tagLogoInner}</div>`;
       const _cms = `
         <div style="position:absolute;top:0;left:${BLEED}mm;width:0.1mm;height:${BLEED-0.5}mm;background:#000;"></div>
         <div style="position:absolute;top:${BLEED}mm;left:0;width:${BLEED-0.5}mm;height:0.1mm;background:#000;"></div>
@@ -6267,8 +6269,8 @@ td { padding: 4mm 3mm; border: 0.2mm solid #eee; font-size: 10pt; color: #555; }
             letterSp: _letterSp, 
             customLogoSrc, 
             customLogoScale: getCustomLogoScale(item) * (ITEM_CUSTOM_BASE_SCALES[item] || 1), 
-            maxWidth: '28mm', 
-            maxHeight: '12mm',
+            maxWidth: '24mm', 
+            maxHeight: '11mm',
             withBackground: comBorda && patternSrc
           });
           const illustSrc = "/breastfeeding-guide.png";
@@ -6503,12 +6505,12 @@ body { font-family:'Montserrat',sans-serif; }
         const p5Content = `<div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;overflow:hidden;"><div style="width:146px;height:210px;transform:scale(3.60);transform-origin:center center;flex-shrink:0;">${ReactDOMServer.renderToString(React.createElement(Art5, { accentColor, palette: paletteColors }))}</div></div>`;
 
         // Conteúdo da Pág 6 (Contra Capa)
-        const p6Content = isVacina ? `<div style="width:148px; height:210px; transform:scale(3.78); transform-origin:top left;">${ReactDOMServer.renderToString(React.createElement(Art6, { accentColor, palette: paletteColors }))}</div>` : `
+        const p6Content = `
           <div style="width:100%; height:100%; position:relative; display:flex; flex-direction:column; align-items:center;">
             <div class="quote-box" style="position:absolute; top:48%; left:50%; transform:translate(-50%, -50%); width:88%; background:${paletteColors[0] || accentColor}; border:0.4mm solid ${paletteColors[0] || accentColor}; border-radius:4mm; padding:10mm 8mm; text-align:center; box-shadow:0 2mm 8mm rgba(0,0,0,0.1); z-index:3;">
-                <div style="font-family:'Brush Script MT','Segoe Script',cursive; font-style:italic; color:#fff !important; -webkit-text-fill-color:#fff; font-size:30pt; margin-bottom:4mm; text-transform:none;">${isSono ? '"Um bebê bem descansado é um bebê mais feliz!"' : isCuidados ? '"Você não precisa ser perfeita — precisa estar presente."' : '"Brinque, converse e explore!"'}</div>
+                <div style="font-family:'Brush Script MT','Segoe Script',cursive; font-style:italic; color:#fff !important; -webkit-text-fill-color:#fff; font-size:30pt; margin-bottom:4mm; text-transform:none;">${isSono ? '"Um bebê bem descansado é um bebê mais feliz!"' : isCuidados ? '"Você não precisa ser perfeita — precisa estar presente."' : isVacina ? '"Proteção que começa desde o primeiro dia."' : '"Brinque, converse e explore!"'}</div>
                 <div style="font-family:'Montserrat',sans-serif;font-size:9pt;color:#fff !important;-webkit-text-fill-color:#fff;font-weight:500;line-height:1.5;">
-                   ${isSono ? 'O sono é uma necessidade fisiológica essencial para o desenvolvimento do seu bebê. Uma rotina consistente, ambiente seguro e respeito aos sinais de sono fazem toda a diferença. Você não está sozinha nessa jornada!' : isCuidados ? 'Cuidar de um bebê é aprender junto com ele. Cada dúvida é normal, cada conquista é sua também. Você está fazendo um trabalho incrível.' : 'As brincadeiras são mais do que momentos de diversão. Elas ajudam seu bebê a aprender, a desenvolver novas habilidades e a se sentir seguro e amado. Pergunte, cante, brinque de esconde-esconde e observe o quanto seu bebê cresce a cada dia.'}
+                   ${isSono ? 'O sono é uma necessidade fisiológica essencial para o desenvolvimento do seu bebê. Uma rotina consistente, ambiente seguro e respeito aos sinais de sono fazem toda a diferença. Você não está sozinha nessa jornada!' : isCuidados ? 'Cuidar de um bebê é aprender junto com ele. Cada dúvida é normal, cada conquista é sua também. Você está fazendo um trabalho incrível.' : isVacina ? 'A vacinação é o maior gesto de amor e cuidado. Ela protege não apenas o seu bebê, mas toda a comunidade ao redor. Mantenha a carteirinha sempre em dia e conte conosco para acompanhar cada etapa dessa proteção.' : 'As brincadeiras são mais do que momentos de diversão. Elas ajudam seu bebê a aprender, a desenvolver novas habilidades e a se sentir seguro e amado. Pergunte, cante, brinque de esconde-esconde e observe o quanto seu bebê cresce a cada dia.'}
                 </div>
             </div>
 
@@ -6517,7 +6519,12 @@ body { font-family:'Montserrat',sans-serif; }
             </div>
 
             <div style="width:100%; margin-top:auto;">
-                ${genPDFFooter({ clinicaNome, endereco, allPhones, email: brand.email, site, instagram, accentColor, logoHtml: null, crmLine })}
+                ${genPDFSimpleFooter({ 
+                  allPhones,
+                  email: brand.email || '',
+                  site: site || '',
+                  instagram: instagram || ''
+                })}
             </div>
           </div>`;
 
@@ -6539,7 +6546,7 @@ body { font-family:'Montserrat',sans-serif; }
           maxWidth: '30mm', 
           maxHeight: '12mm' 
         });
-        const p1Content = isVacina ? `<div style="width:148px; height:210px; transform:scale(3.78); transform-origin:top left;">${ReactDOMServer.renderToString(React.createElement(Art1, { accentColor, palette: paletteColors, pdfMode: true, logoComponent: <div dangerouslySetInnerHTML={{ __html: _vacinaLogoHtml }} /> }))}</div>` : `
+        const p1Content = `
           <div style="display:flex;flex-direction:column;align-items:center;justify-content:center;padding:10mm;text-align:center;height:100%;">
               <div style="margin-bottom:12mm;width:100mm;display:flex;justify-content:center;">${genPDFLogoHtml({ 
                 brand, 
@@ -6560,12 +6567,13 @@ body { font-family:'Montserrat',sans-serif; }
               
               <div style="display:flex;flex-direction:column;align-items:center;margin-bottom:10mm;">
                   <div style="font-family:'Montserrat',sans-serif;font-weight:800;font-size:12pt;color:${accentColor}cc;letter-spacing:1.5pt;text-transform:uppercase;margin-bottom:4mm;font-style:italic;">
-                     ${item.includes('Alimentar') || item.includes('Cuidados') || item.includes('Desenvolvimento') ? 'GUIA DE' : item.includes('Sono') ? 'GUIA DO' : 'CARTÃO DE'}
+                     ${item.includes('Alimentar') || item.includes('Cuidados') || item.includes('Desenvolvimento') || item.includes('Vacina') ? 'GUIA DE' : item.includes('Sono') ? 'GUIA DO' : 'CARTÃO DE'}
                   </div>
                   <div style="font-family:'Montserrat',sans-serif;font-weight:800;font-size:24pt;color:#1a1a1a;letter-spacing:1.2pt;text-transform:uppercase;line-height:1.25;">
                      ${item.includes('Alimentar') ? 'INTRODUÇÃO<br/>ALIMENTAR' :
                        item.includes('Cuidados') ? 'CUIDADOS<br/>COM O BEBÊ' :
                        item.includes('Desenvolvimento') ? 'DESENVOLVIMENTO' :
+                       item.includes('Vacina') ? 'VACINAÇÃO' :
                        item.includes('Sono') ? 'SONO<br/>SAUDÁVEL' : 'EXAME<br/>PRÉ-NATAL'}
                   </div>
               </div>
@@ -6777,7 +6785,12 @@ body { background:#eee; }
   </div>
 
   <div style="position:absolute; bottom:${BORDER + 10}mm; left:0; right:0; text-align:center;">
-    ${genPDFFooter({ clinicaNome, endereco, allPhones, email: brand.email, site, instagram, accentColor, logoHtml: null, crmLine })}
+    ${genPDFSimpleFooter({ 
+      allPhones,
+      email: brand.email || '',
+      site: site || '',
+      instagram: instagram || ''
+    })}
   </div>
 </div>
 <div class="cm cm-tl"></div><div class="cm cm-tr"></div><div class="cm cm-bl"></div><div class="cm cm-br"></div>
@@ -6909,12 +6922,11 @@ body { width:${W + BLEED*2}mm; height:${H + BLEED*2}mm; position:relative; overf
     const _hasFooterData = !!(clinicaNome || mainPhone || instagram || site || endereco || email);
     const _fH = _pw >= 200 ? 18 : 14;
     const footerHtml = _hasFooterData ? `
-      <div style="position:absolute;bottom:9mm;left:50%;transform:translateX(-50%);width:max-content;max-width:calc(100% - 20mm);background:rgba(255,255,255,0.97);padding:${_pad};border-radius:1mm;display:flex;flex-direction:column;align-items:center;justify-content:center;border:0.12mm solid #ddd;text-align:center;font-family:'Montserrat',sans-serif;white-space:nowrap;">
-        ${clinicaNome ? `<div style="font-size:${_fsN}pt;font-weight:700;color:${accentColor};margin-bottom:0.8mm;">${clinicaNome}</div>` : ''}
-        ${endereco ? `<div style="font-size:${_fs}pt;color:#666;opacity:0.8;">${endereco}</div>` : ''}
-        ${mainPhone ? `<div style="font-size:${_fsP}pt;font-weight:700;color:#333;margin:0.8mm 0;">${_waIco2}${mainPhone}</div>` : ''}
-        ${email ? `<div style="font-size:${_fs}pt;color:#666;opacity:0.8;">${email}</div>` : ''}
-        ${(instagram || site) ? `<div style="font-size:${_fs}pt;color:#777;opacity:0.8;">${[site, instagram ? `@${instagram}` : ''].filter(Boolean).join('  ·  ')}</div>` : ''}
+      <div style="position:absolute; bottom:10mm; left:12mm; right:12mm; border-top:0.5px solid #e0e0e0; padding-top:4mm; text-align:center; z-index:4;">
+          <div style="font-family:'Montserrat',sans-serif; font-size:7.5pt; font-weight:700; color:#444; margin-bottom:1mm;">${allPhones}</div>
+          <div style="font-family:'Montserrat',sans-serif; font-size:6.5pt; color:#999; font-weight:500; letter-spacing:0.2px;">
+              ${[instagram ? `@${instagram}` : '', email, site].filter(Boolean).join('  ·  ')}
+          </div>
       </div>` : '';
 
     const _logoWidthMm = logoLayout === 'horizontal'
@@ -7247,9 +7259,9 @@ ${fontImports2}
       {/* Botão download */}
       <button
         onClick={() => { if (currentItem === 'Pack Digital para Instagram' || currentItem === 'Assinatura de E-mail') { openGabarito(currentItem); } else { setPendingItem(currentItem); setShowPrintModal(true); } }}
-        style={{ width: '100%', padding: '14px', background: accentColor, color: '#fff', border: 'none', borderRadius: '30px', fontWeight: 700, fontSize: '0.95rem', cursor: 'pointer' }}
+        style={{ width: '100%', padding: '10px', background: '#fff', color: accentColor, border: `1.5px solid ${accentColor}`, borderRadius: '30px', fontWeight: 700, fontSize: '0.8rem', cursor: 'pointer', marginBottom: '8px' }}
       >
-        {currentItem === 'Pack Digital para Instagram' ? `Baixar ${(INSTA_FORMATS[storyFormatIdx]||INSTA_FORMATS[0]).id === 'post' ? 'Post' : 'Story'} — PNG / JPG →` : currentItem === 'Assinatura de E-mail' ? 'Baixar Assinatura — PNG →' : 'Baixar PDF Padrão Gráfica →'}
+        {currentItem === 'Pack Digital para Instagram' ? `⬇ Baixar PNG / JPG` : currentItem === 'Assinatura de E-mail' ? '⬇ Baixar Assinatura' : '⬇ Baixar PDF Padrão Gráfica'}
       </button>
 
       {/* Upsell: só no último item */}
@@ -7308,6 +7320,12 @@ function EntregaContent({ brand, plano }) {
   const [showEdit, setShowEdit] = useState(false);
   const [marca, setMarca] = useState(brand.editData?.marca || '');
   const [tagline, setTagline] = useState(brand.editData?.tagline || '');
+  const [taglineGap, setTaglineGapState] = useState(() => { try { return parseFloat(localStorage.getItem('brandbox_tagline_gap')) || brand.editData?.taglineGap || 0.35; } catch { return 0.35; } });
+  const setTaglineGap = (v) => { setTaglineGapState(v); try { localStorage.setItem('brandbox_tagline_gap', v); } catch {} };
+  const [taglineWrap, setTaglineWrapState] = useState(() => { try { return localStorage.getItem('brandbox_tagline_wrap') === 'true'; } catch { return false; } });
+  const setTaglineWrap = (v) => { setTaglineWrapState(v); try { localStorage.setItem('brandbox_tagline_wrap', v); } catch {} };
+  const [fontLineHeight, setFontLineHeightState] = useState(() => { try { return parseFloat(localStorage.getItem('brandbox_font_line_height')) || brand.editData?.fontLineHeight || (brand.editData?.fontStyle === 'script' ? 0.9 : 1.1); } catch { return 1.1; } });
+  const setFontLineHeight = (v) => { setFontLineHeightState(v); try { localStorage.setItem('brandbox_font_line_height', v); } catch {} };
   const [fontOverride, setFontOverrideState] = useState(() => {
     try { const s = localStorage.getItem('brandbox_font_override'); return s ? JSON.parse(s) : null; } catch { return null; }
   });
@@ -7335,6 +7353,45 @@ function EntregaContent({ brand, plano }) {
   const [storyFormatIdx, setStoryFormatIdx] = useState(0);
   const [papelariaNavIdx, setPapelariaNavIdx] = useState(0);
   const [papelariaNavItens, setPapelariaNavItens] = useState([]);
+
+  const ALL_STEPS = [
+    'placa', 'manifesto', 'tomdevoz', 'fonte', 'logo', 
+    ...(plano === 'pro' ? ['submarca'] : []), 
+    'estampa', 'cores', 'paleta', 'guia', 
+    'cartao', 'pack-instagram', 'assinatura-email', 'papelaria'
+  ];
+
+  const goNext = () => {
+    const curIdx = ALL_STEPS.indexOf(step);
+    if (step === 'papelaria') {
+      if (papelariaNavIdx < papelariaNavItens.length - 1) {
+        setPapelariaNavIdx(papelariaNavIdx + 1);
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      }
+    } else if (curIdx < ALL_STEPS.length - 1) {
+      setStep(ALL_STEPS[curIdx + 1]);
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+  };
+
+  const goBack = () => {
+    const curIdx = ALL_STEPS.indexOf(step);
+    if (step === 'papelaria') {
+      if (papelariaNavIdx > 0) {
+        setPapelariaNavIdx(papelariaNavIdx - 1);
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      } else {
+        setStep(ALL_STEPS[curIdx - 1]);
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      }
+    } else if (curIdx > 0) {
+      setStep(ALL_STEPS[curIdx - 1]);
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+  };
+
+  const isLastStep = step === 'papelaria' && papelariaNavIdx === papelariaNavItens.length - 1;
+  const isFirstStep = step === 'placa';
   const [customLogoSrc, setCustomLogoSrcState] = useState(() => { try { return localStorage.getItem('brandbox_custom_logo') || null; } catch { return null; } });
   const setCustomLogoSrc = (v) => { setCustomLogoSrcState(v); try { if (v) localStorage.setItem('brandbox_custom_logo', v); else localStorage.removeItem('brandbox_custom_logo'); } catch {} };
   const [customLogoScaleMap, setCustomLogoScaleMapState] = useState(() => {
@@ -7389,7 +7446,10 @@ function EntregaContent({ brand, plano }) {
     ...brand.editData,
     ...(fontOverride ? { fontFamily: fontOverride.fontFamily, fontWeight: fontOverride.weight || 700, fontStyle: fontOverride.style || 'serif', fontSizeBoost: fontOverride.sizeBoost || 1, fontLetterSpacing: fontOverride.letterSpacing || null } : {}),
     ...(customLogoSrc ? { customLogoSrc, customLogoScale } : {}),
-  }), [brand.editData, customLogoSrc, customLogoScale, fontOverride]);
+    taglineGap,
+    taglineWrap,
+    fontLineHeight,
+  }), [brand.editData, customLogoSrc, customLogoScale, fontOverride, taglineGap, taglineWrap, fontLineHeight]);
   
   const currentIdx = estampaSelectedIdx || 0;
   const patternSrc = estampaPatterns?.[currentIdx] ? `data:${estampaPatterns[currentIdx].mimeType};base64,${estampaPatterns[currentIdx].base64}` : null;
@@ -7843,6 +7903,30 @@ function EntregaContent({ brand, plano }) {
                 placeholder="Ex: Delicadeza em cada detalhe"
                 style={{ width: '100%', padding: '12px 16px', borderRadius: '12px', border: `1.5px solid ${logoColor}44`, fontSize: '0.88rem', fontFamily: 'Montserrat, sans-serif', boxSizing: 'border-box', background: '#fff', outline: 'none', color: '#444', letterSpacing: '0.3px' }}
               />
+              {/* Toggle de quebra de slogan */}
+              <div style={{ display: 'flex', gap: '6px', marginTop: '2px' }}>
+                <button onClick={() => setTaglineWrap(false)} style={{ flex: 1, padding: '6px 4px', border: 'none', borderRadius: '20px', fontSize: '0.68rem', fontWeight: 700, background: !taglineWrap ? logoColor : '#eee', color: !taglineWrap ? '#fff' : '#888', cursor: 'pointer', transition: '0.2s' }}>1 Linha</button>
+                <button onClick={() => setTaglineWrap(true)} style={{ flex: 1, padding: '6px 4px', border: 'none', borderRadius: '20px', fontSize: '0.68rem', fontWeight: 700, background: taglineWrap ? logoColor : '#eee', color: taglineWrap ? '#fff' : '#888', cursor: 'pointer', transition: '0.2s' }}>2 Linhas</button>
+              </div>
+              {/* Sliders de ajuste fino */}
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', marginTop: '8px', padding: '10px', background: '#f8f8f8', borderRadius: '12px' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                  <span style={{ fontSize: '0.68rem', color: '#888', fontWeight: 600, fontFamily: 'Montserrat,sans-serif', width: '90px' }}>Distância Slogan</span>
+                  <input type="range" min="0" max="1.5" step="0.05" 
+                    value={taglineGap}
+                    onChange={e => setTaglineGap(parseFloat(e.target.value))}
+                    style={{ flex: 1, accentColor }} />
+                  <span style={{ fontSize: '0.68rem', color: '#aaa', width: '30px' }}>{taglineGap.toFixed(2)}</span>
+                </div>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                  <span style={{ fontSize: '0.68rem', color: '#888', fontWeight: 600, fontFamily: 'Montserrat,sans-serif', width: '90px' }}>Altura Logo</span>
+                  <input type="range" min="0.5" max="2" step="0.05" 
+                    value={fontLineHeight}
+                    onChange={e => setFontLineHeight(parseFloat(e.target.value))}
+                    style={{ flex: 1, accentColor }} />
+                  <span style={{ fontSize: '0.68rem', color: '#aaa', width: '30px' }}>{fontLineHeight.toFixed(2)}</span>
+                </div>
+              </div>
             </div>
           )}
 
@@ -7990,21 +8074,22 @@ function EntregaContent({ brand, plano }) {
         <div style={{ marginTop: '1.6rem', display: 'flex', flexDirection: 'column', gap: '10px' }}>
           
           {/* BOTÕES DE DOWNLOAD (AÇÃO PRO) */}
+          {/* BOTÕES DE DOWNLOAD (AÇÃO PRO) - MAIS SUTIS */}
           {(step === 'logo' || step === 'submarca') && (
             <div style={{ display: 'flex', gap: '8px' }}>
               <button
                 onClick={downloadTransparent}
                 disabled={!!downloading}
-                style={{ flex: 1, padding: '14px 8px', background: accentColor, color: '#fff', border: 'none', borderRadius: '30px', fontWeight: 700, fontSize: '0.85rem', cursor: 'pointer', opacity: downloading === 'png' ? 0.6 : 1 }}
+                style={{ flex: 1, padding: '10px 8px', background: '#fff', color: accentColor, border: `1.5px solid ${accentColor}`, borderRadius: '30px', fontWeight: 700, fontSize: '0.78rem', cursor: 'pointer', opacity: downloading === 'png' ? 0.6 : 1 }}
               >
-                {downloading === 'png' ? '...' : 'PNG Transparente →'}
+                {downloading === 'png' ? '...' : 'PNG Transparente'}
               </button>
               <button
                 onClick={downloadComFundo}
                 disabled={!!downloading}
-                style={{ flex: 1, padding: '14px 8px', background: 'none', color: accentColor, border: `2px solid ${accentColor}`, borderRadius: '30px', fontWeight: 700, fontSize: '0.85rem', cursor: 'pointer', opacity: downloading === 'fundo' ? 0.6 : 1 }}
+                style={{ flex: 1, padding: '10px 8px', background: '#fff', color: accentColor, border: `1.5px solid ${accentColor}`, borderRadius: '30px', fontWeight: 700, fontSize: '0.78rem', cursor: 'pointer', opacity: downloading === 'fundo' ? 0.6 : 1 }}
               >
-                {downloading === 'fundo' ? '...' : 'Com Fundo →'}
+                {downloading === 'fundo' ? '...' : 'Logo com Fundo'}
               </button>
             </div>
           )}
@@ -8020,8 +8105,8 @@ function EntregaContent({ brand, plano }) {
               link.download = `Pack-Instagram_${marca || 'marca'}.png`;
               link.href = canvas.toDataURL('image/png');
               link.click();
-            }} style={{ width: '100%', padding: '14px', background: accentColor, color: '#fff', border: 'none', borderRadius: '30px', fontWeight: 700, fontSize: '0.95rem', cursor: 'pointer' }}>
-              Baixar PNG →
+            }} style={{ width: '100%', padding: '14px', background: '#fff', color: accentColor, border: `1.5px solid ${accentColor}`, borderRadius: '30px', fontWeight: 700, fontSize: '0.95rem', cursor: 'pointer' }}>
+              ⬇ Baixar PNG
             </button>
           )}
 
@@ -8039,17 +8124,37 @@ function EntregaContent({ brand, plano }) {
                 link.download = `Assinatura-Email_${marca || 'marca'}.png`;
                 link.href = canvas.toDataURL('image/png');
                 link.click();
-              }} style={{ flex: 1, padding: '14px 8px', background: accentColor, color: '#fff', border: 'none', borderRadius: '30px', fontWeight: 700, fontSize: '0.85rem', cursor: 'pointer' }}>
-                Baixar PNG →
+              }} style={{ flex: 1, padding: '14px 8px', background: '#fff', color: accentColor, border: `1.5px solid ${accentColor}`, borderRadius: '30px', fontWeight: 700, fontSize: '0.85rem', cursor: 'pointer' }}>
+                ⬇ Baixar PNG
               </button>
             </div>
           )}
 
           {step === 'paleta' && (
-            <button onClick={downloadCoresPNG} disabled={downloadingCores} style={{ width: '100%', padding: '14px', background: accentColor, color: '#fff', border: 'none', borderRadius: '30px', fontWeight: 700, fontSize: '0.95rem', cursor: 'pointer', opacity: downloadingCores ? 0.6 : 1 }}>
-              {downloadingCores ? '...' : 'Baixar Paleta de Cores (PNG) →'}
+            <button onClick={downloadCoresPNG} disabled={downloadingCores} style={{ width: '100%', padding: '14px', background: '#fff', color: accentColor, border: `1.5px solid ${accentColor}`, borderRadius: '30px', fontWeight: 700, fontSize: '0.95rem', cursor: 'pointer', opacity: downloadingCores ? 0.6 : 1 }}>
+              {downloadingCores ? '...' : '⬇ Baixar Paleta de Cores'}
             </button>
           )}
+
+          {/* NAVEGAÇÃO ENTRE ETAPAS (PRINCIPAL) - SEMPRE NO FINAL */}
+          <div style={{ display: 'flex', gap: '8px', marginTop: '4px' }}>
+            {!isFirstStep && (
+              <button
+                onClick={goBack}
+                style={{ flex: 0.4, padding: '14px', background: '#eee', color: '#888', border: 'none', borderRadius: '30px', fontWeight: 700, fontSize: '0.9rem', cursor: 'pointer' }}
+              >
+                ← Voltar
+              </button>
+            )}
+            {!isLastStep && (
+              <button
+                onClick={goNext}
+                style={{ flex: 1, padding: '14px', background: accentColor, color: '#fff', border: 'none', borderRadius: '30px', fontWeight: 700, fontSize: '0.95rem', cursor: 'pointer', boxShadow: `0 4px 15px ${accentColor}44` }}
+              >
+                {step === 'guia' ? 'Ir para o Digital →' : step === 'assinatura-email' ? 'Ir para Papelaria →' : 'Próxima etapa →'}
+              </button>
+            )}
+          </div>
 
         </div>
 
@@ -8339,8 +8444,8 @@ export function FolderAmamentacaoPage1({ accentColor, borderColor, palette = [],
       clipPath: folderRoof ? 'polygon(0% 12%, 50% 0%, 100% 12%, 100% 100%, 0% 100%)' : 'none',
       paddingTop: folderRoof ? '38px' : '15px'
     }}>
-      <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '8px', marginBottom: '15px' }}>
-        <div style={{ width: '120px', height: '40px', marginBottom: '5px', display: 'flex', justifyContent: 'center', alignItems: 'center' }}>{logoComponent}</div>
+      <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '8px', marginBottom: '15px', width: '100%' }}>
+        <div style={{ width: '100%', height: '40px', marginBottom: '5px', display: 'flex', justifyContent: 'center', alignItems: 'center' }}>{logoComponent}</div>
         <div style={{ width: '35px', height: '1.5px', background: mainColor }} />
       </div>
 

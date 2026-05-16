@@ -8,11 +8,11 @@ const WRAP_H_CM = 8.5;
 const WRAP_SCALE = 22; // px/cm para exibição flat
 
 // Tamanho base do círculo logo
-const CIRCLE_BASE = 78;
+const CIRCLE_BASE = 100;
 const CIRCLE_FLAT = Math.round(CIRCLE_BASE * 1.35);
 // scaleFactor base — o customLogoScale do slider vai multiplicar por cima
-const LOGO_SF     = +(CIRCLE_BASE * 0.008).toFixed(2);
-const LOGO_SF_F   = +(CIRCLE_FLAT * 0.008).toFixed(2);
+const LOGO_SF     = +(CIRCLE_BASE * 0.0085).toFixed(2);
+const LOGO_SF_F   = +(CIRCLE_FLAT * 0.0085).toFixed(2);
 
 // LogoBg: círculo exato atrás da logo (omitido quando logo customizada)
 function LogoBg({ children, solidColor, size = 80, hideCircle = false }) {
@@ -86,7 +86,7 @@ export default function CanecaPreview({
               {/* Círculo sempre visível — cor sólida no fundo sólido, solidColor no padrão */}
               <div style={{ position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%)', textAlign: 'center', width: `${Math.round(artWidth * 0.88)}px`, overflow: 'hidden' }}>
                 <LogoBg solidColor={solidColor} size={CIRCLE_BASE} hideCircle={!usePattern || hasCustomLogo}>
-                  <LogoPreviewHTML editData={editData} color="#ffffff" layout={effectiveLayout} scaleFactor={usePattern ? LOGO_SF_PATTERN : LOGO_SF} hideTagline={true} withBackground={hasCustomLogo} maxWidth="100%" />
+                  <LogoPreviewHTML editData={editData} color="#ffffff" layout={effectiveLayout} scaleFactor={usePattern ? LOGO_SF_PATTERN : LOGO_SF} hideTagline={true} withBackground={hasCustomLogo} />
                 </LogoBg>
               </div>
             </div>
@@ -130,7 +130,7 @@ export default function CanecaPreview({
           {['25%', '75%'].map(left => (
             <div key={left} style={{ position: 'absolute', top: '50%', left, transform: 'translate(-50%, -50%)', textAlign: 'center', width: `${Math.round(WRAP_W * 0.44)}px`, overflow: 'hidden' }}>
               <LogoBg solidColor={solidColor} size={CIRCLE_FLAT} hideCircle={!usePattern || hasCustomLogo}>
-                <LogoPreviewHTML editData={editData} color="#ffffff" layout={effectiveLayout} scaleFactor={usePattern ? LOGO_SF_PATTERN_F : LOGO_SF_F} hideTagline={true} withBackground={hasCustomLogo} maxWidth="100%" />
+                <LogoPreviewHTML editData={editData} color="#ffffff" layout={effectiveLayout} scaleFactor={usePattern ? LOGO_SF_PATTERN_F : LOGO_SF_F} hideTagline={true} withBackground={hasCustomLogo} />
               </LogoBg>
             </div>
           ))}
