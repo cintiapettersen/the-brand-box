@@ -32,13 +32,29 @@ function TagCard({ size, solidColor, c0, c1, paletteColors, effectiveSrc, patter
       <div style={containerStyle}>
         <div style={bgStyle} />
         {/* Logo com fundo branco suave quando há estampa */}
-        <div style={{ position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%)', width: isCircle ? '60%' : '80%', height: isCircle ? '60%' : '80%', textAlign: 'center', zIndex: 2, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-          {effectiveSrc ? (
-            <LogoPreviewHTML item="Tag para Sacola" editData={editData} color={solidColor} layout={logoLayout} scaleFactor={isCircle ? 0.35 : 0.5} hideTagline={false} withBackground={true} maxWidth="100%" maxHeight="100%" />
-          ) : (
-            <LogoPreviewHTML item="Tag para Sacola" editData={editData} color="#ffffff" layout={logoLayout} scaleFactor={isCircle ? 0.35 : 0.5} hideTagline={false} taglineColor="rgba(255,255,255,0.75)" maxWidth="100%" maxHeight="100%" />
-          )}
-        </div>
+        {(() => {
+          const hasImg = !!editData?.customLogoSrc;
+          const cW = isCircle ? '70%' : '84%';
+          const cH = isCircle ? '60%' : '72%';
+          return (
+            <div style={{
+              position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%)', zIndex: 2,
+              display: hasImg ? 'inline-flex' : 'flex', alignItems: 'center', justifyContent: 'center',
+              ...(hasImg ? { maxWidth: cW, maxHeight: cH } : { width: cW, height: cH }),
+              overflow: 'hidden',
+              background: effectiveSrc ? 'rgba(255,255,255,0.92)' : 'transparent',
+              padding: effectiveSrc ? '2px 4px' : '0',
+              borderRadius: '4px',
+            }}>
+              <LogoPreviewHTML item="Tag para Sacola" editData={editData}
+                color={effectiveSrc ? solidColor : '#ffffff'}
+                layout={logoLayout} scaleFactor={isCircle ? 0.35 : 0.5}
+                hideTagline={false} withBackground={false}
+                taglineColor={effectiveSrc ? undefined : 'rgba(255,255,255,0.75)'}
+                maxWidth="100%" maxHeight="100%" />
+            </div>
+          );
+        })()}
       </div>
     );
   }

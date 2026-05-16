@@ -12,7 +12,7 @@ export const PDFStyles = {
 /**
  * Gera a estrutura HTML da Logo para o PDF
  */
-export const genPDFLogoHtml = ({ brand, editDataOverride = null, color, localSlogan, crmLine, fontPt, lineH, letterSp, hideSlogan = false, crmSize = '5pt', sloganSize = null, layout = 'stacked', customLogoSrc = null, customLogoScale = 100, maxWidth = null, maxHeight = null, withBackground = false, sloganColor = null, alignLeft = false }) => {
+export const genPDFLogoHtml = ({ brand, editDataOverride = null, color, localSlogan, crmLine, fontPt, lineH, letterSp, hideSlogan = false, crmSize = '5pt', sloganSize = null, layout = 'stacked', customLogoSrc = null, customLogoScale = 100, maxWidth = null, maxHeight = null, withBackground = false, withBackgroundPadding = '2px 4px', sloganColor = null, alignLeft = false }) => {
   const _ed = editDataOverride || brand.editData || {};
   const finalLogoSrc = customLogoSrc || _ed.customLogoSrc || null;
   const customLogoScaleValue = customLogoSrc ? customLogoScale : (_ed.customLogoScale || 100);
@@ -88,27 +88,25 @@ export const genPDFLogoHtml = ({ brand, editDataOverride = null, color, localSlo
 
   const sloganPart = (localSlogan && !hideSlogan) ? `
     <div style="${PDFStyles.montserrat} font-size:${effectiveSloganSize}; font-weight:700; letter-spacing:${_sloganLs}; text-transform:uppercase; color:${_sloganColor}; margin-top:${isStacked ? _sloganGap + 'pt' : '0'}; text-align:center;">
-      ${displaySloganLines.map(l => `<div style="white-space:nowrap;">${l}</div>`).join('')}
+      ${displaySloganLines.map(l => `<div style="white-space:normal;word-break:keep-all;text-align:center;">${l}</div>`).join('')}
     </div>` : '';
   
   const effectiveCrmSize = crmSize.includes('pt') ? (parseFloat(crmSize) * _scaleMultiplier).toFixed(1) + 'pt' : crmSize;
-  const _crmGap = (0.5 * _scaleMultiplier).toFixed(1);
+  const _crmGap = Math.max(2, 0.5 * _scaleMultiplier).toFixed(1);
   const crmPart = crmLine ? `<div style="${PDFStyles.montserrat} font-size:${effectiveCrmSize}; letter-spacing:1pt; text-transform:uppercase; color:#bbb; margin-top:${_crmGap}pt; text-align:center; opacity:0.8;">${crmLine}</div>` : '';
 
   const _sloganLen = (localSlogan && !hideSlogan) ? localSlogan.length : 0;
   const _crmLen = crmLine ? crmLine.length : 0;
   
-  // Melhor estimativa de largura: fonte + letter-spacing (0.35em = 35% do tamanho da fonte)
+  // _autoZoom escala apenas o logo principal — slogan usa word-wrap para caber
   const _logoW_pt = lines.reduce((max, l) => Math.max(max, l.length), 0) * (parseFloat(_finalFontPt) * 0.55);
-  const _sloganW_pt = _sloganLen * (parseFloat(effectiveSloganSize) * 0.75 + parseFloat(effectiveSloganSize) * 0.35);
   const _crmW_pt = _crmLen * (parseFloat(effectiveCrmSize) * 0.75);
-  
-  const _estimatedWidthPt = Math.max(_logoW_pt, _sloganW_pt, _crmW_pt);
+  const _estimatedWidthPt = Math.max(_logoW_pt, _crmW_pt);
   const _maxWidthPt = maxWidth ? parseFloat(maxWidth) * 2.83465 : 9999;
   const _autoZoom = (_estimatedWidthPt > _maxWidthPt) ? (_maxWidthPt / _estimatedWidthPt) : 1;
 
   const finalWrapper = `
-    <div style="display:inline-flex; flex-direction:column; align-items:center; justify-content:center; ${maxWidth ? `max-width:${maxWidth};` : ''} ${maxHeight ? `max-height:${maxHeight};` : ''} box-sizing:border-box; ${withBackground ? 'background:rgba(255,255,255,0.92); padding:2px 4px; border-radius:4px;' : ''} ${_autoZoom < 1 ? `zoom:${_autoZoom.toFixed(3)};` : ''}">
+    <div style="display:inline-flex; flex-direction:column; align-items:center; justify-content:center; ${maxWidth ? `max-width:${maxWidth};` : ''} ${maxHeight ? `max-height:${maxHeight}; overflow:hidden;` : ''} box-sizing:border-box; ${withBackground ? `background:rgba(255,255,255,0.92); padding:${withBackgroundPadding}; border-radius:4px;` : ''} ${_autoZoom < 1 ? `zoom:${_autoZoom.toFixed(3)};` : ''}">
       <div style="display:flex; flex-direction:${isStacked ? 'column' : 'row'}; align-items:center; justify-content:center; gap:${isStacked ? '0' : '5mm'};">
         ${logoMain}
         ${sloganPart}${crmPart}

@@ -193,7 +193,7 @@ export function LogoPreviewHTML({ item = null, editData, color, layout = 'stacke
     if (withBackground) {
       return (
         <div style={containerStyle}>
-          <div style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', background: 'rgba(255,255,255,0.92)', padding: '6px 10px', borderRadius: '4px', backdropFilter: 'blur(2px)', maxWidth: '100%' }}>
+          <div style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', background: 'rgba(255,255,255,0.92)', padding: '2px 4px', borderRadius: '4px', backdropFilter: 'blur(2px)', maxWidth: '100%' }}>
             <img src={customLogoSrc} alt="logo" style={imgStyle} />
           </div>
         </div>
@@ -2213,8 +2213,22 @@ function CartaoDeVisitaPreview({ accentColor, patternSrc, cartaoContacts, crmLin
           <div style={{ position: 'absolute', top: '16px', left: '16px', right: '16px', bottom: '16px', background: 'transparent', zIndex: 1 }} />
         </>}
         <div style={{ position: 'absolute', inset: 0, zIndex: 2, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-          <div style={{ width: isHorizontal ? '65%' : '50%', height: retrato ? '40%' : '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', overflow: 'hidden' }}>
-            <LogoPreviewHTML item="Cartão de Visita" editData={editData} color={logoColor} layout={logoLayout} crm={crmLine} hideTagline={hideTagline} scaleFactor={0.24} withBackground={!!patternSrc} maxWidth="100%" maxHeight="100%" />
+          {/* Fundo branco com padding (visual) envolve container interno (medido pelo autoFit) */}
+          <div style={{
+            display: 'flex', alignItems: 'center', justifyContent: 'center',
+            background: (comBorda && patternSrc) ? 'rgba(255,255,255,0.92)' : 'transparent',
+            padding: (comBorda && patternSrc) ? '10px 12px 8px' : '0',
+            borderRadius: '4px',
+          }}>
+            {editData?.customLogoSrc ? (
+              <div style={{ display: 'inline-flex', maxWidth: isHorizontal ? `${Math.round(CW*0.70)}px` : `${Math.round(CW*0.56)}px`, maxHeight: retrato ? `${Math.round(CH*0.32)}px` : `${Math.round(CH*0.40)}px`, overflow: 'hidden', alignItems: 'center', justifyContent: 'center' }}>
+                <LogoPreviewHTML item="Cartão de Visita" editData={editData} color={logoColor} layout={logoLayout} crm={crmLine} hideTagline={hideTagline} scaleFactor={0.85} withBackground={false} maxWidth="100%" maxHeight="100%" />
+              </div>
+            ) : (
+              <div style={{ display: 'flex', width: isHorizontal ? `${Math.round(CW*0.62)}px` : `${Math.round(CW*0.50)}px`, height: retrato ? `${Math.round(CH*0.30)}px` : `${Math.round(CH*0.38)}px`, overflow: 'hidden', alignItems: 'center', justifyContent: 'center' }}>
+                <LogoPreviewHTML item="Cartão de Visita" editData={editData} color={logoColor} layout={logoLayout} crm={crmLine} hideTagline={hideTagline} scaleFactor={0.85} withBackground={false} maxWidth="100%" maxHeight="100%" />
+              </div>
+            )}
           </div>
         </div>
       </div>
@@ -4859,17 +4873,33 @@ body { width: 485.775mm; height: 385.233mm; position: relative; overflow: hidden
         ? `<div style="position:absolute;inset:0;background-image:url(${patternSrc});background-size:${((patternScale || 150) * 0.22).toFixed(1)}mm;background-repeat:repeat;opacity:0.9;"></div>`
         : `<div style="position:absolute;inset:0;background:#fff;"></div>`;
 
-      const _logoW = logoLayout === 'horizontal' ? '85%' : '70%';
-      const _availW = (_isRetrato ? 61 : 96) * (logoLayout === 'horizontal' ? 0.85 : 0.70) - 8;
-      const _availH = (_isRetrato ? 96 : 61) * (_isRetrato ? 0.45 : 0.55) - 5;
+      const _logoWPct = logoLayout === 'horizontal' ? 0.85 : (_isRetrato ? 0.82 : 0.70);
+      const _logoW = `${Math.round(_logoWPct * 100)}%`;
+      const _availW = (_isRetrato ? 61 : 96) * _logoWPct - 8;
+      const _bgHPad = _isRetrato ? 5 : 6; // mm de cada lado
+      const _bgPadStr = `4mm ${_bgHPad}mm`;
+      const _availWContent = _availW - _bgHPad * 2;
+      const _logoBoxH = _isRetrato ? '50mm' : '38mm';
+      // fontPt dinâmico: cada elemento contribui sua altura proporcional ao fontPt
+      const _logoBoxHmm = parseFloat(_logoBoxH);
+      const _sloganLines = localSlogan ? (localSlogan.length > 28 ? 2 : 1) : 0;
+      // altura em mm por pt de fontPt (logo lines + slogan proporcional)
+      const _hPerPt = _lines.length * _lineH * 0.353           // logo principal
+                    + _sloganLines * 0.40 * 1.2 * 0.353;       // slogan = 40% do font, lineH=1.2
+      const _fixedH = (crmLine ? 5 * 0.353 : 0) + 2;          // CRM fixo + gap estimado
+      const _bgPadV = 8;                                        // 4mm top + 4mm bottom do withBackgroundPadding
+      const _maxPtByH = (_logoBoxHmm * 0.88 - _fixedH - _bgPadV) / (_hPerPt || 1);
+      const _fontPtCV = (Math.min(parseFloat(_fontPt), _maxPtByH) * (_isRetrato ? 0.85 : 1)).toFixed(1);
       const frenteHtml = `
         <div class="card" style="position:relative;overflow:hidden;">
           ${frenteBgHtml}
           <div style="position:absolute;top:${BLEED}mm;left:${BLEED}mm;right:${BLEED}mm;bottom:${BLEED}mm;display:flex;align-items:center;justify-content:center;">
-            <div style="padding:2.5mm 4mm; width:${_logoW}; display:flex; flex-direction:column; align-items:center; justify-content:center; overflow:hidden;">
-              <div style="width:100%; height:100%; display:flex; justify-content:center; align-items:center;">
-                ${genPDFLogoHtml({ brand, editDataOverride: editData, color: logoColor, localSlogan, crmLine, fontPt: _fontPt, lineH: _lineH, letterSp: _letterSp, layout: logoLayout, customLogoSrc, customLogoScale: getCustomLogoScale(item) * (ITEM_CUSTOM_BASE_SCALES[item] || 1), maxWidth: `${_availW}mm`, maxHeight: `${_availH}mm`, withBackground: comBorda && !!patternSrc })}
-              </div>
+            <div style="width:${_logoW}; height:${_logoBoxH}; display:flex; align-items:center; justify-content:center; overflow:hidden; ${_isScript ? 'padding-top:2mm;' : ''}">
+              ${genPDFLogoHtml({ brand, editDataOverride: editData, color: logoColor, localSlogan, crmLine, fontPt: _fontPtCV, lineH: _lineH, letterSp: _letterSp, layout: logoLayout, customLogoSrc,
+                // texto: customLogoScale=100 — fontPtCV já é o tamanho final, _scaleMultiplier não deve re-escalar
+                // imagem: passa o scale real do slider para dimensionar o img em mm
+                customLogoScale: customLogoSrc ? getCustomLogoScale(item) * (ITEM_CUSTOM_BASE_SCALES[item] || 1) : 100,
+                maxWidth: `${_availWContent}mm`, maxHeight: _logoBoxH, withBackground: comBorda && !!patternSrc, withBackgroundPadding: _bgPadStr })}
             </div>
           </div>
           <div class="cm cm-tl"></div><div class="cm cm-tr"></div><div class="cm cm-bl"></div><div class="cm cm-br"></div>
@@ -5996,10 +6026,43 @@ html, body { width:${totalW}mm; height:${totalH}mm; overflow:hidden; }
       const bgTFixed = comBorda && patternSrc ? `background-image:url(${patternSrc});background-size:${bgSizeT}mm;background-repeat:repeat;` : `background:${solidColor};`;
       const logoScaleT = selT.shape === 'square' ? 0.72 : selT.shape === 'circle' ? 0.68 : 0.65;
       const _tagSF = selT.shape === 'square' ? 0.28 : selT.shape === 'circle' ? 0.32 : 0.25;
-      const _tagLogoInner = (comBorda&&patternSrc)
-        ? ReactDOMServer.renderToString(<LogoPreviewHTML item="Tag para Sacola" editData={itemEditData} color={solidColor} layout={logoLayout||'stacked'} scaleFactor={_tagSF} crm={null} hideTagline={false} withBackground={true} maxWidth="80%" maxHeight="70%" />)
-        : ReactDOMServer.renderToString(<LogoPreviewHTML item="Tag para Sacola" editData={itemEditData} color={'#fff'} layout={logoLayout||'stacked'} scaleFactor={_tagSF} crm={null} hideTagline={false} taglineColor="rgba(255,255,255,0.75)" maxWidth="80%" maxHeight="70%" />);
-      const logoWrapT = `<div style="display:flex;align-items:center;justify-content:center;">${_tagLogoInner}</div>`;
+      const _isCircleT = selT.shape === 'circle';
+      const _isSquareT = selT.shape === 'square';
+      const _tagBoxW = _isCircleT ? `${(selT.w * 0.70).toFixed(0)}mm` : _isSquareT ? `${(selT.w * 0.82).toFixed(0)}mm` : `${(selT.w * 0.82).toFixed(0)}mm`;
+      const _tagBoxH = _isCircleT ? `${(selT.h * 0.62).toFixed(0)}mm` : `${(selT.h * 0.72).toFixed(0)}mm`;
+      const _hasImgT = !!itemEditData?.customLogoSrc;
+      const _hasPatternT = comBorda && patternSrc;
+      const _tagColor = _hasPatternT ? solidColor : '#fff';
+      // fontPt dinâmico: calcula para preencher a largura do container (igual ao autoFit do preview)
+      // _autoZoom dentro do genPDFLogoHtml garante que não passa do maxWidth
+      const _tagMarca = itemEditData?.marca || marca || '';
+      const _tagLayout = logoLayout || 'stacked';
+      const _tagIsScript = itemEditData?.fontStyle === 'script';
+      const _tagCharsForW = _tagLayout === 'horizontal'
+        ? _tagMarca.length
+        : Math.max(..._tagMarca.split(' ').map(w => w.length));
+      const _tagCharW = _tagIsScript ? 0.42 : 0.55; // largura média por char em relação ao font-size
+      const _tagBoxWmm = parseFloat(_tagBoxW);
+      const _tagBoxHmm = parseFloat(_tagBoxH);
+      const _tagFontPt = Math.min(
+        Math.round(_tagBoxWmm / (_tagCharsForW * _tagCharW * 0.353)), // preenche largura
+        Math.round(_tagBoxHmm * 0.45 / 0.353)                        // não ultrapassa metade da altura
+      ).toString();
+      // withBackground dentro do genPDFLogoHtml usa padding:2px 4px (≈0.5mm) — sem box-sizing clash
+      const _tagLogoInner = genPDFLogoHtml({
+        brand, editDataOverride: itemEditData, color: _tagColor,
+        localSlogan, crmLine: null,
+        fontPt: _tagFontPt, lineH: 1.1, letterSp: '0.5pt',
+        layout: logoLayout || 'stacked',
+        customLogoSrc: itemEditData?.customLogoSrc,
+        customLogoScale: getCustomLogoScale(item) * (ITEM_CUSTOM_BASE_SCALES[item] || 1),
+        maxWidth: _tagBoxW, maxHeight: _tagBoxH,
+        withBackground: false,
+        sloganColor: _hasPatternT ? undefined : 'rgba(255,255,255,0.75)',
+      });
+      // fundo branco + overflow:hidden aqui — sem padding (box-sizing:border-box no iframe cortaria)
+      const _tagWrapBg = _hasPatternT ? `background:rgba(255,255,255,0.92);border-radius:2mm;` : '';
+      const logoWrapT = `<div style="display:${_hasImgT?'inline-flex':'flex'};${_hasImgT?`max-width:${_tagBoxW};max-height:${_tagBoxH};`:`width:${_tagBoxW};height:${_tagBoxH};`}align-items:center;justify-content:center;overflow:hidden;${_tagWrapBg}">${_tagLogoInner}</div>`;
       const _cms = `
         <div style="position:absolute;top:0;left:${BLEED}mm;width:0.1mm;height:${BLEED-0.5}mm;background:#000;"></div>
         <div style="position:absolute;top:${BLEED}mm;left:0;width:${BLEED-0.5}mm;height:0.1mm;background:#000;"></div>
