@@ -34,24 +34,32 @@ function TagCard({ size, solidColor, c0, c1, paletteColors, effectiveSrc, patter
         {/* Logo com fundo branco suave quando há estampa */}
         {(() => {
           const hasImg = !!editData?.customLogoSrc;
-          const cW = isCircle ? '70%' : '84%';
-          const cH = isCircle ? '60%' : '72%';
+          // tamanho proporcional ao item — tags pequenas precisam de logo menor
+          const boxW = Math.round(W * (isCircle ? 0.58 : 0.76));
+          const boxH = Math.round(H * (isCircle ? 0.48 : 0.60));
           return (
+            // Externo: fundo branco + padding (não medido pelo autoFit)
             <div style={{
               position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%)', zIndex: 2,
-              display: hasImg ? 'inline-flex' : 'flex', alignItems: 'center', justifyContent: 'center',
-              ...(hasImg ? { maxWidth: cW, maxHeight: cH } : { width: cW, height: cH }),
-              overflow: 'hidden',
+              display: 'flex', alignItems: 'center', justifyContent: 'center',
               background: effectiveSrc ? 'rgba(255,255,255,0.92)' : 'transparent',
-              padding: effectiveSrc ? '2px 4px' : '0',
+              padding: effectiveSrc ? '4px 6px' : '0',
               borderRadius: '4px',
+              maxWidth: `${boxW + 12}px`, maxHeight: `${boxH + 8}px`, overflow: 'hidden',
             }}>
-              <LogoPreviewHTML item="Tag para Sacola" editData={editData}
-                color={effectiveSrc ? solidColor : '#ffffff'}
-                layout={logoLayout} scaleFactor={isCircle ? 0.35 : 0.5}
-                hideTagline={false} withBackground={false}
-                taglineColor={effectiveSrc ? undefined : 'rgba(255,255,255,0.75)'}
-                maxWidth="100%" maxHeight="100%" />
+              {/* Interno: dimensões fixas em px — autoFit mede este */}
+              <div style={{
+                display: hasImg ? 'inline-flex' : 'flex',
+                ...(hasImg ? { maxWidth: `${boxW}px` } : { width: `${boxW}px`, height: `${boxH}px` }),
+                alignItems: 'center', justifyContent: 'center', overflow: 'hidden',
+              }}>
+                <LogoPreviewHTML item="Tag para Sacola" editData={editData}
+                  color={effectiveSrc ? solidColor : '#ffffff'}
+                  layout={logoLayout} scaleFactor={isCircle ? 0.35 : 0.45}
+                  hideTagline={false} withBackground={false}
+                  taglineColor={effectiveSrc ? undefined : 'rgba(255,255,255,0.75)'}
+                  maxWidth="100%" maxHeight="100%" />
+              </div>
             </div>
           );
         })()}
@@ -63,13 +71,17 @@ function TagCard({ size, solidColor, c0, c1, paletteColors, effectiveSrc, patter
   return (
     <div style={{ ...containerStyle, background: '#fff', border: `6px solid ${solidColor}` }}>
       {/* Conteúdo verso centralizado */}
-      <div style={{ position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%)', width: '80%', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 10 }}>
-        {clinicaNome && <div style={{ fontSize: 15, fontWeight: 400, color: solidColor, fontFamily: "'Brush Script MT','Segoe Script','Dancing Script',cursive", textAlign: 'center', lineHeight: 1.3 }}>{clinicaNome}</div>}
+      {(() => {
+        const fs = Math.round(Math.min(W, H) * 0.075); // fonte proporcional ao item
+        const fsSmall = Math.round(fs * 0.72);
+        return <div style={{ position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%)', width: '76%', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: Math.round(fs * 0.4), overflow: 'hidden', maxHeight: '80%' }}>
+        {clinicaNome && <div style={{ fontSize: fs, fontWeight: 400, color: solidColor, fontFamily: "'Brush Script MT','Segoe Script','Dancing Script',cursive", textAlign: 'center', lineHeight: 1.3 }}>{clinicaNome}</div>}
         <div style={{ width: 24, height: 0.5, background: `${solidColor}60` }} />
-        {cartaoContacts?.telefone && <div style={{ fontSize: 11, fontWeight: 400, color: '#888', fontFamily: 'Montserrat,sans-serif', letterSpacing: '0.3px' }}>{cartaoContacts.telefone}</div>}
-        {cartaoContacts?.instagram && <div style={{ fontSize: 11, fontWeight: 400, color: '#888', fontFamily: 'Montserrat,sans-serif', letterSpacing: '0.3px' }}>@{cartaoContacts.instagram.replace('@','')}</div>}
-        {cartaoContacts?.site && <div style={{ fontSize: 10, fontWeight: 400, color: '#bbb', fontFamily: 'Montserrat,sans-serif', letterSpacing: '0.3px' }}>{cartaoContacts.site}</div>}
-      </div>
+        {cartaoContacts?.telefone && <div style={{ fontSize: fsSmall, fontWeight: 400, color: '#888', fontFamily: 'Montserrat,sans-serif', letterSpacing: '0.3px' }}>{cartaoContacts.telefone}</div>}
+        {cartaoContacts?.instagram && <div style={{ fontSize: fsSmall, fontWeight: 400, color: '#888', fontFamily: 'Montserrat,sans-serif', letterSpacing: '0.3px' }}>@{cartaoContacts.instagram.replace('@','')}</div>}
+        {cartaoContacts?.site && <div style={{ fontSize: Math.round(fsSmall * 0.9), fontWeight: 400, color: '#bbb', fontFamily: 'Montserrat,sans-serif', letterSpacing: '0.3px' }}>{cartaoContacts.site}</div>}
+      </div>;
+      })()}
     </div>
   );
 }

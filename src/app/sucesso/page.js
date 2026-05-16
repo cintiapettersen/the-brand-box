@@ -839,7 +839,7 @@ function CartaoStep({ brand, accentColor, paletteColors, marca, estampaPatterns,
   );
 }
 
-function EstampaStep({ brand, accentColor, marca, patterns, setPatterns, genCount, setGenCount, selectedIdx, setSelectedIdx, paletteColors, patternScale, setPatternScale }) {
+function EstampaStep({ brand, accentColor, marca, patterns, setPatterns, genCount, setGenCount, selectedIdx, setSelectedIdx, paletteColors, patternScale, setPatternScale, estampasRef }) {
   const [generating, setGenerating] = useState(false);
   const [showMockup, setShowMockup] = useState(false);
 
@@ -855,10 +855,12 @@ function EstampaStep({ brand, accentColor, marca, patterns, setPatterns, genCoun
       const paletas = brand.paletas || [];
       const sel = paletas.find(p => p.id === brand.selectedPaleta);
       const cores = sel?.paleta_hex || sel?.cores_hex || [];
-      const estampas = brand.estampas || [];
+      // Usa estampasRef (recuperadas do banco) se brand.estampas estiver vazio (sessão recarregada)
+      const estampas = (brand.estampas && brand.estampas.length > 0) ? brand.estampas : (estampasRef || []);
       // Sorteia as referências para garantir que não use sempre as mesmas 2
       const shuffled = [...estampas].sort(() => Math.random() - 0.5);
       const refs = shuffled.map(e => e.image_url).filter(Boolean);
+      console.log(`🎨 Gerando com ${refs.length} referência(s) do estilo ${brand.resultadoFinal?.estiloNome}`);
 
       const res = await fetch('/api/generate-pattern', {
         method: 'POST',
@@ -880,6 +882,26 @@ function EstampaStep({ brand, accentColor, marca, patterns, setPatterns, genCoun
           return next;
         });
         setGenCount(c => c + 1);
+
+        // Salva a estampa no Supabase Storage em background (persiste entre sessões)
+        // Tenta pegar sessionId da URL, senão do localStorage
+        const sessionId = typeof window !== 'undefined'
+          ? (new URLSearchParams(window.location.search).get('session') || localStorage.getItem('brandbox_session'))
+          : null;
+        if (sessionId && novos[0]?.base64) {
+          fetch('/api/salvar-estampa', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              base64: novos[0].base64,
+              mimeType: novos[0].mimeType || 'image/png',
+              sessionId,
+            }),
+          })
+          .then(r => r.json())
+          .then(r => { if (r.url) console.log('✅ Estampa salva no Supabase:', r.url); else console.warn('⚠️ Estampa não salva:', r.error); })
+          .catch(e => console.warn('⚠️ Erro ao salvar estampa:', e));
+        }
       }
     } catch (e) {
       console.error(e);
@@ -946,7 +968,7 @@ function EstampaStep({ brand, accentColor, marca, patterns, setPatterns, genCoun
               width: '100%', aspectRatio: '1 / 1', borderRadius: '16px',
               boxShadow: '0 8px 40px rgba(0,0,0,0.10)',
               backgroundImage: `url(${patternSrc})`,
-              backgroundSize: `${patternScale || 120}px`, backgroundRepeat: 'repeat',
+              backgroundSize: `${patternScale || 200}px`, backgroundRepeat: 'repeat',
             }} />
           )}
           {patterns.length > 1 && (
@@ -6047,9 +6069,10 @@ html, body { width:${totalW}mm; height:${totalH}mm; overflow:hidden; }
       const _tagCharW = _tagIsScript ? 0.42 : 0.55; // largura média por char em relação ao font-size
       const _tagBoxWmm = parseFloat(_tagBoxW);
       const _tagBoxHmm = parseFloat(_tagBoxH);
+      // 0.55 = preenche ~55% da largura (não 100% — tag é item pequeno, logo deve respirar)
       const _tagFontPt = Math.min(
-        Math.round(_tagBoxWmm / (_tagCharsForW * _tagCharW * 0.353)), // preenche largura
-        Math.round(_tagBoxHmm * 0.45 / 0.353)                        // não ultrapassa metade da altura
+        Math.round(_tagBoxWmm * 0.55 / (_tagCharsForW * _tagCharW * 0.353)),
+        Math.round(_tagBoxHmm * 0.35 / 0.353)
       ).toString();
       // withBackground dentro do genPDFLogoHtml usa padding:2px 4px (≈0.5mm) — sem box-sizing clash
       const _tagLogoInner = genPDFLogoHtml({
@@ -6058,7 +6081,8 @@ html, body { width:${totalW}mm; height:${totalH}mm; overflow:hidden; }
         fontPt: _tagFontPt, lineH: 1.1, letterSp: '0.5pt',
         layout: logoLayout || 'stacked',
         customLogoSrc: itemEditData?.customLogoSrc,
-        customLogoScale: getCustomLogoScale(item) * (ITEM_CUSTOM_BASE_SCALES[item] || 1),
+        // texto: customLogoScale=100 — fontPt já é o tamanho final, não re-escalar
+        customLogoScale: _hasImgT ? getCustomLogoScale(item) * (ITEM_CUSTOM_BASE_SCALES[item] || 1) : 100,
         maxWidth: _tagBoxW, maxHeight: _tagBoxH,
         withBackground: false,
         sloganColor: _hasPatternT ? undefined : 'rgba(255,255,255,0.75)',
@@ -7402,6 +7426,7 @@ function EntregaContent({ brand, plano }) {
   const [estampaPatterns, setEstampaPatterns] = useState(brand.pattern ? [brand.pattern] : []);
   const [estampaGenCount, setEstampaGenCount] = useState(brand.patternGenerationCount || 0);
   const [estampaSelectedIdx, setEstampaSelectedIdx] = useState(0);
+  const [estampasRef, setEstampasRef] = useState(brand.estampas || []);
 
   useEffect(() => {
     const pat = estampaPatterns[estampaSelectedIdx];
@@ -7580,6 +7605,46 @@ function EntregaContent({ brand, plano }) {
       const p = JSON.parse(localStorage.getItem('brandbox_pattern') || 'null'); if (p && !brand.pattern) setEstampaPatterns([p]);
       const crm = JSON.parse(localStorage.getItem('brandbox_crm') || 'null'); if (crm) setCrmDataState(crm);
     } catch {}
+
+    // Recupera estampa salva no Supabase Storage (imagem gerada anteriormente)
+    const estampaUrl = brand?.estampa_url;
+    if (estampaUrl && !brand.pattern) {
+      const patLocal = (() => { try { return JSON.parse(localStorage.getItem('brandbox_pattern') || 'null'); } catch { return null; } })();
+      if (!patLocal) {
+        fetch(estampaUrl)
+          .then(r => r.blob())
+          .then(blob => new Promise((resolve, reject) => {
+            const reader = new FileReader();
+            reader.onload = () => resolve({ base64: reader.result.split(',')[1], mimeType: blob.type });
+            reader.onerror = reject;
+            reader.readAsDataURL(blob);
+          }))
+          .then(({ base64, mimeType }) => {
+            const pat = { base64, mimeType };
+            setEstampaPatterns([pat]);
+            try { localStorage.setItem('brandbox_pattern', JSON.stringify(pat)); } catch {}
+          })
+          .catch(() => {});
+      }
+    }
+
+    // Re-busca as estampas de referência do estilo para que novas gerações
+    // usem as imagens corretas mesmo quando brand.estampas veio nulo do banco
+    const estiloId = brand?.resultadoFinal?.estiloId;
+    if (estiloId && (!brand.estampas || brand.estampas.length === 0)) {
+      fetch(`/api/variacoes?id=${estiloId}`)
+        .then(r => r.json())
+        .then(data => {
+          if (data.variacoes) {
+            const estampasDoBanco = data.variacoes.filter(v => v.tipo === 'ESTAMPA');
+            if (estampasDoBanco.length > 0) {
+              setEstampasRef(estampasDoBanco);
+              console.log(`✅ ${estampasDoBanco.length} referências de estilo recuperadas para geração.`);
+            }
+          }
+        })
+        .catch(() => {});
+    }
   }, []);
 
   const downloadCoresPNG = async () => {
@@ -7779,7 +7844,7 @@ function EntregaContent({ brand, plano }) {
         </div>
 
         {/* Área da estampa */}
-        {step === 'estampa' && <EstampaStep brand={brand} accentColor={accentColor} marca={marca} patterns={estampaPatterns} setPatterns={setEstampaPatterns} genCount={estampaGenCount} setGenCount={setEstampaGenCount} selectedIdx={estampaSelectedIdx} setSelectedIdx={setEstampaSelectedIdx} paletteColors={paletteColors} patternScale={patternScale} setPatternScale={setPatternScale} />}
+        {step === 'estampa' && <EstampaStep brand={brand} accentColor={accentColor} marca={marca} patterns={estampaPatterns} setPatterns={setEstampaPatterns} genCount={estampaGenCount} setGenCount={setEstampaGenCount} selectedIdx={estampaSelectedIdx} setSelectedIdx={setEstampaSelectedIdx} paletteColors={paletteColors} patternScale={patternScale} setPatternScale={setPatternScale} estampasRef={estampasRef} />}
 
         {/* Cores — prioridade/ordem */}
         {step === 'cores' && <CoresPrioridadeStep paletteColors={paletteColors} colorOrder={colorOrder} setColorOrder={setColorOrder} accentColor={accentColor} />}
@@ -8276,7 +8341,7 @@ function SucessoContent() {
     localStorage.removeItem('brandbox_step');
 
     const loadData = async () => {
-      // 1. Prioridade: Supabase (URL session param)
+      // 1. Prioridade: API Route server-side (usa service role, bypassa RLS)
       if (sessionParam) {
         localStorage.setItem('brandbox_session', sessionParam);
         
@@ -8287,13 +8352,11 @@ function SucessoContent() {
         while (attempts < maxAttempts && !success) {
           attempts++;
           try {
-            const { data, error } = await supabase
-              .from('entregas')
-              .select('brand_data, plano, email, marca, email_enviado')
-              .eq('id', sessionParam)
-              .single();
+            const res = await fetch(`/api/get-entrega?id=${sessionParam}`);
+            const json = await res.json();
+            const data = json.data;
 
-            if (!error && data && data.brand_data) {
+            if (res.ok && data && data.brand_data) {
               const brandFromDb = data.brand_data;
               try {
                 localStorage.setItem('brandbox_delivery', JSON.stringify(brandFromDb));
@@ -8314,18 +8377,21 @@ function SucessoContent() {
                   headers: { 'Content-Type': 'application/json' },
                   body: JSON.stringify({ email: data.email, marca: data.marca, sessionId: sessionParam, plano: derivedPlano }),
                 }).then(() => {
-                  supabase.from('entregas').update({ email_enviado: true }).eq('id', sessionParam).then();
+                  fetch('/api/get-entrega', {
+                    method: 'PATCH',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ sessionId: sessionParam }),
+                  }).catch(() => {});
                 }).catch(() => {});
               }
               success = true;
               return; 
             }
           } catch (e) { 
-            console.warn(`Supabase fetch attempt ${attempts} failed:`, e); 
+            console.warn(`Fetch attempt ${attempts} failed:`, e); 
           }
           
           if (!success && attempts < maxAttempts) {
-            // Espera 1.5s antes de tentar de novo
             await new Promise(resolve => setTimeout(resolve, 1500));
           }
         }

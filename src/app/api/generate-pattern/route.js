@@ -38,9 +38,9 @@ export async function POST(req) {
 
     // Gerar 3 variações com profundidades diferentes de criatividade
     const variationPrompts = [
-      `REPLICATE THE ARTISTIC DNA: Follow the exact drawing technique and architecture of the reference image. FULL BLEED - NO WHITE MARGINS - NO BORDERS. Art must reach the absolute pixel edge. 80% DNA, 20% professional SEAMLESS TILE. Absolute pixel continuity. Colors ONLY: ${coresStr}.`,
-      `STYLISTIC EVOLUTION: Maintain visual soul but explore NEW COMPOSITION. FULL BLEED - NO BORDERS. Technically perfect infinite repeat tile. No visible seams. High-fidelity textile print standard. Colors: ONLY ${coresStr}.`,
-      `BRAND FAMILY VARIATION: Create an original repeatable pattern tile in the same "collection" as the reference. FULL BLEED - NO VIGNETTES. Strictly seamless, 100% fluid repeat to the absolute edge. Colors: ONLY ${coresStr}.`
+      `You are generating a SINGLE TILE of a seamless repeating surface pattern. This tile will be repeated infinitely in all directions. CRITICAL REQUIREMENT: Every element (shape, dot, leaf, flower, brushstroke) that touches or crosses the edge of the image MUST continue and reappear on the exact opposite edge — top-to-bottom and left-to-right — so the tile repeats with ZERO visible seams or borders. Replicate the artistic DNA of the reference: same drawing technique, same element types, same scale. Colors ONLY: ${coresStr}. Style: ${hint}. White or light background. NO white margins, NO vignettes, NO drop shadows near edges. The pattern must fill edge-to-edge.`,
+      `Create ONE TILE of an infinitely repeating seamless surface pattern. The tile must be perfectly wrappable: any motif that exits from the right edge must re-enter from the left; any motif that exits from the bottom must re-enter from the top. This ensures zero-seam infinite repeat. Maintain the visual style and element types from the reference image. Colors ONLY: ${coresStr}. Style: ${hint}. Flat illustration, white background, full bleed to all four edges.`,
+      `Design a seamless repeat tile for a premium brand textile pattern. SEAMLESS means: motifs that cross any edge are cut in half, with the other half appearing on the opposite edge. Test: if you fold this image into a torus, no seam should appear. Inspired by the reference style. Colors ONLY: ${coresStr}. Style: ${hint}. Edge-to-edge, no borders, no margins.`
     ];
 
     for (let i = 0; i < 3; i++) {
@@ -87,7 +87,7 @@ export async function POST(req) {
         const remaining = 3 - results.length;
         const response = await ai.models.generateImages({
           model: 'imagen-4.0-generate-001',
-          prompt: `A technically perfect, strictly seamless tileable surface pattern for a professional brand. Style: ${estiloNome}. Elements MUST wrap around boundaries for 100% infinite and fluid repeat. NO SEAMS, NO BORDERS. Colors: ONLY ${coresStr}. White background. Flat vector illustration style. Edge-to-edge continuity is mandatory.`,
+          prompt: `A single tile of a perfectly seamless repeating surface pattern for a professional brand. Style: ${estiloNome}, ${hint}. SEAMLESS means elements that exit one edge reappear on the opposite edge — top wraps to bottom, left wraps to right — creating zero-seam infinite repeat. Colors ONLY: ${coresStr}. White background. Flat vector illustration. Edge-to-edge, full bleed, no margins, no vignettes.`,
           config: { numberOfImages: remaining },
         });
 
