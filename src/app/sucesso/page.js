@@ -2219,9 +2219,12 @@ function CartaoDeVisitaPreview({ accentColor, patternSrc, cartaoContacts, crmLin
             background: (comBorda && patternSrc) ? 'rgba(255,255,255,0.92)' : 'transparent',
             padding: (comBorda && patternSrc) ? '10px 12px 8px' : '0',
             borderRadius: '4px',
+            maxHeight: `${Math.round(CH * 0.80)}px`,
+            overflow: 'hidden',
           }}>
             {editData?.customLogoSrc ? (
-              <div style={{ display: 'inline-flex', maxWidth: isHorizontal ? `${Math.round(CW*0.70)}px` : `${Math.round(CW*0.56)}px`, maxHeight: retrato ? `${Math.round(CH*0.32)}px` : `${Math.round(CH*0.40)}px`, overflow: 'hidden', alignItems: 'center', justifyContent: 'center' }}>
+              // imagem: sem maxHeight fixo — deixa imagem mostrar tamanho real, card clipa nas bordas
+              <div style={{ display: 'inline-flex', maxWidth: isHorizontal ? `${Math.round(CW*0.70)}px` : `${Math.round(CW*0.56)}px`, alignItems: 'center', justifyContent: 'center' }}>
                 <LogoPreviewHTML item="Cartão de Visita" editData={editData} color={logoColor} layout={logoLayout} crm={crmLine} hideTagline={hideTagline} scaleFactor={0.85} withBackground={false} maxWidth="100%" maxHeight="100%" />
               </div>
             ) : (
