@@ -88,7 +88,7 @@ export default function EtiquetaCorreiosPreview({
           <div style={{ position: 'absolute', inset: W * 0.04, border: '1px solid rgba(255,255,255,0.45)', borderRadius: 7, pointerEvents: 'none' }} />
 
           {/* Card branco semitransparente atrás do conteúdo */}
-          <div style={{ position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%)', width: '82%', minHeight: '72%', background: 'rgba(255,255,255,0.82)', borderRadius: 8, padding: `${W * 0.07}px ${W * 0.06}px`, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: W * 0.032, backdropFilter: 'blur(4px)' }}>
+          <div style={{ position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%)', width: '82%', minHeight: '72%', maxHeight: '85%', overflow: 'hidden', background: 'rgba(255,255,255,0.82)', borderRadius: 8, padding: `${W * 0.07}px ${W * 0.06}px`, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: W * 0.032, backdropFilter: 'blur(4px)' }}>
 
             {/* Frase */}
             <div style={{ fontSize: size.scale * 0.58, fontWeight: 800, color: solidColor, fontFamily: 'Montserrat,sans-serif', textAlign: 'center', lineHeight: 1.2 }}>
@@ -99,8 +99,8 @@ export default function EtiquetaCorreiosPreview({
             <div style={{ width: '30%', height: '0.5px', background: solidColor + '50' }} />
 
             {/* Logo */}
-            <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', width: '100%', height: size.h * 6 }}>
-              <LogoPreviewHTML editData={editData} color={solidColor} layout={logoLayout} scaleFactor={0.6} hideTagline={false} maxWidth="100%" maxHeight="100%" />
+            <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', width: '100%', height: size.h * 9 }}>
+              <LogoPreviewHTML editData={editData} color={solidColor} layout={logoLayout} scaleFactor={0.85} hideTagline={false} maxWidth="100%" maxHeight="100%" />
             </div>
 
             {/* Contatos com ícones */}

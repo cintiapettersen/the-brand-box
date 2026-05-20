@@ -105,7 +105,9 @@ export function LogoPreviewHTML({ item = null, editData, color, layout = 'stacke
   const isScript = editData?.fontStyle === 'script';
   const sizeBoost = editData?.fontSizeBoost || 1;
   const baseScale = (item && ITEM_CUSTOM_BASE_SCALES[item]) || 1;
-  const effectiveScaleFactor = scaleFactor * (customLogoScale / 100) * baseScale;
+  // BASE_SCALES foi criado para boostar logos de texto pequenos — não deve amplificar logo imagem
+  const effectiveBaseScale = customLogoSrc ? 1 : baseScale;
+  const effectiveScaleFactor = scaleFactor * (customLogoScale / 100) * effectiveBaseScale;
   const marca = editData?.marca || '';
   const words = marca.split(' ').map(w => isScript ? w.charAt(0).toUpperCase() + w.slice(1).toLowerCase() : w.toUpperCase());
 
@@ -163,8 +165,8 @@ export function LogoPreviewHTML({ item = null, editData, color, layout = 'stacke
   }, [editData, effectiveScaleFactor, targetMaxW, targetMaxH, layout, crm, hideTagline, autoFit, maxWidth, maxHeight, withBackground, forceTrigger, customLogoSrc]);
 
   if (customLogoSrc) {
-    const baseScale = (item && ITEM_CUSTOM_BASE_SCALES[item]) || 1;
-    const scaleMultiplier = (customLogoScale / 100) * baseScale * scaleFactor;
+    // BASE_SCALES não amplifica logo imagem — só texto pequeno precisa do boost
+    const scaleMultiplier = (customLogoScale / 100) * scaleFactor;
     const explicitMaxH = (maxHeight && !String(maxHeight).includes('%')) ? parseInt(maxHeight) : null;
     const explicitMaxW = (maxWidth && !String(maxWidth).includes('%')) ? parseInt(maxWidth) : null;
     const baseH = 60; // Altura base fixa para imagens no preview
@@ -2267,16 +2269,17 @@ function CartaoDeVisitaPreview({ accentColor, patternSrc, cartaoContacts, crmLin
           {/* Fundo branco com padding (visual) envolve container interno (medido pelo autoFit) */}
           <div style={{
             display: 'flex', alignItems: 'center', justifyContent: 'center',
-            background: (comBorda && patternSrc) ? 'rgba(255,255,255,0.92)' : 'transparent',
-            padding: (comBorda && patternSrc) ? '10px 12px 8px' : '0',
-            borderRadius: '4px',
-            maxHeight: `${Math.round(CH * 0.80)}px`,
+            background: patternSrc ? 'rgba(255,255,255,0.82)' : 'rgba(255,255,255,0.72)',
+            padding: retrato ? '12px 14px' : '10px 16px 8px',
+            borderRadius: '6px',
+            maxWidth: retrato ? `${Math.round(CW * 0.76)}px` : undefined,
+            maxHeight: `${Math.round(CH * (retrato ? 0.58 : 0.94))}px`,
             overflow: 'hidden',
           }}>
             {editData?.customLogoSrc ? (
               // imagem: sem maxHeight fixo — deixa imagem mostrar tamanho real, card clipa nas bordas
-              <div style={{ display: 'inline-flex', maxWidth: isHorizontal ? `${Math.round(CW*0.70)}px` : `${Math.round(CW*0.56)}px`, alignItems: 'center', justifyContent: 'center' }}>
-                <LogoPreviewHTML item="Cartão de Visita" editData={editData} color={logoColor} layout={logoLayout} crm={crmLine} hideTagline={hideTagline} scaleFactor={0.85} withBackground={false} maxWidth="100%" maxHeight="100%" />
+              <div style={{ display: 'inline-flex', maxWidth: isHorizontal ? `${Math.round(CW*0.95)}px` : `${Math.round(CW*0.82)}px`, alignItems: 'center', justifyContent: 'center' }}>
+                <LogoPreviewHTML item="Cartão de Visita" editData={editData} color={logoColor} layout={logoLayout} crm={crmLine} hideTagline={hideTagline} scaleFactor={1.1} withBackground={false} maxWidth="100%" maxHeight="100%" />
               </div>
             ) : (
               <div style={{ display: 'flex', width: isHorizontal ? `${Math.round(CW*0.62)}px` : `${Math.round(CW*0.50)}px`, height: retrato ? `${Math.round(CH*0.30)}px` : `${Math.round(CH*0.38)}px`, overflow: 'hidden', alignItems: 'center', justifyContent: 'center' }}>
@@ -2518,7 +2521,7 @@ function ProntuarioPreview({ accentColor, patternSrc, editData, logoColor, logoL
             : <div style={{ position: 'absolute', inset: 0, background: solidColor }} />}
           <div style={{ position: 'absolute', top: BORDER, left: BORDER, right: BORDER, bottom: BORDER, background: '#fff', padding: '12px 14px' }}>
             <div style={{ width: '100%', height: '80px', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', marginBottom: '10px', overflow: 'hidden' }}>
-              <LogoPreviewHTML item="Prontuário Médico" editData={editData} color={logoColor} layout={logoLayout} scaleFactor={0.75} crm={crmLine} hideTagline={hideTagline} withBackground={comBorda && !!patternSrc} maxWidth="100%" maxHeight="100%" />
+              <LogoPreviewHTML item="Prontuário Médico" editData={editData} color={logoColor} layout={logoLayout} scaleFactor={0.6} crm={crmLine} hideTagline={hideTagline} withBackground={comBorda && !!patternSrc} maxWidth="100%" maxHeight="100%" />
             </div>
             <div style={{ border: '0.4px solid #eee', borderRadius: '2px', padding: '6px 7px', display: 'flex', flexDirection: 'column', gap: '3.5px', marginTop: '2px' }}>
               {formRow('PACIENTE:', 'DATA DE NASCIMENTO:')}
@@ -2595,19 +2598,18 @@ function DiarioXixiPreview({ accentColor, patternSrc, editData, logoColor, logoL
           : <div style={{ position: 'absolute', inset: 0, background: solidColor }} />}
         
         <div style={{ position: 'absolute', top: BORDER, left: BORDER, right: BORDER, bottom: BORDER + 2, background: '#fff', padding: '10px 15px', display: 'flex', flexDirection: 'column' }}>
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '8px' }}>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
-              <div style={{ background: '#f5f5f5', padding: '4px 12px', borderRadius: '4px', border: '0.4px solid #ddd', alignSelf: 'flex-start' }}>
-                <span style={{ fontSize: '11px', fontWeight: 800, color: '#333', letterSpacing: '1px' }}>DIÁRIO DO XIXI (HÁBITO MICCIONAL)</span>
-              </div>
-              <div style={{ fontSize: '7px', color: accentColor, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.5px' }}>Controle de Escapes e Enurese (Xixi na Cama)</div>
-              <div style={{ display: 'flex', gap: '6px', alignItems: 'flex-end', marginTop: '2px' }}>
-                <span style={{ fontSize: '11px', fontFamily: "'Montserrat', sans-serif", color: accentColor, fontWeight: 300, fontStyle: 'italic' }}>Nome:</span>
-                <div style={{ flex: 1, borderBottom: '1px dashed #ccc', width: '230px', marginBottom: '2px' }} />
-              </div>
+          {/* Logo posicionada absolutamente no canto superior direito */}
+          <div style={{ position: 'absolute', top: 4, right: BORDER + 8, width: '140px', height: '65px', overflow: 'hidden', display: 'flex', alignItems: 'center', justifyContent: 'flex-end' }}>
+            <LogoPreviewHTML item="Diário do Xixi" editData={editData} color={logoColor} layout={logoLayout} scaleFactor={0.6} crm={crmLine} hideTagline={hideTagline} withBackground={comBorda && !!patternSrc} maxWidth="100%" maxHeight="100%" />
+          </div>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '4px', marginBottom: '8px' }}>
+            <div style={{ background: '#f5f5f5', padding: '4px 12px', borderRadius: '4px', border: '0.4px solid #ddd', alignSelf: 'flex-start', maxWidth: '270px' }}>
+              <span style={{ fontSize: '10px', fontWeight: 800, color: '#333', letterSpacing: '0.5px', whiteSpace: 'nowrap' }}>DIÁRIO DO XIXI (HÁBITO MICCIONAL)</span>
             </div>
-            <div style={{ width: '130px', height: '70px', overflow: 'hidden', display: 'flex', flexDirection: 'column', alignItems: 'flex-end', justifyContent: 'center', marginTop: '2px' }}>
-              <LogoPreviewHTML item="Diário do Xixi" editData={editData} color={logoColor} layout={logoLayout} scaleFactor={0.45} crm={crmLine} hideTagline={hideTagline} withBackground={comBorda && !!patternSrc} maxWidth="100%" maxHeight="100%" />
+            <div style={{ fontSize: '7px', color: accentColor, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.5px' }}>Controle de Escapes e Enurese (Xixi na Cama)</div>
+            <div style={{ display: 'flex', gap: '6px', alignItems: 'flex-end', marginTop: '2px' }}>
+              <span style={{ fontSize: '11px', fontFamily: "'Montserrat', sans-serif", color: accentColor, fontWeight: 300, fontStyle: 'italic' }}>Nome:</span>
+              <div style={{ flex: 1, borderBottom: '1px dashed #ccc', width: '230px', marginBottom: '2px' }} />
             </div>
           </div>
 
@@ -2707,8 +2709,8 @@ function FichaCadastroPreview({ accentColor, patternSrc, editData, logoColor, lo
               <div style={{ width: '80px', height: '10px', background: '#e6e3df', borderRadius: '1px' }} />
             </div>
           </div>
-          <div style={{ width: '150px', height: '60px', overflow: 'hidden', display: 'flex', flexDirection: 'column', alignItems: 'flex-end', justifyContent: 'center', marginTop: '0px' }}>
-            <LogoPreviewHTML item="Ficha de Cadastro" editData={editData} color={logoColor} layout={logoLayout} scaleFactor={0.3} crm={crmLine} hideTagline={hideTagline} withBackground={!!effectiveSrc} maxWidth="100%" maxHeight="100%" alignLeft={false} />
+          <div style={{ width: '190px', height: '80px', overflow: 'hidden', display: 'flex', flexDirection: 'column', alignItems: 'flex-end', justifyContent: 'center', marginTop: '-10px' }}>
+            <LogoPreviewHTML item="Ficha de Cadastro" editData={editData} color={logoColor} layout={logoLayout} scaleFactor={0.6} crm={crmLine} hideTagline={hideTagline} withBackground={!!effectiveSrc} maxWidth="100%" maxHeight="100%" alignLeft={false} />
           </div>
         </div>
 
@@ -2818,8 +2820,8 @@ function ReciboPreview({ accentColor, patternSrc, editData, logoColor, logoLayou
         <div style={{ position: 'absolute', top: BORDER, left: BORDER, right: BORDER, bottom: BORDER, background: '#fff', display: 'flex', flexDirection: 'column', padding: '12px 10px' }}>
           
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '12px', paddingBottom: '4px', borderBottom: '0.1mm solid #f0f0f0' }}>
-            <div style={{ width: '130px', height: '55px', display: 'flex', alignItems: 'center', overflow: 'hidden' }}>
-               <LogoPreviewHTML item="Recibo" editData={editData} color={logoColor} layout={logoLayout} scaleFactor={0.85} crm={crmLine} hideTagline={hideTagline} withBackground={!!effectiveSrc} alignLeft={true} maxWidth="100%" maxHeight="100%" />
+            <div style={{ width: '130px', height: '45px', display: 'flex', alignItems: 'center', overflow: 'hidden' }}>
+               <LogoPreviewHTML item="Recibo" editData={editData} color={logoColor} layout={logoLayout} scaleFactor={0.55} crm={crmLine} hideTagline={hideTagline} withBackground={!!effectiveSrc} alignLeft={true} maxWidth="100%" maxHeight="100%" />
             </div>
             <div style={{ textAlign: 'right' }}>
               <div style={{ fontSize: '12px', fontWeight: 800, color: accentColor, opacity: 0.12, letterSpacing: '2px' }}>RECIBO</div>
@@ -3012,7 +3014,7 @@ function ChecklistMaternidadePreview({ accentColor, patternSrc, editData, logoCo
           <div style={{ flex: 1, display: 'flex', flexDirection: 'column', padding: '12px 5px 3px 5px', gap: '3px', overflow: 'hidden' }}>
             {/* Logo centralizada no topo */}
             <div style={{ width: '100%', height: '55px', display: 'flex', justifyContent: 'center', alignItems: 'center', borderBottom: `0.4px solid ${accentColor}25`, marginBottom: '4px', overflow: 'hidden' }}>
-              <LogoPreviewHTML item="Checklist Maternidade" editData={editData} color={logoColor} layout={logoLayout} scaleFactor={1.1} crm={crmLine} withBackground={comBorda && !!patternSrc} maxWidth="100%" maxHeight="100%" />
+              <LogoPreviewHTML item="Checklist Maternidade" editData={editData} color={logoColor} layout={logoLayout} scaleFactor={0.6} crm={crmLine} withBackground={comBorda && !!patternSrc} maxWidth="100%" maxHeight="100%" />
             </div>
             {/* Grid 2x2 */}
             <div style={{ flex: 1, display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '4px', padding: '2px 4px 6px' }}>
@@ -3090,12 +3092,12 @@ function OrientacoesRNPreview({ accentColor, patternSrc, editData, logoColor, lo
         <div style={{ position: 'absolute', top: BORDER, left: BORDER, right: BORDER, bottom: BORDER, background: '#fff', display: 'flex', flexDirection: 'column', overflow: 'hidden', zIndex: 1, isolation: 'isolate' }}>
 
           {/* CABEÇALHO */}
-          <div style={{ background: c0, padding: '3px 6px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexShrink: 0 }}>
+          <div style={{ background: solidColor, padding: '3px 6px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexShrink: 0 }}>
             <div style={{ fontSize: '5.5px', fontWeight: 900, color: '#fff', textTransform: 'uppercase', letterSpacing: '0.3px', fontFamily: 'Montserrat,sans-serif', lineHeight: 1.2 }}>
               OS PRIMEIROS DIAS<br/>COM MEU BEBÊ
             </div>
-            <div style={{ width: '80px', height: '30px', display: 'flex', alignItems: 'center', justifyContent: 'flex-end', flexShrink: 0 }}>
-              <LogoPreviewHTML item="Certificado de Coragem" editData={editData} color={'#fff'} layout={logoLayout} scaleFactor={0.12} crm={null} hideTagline maxWidth="100%" maxHeight="100%" />
+            <div style={{ width: '110px', height: '45px', display: 'flex', alignItems: 'center', justifyContent: 'flex-end', flexShrink: 0 }}>
+              <LogoPreviewHTML item="Orientações p/ Recém Nascidos" editData={editData} color={'#fff'} layout={logoLayout} scaleFactor={0.40} crm={null} hideTagline maxWidth="100%" maxHeight="100%" />
             </div>
           </div>
 
@@ -3310,7 +3312,7 @@ function FolderTrifoldPreview({ brand, editData, logoColor, logoLayout, comBorda
   const endereco = cartaoContacts?.endereco || brand?.endereco || brand?.editData?.endereco || 'Endereço não informado';
 
   const allPhones = [cartaoContacts?.whatsapp, cartaoContacts?.telefone].filter(Boolean).join(' · ');
-  const logoHtml = <LogoPreviewHTML item={title} editData={_brandData} color={logoColor} layout={logoLayout} scaleFactor={0.16} crm={crmLine} maxWidth="100%" maxHeight="100%" />;
+  const logoHtml = <LogoPreviewHTML item={title} editData={_brandData} color={logoColor} layout={logoLayout} scaleFactor={0.45} crm={crmLine} maxWidth="100%" maxHeight="100%" />;
   const _borderColor = borderColor || accentColor;
   
   // Página do Folder (A5 148x210mm)
@@ -3513,7 +3515,7 @@ function FolderTrifoldPreview({ brand, editData, logoColor, logoLayout, comBorda
 function FolderA5Preview({ brand, editData, logoColor, logoLayout, comBorda, setComBorda, patternSrc, patternScale, setPatternScale, accentColor, borderColor, setBorderColor, paletteColors, title, cartaoContacts, crmLine, folderRoof }) {
   const mainColor = paletteColors?.[0] || accentColor;
   const _brandData = editData || brand.editData || {};
-  const logoHtml = <LogoPreviewHTML editData={_brandData} color={logoColor} layout={logoLayout} scaleFactor={0.16} crm={crmLine} maxWidth="100%" maxHeight="100%" />;
+  const logoHtml = <LogoPreviewHTML editData={_brandData} color={logoColor} layout={logoLayout} scaleFactor={0.45} crm={crmLine} maxWidth="100%" maxHeight="100%" />;
 
   const getTitleData = (raw) => {
     if (raw.includes('Alimentar')) return { pre: 'GUIA DE', main: 'INTRODUÇÃO ALIMENTAR', tagline: 'Nutrição e Saúde para o seu Bebê' };
@@ -3562,7 +3564,7 @@ function FolderA5Preview({ brand, editData, logoColor, logoLayout, comBorda, set
         </div>
         <div style={{ display: 'flex', boxShadow: '0 20px 50px rgba(0,0,0,0.1)', borderRadius: '4px', overflow: 'hidden', background: '#fff' }}>
           <Page num={4} withPattern><PrenatalPage4 accentColor={accentColor} palette={paletteColors} comBorda={comBorda} patternSrc={patternSrc} patternScale={patternScale} borderColor={borderColor} /></Page>
-          <Page num={1} withPattern><PrenatalPage1 accentColor={accentColor} palette={paletteColors} logoComponent={<LogoPreviewHTML editData={_brandData} color={logoColor} layout={logoLayout} scaleFactor={0.30} crm={crmLine} maxWidth="100%" maxHeight="100%" />} folderRoof={folderRoof} tagline={finalTagline} comBorda={comBorda} patternSrc={patternSrc} patternScale={patternScale} borderColor={borderColor} /></Page>
+          <Page num={1} withPattern><PrenatalPage1 accentColor={accentColor} palette={paletteColors} logoComponent={<LogoPreviewHTML editData={_brandData} color={logoColor} layout={logoLayout} scaleFactor={0.45} crm={crmLine} maxWidth="100%" maxHeight="100%" />} folderRoof={folderRoof} tagline={finalTagline} comBorda={comBorda} patternSrc={patternSrc} patternScale={patternScale} borderColor={borderColor} /></Page>
         </div>
       </div>
 
@@ -3699,8 +3701,8 @@ function PapelTimbradoPreview({ brand, editData, accentColor, patternSrc, logoCo
           : <div style={{ position: 'absolute', inset: 0, background: '#fff', border: `${BORDER}px solid ${solidColor}` }} />}
         
         {/* Top Logo */}
-        <div style={{ position: 'absolute', top: BORDER + 8, left: '50%', transform: 'translateX(-50%)', width: '100px', display: 'flex', justifyContent: 'center' }}>
-          <LogoPreviewHTML editData={editData} color={logoColor} layout={logoLayout} scaleFactor={0.35} crm={crmLine} />
+        <div style={{ position: 'absolute', top: BORDER + 8, left: '50%', transform: 'translateX(-50%)', width: '160px', display: 'flex', justifyContent: 'center' }}>
+          <LogoPreviewHTML editData={editData} color={logoColor} layout={logoLayout} scaleFactor={0.6} crm={crmLine} />
         </div>
 
         {/* Central Watermark */}
@@ -3925,8 +3927,8 @@ function EnvelopeSacoPreview({ brand, editData, accentColor, patternSrc, logoCol
             {/* Aba superior */}
             <div style={{ position: 'absolute', top: 0, left: 0, right: 0, height: '45px', background: abaColor, opacity: 0.9, zIndex: 5 }} />
             {/* Etiqueta com logo — centralizada na área abaixo da aba */}
-            <div style={{ position: 'absolute', top: '172px', left: '50%', transform: 'translate(-50%, -50%)', padding: '8px 12px', background: 'rgba(255,255,255,0.97)', backdropFilter: 'blur(4px)', borderRadius: '2px', border: '0.5px solid #ddd', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', width: '110px', height: '55px' }}>
-              <LogoPreviewHTML item="Envelope Saco" editData={{ ...editData, tagline: localSlogan }} color={logoColor} layout={logoLayout} scaleFactor={0.7} crm={crmLine} withBackground={false} maxWidth="100%" maxHeight="100%" />
+            <div style={{ position: 'absolute', top: '172px', left: '50%', transform: 'translate(-50%, -50%)', padding: '12px 16px', background: 'rgba(255,255,255,0.93)', borderRadius: '4px', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', width: '160px', height: '100px' }}>
+              <LogoPreviewHTML item="Envelope Saco" editData={{ ...editData, tagline: localSlogan }} color={logoColor} layout={logoLayout} scaleFactor={0.80} crm={crmLine} withBackground={false} maxWidth="100%" maxHeight="100%" />
             </div>
           </div>
         </div>
@@ -3978,14 +3980,12 @@ function EnvelopeOficioPreview({ brand, editData, accentColor, patternSrc, logoC
           <div style={{ width: '310px', height: '160px', position: 'relative', backgroundColor: comBorda && patternSrc ? 'transparent' : '#fff', backgroundImage: comBorda && patternSrc ? `url(${patternSrc})` : 'none', backgroundSize: `${(patternScale || 150) / 4}px`, boxShadow: '0 4px 20px rgba(0,0,0,0.1)', borderRadius: '4px', overflow: 'hidden' }}>
             {/* Aba sólida no preview frontal */}
             <div style={{ position: 'absolute', top: 0, left: 0, right: 0, height: '35px', background: abaColor, opacity: 0.9, zIndex: 2 }} />
-            <div style={{ position: 'absolute', bottom: '8px', right: '8px', width: '120px', height: '45px', display: 'flex', justifyContent: 'flex-end', alignItems: 'center' }}>
-              {effectiveSrc ? (
-                <div style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', background: 'rgba(255,255,255,0.92)', padding: '6px 12px', borderRadius: '4px', backdropFilter: 'blur(2px)', maxWidth: '100%', height: '100%' }}>
-                  <LogoPreviewHTML item="Envelope Ofício" editData={{ ...editData, tagline: localSlogan }} color={logoColor} layout={logoLayout} scaleFactor={1.8} crm={crmLine} withBackground={false} maxWidth="116px" maxHeight="43px" />
-                </div>
-              ) : (
-                <LogoPreviewHTML item="Envelope Ofício" editData={{ ...editData, tagline: localSlogan }} color={logoColor} layout={logoLayout} scaleFactor={1.8} crm={crmLine} withBackground={false} maxWidth="120px" maxHeight="45px" />
-              )}
+            <div style={{ position: 'absolute', bottom: '8px', right: '10px', width: '110px', height: '50px', zIndex: 10, borderRadius: '3px' }}>
+              {/* Camada branca separada */}
+              <div style={{ position: 'absolute', inset: 0, backgroundColor: '#ffffff', opacity: 0.93, borderRadius: '3px' }} />
+              <div style={{ position: 'relative', width: '100%', height: '100%', overflow: 'hidden', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '3px 6px' }}>
+                <LogoPreviewHTML item="Envelope Ofício" editData={{ ...editData, tagline: localSlogan }} color={logoColor} layout={logoLayout} scaleFactor={0.65} crm={crmLine} withBackground={false} maxWidth="100%" maxHeight="100%" />
+              </div>
             </div>
           </div>
         </div>
@@ -4078,7 +4078,7 @@ function PastaPreview({ brand, editData, accentColor, solidColor, logoColor, log
                   fontFamily: 'Montserrat, sans-serif', lineHeight: 1.5, textAlign: 'right', flex: 1
                 }}>
                   {clinicaNome && (
-                    <div style={{ fontFamily: brandFont, fontSize: '6px', color: accentColor, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.3px', marginBottom: '1px' }}>{clinicaNome}</div>
+                    <div style={{ fontFamily: brandFont, fontSize: '6px', color: accentColor, fontWeight: 700, letterSpacing: '0.3px', marginBottom: '1px' }}>{clinicaNome}</div>
                   )}
                   {endereco && <div style={{ opacity: 0.8 }}>{endereco}</div>}
                   {allPhones && <div style={{ fontWeight: 600 }}>{allPhones}</div>}
@@ -4447,7 +4447,7 @@ function PapelariaStep({ brand, accentColor, paletteColors, estampaPatterns, est
     const _psLower = (paperSize || '').toLowerCase();
     const _isA4Global = _psLower.includes('a4') || ['Receita de Alta', 'Timbrado', 'Diário', 'Ficha', 'Cadastro', 'Prontuário', 'Checklist', 'Orientação'].some(n => item.includes(n));
     const _globalBoost = (['Receituário', 'Recibo', 'Ficha', 'Prontuário', 'Certificado', 'Atestado'].some(n => item.includes(n)) || _isA4Global) ? 1.0 : 1.0;
-    const _logoWidthMmGlobal = _isA4Global ? 150 : 100;
+    const _logoWidthMmGlobal = 100; // padronizado: A4 e A5 usam mesma caixa de logo
     
     const logoHtmlWithCrm = genPDFLogoHtml({
       brand,
@@ -4462,7 +4462,7 @@ function PapelariaStep({ brand, accentColor, paletteColors, estampaPatterns, est
       customLogoSrc,
       customLogoScale: customLogoSrc ? getCustomLogoScale(item) * (ITEM_CUSTOM_BASE_SCALES[item] || 1) : 100,
       maxWidth: `${_logoWidthMmGlobal}mm`,
-      maxHeight: _isA4Global ? '68mm' : '36mm'
+      maxHeight: '36mm'
     });
     const logoHtml = logoHtmlWithCrm;
 
@@ -4660,7 +4660,7 @@ ${renderPage('menino','verso')}
 
       const sec = (label, color, content) => `<div style="margin-bottom:6mm;"><div>${lbl(label,color)}</div><div style="font-size:9pt;color:#444;line-height:1.5;margin-top:1.5mm;font-weight:500;">${content}</div></div>`;
       const bul = (text) => `<div style="display:flex;gap:1.5mm;margin-bottom:1.2mm;"><span style="color:${c0rn};font-weight:900;">•</span><span style="font-size:7.5pt;color:#444;line-height:1.4;">${text}</span></div>`;
-      const logoHtmlRN = genPDFLogoHtml({ brand, editDataOverride: editData, color: '#fff', localSlogan, crmLine, fontPt: 24, lineH: 1.1, letterSp: editData?.fontLetterSpacing || brand.editData?.fontLetterSpacing || '0.5pt', layout: logoLayout, hideSlogan: true, crmSize: '0', customLogoSrc, customLogoScale: customLogoSrc ? getCustomLogoScale(item) * (ITEM_CUSTOM_BASE_SCALES[item] || 1) : 100, maxWidth: '60mm', maxHeight: '26mm', withBackground: false });
+      const logoHtmlRN = genPDFLogoHtml({ brand, editDataOverride: editData, color: '#fff', localSlogan, crmLine, fontPt: 24, lineH: 1.1, letterSp: editData?.fontLetterSpacing || brand.editData?.fontLetterSpacing || '0.5pt', layout: logoLayout, hideSlogan: true, crmSize: '0', customLogoSrc, customLogoScale: customLogoSrc ? getCustomLogoScale(item) * (ITEM_CUSTOM_BASE_SCALES[item] || 1) : 100, maxWidth: '100mm', maxHeight: '36mm', withBackground: false });
 
       const html = `<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Orientações RN - ${marca}</title>${fiRN}
 <style>* { box-sizing:border-box; margin:0; padding:0; print-color-adjust:exact !important; -webkit-print-color-adjust:exact !important; }
@@ -4684,17 +4684,17 @@ body { font-family:'Montserrat',sans-serif; background:#fff; }
   
   <div style="position:absolute;top:${BLEED + BORDER_RN}mm;left:${BLEED + BORDER_RN}mm;right:${BLEED + BORDER_RN}mm;bottom:${BLEED + BORDER_RN}mm;background:#fff;display:flex;flex-direction:column;overflow:hidden;">
     <!-- HEADER -->
-    <div style="background:${c0rn};padding:6mm 10mm;display:flex;align-items:center;justify-content:space-between;flex-shrink:0;">
+    <div style="background:${solidColor};padding:6mm 10mm;display:flex;align-items:center;justify-content:space-between;flex-shrink:0;">
       <div style="font-size:14pt;font-weight:900;color:#fff;text-transform:uppercase;letter-spacing:0.5pt;line-height:1.2;">OS PRIMEIROS DIAS<br/>COM MEU BEBÊ</div>
       <div style="width:65mm;display:flex;align-items:center;justify-content:center;">${logoHtmlRN}</div>
     </div>
 
     <!-- FAIXA BEBÊ -->
-    <div style="background:${c0rn}12;border-bottom:0.3mm solid ${c0rn}30;padding:3.5mm 10mm;display:flex;gap:8mm;align-items:center;flex-shrink:0;">
-      <div style="display:flex;align-items:center;gap:2mm;flex:2;"><span style="font-size:8pt;font-weight:700;color:${c0rn};white-space:nowrap;">Bebê:</span> ${f(rnNomeBebe,'nome do bebê')}</div>
-      <div style="display:flex;align-items:center;gap:2mm;"><span style="font-size:8pt;font-weight:700;color:${c0rn};white-space:nowrap;">Nasc:</span> ${f(rnDataNasc,'__/__/____')}</div>
-      <div style="display:flex;align-items:center;gap:2mm;"><span style="font-size:8pt;font-weight:700;color:${c0rn};">Peso:</span> ${f(rnPeso,'___')} kg</div>
-      <div style="display:flex;align-items:center;gap:2mm;"><span style="font-size:8pt;font-weight:700;color:${c0rn};">Alt:</span> ${f(rnAltura,'___')} cm</div>
+    <div style="background:${solidColor}12;border-bottom:0.3mm solid ${solidColor}30;padding:3.5mm 10mm;display:flex;gap:8mm;align-items:center;flex-shrink:0;">
+      <div style="display:flex;align-items:center;gap:2mm;flex:2;"><span style="font-size:8pt;font-weight:700;color:${solidColor};white-space:nowrap;">Bebê:</span> ${f(rnNomeBebe,'nome do bebê')}</div>
+      <div style="display:flex;align-items:center;gap:2mm;"><span style="font-size:8pt;font-weight:700;color:${solidColor};white-space:nowrap;">Nasc:</span> ${f(rnDataNasc,'__/__/____')}</div>
+      <div style="display:flex;align-items:center;gap:2mm;"><span style="font-size:8pt;font-weight:700;color:${solidColor};">Peso:</span> ${f(rnPeso,'___')} kg</div>
+      <div style="display:flex;align-items:center;gap:2mm;"><span style="font-size:8pt;font-weight:700;color:${solidColor};">Alt:</span> ${f(rnAltura,'___')} cm</div>
     </div>
 
     <!-- CORPO -->
@@ -4939,13 +4939,13 @@ body { width: 485.775mm; height: 385.233mm; position: relative; overflow: hidden
         ? `<div style="position:absolute;inset:0;background-image:url(${patternSrc});background-size:${((patternScale || 150) * 0.22).toFixed(1)}mm;background-repeat:repeat;opacity:0.9;"></div>`
         : `<div style="position:absolute;inset:0;background:#fff;"></div>`;
 
-      const _logoWPct = logoLayout === 'horizontal' ? 0.85 : (_isRetrato ? 0.82 : 0.70);
+      const _logoWPct = logoLayout === 'horizontal' ? 0.90 : (_isRetrato ? 0.78 : 0.85);
       const _logoW = `${Math.round(_logoWPct * 100)}%`;
       const _availW = (_isRetrato ? 61 : 96) * _logoWPct - 8;
-      const _bgHPad = _isRetrato ? 5 : 6; // mm de cada lado
+      const _bgHPad = _isRetrato ? 6 : 8; // mm de cada lado
       const _bgPadStr = `4mm ${_bgHPad}mm`;
       const _availWContent = _availW - _bgHPad * 2;
-      const _logoBoxH = _isRetrato ? '50mm' : '38mm';
+      const _logoBoxH = _isRetrato ? '42mm' : '38mm';
       // fontPt dinâmico: cada elemento contribui sua altura proporcional ao fontPt
       const _logoBoxHmm = parseFloat(_logoBoxH);
       const _sloganLines = localSlogan ? (localSlogan.length > 28 ? 2 : 1) : 0;
@@ -4960,13 +4960,14 @@ body { width: 485.775mm; height: 385.233mm; position: relative; overflow: hidden
         <div class="card" style="position:relative;overflow:hidden;">
           ${frenteBgHtml}
           <div style="position:absolute;top:${BLEED}mm;left:${BLEED}mm;right:${BLEED}mm;bottom:${BLEED}mm;display:flex;align-items:center;justify-content:center;">
-            <div style="width:${_logoW}; height:${_logoBoxH}; display:flex; align-items:center; justify-content:center; overflow:hidden; ${_isScript ? 'padding-top:2mm;' : ''}">
-              ${genPDFLogoHtml({ brand, editDataOverride: editData, color: logoColor, localSlogan, crmLine, fontPt: _fontPtCV, lineH: _lineH, letterSp: _letterSp, layout: logoLayout, customLogoSrc,
-                // texto: customLogoScale=100 — fontPtCV já é o tamanho final, _scaleMultiplier não deve re-escalar
-                // imagem: passa o scale real do slider para dimensionar o img em mm
-                customLogoScale: customLogoSrc ? getCustomLogoScale(item) * (ITEM_CUSTOM_BASE_SCALES[item] || 1) : 100,
-                maxWidth: `${_availWContent}mm`, maxHeight: _logoBoxH, withBackground: comBorda && !!patternSrc, withBackgroundPadding: _bgPadStr })}
-            </div>
+            ${(comBorda && !!patternSrc && customLogoSrc)
+              ? `<div style="background:rgba(255,255,255,0.88);padding:${_bgPadStr};border-radius:4px;display:inline-flex;align-items:center;justify-content:center;max-height:${_logoBoxH};">
+                  ${genPDFLogoHtml({ brand, editDataOverride: editData, color: logoColor, localSlogan, crmLine, fontPt: _fontPtCV, lineH: _lineH, letterSp: _letterSp, layout: logoLayout, customLogoSrc, customLogoScale: getCustomLogoScale(item) * (ITEM_CUSTOM_BASE_SCALES[item] || 1), maxWidth: `${_availW}mm`, maxHeight: _logoBoxH, withBackground: false })}
+                </div>`
+              : `<div style="width:${_logoW}; height:${_logoBoxH}; display:flex; align-items:center; justify-content:center; overflow:hidden; ${_isScript ? 'padding-top:2mm;' : ''}">
+                  ${genPDFLogoHtml({ brand, editDataOverride: editData, color: logoColor, localSlogan, crmLine, fontPt: _fontPtCV, lineH: _lineH, letterSp: _letterSp, layout: logoLayout, customLogoSrc, customLogoScale: customLogoSrc ? getCustomLogoScale(item) * (ITEM_CUSTOM_BASE_SCALES[item] || 1) : 100, maxWidth: `${_availWContent}mm`, maxHeight: _logoBoxH, withBackground: false })}
+                </div>`
+            }
           </div>
           <div class="cm cm-tl"></div><div class="cm cm-tr"></div><div class="cm cm-bl"></div><div class="cm cm-br"></div>
         </div>`;
@@ -5056,7 +5057,7 @@ ${versoHtml}
       const totalH = (BLEED * 2) + ABA_S + H + ABA_I;
 
       const solidColor = borderColor || accentColor;
-      const genPattern = (scaleMul = 1) => (comBorda && patternSrc) ? `<div style="position:absolute;inset:0;background-image:url(${patternSrc});background-size:${(patternScale * 0.18 * scaleMul).toFixed(1)}mm;background-repeat:repeat;opacity:1;"></div>` : '';
+      const genPattern = (scaleMul = 1) => (comBorda && patternSrc) ? `<div style="position:absolute;inset:0;background-image:url(${patternSrc});background-size:${(patternScale * 0.255 * scaleMul).toFixed(1)}mm;background-repeat:repeat;opacity:1;"></div>` : '';
       const _sacPhones = [mainPhone, telefone].filter(Boolean).join(' / ');
       const _ffSac = editData?.fontFamily || brand.editData?.fontFamily || 'Playfair Display';
       const _lfSac = LOCAL_FONT_FACES[_ffSac];
@@ -5068,12 +5069,12 @@ ${versoHtml}
       const abaLatHtml = `<div style="position:absolute;top:${BLEED + ABA_S}mm;left:0;width:${ABA_L + BLEED}mm;height:${H}mm;background:#fff;z-index:1;">${genPattern(1)}</div>`;
 
       // Preview: 220px container / 240mm = 0.917px/mm → zoom = 3.78/0.917 ≈ 4.12
-      const _sacLogoInner = ReactDOMServer.renderToString(<LogoPreviewHTML editData={itemEditData} color={logoColor} layout={logoLayout||'stacked'} scaleFactor={0.42} crm={crmLine} hideTagline={false} maxWidth={`${W-30}mm`} />);
+      const _sacLogoInner = ReactDOMServer.renderToString(<LogoPreviewHTML editData={itemEditData} color={logoColor} layout={logoLayout||'stacked'} scaleFactor={0.80} crm={crmLine} hideTagline={false} maxWidth={`${W-30}mm`} />);
       const _sacLogoHtml = `<div style="zoom:4.12;">${_sacLogoInner}</div>`;
       const frenteHtml = `
         <div style="position:absolute;top:${BLEED + ABA_S}mm;left:${BLEED + ABA_L}mm;width:${W}mm;height:${H}mm;overflow:hidden;background:#fff;z-index:2;">
             ${genPattern(1)}
-            <div style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);z-index:3;background:rgba(255,255,255,0.97);padding:4mm 8mm;border-radius:2mm;border:0.2mm solid #ddd;display:inline-flex;align-items:center;justify-content:center;max-width:${W - 20}mm;">
+            <div style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);z-index:3;background:rgba(255,255,255,0.93);border-radius:4px;padding:10mm 15mm;display:inline-flex;align-items:center;justify-content:center;width:150mm;height:95mm;">
               ${_sacLogoHtml}
             </div>
         </div>`;
@@ -5136,10 +5137,11 @@ body { width:${totalW}mm; height:${totalH}mm; position:relative; overflow:hidden
 
       const abaHtml = `<div style="position:absolute;top:0;left:0;width:${totalW}mm;height:${ABA + BLEED}mm;background:${solidColor};"></div>`;
 
-      const _logoEnvHtml = genPDFLogoHtml({ brand, editDataOverride: editData, color: logoColor, layout: logoLayout, localSlogan, crmLine, fontPt: _fontPt, lineH: _lineH, letterSp: _letterSp, customLogoSrc, customLogoScale: customLogoSrc ? getCustomLogoScale(item) * (ITEM_CUSTOM_BASE_SCALES[item] || 1) : 100, maxWidth: '80mm', maxHeight: '28mm', withBackground: false });
+      const _logoEnvHtml = genPDFLogoHtml({ brand, editDataOverride: editData, color: logoColor, layout: logoLayout, localSlogan, crmLine, fontPt: _fontPt, lineH: _lineH, letterSp: _letterSp, customLogoSrc, customLogoScale: customLogoSrc ? getCustomLogoScale(item) : 100, maxWidth: '68mm', maxHeight: '43mm', withBackground: false });
       const frenteHtml = `
         <div style="position:absolute;top:${BLEED + ABA}mm;left:0;width:${totalW}mm;height:${H}mm;background:#fff;overflow:hidden;">
-            <div style="position:absolute;bottom:8mm;right:${COLA + 3}mm;display:flex;align-items:flex-end;justify-content:flex-end;">${_logoEnvHtml}</div>
+            ${genPattern(1)}
+            <div style="position:absolute;bottom:6mm;right:${COLA + 3}mm;width:78mm;height:42mm;display:flex;align-items:center;justify-content:center;background:rgba(255,255,255,0.93);border-radius:3px;padding:3mm 5mm;">${_logoEnvHtml}</div>
         </div>`;
 
       const _waIco = `<svg viewBox="0 0 24 24" width="9" height="9" style="display:inline;vertical-align:middle;margin-right:1.5pt;" fill="#25D366"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>`;
@@ -5224,7 +5226,7 @@ body { width:${totalW}mm; height:${totalH}mm; position:relative; overflow:hidden
                 </div>
               </div>
               <div style="width:80mm; display:flex; justify-content:flex-end; align-items:center;">
-                ${genPDFLogoHtml({ brand, editDataOverride: editData, color: logoColor, localSlogan, crmLine, fontPt: (parseFloat(_fontPt) * 1.5).toFixed(1), lineH: _lineH, letterSp: _letterSp, layout: logoLayout, customLogoSrc, customLogoScale: customLogoSrc ? getCustomLogoScale(item) * (ITEM_CUSTOM_BASE_SCALES[item] || 1) : 100, maxWidth: '80mm', maxHeight: '38mm', withBackground: comBorda && patternSrc })}
+                ${genPDFLogoHtml({ brand, editDataOverride: editData, color: logoColor, localSlogan, crmLine, fontPt: _fontPt, lineH: _lineH, letterSp: _letterSp, layout: logoLayout, customLogoSrc, customLogoScale: customLogoSrc ? getCustomLogoScale(item) * (ITEM_CUSTOM_BASE_SCALES[item] || 1) : 100, maxWidth: '100mm', maxHeight: '36mm', withBackground: comBorda && patternSrc })}
               </div>
             </div>
 
@@ -5367,7 +5369,7 @@ body { width: 220mm; height: 307mm; position: relative; overflow: hidden; backgr
           ${genBg(8)}
           <div style="position:absolute;top:${BLEED + 8}mm;left:${BLEED + 8}mm;right:${BLEED + 8}mm;bottom:${BLEED + 8}mm;padding:12mm 15mm;display:flex;flex-direction:column;align-items:center;overflow:hidden;">
             <div style="margin-bottom:10mm;display:flex;flex-direction:column;align-items:center;justify-content:center;width:100%;padding-top:12mm;">
-               ${genPDFLogoHtml({ brand, editDataOverride: editData, color: logoColor, layout: logoLayout, localSlogan, crmLine, fontPt: (parseFloat(_fontPt) * 1.5).toFixed(1), lineH: _lineH, letterSp: _letterSp, customLogoSrc, customLogoScale: customLogoSrc ? getCustomLogoScale(item) * (ITEM_CUSTOM_BASE_SCALES[item] || 1) : 100, maxWidth: '100mm', maxHeight: '38mm', withBackground: comBorda && patternSrc })}
+               ${genPDFLogoHtml({ brand, editDataOverride: editData, color: logoColor, layout: logoLayout, localSlogan, crmLine, fontPt: _fontPt, lineH: _lineH, letterSp: _letterSp, customLogoSrc, customLogoScale: customLogoSrc ? getCustomLogoScale(item) * (ITEM_CUSTOM_BASE_SCALES[item] || 1) : 100, maxWidth: '100mm', maxHeight: '36mm', withBackground: comBorda && patternSrc })}
             </div>
             <div style="display:flex;flex-direction:column;gap:4mm;font-family:'Montserrat',sans-serif;width:100%;margin-top:1mm;border:0.25mm solid #eee;border-radius:1mm;padding:5mm 6mm;">
               ${formRow('PACIENTE:', 'NASC:', 0.6)}
@@ -5461,7 +5463,7 @@ body { width: 220mm; height: 307mm; background: #fff; }
       const _ffCk = editData?.fontFamily || brand.editData?.fontFamily || 'Playfair Display';
       const _lfCk = LOCAL_FONT_FACES[_ffCk];
       const _fiCk = _lfCk ? `<style>${_lfCk}</style>` : `<link href="https://fonts.googleapis.com/css2?family=${encodeURIComponent(_ffCk)}:wght@400;700&display=swap" rel="stylesheet">`;
-      const _logoCk = genPDFLogoHtml({ brand, editDataOverride: editData, color: logoColor, localSlogan, crmLine, fontPt: 24, lineH: 1.2, letterSp: editData?.fontLetterSpacing || brand.editData?.fontLetterSpacing || '0.5pt', layout: logoLayout, customLogoSrc, customLogoScale: getCustomLogoScale(item) * (ITEM_CUSTOM_BASE_SCALES[item] || 1), maxWidth: '100mm', maxHeight: '35mm', withBackground: comBorda && patternSrc });
+      const _logoCk = genPDFLogoHtml({ brand, editDataOverride: editData, color: logoColor, localSlogan, crmLine, fontPt: _fontPt, lineH: _lineH, letterSp: _letterSp, layout: logoLayout, customLogoSrc, customLogoScale: customLogoSrc ? getCustomLogoScale(item) * (ITEM_CUSTOM_BASE_SCALES[item] || 1) : 100, maxWidth: '100mm', maxHeight: '36mm', withBackground: comBorda && patternSrc });
       const _cmCk = `
         <div style="position:absolute;top:${BLEED}mm;left:0;width:${BLEED-0.5}mm;height:0.2mm;background:#000;z-index:100;"></div>
         <div style="position:absolute;top:0;left:${BLEED}mm;width:0.2mm;height:${BLEED-0.5}mm;background:#000;z-index:100;"></div>
@@ -5528,7 +5530,7 @@ body { margin:0; } @media print { @page { size: ${_pw}mm ${_ph}mm; margin:0; } }
   ${_atFooterHtml}
   <div style="position:absolute;top:${BLEED + 8}mm;left:${BLEED + 8}mm;right:${BLEED + 8}mm;bottom:${BLEED + _footerH + 10}mm;font-family:'Montserrat',sans-serif;">
 
-    <div style="position:absolute;top:${_isA4 ? 12 : 11}mm;left:50%;transform:translateX(-50%);width:${Math.round((_pw - 2 * BLEED) * 0.90)}mm;display:flex;align-items:center;justify-content:center;">${genPDFLogoHtml({ brand, editDataOverride: editData, color: logoColor, layout: logoLayout, localSlogan, crmLine, fontPt: (parseFloat(_fontPt) * 1.0).toFixed(1), lineH: _lineH, letterSp: _letterSp, customLogoSrc, customLogoScale: customLogoSrc ? getCustomLogoScale(item) * (ITEM_CUSTOM_BASE_SCALES[item] || 1) : 100, maxWidth: `${_isA4 ? 150 : 100}mm`, maxHeight: _isA4 ? '72mm' : '54mm', withBackground: false, hideSlogan: false })}</div>
+    <div style="position:absolute;top:${_isA4 ? 12 : 11}mm;left:50%;transform:translateX(-50%);width:${Math.round((_pw - 2 * BLEED) * 0.90)}mm;display:flex;align-items:center;justify-content:center;">${genPDFLogoHtml({ brand, editDataOverride: editData, color: logoColor, layout: logoLayout, localSlogan, crmLine, fontPt: (parseFloat(_fontPt) * 1.0).toFixed(1), lineH: _lineH, letterSp: _letterSp, customLogoSrc, customLogoScale: customLogoSrc ? getCustomLogoScale(item) * (ITEM_CUSTOM_BASE_SCALES[item] || 1) : 100, maxWidth: '100mm', maxHeight: '36mm', withBackground: false, hideSlogan: false })}</div>
 
     <div style="position:absolute;top:${_isA4 ? 76 : 52}mm;left:0;right:0;text-align:center;font-size:${_isA4 ? 18 : 14}pt;font-weight:800;letter-spacing:2.5pt;color:#1a1a2e;">ATESTADO MÉDICO</div>
 
@@ -5620,19 +5622,18 @@ body { width: 303mm; height: 216mm; position: relative; overflow: hidden; backgr
     <div style="position:absolute;bottom:${BLEED}mm;right:0;width:${BLEED-0.5}mm;height:0.2mm;background:#000;z-index:100;"></div>
     <div style="position:absolute;bottom:0;right:${BLEED}mm;width:0.2mm;height:${BLEED-0.5}mm;background:#000;z-index:100;"></div>
     <div style="position:absolute;top:${BLEED + 10}mm;left:${BLEED + 10}mm;right:${BLEED + 10}mm;bottom:${BLEED + 10}mm;display:flex;flex-direction:column;padding:5mm 6mm 4mm;">
-        <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:8mm;">
-            <div style="display:flex;flex-direction:column;gap:6mm;">
-                <div style="background:#f5f5f5;padding:4mm 10mm;border-radius:1.5mm;border:0.4mm solid #ddd;display:inline-block;align-self:flex-start;">
-                    <span style="font-family:'Montserrat',sans-serif;font-size:16pt;font-weight:800;color:#333;letter-spacing:2pt;text-transform:uppercase;">DIÁRIO DO XIXI (HÁBITO MICCIONAL)</span>
-                </div>
-                <div style="font-family:'Montserrat',sans-serif;font-size:10pt;color:${accentColor};font-weight:700;text-transform:uppercase;letter-spacing:1pt;margin-top:2mm;">Controle de Escapes e Enurese (Xixi na Cama)</div>
-                <div style="display:flex;gap:5mm;align-items:flex-end;margin-top:2mm;">
-                    <span style="font-family:'Montserrat',sans-serif;font-size:18pt;color:${accentColor};font-weight:300;font-style:italic;">Nome:</span>
-                    <div style="flex:1;border-bottom:0.5mm dashed #ccc;min-width:140mm;margin-bottom:2mm;"></div>
-                </div>
+        <!-- Logo posicionada absolutamente no canto superior direito -->
+        <div style="position:absolute;top:5mm;right:6mm;width:100mm;height:36mm;display:flex;align-items:center;justify-content:flex-end;overflow:hidden;">
+            ${genPDFLogoHtml({ brand, editDataOverride: editData, color: logoColor, layout: logoLayout, localSlogan, crmLine, fontPt: _fontPt, lineH: _lineH, letterSp: _letterSp, customLogoSrc, customLogoScale: customLogoSrc ? getCustomLogoScale(item) * (ITEM_CUSTOM_BASE_SCALES[item] || 1) : 100, maxWidth: '100mm', maxHeight: '36mm', withBackground: comBorda && patternSrc })}
+        </div>
+        <div style="display:flex;flex-direction:column;gap:6mm;margin-bottom:8mm;padding-right:105mm;">
+            <div style="background:#f5f5f5;padding:4mm 10mm;border-radius:1.5mm;border:0.4mm solid #ddd;display:inline-block;align-self:flex-start;">
+                <span style="font-family:'Montserrat',sans-serif;font-size:16pt;font-weight:800;color:#333;letter-spacing:2pt;text-transform:uppercase;">DIÁRIO DO XIXI (HÁBITO MICCIONAL)</span>
             </div>
-            <div style="width:60mm;display:flex;flex-direction:column;align-items:flex-end;margin-top:10mm;margin-right:28mm;">
-                ${genPDFLogoHtml({ brand, editDataOverride: editData, color: logoColor, layout: logoLayout, localSlogan, crmLine, fontPt: (parseFloat(_fontPt) * 0.9).toFixed(1), lineH: _lineH, letterSp: _letterSp, customLogoSrc, customLogoScale: getCustomLogoScale(item) * (ITEM_CUSTOM_BASE_SCALES[item] || 1), maxWidth: '60mm', maxHeight: '30mm', withBackground: comBorda && patternSrc })}
+            <div style="font-family:'Montserrat',sans-serif;font-size:10pt;color:${accentColor};font-weight:700;text-transform:uppercase;letter-spacing:1pt;margin-top:2mm;">Controle de Escapes e Enurese (Xixi na Cama)</div>
+            <div style="display:flex;gap:5mm;align-items:flex-end;margin-top:2mm;">
+                <span style="font-family:'Montserrat',sans-serif;font-size:18pt;color:${accentColor};font-weight:300;font-style:italic;">Nome:</span>
+                <div style="flex:1;border-bottom:0.5mm dashed #ccc;min-width:80mm;margin-bottom:2mm;"></div>
             </div>
         </div>
 
@@ -5774,7 +5775,7 @@ body { background:#fff; }
     <!-- Coluna direita: logo + prato -->
     <div style="flex:1;display:flex;flex-direction:column;align-items:center;padding:4mm 10mm 16mm 6mm;">
       <div style="width:100%;display:flex;justify-content:flex-end;margin-bottom:4mm;">
-        <div style="display:flex;justify-content:flex-end;align-items:center;">${genPDFLogoHtml({ brand, editDataOverride: editData, color: logoColor, layout: logoLayout, localSlogan, crmLine, fontPt: logoLayout === 'horizontal' ? (marca.length > 18 ? 16 : marca.length > 12 ? 20 : 24) : _fontPt, lineH: _lineH, letterSp: _letterSp, customLogoSrc, customLogoScale: customLogoSrc ? getCustomLogoScale(item) * (ITEM_CUSTOM_BASE_SCALES[item] || 1) : 100, maxWidth: '90mm', maxHeight: '45mm', withBackground: comBorda && patternSrc })}</div>
+        <div style="display:flex;justify-content:flex-end;align-items:center;">${genPDFLogoHtml({ brand, editDataOverride: editData, color: logoColor, layout: logoLayout, localSlogan, crmLine, fontPt: logoLayout === 'horizontal' ? (marca.length > 18 ? 16 : marca.length > 12 ? 20 : 24) : _fontPt, lineH: _lineH, letterSp: _letterSp, customLogoSrc, customLogoScale: customLogoSrc ? getCustomLogoScale(item) * (ITEM_CUSTOM_BASE_SCALES[item] || 1) : 100, maxWidth: '100mm', maxHeight: '36mm', withBackground: comBorda && patternSrc })}</div>
       </div>
       <!-- Prato com anel colorido -->
       <div style="flex:1;display:flex;align-items:center;justify-content:center;">
@@ -5871,11 +5872,14 @@ body { background:#fff; }
       const selSize = SIZES_ET[etiquetaSizeIdx] || SIZES_ET[0];
       const selFrase = FRASES_ET[etiquetaFraseIdx] || FRASES_ET[0];
       const BLEED_ET = 3;
-      // scaleFactor igual ao preview: size.w(cm) * 0.044 — selSize.w em mm, divide por 10
-      const _etSF = (selSize.w / 10) * 0.044;
+      // scaleFactor e maxHeight por formato
+      const _etSFMap = [0.30, 0.50, 0.28];
+      const _etMaxHMap = ['22mm', '28mm', '20mm'];
+      const _etSF = _etSFMap[etiquetaSizeIdx] ?? 0.30;
+      const _etMaxH = _etMaxHMap[etiquetaSizeIdx] ?? '22mm';
       // zoom: PDF px/mm (3.78) ÷ preview px/mm
       const _etZoom = (3.78 / selSize.previewScale).toFixed(3);
-      const logoHtmlEt = `<div style="zoom:${_etZoom};display:flex;flex-direction:column;align-items:center;">${genPDFLogoHtml({ brand, editDataOverride: editData, color: '#fff', layout: logoLayout || 'stacked', scaleFactor: _etSF, crmLine: null, maxWidth: '100mm', maxHeight: '30mm', withBackground: comBorda && patternSrc })}</div>`;
+      const logoHtmlEt = `<div style="zoom:${_etZoom};display:flex;flex-direction:column;align-items:center;">${genPDFLogoHtml({ brand, editDataOverride: editData, color: '#fff', layout: logoLayout || 'stacked', scaleFactor: _etSF, crmLine: null, maxWidth: '100mm', maxHeight: _etMaxH, withBackground: comBorda && patternSrc })}</div>`;
       // Marcas de corte padrão gráfica: ficam NO sangria, apontando para fora da área de corte
       // gap 0.5mm entre linha de corte e início da marca; marca com 2.5mm de comprimento
       const B = BLEED_ET;
@@ -5928,7 +5932,7 @@ html, body { width:${totalW}mm; height:${totalH}mm; overflow:hidden; }
       const _lfRA = LOCAL_FONT_FACES[_ffRA];
       const fiRA = `<link href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,300;0,400;0,600;0,700;0,800;0,900;1,700;1,800&display=swap" rel="stylesheet">${_lfRA ? `<style>${_lfRA}</style>` : `<link href="https://fonts.googleapis.com/css2?family=${encodeURIComponent(_ffRA)}:wght@400;700&display=swap" rel="stylesheet">`}`;
       const _lyRA = logoLayout || 'stacked';
-      const logoHtmlRA = genPDFLogoHtml({ brand, editDataOverride: editData, color: '#fff', layout: _lyRA, localSlogan, hideSlogan: true, crmLine: null, fontPt: 22, lineH: 1.1, letterSp: _letterSp, customLogoSrc, customLogoScale: customLogoSrc ? getCustomLogoScale(item) * (ITEM_CUSTOM_BASE_SCALES[item] || 1) : 100, maxWidth: '95mm', maxHeight: '30mm', withBackground: false });
+      const logoHtmlRA = genPDFLogoHtml({ brand, editDataOverride: editData, color: '#fff', layout: _lyRA, localSlogan, hideSlogan: true, crmLine: null, fontPt: 22, lineH: 1.1, letterSp: _letterSp, customLogoSrc, customLogoScale: customLogoSrc ? getCustomLogoScale(item) * (ITEM_CUSTOM_BASE_SCALES[item] || 1) : 100, maxWidth: '100mm', maxHeight: '36mm', withBackground: false });
       const html = buildReceitaAltaHTML({ logoHtml: logoHtmlRA, solidColor, paletteColors, clinicaNome, cartaoContacts, crmLine, marca, fields: receitaFields, comBorda, patternSrc, patternScale });
       const htmlFinal = html.replace('<head>', `<head>${fiRA.replace(/<link[^>]*>/, '')}`);
       const exRA = document.getElementById('_gabarito_receita_alta'); if (exRA) exRA.remove();
@@ -6316,7 +6320,7 @@ td { padding: 4mm 3mm; border: 0.2mm solid #eee; font-size: 10pt; color: #555; }
     <div style="position:absolute;top:${BLEED + BORDER + 8}mm;left:${BLEED + BORDER + 12}mm;right:${BLEED + BORDER + 12}mm;bottom:${BLEED + BORDER + 18}mm;display:flex;flex-direction:column;">
         
         <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12mm;padding-bottom:4mm;border-bottom:0.1mm solid #f0f0f0;">
-            <div style="display:flex;justify-content:flex-start;">${genPDFLogoHtml({ brand, editDataOverride: editData, color: logoColor, layout: logoLayout, localSlogan, crmLine, fontPt: _fontPt, lineH: _lineH, letterSp: _letterSp, customLogoSrc, customLogoScale: customLogoSrc ? getCustomLogoScale(item) * (ITEM_CUSTOM_BASE_SCALES[item] || 1) : 100, maxWidth: '55mm', maxHeight: '22mm', alignLeft: true, withBackground: comBorda && patternSrc })}</div>
+            <div style="display:flex;justify-content:flex-start;">${genPDFLogoHtml({ brand, editDataOverride: editData, color: logoColor, layout: logoLayout, localSlogan, crmLine, fontPt: _fontPt, lineH: _lineH, letterSp: _letterSp, customLogoSrc, customLogoScale: customLogoSrc ? getCustomLogoScale(item) * (ITEM_CUSTOM_BASE_SCALES[item] || 1) : 100, maxWidth: '100mm', maxHeight: '36mm', alignLeft: true, withBackground: comBorda && patternSrc })}</div>
             <div style="text-align:right;">
                 <div style="font-size:18pt;font-weight:800;color:${accentColor};opacity:0.1;letter-spacing:4pt;line-height:1;">RECIBO</div>
             </div>
@@ -6384,9 +6388,9 @@ td { padding: 4mm 3mm; border: 0.2mm solid #eee; font-size: 10pt; color: #555; }
             lineH: 1.1,
             letterSp: _letterSp,
             customLogoSrc,
-            customLogoScale: customLogoSrc ? getCustomLogoScale(item) * (ITEM_CUSTOM_BASE_SCALES[item] || 1) : 100,
-            maxWidth: '36mm',
-            maxHeight: '20mm',
+            customLogoScale: customLogoSrc ? getCustomLogoScale(item) : 100,
+            maxWidth: '40mm',
+            maxHeight: '18mm',
             withBackground: comBorda && patternSrc
           });
           const illustSrc = "/breastfeeding-guide.png";
@@ -6403,7 +6407,7 @@ td { padding: 4mm 3mm; border: 0.2mm solid #eee; font-size: 10pt; color: #555; }
           ];
 
           const _amamBg = comBorda && patternSrc
-            ? `background-image:url(${patternSrc});background-size:25mm;background-repeat:repeat;`
+            ? `background-image:url(${patternSrc});background-size:${((patternScale || 100) * 0.35).toFixed(1)}mm;background-repeat:repeat;`
             : `background:${borderColor || paletteColors[0] || accentColor};`;
           const renderSide = (pageIndices) => `
             <div class="page">
@@ -6463,20 +6467,20 @@ ${renderSide([4, 5, 6, 7])}
           const _lfPrenatal = LOCAL_FONT_FACES[_ffPrenatal];
           const fiPrenatal = `<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;600;700;800&family=Great+Vibes&display=swap" rel="stylesheet">${_lfPrenatal ? `<style>${_lfPrenatal}</style>` : `<link href="https://fonts.googleapis.com/css2?family=${encodeURIComponent(_ffPrenatal)}:wght@400;700&display=swap" rel="stylesheet">`}`;
 
-          const logoHtmlPrenatal = genPDFLogoHtml({ 
-            brand, 
-            editDataOverride: editData, 
-            color: logoColor, 
-            layout: logoLayout, 
-            localSlogan, 
-            crmLine, 
-            fontPt: 13, 
-            lineH: 1.1, 
-            letterSp: _letterSp, 
-            customLogoSrc, 
-            customLogoScale: getCustomLogoScale(item) * (ITEM_CUSTOM_BASE_SCALES[item] || 1), 
-            maxWidth: '70mm', 
-            maxHeight: '32mm',
+          const logoHtmlPrenatal = genPDFLogoHtml({
+            brand,
+            editDataOverride: editData,
+            color: logoColor,
+            layout: logoLayout,
+            localSlogan,
+            crmLine,
+            fontPt: 7,
+            lineH: 1.1,
+            letterSp: _letterSp,
+            customLogoSrc,
+            customLogoScale: getCustomLogoScale(item) * (ITEM_CUSTOM_BASE_SCALES[item] || 1),
+            maxWidth: '22mm',
+            maxHeight: '12mm',
             withBackground: comBorda && !!patternSrc
           });
 
@@ -6845,7 +6849,7 @@ html, body { width:${RW}px; height:${RH}px; overflow:hidden; background:#fff; }
   </div>
 
   <div style="position:absolute; top:${isPost ? Math.round(RH*0.09) : Math.round(RH*0.07)}px; left:0; right:0; display:flex; justify-content:center; transform:scale(${isPost ? 1.3 : 1.0}); transform-origin:top center;">
-    ${genPDFLogoHtml({ brand, color: accentColor, localSlogan, crmLine, fontPt: 32, lineH: _lineH, letterSp: _letterSp, customLogoSrc, customLogoScale: getCustomLogoScale(item) * (ITEM_CUSTOM_BASE_SCALES[item] || 1), maxWidth: '120mm', maxHeight: '45mm', withBackground: comBorda && patternSrc })}
+    ${genPDFLogoHtml({ brand, color: accentColor, localSlogan, crmLine, fontPt: 32, lineH: _lineH, letterSp: _letterSp, customLogoSrc, customLogoScale: getCustomLogoScale(item) * (ITEM_CUSTOM_BASE_SCALES[item] || 1), maxWidth: '100mm', maxHeight: '36mm', withBackground: comBorda && patternSrc })}
   </div>
 
   <div style="position:absolute; top:${isPost ? Math.round(RH*0.40) : Math.round(RH*0.28)}px; left:0; right:0; text-align:center;">
@@ -6887,20 +6891,20 @@ body { background:#eee; }
 .cm-br { bottom:${BLEED}mm; right:${BLEED}mm; border-bottom:0.2mm solid; border-right:0.2mm solid; }
 @media print { body { background:none; } .page { margin:0; box-shadow:none; } @page { size: ${totalW}mm ${totalH}mm; margin:0; } }
 </style></head><body><div class="page">
-<div style="position:absolute; inset:${BLEED}mm; overflow:hidden;">
+<div style="position:absolute; inset:0; overflow:hidden;">
   ${effectiveSrc
-    ? `<div style="position:absolute; inset:0; background-image:url(${effectiveSrc}); background-size:50mm; background-repeat:repeat;"></div><div style="position:absolute; inset:${BORDER}mm; background:#fff;"></div>`
-    : `<div style="position:absolute; inset:0; background:#fff; border:${BORDER}mm solid ${solidColor}; box-sizing:border-box;"></div>`}
-  
-  <div style="position:absolute; top:${BORDER + 10}mm; left:50%; transform:translateX(-50%); width:100mm; display:flex; justify-content:center;">
-    ${genPDFLogoHtml({ brand, editDataOverride: editData, color: accentColor, layout: logoLayout, localSlogan, crmLine, fontPt: (parseFloat(_fontPt) * 1.5).toFixed(1), lineH: _lineH, letterSp: _letterSp, customLogoSrc, customLogoScale: getCustomLogoScale(item) * (ITEM_CUSTOM_BASE_SCALES[item] || 1), maxWidth: '100mm', maxHeight: '38mm', withBackground: comBorda && patternSrc })}
+    ? `<div style="position:absolute; inset:0; background-image:url(${effectiveSrc}); background-size:${((patternScale || 100) * 0.5).toFixed(1)}mm; background-repeat:repeat;"></div><div style="position:absolute; inset:${BLEED + BORDER}mm; background:#fff;"></div>`
+    : `<div style="position:absolute; inset:0; background:#fff; border:${BLEED + BORDER}mm solid ${solidColor}; box-sizing:border-box;"></div>`}
+
+  <div style="position:absolute; top:${BLEED + BORDER + 10}mm; left:50%; transform:translateX(-50%); width:120mm; display:flex; justify-content:center;">
+    ${genPDFLogoHtml({ brand, editDataOverride: editData, color: accentColor, layout: logoLayout, localSlogan, crmLine, fontPt: _fontPt, lineH: _lineH, letterSp: _letterSp, customLogoSrc, customLogoScale: customLogoSrc ? getCustomLogoScale(item) : 100, maxWidth: '120mm', maxHeight: '45mm', withBackground: comBorda && patternSrc })}
   </div>
 
   <div style="position:absolute; top:50%; left:50%; transform:translate(-50%, -50%); opacity:0.15; width:140mm; display:flex; justify-content:center; pointer-events:none;">
-    ${genPDFLogoHtml({ brand, color: accentColor, localSlogan, crmLine, fontPt: 48, lineH: _lineH, letterSp: _letterSp, hideSlogan: true, customLogoSrc, customLogoScale: getCustomLogoScale(item) * (ITEM_CUSTOM_BASE_SCALES[item] || 1), maxWidth: '140mm', maxHeight: '60mm', withBackground: comBorda && patternSrc })}
+    ${genPDFLogoHtml({ brand, color: accentColor, localSlogan, crmLine, fontPt: 48, lineH: _lineH, letterSp: _letterSp, hideSlogan: true, customLogoSrc, customLogoScale: getCustomLogoScale(item) * (ITEM_CUSTOM_BASE_SCALES[item] || 1), maxWidth: '100mm', maxHeight: '36mm', withBackground: comBorda && patternSrc })}
   </div>
 
-  <div style="position:absolute; bottom:${BORDER + 10}mm; left:0; right:0; text-align:center;">
+  <div style="position:absolute; bottom:${BLEED + 6}mm; left:0; right:0; text-align:center;">
     ${genPDFSimpleFooter({ 
       allPhones,
       email: brand.email || '',
@@ -7513,40 +7517,46 @@ function EntregaContent({ brand, plano }) {
   const [customLogoSrc, setCustomLogoSrcState] = useState(() => { try { return localStorage.getItem('brandbox_custom_logo') || null; } catch { return null; } });
   const setCustomLogoSrc = (v) => { setCustomLogoSrcState(v); try { if (v) localStorage.setItem('brandbox_custom_logo', v); else localStorage.removeItem('brandbox_custom_logo'); } catch {} };
   const [customLogoScaleMap, setCustomLogoScaleMapState] = useState(() => {
-    try { return JSON.parse(localStorage.getItem('brandbox_custom_logo_scales') || '{}'); } catch { return {}; }
+    try {
+      const stored = JSON.parse(localStorage.getItem('brandbox_custom_logo_scales') || '{}');
+      // Migração: Tag para Sacola tinha max=50 antes; reset se <= 50 para usar default 100
+      if (stored['Tag para Sacola'] != null && stored['Tag para Sacola'] <= 50) {
+        delete stored['Tag para Sacola'];
+      }
+      return stored;
+    } catch { return {}; }
   });
   
   const LOGO_SCALE_DEFAULTS = {
     'Cartão de Visita': 135,
     'Cartão de Retorno': 200,
     'Arte para Caneca': 180,
-    'Recibo': 165,
-    'Envelope Ofício': 135,
-    'Receituário Padrão': 180,
-    'Receituário de Controle Especial': 105,
-    'Prontuário Médico': 190,
-    'Receita de Alta': 215,
-    'Ficha de Cadastro': 155,
-    'Guia de Vacinação': 150,
-    'Guia de Desenvolvimento': 155,
-    'Guia de Cuidados': 150,
-    'Guia Alimentar': 150,
-    'Guia do Sono': 150,
-    'Orientação Recém-Nascido': 160,
-    'Guia de Amamentação': 210,
-    'Envelope Saco': 130,
-    'Guia de Desenvolvimento': 85,
-    'Cartão de Exame Pré-Natal': 120,
-    'Checklist Maternidade': 175,
-    'Etiqueta para Correios': 200,
-    'Tag para Sacola': 40,
-    'Pasta A4': 150,
+    'Recibo': 100,
+    'Envelope Ofício': 100,
+    'Receituário Padrão': 100,
+    'Receituário de Controle Especial': 100,
+    'Prontuário Médico': 100,
+    'Receita de Alta': 100,
+    'Ficha de Cadastro': 100,
+    'Guia de Vacinação': 100,
+    'Guia de Desenvolvimento': 100,
+    'Guia de Cuidados': 100,
+    'Guia Alimentar': 100,
+    'Guia do Sono': 100,
+    'Orientação Recém-Nascido': 100,
+    'Guia de Amamentação': 100,
+    'Envelope Saco': 100,
+    'Cartão de Exame Pré-Natal': 100,
+    'Checklist Maternidade': 100,
+    'Etiqueta para Correios': 100,
+    'Tag para Sacola': 100,
+    'Pasta A4': 100,
     'Certificado de Coragem': 270,
     'Diário do Xixi': 115,
     'Meu Pratinho': 150,
   };
   const getCustomLogoScale = (item) => customLogoScaleMap[item] ?? (LOGO_SCALE_DEFAULTS[item] || 100);
-  const LOGO_SCALE_MAX = { 'Tag para Sacola': 50, 'Arte para Caneca': 300 };
+  const LOGO_SCALE_MAX = { 'Tag para Sacola': 200, 'Arte para Caneca': 300 };
   const getCustomLogoScaleMax = (item) => LOGO_SCALE_MAX[item] || 300;
   const setCustomLogoScale = (item, v) => {
     setCustomLogoScaleMapState(prev => {
@@ -8039,10 +8049,14 @@ function EntregaContent({ brand, plano }) {
                             }
                             trimCtx.putImageData(trimData, 0, 0);
                             setCustomLogoSrc(trimCanvas.toDataURL('image/png'));
+                            setCustomLogoScaleMapState({});
+                            try { localStorage.removeItem('brandbox_custom_logo_scales'); } catch {}
                             return;
                           }
                         }
                         setCustomLogoSrc(src);
+                        setCustomLogoScaleMapState({});
+                        try { localStorage.removeItem('brandbox_custom_logo_scales'); } catch {};
                       };
                       img.src = src;
                     };

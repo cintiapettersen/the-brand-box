@@ -36,8 +36,8 @@ function TagCard({ size, solidColor, c0, c1, paletteColors, effectiveSrc, patter
           const hasImg = !!editData?.customLogoSrc;
           // tamanho proporcional ao item — tags pequenas precisam de logo menor
           const isRect = size.shape === 'rect';
-          const boxW = Math.round(W * (isCircle ? 0.50 : isRect ? 0.58 : 0.65));
-          const boxH = Math.round(H * (isCircle ? 0.42 : isRect ? 0.58 : 0.52));
+          const boxW = Math.round(W * (isCircle ? 0.68 : isRect ? 0.75 : 0.80));
+          const boxH = Math.round(H * (isCircle ? 0.55 : isRect ? 0.65 : 0.65));
           return (
             // Externo: fundo branco + padding (não medido pelo autoFit)
             <div style={{
@@ -56,7 +56,7 @@ function TagCard({ size, solidColor, c0, c1, paletteColors, effectiveSrc, patter
               }}>
                 <LogoPreviewHTML item="Tag para Sacola" editData={editData}
                   color={effectiveSrc ? solidColor : '#ffffff'}
-                  layout={logoLayout} scaleFactor={isCircle ? 0.28 : 0.35}
+                  layout={logoLayout} scaleFactor={isCircle ? 0.75 : 0.85}
                   hideTagline={false} withBackground={false}
                   taglineColor={effectiveSrc ? undefined : 'rgba(255,255,255,0.75)'}
                   maxWidth="100%" maxHeight="100%" />

@@ -16,19 +16,26 @@ export const genPDFLogoHtml = ({ brand, editDataOverride = null, color, localSlo
   const _ed = editDataOverride || brand.editData || {};
   const finalLogoSrc = customLogoSrc || _ed.customLogoSrc || null;
   const customLogoScaleValue = customLogoSrc ? customLogoScale : (_ed.customLogoScale || 100);
-  const customBaseScale = brand.editData?.customBaseScale || 1;
+  // BASE_SCALES não deve amplificar logo imagem — só texto pequeno precisa do boost
+  const customBaseScale = finalLogoSrc ? 1 : (brand.editData?.customBaseScale || 1);
   const finalLogoScale = customLogoScaleValue * customBaseScale;
 
   const wrapperStyle = `display:inline-flex; align-items:center; justify-content:${alignLeft ? 'flex-start' : 'center'}; ${maxWidth ? `max-width:${maxWidth};` : ''}`;
 
   if (finalLogoSrc) {
-    // Para imagens, usamos uma altura base fixa (16mm) que é então escalada pelo slider.
-    // Isso pareia com os ~60px usados no preview da tela.
-    const baseHmm = 16; 
-    const displayHmm = (baseHmm * finalLogoScale / 100).toFixed(1);
+    // Usa maxHeight como altura alvo quando disponível — slider é ajuste fino (+/- 50% em torno)
+    // Isso garante consistência entre itens independente do valor do slider
+    const _maxHmm = maxHeight ? parseFloat(maxHeight) : null;
+    const _baseHmm = _maxHmm
+      ? _maxHmm * 0.75 * (finalLogoScale / 100)   // maxHeight × 75% × ajuste do slider
+      : 16 * (finalLogoScale / 100);               // fallback: 16mm × slider (comportamento antigo)
+    const displayHmm = Math.min(
+      _baseHmm,
+      _maxHmm || _baseHmm                          // nunca ultrapassa maxHeight
+    ).toFixed(1);
     const imgStyle = `height:${displayHmm}mm; max-height:${maxHeight || '100%'}; width:auto; max-width:${maxWidth || '100%'}; object-fit:contain; display:block;`;
 
-    const bgStyle = withBackground ? 'background:rgba(255,255,255,0.92); padding:2px 4px; border-radius:4px;' : '';
+    const bgStyle = withBackground ? `background:rgba(255,255,255,0.92); padding:${withBackgroundPadding}; border-radius:4px;` : '';
     return `
       <div style="${wrapperStyle} ${bgStyle}">
         <img src="${finalLogoSrc}" style="${imgStyle}" />
@@ -59,15 +66,34 @@ export const genPDFLogoHtml = ({ brand, editDataOverride = null, color, localSlo
   const _sloganGapMultiplier = _ed?.taglineGap !== undefined ? parseFloat(_ed.taglineGap) : (_sloganLenRaw > 40 ? 0.20 : 0.35);
   
   const _scaleMultiplier = finalLogoScale / 100;
-  const _finalFontPt = fontPt ? (parseFloat(fontPt) * _scaleMultiplier).toFixed(1) : '14';
-  const effectiveSloganSize = sloganSize || (fontPt ? (parseFloat(fontPt) * _scaleMultiplier * _sloganScale).toFixed(1) + 'pt' : '0pt');
+  const _isScript = _ed.fontStyle === 'script';
+  const _effectiveLineH = lineH || (_isScript ? 1.5 : 1.15);
+
+  // Se maxHeight definido, recalcula fontPt para garantir que logo+slogan cabem
+  // (igual ao padrão do CartaoVisita — _maxPtByH)
+  let _baseFontPt = fontPt ? parseFloat(fontPt) * _scaleMultiplier : 14;
+  if (maxHeight) {
+    const _maxHmm = parseFloat(maxHeight);
+    const _bgPadVmm = withBackground
+      ? (parseFloat((withBackgroundPadding || '2px 4px').split(' ')[0]) * (withBackgroundPadding?.includes('mm') ? 1 : 0.264583)) * 2
+      : 0;
+    const _sloganLinesCount = (localSlogan && !hideSlogan) ? (localSlogan.length > 35 ? 2 : 1) : 0;
+    const _hPerPt = lines.length * _effectiveLineH * 0.353
+      + _sloganLinesCount * _sloganScale * 1.2 * 0.353
+      + (crmLine ? 5 * 0.353 : 0);
+    const _maxPtByH = (_maxHmm * 0.88 - _bgPadVmm) / (_hPerPt || 1);
+    _baseFontPt = Math.min(_baseFontPt, _maxPtByH);
+  }
+
+  const _finalFontPt = _baseFontPt.toFixed(1);
+  const effectiveSloganSize = sloganSize || (_baseFontPt * _sloganScale).toFixed(1) + 'pt';
   const isStacked = true; // slogan sempre embaixo
   
   // Tracking (letter-spacing) compensatório para slogans longos
   const _sloganLs = _sloganLenRaw > 45 ? '0.55em' : _sloganLenRaw > 30 ? '0.48em' : _sloganLenRaw > 15 ? '0.4em' : '0.35em';
 
   const logoMain = `
-    <div style="text-align:center; font-family:${brandFont}; font-weight:${_ed.fontWeight || 700}; font-size:${_finalFontPt}pt; color:${color}; line-height:${lineH}; letter-spacing:${letterSp}; white-space:nowrap;">
+    <div style="text-align:center; font-family:${brandFont}; font-weight:${_ed.fontWeight || 700}; font-size:${_finalFontPt}pt; color:${color}; line-height:${_effectiveLineH}; letter-spacing:${letterSp}; white-space:nowrap;">
       ${lines.map(l => `<div style="font-family:inherit;font-weight:inherit;white-space:nowrap;">${l}</div>`).join('')}
     </div>
   `;
