@@ -107,7 +107,11 @@ export function LogoPreviewHTML({ item = null, editData, color, layout = 'stacke
   const baseScale = (item && ITEM_CUSTOM_BASE_SCALES[item]) || 1;
   // BASE_SCALES foi criado para boostar logos de texto pequenos — não deve amplificar logo imagem
   const effectiveBaseScale = customLogoSrc ? 1 : baseScale;
-  const effectiveScaleFactor = scaleFactor * (customLogoScale / 100) * effectiveBaseScale;
+  // Para texto: slider NÃO entra no tamanho base — é aplicado DEPOIS do autoFit como % de preenchimento
+  // Para imagem: slider continua controlando o tamanho diretamente
+  const effectiveScaleFactor = customLogoSrc
+    ? scaleFactor * (customLogoScale / 100) * effectiveBaseScale
+    : scaleFactor * effectiveBaseScale;
   const marca = editData?.marca || '';
   const words = marca.split(' ').map(w => isScript ? w.charAt(0).toUpperCase() + w.slice(1).toLowerCase() : w.toUpperCase());
 
@@ -135,32 +139,34 @@ export function LogoPreviewHTML({ item = null, editData, color, layout = 'stacke
       if (!_fitState.ready) _setFitState({ scale: 1, w: 'auto', h: 'auto', ready: true });
       return;
     }
+    // Snapshot do container UMA vez — evita feedback loop quando _fitState muda o tamanho do wrapper
+    const realParent = _rootRef.current ? _rootRef.current.parentNode : null;
+    let tMaxW = targetMaxW;
+    let tMaxH = targetMaxH;
+    if (maxWidth && String(maxWidth).includes('%') && realParent && realParent.clientWidth > 0) {
+      tMaxW = Math.min(targetMaxW, realParent.clientWidth * (parseFloat(maxWidth) / 100));
+    }
+    if (maxHeight && String(maxHeight).includes('%') && realParent && realParent.clientHeight > 0) {
+      tMaxH = Math.min(targetMaxH, realParent.clientHeight * (parseFloat(maxHeight) / 100));
+    }
+    const paddingW = withBackground ? 28 : 12;
+    const paddingH = withBackground ? 32 : 10;
+    tMaxW = Math.max(10, tMaxW - paddingW);
+    tMaxH = Math.max(10, tMaxH - paddingH);
+
     const observer = new ResizeObserver(() => {
       const natW = el.offsetWidth;
       const natH = el.offsetHeight;
       if (!natW || !natH) return;
-      let tMaxW = targetMaxW;
-      let tMaxH = targetMaxH;
-      const realParent = _rootRef.current ? _rootRef.current.parentNode : null;
-      if (maxWidth && String(maxWidth).includes('%') && realParent && realParent.clientWidth > 0) {
-         tMaxW = Math.min(targetMaxW, realParent.clientWidth * (parseFloat(maxWidth)/100));
-      }
-      if (maxHeight && String(maxHeight).includes('%') && realParent && realParent.clientHeight > 0) {
-         tMaxH = Math.min(targetMaxH, realParent.clientHeight * (parseFloat(maxHeight)/100));
-      }
-      // Sempre subtrair um respiro mínimo para não colar nas bordas
-      const paddingW = withBackground ? 28 : 12;
-      const paddingH = withBackground ? 32 : 10;
-      tMaxW = Math.max(10, tMaxW - paddingW);
-      tMaxH = Math.max(10, tMaxH - paddingH);
       const sx = tMaxW / natW;
       const sy = tMaxH / natH;
-      const scale = Math.min(sx, sy, 1.15);
+      // fillScale = escala para preencher o container; slider aplica % sobre esse fill
+      const fillScale = Math.min(sx, sy);
+      const scale = fillScale * (customLogoScale / 100);
       _setFitState({ scale, w: natW * scale, h: natH * scale, ready: true });
     });
     observer.observe(el);
-    const realParentToObserve = _rootRef.current ? _rootRef.current.parentNode : null;
-    if (realParentToObserve) observer.observe(realParentToObserve);
+    // NÃO observar o pai — evita feedback loop quando wrapper muda de tamanho
     return () => observer.disconnect();
   }, [editData, effectiveScaleFactor, targetMaxW, targetMaxH, layout, crm, hideTagline, autoFit, maxWidth, maxHeight, withBackground, forceTrigger, customLogoSrc]);
 
@@ -2273,7 +2279,7 @@ function CartaoDeVisitaPreview({ accentColor, patternSrc, cartaoContacts, crmLin
             padding: retrato ? '12px 14px' : '10px 16px 8px',
             borderRadius: '6px',
             maxWidth: retrato ? `${Math.round(CW * 0.76)}px` : undefined,
-            maxHeight: `${Math.round(CH * (retrato ? 0.58 : 0.94))}px`,
+            maxHeight: `${Math.round(CH * (retrato ? 0.65 : 0.96))}px`,
             overflow: 'hidden',
           }}>
             {editData?.customLogoSrc ? (
@@ -2282,7 +2288,7 @@ function CartaoDeVisitaPreview({ accentColor, patternSrc, cartaoContacts, crmLin
                 <LogoPreviewHTML item="Cartão de Visita" editData={editData} color={logoColor} layout={logoLayout} crm={crmLine} hideTagline={hideTagline} scaleFactor={1.1} withBackground={false} maxWidth="100%" maxHeight="100%" />
               </div>
             ) : (
-              <div style={{ display: 'flex', width: isHorizontal ? `${Math.round(CW*0.62)}px` : `${Math.round(CW*0.50)}px`, height: retrato ? `${Math.round(CH*0.30)}px` : `${Math.round(CH*0.38)}px`, overflow: 'hidden', alignItems: 'center', justifyContent: 'center' }}>
+              <div style={{ display: 'flex', width: isHorizontal ? `${Math.round(CW*0.80)}px` : `${Math.round(CW*0.62)}px`, height: retrato ? `${Math.round(CH*0.40)}px` : `${Math.round(CH*0.52)}px`, overflow: 'hidden', alignItems: 'center', justifyContent: 'center' }}>
                 <LogoPreviewHTML item="Cartão de Visita" editData={editData} color={logoColor} layout={logoLayout} crm={crmLine} hideTagline={hideTagline} scaleFactor={0.85} withBackground={false} maxWidth="100%" maxHeight="100%" />
               </div>
             )}
@@ -3312,7 +3318,7 @@ function FolderTrifoldPreview({ brand, editData, logoColor, logoLayout, comBorda
   const endereco = cartaoContacts?.endereco || brand?.endereco || brand?.editData?.endereco || 'Endereço não informado';
 
   const allPhones = [cartaoContacts?.whatsapp, cartaoContacts?.telefone].filter(Boolean).join(' · ');
-  const logoHtml = <LogoPreviewHTML item={title} editData={_brandData} color={logoColor} layout={logoLayout} scaleFactor={0.45} crm={crmLine} maxWidth="100%" maxHeight="100%" />;
+  const logoHtml = <div style={{ width: "110px", height: "58px", overflow: "hidden", display: "flex", alignItems: "center", justifyContent: "center"}}><LogoPreviewHTML item={title} editData={_brandData} color={logoColor} layout={logoLayout} scaleFactor={1} crm={crmLine} maxWidth="110px" maxHeight="58px" /></div>;
   const _borderColor = borderColor || accentColor;
   
   // Página do Folder (A5 148x210mm)
@@ -3515,7 +3521,7 @@ function FolderTrifoldPreview({ brand, editData, logoColor, logoLayout, comBorda
 function FolderA5Preview({ brand, editData, logoColor, logoLayout, comBorda, setComBorda, patternSrc, patternScale, setPatternScale, accentColor, borderColor, setBorderColor, paletteColors, title, cartaoContacts, crmLine, folderRoof }) {
   const mainColor = paletteColors?.[0] || accentColor;
   const _brandData = editData || brand.editData || {};
-  const logoHtml = <LogoPreviewHTML editData={_brandData} color={logoColor} layout={logoLayout} scaleFactor={0.45} crm={crmLine} maxWidth="100%" maxHeight="100%" />;
+  const logoHtml = <div style={{ width: "110px", height: "58px", overflow: "hidden", display: "flex", alignItems: "center", justifyContent: "center"}}><LogoPreviewHTML editData={_brandData} color={logoColor} layout={logoLayout} scaleFactor={1} crm={crmLine} maxWidth="110px" maxHeight="58px" /></div>;
 
   const getTitleData = (raw) => {
     if (raw.includes('Alimentar')) return { pre: 'GUIA DE', main: 'INTRODUÇÃO ALIMENTAR', tagline: 'Nutrição e Saúde para o seu Bebê' };
