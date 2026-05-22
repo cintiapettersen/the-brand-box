@@ -64,7 +64,7 @@ export const ITEM_CUSTOM_BASE_SCALES = {
   'Atestado Médico (A4 e A5)': 1.0,
   'Atestado Médico': 2.0, 'Recibo': 1.0, 'Cartão de Retorno': 1.0,
   'Ficha de Cadastro': 2.0, 'Prontuário Médico': 2.0,
-  'Certificado de Coragem': 2.0,
+  'Certificado de Coragem': 1.0,
   // Folders and other standardized items
   'Guia Alimentar': 2.0,
   'Guia de Cuidados': 2.0,
@@ -2577,17 +2577,17 @@ function CertificadoCoragemPreview({ accentColor, patternSrc, editData, logoColo
             <LogoPreviewHTML item="Certificado de Coragem" editData={editData} color={logoColor} layout={logoLayout} scaleFactor={0.32} hideTagline={true} withBackground={false} maxWidth="100%" maxHeight="100%" />
           </div>
 
-          <div style={{ fontFamily: "'Montserrat', sans-serif", fontSize: '0.5rem', fontWeight: 600, color: '#7a7a7a', letterSpacing: '1px', marginBottom: '2px' }}>
+          <div style={{ fontFamily: "'Montserrat', sans-serif", fontSize: '0.5rem', fontWeight: 600, color: '#7a7a7a', letterSpacing: '1px', marginBottom: '0px' }}>
             Certificado Pediátrico de
           </div>
           <h2 style={{
             fontFamily: `'${editData?.fontFamily || 'Playfair Display'}', serif`,
-            fontSize: '1.5rem', fontWeight: 700, color: solidColor, margin: '0 0 10px', letterSpacing: '1px'
+            fontSize: '1.8rem', fontWeight: 700, color: solidColor, margin: '0 0 8px', letterSpacing: '1px'
           }}>
             Coragem
           </h2>
 
-          <div style={{ fontFamily: scriptFont, fontSize: '0.6rem', color: '#5a5a5a', textAlign: 'center', lineHeight: 1.5, marginTop: '2px', width: '90%' }}>
+          <div style={{ fontFamily: "'Montserrat', sans-serif", fontSize: '0.52rem', fontWeight: 400, color: '#5a5a5a', textAlign: 'center', lineHeight: 1.6, marginTop: '4px', width: '90%' }}>
             <div style={{ margin: 0 }}>Certifico para os devidos e lúdicos fins, que __________________</div>
             <div style={{ margin: 0 }}>idade _____ comportou-se corretamente na consulta de hoje,</div>
             <div style={{ margin: 0 }}>sendo educado e demonstrando muita coragem e valentia.</div>
@@ -7181,18 +7181,18 @@ body { width:${W + BLEED*2}mm; height:${H + BLEED*2}mm; position:relative; overf
     <!-- Casinha -->
     <div style="position:absolute;top:${BLEED + 6}mm;left:${BLEED + 6}mm;right:${BLEED + 6}mm;bottom:${BLEED + 6}mm;background:#fff;clip-path:polygon(0% 18%, 50% 0%, 100% 18%, 100% 100%, 0% 100%);-webkit-clip-path:polygon(0% 18%, 50% 0%, 100% 18%, 100% 100%, 0% 100%);display:flex;flex-direction:column;align-items:center;padding:12mm 10mm 10mm;">
         
-        <div style="margin-bottom:12mm;display:flex;justify-content:center;align-items:center;">
+        <div style="margin-bottom:6mm;display:flex;justify-content:center;align-items:center;">
             ${logoHtmlCe}
         </div>
 
-        <div style="font-family:'Montserrat',sans-serif;font-size:10pt;font-weight:600;color:#7a7a7a;letter-spacing:0.8pt;margin-bottom:1mm;">
+        <div style="font-family:'Montserrat',sans-serif;font-size:10pt;font-weight:600;color:#7a7a7a;letter-spacing:0.8pt;margin-bottom:0;">
             Certificado Pediátrico de
         </div>
-        <h2 style="font-family:'${_ffCe}',serif;font-size:38pt;font-weight:700;color:${solidColor};margin:0 0 8mm;letter-spacing:1pt;">
+        <h2 style="font-family:'${_ffCe}',serif;font-size:48pt;font-weight:700;color:${solidColor};margin:0 0 8mm;letter-spacing:1pt;">
             Coragem
         </h2>
 
-        <div style="font-family:'Great Vibes','Brush Script MT',cursive;font-size:22pt;color:#5a5a5a;text-align:center;line-height:1.5;width:90%;margin-top:8mm;">
+        <div style="font-family:'Montserrat',sans-serif;font-size:11pt;font-weight:400;color:#5a5a5a;text-align:center;line-height:1.6;width:90%;margin-top:6mm;">
             <div style="margin:0;">Certifico para os devidos e lúdicos fins, que __________________</div>
             <div style="margin:0;">idade _____ comportou-se corretamente na consulta de hoje,</div>
             <div style="margin:0;">sendo educado e demonstrando muita coragem e valentia.</div>
@@ -7886,7 +7886,7 @@ function EntregaContent({ brand, plano, setBrand }) {
     'Etiqueta para Correios': 100,
     'Tag para Sacola': 100,
     'Pasta A4': 100,
-    'Certificado de Coragem': 270,
+    'Certificado de Coragem': 135,
     'Diário do Xixi': 115,
     'Meu Pratinho': 150,
   };
