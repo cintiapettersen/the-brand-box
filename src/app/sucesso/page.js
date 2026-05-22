@@ -9204,7 +9204,20 @@ function SucessoContent() {
               }
 
               try {
-                localStorage.setItem('brandbox_delivery', JSON.stringify(brandFromDb));
+                // Tenta salvar versão completa; se exceder quota, salva versão enxuta (sem base64 de estampas)
+                const _deliveryStr = JSON.stringify(brandFromDb);
+                try {
+                  localStorage.setItem('brandbox_delivery', _deliveryStr);
+                } catch (_qe) {
+                  // Quota excedida: limpa dados antigos e tenta versão enxuta sem estampas em base64
+                  try { localStorage.removeItem('brandbox_delivery'); } catch {}
+                  const _slim = { ...brandFromDb };
+                  if (_slim.estampaPatterns) {
+                    _slim.estampaPatterns = _slim.estampaPatterns.map(p => p.base64 ? { ...p, base64: null } : p);
+                  }
+                  try { localStorage.setItem('brandbox_delivery', JSON.stringify(_slim)); } catch {}
+                  console.warn('brandbox_delivery salvo sem base64 (localStorage cheio):', _qe.name);
+                }
                 localStorage.setItem('brandbox_plano', data.plano || 'pro');
               } catch (e) { console.warn('Sync failed:', e); }
 
