@@ -7791,7 +7791,9 @@ function EntregaContent({ brand, plano, setBrand }) {
         };
         try {
           localStorage.setItem('brandbox_delivery', JSON.stringify(updated));
-        } catch {}
+        } catch (_qe) {
+          // quota excedida: ignora silenciosamente — dados estão no Supabase
+        }
         return updated;
       });
     }
