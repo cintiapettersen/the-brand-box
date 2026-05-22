@@ -2573,8 +2573,8 @@ function CertificadoCoragemPreview({ accentColor, patternSrc, editData, logoColo
           padding: '30px 15px 15px'
         }}>
           {/* Logo Rectangle / Space */}
-          <div style={{ width: '180px', height: '75px', display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: '8px' }}>
-            <LogoPreviewHTML item="Certificado de Coragem" editData={editData} color={logoColor} layout={logoLayout} scaleFactor={0.65} hideTagline={true} withBackground={false} maxWidth="100%" maxHeight="100%" />
+          <div style={{ width: '180px', height: '75px', display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: '10px' }}>
+            <LogoPreviewHTML item="Certificado de Coragem" editData={editData} color={logoColor} layout={logoLayout} scaleFactor={0.32} hideTagline={true} withBackground={false} maxWidth="100%" maxHeight="100%" />
           </div>
 
           <div style={{ fontFamily: "'Montserrat', sans-serif", fontSize: '0.5rem', fontWeight: 600, color: '#7a7a7a', letterSpacing: '1px', marginBottom: '2px' }}>
@@ -7159,7 +7159,7 @@ body { background:#eee; }
         const effectiveSrc = comBorda ? patternSrc : null;
 
         const _lColor = logoColor || _accent;
-        const logoHtmlCe = genPDFLogoHtml({ brand, editDataOverride: editData, color: _lColor, layout: logoLayout, localSlogan, crmLine, fontPt: logoLayout === 'horizontal' ? (marca.length > 18 ? 16 : marca.length > 12 ? 20 : 24) : _fontPt, lineH: _lineH, letterSp: editData?.fontLetterSpacing || brand.editData?.fontLetterSpacing || _letterSp, customLogoSrc, customLogoScale: customLogoSrc ? getCustomLogoScale(item) * (ITEM_CUSTOM_BASE_SCALES[item] || 1) : 100, maxWidth: '100mm', maxHeight: '28mm', withBackground: comBorda && patternSrc });
+        const logoHtmlCe = genPDFLogoHtml({ brand, editDataOverride: editData, color: _lColor, layout: logoLayout, localSlogan, crmLine, fontPt: logoLayout === 'horizontal' ? (marca.length > 18 ? 16 : marca.length > 12 ? 20 : 24) : _fontPt, lineH: _lineH, letterSp: editData?.fontLetterSpacing || brand.editData?.fontLetterSpacing || _letterSp, hideSlogan: true, customLogoSrc, customLogoScale: customLogoSrc ? getCustomLogoScale(item) * (ITEM_CUSTOM_BASE_SCALES[item] || 1) : 100, maxWidth: '100mm', maxHeight: '28mm', withBackground: comBorda && patternSrc });
 
         const html = `<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Certificado de Coragem - ${marca}</title>${fiCe}
 <style>* { box-sizing:border-box; margin:0; padding:0; print-color-adjust:exact !important; -webkit-print-color-adjust:exact !important; }
@@ -7181,7 +7181,7 @@ body { width:${W + BLEED*2}mm; height:${H + BLEED*2}mm; position:relative; overf
     <!-- Casinha -->
     <div style="position:absolute;top:${BLEED + 6}mm;left:${BLEED + 6}mm;right:${BLEED + 6}mm;bottom:${BLEED + 6}mm;background:#fff;clip-path:polygon(0% 18%, 50% 0%, 100% 18%, 100% 100%, 0% 100%);-webkit-clip-path:polygon(0% 18%, 50% 0%, 100% 18%, 100% 100%, 0% 100%);display:flex;flex-direction:column;align-items:center;padding:12mm 10mm 10mm;">
         
-        <div style="margin-bottom:6mm;display:flex;justify-content:center;align-items:center;">
+        <div style="margin-bottom:12mm;display:flex;justify-content:center;align-items:center;">
             ${logoHtmlCe}
         </div>
 
