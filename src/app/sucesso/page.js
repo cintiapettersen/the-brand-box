@@ -234,7 +234,7 @@ export function LogoPreviewHTML({ item = null, editData, color, layout = 'stacke
   // Tracking (letter-spacing) compensatório
   const taglineLetterSpacing = taglineLen > 45 ? '0.55em' : taglineLen > 30 ? '0.48em' : taglineLen > 15 ? '0.4em' : '0.35em';
   // Slogan wrap dinâmico ou manual
-  const shouldWrap = editData?.taglineWrap !== undefined ? editData.taglineWrap : (taglineLen > 35);
+  const shouldWrap = editData?.taglineWrap !== undefined ? editData.taglineWrap : (taglineLen > 25);
   const displaySlogan = (taglineText && taglineText.includes('\n'))
     ? taglineText.split('\n').filter(l => l.trim() !== '')
     : (taglineText && shouldWrap)
@@ -2341,7 +2341,7 @@ function CartaoRetornoPreview({ accentColor, patternSrc, cartaoContacts, crmLine
             
             <div style={{ position: 'absolute', top: '14px', left: '14px', right: '14px', bottom: '14px', background: '#fff', zIndex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', padding: '12px 10px' }}>
               <div style={{ width: '100%', height: '70px', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', marginBottom: '12px', overflow: 'hidden' }}>
-                <LogoPreviewHTML item="Cartão de Retorno" editData={editData} color={logoColor} layout={logoLayout} scaleFactor={0.85} withBackground={comBorda && !!patternSrc} maxWidth="100%" maxHeight="100%" />
+                <LogoPreviewHTML item="Cartão de Retorno" editData={editData} color={logoColor} layout={logoLayout} scaleFactor={0.85} withBackground={false} maxWidth="100%" maxHeight="100%" />
               </div>
               {crmLine && <div style={{ fontFamily: "'Montserrat',sans-serif", fontSize: '3.3px', color: '#999', letterSpacing: '0.8px', textTransform: 'uppercase', textAlign: 'center', marginBottom: '10px', marginTop: '-6px', whiteSpace: 'nowrap' }}>{crmLine}</div>}
               
@@ -2573,8 +2573,8 @@ function CertificadoCoragemPreview({ accentColor, patternSrc, editData, logoColo
           padding: '30px 15px 15px'
         }}>
           {/* Logo Rectangle / Space */}
-          <div style={{ width: '180px', height: '60px', display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: '8px' }}>
-            <LogoPreviewHTML item="Certificado de Coragem" editData={editData} color={logoColor} layout={logoLayout} scaleFactor={0.65} hideTagline={hideTagline} withBackground={comBorda && !!patternSrc} maxWidth="100%" maxHeight="100%" />
+          <div style={{ width: '180px', height: '75px', display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: '8px' }}>
+            <LogoPreviewHTML item="Certificado de Coragem" editData={editData} color={logoColor} layout={logoLayout} scaleFactor={0.65} hideTagline={true} withBackground={false} maxWidth="100%" maxHeight="100%" />
           </div>
 
           <div style={{ fontFamily: "'Montserrat', sans-serif", fontSize: '0.5rem', fontWeight: 600, color: '#7a7a7a', letterSpacing: '1px', marginBottom: '2px' }}>
@@ -2582,7 +2582,7 @@ function CertificadoCoragemPreview({ accentColor, patternSrc, editData, logoColo
           </div>
           <h2 style={{
             fontFamily: `'${editData?.fontFamily || 'Playfair Display'}', serif`,
-            fontSize: '1.5rem', fontWeight: 700, color: solidColor, margin: '0 0 18px', letterSpacing: '1px'
+            fontSize: '1.5rem', fontWeight: 700, color: solidColor, margin: '0 0 10px', letterSpacing: '1px'
           }}>
             Coragem
           </h2>
@@ -2689,7 +2689,7 @@ function ProntuarioPreview({ accentColor, patternSrc, editData, logoColor, logoL
             : <div style={{ position: 'absolute', inset: 0, background: solidColor }} />}
           <div style={{ position: 'absolute', top: BORDER, left: BORDER, right: BORDER, bottom: BORDER, background: '#fff', padding: '12px 14px' }}>
             <div style={{ width: '100%', height: '80px', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', marginBottom: '10px', overflow: 'hidden' }}>
-              <LogoPreviewHTML item="Prontuário Médico" editData={editData} color={logoColor} layout={logoLayout} scaleFactor={0.6} crm={crmLine} hideTagline={hideTagline} withBackground={comBorda && !!patternSrc} maxWidth="100%" maxHeight="100%" />
+              <LogoPreviewHTML item="Prontuário Médico" editData={editData} color={logoColor} layout={logoLayout} scaleFactor={0.6} crm={crmLine} hideTagline={hideTagline} withBackground={false} maxWidth="100%" maxHeight="100%" />
             </div>
             <div style={{ border: '0.4px solid #eee', borderRadius: '2px', padding: '6px 7px', display: 'flex', flexDirection: 'column', gap: '3.5px', marginTop: '2px' }}>
               {formRow('PACIENTE:', 'DATA DE NASCIMENTO:')}
@@ -2768,7 +2768,7 @@ function DiarioXixiPreview({ accentColor, patternSrc, editData, logoColor, logoL
         <div style={{ position: 'absolute', top: BORDER, left: BORDER, right: BORDER, bottom: BORDER + 2, background: '#fff', padding: '10px 15px', display: 'flex', flexDirection: 'column' }}>
           {/* Logo posicionada absolutamente no canto superior direito */}
           <div style={{ position: 'absolute', top: 4, right: BORDER + 8, width: '140px', height: '65px', overflow: 'hidden', display: 'flex', alignItems: 'center', justifyContent: 'flex-end' }}>
-            <LogoPreviewHTML item="Diário do Xixi" editData={editData} color={logoColor} layout={logoLayout} scaleFactor={0.6} crm={crmLine} hideTagline={hideTagline} withBackground={comBorda && !!patternSrc} maxWidth="100%" maxHeight="100%" />
+            <LogoPreviewHTML item="Diário do Xixi" editData={editData} color={logoColor} layout={logoLayout} scaleFactor={0.6} crm={crmLine} hideTagline={hideTagline} withBackground={false} maxWidth="100%" maxHeight="100%" />
           </div>
           <div style={{ display: 'flex', flexDirection: 'column', gap: '4px', marginBottom: '8px' }}>
             <div style={{ background: '#f5f5f5', padding: '4px 12px', borderRadius: '4px', border: '0.4px solid #ddd', alignSelf: 'flex-start', maxWidth: '270px' }}>
@@ -2878,7 +2878,7 @@ function FichaCadastroPreview({ accentColor, patternSrc, editData, logoColor, lo
             </div>
           </div>
           <div style={{ width: '190px', height: '80px', overflow: 'hidden', display: 'flex', flexDirection: 'column', alignItems: 'flex-end', justifyContent: 'center', marginTop: '-10px' }}>
-            <LogoPreviewHTML item="Ficha de Cadastro" editData={editData} color={logoColor} layout={logoLayout} scaleFactor={0.6} crm={crmLine} hideTagline={hideTagline} withBackground={!!effectiveSrc} maxWidth="100%" maxHeight="100%" alignLeft={false} />
+            <LogoPreviewHTML item="Ficha de Cadastro" editData={editData} color={logoColor} layout={logoLayout} scaleFactor={0.6} crm={crmLine} hideTagline={hideTagline} withBackground={false} maxWidth="100%" maxHeight="100%" alignLeft={false} />
           </div>
         </div>
 
@@ -2989,7 +2989,7 @@ function ReciboPreview({ accentColor, patternSrc, editData, logoColor, logoLayou
           
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '12px', paddingBottom: '4px', borderBottom: '0.1mm solid #f0f0f0' }}>
             <div style={{ width: '130px', height: '45px', display: 'flex', alignItems: 'center', overflow: 'hidden' }}>
-               <LogoPreviewHTML item="Recibo" editData={editData} color={logoColor} layout={logoLayout} scaleFactor={0.55} crm={crmLine} hideTagline={hideTagline} withBackground={!!effectiveSrc} alignLeft={true} maxWidth="100%" maxHeight="100%" />
+               <LogoPreviewHTML item="Recibo" editData={editData} color={logoColor} layout={logoLayout} scaleFactor={0.55} crm={crmLine} hideTagline={hideTagline} withBackground={false} alignLeft={true} maxWidth="100%" maxHeight="100%" />
             </div>
             <div style={{ textAlign: 'right' }}>
               <div style={{ fontSize: '12px', fontWeight: 800, color: accentColor, opacity: 0.12, letterSpacing: '2px' }}>RECIBO</div>
@@ -3081,7 +3081,7 @@ function ControleEspecialPreview({ accentColor, patternSrc, editData, logoColor,
             {/* Logo e Vias */}
             <div style={{ flex: 1.6, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: '4px', overflow: 'hidden' }}>
               <div style={{ width: '100%', height: '75px', display: 'flex', alignItems: 'center', justifyContent: 'center', overflow: 'hidden' }}>
-               <LogoPreviewHTML item="Receituário de Controle Especial" editData={editData} color={logoColor} layout={logoLayout} scaleFactor={0.65} crm={crmLine} hideTagline={true} withBackground={!!effectiveSrc} maxWidth="100%" maxHeight="100%" />
+               <LogoPreviewHTML item="Receituário de Controle Especial" editData={editData} color={logoColor} layout={logoLayout} scaleFactor={0.65} crm={crmLine} hideTagline={true} withBackground={false} maxWidth="100%" maxHeight="100%" />
               </div>
                <div style={{ fontSize: '3.5px', color: '#aaa', textTransform: 'uppercase', letterSpacing: '0.3px', textAlign: 'center', marginTop: '2px' }}>
                   1ª VIA FARMÁCIA<br/>2ª VIA PACIENTE
@@ -3182,7 +3182,7 @@ function ChecklistMaternidadePreview({ accentColor, patternSrc, editData, logoCo
           <div style={{ flex: 1, display: 'flex', flexDirection: 'column', padding: '12px 5px 3px 5px', gap: '3px', overflow: 'hidden' }}>
             {/* Logo centralizada no topo */}
             <div style={{ width: '100%', height: '75px', display: 'flex', justifyContent: 'center', alignItems: 'center', borderBottom: `0.4px solid ${accentColor}25`, marginBottom: '4px', overflow: 'hidden' }}>
-              <LogoPreviewHTML item="Checklist Maternidade" editData={editData} color={logoColor} layout={logoLayout} scaleFactor={0.65} crm={crmLine} withBackground={comBorda && !!patternSrc} maxWidth="100%" maxHeight="100%" />
+              <LogoPreviewHTML item="Checklist Maternidade" editData={editData} color={logoColor} layout={logoLayout} scaleFactor={0.7} crm={crmLine} withBackground={false} maxWidth="100%" maxHeight="100%" />
             </div>
             {/* Grid 2x2 */}
             <div style={{ flex: 1, display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '4px', padding: '2px 4px 6px' }}>
@@ -3435,7 +3435,7 @@ function GuiaCuidadosPreview({ brand, logoColor, logoLayout, comBorda, setComBor
         paddingTop:'19px', textAlign:'center',
         clipPath: (comBorda && patternSrc) ? 'none' : 'polygon(0% 8%, 50% 0%, 100% 8%, 100% 100%, 0% 100%)' }}>
         <div style={{ width: '80%', height: '65px', display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: '10px' }}>
-          <LogoPreviewHTML item="Receituário" editData={editData} color={accentColor} layout={logoLayout} scaleFactor={0.65} crm={crmLine} withBackground={!!patternSrc} />
+          <LogoPreviewHTML item="Receituário" editData={editData} color={accentColor} layout={logoLayout} scaleFactor={0.65} crm={crmLine} withBackground={false} />
         </div>
         <div style={{ width:'13px', height:'0.7px', background:accentColor, marginBottom:'8px', borderRadius:'10px' }} />
         <div style={{ display:'flex', flexDirection:'column', alignItems:'center', gap:'0px' }}>
@@ -4266,7 +4266,7 @@ function PastaPreview({ brand, editData, accentColor, solidColor, logoColor, log
             boxShadow: '0 4px 15px rgba(0,0,0,0.05)'
           }} />
           <div style={{ position: 'absolute', top: '48%', left: '50%', transform: 'translate(-50%, -50%)', width: '60%', height: '75px', display:'flex', justifyContent:'center', alignItems: 'center', zIndex: 1 }}>
-            <LogoPreviewHTML item="Pasta" editData={editData} color={logoColor} layout={logoLayout} scaleFactor={0.80} hideTagline={hideTagline} withBackground={comBorda && !!patternSrc} maxWidth="100%" maxHeight="100%" />
+            <LogoPreviewHTML item="Pasta" editData={editData} color={logoColor} layout={logoLayout} scaleFactor={0.80} hideTagline={hideTagline} withBackground={false} maxWidth="100%" maxHeight="100%" />
           </div>
         </div>
 
@@ -4282,7 +4282,7 @@ function PastaPreview({ brand, editData, accentColor, solidColor, logoColor, log
                border: '0.1mm solid rgba(0,0,0,0.05)'
              }}>
                 <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start', gap: '2px', width: '45%', height: '100%', justifyContent: 'center', overflow: 'hidden', flexShrink: 0 }}>
-                  <LogoPreviewHTML item="Pasta" editData={editData} color={logoColor} layout={logoLayout} scaleFactor={0.35} crm={crmLine} hideTagline={hideTagline} alignLeft={true} withBackground={comBorda && !!patternSrc} maxWidth="100%" maxHeight="100%" />
+                  <LogoPreviewHTML item="Pasta" editData={editData} color={logoColor} layout={logoLayout} scaleFactor={0.35} crm={crmLine} hideTagline={hideTagline} alignLeft={true} withBackground={false} maxWidth="100%" maxHeight="100%" />
                 </div>
                 <div style={{ 
                   display: 'flex', flexDirection: 'column', fontSize: '3.8px', color: '#555', 
