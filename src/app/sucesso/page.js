@@ -7813,7 +7813,7 @@ function EntregaContent({ brand, plano, setBrand }) {
   const [papelariaNavItens, setPapelariaNavItens] = useState([]);
 
   const ALL_STEPS = [
-    'placa', 'manifesto', 'tomdevoz', 'fonte', 'logo', 
+    'placa', 'manifesto', 'tomdevoz', 'fonte', 'slogan', 'logo', 
     ...(plano === 'pro' ? ['submarca'] : []), 
     'cores', 'paleta', 'estampa', 'guia',
     'cartao', 'pack-instagram', 'assinatura-email', 'papelaria'
@@ -8314,7 +8314,7 @@ function EntregaContent({ brand, plano, setBrand }) {
         <div style={{ display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between', marginBottom: '1.2rem' }}>
           <div>
             <h1 style={{ fontSize: '1.4rem', fontWeight: 700, color: '#1a1a1a', lineHeight: 1.2 }}>
-              {step === 'placa' ? 'Placa da Marca' : step === 'manifesto' ? 'Manifesto da Marca' : step === 'tomdevoz' ? 'Tom de Voz' : step === 'fonte' ? 'Fonte da Marca' : step === 'logo' ? 'Sua Logo' : step === 'submarca' ? 'Sua Submarca' : step === 'estampa' ? 'Sua Estampa' : step === 'cores' ? 'Suas Cores' : step === 'paleta' ? 'Sua Paleta' : step === 'cartao' ? 'Cartão Digital' : step === 'pack-instagram' ? 'Pack Digital para Instagram' : step === 'assinatura-email' ? 'Assinatura de E-mail' : step === 'guia' ? 'Guia da Marca' : 'Sua Papelaria'}
+              {step === 'placa' ? 'Placa da Marca' : step === 'manifesto' ? 'Manifesto da Marca' : step === 'tomdevoz' ? 'Tom de Voz' : step === 'fonte' ? 'Fonte da Marca' : step === 'slogan' ? 'Slogan da Marca' : step === 'logo' ? 'Sua Logo' : step === 'submarca' ? 'Sua Submarca' : step === 'estampa' ? 'Sua Estampa' : step === 'cores' ? 'Suas Cores' : step === 'paleta' ? 'Sua Paleta' : step === 'cartao' ? 'Cartão Digital' : step === 'pack-instagram' ? 'Pack Digital para Instagram' : step === 'assinatura-email' ? 'Assinatura de E-mail' : step === 'guia' ? 'Guia da Marca' : 'Sua Papelaria'}
             </h1>
           </div>
           <button 
@@ -8351,47 +8351,266 @@ function EntregaContent({ brand, plano, setBrand }) {
 
         {step === 'fonte' && <FonteStep brand={brand} accentColor={accentColor} marca={marca} tagline={tagline} editData={editDataWithLogo} onFontChange={(f) => setFontOverride(f)} />}
 
+        {/* Aba Slogan */}
+        {step === 'slogan' && (
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+            {/* Preview da logo com slogan */}
+            <div style={{
+              width: '100%', aspectRatio: '1 / 1',
+              background: bgColor,
+              borderRadius: '16px',
+              overflow: 'hidden',
+              boxShadow: '0 8px 40px rgba(0,0,0,0.10)',
+              display: 'flex', alignItems: 'center', justifyContent: 'center',
+              transition: 'background 0.2s ease',
+            }}>
+              <div style={{ width: '85%', height: '58%', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                <LogoPreviewHTML editData={editDataWithLogo} color={logoColor} layout={logoLayout} scaleFactor={1.1} maxWidth="100%" maxHeight="100%" />
+              </div>
+            </div>
+
+            {/* Controles do slogan */}
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', padding: '16px', background: '#fcfcfc', borderRadius: '16px', border: '1.5px solid #eaeaea', boxShadow: '0 4px 12px rgba(0,0,0,0.02)' }}>
+              <span style={{ fontSize: '0.78rem', fontWeight: 800, fontFamily: 'Montserrat, sans-serif', color: '#333', letterSpacing: '0.3px', display: 'flex', alignItems: 'center', gap: '6px' }}>💬 Slogan da Marca</span>
+              <input
+                value={tagline}
+                onChange={e => setTagline(e.target.value)}
+                placeholder="Ex: Delicadeza em cada detalhe"
+                style={{ width: '100%', padding: '12px 16px', borderRadius: '12px', border: `1.5px solid ${logoColor}22`, fontSize: '0.88rem', fontFamily: 'Montserrat, sans-serif', boxSizing: 'border-box', background: '#fff', outline: 'none', color: '#444', letterSpacing: '0.3px' }}
+              />
+              <div style={{ display: 'flex', gap: '6px' }}>
+                <button onClick={() => setTaglineWrap(false)} style={{ flex: 1, padding: '6px 4px', border: 'none', borderRadius: '20px', fontSize: '0.68rem', fontWeight: 700, background: !taglineWrap ? logoColor : '#eee', color: !taglineWrap ? '#fff' : '#888', cursor: 'pointer', transition: '0.2s' }}>1 Linha</button>
+                <button onClick={() => setTaglineWrap(true)} style={{ flex: 1, padding: '6px 4px', border: 'none', borderRadius: '20px', fontSize: '0.68rem', fontWeight: 700, background: taglineWrap ? logoColor : '#eee', color: taglineWrap ? '#fff' : '#888', cursor: 'pointer', transition: '0.2s' }}>2 Linhas</button>
+              </div>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', padding: '10px', background: '#f8f8f8', borderRadius: '12px' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                  <span style={{ fontSize: '0.68rem', color: '#888', fontWeight: 600, fontFamily: 'Montserrat,sans-serif', width: '100px' }}>Distância Slogan</span>
+                  <input type="range" min="0" max="1.5" step="0.05" value={taglineGap} onChange={e => setTaglineGap(parseFloat(e.target.value))} style={{ flex: 1, accentColor }} />
+                  <span style={{ fontSize: '0.68rem', color: '#aaa', width: '30px' }}>{taglineGap.toFixed(2)}</span>
+                </div>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                  <span style={{ fontSize: '0.68rem', color: '#888', fontWeight: 600, fontFamily: 'Montserrat,sans-serif', width: '100px' }}>Altura Logo</span>
+                  <input type="range" min="0.5" max="2" step="0.05" value={fontLineHeight} onChange={e => setFontLineHeight(parseFloat(e.target.value))} style={{ flex: 1, accentColor }} />
+                  <span style={{ fontSize: '0.68rem', color: '#aaa', width: '30px' }}>{fontLineHeight.toFixed(2)}</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+
         {/* Guia da marca */}
         {step === 'guia' && <GuiaStep brand={brand} accentColor={accentColor} paletteColors={paletteColors} marca={marca} tagline={tagline} estampaPatterns={estampaPatterns} estampaSelectedIdx={estampaSelectedIdx} editData={editDataWithLogo} />}
 
         {/* Papelaria / Gabaritos */}
         {step === 'papelaria' && <PapelariaStep brand={brand} accentColor={accentColor} paletteColors={orderedPaletteColors} estampaPatterns={estampaPatterns} estampaSelectedIdx={estampaSelectedIdx} cartaoContacts={cartaoContacts} setCartaoContacts={setCartaoContacts} plano={plano} isSaude={isSaude} crmData={crmData} setCrmData={setCrmData} marca={marca} editData={editDataWithLogo} logoColor={logoColor} logoLayout={logoLayout} setLayout={setLayout} clinicaNome={clinicaNome} setClinicaNome={setClinicaNome} onNavSync={setPapelariaNavItens} navIdx={papelariaNavIdx} setNavIdx={setPapelariaNavIdx} customLogoSrc={customLogoSrc} getCustomLogoScale={getCustomLogoScale} setCustomLogoScale={setCustomLogoScale} getCustomLogoScaleMax={getCustomLogoScaleMax} customLogoScaleMap={customLogoScaleMap} />}
 
-        {/* Área da logo */}
-        {step !== 'estampa' && step !== 'cores' && step !== 'paleta' && step !== 'cartao' && step !== 'guia' && step !== 'manifesto' && step !== 'tomdevoz' && step !== 'fonte' && step !== 'placa' && step !== 'papelaria' && step !== 'pack-instagram' && step !== 'assinatura-email' && <div
-          ref={logoRef}
-          style={{
-            width: '100%', aspectRatio: '1 / 1',
-            background: step === 'submarca' ? (submarcaBg || '#f5f5f5') : bgColor,
-            borderRadius: '16px',
-            overflow: 'hidden',
-            boxShadow: '0 8px 40px rgba(0,0,0,0.10)',
-            display: 'flex', alignItems: 'center', justifyContent: 'center',
-            transition: 'background 0.2s ease',
-          }}
-        >
-          <div style={{ width: '85%', height: '58%', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-            {step === 'logo' && (
-              <div style={{ width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                <LogoPreviewHTML editData={editDataWithLogo} color={logoColor} layout={logoLayout} scaleFactor={1.1} maxWidth="100%" maxHeight="100%" />
+        {/* Estilos Salvos — acima do preview na aba logo */}
+        {step === 'logo' && !customLogoSrc && (
+          <div style={{ marginTop: '1rem', display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', padding: '12px 16px', background: '#fcfcfc', borderRadius: '16px', border: '1.5px solid #eaeaea', boxShadow: '0 4px 12px rgba(0,0,0,0.02)' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                <span style={{ fontSize: '0.75rem', fontWeight: 800, fontFamily: 'Montserrat, sans-serif', color: '#333', letterSpacing: '0.3px', display: 'flex', alignItems: 'center', gap: '6px' }}>🎨 Estilos Salvos</span>
+                {!isSavingPreset ? (
+                  <button onClick={() => setIsSavingPreset(true)} style={{ background: `${accentColor}12`, color: accentColor, border: 'none', padding: '5px 10px', borderRadius: '20px', fontSize: '0.65rem', fontWeight: 700, cursor: 'pointer', fontFamily: 'Montserrat, sans-serif' }}>+ Salvar atual</button>
+                ) : null}
               </div>
-            )}
-            {step !== 'logo' && (
-              <div style={{ width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                <BrandTemplateSVG
-                  data={seloData}
-                  color={submarcaColor || accentColor}
-                  textColor={submarcaTextColor}
-                  side="verso"
-                  hideBackground={true}
-                  iconPath={currentIconPath}
-                />
-              </div>
-            )}
+              {isSavingPreset && (
+                <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+                  <input type="text" placeholder="Nome do estilo..." value={newPresetName} onChange={e => setNewPresetName(e.target.value)} style={{ flex: 1, padding: '7px 12px', border: '1.5px solid #e0e0e0', borderRadius: '8px', fontSize: '0.75rem', fontFamily: 'Montserrat, sans-serif', outline: 'none' }} onFocus={e => e.currentTarget.style.borderColor = accentColor} onBlur={e => e.currentTarget.style.borderColor = '#e0e0e0'} />
+                  <button onClick={() => saveCurrentPreset(newPresetName)} style={{ background: accentColor, color: '#fff', border: 'none', borderRadius: '8px', width: '28px', height: '28px', fontWeight: 700, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>✓</button>
+                  <button onClick={() => { setIsSavingPreset(false); setNewPresetName(''); }} style={{ background: '#f0f0f0', color: '#666', border: 'none', borderRadius: '8px', width: '28px', height: '28px', fontWeight: 700, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>✗</button>
+                </div>
+              )}
+              {presets.length > 0 ? (
+                <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap' }}>
+                  {presets.map(p => {
+                    const active = activePresetId === p.id;
+                    return (
+                      <div key={p.id} onClick={() => loadPreset(p)} style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', padding: '5px 10px', borderRadius: '20px', cursor: 'pointer', fontFamily: 'Montserrat, sans-serif', fontSize: '0.65rem', fontWeight: 600, border: `1.5px solid ${active ? accentColor : '#e0e0e0'}`, background: active ? `${accentColor}12` : '#fff', color: active ? accentColor : '#666' }}>
+                        <span>{p.name}</span>
+                        <span onClick={(e) => deletePreset(p.id, e)} style={{ color: active ? accentColor : '#bbb', fontSize: '0.85rem', fontWeight: 700, cursor: 'pointer' }} onMouseEnter={e => e.currentTarget.style.color = '#ff4d4f'} onMouseLeave={e => e.currentTarget.style.color = active ? accentColor : '#bbb'}>×</span>
+                      </div>
+                    );
+                  })}
+                </div>
+              ) : (
+                <div style={{ fontSize: '0.65rem', color: '#aaa', fontStyle: 'italic', fontFamily: 'Montserrat, sans-serif' }}>Nenhuma variação salva ainda.</div>
+              )}
+            </div>
           </div>
-        </div>}
+        )}
 
-        {step !== 'estampa' && step !== 'cores' && step !== 'paleta' && step !== 'cartao' && step !== 'guia' && step !== 'manifesto' && step !== 'tomdevoz' && step !== 'fonte' && step !== 'placa' && step !== 'papelaria' && step !== 'pack-instagram' && step !== 'assinatura-email' &&
+        {/* Área da logo — layout 2 colunas na aba logo, normal nas outras */}
+        {step !== 'estampa' && step !== 'cores' && step !== 'paleta' && step !== 'cartao' && step !== 'guia' && step !== 'manifesto' && step !== 'tomdevoz' && step !== 'fonte' && step !== 'placa' && step !== 'papelaria' && step !== 'pack-instagram' && step !== 'assinatura-email' && step !== 'slogan' && (
+          step === 'logo' ? (
+            /* Layout 2 colunas: preview à esquerda, controles à direita */
+            <div style={{ display: 'flex', gap: '12px', alignItems: 'flex-start' }}>
+              {/* Preview quadrado — 55% da largura */}
+              <div
+                ref={logoRef}
+                style={{
+                  flex: '0 0 55%',
+                  aspectRatio: '1 / 1',
+                  background: bgColor,
+                  borderRadius: '14px',
+                  overflow: 'hidden',
+                  boxShadow: '0 6px 24px rgba(0,0,0,0.10)',
+                  display: 'flex', alignItems: 'center', justifyContent: 'center',
+                  transition: 'background 0.2s ease',
+                }}
+              >
+                <div style={{ width: '85%', height: '58%', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                  <LogoPreviewHTML editData={editDataWithLogo} color={logoColor} layout={logoLayout} scaleFactor={1.1} maxWidth="100%" maxHeight="100%" />
+                </div>
+              </div>
+              {/* Painel de controles — 45% restante */}
+              <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: '8px', minWidth: 0 }}>
+                {/* Origem */}
+                <div style={{ padding: '10px', background: '#fcfcfc', borderRadius: '12px', border: '1.5px solid #eaeaea' }}>
+                  <span style={{ fontSize: '0.68rem', fontWeight: 800, fontFamily: 'Montserrat, sans-serif', color: '#555', display: 'block', marginBottom: '6px' }}>📂 Origem</span>
+                  <div style={{ display: 'flex', gap: '4px' }}>
+                    <button onClick={() => { setCustomLogoSrc(null); setCustomLogoWarn(null); }} style={{ flex: 1, padding: '6px 4px', border: `1.5px solid ${!customLogoSrc ? accentColor : '#e0e0e0'}`, borderRadius: '8px', cursor: 'pointer', fontSize: '0.62rem', fontWeight: 700, fontFamily: 'Montserrat,sans-serif', background: !customLogoSrc ? `${accentColor}12` : '#fff', color: !customLogoSrc ? accentColor : '#aaa' }}>✨ Sugerida</button>
+                    <label style={{ flex: 1, padding: '6px 4px', border: `1.5px solid ${customLogoSrc ? accentColor : '#e0e0e0'}`, borderRadius: '8px', cursor: 'pointer', fontSize: '0.62rem', fontWeight: 700, fontFamily: 'Montserrat,sans-serif', background: customLogoSrc ? `${accentColor}12` : '#fff', color: customLogoSrc ? accentColor : '#aaa', textAlign: 'center', display: 'block' }}>
+                      {customLogoSrc ? '✓ Minha' : '📤 Upload'}
+                      <input type="file" accept="image/png" style={{ display: 'none' }} onClick={e => { e.target.value = null; }} onChange={e => {
+                        const file = e.target.files[0];
+                        if (!file) return;
+                        if (file.type !== 'image/png') { setCustomLogoWarn('Por favor envie um arquivo PNG.'); return; }
+                        if (file.size > 5 * 1024 * 1024) { setCustomLogoWarn('Arquivo muito grande (máx. 5MB).'); return; }
+                        const reader = new FileReader();
+                        reader.onload = ev => {
+                          const src = ev.target.result;
+                          const img = new Image();
+                          img.onload = () => {
+                            const minDim = Math.min(img.width, img.height);
+                            if (minDim < 500) { setCustomLogoWarn(`Imagem muito pequena (${img.width}×${img.height}px). Envie pelo menos 500×500px.`); return; }
+                            const canvas = document.createElement('canvas'); canvas.width = img.width; canvas.height = img.height;
+                            const ctx = canvas.getContext('2d'); ctx.drawImage(img, 0, 0);
+                            const pts = [[0,0],[img.width-1,0],[0,img.height-1],[img.width-1,img.height-1],[Math.floor(img.width/2),0],[Math.floor(img.width/2),img.height-1]];
+                            const hasOpaqueCorner = pts.some(([x,y]) => ctx.getImageData(x,y,1,1).data[3] > 20);
+                            const warn = hasOpaqueCorner ? '⚠️ A logo parece ter fundo. Use PNG com fundo transparente.' : minDim < 1000 ? `✓ Logo carregada (${img.width}×${img.height}px). Para alta qualidade, recomendamos acima de 1000px.` : null;
+                            setCustomLogoWarn(warn);
+                            if (!hasOpaqueCorner) {
+                              const data = ctx.getImageData(0,0,img.width,img.height).data;
+                              let top=img.height,bottom=0,left=img.width,right=0;
+                              for (let y=0;y<img.height;y++) for (let x=0;x<img.width;x++) if (data[(y*img.width+x)*4+3]>10) { if(y<top)top=y;if(y>bottom)bottom=y;if(x<left)left=x;if(x>right)right=x; }
+                              if (right>left&&bottom>top) {
+                                const pad=Math.round(Math.max(img.width,img.height)*0.02);
+                                const tx=Math.max(0,left-pad),ty=Math.max(0,top-pad),tw=Math.min(img.width,right+pad)-tx,th=Math.min(img.height,bottom+pad)-ty;
+                                const tc=document.createElement('canvas');tc.width=tw;tc.height=th;
+                                const tctx=tc.getContext('2d');tctx.drawImage(canvas,tx,ty,tw,th,0,0,tw,th);
+                                const td=tctx.getImageData(0,0,tw,th);const d=td.data;
+                                for(let i=0;i<d.length;i+=4) if(d[i]>240&&d[i+1]>240&&d[i+2]>240&&d[i+3]>200) d[i+3]=0;
+                                tctx.putImageData(td,0,0);setCustomLogoSrc(tc.toDataURL('image/png'));setCustomLogoScaleMapState({});try{localStorage.removeItem('brandbox_custom_logo_scales');}catch{} return;
+                              }
+                            }
+                            setCustomLogoSrc(src);setCustomLogoScaleMapState({});try{localStorage.removeItem('brandbox_custom_logo_scales');}catch{};
+                          };
+                          img.src = src;
+                        };
+                        reader.readAsDataURL(file);
+                      }} />
+                    </label>
+                  </div>
+                  {customLogoWarn && <div style={{ fontSize: '0.6rem', color: '#b87000', background: '#fff8e1', border: '1px solid #ffe082', borderRadius: '6px', padding: '6px 8px', fontFamily: 'Montserrat,sans-serif', lineHeight: 1.4, marginTop: '4px' }}>{customLogoWarn}</div>}
+                  {customLogoSrc && (
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginTop: '6px' }}>
+                      <span style={{ fontSize: '0.6rem', color: '#999', fontWeight: 600, fontFamily: 'Montserrat,sans-serif', whiteSpace: 'nowrap' }}>Escala</span>
+                      <input type="range" min="10" max="200" step="5" value={customLogoScale} onChange={e => setCustomLogoScale(parseInt(e.target.value))} style={{ flex: 1, accentColor }} />
+                      <span style={{ fontSize: '0.6rem', color: '#aaa', width: '28px' }}>{customLogoScale}%</span>
+                    </div>
+                  )}
+                </div>
+
+                {/* Cores: Fundo + Logo numa linha */}
+                <div style={{ padding: '10px', background: '#fcfcfc', borderRadius: '12px', border: '1.5px solid #eaeaea' }}>
+                  <div style={{ display: 'flex', gap: '8px' }}>
+                    <div style={{ flex: 1 }}>
+                      <span style={{ fontSize: '0.62rem', fontWeight: 800, fontFamily: 'Montserrat, sans-serif', color: '#555', display: 'block', marginBottom: '6px' }}>🖼️ Fundo</span>
+                      <div style={{ display: 'flex', gap: '5px', flexWrap: 'wrap' }}>
+                        {BG_OPTIONS.map(opt => (
+                          <ColorDot key={opt.label} color={opt.color} selected={bgColor === opt.color} onClick={() => setBgColor(opt.color)} />
+                        ))}
+                      </div>
+                    </div>
+                    <div style={{ width: '1px', background: '#eaeaea', alignSelf: 'stretch' }} />
+                    <div style={{ flex: 1 }}>
+                      <span style={{ fontSize: '0.62rem', fontWeight: 800, fontFamily: 'Montserrat, sans-serif', color: '#555', display: 'block', marginBottom: '6px' }}>🎨 Cor Logo</span>
+                      <div style={{ display: 'flex', gap: '5px', flexWrap: 'wrap' }}>
+                        {['#000000', '#ffffff'].map(hex => <ColorDot key={hex} color={hex} selected={logoColor === hex} onClick={() => setLogoColor(hex)} outlined={hex === '#ffffff'} />)}
+                        {paletteColors.map((hex, i) => <ColorDot key={i} color={hex} selected={logoColor === hex} onClick={() => setLogoColor(hex)} />)}
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Disposição */}
+                {!customLogoSrc && marca.split(' ').length > 1 && (
+                  <div style={{ padding: '10px', background: '#fcfcfc', borderRadius: '12px', border: '1.5px solid #eaeaea' }}>
+                    <span style={{ fontSize: '0.62rem', fontWeight: 800, fontFamily: 'Montserrat, sans-serif', color: '#555', display: 'block', marginBottom: '6px' }}>📐 Disposição</span>
+                    <div style={{ display: 'flex', gap: '4px', flexWrap: 'wrap' }}>
+                      {[
+                        { key: 'horizontal', label: '→ 1 linha' },
+                        { key: 'balanced', label: '⊟ 2 linhas', hide: marca.split(' ').length < 3 },
+                        { key: 'stacked', label: '≡ Empilhada' },
+                      ].filter(o => !o.hide).map(({ key, label }) => (
+                        <button key={key} onClick={() => setLayout(key)} style={{ padding: '4px 8px', borderRadius: '16px', fontSize: '0.62rem', fontWeight: 600, cursor: 'pointer', border: 'none', background: logoLayout === key ? logoColor : '#eee', color: logoLayout === key ? '#fff' : '#888', transition: 'all 0.15s ease' }}>{label}</button>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {/* Nome da marca */}
+                {!customLogoSrc && (
+                  <div style={{ padding: '10px', background: '#fcfcfc', borderRadius: '12px', border: '1.5px solid #eaeaea' }}>
+                    <button onClick={() => setShowEdit(v => !v)} style={{ background: 'none', border: 'none', padding: 0, width: '100%', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                      <span style={{ fontSize: '0.62rem', fontWeight: 800, fontFamily: 'Montserrat, sans-serif', color: '#555' }}>✏️ Nome</span>
+                      <span style={{ fontSize: '0.7rem', color: '#888' }}>{showEdit ? '▲' : '▼'}</span>
+                    </button>
+                    {showEdit && (
+                      <input value={marca} onChange={e => setMarca(e.target.value)} placeholder="Nome da marca" style={{ width: '100%', padding: '8px 10px', borderRadius: '8px', border: '1px solid #e0e0e0', fontSize: '0.8rem', fontFamily: 'Montserrat, sans-serif', boxSizing: 'border-box', marginTop: '6px' }} />
+                    )}
+                  </div>
+                )}
+              </div>
+            </div>
+          ) : (
+            /* Layout normal para submarca */
+            <div
+              ref={logoRef}
+              style={{
+                width: '100%', aspectRatio: '1 / 1',
+                background: submarcaBg || '#f5f5f5',
+                borderRadius: '16px',
+                overflow: 'hidden',
+                boxShadow: '0 8px 40px rgba(0,0,0,0.10)',
+                display: 'flex', alignItems: 'center', justifyContent: 'center',
+                transition: 'background 0.2s ease',
+              }}
+            >
+              <div style={{ width: '85%', height: '58%', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                <BrandTemplateSVG data={seloData} color={submarcaColor || accentColor} textColor={submarcaTextColor} side="verso" hideBackground={true} iconPath={currentIconPath} />
+              </div>
+            </div>
+          )
+        )}
+
+        {/* Download card — aba logo */}
+        {step === 'logo' && (
+          <div style={{ marginTop: '1rem', display: 'flex', flexDirection: 'column', gap: '10px', padding: '16px', background: '#fcfcfc', borderRadius: '16px', border: '1.5px solid #eaeaea', boxShadow: '0 4px 12px rgba(0,0,0,0.02)', marginBottom: '14px' }}>
+            <span style={{ fontSize: '0.78rem', fontWeight: 800, fontFamily: 'Montserrat, sans-serif', color: '#333', letterSpacing: '0.3px', display: 'flex', alignItems: 'center', gap: '6px' }}>💾 Baixar Arquivos da Logo</span>
+            <div style={{ display: 'flex', gap: '8px', marginTop: '4px' }}>
+              <button onClick={downloadTransparent} disabled={!!downloading} style={{ flex: 1, padding: '10px 8px', background: '#fff', color: accentColor, border: `1.5px solid ${accentColor}`, borderRadius: '30px', fontWeight: 700, fontSize: '0.78rem', cursor: 'pointer', opacity: downloading === 'png' ? 0.6 : 1 }}>
+                {downloading === 'png' ? '...' : 'PNG Transparente'}
+              </button>
+              <button onClick={downloadComFundo} disabled={!!downloading} style={{ flex: 1, padding: '10px 8px', background: '#fff', color: accentColor, border: `1.5px solid ${accentColor}`, borderRadius: '30px', fontWeight: 700, fontSize: '0.78rem', cursor: 'pointer', opacity: downloading === 'fundo' ? 0.6 : 1 }}>
+                {downloading === 'fundo' ? '...' : 'Logo com Fundo'}
+              </button>
+            </div>
+          </div>
+        )}
+
+        {step !== 'estampa' && step !== 'cores' && step !== 'paleta' && step !== 'cartao' && step !== 'guia' && step !== 'manifesto' && step !== 'tomdevoz' && step !== 'fonte' && step !== 'placa' && step !== 'papelaria' && step !== 'pack-instagram' && step !== 'assinatura-email' && step !== 'slogan' && step !== 'logo' &&
         <div style={{ marginTop: '1.4rem', display: 'flex', flexDirection: 'column', gap: '1rem' }}>
 
           {/* Estilos Salvos / Variações */}
