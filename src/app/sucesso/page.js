@@ -2573,15 +2573,15 @@ function CertificadoCoragemPreview({ accentColor, patternSrc, editData, logoColo
           padding: '30px 15px 15px'
         }}>
           {/* Logo Rectangle / Space */}
-          <div style={{ width: '180px', height: '75px', display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: '10px' }}>
-            <LogoPreviewHTML item="Certificado de Coragem" editData={editData} color={logoColor} layout={logoLayout} scaleFactor={0.32} hideTagline={true} withBackground={false} maxWidth="100%" maxHeight="100%" />
+          <div style={{ width: '160px', height: '55px', display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: '6px' }}>
+            <LogoPreviewHTML item="Certificado de Coragem" editData={editData} color={logoColor} layout={logoLayout} scaleFactor={0.22} hideTagline={true} withBackground={false} maxWidth="100%" maxHeight="100%" />
           </div>
 
           <div style={{ fontFamily: "'Montserrat', sans-serif", fontSize: '0.5rem', fontWeight: 600, color: '#7a7a7a', letterSpacing: '1px', marginBottom: '0px' }}>
             Certificado Pediátrico de
           </div>
           <h2 style={{
-            fontFamily: `'${editData?.fontFamily || 'Playfair Display'}', serif`,
+            fontFamily: "'Playfair Display', serif",
             fontSize: '1.8rem', fontWeight: 700, color: solidColor, margin: '0 0 8px', letterSpacing: '1px'
           }}>
             Coragem
@@ -7181,14 +7181,14 @@ body { width:${W + BLEED*2}mm; height:${H + BLEED*2}mm; position:relative; overf
     <!-- Casinha -->
     <div style="position:absolute;top:${BLEED + 6}mm;left:${BLEED + 6}mm;right:${BLEED + 6}mm;bottom:${BLEED + 6}mm;background:#fff;clip-path:polygon(0% 18%, 50% 0%, 100% 18%, 100% 100%, 0% 100%);-webkit-clip-path:polygon(0% 18%, 50% 0%, 100% 18%, 100% 100%, 0% 100%);display:flex;flex-direction:column;align-items:center;padding:12mm 10mm 10mm;">
         
-        <div style="margin-bottom:6mm;display:flex;justify-content:center;align-items:center;">
+        <div style="margin-bottom:3mm;display:flex;justify-content:center;align-items:center;">
             ${logoHtmlCe}
         </div>
 
         <div style="font-family:'Montserrat',sans-serif;font-size:10pt;font-weight:600;color:#7a7a7a;letter-spacing:0.8pt;margin-bottom:0;">
             Certificado Pediátrico de
         </div>
-        <h2 style="font-family:'${_ffCe}',serif;font-size:48pt;font-weight:700;color:${solidColor};margin:0 0 8mm;letter-spacing:1pt;">
+        <h2 style="font-family:'Playfair Display',serif;font-size:48pt;font-weight:700;color:${solidColor};margin:0 0 8mm;letter-spacing:1pt;">
             Coragem
         </h2>
 
