@@ -3080,8 +3080,8 @@ function ControleEspecialPreview({ accentColor, patternSrc, editData, logoColor,
 
             {/* Logo e Vias */}
             <div style={{ flex: 1.6, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: '4px', overflow: 'hidden' }}>
-              <div style={{ width: '100%', height: '48px', display: 'flex', alignItems: 'center', justifyContent: 'center', overflow: 'hidden' }}>
-               <LogoPreviewHTML item="Receituário de Controle Especial" editData={editData} color={logoColor} layout={logoLayout} scaleFactor={0.65} crm={crmLine} hideTagline={hideTagline} withBackground={!!effectiveSrc} maxWidth="100%" maxHeight="100%" />
+              <div style={{ width: '100%', height: '75px', display: 'flex', alignItems: 'center', justifyContent: 'center', overflow: 'hidden' }}>
+               <LogoPreviewHTML item="Receituário de Controle Especial" editData={editData} color={logoColor} layout={logoLayout} scaleFactor={0.65} crm={crmLine} hideTagline={true} withBackground={!!effectiveSrc} maxWidth="100%" maxHeight="100%" />
               </div>
                <div style={{ fontSize: '3.5px', color: '#aaa', textTransform: 'uppercase', letterSpacing: '0.3px', textAlign: 'center', marginTop: '2px' }}>
                   1ª VIA FARMÁCIA<br/>2ª VIA PACIENTE
