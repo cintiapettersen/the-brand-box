@@ -7181,18 +7181,18 @@ body { width:${W + BLEED*2}mm; height:${H + BLEED*2}mm; position:relative; overf
     <!-- Casinha -->
     <div style="position:absolute;top:${BLEED + 6}mm;left:${BLEED + 6}mm;right:${BLEED + 6}mm;bottom:${BLEED + 6}mm;background:#fff;clip-path:polygon(0% 18%, 50% 0%, 100% 18%, 100% 100%, 0% 100%);-webkit-clip-path:polygon(0% 18%, 50% 0%, 100% 18%, 100% 100%, 0% 100%);display:flex;flex-direction:column;align-items:center;padding:12mm 10mm 10mm;">
         
-        <div style="margin-bottom:3mm;display:flex;justify-content:center;align-items:center;">
+        <div style="margin-bottom:8mm;display:flex;justify-content:center;align-items:center;">
             ${logoHtmlCe}
         </div>
 
         <div style="font-family:'Montserrat',sans-serif;font-size:10pt;font-weight:600;color:#7a7a7a;letter-spacing:0.8pt;margin-bottom:0;">
             Certificado Pediátrico de
         </div>
-        <h2 style="font-family:'Playfair Display',serif;font-size:48pt;font-weight:700;color:${solidColor};margin:0 0 3mm;letter-spacing:1pt;">
+        <h2 style="font-family:'Playfair Display',serif;font-size:48pt;font-weight:700;color:${solidColor};margin:0 0 10mm;letter-spacing:1pt;">
             Coragem
         </h2>
 
-        <div style="font-family:'Montserrat',sans-serif;font-size:11pt;font-weight:400;color:#5a5a5a;text-align:center;line-height:1.6;width:90%;margin-top:0;">
+        <div style="font-family:'Montserrat',sans-serif;font-size:14pt;font-weight:400;color:#5a5a5a;text-align:center;line-height:2.0;width:90%;margin-top:0;">
             <div style="margin:0;">Certifico para os devidos e lúdicos fins, que __________________</div>
             <div style="margin:0;">idade _____ comportou-se corretamente na consulta de hoje,</div>
             <div style="margin:0;">sendo educado e demonstrando muita coragem e valentia.</div>
