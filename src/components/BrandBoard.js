@@ -128,11 +128,11 @@ const BrandBoard = ({ data, palette, color, seloColor, seloTextColor, patternIma
       {/* LOGO PRINCIPAL */}
       <SectionHeader title="Logomarca Principal" />
       {logoElement ? (
-        <div style={{ height: '180px', width: '450px', display: 'flex', alignItems: 'center', justifyContent: 'center', overflow: 'hidden' }}>
+        <div style={{ minHeight: '90px', width: '450px', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '0px' }}>
           {logoElement}
         </div>
       ) : customLogoSrc ? (
-        <div style={{ height: '180px', width: '450px', display: 'flex', alignItems: 'center', justifyContent: 'center', overflow: 'hidden' }}>
+        <div style={{ minHeight: '180px', width: '450px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
           <img src={customLogoSrc} alt={marca} style={{ maxHeight: '160px', maxWidth: '420px', objectFit: 'contain' }} />
         </div>
       ) : (() => {
@@ -172,7 +172,7 @@ const BrandBoard = ({ data, palette, color, seloColor, seloTextColor, patternIma
         const taglineGapPx = Math.round(taglineSizeRem * 16 * gapMultiplier);
 
         return (
-          <div style={{ height: '180px', width: '450px', display: 'flex', alignItems: 'center', justifyContent: 'center', overflow: 'hidden', position: 'relative' }}>
+          <div style={{ minHeight: '130px', width: '450px', display: 'flex', alignItems: 'center', justifyContent: 'center', position: 'relative', padding: '10px 0' }}>
             <div ref={fitRef} style={{
               transform: `scale(${scale})`,
               transformOrigin: 'center center',
@@ -250,15 +250,15 @@ const BrandBoard = ({ data, palette, color, seloColor, seloTextColor, patternIma
       {/* TIPOGRAFIA */}
       <SectionHeader title="Tipografia" />
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '30px', width: '100%', marginTop: '10px' }}>
-         <div style={{ textAlign: 'center', borderRight: '1px solid #eee' }}>
+         <div style={{ display: 'flex', flexDirection: 'column', justifyContent: 'center', textAlign: 'center', borderRight: '1px solid #eee' }}>
             <h5 style={{ fontFamily: `'${data.fontFamily || 'Playfair Display'}', serif`, fontSize: `${(1.4 * (data.fontSizeBoost || 1)).toFixed(1)}rem`, marginBottom: '10px', fontWeight: data.fontWeight || 400 }}>{data.fontFamily || 'Playfair Display'}</h5>
             <p style={{ fontFamily: `'${data.fontFamily || 'Playfair Display'}', serif`, fontSize: `${(0.8 * (data.fontSizeBoost || 1)).toFixed(1)}rem`, lineHeight: '1.4', color: '#666', fontWeight: data.fontWeight || 400 }}>
                Aa Bb Cc Dd<br/>Ee Ff Gg Hh<br/>1234567890
             </p>
          </div>
-         <div style={{ textAlign: 'center' }}>
+         <div style={{ display: 'flex', flexDirection: 'column', justifyContent: 'center', textAlign: 'center' }}>
             <h5 style={{ fontSize: '1.2rem', fontWeight: 600, marginBottom: '10px', fontFamily: "'Montserrat', sans-serif" }}>Montserrat</h5>
-            <p style={{ fontSize: '0.75rem', lineHeight: '1.4', color: '#666', fontWeight: 500, fontFamily: "'Montserrat', sans-serif" }}>
+            <p style={{ fontSize: '0.85rem', lineHeight: '2.0', color: '#666', fontWeight: 500, fontFamily: "'Montserrat', sans-serif" }}>
                Aa Bb Cc Dd<br/>Ee Ff Gg Hh<br/>1234567890
             </p>
          </div>

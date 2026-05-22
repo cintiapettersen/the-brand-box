@@ -96,12 +96,6 @@ export const genPDFLogoHtml = ({ brand, editDataOverride = null, color, localSlo
   // Tracking (letter-spacing) compensatório para slogans longos
   const _sloganLs = _sloganLenRaw > 45 ? '0.55em' : _sloganLenRaw > 30 ? '0.48em' : _sloganLenRaw > 15 ? '0.4em' : '0.35em';
 
-  const logoMain = `
-    <div style="text-align:${alignLeft ? 'left' : 'center'}; font-family:${brandFont}; font-weight:${_ed.fontWeight || 700}; font-size:${_finalFontPt}pt; color:${color}; line-height:${_effectiveLineH}; letter-spacing:${_effectiveLetterSp}; white-space:nowrap;">
-      ${lines.map(l => `<div style="font-family:inherit;font-weight:inherit;white-space:nowrap;">${l}</div>`).join('')}
-    </div>
-  `;
-
   const _sloganColor = sloganColor || '#666';
   // Gap adaptativo baseado no tamanho da fonte do slogan e complexidade
   const _sloganGap = (parseFloat(effectiveSloganSize) * _sloganGapMultiplier).toFixed(1);
@@ -118,14 +112,8 @@ export const genPDFLogoHtml = ({ brand, editDataOverride = null, color, localSlo
         })()
       : [localSlogan];
 
-  const sloganPart = (localSlogan && !hideSlogan) ? `
-    <div style="${PDFStyles.montserrat} font-size:${effectiveSloganSize}; font-weight:700; letter-spacing:${_sloganLs}; text-transform:uppercase; color:${_sloganColor}; margin-top:${isStacked ? _sloganGap + 'pt' : '0'}; text-align:${alignLeft ? 'left' : 'center'}; max-width:100%; overflow:hidden;">
-      ${displaySloganLines.map(l => `<div style="white-space:normal;overflow-wrap:break-word;word-break:break-word;text-align:${alignLeft ? 'left' : 'center'};">${l}</div>`).join('')}
-    </div>` : '';
-  
   const effectiveCrmSize = crmSize.includes('pt') ? (parseFloat(crmSize) * _scaleMultiplier).toFixed(1) + 'pt' : crmSize;
   const _crmGap = Math.max(2, 0.5 * _scaleMultiplier).toFixed(1);
-  const crmPart = crmLine ? `<div style="${PDFStyles.montserrat} font-size:${effectiveCrmSize}; letter-spacing:1pt; text-transform:uppercase; color:#bbb; margin-top:${_crmGap}pt; text-align:${alignLeft ? 'left' : 'center'}; opacity:0.8;">${crmLine}</div>` : '';
 
   const _sloganLen = (localSlogan && !hideSlogan) ? localSlogan.length : 0;
   const _crmLen = crmLine ? crmLine.length : 0;
@@ -145,7 +133,7 @@ export const genPDFLogoHtml = ({ brand, editDataOverride = null, color, localSlo
   const _bgPadVmm = withBackground ? (parseFloat((withBackgroundPadding || '2px 4px').split(' ')[0]) * (withBackgroundPadding?.includes('mm') ? 1 : 0.264583)) * 2 : 0;
   const _sloganLinhas = (localSlogan && !hideSlogan) ? displaySloganLines.length : 0;
   // Fontes script têm ascendentes que excedem o line-height — multiplicar por 1.4 para estimar altura real
-  const _scriptHeightFactor = isScript ? 1.4 : 1.0;
+  const _scriptHeightFactor = _isScript ? 1.4 : 1.0;
   const _estimatedHPt = parseFloat(_finalFontPt) * (lines.length * (lineH || 1.15)) * _scriptHeightFactor
     + (localSlogan && !hideSlogan ? parseFloat(effectiveSloganSize) * _sloganLinhas * 1.2 + parseFloat(_sloganGap) : 0)
     + (crmLine ? parseFloat(effectiveCrmSize) * 1.2 + parseFloat(_crmGap) : 0);
@@ -154,9 +142,34 @@ export const genPDFLogoHtml = ({ brand, editDataOverride = null, color, localSlo
 
   const _autoZoom = Math.min(_autoZoomW, _autoZoomH);
 
+  // Apply autoZoom directly to sizes instead of using CSS zoom (which causes ghost space in flexbox)
+  const _finalFontPtScaled = (parseFloat(_finalFontPt) * _autoZoom).toFixed(1);
+  const _effectiveSloganSizeScaled = (parseFloat(effectiveSloganSize) * _autoZoom).toFixed(1) + 'pt';
+  const _sloganGapScaled = (parseFloat(_sloganGap) * _autoZoom).toFixed(1);
+  const _effectiveCrmSizeScaled = (parseFloat(effectiveCrmSize) * _autoZoom).toFixed(1) + 'pt';
+  const _crmGapScaled = (parseFloat(_crmGap) * _autoZoom).toFixed(1);
+  const _withBackgroundPaddingScaled = withBackground ? (withBackgroundPadding || '2px 4px').split(' ').map(p => {
+    const val = parseFloat(p);
+    const unit = p.replace(/[0-9.]/g, '');
+    return (val * _autoZoom).toFixed(1) + unit;
+  }).join(' ') : '';
+
+  const logoMain = `
+    <div style="text-align:${alignLeft ? 'left' : 'center'}; font-family:${brandFont}; font-weight:${_ed.fontWeight || 700}; font-size:${_finalFontPtScaled}pt; color:${color}; line-height:${_effectiveLineH}; letter-spacing:${_effectiveLetterSp}; white-space:nowrap;">
+      ${lines.map(l => `<div style="font-family:inherit;font-weight:inherit;white-space:nowrap;">${l}</div>`).join('')}
+    </div>
+  `;
+
+  const sloganPart = (localSlogan && !hideSlogan) ? `
+    <div style="${PDFStyles.montserrat} font-size:${_effectiveSloganSizeScaled}; font-weight:700; letter-spacing:${_sloganLs}; text-transform:uppercase; color:${_sloganColor}; margin-top:${isStacked ? _sloganGapScaled + 'pt' : '0'}; text-align:${alignLeft ? 'left' : 'center'}; max-width:100%; overflow:hidden;">
+      ${displaySloganLines.map(l => `<div style="white-space:normal;overflow-wrap:break-word;word-break:break-word;text-align:${alignLeft ? 'left' : 'center'};">${l}</div>`).join('')}
+    </div>` : '';
+  
+  const crmPart = crmLine ? `<div style="${PDFStyles.montserrat} font-size:${_effectiveCrmSizeScaled}; letter-spacing:1pt; text-transform:uppercase; color:#bbb; margin-top:${_crmGapScaled}pt; text-align:${alignLeft ? 'left' : 'center'}; opacity:0.8;">${crmLine}</div>` : '';
+
   const finalWrapper = `
-    <div style="display:inline-flex; flex-direction:column; align-items:${alignLeft ? 'flex-start' : 'center'}; justify-content:${alignLeft ? 'flex-start' : 'center'}; ${maxWidth ? `max-width:${maxWidth};` : ''} ${maxHeight ? `max-height:${maxHeight};` : ''} ${_autoZoom < 1 ? `zoom:${_autoZoom.toFixed(3)};` : ''}">
-      <div style="display:flex; flex-direction:${isStacked ? 'column' : 'row'}; align-items:${alignLeft ? 'flex-start' : 'center'}; justify-content:${alignLeft ? 'flex-start' : 'center'}; gap:${isStacked ? '0' : '5mm'}; ${withBackground ? `background:rgba(255,255,255,0.92); padding:${withBackgroundPadding}; border-radius:4px;` : ''}">
+    <div style="display:inline-flex; flex-direction:column; align-items:${alignLeft ? 'flex-start' : 'center'}; justify-content:${alignLeft ? 'flex-start' : 'center'}; ${maxWidth ? `max-width:${maxWidth};` : ''} ${maxHeight ? `max-height:${maxHeight};` : ''}">
+      <div style="display:flex; flex-direction:${isStacked ? 'column' : 'row'}; align-items:${alignLeft ? 'flex-start' : 'center'}; justify-content:${alignLeft ? 'flex-start' : 'center'}; gap:${isStacked ? '0' : (_autoZoom * 5).toFixed(1) + 'mm'}; ${withBackground ? `background:rgba(255,255,255,0.92); padding:${_withBackgroundPaddingScaled}; border-radius:4px;` : ''}">
         ${logoMain}
         ${sloganPart}${crmPart}
       </div>

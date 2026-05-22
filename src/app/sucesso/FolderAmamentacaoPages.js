@@ -81,7 +81,7 @@ export function FolderAmamentacaoPage1({ accentColor, borderColor, palette = [],
         </div>
       </div>
 
-      <div style={{ width: '100%', marginTop: '15px', display: 'flex', flexDirection: 'column', gap: '6px', padding: '0 5px', marginBottom: '10px' }}>
+      <div style={{ width: '100%', marginTop: '6px', display: 'flex', flexDirection: 'column', gap: '6px', padding: '0 5px', marginBottom: '10px' }}>
         <div style={{ display: 'flex', alignItems: 'flex-end', gap: '4px' }}>
            <span style={{ fontSize: '5px', fontWeight: 700, color: mainColor }}>NOME:</span>
            <div style={{ flex: 1, borderBottom: `0.3px solid ${mainColor}40`, height: '7px' }} />
