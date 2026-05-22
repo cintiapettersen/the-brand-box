@@ -40,23 +40,23 @@ function TagCard({ size, solidColor, c0, c1, paletteColors, effectiveSrc, patter
           const boxH = Math.round(H * (isCircle ? 0.55 : isRect ? 0.65 : 0.65));
           return (
             // Externo: fundo branco + padding (não medido pelo autoFit)
-            <div style={{
+             <div style={{
               position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%)', zIndex: 2,
               display: 'flex', alignItems: 'center', justifyContent: 'center',
               background: effectiveSrc ? 'rgba(255,255,255,0.92)' : 'transparent',
               padding: effectiveSrc ? '4px 6px' : '0',
               borderRadius: '4px',
-              maxWidth: `${boxW + 12}px`, maxHeight: `${boxH + 8}px`, overflow: 'hidden',
+              maxWidth: `${boxW + 12}px`, maxHeight: `${boxH + 8}px`, overflow: 'visible',
             }}>
               {/* Interno: dimensões fixas em px — autoFit mede este */}
               <div style={{
                 display: hasImg ? 'inline-flex' : 'flex',
                 ...(hasImg ? { maxWidth: `${boxW}px` } : { width: `${boxW}px`, height: `${boxH}px` }),
-                alignItems: 'center', justifyContent: 'center', overflow: 'hidden',
+                alignItems: 'center', justifyContent: 'center', overflow: 'visible',
               }}>
                 <LogoPreviewHTML item="Tag para Sacola" editData={editData}
                   color={effectiveSrc ? solidColor : '#ffffff'}
-                  layout={logoLayout} scaleFactor={isCircle ? 0.75 : 0.85}
+                  layout={logoLayout} scaleFactor={isCircle ? 0.65 : isRect ? 0.58 : 0.70}
                   hideTagline={false} withBackground={false}
                   taglineColor={effectiveSrc ? undefined : 'rgba(255,255,255,0.75)'}
                   maxWidth="100%" maxHeight="100%" />

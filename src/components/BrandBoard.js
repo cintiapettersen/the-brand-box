@@ -84,7 +84,7 @@ const SectionHeader = ({ title }) => (
   </div>
 );
 
-const BrandBoard = ({ data, palette, color, seloColor, seloTextColor, patternImage, iconPath, customLogoSrc }) => {
+const BrandBoard = ({ data, palette, color, seloColor, seloTextColor, patternImage, iconPath, customLogoSrc, logoElement }) => {
   const { marca, tagline } = data;
   const activeColor = color || '#d22f5a';
 
@@ -106,7 +106,11 @@ const BrandBoard = ({ data, palette, color, seloColor, seloTextColor, patternIma
 
       {/* LOGO PRINCIPAL */}
       <SectionHeader title="Logomarca Principal" />
-      {customLogoSrc ? (
+      {logoElement ? (
+        <div style={{ height: '180px', width: '350px', display: 'flex', alignItems: 'center', justifyContent: 'center', overflow: 'hidden' }}>
+          {logoElement}
+        </div>
+      ) : customLogoSrc ? (
         <div style={{ height: '180px', width: '350px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
           <img src={customLogoSrc} alt={marca} style={{ maxHeight: '140px', maxWidth: '300px', objectFit: 'contain' }} />
         </div>

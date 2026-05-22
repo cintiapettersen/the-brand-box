@@ -617,7 +617,9 @@ function CartaoStep({ brand, accentColor, paletteColors, marca, estampaPatterns,
   const [orientation, setOrientation] = useState('landscape'); // 'landscape' or 'portrait'
   const setContact = (key, val) => setContacts(prev => ({ ...prev, [key]: val }));
   const currentIdx = estampaSelectedIdx || 0;
-  const patternSrc = estampaPatterns?.[currentIdx] ? `data:${estampaPatterns[currentIdx].mimeType};base64,${estampaPatterns[currentIdx].base64}` : null;
+  const patternSrc = estampaPatterns?.[currentIdx]
+    ? (estampaPatterns[currentIdx].url || `data:${estampaPatterns[currentIdx].mimeType};base64,${estampaPatterns[currentIdx].base64}`)
+    : null;
   const colors = paletteColors.length ? paletteColors : [accentColor];
   const activeContacts = CONTACT_FIELDS.filter(f => contacts[f.key]);
   const inputStyle = { width: '100%', padding: '10px 14px', borderRadius: '10px', border: '1px solid #e0e0e0', fontSize: '0.9rem', fontFamily: 'Montserrat, sans-serif', boxSizing: 'border-box', background: '#fff', textAlign: 'left' };
@@ -851,27 +853,40 @@ function CartaoStep({ brand, accentColor, paletteColors, marca, estampaPatterns,
 
 function EstampaStep({ brand, accentColor, marca, patterns, setPatterns, genCount, setGenCount, selectedIdx, setSelectedIdx, paletteColors, patternScale, setPatternScale, estampasRef }) {
   const [generating, setGenerating] = useState(false);
-  const [showMockup, setShowMockup] = useState(false);
+  const [viewMode, setViewMode] = useState('ampliada');
+  const [showSlotModal, setShowSlotModal] = useState(false);
   const bxSpinStyle = `@keyframes bx-spin { 0%,100%{transform:scale(1);opacity:1} 50%{transform:scale(1.4);opacity:0.5} }`;
 
   const remaining = MAX_GENERATIONS - genCount;
   const patternSrc = patterns[selectedIdx]
-    ? `data:${patterns[selectedIdx].mimeType};base64,${patterns[selectedIdx].base64}`
+    ? (patterns[selectedIdx].url || `data:${patterns[selectedIdx].mimeType};base64,${patterns[selectedIdx].base64}`)
     : null;
 
-  const generate = async () => {
+  const handleGenerateClick = () => {
+    if (patterns.length >= 3) {
+      setShowSlotModal(true);
+    } else {
+      generate();
+    }
+  };
+
+  const generate = async (replaceIdx = null) => {
     if (genCount >= MAX_GENERATIONS) return;
     setGenerating(true);
+    setShowSlotModal(false);
     try {
       const paletas = brand.paletas || [];
       const sel = paletas.find(p => p.id === brand.selectedPaleta);
       const cores = sel?.paleta_hex || sel?.cores_hex || [];
-      // Usa estampasRef (recuperadas do banco) se brand.estampas estiver vazio (sessão recarregada)
       const estampas = (brand.estampas && brand.estampas.length > 0) ? brand.estampas : (estampasRef || []);
-      // Sorteia as referências para garantir que não use sempre as mesmas 2
       const shuffled = [...estampas].sort(() => Math.random() - 0.5);
       const refs = shuffled.map(e => e.image_url).filter(Boolean);
-      console.log(`🎨 Gerando com ${refs.length} referência(s) do estilo ${brand.resultadoFinal?.estiloNome}`);
+      
+      const currentCount = patterns?.length || 0;
+      const requestCount = currentCount === 0 ? 3 : 1;
+      console.log(`🎨 Gerando com ${refs.length} referência(s). Solicitando ${requestCount} estampa(s).`);
+
+      const replaceUrl = (replaceIdx !== null && patterns[replaceIdx]) ? patterns[replaceIdx].url : null;
 
       const res = await fetch('/api/generate-pattern', {
         method: 'POST',
@@ -882,22 +897,28 @@ function EstampaStep({ brand, accentColor, marca, patterns, setPatterns, genCoun
           marca: marca || brand.formData?.marca || '',
           descricao: brand.resultadoFinal?.mensagem || '',
           referenceUrls: refs,
+          count: requestCount,
         }),
       });
       const data = await res.json();
       const novos = (data.images || []).filter(p => p.base64);
       if (novos.length > 0) {
         setPatterns(prev => {
-          const next = [...prev, ...novos];
-          setSelectedIdx(next.length - 1);
-          try { localStorage.setItem('brandbox_pattern', JSON.stringify(next[next.length - 1])); } catch {}
+          let next;
+          if (replaceIdx !== null) {
+            next = [...prev];
+            next[replaceIdx] = novos[0];
+          } else {
+            next = [...prev, ...novos];
+          }
+          const nextActiveIdx = replaceIdx !== null ? replaceIdx : next.length - 1;
+          setSelectedIdx(nextActiveIdx);
+          try { localStorage.setItem('brandbox_pattern', JSON.stringify(next[nextActiveIdx])); } catch {}
           try { localStorage.setItem('brandbox_patterns_all', JSON.stringify(next)); } catch {}
           return next;
         });
         setGenCount(c => c + 1);
 
-        // Salva a estampa no Supabase Storage em background (persiste entre sessões)
-        // Tenta pegar sessionId da URL, senão do localStorage
         const sessionId = typeof window !== 'undefined'
           ? (new URLSearchParams(window.location.search).get('session') || localStorage.getItem('brandbox_session'))
           : null;
@@ -909,10 +930,37 @@ function EstampaStep({ brand, accentColor, marca, patterns, setPatterns, genCoun
               base64: novos[0].base64,
               mimeType: novos[0].mimeType || 'image/png',
               sessionId,
+              allPatterns: novos,
+              replaceUrl: replaceUrl,
             }),
           })
           .then(r => r.json())
-          .then(r => { if (r.url) console.log('✅ Estampa salva no Supabase:', r.url); else console.warn('⚠️ Estampa não salva:', r.error); })
+          .then(r => {
+            if (r.url) {
+              console.log('✅ Estampa salva no Supabase:', r.url);
+              setPatterns(prev => {
+                const next = [...prev];
+                if (replaceIdx !== null) {
+                  if (next[replaceIdx]) next[replaceIdx].url = r.url;
+                } else {
+                  const startIdx = next.length - novos.length;
+                  if (startIdx >= 0) {
+                    if (next[startIdx]) next[startIdx].url = r.url;
+                    if (r.extraUrls && r.extraUrls.length > 0) {
+                      for (let j = 0; j < r.extraUrls.length; j++) {
+                        const idx = startIdx + 1 + j;
+                        if (next[idx]) next[idx].url = r.extraUrls[j];
+                      }
+                    }
+                  }
+                }
+                try { localStorage.setItem('brandbox_patterns_all', JSON.stringify(next)); } catch {}
+                return next;
+              });
+            } else {
+              console.warn('⚠️ Estampa não salva:', r.error);
+            }
+          })
           .catch(e => console.warn('⚠️ Erro ao salvar estampa:', e));
         }
       }
@@ -945,16 +993,25 @@ function EstampaStep({ brand, accentColor, marca, patterns, setPatterns, genCoun
       <style>{bxSpinStyle}</style>
       {patternSrc && (
         <div style={{ display: 'flex', background: '#f0f0ee', borderRadius: '30px', padding: '3px', gap: '2px' }}>
-          {['Estampa', 'No consultório'].map(label => (
-            <button key={label} onClick={() => setShowMockup(label === 'No consultório')}
-              style={{ flex: 1, padding: '8px', borderRadius: '26px', border: 'none', cursor: 'pointer', fontSize: '0.8rem', fontWeight: 600, fontFamily: 'Montserrat, sans-serif',
-                background: (label === 'No consultório') === showMockup ? '#fff' : 'transparent',
-                color: (label === 'No consultório') === showMockup ? '#1a1a1a' : '#aaa',
-                boxShadow: (label === 'No consultório') === showMockup ? '0 1px 4px rgba(0,0,0,0.10)' : 'none',
-                transition: 'all 0.15s ease' }}>
-              {label}
-            </button>
-          ))}
+          {['Ampliada', 'Repetida', 'No consultório'].map(mode => {
+            const modeMap = {
+              'Ampliada': 'ampliada',
+              'Repetida': 'repetida',
+              'No consultório': 'no_consultorio'
+            };
+            const modeKey = modeMap[mode];
+            const active = viewMode === modeKey;
+            return (
+              <button key={mode} onClick={() => setViewMode(modeKey)}
+                style={{ flex: 1, padding: '8px', borderRadius: '26px', border: 'none', cursor: 'pointer', fontSize: '0.8rem', fontWeight: 600, fontFamily: 'Montserrat, sans-serif',
+                  background: active ? '#fff' : 'transparent',
+                  color: active ? '#1a1a1a' : '#aaa',
+                  boxShadow: active ? '0 1px 4px rgba(0,0,0,0.10)' : 'none',
+                  transition: 'all 0.15s ease' }}>
+                {mode}
+              </button>
+            );
+          })}
         </div>
       )}
 
@@ -970,7 +1027,7 @@ function EstampaStep({ brand, accentColor, marca, patterns, setPatterns, genCoun
               <span style={{ fontSize: '0.85rem', color: accentColor, fontWeight: 600, textAlign: 'center', lineHeight: 1.5 }}>Criando sua estampa exclusiva…<br/><span style={{ fontWeight: 400, fontSize: '0.78rem', color: '#888' }}>Isso leva cerca de 15–30 segundos</span></span>
             </div>
           )}
-          {showMockup ? (
+          {viewMode === 'no_consultorio' ? (
             <div style={{ width: '100%', aspectRatio: '1 / 1', borderRadius: '16px', overflow: 'hidden', boxShadow: '0 8px 40px rgba(0,0,0,0.12)', position: 'relative' }}>
               <img src="/mockups/clinica.jpg" alt="consultório" style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }} />
               <div style={{
@@ -992,27 +1049,51 @@ function EstampaStep({ brand, accentColor, marca, patterns, setPatterns, genCoun
               width: '100%', aspectRatio: '1 / 1', borderRadius: '16px',
               boxShadow: '0 8px 40px rgba(0,0,0,0.10)',
               backgroundImage: `url(${patternSrc})`,
-              backgroundSize: `${patternScale || 200}px`, backgroundRepeat: 'repeat',
+              backgroundSize: viewMode === 'ampliada' ? 'cover' : `${patternScale || 200}px`,
+              backgroundRepeat: viewMode === 'ampliada' ? 'no-repeat' : 'repeat',
+              backgroundPosition: viewMode === 'ampliada' ? 'center' : 'initial',
             }} />
           )}
           {patterns.length > 1 && (
-            <div style={{ display: 'flex', gap: '8px', justifyContent: 'center', flexWrap: 'wrap' }}>
+            <div style={{ display: 'flex', gap: '8px', justifyContent: 'center', flexWrap: 'wrap', marginTop: '12px' }}>
               {patterns.map((p, i) => (
                 <div key={i} style={{ position: 'relative' }}>
                   <div onClick={() => setSelectedIdx(i)}
                     style={{ width: 44, height: 44, borderRadius: '8px', cursor: 'pointer',
-                      backgroundImage: `url(data:${p.mimeType};base64,${p.base64})`,
+                      backgroundImage: `url(${p.url || `data:${p.mimeType};base64,${p.base64}`})`,
                       backgroundSize: 'cover',
                       border: selectedIdx === i ? `3px solid ${accentColor}` : '2px solid #e0e0e0',
                       boxShadow: selectedIdx === i ? `0 0 0 1px ${accentColor}` : 'none' }} />
-                  {patterns.length > 1 && (
+                  {patterns.length > 1 && !generating && (
                     <button onClick={(e) => {
                       e.stopPropagation();
+                      const patternToDelete = p;
                       setPatterns(prev => {
                         const next = prev.filter((_, idx) => idx !== i);
                         if (selectedIdx >= next.length) setSelectedIdx(Math.max(0, next.length - 1));
+                        try { localStorage.setItem('brandbox_patterns_all', JSON.stringify(next)); } catch {}
                         return next;
                       });
+
+                      const sessionId = typeof window !== 'undefined'
+                        ? (new URLSearchParams(window.location.search).get('session') || localStorage.getItem('brandbox_session'))
+                        : null;
+                      if (sessionId && patternToDelete.url) {
+                        fetch('/api/salvar-estampa', {
+                          method: 'POST',
+                          headers: { 'Content-Type': 'application/json' },
+                          body: JSON.stringify({
+                            action: 'delete',
+                            sessionId,
+                            replaceUrl: patternToDelete.url
+                          })
+                        })
+                        .then(res => res.json())
+                        .then(res => {
+                          console.log('✅ Estampa excluída do Supabase:', patternToDelete.url);
+                        })
+                        .catch(err => console.warn('⚠️ Erro ao excluir estampa do Supabase:', err));
+                      }
                     }} style={{ 
                       position: 'absolute', top: -6, right: -6, 
                       width: 18, height: 18, minWidth: 18,
@@ -1020,7 +1101,7 @@ function EstampaStep({ brand, accentColor, marca, patterns, setPatterns, genCoun
                       border: '1px solid #fff', fontSize: '12px', fontWeight: 'bold',
                       display: 'flex', alignItems: 'center', justifyContent: 'center', 
                       cursor: 'pointer', boxShadow: '0 2px 5px rgba(0,0,0,0.2)',
-                      padding: 0, margin: 0, zIndex: 10, lineWeight: 1,
+                      padding: 0, margin: 0, zIndex: 10,
                       textAlign: 'center'
                     }}>×</button>
                   )}
@@ -1046,6 +1127,83 @@ function EstampaStep({ brand, accentColor, marca, patterns, setPatterns, genCoun
               <span style={{ fontSize: '0.9rem' }}>Nenhuma estampa gerada ainda</span>
             </>
           )}
+        </div>
+      )}
+
+      {showSlotModal && (
+        <div style={{
+          position: 'fixed',
+          inset: 0,
+          background: 'rgba(0, 0, 0, 0.4)',
+          backdropFilter: 'blur(4px)',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          zIndex: 9999,
+          padding: '20px'
+        }}>
+          <div style={{
+            background: '#fff',
+            borderRadius: '24px',
+            padding: '24px',
+            maxWidth: '400px',
+            width: '100%',
+            boxShadow: '0 20px 40px rgba(0,0,0,0.15)',
+            display: 'flex',
+            flexDirection: 'column',
+            gap: '16px',
+            fontFamily: 'Montserrat, sans-serif'
+          }}>
+            <div>
+              <h4 style={{ margin: 0, fontSize: '1rem', fontWeight: 700, color: '#333' }}>Galeria cheia (Máx. 3 estampas)</h4>
+              <p style={{ margin: '6px 0 0 0', fontSize: '0.78rem', color: '#666', lineHeight: 1.4 }}>
+                Você já tem 3 estampas na sua galeria. Escolha uma abaixo para ser substituída pela nova versão:
+              </p>
+            </div>
+            
+            <div style={{ display: 'flex', gap: '12px', justifyContent: 'center', margin: '8px 0' }}>
+              {patterns.map((p, idx) => (
+                <div
+                  key={idx}
+                  onClick={() => generate(idx)}
+                  style={{
+                    width: '80px',
+                    height: '80px',
+                    borderRadius: '12px',
+                    backgroundImage: `url(${p.url || `data:${p.mimeType};base64,${p.base64}`})`,
+                    backgroundSize: 'cover',
+                    cursor: 'pointer',
+                    border: '3px solid #e0e0e0',
+                    transition: 'all 0.2s ease',
+                    boxShadow: '0 4px 10px rgba(0,0,0,0.05)'
+                  }}
+                  onMouseEnter={e => { e.currentTarget.style.borderColor = accentColor; e.currentTarget.style.transform = 'scale(1.05)'; }}
+                  onMouseLeave={e => { e.currentTarget.style.borderColor = '#e0e0e0'; e.currentTarget.style.transform = 'scale(1)'; }}
+                />
+              ))}
+            </div>
+
+            <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
+              <button
+                onClick={() => setShowSlotModal(false)}
+                style={{
+                  background: '#f0f0f0',
+                  color: '#666',
+                  border: 'none',
+                  borderRadius: '20px',
+                  padding: '8px 16px',
+                  fontSize: '0.75rem',
+                  fontWeight: 700,
+                  cursor: 'pointer',
+                  transition: 'background 0.2s'
+                }}
+                onMouseEnter={e => e.currentTarget.style.background = '#e5e5e5'}
+                onMouseLeave={e => e.currentTarget.style.background = '#f0f0f0'}
+              >
+                Cancelar
+              </button>
+            </div>
+          </div>
         </div>
       )}
 
@@ -1075,7 +1233,7 @@ function EstampaStep({ brand, accentColor, marca, patterns, setPatterns, genCoun
         )}
         {remaining > 0 && (
           <button
-            onClick={generate}
+            onClick={handleGenerateClick}
             disabled={generating}
             style={{ flex: 1, padding: '13px 8px', background: 'none', color: accentColor, border: `1.5px solid ${accentColor}`, borderRadius: '30px', fontWeight: 700, fontSize: '0.82rem', cursor: 'pointer', opacity: generating ? 0.6 : 1 }}
           >
@@ -1650,7 +1808,7 @@ function PlacaStep({ brand, accentColor, paletteColors, estampaPatterns, estampa
 
   const currentIdx = estampaSelectedIdx || 0;
   const patternImage = estampaPatterns?.[currentIdx]
-    ? `data:${estampaPatterns[currentIdx].mimeType};base64,${estampaPatterns[currentIdx].base64}`
+    ? (estampaPatterns[currentIdx].url || `data:${estampaPatterns[currentIdx].mimeType};base64,${estampaPatterns[currentIdx].base64}`)
     : null;
   const customLogoSrc = editData?.customLogoSrc || null;
 
@@ -2000,13 +2158,15 @@ function FonteStep({ brand, accentColor, marca, tagline, editData, logoLayout, o
     <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
 
       {/* Preview principal — igual ao quadro da aba Logo */}
-      <div style={{ width: '100%', aspectRatio: '3/1', background: '#fff', borderRadius: '16px', boxShadow: '0 8px 40px rgba(0,0,0,0.10)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-        <div style={{ width: '85%', padding: '20px 0', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+      <div style={{ width: '100%', aspectRatio: '3/1', background: '#fff', borderRadius: '16px', boxShadow: '0 8px 40px rgba(0,0,0,0.10)', display: 'flex', alignItems: 'center', justifyContent: 'center', overflow: 'hidden' }}>
+        <div style={{ width: '85%', height: '85%', padding: '10px 0', display: 'flex', alignItems: 'center', justifyContent: 'center', overflow: 'hidden' }}>
           <LogoPreviewHTML
             editData={{ ...editData, fontFamily: preview.fontFamily, fontWeight: preview.weight || 700, fontStyle: preview.style, fontSizeBoost: preview.sizeBoost || 1, tagline: null }}
             color={accentColor}
             layout="horizontal"
-            scaleFactor={1.2}
+            scaleFactor={1.1}
+            maxWidth="100%"
+            maxHeight="100%"
           />
         </div>
       </div>
@@ -2060,7 +2220,7 @@ function FonteStep({ brand, accentColor, marca, tagline, editData, logoLayout, o
 function GuiaStep({ brand, accentColor, paletteColors, marca, tagline, estampaPatterns, estampaSelectedIdx, editData }) {
   const currentIdx = estampaSelectedIdx || 0;
   const patternSrc = estampaPatterns?.[currentIdx]
-    ? `data:${estampaPatterns[currentIdx].mimeType};base64,${estampaPatterns[currentIdx].base64}`
+    ? (estampaPatterns[currentIdx].url || `data:${estampaPatterns[currentIdx].mimeType};base64,${estampaPatterns[currentIdx].base64}`)
     : null;
   const estiloNome = brand.resultadoFinal?.estiloNome || '';
   const mensagem = brand.resultadoFinal?.mensagem || '';
@@ -4380,7 +4540,9 @@ function PapelariaStep({ brand, accentColor, paletteColors, estampaPatterns, est
   const itemEditData = (_rawScale !== undefined && getCustomLogoScale)
     ? { ...editData, customLogoScale: getCustomLogoScale(currentItem) * (ITEM_CUSTOM_BASE_SCALES[currentItem] || 1) }
     : editData;
-  const patternSrc = estampaPatterns?.[currentIdx] ? `data:${estampaPatterns[currentIdx].mimeType};base64,${estampaPatterns[currentIdx].base64}` : null;
+  const patternSrc = estampaPatterns?.[currentIdx]
+    ? (estampaPatterns[currentIdx].url || `data:${estampaPatterns[currentIdx].mimeType};base64,${estampaPatterns[currentIdx].base64}`)
+    : null;
   const isScript = editData?.fontStyle === 'script';
   const crmLine = isSaude && crmData?.crm
     ? `CRM/${crmData.uf || 'UF'} ${crmData.crm}${crmData.rqe?.length > 0 ? ' · RQE ' + crmData.rqe.filter(Boolean).join(' / RQE ') : ''}`
@@ -4412,7 +4574,9 @@ function PapelariaStep({ brand, accentColor, paletteColors, estampaPatterns, est
   };
 
   const openGabarito = async (item) => {
-    const patternSrc = estampaPatterns?.[currentIdx] ? `data:${estampaPatterns[currentIdx].mimeType};base64,${estampaPatterns[currentIdx].base64}` : null;
+    const patternSrc = estampaPatterns?.[currentIdx]
+      ? (estampaPatterns[currentIdx].url || `data:${estampaPatterns[currentIdx].mimeType};base64,${estampaPatterns[currentIdx].base64}`)
+      : null;
 
     const _origin = window.location.origin;
     const LOCAL_FONT_FACES = {
@@ -7428,7 +7592,7 @@ ${fontImports2}
   );
 }
 
-function EntregaContent({ brand, plano }) {
+function EntregaContent({ brand, plano, setBrand }) {
   const [step, setStepState] = useState('placa');
   const setStep = (s) => { setStepState(s); try { localStorage.setItem('brandbox_step', s); } catch {} };
 
@@ -7445,7 +7609,19 @@ function EntregaContent({ brand, plano }) {
   const [downloading, setDownloading] = useState(false);
   const [showEdit, setShowEdit] = useState(false);
   const [marca, setMarca] = useState(brand.editData?.marca || '');
-  const [tagline, setTagline] = useState(brand.editData?.tagline || '');
+  const [tagline, setTaglineState] = useState(() => {
+    try {
+      return localStorage.getItem('brandbox_tagline') || brand.editData?.tagline || '';
+    } catch {
+      return brand.editData?.tagline || '';
+    }
+  });
+  const setTagline = (v) => {
+    setTaglineState(v);
+    try {
+      localStorage.setItem('brandbox_tagline', v);
+    } catch {}
+  };
   const [taglineGap, setTaglineGapState] = useState(() => { try { return parseFloat(localStorage.getItem('brandbox_tagline_gap')) || brand.editData?.taglineGap || 0.35; } catch { return 0.35; } });
   const setTaglineGap = (v) => { setTaglineGapState(v); try { localStorage.setItem('brandbox_tagline_gap', v); } catch {} };
   const [taglineWrap, setTaglineWrapState] = useState(() => { try { return localStorage.getItem('brandbox_tagline_wrap') === 'true'; } catch { return false; } });
@@ -7459,16 +7635,116 @@ function EntregaContent({ brand, plano }) {
     setFontOverrideState(v);
     try { if (v) localStorage.setItem('brandbox_font_override', JSON.stringify(v)); else localStorage.removeItem('brandbox_font_override'); } catch {}
   };
+  const [isInitialized, setIsInitialized] = useState(false);
   const [estampaPatterns, setEstampaPatterns] = useState(brand.pattern ? [brand.pattern] : []);
   const [estampaGenCount, setEstampaGenCount] = useState(brand.patternGenerationCount || 0);
   const [estampaSelectedIdx, setEstampaSelectedIdx] = useState(0);
   const [estampasRef, setEstampasRef] = useState(brand.estampas || []);
 
+  const [presets, setPresets] = useState(() => {
+    try {
+      const s = localStorage.getItem('brandbox_presets');
+      return s ? JSON.parse(s) : [];
+    } catch {
+      return [];
+    }
+  });
+  const [activePresetId, setActivePresetId] = useState(null);
+  const [isSavingPreset, setIsSavingPreset] = useState(false);
+  const [newPresetName, setNewPresetName] = useState('');
+
+  const saveCurrentPreset = (name) => {
+    if (!name.trim()) return;
+    const newPreset = {
+      id: Date.now().toString(),
+      name: name.trim(),
+      fontOverride: fontOverride,
+      logoColor: logoColor,
+      logoLayout: logoLayout,
+      tagline: tagline,
+      taglineGap: taglineGap,
+      fontLineHeight: fontLineHeight,
+      taglineWrap: taglineWrap,
+      bgColor: bgColor
+    };
+    const updated = [...presets, newPreset];
+    setPresets(updated);
+    try {
+      localStorage.setItem('brandbox_presets', JSON.stringify(updated));
+    } catch {}
+    setActivePresetId(newPreset.id);
+    setIsSavingPreset(false);
+    setNewPresetName('');
+  };
+
+  const loadPreset = (preset) => {
+    if (!preset) return;
+    if (preset.fontOverride !== undefined) setFontOverride(preset.fontOverride);
+    if (preset.logoColor !== undefined) setLogoColor(preset.logoColor);
+    if (preset.logoLayout !== undefined) setLayout(preset.logoLayout);
+    if (preset.tagline !== undefined) setTagline(preset.tagline);
+    if (preset.taglineGap !== undefined) setTaglineGap(preset.taglineGap);
+    if (preset.fontLineHeight !== undefined) setFontLineHeight(preset.fontLineHeight);
+    if (preset.taglineWrap !== undefined) setTaglineWrap(preset.taglineWrap);
+    if (preset.bgColor !== undefined) setBgColor(preset.bgColor);
+    setActivePresetId(preset.id);
+  };
+
+  const deletePreset = (id, e) => {
+    if (e) e.stopPropagation();
+    const updated = presets.filter(p => p.id !== id);
+    setPresets(updated);
+    try {
+      localStorage.setItem('brandbox_presets', JSON.stringify(updated));
+    } catch {}
+    if (activePresetId === id) {
+      setActivePresetId(null);
+    }
+  };
+
   useEffect(() => {
+    if (!isInitialized) return;
     const pat = estampaPatterns[estampaSelectedIdx];
-    if (pat) try { localStorage.setItem('brandbox_pattern', JSON.stringify(pat)); } catch {}
-    if (estampaPatterns.length > 0) try { localStorage.setItem('brandbox_patterns_all', JSON.stringify(estampaPatterns)); } catch {}
-  }, [estampaPatterns, estampaSelectedIdx]);
+    if (pat) {
+      try { localStorage.setItem('brandbox_pattern', JSON.stringify(pat)); } catch {}
+      const sessionId = typeof window !== 'undefined'
+        ? (new URLSearchParams(window.location.search).get('session') || localStorage.getItem('brandbox_session'))
+        : null;
+      if (sessionId && pat.url) {
+        fetch('/api/salvar-estampa', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            action: 'select',
+            sessionId,
+            selectedUrl: pat.url,
+            base64: pat.base64,
+            mimeType: pat.mimeType
+          })
+        }).catch(() => {});
+      }
+    }
+    if (estampaPatterns.length > 0) {
+      try { localStorage.setItem('brandbox_patterns_all', JSON.stringify(estampaPatterns)); } catch {}
+    }
+    if (setBrand) {
+      setBrand(prev => {
+        if (!prev) return prev;
+        const activePat = estampaPatterns[estampaSelectedIdx];
+        const nextUrls = estampaPatterns.map(p => p.url).filter(Boolean);
+        const updated = {
+          ...prev,
+          estampa_url: activePat?.url || prev.estampa_url,
+          pattern: activePat || prev.pattern,
+          estampas_geradas_urls: nextUrls
+        };
+        try {
+          localStorage.setItem('brandbox_delivery', JSON.stringify(updated));
+        } catch {}
+        return updated;
+      });
+    }
+  }, [estampaPatterns, estampaSelectedIdx, isInitialized, setBrand]);
   const coresRef = useRef(null);
   const [colorOrder, setColorOrderState] = useState(() => { try { const s = localStorage.getItem('brandbox_color_order'); return s ? JSON.parse(s) : null; } catch { return null; } });
   const setColorOrder = (v) => { setColorOrderState(v); try { localStorage.setItem('brandbox_color_order', JSON.stringify(v)); } catch {} };
@@ -7578,15 +7854,18 @@ function EntregaContent({ brand, plano }) {
   // editData enriquecido com logo customizada — flui automaticamente para LogoPreviewHTML via editData
   const editDataWithLogo = React.useMemo(() => ({
     ...brand.editData,
+    tagline: tagline,
     ...(fontOverride ? { fontFamily: fontOverride.fontFamily, fontWeight: fontOverride.weight || 700, fontStyle: fontOverride.style || 'serif', fontSizeBoost: fontOverride.sizeBoost || 1, fontLetterSpacing: fontOverride.letterSpacing || null } : {}),
     ...(customLogoSrc ? { customLogoSrc, customLogoScale } : {}),
     taglineGap,
     taglineWrap,
     fontLineHeight,
-  }), [brand.editData, customLogoSrc, customLogoScale, fontOverride, taglineGap, taglineWrap, fontLineHeight]);
+  }), [brand.editData, tagline, customLogoSrc, customLogoScale, fontOverride, taglineGap, taglineWrap, fontLineHeight]);
   
   const currentIdx = estampaSelectedIdx || 0;
-  const patternSrc = estampaPatterns?.[currentIdx] ? `data:${estampaPatterns[currentIdx].mimeType};base64,${estampaPatterns[currentIdx].base64}` : null;
+  const patternSrc = estampaPatterns?.[currentIdx]
+    ? (estampaPatterns[currentIdx].url || `data:${estampaPatterns[currentIdx].mimeType};base64,${estampaPatterns[currentIdx].base64}`)
+    : null;
   const [cartaoContacts, setCartaoContacts] = useState(() => { try { return JSON.parse(localStorage.getItem('brandbox_cartao') || '{}').contacts || { telefone: '', whatsapp: '', email: '', site: '', instagram: '', endereco: '', telefone2: '' }; } catch { return { telefone: '', whatsapp: '', email: '', site: '', instagram: '', endereco: '', telefone2: '' }; } });
   const [cartaoQrLink, setCartaoQrLink] = useState(() => { try { return JSON.parse(localStorage.getItem('brandbox_cartao') || '{}').qrLink || ''; } catch { return ''; } });
   const [cartaoShowQR, setCartaoShowQR] = useState(() => { try { return JSON.parse(localStorage.getItem('brandbox_cartao') || '{}').showQR || false; } catch { return false; } });
@@ -7641,36 +7920,122 @@ function EntregaContent({ brand, plano }) {
   const crmLine = isSaude && crmData?.crm ? `CRM/${crmData.uf || 'UF'} ${crmData.crm}` : null;
 
   useEffect(() => {
+    let isAsync = false;
     // Carregamento inicial de tudo
     try {
       const s = localStorage.getItem('brandbox_step'); if (s) setStepState(s);
 
-      const allPatterns = JSON.parse(localStorage.getItem('brandbox_patterns_all') || 'null');
+      let allPatterns = JSON.parse(localStorage.getItem('brandbox_patterns_all') || 'null');
       const singlePattern = JSON.parse(localStorage.getItem('brandbox_pattern') || 'null');
-      if (allPatterns && allPatterns.length > 0) setEstampaPatterns(allPatterns);
-      else if (singlePattern) setEstampaPatterns([singlePattern]);
+      if (allPatterns && allPatterns.length > 0) {
+        if (allPatterns.length > 3) {
+          allPatterns = allPatterns.slice(-3);
+          try { localStorage.setItem('brandbox_patterns_all', JSON.stringify(allPatterns)); } catch {}
+        }
+        setEstampaPatterns(allPatterns);
+        if (singlePattern) {
+          const idx = allPatterns.findIndex(p => p.url === singlePattern.url || p.base64 === singlePattern.base64);
+          if (idx >= 0) setEstampaSelectedIdx(idx);
+        }
+      } else if (singlePattern) {
+        setEstampaPatterns([singlePattern]);
+      }
       const crm = JSON.parse(localStorage.getItem('brandbox_crm') || 'null'); if (crm) setCrmDataState(crm);
     } catch {}
 
-    // Recupera estampa do banco: tenta estampa_url (Storage) ou brand.pattern/generatedPatterns (campo legado)
-    const estampaUrl = brand?.estampa_url;
-    const patLocal = (() => { try { return JSON.parse(localStorage.getItem('brandbox_pattern') || 'null'); } catch { return null; } })();
+    // Recupera estampa do banco: tenta carregar todas as estampas geradas
+    let estampaUrls = brand?.estampas_geradas_urls || (brand?.estampa_url ? [brand.estampa_url] : []);
+    
+    // Prune to maximum 3 patterns to avoid gallery bloating and save database/Supabase storage memory
+    if (estampaUrls.length > 3) {
+      const activeUrl = brand?.estampa_url;
+      let urlsToKeep = [];
+      if (activeUrl && estampaUrls.includes(activeUrl)) {
+        urlsToKeep.push(activeUrl);
+      }
+      const remainingUrls = estampaUrls.filter(u => u !== activeUrl);
+      const slotsNeeded = 3 - urlsToKeep.length;
+      if (slotsNeeded > 0) {
+        const latestFromRemaining = remainingUrls.slice(-slotsNeeded);
+        urlsToKeep = [...urlsToKeep, ...latestFromRemaining];
+      }
+      urlsToKeep = [...new Set(urlsToKeep)].filter(Boolean);
+      
+      const urlsToDelete = estampaUrls.filter(u => !urlsToKeep.includes(u));
+      estampaUrls = urlsToKeep;
 
-    if (estampaUrl && !patLocal) {
-      fetch(estampaUrl)
-        .then(r => r.blob())
-        .then(blob => new Promise((resolve, reject) => {
-          const reader = new FileReader();
-          reader.onload = () => resolve({ base64: reader.result.split(',')[1], mimeType: blob.type });
-          reader.onerror = reject;
-          reader.readAsDataURL(blob);
-        }))
-        .then(({ base64, mimeType }) => {
-          const pat = { base64, mimeType };
-          setEstampaPatterns([pat]);
-          try { localStorage.setItem('brandbox_pattern', JSON.stringify(pat)); } catch {}
-        })
-        .catch(() => {});
+      const sessionId = typeof window !== 'undefined'
+        ? (new URLSearchParams(window.location.search).get('session') || localStorage.getItem('brandbox_session'))
+        : null;
+      if (sessionId && urlsToDelete.length > 0) {
+        console.log(`🧼 Cleaning up ${urlsToDelete.length} excess patterns from Supabase:`, urlsToDelete);
+        urlsToDelete.forEach(url => {
+          fetch('/api/salvar-estampa', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              action: 'delete',
+              sessionId,
+              replaceUrl: url
+            })
+          }).catch(() => {});
+        });
+      }
+    }
+
+    const patLocal = (() => { try { return JSON.parse(localStorage.getItem('brandbox_pattern') || 'null'); } catch { return null; } })();
+    const patAllLocal = (() => { try { return JSON.parse(localStorage.getItem('brandbox_patterns_all') || 'null'); } catch { return null; } })();
+
+    const patAllLocalCount = patAllLocal ? patAllLocal.length : 0;
+    if (estampaUrls.length > patAllLocalCount || !patLocal || patAllLocalCount === 0) {
+      isAsync = true;
+      // Initialize immediately with URL-only objects so they display instantly without causing blank layouts
+      const initialPats = estampaUrls.map(url => {
+        if (brand?.pattern && (brand.pattern.url === url || brand.pattern.base64)) {
+          return { url, base64: brand.pattern.base64, mimeType: brand.pattern.mimeType || 'image/png' };
+        }
+        return { url };
+      });
+      setEstampaPatterns(initialPats);
+      const activeIdx = initialPats.findIndex(p => p.url === brand.estampa_url);
+      setEstampaSelectedIdx(activeIdx >= 0 ? activeIdx : 0);
+
+      Promise.all(
+        estampaUrls.map(url =>
+          fetch(url)
+            .then(r => r.blob())
+            .then(blob => new Promise((resolve) => {
+              const reader = new FileReader();
+              reader.onload = () => resolve({ base64: reader.result.split(',')[1], mimeType: blob.type, url });
+              reader.onerror = () => resolve({ url });
+              reader.readAsDataURL(blob);
+            }))
+            .catch(() => ({ url }))
+        )
+      )
+      .then(pats => {
+        setEstampaPatterns(prev => {
+          return prev.map(p => {
+            const loaded = pats.find(lp => lp.url === p.url);
+            if (loaded && loaded.base64) {
+              return { ...p, base64: loaded.base64, mimeType: loaded.mimeType };
+            }
+            return p;
+          });
+        });
+        const validPats = pats.filter(p => p.base64);
+        if (validPats.length > 0) {
+          try { localStorage.setItem('brandbox_patterns_all', JSON.stringify(validPats)); } catch {}
+          const activeIdx = validPats.findIndex(p => p.url === brand.estampa_url);
+          if (activeIdx >= 0) {
+            try { localStorage.setItem('brandbox_pattern', JSON.stringify(validPats[activeIdx])); } catch {}
+          }
+        }
+        setIsInitialized(true);
+      })
+      .catch(() => {
+        setIsInitialized(true);
+      });
     } else if (!patLocal) {
       // Fallback: estampa salva diretamente no brand_data (campo legado)
       const legacyPatterns = brand?.generatedPatterns;
@@ -7685,6 +8050,10 @@ function EntregaContent({ brand, plano }) {
         setEstampaPatterns([pat]);
         try { localStorage.setItem('brandbox_pattern', JSON.stringify(pat)); } catch {}
       }
+    }
+
+    if (!isAsync) {
+      setIsInitialized(true);
     }
 
     // Re-busca as estampas de referência do estilo para que novas gerações
@@ -7946,7 +8315,7 @@ function EntregaContent({ brand, plano }) {
             transition: 'background 0.2s ease',
           }}
         >
-          <div style={{ width: '85%', height: '68%', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+          <div style={{ width: '85%', height: '58%', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
             {step === 'logo' && (
               <div style={{ width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                 <LogoPreviewHTML editData={editDataWithLogo} color={logoColor} layout={logoLayout} scaleFactor={1.1} maxWidth="100%" maxHeight="100%" />
@@ -7967,15 +8336,189 @@ function EntregaContent({ brand, plano }) {
           </div>
         </div>}
 
-        {/* Controles */}
         {step !== 'estampa' && step !== 'cores' && step !== 'paleta' && step !== 'cartao' && step !== 'guia' && step !== 'manifesto' && step !== 'tomdevoz' && step !== 'fonte' && step !== 'placa' && step !== 'papelaria' && step !== 'pack-instagram' && step !== 'assinatura-email' &&
         <div style={{ marginTop: '1.4rem', display: 'flex', flexDirection: 'column', gap: '1rem' }}>
 
+          {/* Estilos Salvos / Variações */}
+          {!customLogoSrc && step === 'logo' && (
+            <div style={{
+              display: 'flex',
+              flexDirection: 'column',
+              gap: '10px',
+              padding: '16px',
+              background: '#fcfcfc',
+              borderRadius: '16px',
+              border: '1.5px solid #eaeaea',
+              boxShadow: '0 4px 12px rgba(0, 0, 0, 0.02)',
+              marginTop: '4px',
+              marginBottom: '4px'
+            }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                <span style={{ fontSize: '0.78rem', fontWeight: 800, fontFamily: 'Montserrat, sans-serif', color: '#333', letterSpacing: '0.3px', display: 'flex', alignItems: 'center', gap: '6px' }}>
+                  🎨 Estilos Salvos
+                </span>
+                {!isSavingPreset ? (
+                  <button
+                    onClick={() => setIsSavingPreset(true)}
+                    style={{
+                      background: `${accentColor}12`,
+                      color: accentColor,
+                      border: 'none',
+                      padding: '6px 12px',
+                      borderRadius: '20px',
+                      fontSize: '0.68rem',
+                      fontWeight: 700,
+                      cursor: 'pointer',
+                      fontFamily: 'Montserrat, sans-serif',
+                      transition: 'all 0.2s ease',
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '4px'
+                    }}
+                    onMouseEnter={(e) => { e.currentTarget.style.background = `${accentColor}22`; e.currentTarget.style.transform = 'translateY(-1px)'; }}
+                    onMouseLeave={(e) => { e.currentTarget.style.background = `${accentColor}12`; e.currentTarget.style.transform = 'none'; }}
+                  >
+                    + Salvar atual
+                  </button>
+                ) : null}
+              </div>
+
+              {/* Inline Form para criar variação */}
+              {isSavingPreset && (
+                <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+                  <input
+                    type="text"
+                    placeholder="Nome do estilo..."
+                    value={newPresetName}
+                    onChange={e => setNewPresetName(e.target.value)}
+                    style={{
+                      flex: 1,
+                      padding: '8px 12px',
+                      border: '1.5px solid #e0e0e0',
+                      borderRadius: '8px',
+                      fontSize: '0.75rem',
+                      fontFamily: 'Montserrat, sans-serif',
+                      outline: 'none',
+                      transition: 'border-color 0.2s'
+                    }}
+                    onFocus={e => e.currentTarget.style.borderColor = accentColor}
+                    onBlur={e => e.currentTarget.style.borderColor = '#e0e0e0'}
+                  />
+                  <button
+                    onClick={() => saveCurrentPreset(newPresetName)}
+                    style={{
+                      background: accentColor,
+                      color: '#fff',
+                      border: 'none',
+                      borderRadius: '8px',
+                      width: '28px',
+                      height: '28px',
+                      fontWeight: 700,
+                      cursor: 'pointer',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      transition: 'transform 0.1s'
+                    }}
+                    onMouseDown={e => e.currentTarget.style.transform = 'scale(0.95)'}
+                    onMouseUp={e => e.currentTarget.style.transform = 'none'}
+                  >
+                    ✓
+                  </button>
+                  <button
+                    onClick={() => { setIsSavingPreset(false); setNewPresetName(''); }}
+                    style={{
+                      background: '#f0f0f0',
+                      color: '#666',
+                      border: 'none',
+                      borderRadius: '8px',
+                      width: '28px',
+                      height: '28px',
+                      fontWeight: 700,
+                      cursor: 'pointer',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center'
+                    }}
+                  >
+                    ✗
+                  </button>
+                </div>
+              )}
+
+              {/* Listagem de presets salvos em formato cápsula */}
+              {presets.length > 0 ? (
+                <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap', marginTop: '4px' }}>
+                  {presets.map(p => {
+                    const active = activePresetId === p.id;
+                    return (
+                      <div
+                        key={p.id}
+                        onClick={() => loadPreset(p)}
+                        style={{
+                          display: 'inline-flex',
+                          alignItems: 'center',
+                          gap: '6px',
+                          padding: '6px 12px',
+                          borderRadius: '20px',
+                          cursor: 'pointer',
+                          fontFamily: 'Montserrat, sans-serif',
+                          fontSize: '0.68rem',
+                          fontWeight: 600,
+                          border: `1.5px solid ${active ? accentColor : '#e0e0e0'}`,
+                          background: active ? `${accentColor}12` : '#fff',
+                          color: active ? accentColor : '#666',
+                          transition: 'all 0.2s ease',
+                          boxShadow: active ? `0 2px 6px ${accentColor}15` : 'none'
+                        }}
+                      >
+                        <span>{p.name}</span>
+                        <span
+                          onClick={(e) => deletePreset(p.id, e)}
+                          style={{
+                            color: active ? accentColor : '#bbb',
+                            fontSize: '0.85rem',
+                            fontWeight: 700,
+                            paddingLeft: '2px',
+                            cursor: 'pointer',
+                            display: 'inline-flex',
+                            alignItems: 'center'
+                          }}
+                          onMouseEnter={e => e.currentTarget.style.color = '#ff4d4f'}
+                          onMouseLeave={e => e.currentTarget.style.color = active ? accentColor : '#bbb'}
+                        >
+                          ×
+                        </span>
+                      </div>
+                    );
+                  })}
+                </div>
+              ) : (
+                <div style={{ fontSize: '0.68rem', color: '#aaa', fontStyle: 'italic', fontFamily: 'Montserrat, sans-serif', padding: '4px 0' }}>
+                  Nenhuma variação salva ainda. Experimente salvar o estilo atual!
+                </div>
+              )}
+            </div>
+          )}
+
           {/* Upload logo própria */}
           {step === 'logo' && (
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-              <SectionLabel>Usar logo própria</SectionLabel>
-              <div style={{ display: 'flex', gap: '6px' }}>
+            <div style={{
+              display: 'flex',
+              flexDirection: 'column',
+              gap: '10px',
+              padding: '16px',
+              background: '#fcfcfc',
+              borderRadius: '16px',
+              border: '1.5px solid #eaeaea',
+              boxShadow: '0 4px 12px rgba(0, 0, 0, 0.02)',
+              marginTop: '4px',
+              marginBottom: '4px'
+            }}>
+              <span style={{ fontSize: '0.78rem', fontWeight: 800, fontFamily: 'Montserrat, sans-serif', color: '#333', letterSpacing: '0.3px', display: 'flex', alignItems: 'center', gap: '6px' }}>
+                📂 Origem da Logo
+              </span>
+              <div style={{ display: 'flex', gap: '6px', marginTop: '4px' }}>
                 <button
                   onClick={() => { setCustomLogoSrc(null); setCustomLogoWarn(null); }}
                   style={{ flex: 1, padding: '10px 8px', border: `1.5px solid ${!customLogoSrc ? accentColor : '#e0e0e0'}`, borderRadius: '12px', cursor: 'pointer', textAlign: 'center', fontSize: '0.75rem', fontWeight: 700, fontFamily: 'Montserrat,sans-serif', background: !customLogoSrc ? `${accentColor}12` : '#fff', color: !customLogoSrc ? accentColor : '#aaa', transition: 'all 0.15s' }}
@@ -7983,7 +8526,7 @@ function EntregaContent({ brand, plano }) {
                   ✨ Logo sugerida
                 </button>
                 <label style={{ flex: 1, padding: '10px 8px', border: `1.5px solid ${customLogoSrc ? accentColor : '#e0e0e0'}`, borderRadius: '12px', cursor: 'pointer', textAlign: 'center', fontSize: '0.75rem', fontWeight: 700, fontFamily: 'Montserrat,sans-serif', background: customLogoSrc ? `${accentColor}12` : '#fff', color: customLogoSrc ? accentColor : '#aaa', transition: 'all 0.15s' }}>
-                  {customLogoSrc ? '✓ Minha logo' : '+ Minha logo'}
+                  {customLogoSrc ? '✓ Minha logo' : '📤 Enviar minha logo'}
                   <input type="file" accept="image/png" style={{ display: 'none' }} onClick={e => { e.target.value = null; }} onChange={e => {
                     const file = e.target.files[0];
                     if (!file) return;
@@ -8071,12 +8614,12 @@ function EntregaContent({ brand, plano }) {
                 </label>
               </div>
               {customLogoWarn && (
-                <div style={{ fontSize: '0.72rem', color: '#b87000', background: '#fff8e1', border: '1px solid #ffe082', borderRadius: '8px', padding: '8px 12px', fontFamily: 'Montserrat,sans-serif', lineHeight: 1.4 }}>
+                <div style={{ fontSize: '0.72rem', color: '#b87000', background: '#fff8e1', border: '1px solid #ffe082', borderRadius: '8px', padding: '8px 12px', fontFamily: 'Montserrat,sans-serif', lineHeight: 1.4, marginTop: '4px' }}>
                   {customLogoWarn}
                 </div>
               )}
               {customLogoSrc && (
-                <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginTop: '6px' }}>
                   <span style={{ fontSize: '0.68rem', color: '#999', fontWeight: 600, fontFamily: 'Montserrat,sans-serif', whiteSpace: 'nowrap' }}>Escala</span>
                   <input type="range" min="10" max="200" step="5" value={customLogoScale}
                     onChange={e => setCustomLogoScale(parseInt(e.target.value))}
@@ -8087,76 +8630,68 @@ function EntregaContent({ brand, plano }) {
             </div>
           )}
 
-          {/* Slogan — sempre visível na aba logo */}
+          {/* Editar nome — colapsável */}
           {!customLogoSrc && step === 'logo' && (
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
-              <SectionLabel>Slogan</SectionLabel>
-              <input
-                value={tagline}
-                onChange={e => setTagline(e.target.value)}
-                placeholder="Ex: Delicadeza em cada detalhe"
-                style={{ width: '100%', padding: '12px 16px', borderRadius: '12px', border: `1.5px solid ${logoColor}44`, fontSize: '0.88rem', fontFamily: 'Montserrat, sans-serif', boxSizing: 'border-box', background: '#fff', outline: 'none', color: '#444', letterSpacing: '0.3px' }}
-              />
-              {/* Toggle de quebra de slogan */}
-              <div style={{ display: 'flex', gap: '6px', marginTop: '2px' }}>
-                <button onClick={() => setTaglineWrap(false)} style={{ flex: 1, padding: '6px 4px', border: 'none', borderRadius: '20px', fontSize: '0.68rem', fontWeight: 700, background: !taglineWrap ? logoColor : '#eee', color: !taglineWrap ? '#fff' : '#888', cursor: 'pointer', transition: '0.2s' }}>1 Linha</button>
-                <button onClick={() => setTaglineWrap(true)} style={{ flex: 1, padding: '6px 4px', border: 'none', borderRadius: '20px', fontSize: '0.68rem', fontWeight: 700, background: taglineWrap ? logoColor : '#eee', color: taglineWrap ? '#fff' : '#888', cursor: 'pointer', transition: '0.2s' }}>2 Linhas</button>
-              </div>
-              {/* Sliders de ajuste fino */}
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', marginTop: '8px', padding: '10px', background: '#f8f8f8', borderRadius: '12px' }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-                  <span style={{ fontSize: '0.68rem', color: '#888', fontWeight: 600, fontFamily: 'Montserrat,sans-serif', width: '90px' }}>Distância Slogan</span>
-                  <input type="range" min="0" max="1.5" step="0.05" 
-                    value={taglineGap}
-                    onChange={e => setTaglineGap(parseFloat(e.target.value))}
-                    style={{ flex: 1, accentColor }} />
-                  <span style={{ fontSize: '0.68rem', color: '#aaa', width: '30px' }}>{taglineGap.toFixed(2)}</span>
+            <div style={{
+              display: 'flex',
+              flexDirection: 'column',
+              gap: '10px',
+              padding: '16px',
+              background: '#fcfcfc',
+              borderRadius: '16px',
+              border: '1.5px solid #eaeaea',
+              boxShadow: '0 4px 12px rgba(0, 0, 0, 0.02)',
+              marginTop: '4px',
+              marginBottom: '4px'
+            }}>
+              <button
+                onClick={() => setShowEdit(v => !v)}
+                style={{ background: 'none', border: 'none', padding: 0, width: '100%', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}
+              >
+                <span style={{ fontSize: '0.78rem', fontWeight: 800, fontFamily: 'Montserrat, sans-serif', color: '#333', letterSpacing: '0.3px', display: 'flex', alignItems: 'center', gap: '6px' }}>
+                  ✏️ Nome da Marca
+                </span>
+                <span style={{ fontSize: '0.8rem', color: '#888' }}>{showEdit ? '▲' : '▼'}</span>
+              </button>
+              {showEdit && (
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', marginTop: '4px' }}>
+                  <input
+                    value={marca}
+                    onChange={e => setMarca(e.target.value)}
+                    placeholder="Nome da marca"
+                    style={{ width: '100%', padding: '10px 14px', borderRadius: '10px', border: '1px solid #e0e0e0', fontSize: '0.9rem', fontFamily: 'Montserrat, sans-serif', boxSizing: 'border-box' }}
+                  />
+                  {step !== 'logo' && (
+                    <input
+                      value={tagline}
+                      onChange={e => setTagline(e.target.value)}
+                      placeholder="Tagline / frase da marca"
+                      style={{ width: '100%', padding: '10px 14px', borderRadius: '10px', border: '1px solid #e0e0e0', fontSize: '0.9rem', fontFamily: 'Montserrat, sans-serif', boxSizing: 'border-box' }}
+                    />
+                  )}
                 </div>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-                  <span style={{ fontSize: '0.68rem', color: '#888', fontWeight: 600, fontFamily: 'Montserrat,sans-serif', width: '90px' }}>Altura Logo</span>
-                  <input type="range" min="0.5" max="2" step="0.05" 
-                    value={fontLineHeight}
-                    onChange={e => setFontLineHeight(parseFloat(e.target.value))}
-                    style={{ flex: 1, accentColor }} />
-                  <span style={{ fontSize: '0.68rem', color: '#aaa', width: '30px' }}>{fontLineHeight.toFixed(2)}</span>
-                </div>
-              </div>
+              )}
             </div>
           )}
 
-          {/* Editar nome — colapsável */}
-          {!customLogoSrc && <div>
-            <button
-              onClick={() => setShowEdit(v => !v)}
-              style={{ background: 'none', border: 'none', padding: 0, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '6px' }}
-            >
-              <SectionLabel>✏️ Editar nome {showEdit ? '▲' : '▼'}</SectionLabel>
-            </button>
-            {showEdit && (
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', marginTop: '6px' }}>
-                <input
-                  value={marca}
-                  onChange={e => setMarca(e.target.value)}
-                  placeholder="Nome da marca"
-                  style={{ width: '100%', padding: '10px 14px', borderRadius: '10px', border: '1px solid #e0e0e0', fontSize: '0.9rem', fontFamily: 'Montserrat, sans-serif', boxSizing: 'border-box' }}
-                />
-                {step !== 'logo' && (
-                  <input
-                    value={tagline}
-                    onChange={e => setTagline(e.target.value)}
-                    placeholder="Tagline / frase da marca"
-                    style={{ width: '100%', padding: '10px 14px', borderRadius: '10px', border: '1px solid #e0e0e0', fontSize: '0.9rem', fontFamily: 'Montserrat, sans-serif', boxSizing: 'border-box' }}
-                  />
-                )}
-              </div>
-            )}
-          </div>}
-
           {/* Layout da logo */}
           {!customLogoSrc && step === 'logo' && marca.split(' ').length > 1 && (
-            <div>
-              <SectionLabel>Layout</SectionLabel>
-              <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap' }}>
+            <div style={{
+              display: 'flex',
+              flexDirection: 'column',
+              gap: '10px',
+              padding: '16px',
+              background: '#fcfcfc',
+              borderRadius: '16px',
+              border: '1.5px solid #eaeaea',
+              boxShadow: '0 4px 12px rgba(0, 0, 0, 0.02)',
+              marginTop: '4px',
+              marginBottom: '4px'
+            }}>
+              <span style={{ fontSize: '0.78rem', fontWeight: 800, fontFamily: 'Montserrat, sans-serif', color: '#333', letterSpacing: '0.3px', display: 'flex', alignItems: 'center', gap: '6px' }}>
+                📐 Disposição / Layout
+              </span>
+              <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap', marginTop: '4px' }}>
                 {[
                   { key: 'horizontal', label: '⟵→ Uma linha' },
                   { key: 'balanced',   label: '⊟ Duas linhas',     hide: marca.split(' ').length < 3 },
@@ -8180,9 +8715,22 @@ function EntregaContent({ brand, plano }) {
 
           {/* Cor do selo (submarca) — independente da cor da logo */}
           {step === 'submarca' && (
-            <div>
-              <SectionLabel>Cor do selo</SectionLabel>
-              <div style={{ display: 'flex', gap: '10px', alignItems: 'center', flexWrap: 'wrap' }}>
+            <div style={{
+              display: 'flex',
+              flexDirection: 'column',
+              gap: '10px',
+              padding: '16px',
+              background: '#fcfcfc',
+              borderRadius: '16px',
+              border: '1.5px solid #eaeaea',
+              boxShadow: '0 4px 12px rgba(0, 0, 0, 0.02)',
+              marginTop: '4px',
+              marginBottom: '4px'
+            }}>
+              <span style={{ fontSize: '0.78rem', fontWeight: 800, fontFamily: 'Montserrat, sans-serif', color: '#333', letterSpacing: '0.3px', display: 'flex', alignItems: 'center', gap: '6px' }}>
+                🏷️ Cor do Selo
+              </span>
+              <div style={{ display: 'flex', gap: '10px', alignItems: 'center', flexWrap: 'wrap', marginTop: '4px' }}>
                 {['#000000', '#ffffff'].map(hex => (
                   <ColorDot key={hex} color={hex} selected={(submarcaColor || accentColor) === hex} onClick={() => setSubmarcaColor(hex)} outlined={hex === '#ffffff'} />
                 ))}
@@ -8194,25 +8742,53 @@ function EntregaContent({ brand, plano }) {
           )}
 
           {/* Fundo (só na logo) */}
-          {step === 'logo' && <div>
-            <SectionLabel>Fundo</SectionLabel>
-            <div style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
-              {BG_OPTIONS.map(opt => (
-                <ColorDot
-                  key={opt.label}
-                  color={opt.color}
-                  selected={bgColor === opt.color}
-                  onClick={() => setBgColor(opt.color)}
-                />
-              ))}
+          {step === 'logo' && (
+            <div style={{
+              display: 'flex',
+              flexDirection: 'column',
+              gap: '10px',
+              padding: '16px',
+              background: '#fcfcfc',
+              borderRadius: '16px',
+              border: '1.5px solid #eaeaea',
+              boxShadow: '0 4px 12px rgba(0, 0, 0, 0.02)',
+              marginTop: '4px',
+              marginBottom: '4px'
+            }}>
+              <span style={{ fontSize: '0.78rem', fontWeight: 800, fontFamily: 'Montserrat, sans-serif', color: '#333', letterSpacing: '0.3px', display: 'flex', alignItems: 'center', gap: '6px' }}>
+                🖼️ Cor de Fundo
+              </span>
+              <div style={{ display: 'flex', gap: '10px', alignItems: 'center', marginTop: '4px' }}>
+                {BG_OPTIONS.map(opt => (
+                  <ColorDot
+                    key={opt.label}
+                    color={opt.color}
+                    selected={bgColor === opt.color}
+                    onClick={() => setBgColor(opt.color)}
+                  />
+                ))}
+              </div>
             </div>
-          </div>}
+          )}
 
           {/* Ícone da submarca (só aparece na etapa submarca) */}
           {step === 'submarca' && styleIcons.length > 0 && (
-            <div>
-              <SectionLabel>Ícone</SectionLabel>
-              <div style={{ display: 'flex', gap: '10px', alignItems: 'center', flexWrap: 'wrap' }}>
+            <div style={{
+              display: 'flex',
+              flexDirection: 'column',
+              gap: '10px',
+              padding: '16px',
+              background: '#fcfcfc',
+              borderRadius: '16px',
+              border: '1.5px solid #eaeaea',
+              boxShadow: '0 4px 12px rgba(0, 0, 0, 0.02)',
+              marginTop: '4px',
+              marginBottom: '4px'
+            }}>
+              <span style={{ fontSize: '0.78rem', fontWeight: 800, fontFamily: 'Montserrat, sans-serif', color: '#333', letterSpacing: '0.3px', display: 'flex', alignItems: 'center', gap: '6px' }}>
+                🌸 Ícone
+              </span>
+              <div style={{ display: 'flex', gap: '10px', alignItems: 'center', flexWrap: 'wrap', marginTop: '4px' }}>
                 <div
                   onClick={() => setSelectedIcon(null)}
                   style={{
@@ -8248,20 +8824,151 @@ function EntregaContent({ brand, plano }) {
             </div>
           )}
 
-          {/* Cor da logo / texto */}
-          <div>
-            <SectionLabel>{step === 'submarca' ? 'Cor do texto' : 'Cor da logo'}</SectionLabel>
-            <div style={{ display: 'flex', gap: '10px', alignItems: 'center', flexWrap: 'wrap' }}>
-              {/* Opções fixas: preto e branco */}
-              {['#000000', '#ffffff'].map(hex => (
-                <ColorDot key={hex} color={hex} selected={step === 'submarca' ? submarcaTextColor === hex : logoColor === hex} onClick={() => step === 'submarca' ? setSubmarcaTextColor(hex) : setLogoColor(hex)} outlined={hex === '#ffffff'} />
-              ))}
-              {/* Cores da paleta */}
-              {paletteColors.map((hex, i) => (
-                <ColorDot key={i} color={hex} selected={step === 'submarca' ? submarcaTextColor === hex : logoColor === hex} onClick={() => step === 'submarca' ? setSubmarcaTextColor(hex) : setLogoColor(hex)} />
-              ))}
+          {/* Cor da logo (só na logo) */}
+          {step === 'logo' && (
+            <div style={{
+              display: 'flex',
+              flexDirection: 'column',
+              gap: '10px',
+              padding: '16px',
+              background: '#fcfcfc',
+              borderRadius: '16px',
+              border: '1.5px solid #eaeaea',
+              boxShadow: '0 4px 12px rgba(0, 0, 0, 0.02)',
+              marginTop: '4px',
+              marginBottom: '4px'
+            }}>
+              <span style={{ fontSize: '0.78rem', fontWeight: 800, fontFamily: 'Montserrat, sans-serif', color: '#333', letterSpacing: '0.3px', display: 'flex', alignItems: 'center', gap: '6px' }}>
+                🎨 Cor da Logo
+              </span>
+              <div style={{ display: 'flex', gap: '10px', alignItems: 'center', flexWrap: 'wrap', marginTop: '4px' }}>
+                {/* Opções fixas: preto e branco */}
+                {['#000000', '#ffffff'].map(hex => (
+                  <ColorDot key={hex} color={hex} selected={logoColor === hex} onClick={() => setLogoColor(hex)} outlined={hex === '#ffffff'} />
+                ))}
+                {/* Cores da paleta */}
+                {paletteColors.map((hex, i) => (
+                  <ColorDot key={i} color={hex} selected={logoColor === hex} onClick={() => setLogoColor(hex)} />
+                ))}
+              </div>
             </div>
-          </div>
+          )}
+
+          {/* Slogan — sempre visível na aba logo (agora abaixo da cor da logo) */}
+          {!customLogoSrc && step === 'logo' && (
+            <div style={{
+              display: 'flex',
+              flexDirection: 'column',
+              gap: '10px',
+              padding: '16px',
+              background: '#fcfcfc',
+              borderRadius: '16px',
+              border: '1.5px solid #eaeaea',
+              boxShadow: '0 4px 12px rgba(0, 0, 0, 0.02)',
+              marginTop: '4px',
+              marginBottom: '4px'
+            }}>
+              <span style={{ fontSize: '0.78rem', fontWeight: 800, fontFamily: 'Montserrat, sans-serif', color: '#333', letterSpacing: '0.3px', display: 'flex', alignItems: 'center', gap: '6px' }}>
+                💬 Slogan da Marca
+              </span>
+              <input
+                value={tagline}
+                onChange={e => setTagline(e.target.value)}
+                placeholder="Ex: Delicadeza em cada detalhe"
+                style={{ width: '100%', padding: '12px 16px', borderRadius: '12px', border: `1.5px solid ${logoColor}22`, fontSize: '0.88rem', fontFamily: 'Montserrat, sans-serif', boxSizing: 'border-box', background: '#fff', outline: 'none', color: '#444', letterSpacing: '0.3px', marginTop: '4px' }}
+              />
+              {/* Toggle de quebra de slogan */}
+              <div style={{ display: 'flex', gap: '6px', marginTop: '2px' }}>
+                <button onClick={() => setTaglineWrap(false)} style={{ flex: 1, padding: '6px 4px', border: 'none', borderRadius: '20px', fontSize: '0.68rem', fontWeight: 700, background: !taglineWrap ? logoColor : '#eee', color: !taglineWrap ? '#fff' : '#888', cursor: 'pointer', transition: '0.2s' }}>1 Linha</button>
+                <button onClick={() => setTaglineWrap(true)} style={{ flex: 1, padding: '6px 4px', border: 'none', borderRadius: '20px', fontSize: '0.68rem', fontWeight: 700, background: taglineWrap ? logoColor : '#eee', color: taglineWrap ? '#fff' : '#888', cursor: 'pointer', transition: '0.2s' }}>2 Linhas</button>
+              </div>
+              {/* Sliders de ajuste fino */}
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', marginTop: '4px', padding: '10px', background: '#f8f8f8', borderRadius: '12px' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                  <span style={{ fontSize: '0.68rem', color: '#888', fontWeight: 600, fontFamily: 'Montserrat,sans-serif', width: '90px' }}>Distância Slogan</span>
+                  <input type="range" min="0" max="1.5" step="0.05" 
+                    value={taglineGap}
+                    onChange={e => setTaglineGap(parseFloat(e.target.value))}
+                    style={{ flex: 1, accentColor }} />
+                  <span style={{ fontSize: '0.68rem', color: '#aaa', width: '30px' }}>{taglineGap.toFixed(2)}</span>
+                </div>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                  <span style={{ fontSize: '0.68rem', color: '#888', fontWeight: 600, fontFamily: 'Montserrat,sans-serif', width: '90px' }}>Altura Logo</span>
+                  <input type="range" min="0.5" max="2" step="0.05" 
+                    value={fontLineHeight}
+                    onChange={e => setFontLineHeight(parseFloat(e.target.value))}
+                    style={{ flex: 1, accentColor }} />
+                  <span style={{ fontSize: '0.68rem', color: '#aaa', width: '30px' }}>{fontLineHeight.toFixed(2)}</span>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* Cor do texto (só na submarca) */}
+          {step === 'submarca' && (
+            <div style={{
+              display: 'flex',
+              flexDirection: 'column',
+              gap: '10px',
+              padding: '16px',
+              background: '#fcfcfc',
+              borderRadius: '16px',
+              border: '1.5px solid #eaeaea',
+              boxShadow: '0 4px 12px rgba(0, 0, 0, 0.02)',
+              marginTop: '4px',
+              marginBottom: '4px'
+            }}>
+              <span style={{ fontSize: '0.78rem', fontWeight: 800, fontFamily: 'Montserrat, sans-serif', color: '#333', letterSpacing: '0.3px', display: 'flex', alignItems: 'center', gap: '6px' }}>
+                ✍️ Cor do Texto
+              </span>
+              <div style={{ display: 'flex', gap: '10px', alignItems: 'center', flexWrap: 'wrap', marginTop: '4px' }}>
+                {/* Opções fixas: preto e branco */}
+                {['#000000', '#ffffff'].map(hex => (
+                  <ColorDot key={hex} color={hex} selected={submarcaTextColor === hex} onClick={() => setSubmarcaTextColor(hex)} outlined={hex === '#ffffff'} />
+                ))}
+                {/* Cores da paleta */}
+                {paletteColors.map((hex, i) => (
+                  <ColorDot key={i} color={hex} selected={submarcaTextColor === hex} onClick={() => setSubmarcaTextColor(hex)} />
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* CARD DE DOWNLOAD (AÇÃO PRO) — AGORA ENVELOPADO E COM ESPAÇAMENTO */}
+          {(step === 'logo' || step === 'submarca') && (
+            <div style={{
+              display: 'flex',
+              flexDirection: 'column',
+              gap: '10px',
+              padding: '16px',
+              background: '#fcfcfc',
+              borderRadius: '16px',
+              border: '1.5px solid #eaeaea',
+              boxShadow: '0 4px 12px rgba(0, 0, 0, 0.02)',
+              marginTop: '4px',
+              marginBottom: '14px' // Espaçamento generoso do botão de ir para a próxima etapa
+            }}>
+              <span style={{ fontSize: '0.78rem', fontWeight: 800, fontFamily: 'Montserrat, sans-serif', color: '#333', letterSpacing: '0.3px', display: 'flex', alignItems: 'center', gap: '6px' }}>
+                💾 Baixar Arquivos da Logo
+              </span>
+              <div style={{ display: 'flex', gap: '8px', marginTop: '4px' }}>
+                <button
+                  onClick={downloadTransparent}
+                  disabled={!!downloading}
+                  style={{ flex: 1, padding: '10px 8px', background: '#fff', color: accentColor, border: `1.5px solid ${accentColor}`, borderRadius: '30px', fontWeight: 700, fontSize: '0.78rem', cursor: 'pointer', opacity: downloading === 'png' ? 0.6 : 1 }}
+                >
+                  {downloading === 'png' ? '...' : 'PNG Transparente'}
+                </button>
+                <button
+                  onClick={downloadComFundo}
+                  disabled={!!downloading}
+                  style={{ flex: 1, padding: '10px 8px', background: '#fff', color: accentColor, border: `1.5px solid ${accentColor}`, borderRadius: '30px', fontWeight: 700, fontSize: '0.78rem', cursor: 'pointer', opacity: downloading === 'fundo' ? 0.6 : 1 }}
+                >
+                  {downloading === 'fundo' ? '...' : 'Logo com Fundo'}
+                </button>
+              </div>
+            </div>
+          )}
         </div>}
 
         {/* Botões REDESENHADOS */}
@@ -8269,24 +8976,7 @@ function EntregaContent({ brand, plano }) {
           
           {/* BOTÕES DE DOWNLOAD (AÇÃO PRO) */}
           {/* BOTÕES DE DOWNLOAD (AÇÃO PRO) - MAIS SUTIS */}
-          {(step === 'logo' || step === 'submarca') && (
-            <div style={{ display: 'flex', gap: '8px' }}>
-              <button
-                onClick={downloadTransparent}
-                disabled={!!downloading}
-                style={{ flex: 1, padding: '10px 8px', background: '#fff', color: accentColor, border: `1.5px solid ${accentColor}`, borderRadius: '30px', fontWeight: 700, fontSize: '0.78rem', cursor: 'pointer', opacity: downloading === 'png' ? 0.6 : 1 }}
-              >
-                {downloading === 'png' ? '...' : 'PNG Transparente'}
-              </button>
-              <button
-                onClick={downloadComFundo}
-                disabled={!!downloading}
-                style={{ flex: 1, padding: '10px 8px', background: '#fff', color: accentColor, border: `1.5px solid ${accentColor}`, borderRadius: '30px', fontWeight: 700, fontSize: '0.78rem', cursor: 'pointer', opacity: downloading === 'fundo' ? 0.6 : 1 }}
-              >
-                {downloading === 'fundo' ? '...' : 'Logo com Fundo'}
-              </button>
-            </div>
-          )}
+
 
           {step === 'cores' && <CoresSalvarButton colorOrder={colorOrder} accentColor={accentColor} />}
 
@@ -8590,7 +9280,7 @@ function SucessoContent() {
     );
   }
 
-  return <EntregaContent brand={brand} plano={plano} />;
+  return <EntregaContent brand={brand} plano={plano} setBrand={setBrand} />;
 }
 
 export default function Sucesso() {

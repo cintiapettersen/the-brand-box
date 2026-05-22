@@ -2,13 +2,14 @@ import { GoogleGenAI } from "@google/genai";
 
 export async function POST(req) {
   try {
-    const { paleta, estiloNome, marca, descricao, referenceUrls } = await req.json();
+    const { paleta, estiloNome, marca, descricao, referenceUrls, count } = await req.json();
+    const requestCount = typeof count === 'number' ? count : 3;
 
     const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
     const coresStr = (paleta || []).join(', ');
     const refs = referenceUrls || [];
 
-    // Carregar imagens de referência
+    // Carregar imagem de referência (uma URL por vez)
     const loadImage = async (url) => {
       try {
         const imgRes = await fetch(url);
@@ -23,37 +24,88 @@ export async function POST(req) {
       }
     };
 
-    const results = [];
+    // Descrição da marca para enriquecer contexto (primeiros 100 chars)
+    const brandContext = descricao ? `Brand essence: "${descricao.substring(0, 100)}". ` : '';
 
-    // Micro-direção por estilo (20% do prompt — o resto vem da imagem de referência)
+    // Micro-direção visual por estilo — elementos concretos, não só adjetivos
     const styleHints = {
-      'Jardim Encantado':      'whimsical, playful, illustrated, lúdico',
-      'Escandinavo Acolhedor': 'minimal, nordic softness, playful and lúdico',
-      'Essência Atemporal':    'organic shapes, timeless, elegant abstraction',
-      'Doce Encantamento':     'delicate, dreamy, lúdico, playful and soft',
-      'Raízes & Cuidado':      'botanical, earthy, handcrafted naturalism',
-      'Estético Editorial':    'clean, structured geometry, clinical precision',
+      'Jardim Encantado':      'whimsical hand-drawn illustration with flowers, leaves, butterflies and playful organic shapes — children\'s book aesthetic',
+      'Escandinavo Acolhedor': 'soft nordic folk art, minimal botanicals, delicate line drawings of leaves and berries, cozy and warm',
+      'Essência Atemporal':    'timeless organic abstract shapes, elegant watercolor blobs, refined and editorial',
+      'Doce Encantamento':     'dreamy soft watercolor florals, delicate petals and dots, feminine and romantic',
+      'Raízes & Cuidado':      'botanical naturalism, hand-painted herbs, leaves and roots, earthy and handcrafted',
+      'Estético Editorial':    'geometric precision, clean abstract forms, structured and clinical beauty',
     };
     const hint = styleHints[estiloNome] || 'elegant and delicate';
 
-    // Gerar 3 variações com profundidades diferentes de criatividade
+    // SEAMLESS BASE — regra técnica compacta e extremamente rigorosa
+    const seamless = `SEAMLESS TILING RULES (CRITICAL & MANDATORY):
+- 70% STYLE DNA + 30% CREATIVE COMPOSITION: The reference image represents 70% of the style influence (use its exact drawing technique, textures, line quality, and element DNA). The remaining 30% MUST be creative freedom — distribute and arrange the elements in a completely NEW, UNIQUE, and highly distinct composition layout. Do NOT replicate the layout or placement coordinates of the reference image. Do NOT copy the exact same pattern layout.
+- ZERO BORDERS / SEAMS / LINES: Absolutely NO vertical, horizontal, or diagonal borders, margins, padding, seam lines, white/grey gaps, or division lines separating the tiles. The background must be 100% flat, solid, and uniform right up to the absolute edges. Full bleed edge-to-edge. Do not create any vignette, gradient shadows, or framing around the edges of the image.
+- PAC-MAN EDGE WRAPPING: Elements that exit one edge must wrap around and re-enter from the exact opposite edge (Pac-Man style).
+- COMPOSITION INTEGRITY: Do NOT slice, cut, or crop main motifs/objects in half inside the tile, except for seamless wrap-around edge bleed at the absolute boundaries. Keep every motif in the middle fully formed, clear, and complete. Avoid chaotic overlaps or collision between different motifs.
+- FLAT TWO-DIMENSIONAL SURFACES ONLY: Ignore any mockups, wallpaper rolls, strips, columns, or panel divisions in the reference image. Generate ONLY a single, flat, continuous two-dimensional seamless tile.
+- NO FRAMES OR BORDERS: The generated image must be a full-bleed flat graphic going exactly to the absolute 4 corners. Absolutely no thin white margins, no grey border lines, no vignettes, and no visual framing of any kind.`;
+
+    // 3 VARIAÇÕES ALTAMENTE DISTINTAS — composição completamente redesenhada
     const variationPrompts = [
-      `You are generating a SINGLE TILE of a seamless repeating surface pattern. This tile will be repeated infinitely in all directions. CRITICAL REQUIREMENT: Every element (shape, dot, leaf, flower, brushstroke) that touches or crosses the edge of the image MUST continue and reappear on the exact opposite edge — top-to-bottom and left-to-right — so the tile repeats with ZERO visible seams or borders. Use LARGE-SCALE motifs that fill most of the tile — only 2 to 4 main elements per tile so that when repeated the pattern feels airy and intentional, not busy or crowded. Replicate the artistic DNA of the reference: same drawing technique, same element types. Colors ONLY: ${coresStr}. Style: ${hint}. White or light background. NO white margins, NO vignettes, NO drop shadows near edges. The pattern must fill edge-to-edge.`,
-      `Create ONE TILE of an infinitely repeating seamless surface pattern. The tile must be perfectly wrappable: any motif that exits from the right edge must re-enter from the left; any motif that exits from the bottom must re-enter from the top. This ensures zero-seam infinite repeat. Use BIG, BOLD motifs — maximum 3 to 5 elements per tile, each occupying significant space, so the repeat looks elegant and spacious rather than small and repetitive. Maintain the visual style and element types from the reference image. Colors ONLY: ${coresStr}. Style: ${hint}. Flat illustration, white background, full bleed to all four edges.`,
-      `Design a seamless repeat tile for a premium brand textile pattern. SEAMLESS means: motifs that cross any edge are cut in half, with the other half appearing on the opposite edge. Test: if you fold this image into a torus, no seam should appear. SCALE: use large motifs — 2 to 4 elements that are generous in size, creating an open, editorial feel when tiled. Inspired by the reference style. Colors ONLY: ${coresStr}. Style: ${hint}. Edge-to-edge, no borders, no margins.`
+      // Variação 1 — Composição balanceada, espaçamento elegante e original
+      `${brandContext}Look carefully at the reference image. This is your PRIMARY creative style brief — replicate its drawing technique, line quality, element types (flowers, leaves, shapes), illustration style, and level of detail as closely as possible (70% style DNA).
+Custom Colors: ${coresStr}. Keep the background white or very light.
+
+Create ONE TILE of a seamless repeating surface pattern using those same elements and drawing style, but in a COMPLETELY NEW, ORIGINAL, AND BALANCED composition (30% creative arrangement). Do NOT copy the reference layout.
+
+${seamless}
+Composition Style: Balanced and elegant, generous spacing between motifs. Density: moderate. Style context: ${hint}.`,
+
+      // Variação 2 — Composição Minimalista e Extremamente Espaçada (Layout "Airy")
+      `${brandContext}Study the reference image carefully. Replicate its exact illustration style, textures, and drawing technique faithfully (70% style DNA).
+Custom Colors: ${coresStr}. White background.
+
+Create ONE TILE of a seamless repeating surface pattern. Compared to the reference and typical layouts, make this version a MINIMALIST, HIGHLY AIRY composition (30% creative arrangement). Use FEWER elements per tile, with large open spaces of solid color between them. The motifs should be slightly larger and arranged with plenty of breathing room.
+
+${seamless}
+Composition Style: High negative space, minimalist, scattered and airy. Highly distinct from previous compositions. Style context: ${hint}.`,
+
+      // Variação 3 — Composição Dinâmica com Movimento Diagonal (Layout "Flow")
+      `${brandContext}Use the reference image as your main creative direction — match its illustration style, element types, drawing technique, and proportions faithfully (70% style DNA).
+Custom Colors: ${coresStr}. White or cream background.
+
+Create ONE TILE of a seamless repeating surface pattern. Arrange the elements to create a DYNAMIC FLOWING MOVEMENT (like a soft diagonal breeze or organic waving paths) (30% creative arrangement). Rotate, tilt, and vary the orientations of the elements dynamically so they are NOT all standing upright.
+
+${seamless}
+Composition Style: Dynamic diagonal flow, varied rotations, fluid and active. Extremely different from standard upright layouts. Style context: ${hint}.`,
     ];
 
-    for (let i = 0; i < 3; i++) {
+    const results = [];
+
+    // Cada variação recebe referências DIFERENTES (cicla pelo array disponível)
+    const pickRef = (i) => {
+      if (refs.length === 0) return null;
+      return refs[i % refs.length];
+    };
+
+    for (let i = 0; i < requestCount; i++) {
       try {
         const contents = [];
-        
-        // Todas as variantes agora usam a referência para manter o DNA da marca
-        const refUrl = refs[i] || refs[0] || null;
+
+        const refUrl = pickRef(i);
         if (refUrl) {
           const refImage = await loadImage(refUrl);
-          if (refImage) contents.push(refImage);
+          if (refImage) {
+            // Referência PRIMEIRO no array — o modelo dá mais peso ao que vem antes
+            contents.push(refImage);
+            // Segunda referência para contexto adicional (se disponível e diferente)
+            if (refs.length > 1) {
+              const refUrl2 = refs[(i + 1) % refs.length];
+              if (refUrl2 !== refUrl) {
+                const refImage2 = await loadImage(refUrl2);
+                if (refImage2) contents.push(refImage2);
+              }
+            }
+          }
         }
-        
+
         contents.push({ text: variationPrompts[i] });
 
         const response = await ai.models.generateContent({
@@ -71,32 +123,39 @@ export async function POST(req) {
               base64: part.inlineData.data,
               mimeType: part.inlineData.mimeType || 'image/png'
             });
-            console.log(`✅ Padrão ${i + 1} gerado (${refUrl ? 'com ref' : 'estilo livre'})`);
+            console.log(`✅ Variação ${i + 1} gerada (ref: ${refUrl ? refUrl.substring(0, 50) + '…' : 'nenhuma'})`);
             break;
           }
         }
       } catch (err) {
-        console.error(`❌ Variação ${i + 1} falhou:`, err.message?.substring(0, 100));
+        console.error(`❌ Variação ${i + 1} falhou:`, err.message?.substring(0, 120));
       }
     }
 
-    // Se ainda não temos 3 imagens, o Imagen 4 entra como reforço de "Tiles"
-    if (results.length < 3) {
-      console.log(`⚠️ Gerando reforço com Imagen 4 (Total atual: ${results.length}/3)...`);
+    // Fallback Imagen 4 com prompts específicos por variação faltante
+    if (results.length < requestCount) {
+      console.log(`⚠️ Reforço Imagen 4 (${results.length}/${requestCount} gerados)…`);
+      const fallbackCompositions = [
+        'diagonal flow arrangement, 2 to 3 large motifs along a diagonal axis',
+        'scattered organic drop arrangement, 4 to 6 elements of varied sizes and angles',
+        'corner-anchored composition, main motif bleeding off one corner with small accents',
+      ];
       try {
-        const remaining = 3 - results.length;
-        const response = await ai.models.generateImages({
-          model: 'imagen-4.0-generate-001',
-          prompt: `A single tile of a perfectly seamless repeating surface pattern for a professional brand. Style: ${estiloNome}, ${hint}. SEAMLESS means elements that exit one edge reappear on the opposite edge — top wraps to bottom, left wraps to right — creating zero-seam infinite repeat. Colors ONLY: ${coresStr}. White background. Flat vector illustration. Edge-to-edge, full bleed, no margins, no vignettes.`,
-          config: { numberOfImages: remaining },
-        });
-
-        for (const img of response.generatedImages) {
-          results.push({
-            id: results.length,
-            base64: img.image.imageBytes,
-            mimeType: 'image/png'
+        const remaining = requestCount - results.length;
+        for (let j = 0; j < remaining; j++) {
+          const compIdx = results.length + j;
+          const response = await ai.models.generateImages({
+            model: 'imagen-4.0-generate-001',
+            prompt: `A single seamless repeating tile for a premium brand surface pattern. Style DNA: ${estiloNome} — ${hint}. SEAMLESS TILING: Must tile perfectly seamlessly. Elements exiting one edge wrap around and re-enter from the exact opposite edge. Absolutely NO vertical or horizontal seams, NO white borders, NO margins, NO vignettes, and NO grid lines. Background must be 100% solid, flat, and uniform right up to the absolute edges. COMPOSITION: Do not cut or crop main motifs in half inside the tile (except for seamless wrap-around edge bleed at the boundaries). Replicate the drawing technique and elements of style references (70% style influence) but create a completely new, unique and custom arrangement (30% creative composition). Composition layout style: ${fallbackCompositions[compIdx % 3]}. Colors ONLY: ${coresStr}. White background. Flat illustration.`,
+            config: { numberOfImages: 1 },
           });
+          for (const img of response.generatedImages) {
+            results.push({
+              id: results.length,
+              base64: img.image.imageBytes,
+              mimeType: 'image/png'
+            });
+          }
         }
       } catch (e) {
         console.error('Imagen 4 fallback falhou:', e.message?.substring(0, 100));

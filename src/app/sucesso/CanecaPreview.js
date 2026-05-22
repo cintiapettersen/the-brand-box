@@ -8,11 +8,11 @@ const WRAP_H_CM = 8.5;
 const WRAP_SCALE = 22; // px/cm para exibição flat
 
 // Tamanho base do círculo logo
-const CIRCLE_BASE = 100;
-const CIRCLE_FLAT = Math.round(CIRCLE_BASE * 1.35);
+const CIRCLE_BASE = 74;
+const CIRCLE_FLAT = 92; // px
 // scaleFactor base — o customLogoScale do slider vai multiplicar por cima
-const LOGO_SF     = +(CIRCLE_BASE * 0.0085).toFixed(2);
-const LOGO_SF_F   = +(CIRCLE_FLAT * 0.0085).toFixed(2);
+const LOGO_SF     = 0.45;
+const LOGO_SF_F   = 0.56;
 
 // LogoBg: círculo exato atrás da logo (omitido quando logo customizada)
 function LogoBg({ children, solidColor, size = 80, hideCircle = false }) {
@@ -39,8 +39,8 @@ export default function CanecaPreview({
   // Com estampa: força 2 linhas para caber no círculo; sem estampa: usa layout livre
   const effectiveLayout = usePattern && !hasCustomLogo ? 'balanced' : (logoLayout || 'stacked');
   // Tamanho reduzido quando há círculo (padrão)
-  const LOGO_SF_PATTERN = +(CIRCLE_BASE * 0.005).toFixed(2);
-  const LOGO_SF_PATTERN_F = +(CIRCLE_FLAT * 0.005).toFixed(2);
+  const LOGO_SF_PATTERN = 0.25;
+  const LOGO_SF_PATTERN_F = 0.32;
 
   // Dimensões do mockup
   const MW = 500;
@@ -80,7 +80,7 @@ export default function CanecaPreview({
               zIndex: 1,
             }}>
               {usePattern
-                ? <div style={{ position: 'absolute', inset: 0, backgroundImage: `url(${patternSrc})`, backgroundSize: `${(patternScale || 150) * 0.28}px`, backgroundRepeat: 'repeat' }} />
+                ? <div style={{ position: 'absolute', inset: 0, backgroundImage: `url(${patternSrc})`, backgroundSize: `${(patternScale || 150) * 0.65}px`, backgroundRepeat: 'repeat' }} />
                 : <div style={{ position: 'absolute', inset: 0, background: solidColor }} />
               }
               {/* Círculo sempre visível — cor sólida no fundo sólido, solidColor no padrão */}
@@ -123,7 +123,7 @@ export default function CanecaPreview({
           border: '0.5px solid #eee',
         }}>
           {usePattern
-            ? <div style={{ position: 'absolute', inset: 0, backgroundImage: `url(${patternSrc})`, backgroundSize: `${(patternScale || 150) * 0.32}px`, backgroundRepeat: 'repeat' }} />
+            ? <div style={{ position: 'absolute', inset: 0, backgroundImage: `url(${patternSrc})`, backgroundSize: `${(patternScale || 150) * 0.75}px`, backgroundRepeat: 'repeat' }} />
             : <div style={{ position: 'absolute', inset: 0, background: solidColor }} />
           }
           {/* Logo repetida 2× — frente e verso do wrap */}
