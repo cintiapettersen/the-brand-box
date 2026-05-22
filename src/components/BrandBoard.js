@@ -88,6 +88,27 @@ const BrandBoard = ({ data, palette, color, seloColor, seloTextColor, patternIma
   const { marca, tagline } = data;
   const activeColor = color || '#d22f5a';
 
+  // Autoscale logic for the fallback text logo
+  const fitRef = React.useRef(null);
+  const [scale, setScale] = React.useState(1);
+
+  React.useEffect(() => {
+    if (logoElement || customLogoSrc) return;
+    const el = fitRef.current;
+    if (!el) return;
+
+    const obs = new ResizeObserver(() => {
+      const natW = el.offsetWidth;
+      const natH = el.offsetHeight;
+      if (!natW || !natH) return;
+      const sx = 410 / natW; // 450px max width with safe margins
+      const sy = 160 / natH; // 180px max height with safe margins
+      setScale(Math.min(1, sx, sy));
+    });
+    obs.observe(el);
+    return () => obs.disconnect();
+  }, [marca, tagline, data, logoElement, customLogoSrc]);
+
   return (
     <div id="brand-board-canvas" style={{ 
       width: '595px', // Proporção A4
@@ -107,12 +128,12 @@ const BrandBoard = ({ data, palette, color, seloColor, seloTextColor, patternIma
       {/* LOGO PRINCIPAL */}
       <SectionHeader title="Logomarca Principal" />
       {logoElement ? (
-        <div style={{ height: '180px', width: '350px', display: 'flex', alignItems: 'center', justifyContent: 'center', overflow: 'hidden' }}>
+        <div style={{ height: '180px', width: '450px', display: 'flex', alignItems: 'center', justifyContent: 'center', overflow: 'hidden' }}>
           {logoElement}
         </div>
       ) : customLogoSrc ? (
-        <div style={{ height: '180px', width: '350px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-          <img src={customLogoSrc} alt={marca} style={{ maxHeight: '140px', maxWidth: '300px', objectFit: 'contain' }} />
+        <div style={{ height: '180px', width: '450px', display: 'flex', alignItems: 'center', justifyContent: 'center', overflow: 'hidden' }}>
+          <img src={customLogoSrc} alt={marca} style={{ maxHeight: '160px', maxWidth: '420px', objectFit: 'contain' }} />
         </div>
       ) : (() => {
         const isScript = data.fontStyle === 'script';
@@ -151,52 +172,63 @@ const BrandBoard = ({ data, palette, color, seloColor, seloTextColor, patternIma
         const taglineGapPx = Math.round(taglineSizeRem * 16 * gapMultiplier);
 
         return (
-          <div style={{ height: '180px', width: '350px', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
-            {words.length === 2 ? (
-              <div style={{ textAlign: 'center' }}>
-                {words.map((word, i) => (
-                  <h1 key={i} style={{
-                    fontFamily: `'${data.fontFamily || 'Playfair Display'}', serif`,
-                    fontWeight: data.fontWeight || 700,
-                    fontSize,
-                    color: activeColor,
-                    lineHeight: data.fontLineHeight || (isScript ? 0.9 : 1.1),
-                    letterSpacing: data.fontLetterSpacing || (isScript ? '0px' : '1px'),
-                  }}>
-                    {data.fontFeatureSettings && i === 0 ? (
-                      <><span style={{ fontFeatureSettings: data.fontFeatureSettings, fontFamily: 'inherit', fontWeight: 'inherit' }}>{word[0]}</span><span style={{ fontFeatureSettings: 'normal', fontFamily: 'inherit', fontWeight: 'inherit' }}>{word.slice(1)}</span></>
-                    ) : word}
-                  </h1>
+          <div style={{ height: '180px', width: '450px', display: 'flex', alignItems: 'center', justifyContent: 'center', overflow: 'hidden', position: 'relative' }}>
+            <div ref={fitRef} style={{
+              transform: `scale(${scale})`,
+              transformOrigin: 'center center',
+              width: 'max-content',
+              display: 'flex',
+              flexDirection: 'column',
+              alignItems: 'center',
+              justifyContent: 'center',
+              whiteSpace: 'nowrap'
+            }}>
+              {words.length === 2 ? (
+                <div style={{ textAlign: 'center' }}>
+                  {words.map((word, i) => (
+                    <h1 key={i} style={{
+                      fontFamily: `'${data.fontFamily || 'Playfair Display'}', serif`,
+                      fontWeight: data.fontWeight || 700,
+                      fontSize,
+                      color: activeColor,
+                      lineHeight: data.fontLineHeight || (isScript ? 0.9 : 1.1),
+                      letterSpacing: data.fontLetterSpacing || (isScript ? '0px' : '1px'),
+                    }}>
+                      {data.fontFeatureSettings && i === 0 ? (
+                        <><span style={{ fontFeatureSettings: data.fontFeatureSettings, fontFamily: 'inherit', fontWeight: 'inherit' }}>{word[0]}</span><span style={{ fontFeatureSettings: 'normal', fontFamily: 'inherit', fontWeight: 'inherit' }}>{word.slice(1)}</span></>
+                      ) : word}
+                    </h1>
+                  ))}
+                </div>
+              ) : (
+                <h1 style={{
+                  fontFamily: `'${data.fontFamily || 'Playfair Display'}', serif`,
+                  fontWeight: data.fontWeight || 700,
+                  fontSize,
+                  color: activeColor,
+                  textAlign: 'center',
+                  lineHeight: data.fontLineHeight || (isScript ? 0.9 : 1.15),
+                  letterSpacing: data.fontLetterSpacing || (isScript ? '0px' : '1px'),
+                }}>
+                  {data.fontFeatureSettings ? (
+                    <><span style={{ fontFeatureSettings: data.fontFeatureSettings, fontFamily: 'inherit', fontWeight: 'inherit' }}>{words.join(' ')[0]}</span><span style={{ fontFeatureSettings: 'normal', fontFamily: 'inherit', fontWeight: 'inherit' }}>{words.join(' ').slice(1)}</span></>
+                  ) : words.join(' ')}
+                </h1>
+              )}
+              <div style={{
+                fontFamily: "'Montserrat', sans-serif",
+                fontSize: `${taglineSizeRem.toFixed(2)}rem`,
+                letterSpacing: taglineLetterSpacing,
+                textTransform: 'uppercase',
+                color: '#666',
+                marginTop: `${taglineGapPx}px`,
+                textAlign: 'center',
+                lineHeight: 1.2
+              }}>
+                {displaySlogan.map((line, i) => (
+                  <div key={i} style={{ whiteSpace: 'nowrap' }}>{line}</div>
                 ))}
               </div>
-            ) : (
-              <h1 style={{
-                fontFamily: `'${data.fontFamily || 'Playfair Display'}', serif`,
-                fontWeight: data.fontWeight || 700,
-                fontSize,
-                color: activeColor,
-                textAlign: 'center',
-                lineHeight: data.fontLineHeight || (isScript ? 0.9 : 1.15),
-                letterSpacing: data.fontLetterSpacing || (isScript ? '0px' : '1px'),
-              }}>
-                {data.fontFeatureSettings ? (
-                  <><span style={{ fontFeatureSettings: data.fontFeatureSettings, fontFamily: 'inherit', fontWeight: 'inherit' }}>{words.join(' ')[0]}</span><span style={{ fontFeatureSettings: 'normal', fontFamily: 'inherit', fontWeight: 'inherit' }}>{words.join(' ').slice(1)}</span></>
-                ) : words.join(' ')}
-              </h1>
-            )}
-            <div style={{
-              fontFamily: "'Montserrat', sans-serif",
-              fontSize: `${taglineSizeRem.toFixed(2)}rem`,
-              letterSpacing: taglineLetterSpacing,
-              textTransform: 'uppercase',
-              color: '#666',
-              marginTop: `${taglineGapPx}px`,
-              textAlign: 'center',
-              lineHeight: 1.2
-            }}>
-              {displaySlogan.map((line, i) => (
-                <div key={i} style={{ whiteSpace: 'nowrap' }}>{line}</div>
-              ))}
             </div>
           </div>
         );
