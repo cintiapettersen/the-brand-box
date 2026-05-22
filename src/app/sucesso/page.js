@@ -7188,7 +7188,7 @@ body { width:${W + BLEED*2}mm; height:${H + BLEED*2}mm; position:relative; overf
         <div style="font-family:'Montserrat',sans-serif;font-size:10pt;font-weight:600;color:#7a7a7a;letter-spacing:0.8pt;margin-bottom:0;">
             Certificado Pediátrico de
         </div>
-        <h2 style="font-family:'Playfair Display',serif;font-size:48pt;font-weight:700;color:${solidColor};margin:0 0 10mm;letter-spacing:1pt;">
+        <h2 style="font-family:'Playfair Display',serif;font-size:48pt;font-weight:700;color:${solidColor};margin:0 0 16mm;letter-spacing:1pt;">
             Coragem
         </h2>
 
