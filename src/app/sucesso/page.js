@@ -7188,11 +7188,11 @@ body { width:${W + BLEED*2}mm; height:${H + BLEED*2}mm; position:relative; overf
         <div style="font-family:'Montserrat',sans-serif;font-size:10pt;font-weight:600;color:#7a7a7a;letter-spacing:0.8pt;margin-bottom:0;">
             Certificado Pediátrico de
         </div>
-        <h2 style="font-family:'Playfair Display',serif;font-size:48pt;font-weight:700;color:${solidColor};margin:0 0 8mm;letter-spacing:1pt;">
+        <h2 style="font-family:'Playfair Display',serif;font-size:48pt;font-weight:700;color:${solidColor};margin:0 0 3mm;letter-spacing:1pt;">
             Coragem
         </h2>
 
-        <div style="font-family:'Montserrat',sans-serif;font-size:11pt;font-weight:400;color:#5a5a5a;text-align:center;line-height:1.6;width:90%;margin-top:6mm;">
+        <div style="font-family:'Montserrat',sans-serif;font-size:11pt;font-weight:400;color:#5a5a5a;text-align:center;line-height:1.6;width:90%;margin-top:0;">
             <div style="margin:0;">Certifico para os devidos e lúdicos fins, que __________________</div>
             <div style="margin:0;">idade _____ comportou-se corretamente na consulta de hoje,</div>
             <div style="margin:0;">sendo educado e demonstrando muita coragem e valentia.</div>
