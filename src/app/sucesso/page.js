@@ -9157,8 +9157,22 @@ function SucessoContent() {
       localStorage.removeItem('brandbox_session');
       localStorage.removeItem('brandbox_email_sent');
       localStorage.removeItem('brandbox_progress');
+      localStorage.removeItem('brandbox_delivery');
+      localStorage.removeItem('brandbox_custom_logo_scales');
       window.location.href = '/sucesso';
       return;
+    }
+
+    // Limpeza preventiva: se o localStorage estiver próximo do limite, remove brandbox_delivery
+    // (dado mais pesado) para evitar QuotaExceededError no carregamento
+    try {
+      const _testKey = '__lsTest__';
+      localStorage.setItem(_testKey, '1');
+      localStorage.removeItem(_testKey);
+    } catch (_lsFull) {
+      // localStorage cheio: limpa o dado mais pesado para destravar o app
+      try { localStorage.removeItem('brandbox_delivery'); } catch {}
+      try { localStorage.removeItem('brandbox_custom_logo_scales'); } catch {}
     }
 
     // Se chegou aqui com sucesso, o rascunho anterior não faz mais sentido oferecer na home
