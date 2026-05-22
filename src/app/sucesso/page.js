@@ -3181,8 +3181,8 @@ function ChecklistMaternidadePreview({ accentColor, patternSrc, editData, logoCo
           {/* Conteúdo */}
           <div style={{ flex: 1, display: 'flex', flexDirection: 'column', padding: '12px 5px 3px 5px', gap: '3px', overflow: 'hidden' }}>
             {/* Logo centralizada no topo */}
-            <div style={{ width: '100%', height: '55px', display: 'flex', justifyContent: 'center', alignItems: 'center', borderBottom: `0.4px solid ${accentColor}25`, marginBottom: '4px', overflow: 'hidden' }}>
-              <LogoPreviewHTML item="Checklist Maternidade" editData={editData} color={logoColor} layout={logoLayout} scaleFactor={0.6} crm={crmLine} withBackground={comBorda && !!patternSrc} maxWidth="100%" maxHeight="100%" />
+            <div style={{ width: '100%', height: '75px', display: 'flex', justifyContent: 'center', alignItems: 'center', borderBottom: `0.4px solid ${accentColor}25`, marginBottom: '4px', overflow: 'hidden' }}>
+              <LogoPreviewHTML item="Checklist Maternidade" editData={editData} color={logoColor} layout={logoLayout} scaleFactor={0.65} crm={crmLine} withBackground={comBorda && !!patternSrc} maxWidth="100%" maxHeight="100%" />
             </div>
             {/* Grid 2x2 */}
             <div style={{ flex: 1, display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '4px', padding: '2px 4px 6px' }}>
