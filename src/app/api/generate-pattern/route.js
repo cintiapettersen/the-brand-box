@@ -106,7 +106,23 @@ Composition Style: Dynamic diagonal flow, varied rotations, fluid and active. Ex
           }
         }
 
-        contents.push({ text: variationPrompts[i] });
+        // Se for geração individual (substituindo estampa), escolhe um dos 3 estilos de composição aleatoriamente
+        const promptIdx = requestCount === 1 ? Math.floor(Math.random() * 3) : i;
+
+        // Adiciona um leve toque criativo aleatório para evitar repetições do modelo
+        const creativeTweaks = [
+          "Focus on delicate organic flows.",
+          "Emphasize a clean modern watercolor look.",
+          "Bring out a whimsical, poetic feel.",
+          "Use delicate thin-line detailing.",
+          "Arrange with a touch of elegant asymmetry.",
+          "Create a soft, dreamy overlay of elements."
+        ];
+        const randomTweak = creativeTweaks[Math.floor(Math.random() * creativeTweaks.length)];
+        const finalPrompt = `${variationPrompts[promptIdx]}\nCreative touch for this variation: ${randomTweak}`;
+
+        console.log(`🎨 Geração ${i + 1} (Prompt Index: ${promptIdx}, Tweak: "${randomTweak}") usando ref: ${refUrl ? refUrl.substring(0, 70) + '…' : 'nenhuma'}`);
+        contents.push({ text: finalPrompt });
 
         const response = await ai.models.generateContent({
           model: 'gemini-2.5-flash-image',
