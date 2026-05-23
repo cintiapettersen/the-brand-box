@@ -13,7 +13,8 @@ const BrandTemplateSVG = ({ data, color, side = 'frente', hideBackground = false
 
   // Fontes display com glifos visivelmente maiores — reduz font-size no texto circular do selo
   const CIRCLE_FONT_OVERRIDES = { 'LittleFriend': 16, 'GoldenBlast': 18, 'Cafigine': 18 };
-  const circleFontSize = CIRCLE_FONT_OVERRIDES[brandFont] ?? 26;
+  const isSlogan = data?.submarcaTextType === 'slogan';
+  const circleFontSize = isSlogan ? 15 : (CIRCLE_FONT_OVERRIDES[brandFont] ?? 26);
 
   // O viewBox original é 0 0 1502.53 1082.02
   // Frente e Verso estão em posições diferentes no canvas do Illustrator
@@ -131,7 +132,10 @@ const BrandTemplateSVG = ({ data, color, side = 'frente', hideBackground = false
             const toTitleCase = (str) => str.replace(/\w\S*/g, w => w.charAt(0).toUpperCase() + w.slice(1).toLowerCase());
             const circularText = data.submarcaTextType === 'slogan' ? (tagline || 'Slogan da Marca') : (marca || 'Sua Marca');
             const nameWithSep = toTitleCase(circularText) + '  •  ';
-            const reps = Math.max(2, Math.ceil(circumference / (nameWithSep.length * 24)));
+            
+            // Cálculo dinâmico e robusto da largura do caractere + espaçamento
+            const charWidth = circleFontSize * 0.55 + 5; 
+            const reps = Math.max(1, Math.floor(circumference / (nameWithSep.length * charWidth)));
             const fullText = nameWithSep.repeat(reps);
             return (
               <text letterSpacing="7">
