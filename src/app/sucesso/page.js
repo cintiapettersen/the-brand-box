@@ -223,7 +223,8 @@ export function LogoPreviewHTML({ item = null, editData, color, layout = 'stacke
   
   // Slogan dinâmico: quanto mais longo, menor a fonte e maior o espaçamento (tracking)
   // Ajuste mais agressivo para slogans gigantes (>50 caracteres)
-  const taglineScale = taglineLen > 50 ? 0.16 : taglineLen > 40 ? 0.20 : taglineLen > 25 ? 0.26 : 0.35;
+  const taglineSizeBoostFactor = editData?.taglineSizeBoost !== undefined ? editData.taglineSizeBoost : 1.0;
+  const taglineScale = (taglineLen > 50 ? 0.16 : taglineLen > 40 ? 0.20 : taglineLen > 25 ? 0.26 : 0.35) * taglineSizeBoostFactor;
   const taglineSizeRem = Math.max(logoSizeRem * taglineScale, 0.32 * effectiveScaleFactor);
   const taglineVisible = taglineSizeRem >= 0.08;
   
@@ -7677,6 +7678,8 @@ function EntregaContent({ brand, plano, setBrand }) {
   const setTaglineGap = (v) => { setTaglineGapState(v); try { localStorage.setItem('brandbox_tagline_gap', v); } catch {} };
   const [taglineWrap, setTaglineWrapState] = useState(() => { try { return localStorage.getItem('brandbox_tagline_wrap') === 'true'; } catch { return false; } });
   const setTaglineWrap = (v) => { setTaglineWrapState(v); try { localStorage.setItem('brandbox_tagline_wrap', v); } catch {} };
+  const [taglineSizeBoost, setTaglineSizeBoostState] = useState(() => { try { return parseFloat(localStorage.getItem('brandbox_tagline_size_boost')) || 1.0; } catch { return 1.0; } });
+  const setTaglineSizeBoost = (v) => { setTaglineSizeBoostState(v); try { localStorage.setItem('brandbox_tagline_size_boost', v); } catch {} };
   const [fontLineHeight, setFontLineHeightState] = useState(() => { try { return parseFloat(localStorage.getItem('brandbox_font_line_height')) || brand.editData?.fontLineHeight || (brand.editData?.fontStyle === 'script' ? 0.9 : 1.1); } catch { return 1.1; } });
   const setFontLineHeight = (v) => { setFontLineHeightState(v); try { localStorage.setItem('brandbox_font_line_height', v); } catch {} };
   const [fontOverride, setFontOverrideState] = useState(() => {
@@ -7915,7 +7918,8 @@ function EntregaContent({ brand, plano, setBrand }) {
     taglineGap,
     taglineWrap,
     fontLineHeight,
-  }), [brand.editData, tagline, customLogoSrc, customLogoScale, fontOverride, taglineGap, taglineWrap, fontLineHeight]);
+    taglineSizeBoost,
+  }), [brand.editData, tagline, customLogoSrc, customLogoScale, fontOverride, taglineGap, taglineWrap, fontLineHeight, taglineSizeBoost]);
   
   const currentIdx = estampaSelectedIdx || 0;
   const patternSrc = estampaPatterns?.[currentIdx]
@@ -8384,14 +8388,14 @@ function EntregaContent({ brand, plano, setBrand }) {
               </div>
               <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', padding: '10px', background: '#f8f8f8', borderRadius: '12px' }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-                  <span style={{ fontSize: '0.68rem', color: '#888', fontWeight: 600, fontFamily: 'Montserrat,sans-serif', width: '100px' }}>Distância Slogan</span>
-                  <input type="range" min="0" max="1.5" step="0.05" value={taglineGap} onChange={e => setTaglineGap(parseFloat(e.target.value))} style={{ flex: 1, accentColor }} />
-                  <span style={{ fontSize: '0.68rem', color: '#aaa', width: '30px' }}>{taglineGap.toFixed(2)}</span>
+                  <span style={{ fontSize: '0.68rem', color: '#888', fontWeight: 600, fontFamily: 'Montserrat,sans-serif', width: '100px' }}>Escala Slogan</span>
+                  <input type="range" min="0.5" max="2.5" step="0.05" value={taglineSizeBoost} onChange={e => setTaglineSizeBoost(parseFloat(e.target.value))} style={{ flex: 1, accentColor }} />
+                  <span style={{ fontSize: '0.68rem', color: '#aaa', width: '30px' }}>{taglineSizeBoost.toFixed(1)}×</span>
                 </div>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-                  <span style={{ fontSize: '0.68rem', color: '#888', fontWeight: 600, fontFamily: 'Montserrat,sans-serif', width: '100px' }}>Altura Logo</span>
-                  <input type="range" min="0.5" max="2" step="0.05" value={fontLineHeight} onChange={e => setFontLineHeight(parseFloat(e.target.value))} style={{ flex: 1, accentColor }} />
-                  <span style={{ fontSize: '0.68rem', color: '#aaa', width: '30px' }}>{fontLineHeight.toFixed(2)}</span>
+                  <span style={{ fontSize: '0.68rem', color: '#888', fontWeight: 600, fontFamily: 'Montserrat,sans-serif', width: '100px' }}>Distância</span>
+                  <input type="range" min="0" max="1.5" step="0.05" value={taglineGap} onChange={e => setTaglineGap(parseFloat(e.target.value))} style={{ flex: 1, accentColor }} />
+                  <span style={{ fontSize: '0.68rem', color: '#aaa', width: '30px' }}>{taglineGap.toFixed(2)}</span>
                 </div>
               </div>
             </div>
@@ -8556,7 +8560,6 @@ function EntregaContent({ brand, plano, setBrand }) {
                 </div>
               )}
 
-              {/* Nome da marca — colapsável */}
               {!customLogoSrc && (
                 <div style={{ padding: '12px 14px', background: '#fcfcfc', borderRadius: '14px', border: '1.5px solid #eaeaea' }}>
                   <button onClick={() => setShowEdit(v => !v)} style={{ background: 'none', border: 'none', padding: 0, width: '100%', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
@@ -8568,6 +8571,15 @@ function EntregaContent({ brand, plano, setBrand }) {
                   )}
                 </div>
               )}
+
+              {/* Altura Logo */}
+              <div style={{ padding: '12px 14px', background: '#fcfcfc', borderRadius: '14px', border: '1.5px solid #eaeaea' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                  <span style={{ fontSize: '0.72rem', fontWeight: 800, fontFamily: 'Montserrat, sans-serif', color: '#555', whiteSpace: 'nowrap' }}>↕ Altura da Logo</span>
+                  <input type="range" min="0.5" max="2" step="0.05" value={fontLineHeight} onChange={e => setFontLineHeight(parseFloat(e.target.value))} style={{ flex: 1, accentColor }} />
+                  <span style={{ fontSize: '0.68rem', color: '#aaa', width: '32px' }}>{fontLineHeight.toFixed(2)}</span>
+                </div>
+              </div>
             </div>
           ) : (
             /* Layout normal para submarca */
