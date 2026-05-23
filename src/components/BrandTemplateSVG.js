@@ -131,7 +131,7 @@ const BrandTemplateSVG = ({ data, color, side = 'frente', hideBackground = false
             const circumference = 2 * Math.PI * 91.64;
             const toTitleCase = (str) => str.replace(/\w\S*/g, w => w.charAt(0).toUpperCase() + w.slice(1).toLowerCase());
             const circularText = data.submarcaTextType === 'slogan' ? (tagline || 'Slogan da Marca') : (marca || 'Sua Marca');
-            const nameWithSep = toTitleCase(circularText) + '     ';
+            const nameWithSep = toTitleCase(circularText) + '\u00A0\u00A0\u00A0•\u00A0\u00A0\u00A0';
             
             // Cálculo dinâmico e robusto da largura do caractere + espaçamento
             const charWidth = circleFontSize * 0.55 + 5; 
@@ -139,7 +139,7 @@ const BrandTemplateSVG = ({ data, color, side = 'frente', hideBackground = false
             const reps = Math.max(minReps, Math.round(circumference / (nameWithSep.length * charWidth)));
             const fullText = nameWithSep.repeat(reps);
             return (
-              <text letterSpacing="7">
+              <text letterSpacing="7" xmlSpace="preserve">
                 <textPath xlinkHref="#circlePath" startOffset="0%" textLength={circumference} lengthAdjust="spacing">
                   <tspan className="st-selo-text">{fullText}</tspan>
                 </textPath>
