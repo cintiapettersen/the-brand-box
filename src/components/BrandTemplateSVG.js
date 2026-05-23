@@ -131,7 +131,7 @@ const BrandTemplateSVG = ({ data, color, side = 'frente', hideBackground = false
             const circumference = 2 * Math.PI * 91.64;
             const toTitleCase = (str) => str.replace(/\w\S*/g, w => w.charAt(0).toUpperCase() + w.slice(1).toLowerCase());
             const circularText = data.submarcaTextType === 'slogan' ? (tagline || 'Slogan da Marca') : (marca || 'Sua Marca');
-            const nameWithSep = toTitleCase(circularText) + '  •  ';
+            const nameWithSep = toTitleCase(circularText) + '     ';
             
             // Cálculo dinâmico e robusto da largura do caractere + espaçamento
             const charWidth = circleFontSize * 0.55 + 5; 
