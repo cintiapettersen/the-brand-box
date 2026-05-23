@@ -881,7 +881,7 @@ function EstampaStep({ brand, accentColor, marca, patterns, setPatterns, genCoun
       const paletas = brand.paletas || [];
       const sel = paletas.find(p => p.id === brand.selectedPaleta);
       const cores = sel?.paleta_hex || sel?.cores_hex || [];
-      const estampas = (brand.estampas && brand.estampas.length > 0) ? brand.estampas : (estampasRef || []);
+      const estampas = (estampasRef && estampasRef.length > 0) ? estampasRef : (brand.estampas || []);
       const shuffled = [...estampas].sort(() => Math.random() - 0.5);
       const refs = shuffled.map(e => e.image_url).filter(Boolean);
       
@@ -8233,9 +8233,9 @@ function EntregaContent({ brand, plano, setBrand }) {
     }
 
     // Re-busca as estampas de referência do estilo para que novas gerações
-    // usem as imagens corretas mesmo quando brand.estampas veio nulo do banco
+    // usem as imagens corretas (incluindo novos uploads recentes no banco)
     const estiloId = brand?.resultadoFinal?.estiloId;
-    if (estiloId && (!brand.estampas || brand.estampas.length === 0)) {
+    if (estiloId) {
       fetch(`/api/variacoes?id=${estiloId}`)
         .then(r => r.json())
         .then(data => {
