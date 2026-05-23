@@ -8131,7 +8131,9 @@ function EntregaContent({ brand, plano, setBrand }) {
     const patAllLocal = (() => { try { return JSON.parse(localStorage.getItem('brandbox_patterns_all') || 'null'); } catch { return null; } })();
 
     const patAllLocalCount = patAllLocal ? patAllLocal.length : 0;
-    if (estampaUrls.length > patAllLocalCount || !patLocal || patAllLocalCount === 0) {
+    // Se o localStorage tem patterns com url:null (editados localmente, ex: Suavizar cortes), eles têm prioridade
+    const hasLocalEdits = patAllLocal && patAllLocal.some(p => p.base64 && !p.url);
+    if ((estampaUrls.length > patAllLocalCount || !patLocal || patAllLocalCount === 0) && !hasLocalEdits) {
       isAsync = true;
       // Initialize immediately with URL-only objects so they display instantly without causing blank layouts
       const initialPats = estampaUrls.map(url => {
@@ -8160,6 +8162,8 @@ function EntregaContent({ brand, plano, setBrand }) {
       .then(pats => {
         setEstampaPatterns(prev => {
           return prev.map(p => {
+            // Não sobrescreve patterns editados localmente (url:null = editado)
+            if (!p.url && p.base64) return p;
             const loaded = pats.find(lp => lp.url === p.url);
             if (loaded && loaded.base64) {
               return { ...p, base64: loaded.base64, mimeType: loaded.mimeType };
