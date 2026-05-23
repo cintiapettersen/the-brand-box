@@ -1032,6 +1032,7 @@ function EstampaStep({ brand, accentColor, marca, patterns, setPatterns, genCoun
         };
         img.src = `data:${pat.mimeType || 'image/png'};base64,${pat.base64}`;
       });
+      const oldUrl = pat.url || null;
       setPatterns(prev => {
         const next = [...prev];
         next[selectedIdx] = { ...next[selectedIdx], base64: result, mimeType: 'image/png', url: null };
@@ -1039,6 +1040,32 @@ function EstampaStep({ brand, accentColor, marca, patterns, setPatterns, genCoun
         try { localStorage.setItem('brandbox_pattern', JSON.stringify(next[selectedIdx])); } catch {}
         return next;
       });
+      // Sobe a versão suavizada pro Supabase, substituindo a original
+      const sessionId = typeof window !== 'undefined'
+        ? (new URLSearchParams(window.location.search).get('session') || localStorage.getItem('brandbox_session'))
+        : null;
+      if (sessionId) {
+        fetch('/api/salvar-estampa', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ base64: result, mimeType: 'image/png', sessionId, replaceUrl: oldUrl }),
+        })
+        .then(r => r.json())
+        .then(r => {
+          if (r.url) {
+            setPatterns(prev => {
+              const next = [...prev];
+              if (next[selectedIdx]) {
+                next[selectedIdx] = { ...next[selectedIdx], url: r.url };
+                try { localStorage.setItem('brandbox_patterns_all', JSON.stringify(next)); } catch {}
+                try { localStorage.setItem('brandbox_pattern', JSON.stringify(next[selectedIdx])); } catch {}
+              }
+              return next;
+            });
+          }
+        })
+        .catch(() => {});
+      }
     } catch(e) { console.error('makeSeamless error', e); }
     finally { setFixingSeams(false); }
   };
