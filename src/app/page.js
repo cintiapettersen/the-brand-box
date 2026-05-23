@@ -158,7 +158,7 @@ export default function Home() {
       setLoadingVariacoes(true);
       try {
         const id = parsed.resultadoFinal.estiloId;
-        const res = await fetch(`/api/variacoes?id=${id}`);
+        const res = await fetch(`/api/variacoes?id=${id}&t=${Date.now()}`, { cache: 'no-store' });
         const data = await res.json();
         
         if (data.variacoes) {

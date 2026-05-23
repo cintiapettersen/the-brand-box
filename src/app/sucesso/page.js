@@ -8236,7 +8236,7 @@ function EntregaContent({ brand, plano, setBrand }) {
     // usem as imagens corretas (incluindo novos uploads recentes no banco)
     const estiloId = brand?.resultadoFinal?.estiloId;
     if (estiloId) {
-      fetch(`/api/variacoes?id=${estiloId}`)
+      fetch(`/api/variacoes?id=${estiloId}&t=${Date.now()}`, { cache: 'no-store' })
         .then(r => r.json())
         .then(data => {
           if (data.variacoes) {
