@@ -38,10 +38,12 @@ export default function CanecaPreview({
   const hasCustomLogo = !!editData?.customLogoSrc;
   // Com estampa: força 2 linhas para caber no círculo; sem estampa: usa layout livre
   const effectiveLayout = usePattern && !hasCustomLogo ? 'balanced' : (logoLayout || 'stacked');
-  // Fontes display grandes (ex: LittleFriend) precisam de scaleFactor menor para caber no círculo
-  const LARGE_DISPLAY_FONTS = ['LittleFriend', 'GoldenBlast', 'Cafigine'];
-  const isLargeFont = LARGE_DISPLAY_FONTS.includes(editData?.fontFamily);
-  const fontScaleMult = isLargeFont ? 0.80 : 1.0;
+  // Fontes que precisam de scaleFactor menor para caber bem no círculo da caneca
+  const FONT_SCALE_MAP = {
+    'LittleFriend': 0.80, 'GoldenBlast': 0.80, 'Cafigine': 0.80,
+    'Amelie': 0.82, 'Cinzel': 0.82, 'Releawy': 0.82,
+  };
+  const fontScaleMult = FONT_SCALE_MAP[editData?.fontFamily] ?? 1.0;
   // Tamanho reduzido quando há círculo (padrão)
   const LOGO_SF_PATTERN = 0.25 * fontScaleMult;
   const LOGO_SF_PATTERN_F = 0.32 * fontScaleMult;
