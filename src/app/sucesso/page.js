@@ -8475,7 +8475,7 @@ function EntregaContent({ brand, plano, setBrand }) {
                 }}
               >
                 <div style={{ width: '85%', height: '58%', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                  <LogoPreviewHTML editData={editDataWithLogo} color={logoColor} layout={logoLayout} scaleFactor={1.1} maxWidth="100%" maxHeight="100%" />
+                  <LogoPreviewHTML editData={{ ...editDataWithLogo, tagline: '' }} color={logoColor} layout={logoLayout} scaleFactor={1.1} maxWidth="100%" maxHeight="100%" />
                 </div>
               </div>
 
