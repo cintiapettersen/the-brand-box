@@ -7770,7 +7770,60 @@ function EntregaContent({ brand, plano, setBrand }) {
   const setLayout = (l) => { setLogoLayout(l); try { localStorage.setItem('brandbox_logo_layout', l); } catch {} };
   const [downloading, setDownloading] = useState(false);
   const [showEdit, setShowEdit] = useState(false);
-  const [marca, setMarca] = useState(brand.editData?.marca || '');
+  const [marca, setMarcaState] = useState(brand.editData?.marca || '');
+  const [tempMarca, setTempMarca] = useState(brand.editData?.marca || '');
+
+  const commitMarcaChange = (newName) => {
+    const cleaned = newName.trim();
+    if (!cleaned) {
+      setTempMarca(marca);
+      return;
+    }
+
+    const originalName = (brand.formData?.marca || brand.name || brand.editData?.marca || '').trim();
+    if (!originalName) {
+      setMarcaState(cleaned);
+      return;
+    }
+
+    // Carregar nomes já usados
+    let usedNames = [];
+    try {
+      usedNames = JSON.parse(localStorage.getItem(`brandbox_used_names_${brand.id}`) || '[]');
+    } catch {}
+
+    // Limpa strings vazias e normaliza
+    usedNames = usedNames.map(n => n.trim()).filter(Boolean);
+
+    // Inicializa a lista com o nome original se estiver vazia
+    if (!usedNames.includes(originalName)) {
+      usedNames.unshift(originalName);
+    }
+
+    // Se o nome digitado já foi usado antes, permite trocar de volta sem problemas
+    if (usedNames.some(n => n.toLowerCase() === cleaned.toLowerCase())) {
+      const match = usedNames.find(n => n.toLowerCase() === cleaned.toLowerCase());
+      setMarcaState(match);
+      setTempMarca(match);
+      return;
+    }
+
+    // Se for um nome NOVO e já atingiu o limite de 2 nomes (Original + 1 Alteração)
+    if (usedNames.length >= 2) {
+      alert("Atenção: Por questões de segurança, você só pode alterar o nome da sua marca 1 vez. O limite de alterações de nome para esta licença foi atingido.");
+      setTempMarca(marca); // Reverte o campo para o último nome válido
+      return;
+    }
+
+    // Permite a alteração e registra na lista de usados
+    usedNames.push(cleaned);
+    try {
+      localStorage.setItem(`brandbox_used_names_${brand.id}`, JSON.stringify(usedNames));
+    } catch {}
+
+    setMarcaState(cleaned);
+    setTempMarca(cleaned);
+  };
   const [tagline, setTaglineState] = useState(() => {
     try {
       return localStorage.getItem('brandbox_tagline') || brand.editData?.tagline || '';
@@ -8694,7 +8747,14 @@ function EntregaContent({ brand, plano, setBrand }) {
                     <span style={{ fontSize: '0.8rem', color: '#888' }}>{showEdit ? '▲' : '▼'}</span>
                   </button>
                   {showEdit && (
-                    <input value={marca} onChange={e => setMarca(e.target.value)} placeholder="Nome da marca" style={{ width: '100%', padding: '10px 14px', borderRadius: '10px', border: '1px solid #e0e0e0', fontSize: '0.9rem', fontFamily: 'Montserrat, sans-serif', boxSizing: 'border-box', marginTop: '8px' }} />
+                    <input
+                      value={tempMarca}
+                      onChange={e => setTempMarca(e.target.value)}
+                      onBlur={() => commitMarcaChange(tempMarca)}
+                      onKeyDown={e => { if (e.key === 'Enter') commitMarcaChange(tempMarca); }}
+                      placeholder="Nome da marca"
+                      style={{ width: '100%', padding: '10px 14px', borderRadius: '10px', border: '1px solid #e0e0e0', fontSize: '0.9rem', fontFamily: 'Montserrat, sans-serif', boxSizing: 'border-box', marginTop: '8px' }}
+                    />
                   )}
                 </div>
               )}
@@ -9064,8 +9124,10 @@ function EntregaContent({ brand, plano, setBrand }) {
               {showEdit && (
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', marginTop: '4px' }}>
                   <input
-                    value={marca}
-                    onChange={e => setMarca(e.target.value)}
+                    value={tempMarca}
+                    onChange={e => setTempMarca(e.target.value)}
+                    onBlur={() => commitMarcaChange(tempMarca)}
+                    onKeyDown={e => { if (e.key === 'Enter') commitMarcaChange(tempMarca); }}
                     placeholder="Nome da marca"
                     style={{ width: '100%', padding: '10px 14px', borderRadius: '10px', border: '1px solid #e0e0e0', fontSize: '0.9rem', fontFamily: 'Montserrat, sans-serif', boxSizing: 'border-box' }}
                   />
