@@ -27,14 +27,14 @@ export async function POST(req) {
     // Descrição da marca para enriquecer contexto (primeiros 100 chars)
     const brandContext = descricao ? `Brand essence: "${descricao.substring(0, 100)}". ` : '';
 
-    // Micro-direção visual por estilo — elementos concretos, não só adjetivos
+    // Micro-direção visual por estilo — focando na estética, clima e estilo de ilustração sem prender os elementos
     const styleHints = {
-      'Jardim Encantado':      'whimsical hand-drawn illustration with flowers, leaves, butterflies and playful organic shapes — children\'s book aesthetic',
-      'Escandinavo Acolhedor': 'soft nordic folk art, minimal botanicals, delicate line drawings of leaves and berries, cozy and warm',
-      'Essência Atemporal':    'timeless organic abstract shapes, elegant watercolor blobs, refined and editorial',
-      'Doce Encantamento':     'dreamy soft watercolor florals, delicate petals and dots, feminine and romantic',
-      'Raízes & Cuidado':      'botanical naturalism, hand-painted herbs, leaves and roots, earthy and handcrafted',
-      'Estético Editorial':    'geometric precision, clean abstract forms, structured and clinical beauty',
+      'Jardim Encantado':      'whimsical hand-drawn children\'s book aesthetic, playful organic forms, cute and friendly illustration style',
+      'Escandinavo Acolhedor': 'cozy and warm nordic aesthetic, cute, playful, minimalist vibe, delicate and soft illustration style',
+      'Essência Atemporal':    'timeless and refined organic aesthetic, elegant editorial abstract forms, sophisticated watercolor style',
+      'Doce Encantamento':     'dreamy and romantic soft watercolor aesthetic, delicate and feminine styling, sweet and magical feel',
+      'Raízes & Cuidado':      'naturalistic botanical aesthetic, organic handcrafted textures, warm earthy and hand-painted style',
+      'Estético Editorial':    'clean aesthetic, structured and clinical beauty, modern abstract geometric precision, high-end editorial look',
     };
     const hint = styleHints[estiloNome] || 'elegant and delicate';
 
