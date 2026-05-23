@@ -7680,6 +7680,8 @@ function EntregaContent({ brand, plano, setBrand }) {
   const setTaglineWrap = (v) => { setTaglineWrapState(v); try { localStorage.setItem('brandbox_tagline_wrap', v); } catch {} };
   const [taglineSizeBoost, setTaglineSizeBoostState] = useState(() => { try { return parseFloat(localStorage.getItem('brandbox_tagline_size_boost')) || 1.0; } catch { return 1.0; } });
   const setTaglineSizeBoost = (v) => { setTaglineSizeBoostState(v); try { localStorage.setItem('brandbox_tagline_size_boost', v); } catch {} };
+  const [sloganEnabled, setSloganEnabledState] = useState(() => { try { return localStorage.getItem('brandbox_slogan_enabled') !== 'false'; } catch { return true; } });
+  const setSloganEnabled = (v) => { setSloganEnabledState(v); try { localStorage.setItem('brandbox_slogan_enabled', v ? 'true' : 'false'); } catch {} };
   const [fontLineHeight, setFontLineHeightState] = useState(() => { try { return parseFloat(localStorage.getItem('brandbox_font_line_height')) || brand.editData?.fontLineHeight || (brand.editData?.fontStyle === 'script' ? 0.9 : 1.1); } catch { return 1.1; } });
   const setFontLineHeight = (v) => { setFontLineHeightState(v); try { localStorage.setItem('brandbox_font_line_height', v); } catch {} };
   const [fontOverride, setFontOverrideState] = useState(() => {
@@ -7816,7 +7818,7 @@ function EntregaContent({ brand, plano, setBrand }) {
   const [papelariaNavItens, setPapelariaNavItens] = useState([]);
 
   const ALL_STEPS = [
-    'placa', 'manifesto', 'tomdevoz', 'fonte', 'slogan', 'logo', 
+    'placa', 'manifesto', 'tomdevoz', 'fonte', 'logo', 'slogan', 
     ...(plano === 'pro' ? ['submarca'] : []), 
     'cores', 'paleta', 'estampa', 'guia',
     'cartao', 'pack-instagram', 'assinatura-email', 'papelaria'
@@ -7912,7 +7914,7 @@ function EntregaContent({ brand, plano, setBrand }) {
   // editData enriquecido com logo customizada — flui automaticamente para LogoPreviewHTML via editData
   const editDataWithLogo = React.useMemo(() => ({
     ...brand.editData,
-    tagline: tagline,
+    tagline: sloganEnabled ? tagline : '',
     ...(fontOverride ? { fontFamily: fontOverride.fontFamily, fontWeight: fontOverride.weight || 700, fontStyle: fontOverride.style || 'serif', fontSizeBoost: fontOverride.sizeBoost || 1, fontLetterSpacing: fontOverride.letterSpacing || null } : {}),
     ...(customLogoSrc ? { customLogoSrc, customLogoScale } : {}),
     taglineGap,
@@ -8375,7 +8377,16 @@ function EntregaContent({ brand, plano, setBrand }) {
 
             {/* Controles do slogan */}
             <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', padding: '16px', background: '#fcfcfc', borderRadius: '16px', border: '1.5px solid #eaeaea', boxShadow: '0 4px 12px rgba(0,0,0,0.02)' }}>
-              <span style={{ fontSize: '0.78rem', fontWeight: 800, fontFamily: 'Montserrat, sans-serif', color: '#333', letterSpacing: '0.3px', display: 'flex', alignItems: 'center', gap: '6px' }}>💬 Slogan da Marca</span>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                <span style={{ fontSize: '0.78rem', fontWeight: 800, fontFamily: 'Montserrat, sans-serif', color: '#333', letterSpacing: '0.3px', display: 'flex', alignItems: 'center', gap: '6px' }}>💬 Slogan da Marca</span>
+                <button
+                  onClick={() => setSloganEnabled(!sloganEnabled)}
+                  style={{ padding: '5px 12px', borderRadius: '20px', fontSize: '0.65rem', fontWeight: 700, cursor: 'pointer', border: 'none', background: sloganEnabled ? `${accentColor}15` : '#eee', color: sloganEnabled ? accentColor : '#999', transition: 'all 0.2s', fontFamily: 'Montserrat, sans-serif' }}
+                >
+                  {sloganEnabled ? '✓ Com slogan' : '✗ Sem slogan'}
+                </button>
+              </div>
+              {sloganEnabled && (<>
               <input
                 value={tagline}
                 onChange={e => setTagline(e.target.value)}
@@ -8398,6 +8409,7 @@ function EntregaContent({ brand, plano, setBrand }) {
                   <span style={{ fontSize: '0.68rem', color: '#aaa', width: '30px' }}>{taglineGap.toFixed(2)}</span>
                 </div>
               </div>
+              </>)}
             </div>
           </div>
         )}
