@@ -75,7 +75,7 @@ const getColorName = (hex) => {
 };
 
 const SectionHeader = ({ title }) => (
-  <div style={{ display: 'flex', alignItems: 'center', width: '100%', margin: '25px 0 15px 0' }}>
+  <div style={{ display: 'flex', alignItems: 'center', width: '100%', margin: '20px 0 12px 0' }}>
     <div style={{ height: '1px', background: '#333', flex: 1 }}></div>
     <span style={{ margin: '0 15px', fontSize: '0.7rem', fontWeight: 800, letterSpacing: '2px', textTransform: 'uppercase' }}>
       {title}
@@ -128,7 +128,7 @@ const BrandBoard = ({ data, palette, color, seloColor, seloTextColor, patternIma
       {/* LOGO PRINCIPAL */}
       <SectionHeader title="Logomarca Principal" />
       {logoElement ? (
-        <div style={{ minHeight: '90px', width: '450px', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '0px' }}>
+        <div style={{ minHeight: '160px', width: '450px', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '20px 0 30px 0' }}>
           {logoElement}
         </div>
       ) : customLogoSrc ? (
