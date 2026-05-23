@@ -2733,7 +2733,7 @@ function CartaoRetornoPreview({ accentColor, patternSrc, cartaoContacts, crmLine
           <p style={{ fontSize: '0.6rem', color: '#aaa', letterSpacing: '2px', textTransform: 'uppercase' }}>Frente</p>
           <div style={{ width: '184px', height: '320px', position: 'relative', background: '#fff', overflow: 'hidden', boxShadow: '0 4px 20px rgba(0,0,0,0.12)', borderRadius: '4px' }}>
             {comBorda && patternSrc
-              ? <div style={{ position: 'absolute', inset: 0, backgroundImage: `url(${patternSrc})`, backgroundSize: '100px', backgroundRepeat: 'repeat', zIndex: 0 }} />
+              ? <div style={{ position: 'absolute', inset: 0, backgroundImage: `url(${patternSrc})`, backgroundSize: `${(patternScale || 150) / 1.5}px`, backgroundRepeat: 'repeat', zIndex: 0 }} />
               : <div style={{ position: 'absolute', inset: 0, border: `14px solid ${solidColor}`, zIndex: 0 }} />}
             
             <div style={{ position: 'absolute', top: '14px', left: '14px', right: '14px', bottom: '14px', background: '#fff', zIndex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', padding: '12px 10px' }}>
@@ -2763,7 +2763,7 @@ function CartaoRetornoPreview({ accentColor, patternSrc, cartaoContacts, crmLine
           <p style={{ fontSize: '0.6rem', color: '#aaa', letterSpacing: '2px', textTransform: 'uppercase' }}>Verso</p>
           <div style={{ width: '184px', height: '320px', position: 'relative', background: '#fff', overflow: 'hidden', boxShadow: '0 4px 20px rgba(0,0,0,0.12)', borderRadius: '4px' }}>
             {comBorda && patternSrc
-              ? <div style={{ position: 'absolute', inset: 0, backgroundImage: `url(${patternSrc})`, backgroundSize: '100px', backgroundRepeat: 'repeat', zIndex: 0 }} />
+              ? <div style={{ position: 'absolute', inset: 0, backgroundImage: `url(${patternSrc})`, backgroundSize: `${(patternScale || 150) / 1.5}px`, backgroundRepeat: 'repeat', zIndex: 0 }} />
               : <div style={{ position: 'absolute', inset: 0, border: `14px solid ${solidColor}`, zIndex: 0 }} />}
             
             <div style={{ position: 'absolute', top: '14px', left: '14px', right: '14px', bottom: '14px', background: '#fff', zIndex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', padding: '10px 8px' }}>
