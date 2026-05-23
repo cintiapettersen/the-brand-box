@@ -1,5 +1,5 @@
 export default function sitemap() {
-  const baseUrl = 'https://sonhodepapel.com';
+  const baseUrl = 'https://thebrandbox.sonhodepapel.com';
   
   return [
     {

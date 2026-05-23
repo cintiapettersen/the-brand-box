@@ -12,7 +12,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata = {
-  metadataBase: new URL('https://sonhodepapel.com'),
+  metadataBase: new URL('https://thebrandbox.sonhodepapel.com'),
   title: {
     default: "Crie sua marca | The Brand Box",
     template: "%s | The Brand Box"
@@ -24,7 +24,7 @@ export const metadata = {
   openGraph: {
     title: "Crie sua marca | The Brand Box",
     description: "Transforme sua essência em uma identidade visual completa e profissional em minutos com a nossa experiência mágica guiada.",
-    url: "https://sonhodepapel.com/crie-sua-marca/",
+    url: "https://thebrandbox.sonhodepapel.com/crie-sua-marca/",
     siteName: "The Brand Box / Sonho de Papel",
     locale: "pt_BR",
     type: "website",
