@@ -1622,7 +1622,7 @@ function AjudaStep({ brand, accentColor }) {
         </div>
 
         <a
-          href="https://wa.me/5511999999999?text=Olá! Gostaria de saber mais sobre o acompanhamento de concierge criativo e ajustes extras premium para minha marca no Brand Box."
+          href="https://wa.me/4793630746?text=Olá! Gostaria de saber mais sobre o acompanhamento de concierge criativo e ajustes extras premium para minha marca no Brand Box."
           target="_blank"
           style={{
             display: 'inline-block',
@@ -10119,7 +10119,7 @@ function SucessoContent() {
           <button onClick={() => window.location.reload()} style={{ padding: '14px 28px', background: '#f5f5f5', color: '#333', border: 'none', borderRadius: '30px', fontWeight: 700, fontSize: '0.9rem', cursor: 'pointer' }}>
             Tentar novamente
           </button>
-          <a href="https://wa.me/5511999999999" target="_blank" style={{ padding: '14px 28px', background: '#25D366', color: '#fff', borderRadius: '30px', fontWeight: 700, fontSize: '0.9rem', textDecoration: 'none', boxShadow: '0 8px 20px rgba(37,211,102,0.2)' }}>
+          <a href="https://wa.me/4793630746" target="_blank" style={{ padding: '14px 28px', background: '#25D366', color: '#fff', borderRadius: '30px', fontWeight: 700, fontSize: '0.9rem', textDecoration: 'none', boxShadow: '0 8px 20px rgba(37,211,102,0.2)' }}>
             Falar com suporte
           </a>
         </div>
