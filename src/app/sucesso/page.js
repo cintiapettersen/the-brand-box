@@ -854,6 +854,7 @@ function CartaoStep({ brand, accentColor, paletteColors, marca, estampaPatterns,
 
 function EstampaStep({ brand, accentColor, marca, patterns, setPatterns, genCount, setGenCount, selectedIdx, setSelectedIdx, paletteColors, patternScale, setPatternScale, estampasRef }) {
   const [generating, setGenerating] = useState(false);
+  const [fixingSeams, setFixingSeams] = useState(false);
   const [viewMode, setViewMode] = useState('ampliada');
   const [showSlotModal, setShowSlotModal] = useState(false);
   const bxSpinStyle = `@keyframes bx-spin { 0%,100%{transform:scale(1);opacity:1} 50%{transform:scale(1.4);opacity:0.5} }`;
@@ -989,6 +990,57 @@ function EstampaStep({ brand, accentColor, marca, patterns, setPatterns, genCoun
     setTimeout(() => URL.revokeObjectURL(url), 1000);
   };
 
+  const makeSeamless = async () => {
+    const pat = patterns[selectedIdx];
+    if (!pat?.base64) return;
+    setFixingSeams(true);
+    try {
+      const result = await new Promise(resolve => {
+        const img = new Image();
+        img.onload = () => {
+          const W = img.width, H = img.height;
+          const srcCanvas = document.createElement('canvas');
+          srcCanvas.width = W; srcCanvas.height = H;
+          const srcCtx = srcCanvas.getContext('2d');
+          srcCtx.drawImage(img, 0, 0);
+          const srcData = srcCtx.getImageData(0, 0, W, H).data;
+          const out = new Uint8ClampedArray(srcData);
+          const bW = Math.floor(W * 0.22);
+          const bH = Math.floor(H * 0.22);
+          for (let y = 0; y < H; y++) {
+            for (let x = 0; x < W; x++) {
+              const i = (y * W + x) * 4;
+              const ax = x < bW ? x / bW : x > W - 1 - bW ? (W - 1 - x) / bW : 1;
+              const ay = y < bH ? y / bH : y > H - 1 - bH ? (H - 1 - y) / bH : 1;
+              const a = Math.min(ax, ay);
+              if (a < 1) {
+                const mx = (x + Math.floor(W / 2)) % W;
+                const my = (y + Math.floor(H / 2)) % H;
+                const mi = (my * W + mx) * 4;
+                out[i]   = Math.round(srcData[i]   * a + srcData[mi]   * (1 - a));
+                out[i+1] = Math.round(srcData[i+1] * a + srcData[mi+1] * (1 - a));
+                out[i+2] = Math.round(srcData[i+2] * a + srcData[mi+2] * (1 - a));
+              }
+            }
+          }
+          const outCanvas = document.createElement('canvas');
+          outCanvas.width = W; outCanvas.height = H;
+          outCanvas.getContext('2d').putImageData(new ImageData(out, W, H), 0, 0);
+          resolve(outCanvas.toDataURL('image/png').split(',')[1]);
+        };
+        img.src = `data:${pat.mimeType || 'image/png'};base64,${pat.base64}`;
+      });
+      setPatterns(prev => {
+        const next = [...prev];
+        next[selectedIdx] = { ...next[selectedIdx], base64: result, mimeType: 'image/png', url: null };
+        try { localStorage.setItem('brandbox_patterns_all', JSON.stringify(next)); } catch {}
+        try { localStorage.setItem('brandbox_pattern', JSON.stringify(next[selectedIdx])); } catch {}
+        return next;
+      });
+    } catch(e) { console.error('makeSeamless error', e); }
+    finally { setFixingSeams(false); }
+  };
+
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '1.2rem' }}>
       <style>{bxSpinStyle}</style>
@@ -1108,6 +1160,18 @@ function EstampaStep({ brand, accentColor, marca, patterns, setPatterns, genCoun
                   )}
                 </div>
               ))}
+            </div>
+          )}
+          {/* Botão varinha mágica — suavizar bordas da estampa */}
+          {patternSrc && !generating && (
+            <div style={{ display: 'flex', justifyContent: 'center', marginTop: '6px' }}>
+              <button
+                onClick={makeSeamless}
+                disabled={fixingSeams}
+                style={{ padding: '7px 18px', borderRadius: '20px', border: `1.5px solid ${accentColor}44`, background: fixingSeams ? `${accentColor}10` : '#fff', color: fixingSeams ? accentColor : '#666', fontSize: '0.72rem', fontWeight: 700, cursor: fixingSeams ? 'wait' : 'pointer', fontFamily: 'Montserrat, sans-serif', display: 'flex', alignItems: 'center', gap: '6px', transition: 'all 0.2s' }}
+              >
+                {fixingSeams ? '⏳ Suavizando...' : '🪄 Suavizar borda'}
+              </button>
             </div>
           )}
         </div>
