@@ -1508,8 +1508,27 @@ function AjudaStep({ brand, accentColor }) {
     }
   ];
 
+  const faqSchema = {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    "mainEntity": faqs.flatMap(cat => cat.items.map(item => ({
+      "@type": "Question",
+      "name": item.q,
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": item.a
+      }
+    })))
+  };
+
   return (
     <div style={{ padding: '24px 20px', background: '#faf9f7', borderRadius: '16px', border: '1px solid #eae7e2', fontFamily: 'Montserrat, sans-serif', color: '#333' }}>
+      
+      {/* Schema.org FAQ Rich Snippet */}
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(faqSchema) }}
+      />
       
       {/* 1. Busca IA */}
       <div style={{ background: '#fff', borderRadius: '14px', padding: '20px 18px', border: '1.5px solid #eee', boxShadow: '0 4px 20px rgba(0,0,0,0.02)', marginBottom: '24px' }}>
