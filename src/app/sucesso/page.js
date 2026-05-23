@@ -8443,18 +8443,17 @@ function EntregaContent({ brand, plano, setBrand }) {
         {/* Área da logo — layout 2 colunas na aba logo, normal nas outras */}
         {step !== 'estampa' && step !== 'cores' && step !== 'paleta' && step !== 'cartao' && step !== 'guia' && step !== 'manifesto' && step !== 'tomdevoz' && step !== 'fonte' && step !== 'placa' && step !== 'papelaria' && step !== 'pack-instagram' && step !== 'assinatura-email' && step !== 'slogan' && (
           step === 'logo' ? (
-            /* Layout 2 colunas: preview à esquerda, controles à direita */
-            <div style={{ display: 'flex', gap: '12px', alignItems: 'flex-start' }}>
-              {/* Preview quadrado — 55% da largura */}
+            /* Layout coluna única: preview full-width + controles compactos abaixo */
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+              {/* Preview full-width */}
               <div
                 ref={logoRef}
                 style={{
-                  flex: '0 0 55%',
-                  aspectRatio: '1 / 1',
+                  width: '100%', aspectRatio: '1 / 1',
                   background: bgColor,
-                  borderRadius: '14px',
+                  borderRadius: '16px',
                   overflow: 'hidden',
-                  boxShadow: '0 6px 24px rgba(0,0,0,0.10)',
+                  boxShadow: '0 8px 40px rgba(0,0,0,0.10)',
                   display: 'flex', alignItems: 'center', justifyContent: 'center',
                   transition: 'background 0.2s ease',
                 }}
@@ -8463,116 +8462,112 @@ function EntregaContent({ brand, plano, setBrand }) {
                   <LogoPreviewHTML editData={editDataWithLogo} color={logoColor} layout={logoLayout} scaleFactor={1.1} maxWidth="100%" maxHeight="100%" />
                 </div>
               </div>
-              {/* Painel de controles — 45% restante */}
-              <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: '8px', minWidth: 0 }}>
-                {/* Origem */}
-                <div style={{ padding: '10px', background: '#fcfcfc', borderRadius: '12px', border: '1.5px solid #eaeaea' }}>
-                  <span style={{ fontSize: '0.68rem', fontWeight: 800, fontFamily: 'Montserrat, sans-serif', color: '#555', display: 'block', marginBottom: '6px' }}>📂 Origem</span>
-                  <div style={{ display: 'flex', gap: '4px' }}>
-                    <button onClick={() => { setCustomLogoSrc(null); setCustomLogoWarn(null); }} style={{ flex: 1, padding: '6px 4px', border: `1.5px solid ${!customLogoSrc ? accentColor : '#e0e0e0'}`, borderRadius: '8px', cursor: 'pointer', fontSize: '0.62rem', fontWeight: 700, fontFamily: 'Montserrat,sans-serif', background: !customLogoSrc ? `${accentColor}12` : '#fff', color: !customLogoSrc ? accentColor : '#aaa' }}>✨ Sugerida</button>
-                    <label style={{ flex: 1, padding: '6px 4px', border: `1.5px solid ${customLogoSrc ? accentColor : '#e0e0e0'}`, borderRadius: '8px', cursor: 'pointer', fontSize: '0.62rem', fontWeight: 700, fontFamily: 'Montserrat,sans-serif', background: customLogoSrc ? `${accentColor}12` : '#fff', color: customLogoSrc ? accentColor : '#aaa', textAlign: 'center', display: 'block' }}>
-                      {customLogoSrc ? '✓ Minha' : '📤 Upload'}
-                      <input type="file" accept="image/png" style={{ display: 'none' }} onClick={e => { e.target.value = null; }} onChange={e => {
-                        const file = e.target.files[0];
-                        if (!file) return;
-                        if (file.type !== 'image/png') { setCustomLogoWarn('Por favor envie um arquivo PNG.'); return; }
-                        if (file.size > 5 * 1024 * 1024) { setCustomLogoWarn('Arquivo muito grande (máx. 5MB).'); return; }
-                        const reader = new FileReader();
-                        reader.onload = ev => {
-                          const src = ev.target.result;
-                          const img = new Image();
-                          img.onload = () => {
-                            const minDim = Math.min(img.width, img.height);
-                            if (minDim < 500) { setCustomLogoWarn(`Imagem muito pequena (${img.width}×${img.height}px). Envie pelo menos 500×500px.`); return; }
-                            const canvas = document.createElement('canvas'); canvas.width = img.width; canvas.height = img.height;
-                            const ctx = canvas.getContext('2d'); ctx.drawImage(img, 0, 0);
-                            const pts = [[0,0],[img.width-1,0],[0,img.height-1],[img.width-1,img.height-1],[Math.floor(img.width/2),0],[Math.floor(img.width/2),img.height-1]];
-                            const hasOpaqueCorner = pts.some(([x,y]) => ctx.getImageData(x,y,1,1).data[3] > 20);
-                            const warn = hasOpaqueCorner ? '⚠️ A logo parece ter fundo. Use PNG com fundo transparente.' : minDim < 1000 ? `✓ Logo carregada (${img.width}×${img.height}px). Para alta qualidade, recomendamos acima de 1000px.` : null;
-                            setCustomLogoWarn(warn);
-                            if (!hasOpaqueCorner) {
-                              const data = ctx.getImageData(0,0,img.width,img.height).data;
-                              let top=img.height,bottom=0,left=img.width,right=0;
-                              for (let y=0;y<img.height;y++) for (let x=0;x<img.width;x++) if (data[(y*img.width+x)*4+3]>10) { if(y<top)top=y;if(y>bottom)bottom=y;if(x<left)left=x;if(x>right)right=x; }
-                              if (right>left&&bottom>top) {
-                                const pad=Math.round(Math.max(img.width,img.height)*0.02);
-                                const tx=Math.max(0,left-pad),ty=Math.max(0,top-pad),tw=Math.min(img.width,right+pad)-tx,th=Math.min(img.height,bottom+pad)-ty;
-                                const tc=document.createElement('canvas');tc.width=tw;tc.height=th;
-                                const tctx=tc.getContext('2d');tctx.drawImage(canvas,tx,ty,tw,th,0,0,tw,th);
-                                const td=tctx.getImageData(0,0,tw,th);const d=td.data;
-                                for(let i=0;i<d.length;i+=4) if(d[i]>240&&d[i+1]>240&&d[i+2]>240&&d[i+3]>200) d[i+3]=0;
-                                tctx.putImageData(td,0,0);setCustomLogoSrc(tc.toDataURL('image/png'));setCustomLogoScaleMapState({});try{localStorage.removeItem('brandbox_custom_logo_scales');}catch{} return;
-                              }
+
+              {/* Origem da Logo */}
+              <div style={{ padding: '12px 14px', background: '#fcfcfc', borderRadius: '14px', border: '1.5px solid #eaeaea' }}>
+                <span style={{ fontSize: '0.72rem', fontWeight: 800, fontFamily: 'Montserrat, sans-serif', color: '#555', display: 'block', marginBottom: '8px' }}>📂 Origem da Logo</span>
+                <div style={{ display: 'flex', gap: '6px' }}>
+                  <button onClick={() => { setCustomLogoSrc(null); setCustomLogoWarn(null); }} style={{ flex: 1, padding: '8px 6px', border: `1.5px solid ${!customLogoSrc ? accentColor : '#e0e0e0'}`, borderRadius: '10px', cursor: 'pointer', fontSize: '0.72rem', fontWeight: 700, fontFamily: 'Montserrat,sans-serif', background: !customLogoSrc ? `${accentColor}12` : '#fff', color: !customLogoSrc ? accentColor : '#aaa' }}>✨ Logo sugerida</button>
+                  <label style={{ flex: 1, padding: '8px 6px', border: `1.5px solid ${customLogoSrc ? accentColor : '#e0e0e0'}`, borderRadius: '10px', cursor: 'pointer', fontSize: '0.72rem', fontWeight: 700, fontFamily: 'Montserrat,sans-serif', background: customLogoSrc ? `${accentColor}12` : '#fff', color: customLogoSrc ? accentColor : '#aaa', textAlign: 'center', display: 'block' }}>
+                    {customLogoSrc ? '✓ Minha logo' : '📤 Enviar minha logo'}
+                    <input type="file" accept="image/png" style={{ display: 'none' }} onClick={e => { e.target.value = null; }} onChange={e => {
+                      const file = e.target.files[0];
+                      if (!file) return;
+                      if (file.type !== 'image/png') { setCustomLogoWarn('Por favor envie um arquivo PNG.'); return; }
+                      if (file.size > 5 * 1024 * 1024) { setCustomLogoWarn('Arquivo muito grande (máx. 5MB). Otimize o PNG e tente novamente.'); return; }
+                      const reader = new FileReader();
+                      reader.onload = ev => {
+                        const src = ev.target.result;
+                        const img = new Image();
+                        img.onload = () => {
+                          const minDim = Math.min(img.width, img.height);
+                          if (minDim < 500) { setCustomLogoWarn(`Imagem muito pequena (${img.width}×${img.height}px). Envie pelo menos 500×500px.`); return; }
+                          const canvas = document.createElement('canvas'); canvas.width = img.width; canvas.height = img.height;
+                          const ctx = canvas.getContext('2d'); ctx.drawImage(img, 0, 0);
+                          const pts = [[0,0],[img.width-1,0],[0,img.height-1],[img.width-1,img.height-1],[Math.floor(img.width/2),0],[Math.floor(img.width/2),img.height-1]];
+                          const hasOpaqueCorner = pts.some(([x,y]) => ctx.getImageData(x,y,1,1).data[3] > 20);
+                          const warn = hasOpaqueCorner ? '⚠️ A logo parece ter fundo. Para melhor resultado, use PNG com fundo transparente.' : minDim < 1000 ? `✓ Logo carregada (${img.width}×${img.height}px). Para alta qualidade, recomendamos acima de 1000px.` : null;
+                          setCustomLogoWarn(warn);
+                          if (!hasOpaqueCorner) {
+                            const data = ctx.getImageData(0,0,img.width,img.height).data;
+                            let top=img.height,bottom=0,left=img.width,right=0;
+                            for (let y=0;y<img.height;y++) for (let x=0;x<img.width;x++) if (data[(y*img.width+x)*4+3]>10) { if(y<top)top=y;if(y>bottom)bottom=y;if(x<left)left=x;if(x>right)right=x; }
+                            if (right>left&&bottom>top) {
+                              const pad=Math.round(Math.max(img.width,img.height)*0.02);
+                              const tx=Math.max(0,left-pad),ty=Math.max(0,top-pad),tw=Math.min(img.width,right+pad)-tx,th=Math.min(img.height,bottom+pad)-ty;
+                              const tc=document.createElement('canvas');tc.width=tw;tc.height=th;
+                              const tctx=tc.getContext('2d');tctx.drawImage(canvas,tx,ty,tw,th,0,0,tw,th);
+                              const td=tctx.getImageData(0,0,tw,th);const d=td.data;
+                              for(let i=0;i<d.length;i+=4) if(d[i]>240&&d[i+1]>240&&d[i+2]>240&&d[i+3]>200) d[i+3]=0;
+                              tctx.putImageData(td,0,0);setCustomLogoSrc(tc.toDataURL('image/png'));setCustomLogoScaleMapState({});try{localStorage.removeItem('brandbox_custom_logo_scales');}catch{} return;
                             }
-                            setCustomLogoSrc(src);setCustomLogoScaleMapState({});try{localStorage.removeItem('brandbox_custom_logo_scales');}catch{};
-                          };
-                          img.src = src;
+                          }
+                          setCustomLogoSrc(src);setCustomLogoScaleMapState({});try{localStorage.removeItem('brandbox_custom_logo_scales');}catch{};
                         };
-                        reader.readAsDataURL(file);
-                      }} />
-                    </label>
-                  </div>
-                  {customLogoWarn && <div style={{ fontSize: '0.6rem', color: '#b87000', background: '#fff8e1', border: '1px solid #ffe082', borderRadius: '6px', padding: '6px 8px', fontFamily: 'Montserrat,sans-serif', lineHeight: 1.4, marginTop: '4px' }}>{customLogoWarn}</div>}
-                  {customLogoSrc && (
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginTop: '6px' }}>
-                      <span style={{ fontSize: '0.6rem', color: '#999', fontWeight: 600, fontFamily: 'Montserrat,sans-serif', whiteSpace: 'nowrap' }}>Escala</span>
-                      <input type="range" min="10" max="200" step="5" value={customLogoScale} onChange={e => setCustomLogoScale(parseInt(e.target.value))} style={{ flex: 1, accentColor }} />
-                      <span style={{ fontSize: '0.6rem', color: '#aaa', width: '28px' }}>{customLogoScale}%</span>
-                    </div>
-                  )}
+                        img.src = src;
+                      };
+                      reader.readAsDataURL(file);
+                    }} />
+                  </label>
                 </div>
-
-                {/* Cores: Fundo + Logo numa linha */}
-                <div style={{ padding: '10px', background: '#fcfcfc', borderRadius: '12px', border: '1.5px solid #eaeaea' }}>
-                  <div style={{ display: 'flex', gap: '8px' }}>
-                    <div style={{ flex: 1 }}>
-                      <span style={{ fontSize: '0.62rem', fontWeight: 800, fontFamily: 'Montserrat, sans-serif', color: '#555', display: 'block', marginBottom: '6px' }}>🖼️ Fundo</span>
-                      <div style={{ display: 'flex', gap: '5px', flexWrap: 'wrap' }}>
-                        {BG_OPTIONS.map(opt => (
-                          <ColorDot key={opt.label} color={opt.color} selected={bgColor === opt.color} onClick={() => setBgColor(opt.color)} />
-                        ))}
-                      </div>
-                    </div>
-                    <div style={{ width: '1px', background: '#eaeaea', alignSelf: 'stretch' }} />
-                    <div style={{ flex: 1 }}>
-                      <span style={{ fontSize: '0.62rem', fontWeight: 800, fontFamily: 'Montserrat, sans-serif', color: '#555', display: 'block', marginBottom: '6px' }}>🎨 Cor Logo</span>
-                      <div style={{ display: 'flex', gap: '5px', flexWrap: 'wrap' }}>
-                        {['#000000', '#ffffff'].map(hex => <ColorDot key={hex} color={hex} selected={logoColor === hex} onClick={() => setLogoColor(hex)} outlined={hex === '#ffffff'} />)}
-                        {paletteColors.map((hex, i) => <ColorDot key={i} color={hex} selected={logoColor === hex} onClick={() => setLogoColor(hex)} />)}
-                      </div>
-                    </div>
-                  </div>
-                </div>
-
-                {/* Disposição */}
-                {!customLogoSrc && marca.split(' ').length > 1 && (
-                  <div style={{ padding: '10px', background: '#fcfcfc', borderRadius: '12px', border: '1.5px solid #eaeaea' }}>
-                    <span style={{ fontSize: '0.62rem', fontWeight: 800, fontFamily: 'Montserrat, sans-serif', color: '#555', display: 'block', marginBottom: '6px' }}>📐 Disposição</span>
-                    <div style={{ display: 'flex', gap: '4px', flexWrap: 'wrap' }}>
-                      {[
-                        { key: 'horizontal', label: '→ 1 linha' },
-                        { key: 'balanced', label: '⊟ 2 linhas', hide: marca.split(' ').length < 3 },
-                        { key: 'stacked', label: '≡ Empilhada' },
-                      ].filter(o => !o.hide).map(({ key, label }) => (
-                        <button key={key} onClick={() => setLayout(key)} style={{ padding: '4px 8px', borderRadius: '16px', fontSize: '0.62rem', fontWeight: 600, cursor: 'pointer', border: 'none', background: logoLayout === key ? logoColor : '#eee', color: logoLayout === key ? '#fff' : '#888', transition: 'all 0.15s ease' }}>{label}</button>
-                      ))}
-                    </div>
-                  </div>
-                )}
-
-                {/* Nome da marca */}
-                {!customLogoSrc && (
-                  <div style={{ padding: '10px', background: '#fcfcfc', borderRadius: '12px', border: '1.5px solid #eaeaea' }}>
-                    <button onClick={() => setShowEdit(v => !v)} style={{ background: 'none', border: 'none', padding: 0, width: '100%', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                      <span style={{ fontSize: '0.62rem', fontWeight: 800, fontFamily: 'Montserrat, sans-serif', color: '#555' }}>✏️ Nome</span>
-                      <span style={{ fontSize: '0.7rem', color: '#888' }}>{showEdit ? '▲' : '▼'}</span>
-                    </button>
-                    {showEdit && (
-                      <input value={marca} onChange={e => setMarca(e.target.value)} placeholder="Nome da marca" style={{ width: '100%', padding: '8px 10px', borderRadius: '8px', border: '1px solid #e0e0e0', fontSize: '0.8rem', fontFamily: 'Montserrat, sans-serif', boxSizing: 'border-box', marginTop: '6px' }} />
-                    )}
+                {customLogoWarn && <div style={{ fontSize: '0.7rem', color: '#b87000', background: '#fff8e1', border: '1px solid #ffe082', borderRadius: '8px', padding: '8px 12px', fontFamily: 'Montserrat,sans-serif', lineHeight: 1.4, marginTop: '6px' }}>{customLogoWarn}</div>}
+                {customLogoSrc && (
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginTop: '8px' }}>
+                    <span style={{ fontSize: '0.68rem', color: '#999', fontWeight: 600, fontFamily: 'Montserrat,sans-serif', whiteSpace: 'nowrap' }}>Escala</span>
+                    <input type="range" min="10" max="200" step="5" value={customLogoScale} onChange={e => setCustomLogoScale(parseInt(e.target.value))} style={{ flex: 1, accentColor }} />
+                    <span style={{ fontSize: '0.68rem', color: '#aaa', width: '32px' }}>{customLogoScale}%</span>
                   </div>
                 )}
               </div>
+
+              {/* Cor Fundo + Cor Logo numa linha */}
+              <div style={{ padding: '12px 14px', background: '#fcfcfc', borderRadius: '14px', border: '1.5px solid #eaeaea' }}>
+                <div style={{ display: 'flex', gap: '12px' }}>
+                  <div style={{ flex: 1 }}>
+                    <span style={{ fontSize: '0.72rem', fontWeight: 800, fontFamily: 'Montserrat, sans-serif', color: '#555', display: 'block', marginBottom: '8px' }}>🖼️ Cor de Fundo</span>
+                    <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap' }}>
+                      {BG_OPTIONS.map(opt => <ColorDot key={opt.label} color={opt.color} selected={bgColor === opt.color} onClick={() => setBgColor(opt.color)} />)}
+                    </div>
+                  </div>
+                  <div style={{ width: '1px', background: '#eaeaea', alignSelf: 'stretch' }} />
+                  <div style={{ flex: 1 }}>
+                    <span style={{ fontSize: '0.72rem', fontWeight: 800, fontFamily: 'Montserrat, sans-serif', color: '#555', display: 'block', marginBottom: '8px' }}>🎨 Cor da Logo</span>
+                    <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap' }}>
+                      {['#000000', '#ffffff'].map(hex => <ColorDot key={hex} color={hex} selected={logoColor === hex} onClick={() => setLogoColor(hex)} outlined={hex === '#ffffff'} />)}
+                      {paletteColors.map((hex, i) => <ColorDot key={i} color={hex} selected={logoColor === hex} onClick={() => setLogoColor(hex)} />)}
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Disposição */}
+              {!customLogoSrc && marca.split(' ').length > 1 && (
+                <div style={{ padding: '12px 14px', background: '#fcfcfc', borderRadius: '14px', border: '1.5px solid #eaeaea' }}>
+                  <span style={{ fontSize: '0.72rem', fontWeight: 800, fontFamily: 'Montserrat, sans-serif', color: '#555', display: 'block', marginBottom: '8px' }}>📐 Disposição / Layout</span>
+                  <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap' }}>
+                    {[
+                      { key: 'horizontal', label: '⟵→ Uma linha' },
+                      { key: 'balanced', label: '⊟ Duas linhas', hide: marca.split(' ').length < 3 },
+                      { key: 'stacked', label: '≡ Empilhada' },
+                    ].filter(o => !o.hide).map(({ key, label }) => (
+                      <button key={key} onClick={() => setLayout(key)} style={{ padding: '5px 13px', borderRadius: '20px', fontSize: '0.72rem', fontWeight: 600, cursor: 'pointer', border: 'none', background: logoLayout === key ? logoColor : '#eee', color: logoLayout === key ? '#fff' : '#888', transition: 'all 0.15s ease' }}>{label}</button>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* Nome da marca — colapsável */}
+              {!customLogoSrc && (
+                <div style={{ padding: '12px 14px', background: '#fcfcfc', borderRadius: '14px', border: '1.5px solid #eaeaea' }}>
+                  <button onClick={() => setShowEdit(v => !v)} style={{ background: 'none', border: 'none', padding: 0, width: '100%', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                    <span style={{ fontSize: '0.72rem', fontWeight: 800, fontFamily: 'Montserrat, sans-serif', color: '#555', display: 'flex', alignItems: 'center', gap: '6px' }}>✏️ Nome da Marca</span>
+                    <span style={{ fontSize: '0.8rem', color: '#888' }}>{showEdit ? '▲' : '▼'}</span>
+                  </button>
+                  {showEdit && (
+                    <input value={marca} onChange={e => setMarca(e.target.value)} placeholder="Nome da marca" style={{ width: '100%', padding: '10px 14px', borderRadius: '10px', border: '1px solid #e0e0e0', fontSize: '0.9rem', fontFamily: 'Montserrat, sans-serif', boxSizing: 'border-box', marginTop: '8px' }} />
+                  )}
+                </div>
+              )}
             </div>
           ) : (
             /* Layout normal para submarca */
