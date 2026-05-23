@@ -129,12 +129,13 @@ const BrandTemplateSVG = ({ data, color, side = 'frente', hideBackground = false
           {(() => {
             const circumference = 2 * Math.PI * 91.64;
             const toTitleCase = (str) => str.replace(/\w\S*/g, w => w.charAt(0).toUpperCase() + w.slice(1).toLowerCase());
-            const nameWithSep = toTitleCase(marca || 'Sua Marca') + '  •  ';
+            const circularText = data.submarcaTextType === 'slogan' ? (tagline || 'Slogan da Marca') : (marca || 'Sua Marca');
+            const nameWithSep = toTitleCase(circularText) + '  •  ';
             const reps = Math.max(2, Math.ceil(circumference / (nameWithSep.length * 24)));
             const fullText = nameWithSep.repeat(reps);
             return (
               <text letterSpacing="7">
-                <textPath xlinkHref="#circlePath" startOffset="0%" textLength={circumference} lengthAdjust="spacingAndGlyphs">
+                <textPath xlinkHref="#circlePath" startOffset="0%" textLength={circumference} lengthAdjust="spacing">
                   <tspan className="st-selo-text">{fullText}</tspan>
                 </textPath>
               </text>

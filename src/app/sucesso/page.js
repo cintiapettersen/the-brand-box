@@ -8050,6 +8050,8 @@ function EntregaContent({ brand, plano, setBrand }) {
   const setSubmarcaColor = (c) => { setSubmarcaColorState(c); try { localStorage.setItem('brandbox_submarca_color', c); } catch {} };
   const [submarcaTextColor, setSubmarcaTextColorState] = useState(() => { try { return localStorage.getItem('brandbox_submarca_text_color') || '#ffffff'; } catch { return '#ffffff'; } });
   const setSubmarcaTextColor = (c) => { setSubmarcaTextColorState(c); try { localStorage.setItem('brandbox_submarca_text_color', c); } catch {} };
+  const [submarcaTextType, setSubmarcaTextTypeState] = useState(() => { try { return localStorage.getItem('brandbox_submarca_text_type') || 'marca'; } catch { return 'marca'; } });
+  const setSubmarcaTextType = (t) => { setSubmarcaTextTypeState(t); try { localStorage.setItem('brandbox_submarca_text_type', t); } catch {} };
   const [logoColor, setLogoColorState] = useState(() => { try { return localStorage.getItem('brandbox_logo_color') || brand.activeColor || '#dc3495'; } catch { return brand.activeColor || '#dc3495'; } });
   const setLogoColor = (c) => { setLogoColorState(c); try { localStorage.setItem('brandbox_logo_color', c); } catch {} };
   const [logoLayout, setLogoLayout] = useState(() => { try { return localStorage.getItem('brandbox_logo_layout') || 'stacked'; } catch { return 'stacked'; } });
@@ -8622,8 +8624,8 @@ function EntregaContent({ brand, plano, setBrand }) {
 
   const editData = { ...brand.editData, marca, tagline };
   const seloData = editData.fontStyle === 'script'
-    ? { ...editData, fontFamily: 'Montserrat', fontWeight: 700, fontStyle: 'display' }
-    : editData;
+    ? { ...editData, fontFamily: 'Montserrat', fontWeight: 700, fontStyle: 'display', submarcaTextType }
+    : { ...editData, submarcaTextType };
 
   // Espera a fonte da marca estar disponível antes de renderizar o logo.
   // fontReady começa false e volta a false sempre que fontFamily muda —
@@ -9504,6 +9506,52 @@ function EntregaContent({ brand, plano, setBrand }) {
                 {paletteColors.map((hex, i) => (
                   <ColorDot key={i} color={hex} selected={(submarcaColor || accentColor) === hex} onClick={() => setSubmarcaColor(hex)} />
                 ))}
+              </div>
+            </div>
+          )}
+
+          {/* Texto do Selo: Nome da Marca ou Slogan */}
+          {step === 'submarca' && (
+            <div style={{
+              display: 'flex',
+              flexDirection: 'column',
+              gap: '10px',
+              padding: '16px',
+              background: '#fcfcfc',
+              borderRadius: '16px',
+              border: '1.5px solid #eaeaea',
+              boxShadow: '0 4px 12px rgba(0, 0, 0, 0.02)',
+              marginTop: '4px',
+              marginBottom: '4px'
+            }}>
+              <span style={{ fontSize: '0.78rem', fontWeight: 800, fontFamily: 'Montserrat, sans-serif', color: '#333', letterSpacing: '0.3px', display: 'flex', alignItems: 'center', gap: '6px' }}>
+                ✍️ Texto do Selo
+              </span>
+              <div style={{ display: 'flex', gap: '8px', marginTop: '4px' }}>
+                <button
+                  onClick={() => setSubmarcaTextType('marca')}
+                  style={{
+                    flex: 1, padding: '8px 12px', border: 'none', borderRadius: '20px',
+                    fontSize: '0.68rem', fontWeight: 700,
+                    background: submarcaTextType === 'marca' ? (submarcaColor || accentColor) : '#eee',
+                    color: submarcaTextType === 'marca' ? '#fff' : '#888',
+                    cursor: 'pointer', transition: 'all 0.2s ease'
+                  }}
+                >
+                  Nome da Marca
+                </button>
+                <button
+                  onClick={() => setSubmarcaTextType('slogan')}
+                  style={{
+                    flex: 1, padding: '8px 12px', border: 'none', borderRadius: '20px',
+                    fontSize: '0.68rem', fontWeight: 700,
+                    background: submarcaTextType === 'slogan' ? (submarcaColor || accentColor) : '#eee',
+                    color: submarcaTextType === 'slogan' ? '#fff' : '#888',
+                    cursor: 'pointer', transition: 'all 0.2s ease'
+                  }}
+                >
+                  Slogan da Marca
+                </button>
               </div>
             </div>
           )}
