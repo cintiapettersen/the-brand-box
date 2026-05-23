@@ -1452,7 +1452,7 @@ function AjudaStep({ brand, accentColor }) {
         },
         {
           q: "Como enviar para uma gráfica?",
-          a: "Baixe o PDF em alta resolução da aba 'Papelaria' e envie diretamente para a gráfica de sua preferência (como a Printi). Os arquivos já estão fechados no padrão profissional de impressão."
+          a: "Baixe o PDF em alta resolução da aba 'Papelaria' e envie diretamente para a gráfica de sua preferência (como a Printi). Os arquivos já estão fechados no padrão profissional de impressão. Dica importante: o preview na tela é apenas uma simulação visual aproximada. O arquivo PDF baixado é o documento oficial de alta definição 100% fiel e exato para impressão. Sempre abra e revise o arquivo PDF baixado no seu computador antes de enviá-lo para a gráfica para garantir que tudo está perfeito!"
         },
         {
           q: "Qual formato usar?",
