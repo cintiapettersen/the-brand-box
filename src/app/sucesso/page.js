@@ -3266,7 +3266,7 @@ function OrientacoesRNPreview({ accentColor, patternSrc, editData, logoColor, lo
               OS PRIMEIROS DIAS<br/>COM MEU BEBÊ
             </div>
             <div style={{ width: '110px', height: '45px', display: 'flex', alignItems: 'center', justifyContent: 'flex-end', flexShrink: 0 }}>
-              <LogoPreviewHTML item="Orientações p/ Recém Nascidos" editData={editData} color={'#fff'} layout={logoLayout} scaleFactor={0.40} crm={null} hideTagline maxWidth="100%" maxHeight="100%" />
+              <LogoPreviewHTML item="Orientações p/ Recém Nascidos" editData={editData} color={'#fff'} layout={logoLayout} scaleFactor={0.28} crm={null} hideTagline maxWidth="100%" maxHeight="100%" />
             </div>
           </div>
 
