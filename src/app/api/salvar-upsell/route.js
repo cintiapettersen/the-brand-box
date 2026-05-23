@@ -52,7 +52,7 @@ async function sendUpsellEmail({ email, marca, sessionId, itens }) {
   const smtpPassword = process.env.SMTP_PASSWORD;
   if (!smtpEmail || !smtpPassword) return;
 
-  const origin = process.env.NEXT_PUBLIC_APP_URL || 'https://brandbox.sonhodepapel.com';
+  const origin = process.env.NEXT_PUBLIC_APP_URL || 'https://thebrandbox.sonhodepapel.com';
   const link = `${origin}/sucesso?session=${sessionId}`;
   const marcaDisplay = marca || 'sua marca';
   const itensHtml = itens.map(i => `<li style="margin-bottom:6px;"><span style="color:#4EB0B5;margin-right:8px;">•</span>${i}</li>`).join('');

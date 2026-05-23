@@ -16,7 +16,7 @@ export async function POST(request) {
       return Response.json({ skipped: true });
     }
 
-    const origin = process.env.NEXT_PUBLIC_APP_URL || 'https://brandbox.sonhodepapel.com';
+    const origin = process.env.NEXT_PUBLIC_APP_URL || 'https://thebrandbox.sonhodepapel.com';
     const link = `${origin}/sucesso?session=${sessionId}`;
     const marcaDisplay = marca || 'sua marca';
     const isComplete = plano === 'complete' || plano === 'pro';
