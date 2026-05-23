@@ -60,8 +60,10 @@ const BrandTemplateSVG = ({ data, color, side = 'frente', hideBackground = false
           {/* LOGO INTELIGENTE (Split de palavras e escala dinâmica) */}
           {(() => {
             const words = formatMarca(marca || 'SUA MARCA').split(' ');
+            const LOGO_FONT_SCALE = { 'LittleFriend': 0.65, 'GoldenBlast': 0.75, 'Cafigine': 0.75 };
+            const fontScale = LOGO_FONT_SCALE[brandFont] ?? 1;
             const baseFontSize = words.length > 1 ? (marca.length > 15 ? 45 : 55) : 75;
-            const fontSize = `${Math.round(baseFontSize * sizeBoost)}px`;
+            const fontSize = `${Math.round(baseFontSize * sizeBoost * fontScale)}px`;
             const lineHeight = 1.1;
             const startY = 440 - ((words.length - 1) * 30);
 
