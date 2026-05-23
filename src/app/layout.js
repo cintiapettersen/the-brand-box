@@ -13,6 +13,9 @@ const geistMono = Geist_Mono({
 
 export const metadata = {
   metadataBase: new URL('https://thebrandbox.sonhodepapel.com'),
+  icons: {
+    icon: '/favicon-thebrandbox.png',
+  },
   title: {
     default: "Crie sua marca | The Brand Box",
     template: "%s | The Brand Box"
