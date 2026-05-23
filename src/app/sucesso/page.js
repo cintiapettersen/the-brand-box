@@ -1007,8 +1007,8 @@ function EstampaStep({ brand, accentColor, marca, patterns, setPatterns, genCoun
           srcCtx.drawImage(img, 0, 0);
           const srcData = srcCtx.getImageData(0, 0, W, H).data;
           const out = new Uint8ClampedArray(srcData);
-          const bW = Math.floor(W * 0.22);
-          const bH = Math.floor(H * 0.22);
+          const bW = Math.floor(W * 0.12);
+          const bH = Math.floor(H * 0.12);
           for (let y = 0; y < H; y++) {
             for (let x = 0; x < W; x++) {
               const i = (y * W + x) * 4;
