@@ -852,10 +852,10 @@ function CartaoStep({ brand, accentColor, paletteColors, marca, estampaPatterns,
   );
 }
 
-function EstampaStep({ brand, accentColor, marca, patterns, setPatterns, genCount, setGenCount, selectedIdx, setSelectedIdx, paletteColors, patternScale, setPatternScale, estampasRef }) {
+function EstampaStep({ brand, accentColor, marca, patterns, setPatterns, genCount, setGenCount, selectedIdx, setSelectedIdx, paletteColors, patternScale, setPatternScale, estampasRef, originalPattern, setOriginalPattern }) {
   const [generating, setGenerating] = useState(false);
   const [fixingSeams, setFixingSeams] = useState(false);
-  const [originalPattern, setOriginalPattern] = useState(null); // backup pre-suavização
+  // originalPattern vem do pai para sobreviver a re-renders
   const [viewMode, setViewMode] = useState('ampliada');
   const [showSlotModal, setShowSlotModal] = useState(false);
   const bxSpinStyle = `@keyframes bx-spin { 0%,100%{transform:scale(1);opacity:1} 50%{transform:scale(1.4);opacity:0.5} }`;
@@ -7805,6 +7805,7 @@ function EntregaContent({ brand, plano, setBrand }) {
   const [estampaPatterns, setEstampaPatterns] = useState(brand.pattern ? [brand.pattern] : []);
   const [estampaGenCount, setEstampaGenCount] = useState(brand.patternGenerationCount || 0);
   const [estampaSelectedIdx, setEstampaSelectedIdx] = useState(0);
+  const [estampaOriginalPattern, setEstampaOriginalPattern] = useState(null); // backup pre-suavização
   const [estampasRef, setEstampasRef] = useState(brand.estampas || []);
 
   const [presets, setPresets] = useState(() => {
@@ -8447,7 +8448,7 @@ function EntregaContent({ brand, plano, setBrand }) {
         </div>
 
         {/* Área da estampa */}
-        {step === 'estampa' && <EstampaStep brand={brand} accentColor={accentColor} marca={marca} patterns={estampaPatterns} setPatterns={setEstampaPatterns} genCount={estampaGenCount} setGenCount={setEstampaGenCount} selectedIdx={estampaSelectedIdx} setSelectedIdx={setEstampaSelectedIdx} paletteColors={paletteColors} patternScale={patternScale} setPatternScale={setPatternScale} estampasRef={estampasRef} />}
+        {step === 'estampa' && <EstampaStep brand={brand} accentColor={accentColor} marca={marca} patterns={estampaPatterns} setPatterns={setEstampaPatterns} genCount={estampaGenCount} setGenCount={setEstampaGenCount} selectedIdx={estampaSelectedIdx} setSelectedIdx={setEstampaSelectedIdx} paletteColors={paletteColors} patternScale={patternScale} setPatternScale={setPatternScale} estampasRef={estampasRef} originalPattern={estampaOriginalPattern} setOriginalPattern={setEstampaOriginalPattern} />}
 
         {/* Cores — prioridade/ordem */}
         {step === 'cores' && <CoresPrioridadeStep paletteColors={paletteColors} colorOrder={colorOrder} setColorOrder={setColorOrder} accentColor={accentColor} />}
