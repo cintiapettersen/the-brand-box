@@ -135,7 +135,8 @@ const BrandTemplateSVG = ({ data, color, side = 'frente', hideBackground = false
             
             // Cálculo dinâmico e robusto da largura do caractere + espaçamento
             const charWidth = circleFontSize * 0.55 + 5; 
-            const reps = Math.max(1, Math.floor(circumference / (nameWithSep.length * charWidth)));
+            const minReps = data.submarcaTextType === 'slogan' ? 1 : 2;
+            const reps = Math.max(minReps, Math.round(circumference / (nameWithSep.length * charWidth)));
             const fullText = nameWithSep.repeat(reps);
             return (
               <text letterSpacing="7">
