@@ -11,6 +11,10 @@ const BrandTemplateSVG = ({ data, color, side = 'frente', hideBackground = false
     ? str.split(' ').map(w => w.charAt(0).toUpperCase() + w.slice(1).toLowerCase()).join(' ')
     : str.toUpperCase();
 
+  // Fontes display com glifos visivelmente maiores — reduz font-size no texto circular do selo
+  const CIRCLE_FONT_OVERRIDES = { 'LittleFriend': 16, 'GoldenBlast': 18, 'Cafigine': 18 };
+  const circleFontSize = CIRCLE_FONT_OVERRIDES[brandFont] ?? 26;
+
   // O viewBox original é 0 0 1502.53 1082.02
   // Frente e Verso estão em posições diferentes no canvas do Illustrator
   
@@ -42,7 +46,7 @@ const BrandTemplateSVG = ({ data, color, side = 'frente', hideBackground = false
           .st6 { fill: none; stroke: ${activeColor}; stroke-width: 45px; }
           .st7 { fill: ${activeColor}; }
           .st-selo-bg { fill: ${activeColor}; }
-          .st-selo-text { fill: ${textColor}; font-family: 'Montserrat', sans-serif; font-size: 26px; font-weight: 700; letter-spacing: 0.05em; }
+          .st-selo-text { fill: ${textColor}; font-family: 'Montserrat', sans-serif; font-size: ${circleFontSize}px; font-weight: 700; letter-spacing: 0.05em; }
           .st-contact { fill: #333; font-family: 'Montserrat', sans-serif; font-size: 26px; font-weight: 600; }
         `}</style>
         <path id="circlePath" d="M1165.99,316.18c0,50.61-40.39,91.64-90.21,91.64s-90.21-41.03-90.21-91.64,40.39-91.64,90.21-91.64,90.21,41.03,90.21,91.64Z"/>
