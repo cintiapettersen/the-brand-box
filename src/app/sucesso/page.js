@@ -855,6 +855,7 @@ function CartaoStep({ brand, accentColor, paletteColors, marca, estampaPatterns,
 function EstampaStep({ brand, accentColor, marca, patterns, setPatterns, genCount, setGenCount, selectedIdx, setSelectedIdx, paletteColors, patternScale, setPatternScale, estampasRef }) {
   const [generating, setGenerating] = useState(false);
   const [fixingSeams, setFixingSeams] = useState(false);
+  const [originalPattern, setOriginalPattern] = useState(null); // backup pre-suavização
   const [viewMode, setViewMode] = useState('ampliada');
   const [showSlotModal, setShowSlotModal] = useState(false);
   const bxSpinStyle = `@keyframes bx-spin { 0%,100%{transform:scale(1);opacity:1} 50%{transform:scale(1.4);opacity:0.5} }`;
@@ -993,6 +994,7 @@ function EstampaStep({ brand, accentColor, marca, patterns, setPatterns, genCoun
   const makeSeamless = async () => {
     const pat = patterns[selectedIdx];
     if (!pat?.base64) return;
+    setOriginalPattern({ ...pat }); // salva backup antes de modificar
     setFixingSeams(true);
     try {
       const result = await new Promise(resolve => {
@@ -1162,9 +1164,9 @@ function EstampaStep({ brand, accentColor, marca, patterns, setPatterns, genCoun
               ))}
             </div>
           )}
-          {/* Botão varinha mágica — suavizar bordas da estampa */}
+          {/* Botões: varinha mágica + reverter */}
           {patternSrc && !generating && (
-            <div style={{ display: 'flex', justifyContent: 'center', marginTop: '6px' }}>
+            <div style={{ display: 'flex', justifyContent: 'center', gap: '8px', marginTop: '6px' }}>
               <button
                 onClick={makeSeamless}
                 disabled={fixingSeams}
@@ -1172,6 +1174,23 @@ function EstampaStep({ brand, accentColor, marca, patterns, setPatterns, genCoun
               >
                 {fixingSeams ? '⏳ Suavizando...' : '🪄 Suavizar borda'}
               </button>
+              {originalPattern && (
+                <button
+                  onClick={() => {
+                    setPatterns(prev => {
+                      const next = [...prev];
+                      next[selectedIdx] = originalPattern;
+                      try { localStorage.setItem('brandbox_patterns_all', JSON.stringify(next)); } catch {}
+                      try { localStorage.setItem('brandbox_pattern', JSON.stringify(originalPattern)); } catch {}
+                      return next;
+                    });
+                    setOriginalPattern(null);
+                  }}
+                  style={{ padding: '7px 18px', borderRadius: '20px', border: '1.5px solid #ddd', background: '#fff', color: '#888', fontSize: '0.72rem', fontWeight: 700, cursor: 'pointer', fontFamily: 'Montserrat, sans-serif', display: 'flex', alignItems: 'center', gap: '6px', transition: 'all 0.2s' }}
+                >
+                  ↩ Reverter
+                </button>
+              )}
             </div>
           )}
         </div>
