@@ -11,8 +11,8 @@ const WRAP_SCALE = 22; // px/cm para exibição flat
 const CIRCLE_BASE = 74;
 const CIRCLE_FLAT = 92; // px
 // scaleFactor base — o customLogoScale do slider vai multiplicar por cima
-const LOGO_SF     = 0.45;
-const LOGO_SF_F   = 0.56;
+const LOGO_SF_BASE   = 0.36;  // fundo sólido (sem círculo)
+const LOGO_SF_F_BASE = 0.44;  // fundo sólido — arte flat
 
 // LogoBg: círculo exato atrás da logo (omitido quando logo customizada)
 function LogoBg({ children, solidColor, size = 80, hideCircle = false }) {
@@ -44,9 +44,11 @@ export default function CanecaPreview({
     'Amelie': 0.82, 'Cinzel': 0.82, 'Releawy': 0.82,
   };
   const fontScaleMult = FONT_SCALE_MAP[editData?.fontFamily] ?? 1.0;
-  // Tamanho reduzido quando há círculo (padrão)
+  // Tamanho reduzido quando há círculo (padrão) ou sólido — ambos respeitam fontScaleMult
   const LOGO_SF_PATTERN = 0.25 * fontScaleMult;
   const LOGO_SF_PATTERN_F = 0.32 * fontScaleMult;
+  const LOGO_SF = LOGO_SF_BASE * fontScaleMult;
+  const LOGO_SF_F = LOGO_SF_F_BASE * fontScaleMult;
 
   // Dimensões do mockup
   const MW = 500;
