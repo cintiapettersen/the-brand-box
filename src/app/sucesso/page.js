@@ -1172,7 +1172,7 @@ function EstampaStep({ brand, accentColor, marca, patterns, setPatterns, genCoun
                 disabled={fixingSeams}
                 style={{ padding: '7px 18px', borderRadius: '20px', border: `1.5px solid ${accentColor}44`, background: fixingSeams ? `${accentColor}10` : '#fff', color: fixingSeams ? accentColor : '#666', fontSize: '0.72rem', fontWeight: 700, cursor: fixingSeams ? 'wait' : 'pointer', fontFamily: 'Montserrat, sans-serif', display: 'flex', alignItems: 'center', gap: '6px', transition: 'all 0.2s' }}
               >
-                {fixingSeams ? '⏳ Suavizando...' : '🪄 Suavizar borda'}
+                {fixingSeams ? '⏳ Suavizando...' : '🪄 Suavizar cortes'}
               </button>
               {originalPattern && (
                 <button
