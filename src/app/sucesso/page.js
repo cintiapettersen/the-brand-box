@@ -1365,10 +1365,10 @@ function AjudaStep({ brand, accentColor }) {
   const [activeFaq, setActiveFaq] = useState(null);
 
   const KB_ANSWERS = {
-    impressao: "Para imprimir suas estampas e papelaria com máxima qualidade, recomendamos utilizar os arquivos em PDF Vetorial de Alta Resolução disponibilizados na aba 'Papelaria'. Se for imprimir em gráfica (como a Printi), selecione a opção 'Enviar minha arte final'. Se for imprimir em casa, utilize papel couchê ou offset de alta gramatura (mínimo 180g) para que as cores fiquem vibrantes!",
+    impressao: "Para imprimir suas estampas e papelaria com máxima qualidade, recomendamos utilizar os arquivos em PDF Vetorial de Alta Resolução disponibilizados na aba 'Papelaria'. Se for imprimir em gráfica (como a Printi), selecione a opção 'Enviar minha arte final'. Se for imprimir em casa, utilize papel couchê ou offset de alta gramatura (mínimo 180g) na sua impressora caseira. Mas lembre-se: dobras complexas e formatos especiais exigem uma gráfica profissional!",
     exportacao: "Você pode exportar sua Logo e Submarca em formato PNG com fundo transparente (perfeito para posts de Instagram, marca d'água ou assinaturas) ou em formato PNG com fundo colorido diretamente na aba 'Logo'. Já os itens de papelaria e guias são exportados em PDF padrão gráfica, com cores em alta definição e prontos para impressão!",
     cores: "As cores da sua paleta são cuidadosamente geradas com base na essência da sua marca. Na aba 'Cores', você pode alterar a ordem de prioridade das cores (arrastando e soltando os blocos) para destacar qual cor deve ser mais dominante nas suas artes, assinaturas e materiais promocionais!",
-    tamanhos: "Os arquivos gerados na aba 'Papelaria' (como cartão de visitas, receitas, etiquetas e papel de presente) já seguem os formatos e tamanhos padrões do mercado (gabaritos oficiais). Para ajustar a escala visual de elementos nas sacolas ou no papel de presente, você pode usar os controles deslizantes de zoom e escala presentes em cada aba!",
+    tamanhos: "Os gabaritos gerados na aba 'Papelaria' seguem formatos oficiais de mercado. No entanto, para ajustar a escala da logo (já que fontes diferentes têm larguras e comportamentos distintos nas peças), disponibilizamos o controle deslizante de 'Escala da Logo' na aba Papelaria. Esse ajuste ajuda você a equilibrar perfeitamente a logo no espaço reservado, e sim, o PDF gerado atualiza em tempo real com o tamanho escolhido!",
     'uso da marca': "Seu Guia de Marca (disponível para download na aba 'Guia') descreve exatamente as regras de ouro para o uso correto da sua nova identidade visual: como combinar as fontes, qual paleta de cores usar em fundos claros e escuros, e qual a aplicação correta da logo e do selo em diferentes superfícies!",
     papelaria: "A aba 'Papelaria' é o seu hub completo de produção! Ela gera gabaritos perfeitos de sacolas, receitas de alta, cartões de agradecimento, tags de sacola, etiquetas de correios e gráficos de crescimento. Todos os arquivos são gerados dinamicamente em PDF vetorial de altíssima definição!",
     'limites do sistema': "Para garantir o equilíbrio técnico e a estabilidade da sua Brand Box, as gerações de estampa possuem um limite padrão de 3 tentativas na galeria. Além disso, as alterações de nome da marca são limitadas a 1 alteração por licença, o que previne abusos e assegura a consistência da sua nova identidade visual!"
@@ -1427,7 +1427,15 @@ function AjudaStep({ brand, accentColor }) {
         },
         {
           q: "Como escolher o melhor tamanho?",
-          a: "Os gabaritos gerados em PDF na aba 'Papelaria' já estão perfeitamente dimensionados nos formatos padrão. Na hora de mandar para a gráfica, basta enviar o PDF sem alterar suas proporções."
+          a: "Os gabaritos gerados em PDF na aba 'Papelaria' já estão perfeitamente dimensionados nos formatos padrão de mercado (são gabaritos oficiais prontos). No entanto, para ajustar a escala da logo nas peças (já que fontes diferentes têm comportamentos e larguras distintas), disponibilizamos o controle deslizante de 'Escala da Logo' na aba Papelaria. Esse ajuste ajuda você a equilibrar perfeitamente a logo no espaço reservado, e sim, o PDF gerado é atualizado em tempo real com o tamanho escolhido!"
+        },
+        {
+          q: "Posso ter mais opções de fonte?",
+          a: "Nosso algoritmo inteligente selecionou um grupo exclusivo de 6 fontes premium que possuem afinidade perfeita com a essência e o estilo identificados para a sua marca. Para manter a coerência e harmonia da sua identidade visual, a seleção é limitada a essas 6 opções curadas por projeto."
+        },
+        {
+          q: "Posso enviar minha própria logo?",
+          a: "Sim! Se você já tiver uma imagem de logo ou um símbolo próprio, pode fazer o upload dela diretamente no topo da aba 'Logo'. O sistema aplicará a sua logo personalizada em todos os materiais de papelaria, cartão digital e posts de forma automática."
         }
       ]
     },
@@ -1436,7 +1444,11 @@ function AjudaStep({ brand, accentColor }) {
       items: [
         {
           q: "Posso imprimir em casa?",
-          a: "Sim! Vários itens como cartões de agradecimento e receitas podem ser impressos em casa. Recomendamos utilizar papel offset ou couchê de alta gramatura (mínimo 180g) na sua impressora para um acabamento profissional."
+          a: "Você pode imprimir itens planos comuns em formato A4 (como receitas, folhas de pedido ou papel timbrado) diretamente na sua impressora doméstica. No entanto, itens com dobras ou formatos mais complexos (como sacolas, pouches, papel de seda gigante ou tags de formato especial) exigem acabamentos que as impressoras caseiras não comportam. Para estes, a recomendação absoluta é o envio para uma gráfica profissional."
+        },
+        {
+          q: "O que fazer na hora de imprimir em casa?",
+          a: "Configuração crucial: sempre configure a sua impressora para 'Tamanho Real / Escala 100%'. Nunca selecione 'Ajustar à página' ou 'Reduzir para caber', pois isso desalinhará os gabaritos e as marcas de corte! E lembre-se de configurar a qualidade de impressão para 'Alta' no papel adequado para remover imperfeições e garantir fidelidade de cor."
         },
         {
           q: "Como enviar para uma gráfica?",
@@ -1447,8 +1459,12 @@ function AjudaStep({ brand, accentColor }) {
           a: "Para visualização digital e redes sociais, exporte em PNG (fundo transparente). Para impressão profissional de sacolas e papelaria, sempre use o PDF disponibilizado na aba correspondente."
         },
         {
+          q: "Como saber qual papel devo usar para imprimir?",
+          a: "Você pode consultar a gráfica de sua preferência ou verificar diretamente os detalhes recomendados na plataforma! Ao clicar no botão de baixar o PDF de qualquer item na aba 'Papelaria', o sistema exibe uma ficha técnica completa com o tamanho exato da peça, a gramatura e tipo de papel indicados, e até o custo médio estimado de produção desse item no mercado."
+        },
+        {
           q: "Como evitar cortes na estampa?",
-          a: "Nossas estampas são geradas como padrões de repetição perfeitos (seamless tiles). Ao aplicar na sua embalagem, configure a gráfica para usar a imagem em repetição lado a lado, respeitando os limites seguros indicados."
+          a: "Se a repetição da sua estampa apresentar marcas visíveis nas bordas ou cortes secos, acesse a aba 'Estampa' e clique no botão mágico 'Suavizar cortes'. Nosso algoritmo mesclará as emendas automaticamente para tornar a estampa 100% contínua! Se necessário, o profissional da sua gráfica parceira também poderá dar uma ajuda ajustando a escala de repetição para encaixe perfeito nas bobinas de papel ou sacolas."
         }
       ]
     },
