@@ -41,7 +41,7 @@ export default function CanecaPreview({
   // Fontes display grandes (ex: LittleFriend) precisam de scaleFactor menor para caber no círculo
   const LARGE_DISPLAY_FONTS = ['LittleFriend', 'GoldenBlast', 'Cafigine'];
   const isLargeFont = LARGE_DISPLAY_FONTS.includes(editData?.fontFamily);
-  const fontScaleMult = isLargeFont ? 0.65 : 1.0;
+  const fontScaleMult = isLargeFont ? 0.80 : 1.0;
   // Tamanho reduzido quando há círculo (padrão)
   const LOGO_SF_PATTERN = 0.25 * fontScaleMult;
   const LOGO_SF_PATTERN_F = 0.32 * fontScaleMult;
