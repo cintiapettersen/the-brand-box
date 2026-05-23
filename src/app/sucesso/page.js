@@ -9489,6 +9489,13 @@ function SucessoContent() {
   const [brand, setBrand] = useState(null);
   const [loading, setLoading] = useState(true);
   const [showWelcome, setShowWelcome] = useState(false);
+  const [welcomeSeen, setWelcomeSeen] = useState(() => {
+    try {
+      return typeof window !== 'undefined' && localStorage.getItem('brandbox_welcome_seen') === 'true';
+    } catch {
+      return false;
+    }
+  });
   const normalizePlano = (p) => (p === 'complete' || p === 'experience') ? (p === 'complete' ? 'pro' : 'starter') : (p || 'starter');
   const [plano, setPlano] = useState(() => {
     try {
@@ -9674,21 +9681,48 @@ function SucessoContent() {
                 ? <><span style={{ fontFamily: "Sacramento, cursive", fontSize: '2.8rem', fontWeight: 400, color: '#1a1a1a' }}>{nomeCliente}</span><span style={{ fontWeight: 400, color: '#555', fontSize: '1.3rem' }}>,</span><br /></>
                 : null
               }
-              <span style={{ fontWeight: 800, color: '#1a1a1a' }}>sua marca está nascendo agora!</span>
+              <span style={{ fontWeight: 800, color: '#1a1a1a' }}>
+                {welcomeSeen ? 'sua Brand Box está te esperando!' : 'sua marca começou a ganhar forma ✨'}
+              </span>
             </h1>
           </div>
 
           {/* Mensagem emocional */}
-          <p style={{ fontSize: '1.05rem', color: '#555', lineHeight: 1.8, margin: 0 }}>
-            Esse é o começo de algo lindo. Nós vamos te guiar, passo a passo, para você construir a <strong>marca dos seus sonhos</strong> — com a sua essência, do seu jeito.
-          </p>
+          {welcomeSeen ? (
+            <div style={{ fontSize: '1.05rem', color: '#555', lineHeight: 1.8, margin: 0, display: 'flex', flexDirection: 'column', gap: '0.8rem' }}>
+              <p style={{ margin: 0 }}>
+                Sua marca continua aqui, pronta para evoluir com você.
+              </p>
+              <p style={{ margin: 0 }}>
+                Continue explorando combinações, ajustando detalhes e construindo uma marca cada vez mais sua.
+              </p>
+            </div>
+          ) : (
+            <div style={{ fontSize: '1.05rem', color: '#555', lineHeight: 1.8, margin: 0, display: 'flex', flexDirection: 'column', gap: '0.8rem' }}>
+              <p style={{ margin: 0 }}>
+                Esse é o primeiro passo da sua Brand Box.
+              </p>
+              <p style={{ margin: 0 }}>
+                A partir de agora, vamos te guiar por uma experiência criativa construída para transformar ideias, referências e essência em uma identidade visual completa.
+              </p>
+              <p style={{ margin: 0, fontWeight: 600, color: '#dc3495', marginTop: '0.4rem' }}>
+                Você faz as escolhas. Nós organizamos o caminho.
+              </p>
+            </div>
+          )}
 
           {/* Separador */}
           <div style={{ width: '40px', height: '2px', background: 'linear-gradient(90deg, #dc3495, #3cccbf)', borderRadius: '2px' }} />
 
           {/* CTA */}
           <button
-            onClick={() => setShowWelcome(false)}
+            onClick={() => {
+              if (!welcomeSeen) {
+                try { localStorage.setItem('brandbox_welcome_seen', 'true'); } catch {}
+                setWelcomeSeen(true);
+              }
+              setShowWelcome(false);
+            }}
             style={{
               background: 'linear-gradient(135deg, #dc3495, #c42d84)',
               color: '#fff', border: 'none', borderRadius: '50px',
@@ -9700,7 +9734,7 @@ function SucessoContent() {
             onMouseEnter={e => e.currentTarget.style.transform = 'translateY(-2px)'}
             onMouseLeave={e => e.currentTarget.style.transform = 'translateY(0)'}
           >
-            Vamos construir minha marca →
+            {welcomeSeen ? 'Entrar na minha Brand Box →' : 'Começar minha marca →'}
           </button>
 
           <p style={{ fontSize: '0.75rem', color: '#bbb', margin: 0 }}>
