@@ -68,6 +68,8 @@ function SubMenu({ items, activeId, onSelect, color, renderLabel }) {
   );
 }
 
+const BB_AJUDA = '#8a7b6e';
+
 const MARCA_STEPS = ['placa', 'manifesto', 'tomdevoz', 'fonte', 'logo', 'slogan', 'submarca', 'cores', 'paleta', 'estampa', 'guia'];
 const DIGITAL_STEPS = ['cartao', 'pack-instagram', 'assinatura-email'];
 
@@ -75,7 +77,8 @@ export default function BrandBoxNav({ step, setStep, plano, papelariaItens = [],
   const isMarca = MARCA_STEPS.includes(step);
   const isDigital = DIGITAL_STEPS.includes(step);
   const isPapelaria = step === 'papelaria';
-  const activeCat = isMarca ? 'marca' : isDigital ? 'digital' : 'papelaria';
+  const isAjuda = step === 'ajuda';
+  const activeCat = isMarca ? 'marca' : isDigital ? 'digital' : isPapelaria ? 'papelaria' : 'ajuda';
 
   const marcaItems = [
     { id: 'placa', label: 'Placa' },
@@ -97,7 +100,7 @@ export default function BrandBoxNav({ step, setStep, plano, papelariaItens = [],
     { id: 'assinatura-email', label: 'Assinatura E-mail' },
   ];
 
-  const subColor = isMarca ? BB_MARCA : isDigital ? BB_DIGITAL : BB_PAPELARIA;
+  const subColor = isMarca ? BB_MARCA : isDigital ? BB_DIGITAL : isPapelaria ? BB_PAPELARIA : BB_AJUDA;
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '0', marginBottom: '1.2rem' }}>
@@ -107,7 +110,8 @@ export default function BrandBoxNav({ step, setStep, plano, papelariaItens = [],
         {[
           { id: 'marca', label: 'A Marca', color: BB_MARCA, radius: '12px 0 0 0', action: () => setStep('placa') },
           { id: 'digital', label: 'O Digital', color: BB_DIGITAL, radius: '0', action: () => { if (!isDigital) setStep('cartao'); } },
-          { id: 'papelaria', label: 'Papelaria', color: BB_PAPELARIA, radius: '0 12px 0 0', action: () => setStep('papelaria') },
+          { id: 'papelaria', label: 'Papelaria', color: BB_PAPELARIA, radius: '0', action: () => setStep('papelaria') },
+          { id: 'ajuda', label: 'Ajuda ✨', color: BB_AJUDA, radius: '0 12px 0 0', action: () => setStep('ajuda') },
         ].map(tab => {
           const active = activeCat === tab.id;
           return (

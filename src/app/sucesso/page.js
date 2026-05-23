@@ -1359,6 +1359,276 @@ function EstampaStep({ brand, accentColor, marca, patterns, setPatterns, genCoun
   );
 }
 
+function AjudaStep({ brand, accentColor }) {
+  const [searchQuery, setSearchQuery] = useState('');
+  const [searchResult, setSearchResult] = useState(null);
+  const [activeFaq, setActiveFaq] = useState(null);
+
+  const KB_ANSWERS = {
+    impressao: "Para imprimir suas estampas e papelaria com máxima qualidade, recomendamos utilizar os arquivos em PDF Vetorial de Alta Resolução disponibilizados na aba 'Papelaria'. Se for imprimir em gráfica (como a Printi), selecione a opção 'Enviar minha arte final'. Se for imprimir em casa, utilize papel couchê ou offset de alta gramatura (mínimo 180g) para que as cores fiquem vibrantes!",
+    exportacao: "Você pode exportar sua Logo e Submarca em formato PNG com fundo transparente (perfeito para posts de Instagram, marca d'água ou assinaturas) ou em formato PNG com fundo colorido diretamente na aba 'Logo'. Já os itens de papelaria e guias são exportados em PDF padrão gráfica, com cores em alta definição e prontos para impressão!",
+    cores: "As cores da sua paleta são cuidadosamente geradas com base na essência da sua marca. Na aba 'Cores', você pode alterar a ordem de prioridade das cores (arrastando e soltando os blocos) para destacar qual cor deve ser mais dominante nas suas artes, assinaturas e materiais promocionais!",
+    tamanhos: "Os arquivos gerados na aba 'Papelaria' (como cartão de visitas, receitas, etiquetas e papel de presente) já seguem os formatos e tamanhos padrões do mercado (gabaritos oficiais). Para ajustar a escala visual de elementos nas sacolas ou no papel de presente, você pode usar os controles deslizantes de zoom e escala presentes em cada aba!",
+    'uso da marca': "Seu Guia de Marca (disponível para download na aba 'Guia') descreve exatamente as regras de ouro para o uso correto da sua nova identidade visual: como combinar as fontes, qual paleta de cores usar em fundos claros e escuros, e qual a aplicação correta da logo e do selo em diferentes superfícies!",
+    papelaria: "A aba 'Papelaria' é o seu hub completo de produção! Ela gera gabaritos perfeitos de sacolas, receitas de alta, cartões de agradecimento, tags de sacola, etiquetas de correios e gráficos de crescimento. Todos os arquivos são gerados dinamicamente em PDF vetorial de altíssima definição!",
+    'limites do sistema': "Para garantir o equilíbrio técnico e a estabilidade da sua Brand Box, as gerações de estampa possuem um limite padrão de 3 tentativas na galeria. Além disso, as alterações de nome da marca são limitadas a 1 alteração por licença, o que previne abusos e assegura a consistência da sua nova identidade visual!"
+  };
+
+  const handleSearch = (e) => {
+    e.preventDefault();
+    const query = searchQuery.toLowerCase().trim();
+    if (!query) {
+      setSearchResult(null);
+      return;
+    }
+
+    // Procura por palavras-chave
+    let matchedKey = null;
+    const keys = Object.keys(KB_ANSWERS);
+    for (const key of keys) {
+      if (query.includes(key) || key.includes(query) || (key === 'impressao' && query.includes('imprim')) || (key === 'exportacao' && (query.includes('baixar') || query.includes('export') || query.includes('png') || query.includes('pdf')))) {
+        matchedKey = key;
+        break;
+      }
+    }
+
+    if (matchedKey) {
+      setSearchResult({
+        topic: matchedKey.toUpperCase(),
+        text: KB_ANSWERS[matchedKey]
+      });
+    } else {
+      setSearchResult({
+        topic: "ASSISTENTE DIGITAL",
+        text: "Desculpe, não encontrei uma resposta exata para a sua dúvida. Tente pesquisar por palavras como 'impressão', 'exportação', 'cores', 'papelaria' ou consulte as perguntas frequentes abaixo!"
+      });
+    }
+  };
+
+  const faqs = [
+    {
+      category: "🎨 Personalização",
+      items: [
+        {
+          q: "Posso mudar minhas cores?",
+          a: "As cores são geradas com base no seu diagnóstico. Na aba 'Cores' você pode reorganizar a prioridade das cores (arrastando e soltando os blocos) para destacar suas cores favoritas no design."
+        },
+        {
+          q: "Quantas estampas posso gerar?",
+          a: "Cada projeto permite até 3 novas gerações de estampas na sua galeria para garantir que você tenha opções exclusivas e perfeitas."
+        },
+        {
+          q: "Posso trocar minha logo de lugar?",
+          a: "Para manter o equilíbrio visual e a consistência da identidade, as posições dos elementos seguem uma estrutura profissional fixa, mas você pode escolher entre diferentes layouts na aba 'Logo'."
+        },
+        {
+          q: "Como deixar minha logo mais equilibrada?",
+          a: "Utilize o controle 'Altura da Logo' para ajustar o espaçamento entre a marca e o slogan, e selecione layouts horizontais, verticais ou empilhados que combinem melhor com o seu nome!"
+        },
+        {
+          q: "Como escolher o melhor tamanho?",
+          a: "Os gabaritos gerados em PDF na aba 'Papelaria' já estão perfeitamente dimensionados nos formatos padrão. Na hora de mandar para a gráfica, basta enviar o PDF sem alterar suas proporções."
+        }
+      ]
+    },
+    {
+      category: "🖨️ Impressão",
+      items: [
+        {
+          q: "Posso imprimir em casa?",
+          a: "Sim! Vários itens como cartões de agradecimento e receitas podem ser impressos em casa. Recomendamos utilizar papel offset ou couchê de alta gramatura (mínimo 180g) na sua impressora para um acabamento profissional."
+        },
+        {
+          q: "Como enviar para uma gráfica?",
+          a: "Baixe o PDF em alta resolução da aba 'Papelaria' e envie diretamente para a gráfica de sua preferência (como a Printi). Os arquivos já estão fechados no padrão profissional de impressão."
+        },
+        {
+          q: "Qual formato usar?",
+          a: "Para visualização digital e redes sociais, exporte em PNG (fundo transparente). Para impressão profissional de sacolas e papelaria, sempre use o PDF disponibilizado na aba correspondente."
+        },
+        {
+          q: "Como evitar cortes na estampa?",
+          a: "Nossas estampas são geradas como padrões de repetição perfeitos (seamless tiles). Ao aplicar na sua embalagem, configure a gráfica para usar a imagem em repetição lado a lado, respeitando os limites seguros indicados."
+        }
+      ]
+    },
+    {
+      category: "💾 Projeto",
+      items: [
+        {
+          q: "Como acessar meu link novamente?",
+          a: "O link de acesso à sua Brand Box foi enviado para o seu e-mail cadastrado logo após a confirmação do pagamento. Você também pode salvá-lo nos seus favoritos do navegador."
+        },
+        {
+          q: "Posso mudar o nome do projeto?",
+          a: "Sim! Para evitar abusos do sistema, permitimos realizar 1 alteração de nome da marca na aba 'Logo' (completando o total de 2 nomes válidos: o original e a correção)."
+        },
+        {
+          q: "Meu link expira?",
+          a: "Não! O seu projeto e todos os seus downloads ficam disponíveis para acesso sempre que você precisar, sem data de expiração."
+        },
+        {
+          q: "Posso acessar pelo celular?",
+          a: "Sim! A Brand Box é totalmente responsiva. Você pode visualizar sua identidade, baixar as logos diretamente no rolo de câmera e revisar o seu guia de marca do seu smartphone."
+        }
+      ]
+    },
+    {
+      category: "✨ Experiência",
+      items: [
+        {
+          q: "Como descobrir o melhor estilo para minha marca?",
+          a: "O estilo ideal é o que conecta a essência do seu negócio ao coração do seu cliente. Nosso algoritmo inteligente cruzou suas respostas na pesquisa para encontrar o encaixe perfeito entre as 6 direções estéticas premium."
+        },
+        {
+          q: "O que é o manifesto da marca?",
+          a: "É a voz conceitual da sua marca escrita em prosa poética e inspiracional. Ele serve para alinhar o seu propósito e emocionar o seu cliente na sua comunicação oficial."
+        },
+        {
+          q: "Como definir meu tom de voz?",
+          a: "O tom de voz (aba 'Tom de Voz') define as diretrizes de escrita: as palavras a usar, o que evitar, e a atitude da sua marca ao falar com o público no dia a dia."
+        }
+      ]
+    }
+  ];
+
+  return (
+    <div style={{ padding: '24px 20px', background: '#faf9f7', borderRadius: '16px', border: '1px solid #eae7e2', fontFamily: 'Montserrat, sans-serif', color: '#333' }}>
+      
+      {/* 1. Busca IA */}
+      <div style={{ background: '#fff', borderRadius: '14px', padding: '20px 18px', border: '1.5px solid #eee', boxShadow: '0 4px 20px rgba(0,0,0,0.02)', marginBottom: '24px' }}>
+        <h3 style={{ margin: 0, fontSize: '0.9rem', fontWeight: 800, color: '#333', display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '4px' }}>
+          <span>🤖</span> Busca Inteligente
+        </h3>
+        <p style={{ fontSize: '0.74rem', color: '#888', margin: '0 0 14px' }}>
+          Digite sua dúvida técnica abaixo para receber uma orientação instantânea sobre a plataforma.
+        </p>
+
+        <form onSubmit={handleSearch} style={{ display: 'flex', gap: '8px' }}>
+          <input
+            type="text"
+            placeholder="Ex: Como imprimir? Como exportar em PNG?"
+            value={searchQuery}
+            onChange={e => setSearchQuery(e.target.value)}
+            style={{ flex: 1, padding: '10px 14px', border: '1.5px solid #e0e0e0', borderRadius: '10px', fontSize: '0.82rem', fontFamily: 'Montserrat, sans-serif', outline: 'none', transition: 'border-color 0.2s' }}
+            onFocus={e => e.currentTarget.style.borderColor = accentColor}
+            onBlur={e => e.currentTarget.style.borderColor = '#e0e0e0'}
+          />
+          <button type="submit" style={{ padding: '10px 20px', background: accentColor, color: '#fff', border: 'none', borderRadius: '10px', fontWeight: 700, fontSize: '0.82rem', cursor: 'pointer', boxShadow: `0 4px 10px ${accentColor}33` }}>
+            Perguntar
+          </button>
+        </form>
+
+        {searchResult && (
+          <div style={{ marginTop: '16px', padding: '14px 16px', background: `${accentColor}0a`, borderLeft: `3px solid ${accentColor}`, borderRadius: '0 8px 8px 0', animation: 'fadeIn 0.3s ease' }}>
+            <div style={{ fontSize: '0.66rem', fontWeight: 800, color: accentColor, letterSpacing: '0.5px', marginBottom: '6px' }}>
+              🔍 RESPOSTA PARA: {searchResult.topic}
+            </div>
+            <div style={{ fontSize: '0.78rem', color: '#555', lineHeight: 1.6 }}>
+              {searchResult.text}
+            </div>
+          </div>
+        )}
+      </div>
+
+      {/* 2. Cards FAQ */}
+      <h3 style={{ margin: '0 0 12px', fontSize: '0.85rem', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '1px', color: '#666' }}>
+        📋 Perguntas Frequentes
+      </h3>
+
+      <div style={{ display: 'flex', flexDirection: 'column', gap: '16px', marginBottom: '28px' }}>
+        {faqs.map((cat, cIdx) => (
+          <div key={cIdx} style={{ background: '#fff', borderRadius: '14px', border: '1.5px solid #eee', overflow: 'hidden' }}>
+            <div style={{ background: '#fbfbf9', padding: '10px 14px', borderBottom: '1px solid #f0eee9', fontSize: '0.76rem', fontWeight: 800, color: '#555' }}>
+              {cat.category}
+            </div>
+            <div style={{ display: 'flex', flexDirection: 'column' }}>
+              {cat.items.map((item, iIdx) => {
+                const key = `${cIdx}-${iIdx}`;
+                const isOpen = activeFaq === key;
+                return (
+                  <div key={iIdx} style={{ borderBottom: iIdx < cat.items.length - 1 ? '1px solid #f9f9f7' : 'none' }}>
+                    <button
+                      onClick={() => setActiveFaq(isOpen ? null : key)}
+                      style={{ width: '100%', padding: '12px 14px', background: 'none', border: 'none', textAlign: 'left', cursor: 'pointer', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}
+                    >
+                      <span style={{ fontSize: '0.78rem', fontWeight: 600, color: isOpen ? accentColor : '#333', transition: 'color 0.2s' }}>
+                        {item.q}
+                      </span>
+                      <span style={{ fontSize: '0.8rem', color: '#aaa' }}>{isOpen ? '▲' : '▼'}</span>
+                    </button>
+                    {isOpen && (
+                      <div style={{ padding: '0 14px 14px', fontSize: '0.75rem', color: '#666', lineHeight: 1.6, animation: 'slideDown 0.2s ease' }}>
+                        {item.a}
+                      </div>
+                    )}
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        ))}
+      </div>
+
+      {/* 3. Bloco Elegante Concierge Criativo */}
+      <div style={{ background: '#fff', border: '1.5px solid #eaeaea', borderRadius: '16px', padding: '24px 20px', textAlign: 'center', boxShadow: '0 10px 30px rgba(0,0,0,0.02)' }}>
+        <h2 style={{ margin: '0 0 10px', fontSize: '1rem', fontWeight: 800, color: '#1a1a1a', fontFamily: 'Montserrat, sans-serif' }}>
+          Quer ir além da experiência guiada?
+        </h2>
+        <p style={{ fontSize: '0.78rem', color: '#666', lineHeight: 1.7, maxWidth: '400px', margin: '0 auto 18px' }}>
+          Também oferecemos ajustes personalizados, refinamentos manuais e direção criativa exclusiva para marcas que desejam um acompanhamento mais próximo.
+        </p>
+
+        {/* Divisão dos Serviços */}
+        <div style={{ display: 'flex', gap: '16px', flexWrap: 'wrap', textAlign: 'left', margin: '0 auto 20px', maxWidth: '380px', background: '#fbfbf9', padding: '16px', borderRadius: '12px', border: '1px solid #f0eee9' }}>
+          <div style={{ flex: 1, minWidth: '140px' }}>
+            <div style={{ fontSize: '0.72rem', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.5px', color: '#888', marginBottom: '8px' }}>
+              Suporte Gratuito
+            </div>
+            <ul style={{ margin: 0, padding: 0, listStyle: 'none', fontSize: '0.74rem', color: '#555', display: 'flex', flexDirection: 'column', gap: '4px' }}>
+              <li>✨ Dúvidas de uso</li>
+              <li>✨ Problemas de acesso</li>
+              <li>✨ Suporte à impressão</li>
+              <li>✨ Auxílio na exportação</li>
+            </ul>
+          </div>
+          <div style={{ flex: 1, minWidth: '140px' }}>
+            <div style={{ fontSize: '0.72rem', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.5px', color: '#b7791f', marginBottom: '8px' }}>
+              Concierge Criativo
+            </div>
+            <ul style={{ margin: 0, padding: 0, listStyle: 'none', fontSize: '0.74rem', color: '#555', display: 'flex', flexDirection: 'column', gap: '4px' }}>
+              <li>✨ Refinamentos de cores</li>
+              <li>✨ Alterações especiais</li>
+              <li>✨ Ajustes manuais de logo</li>
+              <li>✨ Aplicações personalizadas</li>
+            </ul>
+          </div>
+        </div>
+
+        <a
+          href="https://wa.me/5511999999999?text=Olá! Gostaria de saber mais sobre o acompanhamento de concierge criativo e ajustes extras premium para minha marca no Brand Box."
+          target="_blank"
+          style={{
+            display: 'inline-block',
+            background: 'linear-gradient(135deg, #1a1a1a, #333)',
+            color: '#fff', border: 'none', borderRadius: '50px',
+            padding: '10px 24px', fontSize: '0.8rem', fontWeight: 700,
+            textDecoration: 'none',
+            cursor: 'pointer', letterSpacing: '0.3px',
+            boxShadow: '0 6px 15px rgba(0,0,0,0.1)',
+            transition: 'transform 0.2s ease',
+          }}
+          onMouseEnter={e => e.currentTarget.style.transform = 'translateY(-2px)'}
+          onMouseLeave={e => e.currentTarget.style.transform = 'translateY(0)'}
+        >
+          Solicitar ajuda personalizada →
+        </a>
+      </div>
+
+    </div>
+  );
+}
+
 const TONE_MAP = {
   'Romântico': ['Afetivo','Acolhedor','Delicado','Elegante','Emotivo'],
   'Minimalista': ['Limpo','Objetivo','Sofisticado','Atemporal','Preciso'],
@@ -7985,7 +8255,8 @@ function EntregaContent({ brand, plano, setBrand }) {
     'placa', 'manifesto', 'tomdevoz', 'fonte', 'logo', 'slogan', 
     ...(plano === 'pro' ? ['submarca'] : []), 
     'cores', 'paleta', 'estampa', 'guia',
-    'cartao', 'pack-instagram', 'assinatura-email', 'papelaria'
+    'cartao', 'pack-instagram', 'assinatura-email', 'papelaria',
+    'ajuda'
   ];
 
   const goNext = () => {
@@ -7993,6 +8264,9 @@ function EntregaContent({ brand, plano, setBrand }) {
     if (step === 'papelaria') {
       if (papelariaNavIdx < papelariaNavItens.length - 1) {
         setPapelariaNavIdx(papelariaNavIdx + 1);
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      } else if (curIdx < ALL_STEPS.length - 1) {
+        setStep(ALL_STEPS[curIdx + 1]);
         window.scrollTo({ top: 0, behavior: 'smooth' });
       }
     } else if (curIdx < ALL_STEPS.length - 1) {
@@ -8003,7 +8277,11 @@ function EntregaContent({ brand, plano, setBrand }) {
 
   const goBack = () => {
     const curIdx = ALL_STEPS.indexOf(step);
-    if (step === 'papelaria') {
+    if (step === 'ajuda') {
+      setStep('papelaria');
+      setPapelariaNavIdx(papelariaNavItens.length - 1);
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    } else if (step === 'papelaria') {
       if (papelariaNavIdx > 0) {
         setPapelariaNavIdx(papelariaNavIdx - 1);
         window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -8017,7 +8295,7 @@ function EntregaContent({ brand, plano, setBrand }) {
     }
   };
 
-  const isLastStep = step === 'papelaria' && papelariaNavIdx === papelariaNavItens.length - 1;
+  const isLastStep = step === 'ajuda';
   const isFirstStep = step === 'placa';
   const [customLogoSrc, setCustomLogoSrcState] = useState(() => { try { return localStorage.getItem('brandbox_custom_logo') || null; } catch { return null; } });
   const setCustomLogoSrc = (v) => { setCustomLogoSrcState(v); try { if (v) localStorage.setItem('brandbox_custom_logo', v); else localStorage.removeItem('brandbox_custom_logo'); } catch {} };
@@ -8488,7 +8766,7 @@ function EntregaContent({ brand, plano, setBrand }) {
         <div style={{ display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between', marginBottom: '1.2rem' }}>
           <div>
             <h1 style={{ fontSize: '1.4rem', fontWeight: 700, color: '#1a1a1a', lineHeight: 1.2 }}>
-              {step === 'placa' ? 'Placa da Marca' : step === 'manifesto' ? 'Manifesto da Marca' : step === 'tomdevoz' ? 'Tom de Voz' : step === 'fonte' ? 'Fonte da Marca' : step === 'slogan' ? 'Slogan da Marca' : step === 'logo' ? 'Sua Logo' : step === 'submarca' ? 'Sua Submarca' : step === 'estampa' ? 'Sua Estampa' : step === 'cores' ? 'Suas Cores' : step === 'paleta' ? 'Sua Paleta' : step === 'cartao' ? 'Cartão Digital' : step === 'pack-instagram' ? 'Pack Digital para Instagram' : step === 'assinatura-email' ? 'Assinatura de E-mail' : step === 'guia' ? 'Guia da Marca' : 'Sua Papelaria'}
+              {step === 'placa' ? 'Placa da Marca' : step === 'manifesto' ? 'Manifesto da Marca' : step === 'tomdevoz' ? 'Tom de Voz' : step === 'fonte' ? 'Fonte da Marca' : step === 'slogan' ? 'Slogan da Marca' : step === 'logo' ? 'Sua Logo' : step === 'submarca' ? 'Sua Submarca' : step === 'estampa' ? 'Sua Estampa' : step === 'cores' ? 'Suas Cores' : step === 'paleta' ? 'Sua Paleta' : step === 'cartao' ? 'Cartão Digital' : step === 'pack-instagram' ? 'Pack Digital para Instagram' : step === 'assinatura-email' ? 'Assinatura de E-mail' : step === 'guia' ? 'Guia da Marca' : step === 'ajuda' ? 'Ajuda & Inspiração ✨' : 'Sua Papelaria'}
             </h1>
           </div>
           <button 
@@ -8588,6 +8866,9 @@ function EntregaContent({ brand, plano, setBrand }) {
         {/* Papelaria / Gabaritos */}
         {step === 'papelaria' && <PapelariaStep brand={brand} accentColor={accentColor} paletteColors={orderedPaletteColors} estampaPatterns={estampaPatterns} estampaSelectedIdx={estampaSelectedIdx} cartaoContacts={cartaoContacts} setCartaoContacts={setCartaoContacts} plano={plano} isSaude={isSaude} crmData={crmData} setCrmData={setCrmData} marca={marca} editData={editDataWithLogo} logoColor={logoColor} logoLayout={logoLayout} setLayout={setLayout} clinicaNome={clinicaNome} setClinicaNome={setClinicaNome} onNavSync={setPapelariaNavItens} navIdx={papelariaNavIdx} setNavIdx={setPapelariaNavIdx} customLogoSrc={customLogoSrc} getCustomLogoScale={getCustomLogoScale} setCustomLogoScale={setCustomLogoScale} getCustomLogoScaleMax={getCustomLogoScaleMax} customLogoScaleMap={customLogoScaleMap} />}
 
+        {/* Ajuda & Inspiração */}
+        {step === 'ajuda' && <AjudaStep brand={brand} accentColor={accentColor} />}
+
         {/* Estilos Salvos — acima do preview na aba logo */}
         {step === 'logo' && !customLogoSrc && (
           <div style={{ marginTop: '1rem', display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
@@ -8625,7 +8906,7 @@ function EntregaContent({ brand, plano, setBrand }) {
         )}
 
         {/* Área da logo — layout 2 colunas na aba logo, normal nas outras */}
-        {step !== 'estampa' && step !== 'cores' && step !== 'paleta' && step !== 'cartao' && step !== 'guia' && step !== 'manifesto' && step !== 'tomdevoz' && step !== 'fonte' && step !== 'placa' && step !== 'papelaria' && step !== 'pack-instagram' && step !== 'assinatura-email' && step !== 'slogan' && (
+        {step !== 'estampa' && step !== 'cores' && step !== 'paleta' && step !== 'cartao' && step !== 'guia' && step !== 'manifesto' && step !== 'tomdevoz' && step !== 'fonte' && step !== 'placa' && step !== 'papelaria' && step !== 'pack-instagram' && step !== 'assinatura-email' && step !== 'slogan' && step !== 'ajuda' && (
           step === 'logo' ? (
             /* Layout coluna única: preview full-width + controles compactos abaixo */
             <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
