@@ -2530,16 +2530,22 @@ const FONTE_CURADA = [
 function FonteStep({ brand, accentColor, marca, tagline, editData, logoLayout, onFontChange }) {
   const currentFont = editData?.fontFamily || 'Playfair Display';
 
-  // Garante que a fonte atual sempre apareça como opção
+  // Garante que a fonte original sempre apareça como opção "Sugerida"
   const opcoes = React.useMemo(() => {
+    const originalFont = brand?.editData?.fontFamily || 'Playfair Display';
     const lista = [...FONTE_CURADA];
-    if (!lista.find(f => f.fontFamily === currentFont)) {
-      // Descobrir dados da fonte atual no FONT_MAP
-      const found = Object.values(FONT_MAP).find(f => f.fontFamily === currentFont);
-      if (found) lista.unshift({ label: 'Sugerida', ...found });
+    
+    // Remove a fonte original da lista caso já exista, para podermos inseri-la no topo
+    const filteredLista = lista.filter(f => f.fontFamily !== originalFont);
+    
+    // Descobrir dados da fonte original no FONT_MAP
+    const found = Object.values(FONT_MAP).find(f => f.fontFamily === originalFont);
+    if (found) {
+      filteredLista.unshift({ label: 'Sugerida', ...found });
     }
-    return lista.slice(0, 6);
-  }, [currentFont]);
+    
+    return filteredLista.slice(0, 7);
+  }, [brand]);
 
   const [preview, setPreview] = React.useState(
     () => opcoes.find(f => f.fontFamily === currentFont) || opcoes[0]
@@ -8073,7 +8079,11 @@ function EntregaContent({ brand, plano, setBrand }) {
   const setSubmarcaTextType = (t) => { setSubmarcaTextTypeState(t); try { localStorage.setItem('brandbox_submarca_text_type', t); } catch {} };
   const [logoColor, setLogoColorState] = useState(() => { try { return localStorage.getItem('brandbox_logo_color') || brand.activeColor || '#dc3495'; } catch { return brand.activeColor || '#dc3495'; } });
   const setLogoColor = (c) => { setLogoColorState(c); try { localStorage.setItem('brandbox_logo_color', c); } catch {} };
-  const [logoLayout, setLogoLayout] = useState(() => { try { return localStorage.getItem('brandbox_logo_layout') || 'stacked'; } catch { return 'stacked'; } });
+  const [logoLayout, setLogoLayout] = useState(() => {
+    const rawMarca = brand.editData?.marca || '';
+    const defaultLayout = rawMarca.includes(',') ? 'balanced' : 'inline';
+    try { return localStorage.getItem('brandbox_logo_layout') || defaultLayout; } catch { return defaultLayout; }
+  });
   const setLayout = (l) => { setLogoLayout(l); try { localStorage.setItem('brandbox_logo_layout', l); } catch {} };
   const [downloading, setDownloading] = useState(false);
   const [showEdit, setShowEdit] = useState(false);
@@ -8539,8 +8549,10 @@ function EntregaContent({ brand, plano, setBrand }) {
         return { url };
       });
       setEstampaPatterns(initialPats);
-      const activeIdx = initialPats.findIndex(p => p.url === brand.estampa_url);
-      setEstampaSelectedIdx(activeIdx >= 0 ? activeIdx : 0);
+      const localUrl = patLocal ? patLocal.url : null;
+      const targetUrl = brand.estampa_url || localUrl;
+      const initialActiveIdx = initialPats.findIndex(p => p.url === targetUrl);
+      setEstampaSelectedIdx(initialActiveIdx >= 0 ? initialActiveIdx : 0);
 
       Promise.all(
         estampaUrls.map(url =>
@@ -8570,9 +8582,11 @@ function EntregaContent({ brand, plano, setBrand }) {
         const validPats = pats.filter(p => p.base64);
         if (validPats.length > 0) {
           try { localStorage.setItem('brandbox_patterns_all', JSON.stringify(validPats)); } catch {}
-          const activeIdx = validPats.findIndex(p => p.url === brand.estampa_url);
-          if (activeIdx >= 0) {
-            try { localStorage.setItem('brandbox_pattern', JSON.stringify(validPats[activeIdx])); } catch {}
+          const finalActiveIdx = validPats.findIndex(p => p.url === targetUrl);
+          if (finalActiveIdx >= 0) {
+            try { localStorage.setItem('brandbox_pattern', JSON.stringify(validPats[finalActiveIdx])); } catch {}
+          } else {
+            try { localStorage.setItem('brandbox_pattern', JSON.stringify(validPats[0])); } catch {}
           }
         }
         setIsInitialized(true);
