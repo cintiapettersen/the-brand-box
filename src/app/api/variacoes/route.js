@@ -1,17 +1,19 @@
 import { createClient } from '@supabase/supabase-js';
 
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL,
-  process.env.SUPABASE_SERVICE_ROLE_KEY
-);
+const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+
+const supabase = createClient(supabaseUrl, supabaseKey);
 
 export async function GET(request) {
   const { searchParams } = new URL(request.url);
-  const id = searchParams.get('id');
+  const idStr = searchParams.get('id');
 
-  if (!id) {
+  if (!idStr) {
     return Response.json({ error: 'ID do estilo ausente.' }, { status: 400 });
   }
+
+  const id = parseInt(idStr, 10);
 
   try {
     // Buscar variações
@@ -31,7 +33,7 @@ export async function GET(request) {
     if (moodError) throw moodError;
 
     // Se não encontrar nada para o estilo solicitado, tenta o fallback para o estilo 1 (segurança)
-    if ((!varData || varData.length === 0) && id !== '1') {
+    if ((!varData || varData.length === 0) && id !== 1) {
       const { data: fallbackData } = await supabase
         .from('variacoes_curadas')
         .select('*')
