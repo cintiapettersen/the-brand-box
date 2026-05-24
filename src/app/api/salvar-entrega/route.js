@@ -3,7 +3,7 @@ import { createClient } from '@supabase/supabase-js';
 // Usa a service role key (segura, só roda no servidor)
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL,
-  process.env.SUPABASE_SERVICE_ROLE_KEY
+  (process.env.SUPABASE_SERVICE_ROLE_KEY ? process.env.SUPABASE_SERVICE_ROLE_KEY.replace(/['"]/g, '') : undefined)
 );
 
 export async function POST(request) {

@@ -18,7 +18,7 @@ const PLANOS = {
 export async function POST(request) {
   try {
     const { plano, marca, email, extrasCount = 0, sessionId, itensSelecionados } = await request.json();
-    const stripe = new Stripe(process.env.STRIPE_SECRET_KEY || 'dummy_key_for_build');
+    const stripe = new Stripe((process.env.STRIPE_SECRET_KEY ? process.env.STRIPE_SECRET_KEY.replace(/['"]/g, '') : undefined) || 'dummy_key_for_build');
 
     const origin = request.headers.get('origin') || 'http://localhost:3000';
 

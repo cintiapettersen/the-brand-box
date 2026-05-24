@@ -5,7 +5,7 @@ export async function POST(req) {
     const { paleta, estiloNome, marca, descricao, referenceUrls, count } = await req.json();
     const requestCount = typeof count === 'number' ? count : 3;
 
-    const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
+    const ai = new GoogleGenAI({ apiKey: (process.env.GEMINI_API_KEY ? process.env.GEMINI_API_KEY.replace(/['"]/g, '') : undefined) });
     const coresStr = (paleta || []).join(', ');
     const refs = referenceUrls || [];
 

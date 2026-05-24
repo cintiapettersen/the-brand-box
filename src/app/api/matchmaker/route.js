@@ -5,7 +5,7 @@ export async function POST(req) {
     const body = await req.json();
     
     // O Next.js pega a chave no arquivo que você acabou de salvar
-    const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
+    const genAI = new GoogleGenerativeAI((process.env.GEMINI_API_KEY ? process.env.GEMINI_API_KEY.replace(/['"]/g, '') : undefined));
     
     // ATUALIZAÇÃO REVOLUCIONÁRIA: A chave dela é tão nova que o Google disponibilizou
     // exclusivamente a nova frota Gemini 2.5 para ela! Não podemos usar a 1.5.

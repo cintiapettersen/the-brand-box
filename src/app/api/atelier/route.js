@@ -8,7 +8,7 @@ export async function POST(request) {
       return NextResponse.json({ error: "Missing prompt" }, { status: 400 });
     }
 
-    const apiKey = process.env.GEMINI_API_KEY;
+    const apiKey = (process.env.GEMINI_API_KEY ? process.env.GEMINI_API_KEY.replace(/['"]/g, '') : undefined);
     if (!apiKey) {
       throw new Error("GEMINI_API_KEY não encontrada no servidor.");
     }

@@ -3,7 +3,7 @@ import { GoogleGenAI } from "@google/genai";
 export async function POST(req) {
   try {
     const { marca, tagline, estiloNome, respostas } = await req.json();
-    const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
+    const ai = new GoogleGenAI({ apiKey: (process.env.GEMINI_API_KEY ? process.env.GEMINI_API_KEY.replace(/['"]/g, '') : undefined) });
 
     const prompt = `Você é especialista em branding e comunicação para pequenos negócios femininos no Brasil.
 

@@ -5,13 +5,13 @@ let supabaseClient = null;
 function getSupabase() {
   if (!supabaseClient) {
     const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
-    const key = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+    const key = (process.env.SUPABASE_SERVICE_ROLE_KEY ? process.env.SUPABASE_SERVICE_ROLE_KEY.replace(/['"]/g, '') : undefined) || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
     
     if (!url) {
       throw new Error("NEXT_PUBLIC_SUPABASE_URL está ausente no ambiente do servidor.");
     }
     if (!key) {
-      throw new Error("NEXT_PUBLIC_SUPABASE_ANON_KEY está ausente no ambiente do servidor.");
+      throw new Error("Ambas as chaves SUPABASE_SERVICE_ROLE_KEY e NEXT_PUBLIC_SUPABASE_ANON_KEY estão ausentes no ambiente do servidor.");
     }
     
     supabaseClient = createClient(url, key);
