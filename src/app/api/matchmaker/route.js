@@ -10,7 +10,7 @@ export async function POST(req) {
     // ATUALIZAÇÃO REVOLUCIONÁRIA: A chave dela é tão nova que o Google disponibilizou
     // exclusivamente a nova frota Gemini 2.5 para ela! Não podemos usar a 1.5.
     const model = genAI.getGenerativeModel({ 
-      model: "gemini-1.5-flash", 
+      model: "gemini-2.5-flash", 
       generationConfig: { responseMimeType: "application/json" } 
     });
 
