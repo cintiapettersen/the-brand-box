@@ -326,7 +326,16 @@ export default function Home() {
       setCustomStep('tipo'); // Reset para o primeiro passo do refinamento
       
       const res = await fetch(`/api/variacoes?id=${id}&t=${Date.now()}`);
-      if (!res.ok) throw new Error(`Erro HTTP: ${res.status}`);
+      if (!res.ok) {
+        let errMsg = `Erro HTTP: ${res.status}`;
+        try {
+          const errData = await res.json();
+          if (errData && errData.error) {
+            errMsg += ` (${errData.error})`;
+          }
+        } catch (e) {}
+        throw new Error(errMsg);
+      }
       
       const data = await res.json();
       console.log('Dados recebidos da API:', data);

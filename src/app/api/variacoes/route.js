@@ -1,9 +1,23 @@
 import { createClient } from '@supabase/supabase-js';
 
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
-const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+let supabaseClient = null;
 
-const supabase = createClient(supabaseUrl, supabaseKey);
+function getSupabase() {
+  if (!supabaseClient) {
+    const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
+    const key = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+    
+    if (!url) {
+      throw new Error("NEXT_PUBLIC_SUPABASE_URL está ausente no ambiente do servidor.");
+    }
+    if (!key) {
+      throw new Error("Ambas as chaves SUPABASE_SERVICE_ROLE_KEY e NEXT_PUBLIC_SUPABASE_ANON_KEY estão ausentes no ambiente do servidor.");
+    }
+    
+    supabaseClient = createClient(url, key);
+  }
+  return supabaseClient;
+}
 
 export async function GET(request) {
   const { searchParams } = new URL(request.url);
@@ -16,6 +30,8 @@ export async function GET(request) {
   const id = parseInt(idStr, 10);
 
   try {
+    const supabase = getSupabase();
+    
     // Buscar variações
     const { data: varData, error: varError } = await supabase
       .from('variacoes_curadas')
