@@ -8557,7 +8557,7 @@ function EntregaContent({ brand, plano, setBrand }) {
     const patAllLocalCount = patAllLocal ? patAllLocal.length : 0;
     // Se o localStorage tem patterns com url:null (editados localmente, ex: Suavizar cortes), eles têm prioridade
     const hasLocalEdits = patAllLocal && patAllLocal.some(p => p.base64 && !p.url);
-    if ((estampaUrls.length > patAllLocalCount || !patLocal || patAllLocalCount === 0) && !hasLocalEdits) {
+    if (estampaUrls.length > 0 && (estampaUrls.length > patAllLocalCount || !patLocal || patAllLocalCount === 0) && !hasLocalEdits) {
       isAsync = true;
       // Initialize immediately with URL-only objects so they display instantly without causing blank layouts
       const initialPats = estampaUrls.map(url => {
