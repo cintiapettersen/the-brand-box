@@ -8067,24 +8067,24 @@ ${fontImports2}
 
 function EntregaContent({ brand, plano, setBrand }) {
   const [step, setStepState] = useState('placa');
-  const setStep = (s) => { setStepState(s); try { localStorage.setItem('brandbox_step', s); } catch {} };
+  const setStep = (s) => { setStepState(s); try { localStorage.setItem(`brandbox_step_${brand.id}`, s); } catch {} };
 
   const [bgColor, setBgColor] = useState('#ffffff');
   const [submarcaBg, setSubmarcaBg] = useState(null); // null = usa accentColor como padrão
-  const [submarcaColor, setSubmarcaColorState] = useState(() => { try { return localStorage.getItem('brandbox_submarca_color') || null; } catch { return null; } });
-  const setSubmarcaColor = (c) => { setSubmarcaColorState(c); try { localStorage.setItem('brandbox_submarca_color', c); } catch {} };
-  const [submarcaTextColor, setSubmarcaTextColorState] = useState(() => { try { return localStorage.getItem('brandbox_submarca_text_color') || '#ffffff'; } catch { return '#ffffff'; } });
-  const setSubmarcaTextColor = (c) => { setSubmarcaTextColorState(c); try { localStorage.setItem('brandbox_submarca_text_color', c); } catch {} };
-  const [submarcaTextType, setSubmarcaTextTypeState] = useState(() => { try { return localStorage.getItem('brandbox_submarca_text_type') || 'marca'; } catch { return 'marca'; } });
-  const setSubmarcaTextType = (t) => { setSubmarcaTextTypeState(t); try { localStorage.setItem('brandbox_submarca_text_type', t); } catch {} };
-  const [logoColor, setLogoColorState] = useState(() => { try { return localStorage.getItem('brandbox_logo_color') || brand.activeColor || '#dc3495'; } catch { return brand.activeColor || '#dc3495'; } });
-  const setLogoColor = (c) => { setLogoColorState(c); try { localStorage.setItem('brandbox_logo_color', c); } catch {} };
+  const [submarcaColor, setSubmarcaColorState] = useState(() => { try { return localStorage.getItem(`brandbox_submarca_color_${brand.id}`) || null; } catch { return null; } });
+  const setSubmarcaColor = (c) => { setSubmarcaColorState(c); try { localStorage.setItem(`brandbox_submarca_color_${brand.id}`, c); } catch {} };
+  const [submarcaTextColor, setSubmarcaTextColorState] = useState(() => { try { return localStorage.getItem(`brandbox_submarca_text_color_${brand.id}`) || '#ffffff'; } catch { return '#ffffff'; } });
+  const setSubmarcaTextColor = (c) => { setSubmarcaTextColorState(c); try { localStorage.setItem(`brandbox_submarca_text_color_${brand.id}`, c); } catch {} };
+  const [submarcaTextType, setSubmarcaTextTypeState] = useState(() => { try { return localStorage.getItem(`brandbox_submarca_text_type_${brand.id}`) || 'marca'; } catch { return 'marca'; } });
+  const setSubmarcaTextType = (t) => { setSubmarcaTextTypeState(t); try { localStorage.setItem(`brandbox_submarca_text_type_${brand.id}`, t); } catch {} };
+  const [logoColor, setLogoColorState] = useState(() => { try { return localStorage.getItem(`brandbox_logo_color_${brand.id}`) || brand.activeColor || '#dc3495'; } catch { return brand.activeColor || '#dc3495'; } });
+  const setLogoColor = (c) => { setLogoColorState(c); try { localStorage.setItem(`brandbox_logo_color_${brand.id}`, c); } catch {} };
   const [logoLayout, setLogoLayout] = useState(() => {
     const rawMarca = brand.editData?.marca || '';
     const defaultLayout = rawMarca.includes(',') ? 'balanced' : 'inline';
-    try { return localStorage.getItem('brandbox_logo_layout') || defaultLayout; } catch { return defaultLayout; }
+    try { return localStorage.getItem(`brandbox_logo_layout_${brand.id}`) || defaultLayout; } catch { return defaultLayout; }
   });
-  const setLayout = (l) => { setLogoLayout(l); try { localStorage.setItem('brandbox_logo_layout', l); } catch {} };
+  const setLayout = (l) => { setLogoLayout(l); try { localStorage.setItem(`brandbox_logo_layout_${brand.id}`, l); } catch {} };
   const [downloading, setDownloading] = useState(false);
   const [showEdit, setShowEdit] = useState(false);
   const [marca, setMarcaState] = useState(brand.editData?.marca || '');
@@ -8143,7 +8143,7 @@ function EntregaContent({ brand, plano, setBrand }) {
   };
   const [tagline, setTaglineState] = useState(() => {
     try {
-      return localStorage.getItem('brandbox_tagline') || brand.editData?.tagline || '';
+      return localStorage.getItem(`brandbox_tagline_${brand.id}`) || brand.editData?.tagline || '';
     } catch {
       return brand.editData?.tagline || '';
     }
@@ -8151,25 +8151,25 @@ function EntregaContent({ brand, plano, setBrand }) {
   const setTagline = (v) => {
     setTaglineState(v);
     try {
-      localStorage.setItem('brandbox_tagline', v);
+      localStorage.setItem(`brandbox_tagline_${brand.id}`, v);
     } catch {}
   };
-  const [taglineGap, setTaglineGapState] = useState(() => { try { return parseFloat(localStorage.getItem('brandbox_tagline_gap')) || brand.editData?.taglineGap || 0.35; } catch { return 0.35; } });
-  const setTaglineGap = (v) => { setTaglineGapState(v); try { localStorage.setItem('brandbox_tagline_gap', v); } catch {} };
-  const [taglineWrap, setTaglineWrapState] = useState(() => { try { return localStorage.getItem('brandbox_tagline_wrap') === 'true'; } catch { return false; } });
-  const setTaglineWrap = (v) => { setTaglineWrapState(v); try { localStorage.setItem('brandbox_tagline_wrap', v); } catch {} };
-  const [taglineSizeBoost, setTaglineSizeBoostState] = useState(() => { try { return parseFloat(localStorage.getItem('brandbox_tagline_size_boost')) || 1.0; } catch { return 1.0; } });
-  const setTaglineSizeBoost = (v) => { setTaglineSizeBoostState(v); try { localStorage.setItem('brandbox_tagline_size_boost', v); } catch {} };
-  const [sloganEnabled, setSloganEnabledState] = useState(() => { try { return localStorage.getItem('brandbox_slogan_enabled') !== 'false'; } catch { return true; } });
-  const setSloganEnabled = (v) => { setSloganEnabledState(v); try { localStorage.setItem('brandbox_slogan_enabled', v ? 'true' : 'false'); } catch {} };
-  const [fontLineHeight, setFontLineHeightState] = useState(() => { try { return parseFloat(localStorage.getItem('brandbox_font_line_height')) || brand.editData?.fontLineHeight || (brand.editData?.fontStyle === 'script' ? 0.9 : 1.1); } catch { return 1.1; } });
-  const setFontLineHeight = (v) => { setFontLineHeightState(v); try { localStorage.setItem('brandbox_font_line_height', v); } catch {} };
+  const [taglineGap, setTaglineGapState] = useState(() => { try { return parseFloat(localStorage.getItem(`brandbox_tagline_gap_${brand.id}`)) || brand.editData?.taglineGap || 0.35; } catch { return 0.35; } });
+  const setTaglineGap = (v) => { setTaglineGapState(v); try { localStorage.setItem(`brandbox_tagline_gap_${brand.id}`, v); } catch {} };
+  const [taglineWrap, setTaglineWrapState] = useState(() => { try { return localStorage.getItem(`brandbox_tagline_wrap_${brand.id}`) === 'true'; } catch { return false; } });
+  const setTaglineWrap = (v) => { setTaglineWrapState(v); try { localStorage.setItem(`brandbox_tagline_wrap_${brand.id}`, v); } catch {} };
+  const [taglineSizeBoost, setTaglineSizeBoostState] = useState(() => { try { return parseFloat(localStorage.getItem(`brandbox_tagline_size_boost_${brand.id}`)) || 1.0; } catch { return 1.0; } });
+  const setTaglineSizeBoost = (v) => { setTaglineSizeBoostState(v); try { localStorage.setItem(`brandbox_tagline_size_boost_${brand.id}`, v); } catch {} };
+  const [sloganEnabled, setSloganEnabledState] = useState(() => { try { return localStorage.getItem(`brandbox_slogan_enabled_${brand.id}`) !== 'false'; } catch { return true; } });
+  const setSloganEnabled = (v) => { setSloganEnabledState(v); try { localStorage.setItem(`brandbox_slogan_enabled_${brand.id}`, v ? 'true' : 'false'); } catch {} };
+  const [fontLineHeight, setFontLineHeightState] = useState(() => { try { return parseFloat(localStorage.getItem(`brandbox_font_line_height_${brand.id}`)) || brand.editData?.fontLineHeight || (brand.editData?.fontStyle === 'script' ? 0.9 : 1.1); } catch { return 1.1; } });
+  const setFontLineHeight = (v) => { setFontLineHeightState(v); try { localStorage.setItem(`brandbox_font_line_height_${brand.id}`, v); } catch {} };
   const [fontOverride, setFontOverrideState] = useState(() => {
-    try { const s = localStorage.getItem('brandbox_font_override'); return s ? JSON.parse(s) : null; } catch { return null; }
+    try { const s = localStorage.getItem(`brandbox_font_override_${brand.id}`); return s ? JSON.parse(s) : null; } catch { return null; }
   });
   const setFontOverride = (v) => {
     setFontOverrideState(v);
-    try { if (v) localStorage.setItem('brandbox_font_override', JSON.stringify(v)); else localStorage.removeItem('brandbox_font_override'); } catch {}
+    try { if (v) localStorage.setItem(`brandbox_font_override_${brand.id}`, JSON.stringify(v)); else localStorage.removeItem(`brandbox_font_override_${brand.id}`); } catch {}
   };
   const [isInitialized, setIsInitialized] = useState(false);
   const [estampaPatterns, setEstampaPatterns] = useState(brand.pattern ? [brand.pattern] : []);
@@ -8180,7 +8180,7 @@ function EntregaContent({ brand, plano, setBrand }) {
 
   const [presets, setPresets] = useState(() => {
     try {
-      const s = localStorage.getItem('brandbox_presets');
+      const s = localStorage.getItem(`brandbox_presets_${brand.id}`);
       return s ? JSON.parse(s) : [];
     } catch {
       return [];
@@ -8207,7 +8207,7 @@ function EntregaContent({ brand, plano, setBrand }) {
     const updated = [...presets, newPreset];
     setPresets(updated);
     try {
-      localStorage.setItem('brandbox_presets', JSON.stringify(updated));
+      localStorage.setItem(`brandbox_presets_${brand.id}`, JSON.stringify(updated));
     } catch {}
     setActivePresetId(newPreset.id);
     setIsSavingPreset(false);
@@ -8232,7 +8232,7 @@ function EntregaContent({ brand, plano, setBrand }) {
     const updated = presets.filter(p => p.id !== id);
     setPresets(updated);
     try {
-      localStorage.setItem('brandbox_presets', JSON.stringify(updated));
+      localStorage.setItem(`brandbox_presets_${brand.id}`, JSON.stringify(updated));
     } catch {}
     if (activePresetId === id) {
       setActivePresetId(null);
@@ -8243,7 +8243,7 @@ function EntregaContent({ brand, plano, setBrand }) {
     if (!isInitialized) return;
     const pat = estampaPatterns[estampaSelectedIdx];
     if (pat) {
-      try { localStorage.setItem('brandbox_pattern', JSON.stringify(pat)); } catch {}
+      try { localStorage.setItem(`brandbox_pattern_${brand.id}`, JSON.stringify(pat)); } catch {}
       const sessionId = typeof window !== 'undefined'
         ? (new URLSearchParams(window.location.search).get('session') || localStorage.getItem('brandbox_session'))
         : null;
@@ -8262,7 +8262,7 @@ function EntregaContent({ brand, plano, setBrand }) {
       }
     }
     if (estampaPatterns.length > 0) {
-      try { localStorage.setItem('brandbox_patterns_all', JSON.stringify(estampaPatterns)); } catch {}
+      try { localStorage.setItem(`brandbox_patterns_all_${brand.id}`, JSON.stringify(estampaPatterns)); } catch {}
     }
     if (setBrand) {
       setBrand(prev => {
@@ -8285,8 +8285,8 @@ function EntregaContent({ brand, plano, setBrand }) {
     }
   }, [estampaPatterns, estampaSelectedIdx, isInitialized, setBrand]);
   const coresRef = useRef(null);
-  const [colorOrder, setColorOrderState] = useState(() => { try { const s = localStorage.getItem('brandbox_color_order'); return s ? JSON.parse(s) : null; } catch { return null; } });
-  const setColorOrder = (v) => { setColorOrderState(v); try { localStorage.setItem('brandbox_color_order', JSON.stringify(v)); } catch {} };
+  const [colorOrder, setColorOrderState] = useState(() => { try { const s = localStorage.getItem(`brandbox_color_order_${brand.id}`); return s ? JSON.parse(s) : null; } catch { return null; } });
+  const setColorOrder = (v) => { setColorOrderState(v); try { localStorage.setItem(`brandbox_color_order_${brand.id}`, JSON.stringify(v)); } catch {} };
   const [downloadingCores, setDownloadingCores] = useState(false);
   const [comBorda, setComBorda] = useState(true);
   const [patternScale, setPatternScale] = useState(150);
@@ -8344,11 +8344,11 @@ function EntregaContent({ brand, plano, setBrand }) {
 
   const isLastStep = step === 'ajuda';
   const isFirstStep = step === 'placa';
-  const [customLogoSrc, setCustomLogoSrcState] = useState(() => { try { return localStorage.getItem('brandbox_custom_logo') || null; } catch { return null; } });
-  const setCustomLogoSrc = (v) => { setCustomLogoSrcState(v); try { if (v) localStorage.setItem('brandbox_custom_logo', v); else localStorage.removeItem('brandbox_custom_logo'); } catch {} };
+  const [customLogoSrc, setCustomLogoSrcState] = useState(() => { try { return localStorage.getItem(`brandbox_custom_logo_${brand.id}`) || null; } catch { return null; } });
+  const setCustomLogoSrc = (v) => { setCustomLogoSrcState(v); try { if (v) localStorage.setItem(`brandbox_custom_logo_${brand.id}`, v); else localStorage.removeItem(`brandbox_custom_logo_${brand.id}`); } catch {} };
   const [customLogoScaleMap, setCustomLogoScaleMapState] = useState(() => {
     try {
-      const stored = JSON.parse(localStorage.getItem('brandbox_custom_logo_scales') || '{}');
+      const stored = JSON.parse(localStorage.getItem(`brandbox_custom_logo_scales_${brand.id}`) || '{}');
       // Migração: Tag para Sacola tinha max=50 antes; reset se <= 50 para usar default 100
       if (stored['Tag para Sacola'] != null && stored['Tag para Sacola'] <= 50) {
         delete stored['Tag para Sacola'];
@@ -8392,7 +8392,7 @@ function EntregaContent({ brand, plano, setBrand }) {
   const setCustomLogoScale = (item, v) => {
     setCustomLogoScaleMapState(prev => {
       const next = { ...prev, [item]: v };
-      try { localStorage.setItem('brandbox_custom_logo_scales', JSON.stringify(next)); } catch {}
+      try { localStorage.setItem(`brandbox_custom_logo_scales_${brand.id}`, JSON.stringify(next)); } catch {}
       return next;
     });
   };
@@ -8416,18 +8416,18 @@ function EntregaContent({ brand, plano, setBrand }) {
   const patternSrc = estampaPatterns?.[currentIdx]
     ? (estampaPatterns[currentIdx].url || `data:${estampaPatterns[currentIdx].mimeType};base64,${estampaPatterns[currentIdx].base64}`)
     : null;
-  const [cartaoContacts, setCartaoContacts] = useState(() => { try { return JSON.parse(localStorage.getItem('brandbox_cartao') || '{}').contacts || { telefone: '', whatsapp: '', email: '', site: '', instagram: '', endereco: '', telefone2: '' }; } catch { return { telefone: '', whatsapp: '', email: '', site: '', instagram: '', endereco: '', telefone2: '' }; } });
-  const [cartaoQrLink, setCartaoQrLink] = useState(() => { try { return JSON.parse(localStorage.getItem('brandbox_cartao') || '{}').qrLink || ''; } catch { return ''; } });
-  const [cartaoShowQR, setCartaoShowQR] = useState(() => { try { return JSON.parse(localStorage.getItem('brandbox_cartao') || '{}').showQR || false; } catch { return false; } });
+  const [cartaoContacts, setCartaoContacts] = useState(() => { try { return JSON.parse(localStorage.getItem(`brandbox_cartao_${brand.id}`) || '{}').contacts || { telefone: '', whatsapp: '', email: '', site: '', instagram: '', endereco: '', telefone2: '' }; } catch { return { telefone: '', whatsapp: '', email: '', site: '', instagram: '', endereco: '', telefone2: '' }; } });
+  const [cartaoQrLink, setCartaoQrLink] = useState(() => { try { return JSON.parse(localStorage.getItem(`brandbox_cartao_${brand.id}`) || '{}').qrLink || ''; } catch { return ''; } });
+  const [cartaoShowQR, setCartaoShowQR] = useState(() => { try { return JSON.parse(localStorage.getItem(`brandbox_cartao_${brand.id}`) || '{}').showQR || false; } catch { return false; } });
 
   useEffect(() => {
-    try { localStorage.setItem('brandbox_cartao', JSON.stringify({ contacts: cartaoContacts, qrLink: cartaoQrLink, showQR: cartaoShowQR })); } catch {}
+    try { localStorage.setItem(`brandbox_cartao_${brand.id}`, JSON.stringify({ contacts: cartaoContacts, qrLink: cartaoQrLink, showQR: cartaoShowQR })); } catch {}
   }, [cartaoContacts, cartaoQrLink, cartaoShowQR]);
 
   const atuacoesSaude = ['Pediatria / Saúde infantil', 'Obstetrícia / Saúde da mulher', 'Clínica / Saúde geral adulta', 'Terapia / Saúde mental', 'Estética / Bem-estar / Nutrição'];
   const isSaude = atuacoesSaude.includes(brand.formData?.atuacao);
 
-  const [clinicaNome, setClinicaNomeState] = useState(() => { try { return JSON.parse(localStorage.getItem('brandbox_papelaria') || '{}').clinicaNome || ''; } catch { return ''; } });
+  const [clinicaNome, setClinicaNomeState] = useState(() => { try { return JSON.parse(localStorage.getItem(`brandbox_papelaria_${brand.id}`) || '{}').clinicaNome || ''; } catch { return ''; } });
   const [resendingEmail, setResendingEmail] = useState(false);
   const [resendStatus, setResendStatus] = useState(null);
 
@@ -8458,12 +8458,12 @@ function EntregaContent({ brand, plano, setBrand }) {
       setTimeout(() => setResendStatus(null), 3000);
     }
   };
-  const setClinicaNome = (v) => { setClinicaNomeState(v); try { const cur = JSON.parse(localStorage.getItem('brandbox_papelaria') || '{}'); localStorage.setItem('brandbox_papelaria', JSON.stringify({ ...cur, clinicaNome: v })); } catch {} };
+  const setClinicaNome = (v) => { setClinicaNomeState(v); try { const cur = JSON.parse(localStorage.getItem(`brandbox_papelaria_${brand.id}`) || '{}'); localStorage.setItem(`brandbox_papelaria_${brand.id}`, JSON.stringify({ ...cur, clinicaNome: v })); } catch {} };
   const [crmData, setCrmDataState] = useState({ crm: '', uf: '', rqe: [] });
   const setCrmData = (updater) => {
     setCrmDataState(prev => {
       const next = typeof updater === 'function' ? updater(prev) : updater;
-      try { localStorage.setItem('brandbox_crm', JSON.stringify(next)); } catch {}
+      try { localStorage.setItem(`brandbox_crm_${brand.id}`, JSON.stringify(next)); } catch {}
       return next;
     });
   };
@@ -8473,14 +8473,14 @@ function EntregaContent({ brand, plano, setBrand }) {
     let isAsync = false;
     // Carregamento inicial de tudo
     try {
-      const s = localStorage.getItem('brandbox_step'); if (s) setStepState(s);
+      const s = localStorage.getItem(`brandbox_step_${brand.id}`); if (s) setStepState(s);
 
-      let allPatterns = JSON.parse(localStorage.getItem('brandbox_patterns_all') || 'null');
-      const singlePattern = JSON.parse(localStorage.getItem('brandbox_pattern') || 'null');
+      let allPatterns = JSON.parse(localStorage.getItem(`brandbox_patterns_all_${brand.id}`) || localStorage.getItem('brandbox_patterns_all') || 'null');
+      const singlePattern = JSON.parse(localStorage.getItem(`brandbox_pattern_${brand.id}`) || localStorage.getItem('brandbox_pattern') || 'null');
       if (allPatterns && allPatterns.length > 0) {
         if (allPatterns.length > 3) {
           allPatterns = allPatterns.slice(-3);
-          try { localStorage.setItem('brandbox_patterns_all', JSON.stringify(allPatterns)); } catch {}
+          try { localStorage.setItem(`brandbox_patterns_all_${brand.id}`, JSON.stringify(allPatterns)); } catch {}
         }
         setEstampaPatterns(allPatterns);
         if (singlePattern) {
@@ -8490,7 +8490,7 @@ function EntregaContent({ brand, plano, setBrand }) {
       } else if (singlePattern) {
         setEstampaPatterns([singlePattern]);
       }
-      const crm = JSON.parse(localStorage.getItem('brandbox_crm') || 'null'); if (crm) setCrmDataState(crm);
+      const crm = JSON.parse(localStorage.getItem(`brandbox_crm_${brand.id}`) || localStorage.getItem('brandbox_crm') || 'null'); if (crm) setCrmDataState(crm);
     } catch {}
 
     // Recupera estampa do banco: tenta carregar todas as estampas geradas
@@ -8533,8 +8533,26 @@ function EntregaContent({ brand, plano, setBrand }) {
       }
     }
 
-    const patLocal = (() => { try { return JSON.parse(localStorage.getItem('brandbox_pattern') || 'null'); } catch { return null; } })();
-    const patAllLocal = (() => { try { return JSON.parse(localStorage.getItem('brandbox_patterns_all') || 'null'); } catch { return null; } })();
+    const patLocal = (() => {
+      try {
+        const scoped = localStorage.getItem(`brandbox_pattern_${brand.id}`);
+        if (scoped) return JSON.parse(scoped);
+        const globalPat = localStorage.getItem('brandbox_pattern');
+        return globalPat ? JSON.parse(globalPat) : null;
+      } catch {
+        return null;
+      }
+    })();
+    const patAllLocal = (() => {
+      try {
+        const scoped = localStorage.getItem(`brandbox_patterns_all_${brand.id}`);
+        if (scoped) return JSON.parse(scoped);
+        const globalAll = localStorage.getItem('brandbox_patterns_all');
+        return globalAll ? JSON.parse(globalAll) : null;
+      } catch {
+        return null;
+      }
+    })();
 
     const patAllLocalCount = patAllLocal ? patAllLocal.length : 0;
     // Se o localStorage tem patterns com url:null (editados localmente, ex: Suavizar cortes), eles têm prioridade
@@ -8581,12 +8599,12 @@ function EntregaContent({ brand, plano, setBrand }) {
         });
         const validPats = pats.filter(p => p.base64);
         if (validPats.length > 0) {
-          try { localStorage.setItem('brandbox_patterns_all', JSON.stringify(validPats)); } catch {}
+          try { localStorage.setItem(`brandbox_patterns_all_${brand.id}`, JSON.stringify(validPats)); } catch {}
           const finalActiveIdx = validPats.findIndex(p => p.url === targetUrl);
           if (finalActiveIdx >= 0) {
-            try { localStorage.setItem('brandbox_pattern', JSON.stringify(validPats[finalActiveIdx])); } catch {}
+            try { localStorage.setItem(`brandbox_pattern_${brand.id}`, JSON.stringify(validPats[finalActiveIdx])); } catch {}
           } else {
-            try { localStorage.setItem('brandbox_pattern', JSON.stringify(validPats[0])); } catch {}
+            try { localStorage.setItem(`brandbox_pattern_${brand.id}`, JSON.stringify(validPats[0])); } catch {}
           }
         }
         setIsInitialized(true);
@@ -8600,13 +8618,13 @@ function EntregaContent({ brand, plano, setBrand }) {
       const legacyPattern = brand?.pattern;
       if (legacyPatterns && legacyPatterns.length > 0) {
         setEstampaPatterns(legacyPatterns);
-        try { localStorage.setItem('brandbox_pattern', JSON.stringify(legacyPatterns[0])); } catch {}
+        try { localStorage.setItem(`brandbox_pattern_${brand.id}`, JSON.stringify(legacyPatterns[0])); } catch {}
       } else if (legacyPattern) {
         const pat = typeof legacyPattern === 'string'
           ? { base64: legacyPattern, mimeType: 'image/png' }
           : legacyPattern;
         setEstampaPatterns([pat]);
-        try { localStorage.setItem('brandbox_pattern', JSON.stringify(pat)); } catch {}
+        try { localStorage.setItem(`brandbox_pattern_${brand.id}`, JSON.stringify(pat)); } catch {}
       }
     }
 
@@ -8651,8 +8669,8 @@ function EntregaContent({ brand, plano, setBrand }) {
   const { paletas } = brand;
   const estiloNome = brand.resultadoFinal?.estiloNome || '';
   const styleIcons = STYLE_ICONS[estiloNome] || [];
-  const [selectedIcon, setSelectedIconState] = useState(() => { try { return localStorage.getItem('brandbox_selected_icon') || brand.selectedIcon || null; } catch { return brand.selectedIcon || null; } });
-  const setSelectedIcon = (v) => { setSelectedIconState(v); try { if (v) localStorage.setItem('brandbox_selected_icon', v); else localStorage.removeItem('brandbox_selected_icon'); } catch {} };
+  const [selectedIcon, setSelectedIconState] = useState(() => { try { return localStorage.getItem(`brandbox_selected_icon_${brand.id}`) || brand.selectedIcon || null; } catch { return brand.selectedIcon || null; } });
+  const setSelectedIcon = (v) => { setSelectedIconState(v); try { if (v) localStorage.setItem(`brandbox_selected_icon_${brand.id}`, v); else localStorage.removeItem(`brandbox_selected_icon_${brand.id}`); } catch {} };
   const currentIconPath = styleIcons.find(i => i.id === selectedIcon)?.path || null;
 
   const editData = { ...brand.editData, marca, tagline };
@@ -9912,7 +9930,14 @@ function EntregaContent({ brand, plano, setBrand }) {
         {/* Link de reset para testes */}
         <div style={{ marginTop: '3rem', textAlign: 'center' }}>
           <button
-            onClick={() => { localStorage.removeItem('brandbox_delivery'); localStorage.removeItem('brandbox_cartao'); localStorage.removeItem('brandbox_step'); window.location.href = '/'; }}
+            onClick={() => {
+              localStorage.removeItem('brandbox_delivery');
+              localStorage.removeItem(`brandbox_cartao_${brand.id}`);
+              localStorage.removeItem(`brandbox_step_${brand.id}`);
+              localStorage.removeItem('brandbox_cartao');
+              localStorage.removeItem('brandbox_step');
+              window.location.href = '/';
+            }}
             style={{ background: 'none', border: 'none', fontSize: '0.62rem', color: '#ddd', cursor: 'pointer', letterSpacing: '1px' }}
           >
             reiniciar teste
