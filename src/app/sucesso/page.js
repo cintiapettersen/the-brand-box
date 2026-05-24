@@ -4758,8 +4758,7 @@ function PapelariaStep({ brand, accentColor, paletteColors, estampaPatterns, est
   ];
   // Monta lista final: papelaria selecionada no checkout + digitais automáticos
   const papelariaSelecionada = brand?.papelariaSelecionada || [];
-  const TODOS_DISPONIVEIS = [...PAPELARIA_GERAL, ...(isSaude ? PAPELARIA_MEDICA : []),
-    "Pack Digital para Instagram", "Assinatura de E-mail", ...(isSaude ? DIGITAIS_MEDICOS : [])];
+  const TODOS_DISPONIVEIS = [...PAPELARIA_GERAL, ...(isSaude ? PAPELARIA_MEDICA : []), ...(isSaude ? DIGITAIS_MEDICOS : [])];
   // Normaliza nomes legados para compatibilidade com dados salvos anteriormente
   const LEGACY_NAMES = {
     'Pasta A4 Exclusiva': 'Pasta A4',
