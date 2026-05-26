@@ -447,7 +447,7 @@ function CoresSalvarButton({ colorOrder, accentColor }) {
     setTimeout(() => setSaved(false), 2500);
   };
   return (
-    <button onClick={handleSave} style={{ width: '100%', padding: '14px', background: saved ? '#4CAF50' : accentColor, color: '#fff', border: 'none', borderRadius: '30px', fontWeight: 700, fontSize: '0.95rem', cursor: 'pointer', transition: 'background 0.3s' }}>
+    <button onClick={handleSave} style={{ width: '100%', padding: '14px', background: saved ? '#4CAF50' : '#C03B66', color: '#fff', border: 'none', borderRadius: '30px', fontWeight: 700, fontSize: '0.95rem', cursor: 'pointer', transition: 'background 0.3s' }}>
       {saved ? '✓ Ordem salva! Os impressos já foram atualizados.' : 'Salvar ordem das cores →'}
     </button>
   );
@@ -734,7 +734,7 @@ function CartaoStep({ brand, accentColor, paletteColors, marca, estampaPatterns,
       {/* Seletor de Orientação */}
       <div style={{ display: 'flex', justifyContent: 'center', gap: '8px', marginBottom: '-0.5rem' }}>
         {['landscape', 'portrait'].map(o => (
-          <button key={o} onClick={() => setOrientation(o)} style={{ padding: '6px 16px', borderRadius: '20px', fontSize: '0.75rem', fontWeight: 700, border: '1px solid', borderColor: orientation === o ? accentColor : '#eee', background: orientation === o ? `${accentColor}10` : '#fff', color: orientation === o ? accentColor : '#888', cursor: 'pointer', fontFamily: 'Montserrat, sans-serif' }}>
+          <button key={o} onClick={() => setOrientation(o)} style={{ padding: '6px 16px', borderRadius: '20px', fontSize: '0.75rem', fontWeight: 700, border: '1px solid', borderColor: orientation === o ? '#C03B66' : '#eee', background: orientation === o ? 'rgba(192, 59, 102, 0.1)' : '#fff', color: orientation === o ? '#C03B66' : '#888', cursor: 'pointer', fontFamily: 'Montserrat, sans-serif' }}>
             {o === 'landscape' ? 'Horizontal (Cartão)' : 'Retrato (Full Screen)'}
           </button>
         ))}
@@ -804,9 +804,9 @@ function CartaoStep({ brand, accentColor, paletteColors, marca, estampaPatterns,
               onClick={() => setLayout(l)}
               style={{
                 padding: '6px 14px', borderRadius: '20px', fontSize: '0.7rem', fontWeight: 600,
-                border: '1px solid', borderColor: logoLayout === l ? accentColor : '#eee',
-                background: logoLayout === l ? `${accentColor}10` : '#fff',
-                color: logoLayout === l ? accentColor : '#888', cursor: 'pointer',
+                border: '1px solid', borderColor: logoLayout === l ? '#C03B66' : '#eee',
+                background: logoLayout === l ? 'rgba(192, 59, 102, 0.1)' : '#fff',
+                color: logoLayout === l ? '#C03B66' : '#888', cursor: 'pointer',
                 transition: 'all 0.2s'
               }}
             >
@@ -824,10 +824,10 @@ function CartaoStep({ brand, accentColor, paletteColors, marca, estampaPatterns,
             try { await navigator.share({ files: [file], title: `Cartão Digital — ${marca || 'Marca'}` }); return; } catch {}
           }
           downloadHTML();
-        }} style={{ flex: 1, padding: '13px', background: accentColor, color: '#fff', border: 'none', borderRadius: '30px', fontWeight: 700, fontSize: '0.82rem', cursor: 'pointer', fontFamily: 'Montserrat, sans-serif' }}>
+        }} style={{ flex: 1, padding: '13px', background: '#C03B66', color: '#fff', border: 'none', borderRadius: '30px', fontWeight: 700, fontSize: '0.82rem', cursor: 'pointer', fontFamily: 'Montserrat, sans-serif' }}>
           ↑ Compartilhar
         </button>
-        <button onClick={downloadHTML} style={{ flex: 1, padding: '13px', background: 'none', color: accentColor, border: `1.5px solid ${accentColor}`, borderRadius: '30px', fontWeight: 700, fontSize: '0.82rem', cursor: 'pointer', fontFamily: 'Montserrat, sans-serif' }}>
+        <button onClick={downloadHTML} style={{ flex: 1, padding: '13px', background: 'none', color: '#C03B66', border: '1.5px solid #C03B66', borderRadius: '30px', fontWeight: 700, fontSize: '0.82rem', cursor: 'pointer', fontFamily: 'Montserrat, sans-serif' }}>
           ⬇ Baixar HTML
         </button>
       </div>
@@ -841,7 +841,7 @@ function CartaoStep({ brand, accentColor, paletteColors, marca, estampaPatterns,
         {CONTACT_FIELDS.map(f => (
           <input key={f.key} value={contacts[f.key]} onChange={e => setContact(f.key, e.target.value)} placeholder={f.label} style={inputStyle} />
         ))}
-        <button onClick={() => setShowQR(v => !v)} style={{ padding: '10px', background: showQR ? accentColor : 'none', color: showQR ? '#fff' : accentColor, border: `1.5px solid ${accentColor}`, borderRadius: '30px', fontWeight: 700, fontSize: '0.8rem', fontFamily: 'Montserrat, sans-serif', cursor: 'pointer' }}>
+        <button onClick={() => setShowQR(v => !v)} style={{ padding: '10px', background: showQR ? '#C03B66' : 'none', color: showQR ? '#fff' : '#C03B66', border: '1.5px solid #C03B66', borderRadius: '30px', fontWeight: 700, fontSize: '0.8rem', fontFamily: 'Montserrat, sans-serif', cursor: 'pointer' }}>
           {showQR ? '✓ QR Code ativo' : '+ QR Code'}
         </button>
         {showQR && (
@@ -1338,7 +1338,7 @@ function EstampaStep({ brand, accentColor, marca, patterns, setPatterns, genCoun
 
       <div style={{ display: 'flex', gap: '8px' }}>
         {patternSrc && (
-          <button onClick={download} style={{ flex: 1, padding: '13px 8px', background: '#fff', color: accentColor, border: `1.5px solid ${accentColor}`, borderRadius: '30px', fontWeight: 700, fontSize: '0.82rem', cursor: 'pointer' }}>
+          <button onClick={download} style={{ flex: 1, padding: '13px 8px', background: '#fff', color: '#C03B66', border: '1.5px solid #C03B66', borderRadius: '30px', fontWeight: 700, fontSize: '0.82rem', cursor: 'pointer' }}>
             ⬇ Baixar Estampa
           </button>
         )}
@@ -1346,7 +1346,7 @@ function EstampaStep({ brand, accentColor, marca, patterns, setPatterns, genCoun
           <button
             onClick={handleGenerateClick}
             disabled={generating}
-            style={{ flex: 1, padding: '13px 8px', background: 'none', color: accentColor, border: `1.5px solid ${accentColor}`, borderRadius: '30px', fontWeight: 700, fontSize: '0.82rem', cursor: 'pointer', opacity: generating ? 0.6 : 1 }}
+            style={{ flex: 1, padding: '13px 8px', background: 'none', color: '#C03B66', border: '1.5px solid #C03B66', borderRadius: '30px', fontWeight: 700, fontSize: '0.82rem', cursor: 'pointer', opacity: generating ? 0.6 : 1 }}
           >
             {generating ? '✨ Tecendo suas estampas... (isso leva uns 15s)' : `✨ ${patternSrc ? 'Gerar novas opções' : 'Gerar estampa'}`}
           </button>
@@ -1546,17 +1546,17 @@ function AjudaStep({ brand, accentColor }) {
             value={searchQuery}
             onChange={e => setSearchQuery(e.target.value)}
             style={{ flex: 1, padding: '10px 14px', border: '1.5px solid #e0e0e0', borderRadius: '10px', fontSize: '0.82rem', fontFamily: 'Montserrat, sans-serif', outline: 'none', transition: 'border-color 0.2s' }}
-            onFocus={e => e.currentTarget.style.borderColor = accentColor}
+            onFocus={e => e.currentTarget.style.borderColor = '#C03B66'}
             onBlur={e => e.currentTarget.style.borderColor = '#e0e0e0'}
           />
-          <button type="submit" style={{ padding: '10px 20px', background: accentColor, color: '#fff', border: 'none', borderRadius: '10px', fontWeight: 700, fontSize: '0.82rem', cursor: 'pointer', boxShadow: `0 4px 10px ${accentColor}33` }}>
+          <button type="submit" style={{ padding: '10px 20px', background: '#C03B66', color: '#fff', border: 'none', borderRadius: '10px', fontWeight: 700, fontSize: '0.82rem', cursor: 'pointer', boxShadow: '0 4px 10px rgba(192, 59, 102, 0.2)' }}>
             Perguntar
           </button>
         </form>
 
         {searchResult && (
-          <div style={{ marginTop: '16px', padding: '14px 16px', background: `${accentColor}0a`, borderLeft: `3px solid ${accentColor}`, borderRadius: '0 8px 8px 0', animation: 'fadeIn 0.3s ease' }}>
-            <div style={{ fontSize: '0.66rem', fontWeight: 800, color: accentColor, letterSpacing: '0.5px', marginBottom: '6px' }}>
+          <div style={{ marginTop: '16px', padding: '14px 16px', background: 'rgba(192, 59, 102, 0.04)', borderLeft: '3px solid #C03B66', borderRadius: '0 8px 8px 0', animation: 'fadeIn 0.3s ease' }}>
+            <div style={{ fontSize: '0.66rem', fontWeight: 800, color: '#C03B66', letterSpacing: '0.5px', marginBottom: '6px' }}>
               🔍 RESPOSTA PARA: {searchResult.topic}
             </div>
             <div style={{ fontSize: '0.78rem', color: '#555', lineHeight: 1.6 }}>
@@ -2260,7 +2260,7 @@ function PlacaStep({ brand, accentColor, paletteColors, estampaPatterns, estampa
       </div>
       <button
         onClick={handleBaixar}
-        style={{ width: '100%', padding: '14px', background: '#fff', color: accentColor, border: `1.5px solid ${accentColor}`, borderRadius: '30px', fontWeight: 700, fontSize: '0.88rem', cursor: 'pointer', fontFamily: 'Montserrat, sans-serif' }}
+        style={{ width: '100%', padding: '14px', background: '#fff', color: '#C03B66', border: '1.5px solid #C03B66', borderRadius: '30px', fontWeight: 700, fontSize: '0.88rem', cursor: 'pointer', fontFamily: 'Montserrat, sans-serif' }}
       >
         ⬇ Baixar Placa da Marca
       </button>
@@ -4991,7 +4991,7 @@ function PapelariaStep({ brand, accentColor, paletteColors, estampaPatterns, est
             <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: '4px' }}>
             {upsellErro && <div style={{ fontSize: '0.7rem', color: '#e55', fontFamily: 'Montserrat,sans-serif' }}>{upsellErro}</div>}
             <button onClick={handleUpsellCheckout} disabled={upsellLoading}
-              style={{ padding: '12px 24px', background: accentColor, color: '#fff', border: 'none', borderRadius: '30px', fontWeight: 700, fontSize: '0.85rem', fontFamily: 'Montserrat,sans-serif', cursor: upsellLoading ? 'wait' : 'pointer', opacity: upsellLoading ? 0.7 : 1 }}>
+              style={{ padding: '12px 24px', background: '#C03B66', color: '#fff', border: 'none', borderRadius: '30px', fontWeight: 700, fontSize: '0.85rem', fontFamily: 'Montserrat,sans-serif', cursor: upsellLoading ? 'wait' : 'pointer', opacity: upsellLoading ? 0.7 : 1 }}>
               {upsellLoading ? 'Aguarde...' : 'Ir para pagamento →'}
             </button>
           </div>
@@ -8012,7 +8012,7 @@ ${fontImports2}
 
               <div style={{ display: 'flex', gap: '10px' }}>
                 <button onClick={() => setShowPrintModal(false)} style={{ flex: 1, padding: '11px', background: 'none', border: '1px solid #e0e0e0', borderRadius: '30px', fontWeight: 600, fontSize: '0.82rem', cursor: 'pointer', color: '#888' }}>Cancelar</button>
-                <button onClick={() => { setShowPrintModal(false); openGabarito(pendingItem); }} style={{ flex: 2, padding: '11px', background: accentColor, color: '#fff', border: 'none', borderRadius: '30px', fontWeight: 700, fontSize: '0.82rem', cursor: 'pointer' }}>Entendi, baixar PDF →</button>
+                <button onClick={() => { setShowPrintModal(false); openGabarito(pendingItem); }} style={{ flex: 2, padding: '11px', background: '#C03B66', color: '#fff', border: 'none', borderRadius: '30px', fontWeight: 700, fontSize: '0.82rem', cursor: 'pointer' }}>Entendi, baixar PDF →</button>
               </div>
             </div>
           </div>
@@ -8022,7 +8022,7 @@ ${fontImports2}
       {/* Botão download */}
       <button
         onClick={() => { if (currentItem === 'Pack Digital para Instagram' || currentItem === 'Assinatura de E-mail') { openGabarito(currentItem); } else { setPendingItem(currentItem); setShowPrintModal(true); } }}
-        style={{ width: '100%', padding: '10px', background: '#fff', color: accentColor, border: `1.5px solid ${accentColor}`, borderRadius: '30px', fontWeight: 700, fontSize: '0.8rem', cursor: 'pointer', marginBottom: '8px' }}
+        style={{ width: '100%', padding: '10px', background: '#fff', color: '#C03B66', border: '1.5px solid #C03B66', borderRadius: '30px', fontWeight: 700, fontSize: '0.8rem', cursor: 'pointer', marginBottom: '8px' }}
       >
         {currentItem === 'Pack Digital para Instagram' ? `⬇ Baixar PNG / JPG` : currentItem === 'Assinatura de E-mail' ? '⬇ Baixar Assinatura' : '⬇ Baixar PDF Padrão Gráfica'}
       </button>
@@ -9755,7 +9755,7 @@ function EntregaContent({ brand, plano, setBrand }) {
                   <input type="range" min="0" max="1.5" step="0.05" 
                     value={taglineGap}
                     onChange={e => setTaglineGap(parseFloat(e.target.value))}
-                    style={{ flex: 1, accentColor }} />
+                    style={{ flex: 1, accentColor: '#C03B66' }} />
                   <span style={{ fontSize: '0.68rem', color: '#aaa', width: '30px' }}>{taglineGap.toFixed(2)}</span>
                 </div>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
@@ -9763,7 +9763,7 @@ function EntregaContent({ brand, plano, setBrand }) {
                   <input type="range" min="0.5" max="2" step="0.05" 
                     value={fontLineHeight}
                     onChange={e => setFontLineHeight(parseFloat(e.target.value))}
-                    style={{ flex: 1, accentColor }} />
+                    style={{ flex: 1, accentColor: '#C03B66' }} />
                   <span style={{ fontSize: '0.68rem', color: '#aaa', width: '30px' }}>{fontLineHeight.toFixed(2)}</span>
                 </div>
               </div>
@@ -9821,14 +9821,14 @@ function EntregaContent({ brand, plano, setBrand }) {
                 <button
                   onClick={downloadTransparent}
                   disabled={!!downloading}
-                  style={{ flex: 1, padding: '10px 8px', background: '#fff', color: accentColor, border: `1.5px solid ${accentColor}`, borderRadius: '30px', fontWeight: 700, fontSize: '0.78rem', cursor: 'pointer', opacity: downloading === 'png' ? 0.6 : 1 }}
+                  style={{ flex: 1, padding: '10px 8px', background: '#fff', color: '#C03B66', border: '1.5px solid #C03B66', borderRadius: '30px', fontWeight: 700, fontSize: '0.78rem', cursor: 'pointer', opacity: downloading === 'png' ? 0.6 : 1 }}
                 >
                   {downloading === 'png' ? '...' : 'PNG Transparente'}
                 </button>
                 <button
                   onClick={downloadComFundo}
                   disabled={!!downloading}
-                  style={{ flex: 1, padding: '10px 8px', background: '#fff', color: accentColor, border: `1.5px solid ${accentColor}`, borderRadius: '30px', fontWeight: 700, fontSize: '0.78rem', cursor: 'pointer', opacity: downloading === 'fundo' ? 0.6 : 1 }}
+                  style={{ flex: 1, padding: '10px 8px', background: '#fff', color: '#C03B66', border: '1.5px solid #C03B66', borderRadius: '30px', fontWeight: 700, fontSize: '0.78rem', cursor: 'pointer', opacity: downloading === 'fundo' ? 0.6 : 1 }}
                 >
                   {downloading === 'fundo' ? '...' : 'Logo com Fundo'}
                 </button>
@@ -9855,7 +9855,7 @@ function EntregaContent({ brand, plano, setBrand }) {
               link.download = `Pack-Instagram_${marca || 'marca'}.png`;
               link.href = canvas.toDataURL('image/png');
               link.click();
-            }} style={{ width: '100%', padding: '14px', background: '#fff', color: accentColor, border: `1.5px solid ${accentColor}`, borderRadius: '30px', fontWeight: 700, fontSize: '0.95rem', cursor: 'pointer' }}>
+            }} style={{ width: '100%', padding: '14px', background: '#fff', color: '#C03B66', border: '1.5px solid #C03B66', borderRadius: '30px', fontWeight: 700, fontSize: '0.95rem', cursor: 'pointer' }}>
               ⬇ Baixar PNG
             </button>
           )}
@@ -9893,14 +9893,14 @@ function EntregaContent({ brand, plano, setBrand }) {
                 link.download = `Assinatura-Email_${marca || 'marca'}.png`;
                 link.href = canvas.toDataURL('image/png');
                 link.click();
-              }} style={{ flex: 1, padding: '14px 8px', background: '#fff', color: accentColor, border: `1.5px solid ${accentColor}`, borderRadius: '30px', fontWeight: 700, fontSize: '0.85rem', cursor: 'pointer' }}>
+              }} style={{ flex: 1, padding: '14px 8px', background: '#fff', color: '#C03B66', border: '1.5px solid #C03B66', borderRadius: '30px', fontWeight: 700, fontSize: '0.85rem', cursor: 'pointer' }}>
                 ⬇ Baixar PNG
               </button>
             </div>
           )}
 
           {step === 'paleta' && (
-            <button onClick={downloadCoresPNG} disabled={downloadingCores} style={{ width: '100%', padding: '14px', background: '#fff', color: accentColor, border: `1.5px solid ${accentColor}`, borderRadius: '30px', fontWeight: 700, fontSize: '0.95rem', cursor: 'pointer', opacity: downloadingCores ? 0.6 : 1 }}>
+            <button onClick={downloadCoresPNG} disabled={downloadingCores} style={{ width: '100%', padding: '14px', background: '#fff', color: '#C03B66', border: '1.5px solid #C03B66', borderRadius: '30px', fontWeight: 700, fontSize: '0.95rem', cursor: 'pointer', opacity: downloadingCores ? 0.6 : 1 }}>
               {downloadingCores ? '...' : '⬇ Baixar Paleta de Cores'}
             </button>
           )}
@@ -9918,7 +9918,7 @@ function EntregaContent({ brand, plano, setBrand }) {
             {!isLastStep && (
               <button
                 onClick={goNext}
-                style={{ flex: 1, padding: '14px', background: accentColor, color: '#fff', border: 'none', borderRadius: '30px', fontWeight: 700, fontSize: '0.95rem', cursor: 'pointer', boxShadow: `0 4px 15px ${accentColor}44` }}
+                style={{ flex: 1, padding: '14px', background: '#C03B66', color: '#fff', border: 'none', borderRadius: '30px', fontWeight: 700, fontSize: '0.95rem', cursor: 'pointer', boxShadow: '0 4px 15px rgba(192, 59, 102, 0.3)' }}
               >
                 {step === 'guia' ? 'Ir para o Digital →' : step === 'assinatura-email' ? 'Ir para Papelaria →' : 'Próxima etapa →'}
               </button>
