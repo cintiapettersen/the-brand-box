@@ -1354,7 +1354,8 @@ export default function Home() {
                         border: editData.corAtiva === hex ? '3px solid #333' : '2px solid #fff',
                         boxShadow: editData.corAtiva === hex ? '0 0 0 1px #333' : '0 2px 6px rgba(0,0,0,0.15)',
                         transition: 'all 0.15s ease',
-                        transform: editData.corAtiva === hex ? 'scale(1.2)' : 'scale(1)'
+                        transform: editData.corAtiva === hex ? 'scale(1.2)' : 'scale(1)',
+                        flexShrink: 0
                       }}
                     />
                   ));
