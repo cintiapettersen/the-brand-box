@@ -1,6 +1,7 @@
 'use client';
 import React, { useState } from 'react';
 import { LogoPreviewHTML, BordaToggle } from './page';
+import { useScaleToFit } from './useScaleToFit';
 
 const SIZES = [
   { label: '10 × 10 cm', w: 10, h: 10, scale: 26 },
@@ -54,10 +55,12 @@ export default function EtiquetaCorreiosPreview({
   const mainPhone = whatsapp || telefone || '';
   const iconSz = size.scale * 0.5;
 
+  const scaleEtiqueta = useScaleToFit(W, H + 36);
+
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '20px', alignItems: 'center', width: '100%', padding: '20px 0' }}>
 
-      <div style={{ display: 'flex', gap: '8px', background: '#f0f0f0', borderRadius: '20px', padding: '4px' }}>
+      <div style={{ display: 'flex', gap: '8px', background: '#f0f0f0', borderRadius: '20px', padding: '4px', flexWrap: 'wrap', justifyContent: 'center' }}>
         {SIZES.map((s, i) => (
           <button key={i} onClick={() => setSizeIdx(i)} style={{ padding: '6px 14px', borderRadius: '16px', border: 'none', cursor: 'pointer', fontFamily: 'Montserrat,sans-serif', fontSize: '11px', fontWeight: 700, background: sizeIdx === i ? solidColor : 'transparent', color: sizeIdx === i ? '#fff' : '#888', transition: 'all 0.2s' }}>
             {s.label}
@@ -75,51 +78,51 @@ export default function EtiquetaCorreiosPreview({
 
       <BordaToggle comBorda={comBorda} setComBorda={setComBorda} accentColor={accentColor} paletteColors={paletteColors} borderColor={borderColor} setBorderColor={setBorderColor} patternScale={patternScale} setPatternScale={setPatternScale} />
 
-      <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '8px' }}>
-        <div style={{ width: W, height: H, position: 'relative', borderRadius: 10, overflow: 'hidden', boxShadow: '0 6px 24px rgba(0,0,0,0.15)', flexShrink: 0 }}>
+      <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '8px', width: '100%' }}>
+        <div ref={scaleEtiqueta.wrapperRef} style={scaleEtiqueta.wrapperStyle}>
+          <div style={scaleEtiqueta.innerStyle}>
+            <div style={{ width: W, height: H, position: 'relative', borderRadius: 10, overflow: 'hidden', boxShadow: '0 6px 24px rgba(0,0,0,0.15)', flexShrink: 0 }}>
 
-          {/* Fundo: estampa ou cor */}
-          {usePattern
-            ? <div style={{ position: 'absolute', inset: 0, backgroundImage: `url(${patternSrc})`, backgroundSize: `${(patternScale || 120) * size.scale / 50}px`, backgroundRepeat: 'repeat' }} />
-            : <div style={{ position: 'absolute', inset: 0, background: solidColor }} />
-          }
+              {/* Fundo: estampa ou cor */}
+              {usePattern
+                ? <div style={{ position: 'absolute', inset: 0, backgroundImage: `url(${patternSrc})`, backgroundSize: `${(patternScale || 120) * size.scale / 50}px`, backgroundRepeat: 'repeat' }} />
+                : <div style={{ position: 'absolute', inset: 0, background: solidColor }} />
+              }
 
-          {/* Borda interna */}
-          <div style={{ position: 'absolute', inset: W * 0.04, border: '1px solid rgba(255,255,255,0.45)', borderRadius: 7, pointerEvents: 'none' }} />
+              {/* Borda interna */}
+              <div style={{ position: 'absolute', inset: W * 0.04, border: '1px solid rgba(255,255,255,0.45)', borderRadius: 7, pointerEvents: 'none' }} />
 
-          {/* Card branco semitransparente atrás do conteúdo */}
-          <div style={{ position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%)', width: '82%', minHeight: '72%', maxHeight: '85%', overflow: 'hidden', background: 'rgba(255,255,255,0.82)', borderRadius: 8, padding: `${W * 0.07}px ${W * 0.06}px`, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: W * 0.032, backdropFilter: 'blur(4px)' }}>
+              {/* Card branco semitransparente */}
+              <div style={{ position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%)', width: '82%', minHeight: '72%', maxHeight: '85%', overflow: 'hidden', background: 'rgba(255,255,255,0.82)', borderRadius: 8, padding: `${W * 0.07}px ${W * 0.06}px`, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: W * 0.032, backdropFilter: 'blur(4px)' }}>
 
-            {/* Frase */}
-            <div style={{ fontSize: size.scale * 0.58, fontWeight: 800, color: solidColor, fontFamily: 'Montserrat,sans-serif', textAlign: 'center', lineHeight: 1.2 }}>
-              {frase}
-            </div>
+                <div style={{ fontSize: size.scale * 0.58, fontWeight: 800, color: solidColor, fontFamily: 'Montserrat,sans-serif', textAlign: 'center', lineHeight: 1.2 }}>
+                  {frase}
+                </div>
 
-            {/* Separador */}
-            <div style={{ width: '30%', height: '0.5px', background: solidColor + '50' }} />
+                <div style={{ width: '30%', height: '0.5px', background: solidColor + '50' }} />
 
-            {/* Logo */}
-            <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', width: '100%', height: size.h * 9 }}>
-              <LogoPreviewHTML editData={editData} color={solidColor} layout={logoLayout} scaleFactor={0.85} hideTagline={false} maxWidth="100%" maxHeight="100%" />
-            </div>
+                <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', width: '100%', height: size.h * 9 }}>
+                  <LogoPreviewHTML editData={editData} color={solidColor} layout={logoLayout} scaleFactor={0.85} hideTagline={false} maxWidth="100%" maxHeight="100%" />
+                </div>
 
-            {/* Contatos com ícones */}
-            {(instagram || mainPhone) && (
-              <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 4, marginTop: W * 0.04 }}>
-                {instagram && (
-                  <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
-                    <IgIcon size={iconSz} color={solidColor} />
-                    <span style={{ fontSize: size.scale * 0.36, color: solidColor, fontFamily: 'Montserrat,sans-serif', fontWeight: 600 }}>@{instagram.replace('@','')}</span>
-                  </div>
-                )}
-                {mainPhone && (
-                  <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
-                    <WaIcon size={iconSz} color={solidColor} />
-                    <span style={{ fontSize: size.scale * 0.36, color: solidColor + 'cc', fontFamily: 'Montserrat,sans-serif', fontWeight: 400 }}>{mainPhone}</span>
+                {(instagram || mainPhone) && (
+                  <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 4, marginTop: W * 0.04 }}>
+                    {instagram && (
+                      <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
+                        <IgIcon size={iconSz} color={solidColor} />
+                        <span style={{ fontSize: size.scale * 0.36, color: solidColor, fontFamily: 'Montserrat,sans-serif', fontWeight: 600 }}>@{instagram.replace('@','')}</span>
+                      </div>
+                    )}
+                    {mainPhone && (
+                      <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
+                        <WaIcon size={iconSz} color={solidColor} />
+                        <span style={{ fontSize: size.scale * 0.36, color: solidColor + 'cc', fontFamily: 'Montserrat,sans-serif', fontWeight: 400 }}>{mainPhone}</span>
+                      </div>
+                    )}
                   </div>
                 )}
               </div>
-            )}
+            </div>
           </div>
         </div>
         <div style={{ fontSize: '11px', color: '#999', fontFamily: 'Montserrat,sans-serif', fontWeight: 600 }}>{size.label} · Adesivo</div>

@@ -1,6 +1,7 @@
 import React from 'react';
 import { LogoPreviewHTML, BordaToggle } from './page';
 import MeuPratinhoSVG from './MeuPratinhoSVG';
+import { useScaleToFit } from './useScaleToFit';
 
 export default function MeuPratinhoPreview({
   accentColor, paletteColors = [], editData, logoColor, logoLayout,
@@ -50,13 +51,21 @@ export default function MeuPratinhoPreview({
     </div>
   );
 
+  // Each Page is 453 × 320 px — scale to fit on mobile
+  const PAGE_W = 453;
+  const PAGE_H = 320;
+  const scaleA = useScaleToFit(PAGE_W, PAGE_H + 24); // +24 for label
+  const scaleB = useScaleToFit(PAGE_W, PAGE_H + 24);
+
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '20px', alignItems: 'center', width: '100%', padding: '20px 0' }}>
       <BordaToggle comBorda={comBorda} setComBorda={setComBorda} accentColor={accentColor} paletteColors={paletteColors} borderColor={borderColor} setBorderColor={setBorderColor} patternScale={patternScale} setPatternScale={setPatternScale} />
 
-      <div style={{ display: 'flex', flexWrap: 'wrap', gap: '30px', justifyContent: 'center' }}>
+      <div style={{ display: 'flex', flexDirection: 'column', gap: '30px', width: '100%' }}>
 
         {/* ── FRENTE ── */}
+        <div ref={scaleA.wrapperRef} style={scaleA.wrapperStyle}>
+        <div style={scaleA.innerStyle}>
         <Page label="Frente">
           <div style={{ display: 'flex', height: '100%', gap: '0', padding: '0' }}>
 
@@ -128,8 +137,11 @@ export default function MeuPratinhoPreview({
             <span style={{ fontSize: '5px', fontWeight: 800, color: solidColor }}>GUIA ALIMENTAR: MEU PRATINHO</span>
           </div>
         </Page>
+        </div></div>
 
         {/* ── VERSO ── */}
+        <div ref={scaleB.wrapperRef} style={scaleB.wrapperStyle}>
+        <div style={scaleB.innerStyle}>
         <Page label="Verso">
           <div style={{ padding: '6px 8px 18px', display: 'flex', flexDirection: 'column', height: '100%', background: '#f5f5f5' }}>
             <div style={{ fontSize: '9px', fontWeight: 900, color: solidColor, textTransform: 'uppercase', textAlign: 'center', marginBottom: '1px' }}>MEU PRATINHO</div>
@@ -171,6 +183,7 @@ export default function MeuPratinhoPreview({
             </div>
           </div>
         </Page>
+        </div></div>
 
       </div>
     </div>

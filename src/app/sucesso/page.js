@@ -47,6 +47,7 @@ import ReceitaAltaPreview, { buildReceitaAltaHTML } from './ReceitaAltaPreview';
 import CanecaPreview from './CanecaPreview';
 import PapelPresentePreview from './PapelPresentePreview';
 import GuiaAmamentacaoPreview from './GuiaAmamentacaoPreview';
+import { useScaleToFit } from './useScaleToFit';
 import { createClient } from '@supabase/supabase-js';
 
 const supabase = createClient(
@@ -3149,6 +3150,7 @@ function ProntuarioPreview({ accentColor, patternSrc, editData, logoColor, logoL
   );
 }
 function DiarioXixiPreview({ accentColor, patternSrc, editData, logoColor, logoLayout, cartaoContacts, crmLine, clinicaNome, comBorda, setComBorda, paletteColors, borderColor, setBorderColor, patternScale, setPatternScale, hideTagline }) {
+  const scaleXixi = useScaleToFit(453, 320 + 12);
   const BORDER = 10;
   const effectiveSrc = comBorda ? patternSrc : null;
   const solidColor = borderColor || accentColor;
@@ -3182,6 +3184,8 @@ function DiarioXixiPreview({ accentColor, patternSrc, editData, logoColor, logoL
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', alignItems: 'center', width: '100%' }}>
       <BordaToggle comBorda={comBorda} setComBorda={setComBorda} accentColor={accentColor} paletteColors={paletteColors} borderColor={borderColor} setBorderColor={setBorderColor} patternScale={patternScale} setPatternScale={setPatternScale} />
+      <div ref={scaleXixi.wrapperRef} style={scaleXixi.wrapperStyle}>
+      <div style={scaleXixi.innerStyle}>
       <div style={{ width: '453px', height: '320px', position: 'relative', boxShadow: '0 6px 30px rgba(0,0,0,0.12)', borderRadius: '4px', overflow: 'hidden', background: '#fff' }}>
         {effectiveSrc
           ? <div style={{ position: 'absolute', inset: 0, backgroundImage: `url(${effectiveSrc})`, backgroundSize: `${(patternScale || 150) / 2}px`, backgroundRepeat: 'repeat' }} />
@@ -3243,6 +3247,8 @@ function DiarioXixiPreview({ accentColor, patternSrc, editData, logoColor, logoL
             ))}
           </div>
         </div>
+      </div>
+      </div>
       </div>
     </div>
   );
@@ -4682,6 +4688,7 @@ function PastaPreview({ brand, editData, accentColor, solidColor, logoColor, log
   const { endereco, instagram, site, whatsapp, telefone, telefone2 } = cartaoContacts;
   const mainPhone = whatsapp || telefone || '';
   const allPhones = [mainPhone, telefone2].filter(Boolean).join(' / ');
+  const scalePasta = useScaleToFit(480, 310 + 36);
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '15px', alignItems: 'center', width: '100%' }}>
@@ -4694,6 +4701,8 @@ function PastaPreview({ brand, editData, accentColor, solidColor, logoColor, log
 
       <p style={{ fontSize: '0.7rem', color: '#aaa', letterSpacing: '2px', textTransform: 'uppercase' }}>Preview da Pasta (Frente e Verso)</p>
       
+      <div ref={scalePasta.wrapperRef} style={scalePasta.wrapperStyle}>
+      <div style={scalePasta.innerStyle}>
       <div style={{ width: '480px', height: '310px', position: 'relative', background: '#f5f5f5', borderRadius: '4px', boxShadow: '0 15px 45px rgba(0,0,0,0.15)', overflow: 'hidden' }}>
         
         {/* Camada de Fundo */}
@@ -4747,6 +4756,7 @@ function PastaPreview({ brand, editData, accentColor, solidColor, logoColor, log
 
         <div style={{ position: 'absolute', top: 30, bottom: 30, left: '240px', width: '1px', background: 'rgba(255,255,255,0.3)', zIndex: 5 }} />
       </div>
+      </div></div>
 
       <div style={{ width: '100%', maxWidth: '480px', padding: '15px', background: `${accentColor}08`, borderRadius: '8px', border: `1px solid ${accentColor}20` }}>
         <p style={{ fontSize: '0.8rem', color: accentColor, fontWeight: 600, marginBottom: '5px' }}>Detalhamento</p>
@@ -4757,6 +4767,65 @@ function PastaPreview({ brand, editData, accentColor, solidColor, logoColor, log
     </div>
   );
 }
+
+function UniversalPreviewScaler({ children, targetWidth = 595 }) {
+  const wrapRef = React.useRef(null);
+  const contentRef = React.useRef(null);
+  const [scale, setScale] = React.useState(1);
+  const [height, setHeight] = React.useState('auto');
+
+  React.useEffect(() => {
+    const el = wrapRef.current;
+    const content = contentRef.current;
+    if (!el || !content) return;
+
+    const update = () => {
+      const parentW = el.clientWidth || el.getBoundingClientRect().width;
+      if (parentW > 0 && parentW < targetWidth) {
+        const s = parentW / targetWidth;
+        setScale(s);
+        const origH = content.offsetHeight || content.scrollHeight || 300;
+        setHeight(`${origH * s}px`);
+      } else {
+        setScale(1);
+        setHeight('auto');
+      }
+    };
+
+    update();
+    const obs = new ResizeObserver(update);
+    obs.observe(el);
+    obs.observe(content);
+    return () => obs.disconnect();
+  }, [targetWidth, children]);
+
+  return (
+    <div ref={wrapRef} style={{ width: '100%', height, overflow: 'hidden', position: 'relative', display: 'flex', justifyContent: 'center' }}>
+      <div ref={contentRef} style={{
+        width: `${targetWidth}px`,
+        transform: `scale(${scale})`,
+        transformOrigin: 'top center',
+        flexShrink: 0,
+        height: 'fit-content'
+      }}>
+        {children}
+      </div>
+    </div>
+  );
+}
+
+const getPreviewTargetWidth = (item) => {
+  if (!item) return 595;
+  if (item.includes('Envelope Ofício')) return 640;
+  if (item.includes('Envelope Saco')) return 460;
+  if (item.includes('Pasta')) return 480;
+  if (item.includes('Assinatura de E-mail')) return 450;
+  if (item === 'Caneca' || item === 'Arte para Caneca') return 320;
+  if (item === 'Papel de Presente') return 480;
+  if (item === 'Tag para Sacola') return 320;
+  if (item === 'Etiqueta para Correios') return 350;
+  return 595; // Default para folders A4, receituários, diários, Meu Pratinho, etc.
+};
 
 function PapelariaStep({ brand, accentColor, paletteColors, estampaPatterns, estampaSelectedIdx, cartaoContacts, setCartaoContacts, plano, isSaude, crmData, setCrmData, marca, editData, logoColor, logoLayout, setLayout, clinicaNome, setClinicaNome, onNavSync, navIdx, setNavIdx, customLogoSrc, getCustomLogoScale, setCustomLogoScale, getCustomLogoScaleMax, customLogoScaleMap }) {
   // Digitais: sempre inclusos no plano PRO
@@ -7796,75 +7865,77 @@ ${fontImports2}
       </div>
 
       {/* Preview inline */}
-      <div style={{ display: 'flex', justifyContent: 'center', paddingTop: '4px', paddingBottom: '8px' }}>
-        {currentItem.includes('Cartão de Visita')
-          ? <CartaoDeVisitaPreview accentColor={accentColor} patternSrc={patternSrc} cartaoContacts={cartaoContacts} crmLine={crmLine} editData={{ ...itemEditData, tagline: localSlogan }} logoColor={logoColor} comBorda={comBorda} setComBorda={setComBorda} clinicaNome={clinicaNome} setClinicaNome={setClinicaNome} logoLayout={logoLayout} paletteColors={paletteColors} borderColor={borderColor} setBorderColor={setBorderColor} patternScale={patternScale} setPatternScale={setPatternScale} retrato={cartaoRetrato} setRetrato={setCartaoRetrato} />
-          : currentItem.includes('Envelope Ofício')
-            ? <EnvelopeOficioPreview accentColor={accentColor} patternSrc={patternSrc} logoColor={logoColor} logoLayout={logoLayout} comBorda={comBorda} setComBorda={setComBorda} paletteColors={paletteColors} borderColor={borderColor} setBorderColor={setBorderColor} patternScale={patternScale} setPatternScale={setPatternScale} cartaoContacts={cartaoContacts} crmLine={crmLine} localSlogan={localSlogan} brand={brand} editData={itemEditData} clinicaNome={clinicaNome} storyTemplateIdx={storyTemplateIdx} setStoryTemplateIdx={setStoryTemplateIdx} storyFormatIdx={storyFormatIdx} setStoryFormatIdx={setStoryFormatIdx} />
-          : currentItem.includes('Envelope Saco')
-            ? <EnvelopeSacoPreview accentColor={accentColor} patternSrc={patternSrc} logoColor={logoColor} logoLayout={logoLayout} comBorda={comBorda} setComBorda={setComBorda} paletteColors={paletteColors} borderColor={borderColor} setBorderColor={setBorderColor} patternScale={patternScale} setPatternScale={setPatternScale} cartaoContacts={cartaoContacts} crmLine={crmLine} localSlogan={localSlogan} brand={brand} editData={itemEditData} clinicaNome={clinicaNome} storyTemplateIdx={storyTemplateIdx} setStoryTemplateIdx={setStoryTemplateIdx} storyFormatIdx={storyFormatIdx} setStoryFormatIdx={setStoryFormatIdx} />
-          : currentItem === 'Recibo'
-            ? <ReciboPreview accentColor={accentColor} patternSrc={patternSrc} cartaoContacts={cartaoContacts} crmLine={crmLine} editData={{ ...itemEditData, tagline: localSlogan }} logoColor={logoColor} comBorda={comBorda} setComBorda={setComBorda} clinicaNome={clinicaNome} setClinicaNome={setClinicaNome} logoLayout={logoLayout} paletteColors={paletteColors} borderColor={borderColor} setBorderColor={setBorderColor} patternScale={patternScale} setPatternScale={setPatternScale} marca={marca} />
-          : currentItem.includes('Cartão de Retorno')
-            ? <CartaoRetornoPreview accentColor={accentColor} patternSrc={patternSrc} cartaoContacts={cartaoContacts} crmLine={crmLine} editData={{ ...itemEditData, tagline: localSlogan }} logoColor={logoColor} comBorda={comBorda} setComBorda={setComBorda} clinicaNome={clinicaNome} setClinicaNome={setClinicaNome} logoLayout={logoLayout} paletteColors={paletteColors} borderColor={borderColor} setBorderColor={setBorderColor} patternScale={patternScale} setPatternScale={setPatternScale} />
-          : currentItem === 'Ficha de Cadastro'
-            ? <FichaCadastroPreview accentColor={accentColor} patternSrc={patternSrc} editData={{ ...itemEditData, tagline: localSlogan }} logoColor={logoColor} logoLayout={logoLayout} cartaoContacts={cartaoContacts} crmLine={crmLine} clinicaNome={clinicaNome} comBorda={comBorda} setComBorda={setComBorda} paletteColors={paletteColors} borderColor={borderColor} setBorderColor={setBorderColor} patternScale={patternScale} setPatternScale={setPatternScale} fichaAdulto={fichaAdulto} setFichaAdulto={setFichaAdulto} />
-          : currentItem === 'Prontuário Médico'
-            ? <ProntuarioPreview accentColor={accentColor} patternSrc={patternSrc} editData={{ ...itemEditData, tagline: localSlogan }} logoColor={logoColor} logoLayout={logoLayout} cartaoContacts={cartaoContacts} crmLine={crmLine} clinicaNome={clinicaNome} comBorda={comBorda} setComBorda={setComBorda} paletteColors={paletteColors} borderColor={borderColor} setBorderColor={setBorderColor} patternScale={patternScale} setPatternScale={setPatternScale} />
-          : currentItem === 'Checklist Maternidade'
-            ? <ChecklistMaternidadePreview accentColor={accentColor} patternSrc={patternSrc} editData={{ ...itemEditData, tagline: localSlogan }} logoColor={logoColor} logoLayout={logoLayout} cartaoContacts={cartaoContacts} crmLine={crmLine} clinicaNome={clinicaNome} comBorda={comBorda} setComBorda={setComBorda} paletteColors={paletteColors} borderColor={borderColor} setBorderColor={setBorderColor} patternScale={patternScale} setPatternScale={setPatternScale} />
-          : currentItem.includes('Controle Especial')
-            ? <ControleEspecialPreview accentColor={accentColor} patternSrc={patternSrc} cartaoContacts={cartaoContacts} crmLine={crmLine} editData={{ ...itemEditData, tagline: localSlogan }} logoColor={logoColor} comBorda={comBorda} setComBorda={setComBorda} clinicaNome={clinicaNome} setClinicaNome={setClinicaNome} logoLayout={logoLayout} paletteColors={paletteColors} borderColor={borderColor} setBorderColor={setBorderColor} patternScale={patternScale} setPatternScale={setPatternScale} marca={marca} />
-          : currentItem === 'Gráfico de Crescimento'
-            ? <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', alignItems: 'center' }}>
-                <BordaToggle comBorda={comBorda} setComBorda={setComBorda} accentColor={accentColor} paletteColors={paletteColors} borderColor={borderColor} setBorderColor={setBorderColor} patternScale={patternScale} setPatternScale={setPatternScale} />
-                <GraficoCrescimentoPreview accentColor={accentColor} paletteColors={paletteColors} editData={itemEditData} logoColor={logoColor} logoLayout={logoLayout} cartaoContacts={cartaoContacts} crmLine={crmLine} clinicaNome={clinicaNome} comBorda={comBorda} setComBorda={setComBorda} borderColor={borderColor} setBorderColor={setBorderColor} patternSrc={patternSrc} patternScale={patternScale} setPatternScale={setPatternScale} />
-              </div>
-          : currentItem === 'Diário do Xixi'
-            ? <DiarioXixiPreview accentColor={accentColor} patternSrc={patternSrc} editData={{ ...itemEditData, tagline: localSlogan }} logoColor={logoColor} logoLayout={logoLayout} cartaoContacts={cartaoContacts} crmLine={crmLine} clinicaNome={clinicaNome} comBorda={comBorda} setComBorda={setComBorda} paletteColors={paletteColors} borderColor={borderColor} setBorderColor={setBorderColor} patternScale={patternScale} setPatternScale={setPatternScale} />
-          : currentItem === 'Receita de Alta'
-            ? <ReceitaAltaPreview accentColor={accentColor} patternSrc={patternSrc} editData={{ ...itemEditData, tagline: localSlogan }} logoColor={logoColor} logoLayout={logoLayout} cartaoContacts={cartaoContacts} crmLine={crmLine} clinicaNome={clinicaNome} comBorda={comBorda} setComBorda={setComBorda} paletteColors={paletteColors} borderColor={borderColor} setBorderColor={setBorderColor} patternScale={patternScale} setPatternScale={setPatternScale} receitaFields={receitaFields} setReceitaFields={setReceitaFields} />
-          : currentItem === 'Caneca' || currentItem === 'Arte para Caneca'
-            ? <CanecaPreview accentColor={accentColor} patternSrc={patternSrc} editData={{ ...itemEditData, tagline: localSlogan }} logoColor={logoColor} logoLayout={logoLayout} cartaoContacts={cartaoContacts} crmLine={crmLine} clinicaNome={clinicaNome} comBorda={comBorda} setComBorda={setComBorda} paletteColors={paletteColors} borderColor={borderColor} setBorderColor={setBorderColor} patternScale={patternScale} setPatternScale={setPatternScale} />
-          : currentItem === 'Papel de Presente'
-            ? <PapelPresentePreview accentColor={accentColor} paletteColors={paletteColors} comBorda={comBorda} setComBorda={setComBorda} patternSrc={patternSrc} patternScale={patternScale} setPatternScale={setPatternScale} borderColor={borderColor} setBorderColor={setBorderColor} sizeIdx={papelPresenteSizeIdx} setSizeIdx={setPapelPresenteSizeIdx} />
-          : currentItem === 'Tag para Sacola'
-            ? <TagSacolaPreview item={currentItem} accentColor={accentColor} patternSrc={patternSrc} editData={{ ...itemEditData, tagline: localSlogan }} logoColor={logoColor} logoLayout={logoLayout} cartaoContacts={cartaoContacts} crmLine={crmLine} clinicaNome={clinicaNome} comBorda={comBorda} setComBorda={setComBorda} paletteColors={paletteColors} borderColor={borderColor} setBorderColor={setBorderColor} patternScale={patternScale} setPatternScale={setPatternScale} sizeIdx={tagSacolaSizeIdx} setSizeIdx={setTagSacolaSizeIdx} />
-          : currentItem === 'Sacola de Papel'
-            ? <SacolaPapelPreview accentColor={accentColor} patternSrc={patternSrc} editData={{ ...itemEditData, tagline: localSlogan }} logoColor={logoColor} logoLayout={logoLayout} cartaoContacts={cartaoContacts} crmLine={crmLine} clinicaNome={clinicaNome} comBorda={comBorda} setComBorda={setComBorda} paletteColors={paletteColors} borderColor={borderColor} setBorderColor={setBorderColor} patternScale={patternScale} setPatternScale={setPatternScale} />
-          : currentItem === 'Etiqueta para Correios'
-            ? <EtiquetaCorreiosPreview accentColor={accentColor} patternSrc={patternSrc} editData={{ ...itemEditData, tagline: localSlogan }} logoColor={logoColor} logoLayout={logoLayout} cartaoContacts={cartaoContacts} crmLine={crmLine} clinicaNome={clinicaNome} comBorda={comBorda} setComBorda={setComBorda} paletteColors={paletteColors} borderColor={borderColor} setBorderColor={setBorderColor} patternScale={patternScale} setPatternScale={setPatternScale} sizeIdx={etiquetaSizeIdx} setSizeIdx={setEtiquetaSizeIdx} fraseIdx={etiquetaFraseIdx} setFraseIdx={setEtiquetaFraseIdx} />
-          : currentItem === 'Meu Pratinho'
-            ? <MeuPratinhoPreview accentColor={accentColor} patternSrc={patternSrc} editData={{ ...itemEditData, tagline: localSlogan }} logoColor={logoColor} logoLayout={logoLayout} cartaoContacts={cartaoContacts} crmLine={crmLine} clinicaNome={clinicaNome} comBorda={comBorda} setComBorda={setComBorda} paletteColors={paletteColors} borderColor={borderColor} setBorderColor={setBorderColor} patternScale={patternScale} setPatternScale={setPatternScale} />
-          : currentItem === 'Guia de Amamentação'
-            ? <GuiaAmamentacaoPreview brand={brand} editData={itemEditData} logoColor={logoColor} logoLayout={logoLayout} comBorda={comBorda} setComBorda={setComBorda} patternSrc={patternSrc} patternScale={patternScale} setPatternScale={setPatternScale} accentColor={accentColor} borderColor={borderColor} setBorderColor={setBorderColor} paletteColors={paletteColors} cartaoContacts={cartaoContacts} crmLine={crmLine} illustrationsSrc="/breastfeeding-guide.png" folderRoof={folderRoof} setFolderRoof={setFolderRoof} />
-          : currentItem === 'Guia de Cuidados'
-            ? <FolderTrifoldPreview brand={brand} editData={itemEditData} logoColor={logoColor} logoLayout={logoLayout} comBorda={comBorda} setComBorda={setComBorda} patternSrc={patternSrc} patternScale={patternScale} setPatternScale={setPatternScale} accentColor={accentColor} borderColor={borderColor} setBorderColor={setBorderColor} paletteColors={paletteColors} title={currentItem} cartaoContacts={cartaoContacts} folderRoof={folderRoof} setFolderRoof={setFolderRoof} crmLine={crmLine} />
-          : currentItem === 'Orientações p/ Recém Nascidos'
-            ? <OrientacoesRNPreview accentColor={accentColor} patternSrc={patternSrc} editData={itemEditData} logoColor={logoColor} logoLayout={logoLayout} cartaoContacts={cartaoContacts} crmLine={crmLine} clinicaNome={clinicaNome} comBorda={comBorda} setComBorda={setComBorda} paletteColors={paletteColors} borderColor={borderColor} setBorderColor={setBorderColor} patternScale={patternScale} setPatternScale={setPatternScale}
-                rnFields={{ nomeBebe: rnNomeBebe, dataNasc: rnDataNasc, peso: rnPeso, altura: rnAltura, umbigo: rnUmbigo, soro: rnSoro, med1: rnMed1, dose1: rnDose1, int1: rnInt1, med2: rnMed2, dose2: rnDose2, int2: rnInt2, pomada: rnPomada, vitDMed: rnVitDMed, vitDDose: rnVitDDose, bcgData: rnBcgData, hepBData: rnHepBData, consultaData: rnConsultaData, consultaHora: rnConsultaHora, urgencia: rnUrgencia }}
-                setRnFields={{ setNomeBebe: setRnNomeBebe, setDataNasc: setRnDataNasc, setPeso: setRnPeso, setAltura: setRnAltura, setUmbigo: setRnUmbigo, setSoro: setRnSoro, setMed1: setRnMed1, setDose1: setRnDose1, setInt1: setRnInt1, setMed2: setRnMed2, setDose2: setRnDose2, setInt2: setRnInt2, setPomada: setRnPomada, setVitDMed: setRnVitDMed, setVitDDose: setRnVitDDose, setBcgData: setRnBcgData, setHepBData: setRnHepBData, setConsultaData: setRnConsultaData, setConsultaHora: setRnConsultaHora, setUrgencia: setRnUrgencia }}
-              />
-          : currentItem.includes('Pré-Natal')
-            ? <FolderA5Preview brand={brand} editData={itemEditData} logoColor={logoColor} logoLayout={logoLayout} comBorda={comBorda} setComBorda={setComBorda} patternSrc={patternSrc} patternScale={patternScale} setPatternScale={setPatternScale} accentColor={accentColor} borderColor={borderColor} setBorderColor={setBorderColor} paletteColors={paletteColors} title={currentItem} cartaoContacts={cartaoContacts} crmLine={crmLine} folderRoof={folderRoof} />
-          : ['Guia Alimentar', 'Guia de Desenvolvimento', 'Guia de Vacina c/ Calendário', 'Cartão de Vacina', 'Guia do Sono'].some(n => currentItem === n)
-            ? <FolderTrifoldPreview brand={brand} editData={itemEditData} logoColor={logoColor} logoLayout={logoLayout} comBorda={comBorda} setComBorda={setComBorda} patternSrc={patternSrc} patternScale={patternScale} setPatternScale={setPatternScale} accentColor={accentColor} borderColor={borderColor} setBorderColor={setBorderColor} paletteColors={paletteColors} title={currentItem} cartaoContacts={cartaoContacts} folderRoof={folderRoof} setFolderRoof={setFolderRoof} crmLine={crmLine} />
-          : currentItem.includes('Atestado Médico')
-            ? <AtestadoPreview accentColor={accentColor} patternSrc={patternSrc} editData={{ ...itemEditData, tagline: localSlogan }} logoColor={logoColor} logoLayout={logoLayout} crmLine={crmLine} clinicaNome={clinicaNome} marca={marca} cartaoContacts={cartaoContacts} comBorda={comBorda} setComBorda={setComBorda} paletteColors={paletteColors} borderColor={borderColor} setBorderColor={setBorderColor} patternScale={patternScale} setPatternScale={setPatternScale} folderRoof={folderRoof} setFolderRoof={setFolderRoof} paperSize={paperSize} setPaperSize={setPaperSize} />
-          : currentItem.includes('Pasta')
-            ? <PastaPreview brand={brand} editData={{ ...itemEditData, tagline: localSlogan }} accentColor={accentColor} solidColor={paletteColors[0]} logoColor={logoColor} logoLayout={logoLayout} isSaude={isSaude} crmLine={crmLine} clinicaNome={clinicaNome} cartaoContacts={cartaoContacts} comBorda={comBorda} setComBorda={setComBorda} patternSrc={patternSrc} paletteColors={paletteColors} borderColor={borderColor} setBorderColor={setBorderColor} patternScale={patternScale} setPatternScale={setPatternScale} folderRoof={folderRoof} setFolderRoof={setFolderRoof} />
-          : currentItem === 'Papel Timbrado'
-            ? <PapelTimbradoPreview brand={brand} editData={itemEditData} accentColor={accentColor} patternSrc={patternSrc} logoColor={logoColor} logoLayout={logoLayout} comBorda={comBorda} setComBorda={setComBorda} paletteColors={paletteColors} borderColor={borderColor} setBorderColor={setBorderColor} patternScale={patternScale} setPatternScale={setPatternScale} cartaoContacts={cartaoContacts} crmLine={crmLine} localSlogan={localSlogan} clinicaNome={clinicaNome} storyTemplateIdx={storyTemplateIdx} setStoryTemplateIdx={setStoryTemplateIdx} storyFormatIdx={storyFormatIdx} setStoryFormatIdx={setStoryFormatIdx} folderRoof={folderRoof} setFolderRoof={setFolderRoof} />
-          : currentItem === 'Pack Digital para Instagram'
-            ? <FundoInstaPreview brand={brand} editData={itemEditData} accentColor={accentColor} patternSrc={patternSrc} logoColor={logoColor} logoLayout={logoLayout} comBorda={comBorda} setComBorda={setComBorda} paletteColors={paletteColors} borderColor={borderColor} setBorderColor={setBorderColor} patternScale={patternScale} setPatternScale={setPatternScale} cartaoContacts={cartaoContacts} crmLine={crmLine} localSlogan={localSlogan} clinicaNome={clinicaNome} storyTemplateIdx={storyTemplateIdx} setStoryTemplateIdx={setStoryTemplateIdx} storyFormatIdx={storyFormatIdx} setStoryFormatIdx={setStoryFormatIdx} />
-          : currentItem === 'Assinatura de E-mail'
-            ? <AssinaturaEmailPreview brand={brand} editData={itemEditData} accentColor={accentColor} logoColor={logoColor} logoLayout={logoLayout} cartaoContacts={cartaoContacts} crmLine={crmLine} localSlogan={localSlogan} clinicaNome={clinicaNome} storyTemplateIdx={storyTemplateIdx} setStoryTemplateIdx={setStoryTemplateIdx} storyFormatIdx={storyFormatIdx} setStoryFormatIdx={setStoryFormatIdx} setCartaoContacts={setCartaoContacts} setClinicaNome={setClinicaNome} setLocalSlogan={setLocalSlogan} />
-          : currentItem.includes('Certificado')
-            ? <CertificadoCoragemPreview accentColor={accentColor} patternSrc={patternSrc} editData={{ ...itemEditData, tagline: localSlogan }} logoColor={logoColor} logoLayout={logoLayout} cartaoContacts={cartaoContacts} crmLine={crmLine} clinicaNome={clinicaNome} comBorda={comBorda} setComBorda={setComBorda} paletteColors={paletteColors} borderColor={borderColor} setBorderColor={setBorderColor} patternScale={patternScale} setPatternScale={setPatternScale} />
-          : ['Receituário','Timbrado','Cartão','Guia','Calendário','Atestado','Dicas','Ficha','Orientação','Checklist','Prontuário','Receita','Quadro','Gráfico','Diário','Card','Pratinho','Fundo','Arte','Etiqueta','Assinatura','Tag'].some(n => currentItem.includes(n))
-            ? <A5ItemPreview item={currentItem} accentColor={accentColor} patternSrc={patternSrc} editData={{ ...itemEditData, tagline: localSlogan }} logoColor={logoColor} logoLayout={logoLayout} cartaoContacts={cartaoContacts} crmLine={crmLine} clinicaNome={clinicaNome} comBorda={comBorda} setComBorda={setComBorda} paletteColors={paletteColors} borderColor={borderColor} setBorderColor={setBorderColor} patternScale={patternScale} setPatternScale={setPatternScale} folderRoof={folderRoof} setFolderRoof={['Receituário','Atestado','Recibo','Ficha','Prontuário','Certificado','Checklist'].some(n => currentItem.includes(n)) ? setFolderRoof : undefined} paperSize={['Receituário','Recibo','Ficha','Prontuário','Certificado','Checklist'].some(n => currentItem.includes(n)) ? paperSize : undefined} setPaperSize={['Receituário','Recibo','Ficha','Prontuário','Certificado','Checklist'].some(n => currentItem.includes(n)) ? setPaperSize : undefined} />
-          : <GenericItemPreview item={currentItem} marca={marca} accentColor={accentColor} patternSrc={patternSrc} editData={{ ...itemEditData, tagline: localSlogan }} logoColor={logoColor} logoLayout={logoLayout} comBorda={comBorda} setComBorda={setComBorda} paletteColors={paletteColors} borderColor={borderColor} setBorderColor={setBorderColor} patternScale={patternScale} setPatternScale={setPatternScale} />
-        }
+      <div style={{ display: 'flex', justifyContent: 'center', paddingTop: '4px', paddingBottom: '8px', width: '100%' }}>
+        <UniversalPreviewScaler targetWidth={getPreviewTargetWidth(currentItem)}>
+          {currentItem.includes('Cartão de Visita')
+            ? <CartaoDeVisitaPreview accentColor={accentColor} patternSrc={patternSrc} cartaoContacts={cartaoContacts} crmLine={crmLine} editData={{ ...itemEditData, tagline: localSlogan }} logoColor={logoColor} comBorda={comBorda} setComBorda={setComBorda} clinicaNome={clinicaNome} setClinicaNome={setClinicaNome} logoLayout={logoLayout} paletteColors={paletteColors} borderColor={borderColor} setBorderColor={setBorderColor} patternScale={patternScale} setPatternScale={setPatternScale} retrato={cartaoRetrato} setRetrato={setCartaoRetrato} />
+            : currentItem.includes('Envelope Ofício')
+              ? <EnvelopeOficioPreview accentColor={accentColor} patternSrc={patternSrc} logoColor={logoColor} logoLayout={logoLayout} comBorda={comBorda} setComBorda={setComBorda} paletteColors={paletteColors} borderColor={borderColor} setBorderColor={setBorderColor} patternScale={patternScale} setPatternScale={setPatternScale} cartaoContacts={cartaoContacts} crmLine={crmLine} localSlogan={localSlogan} brand={brand} editData={itemEditData} clinicaNome={clinicaNome} storyTemplateIdx={storyTemplateIdx} setStoryTemplateIdx={setStoryTemplateIdx} storyFormatIdx={storyFormatIdx} setStoryFormatIdx={setStoryFormatIdx} />
+            : currentItem.includes('Envelope Saco')
+              ? <EnvelopeSacoPreview accentColor={accentColor} patternSrc={patternSrc} logoColor={logoColor} logoLayout={logoLayout} comBorda={comBorda} setComBorda={setComBorda} paletteColors={paletteColors} borderColor={borderColor} setBorderColor={setBorderColor} patternScale={patternScale} setPatternScale={setPatternScale} cartaoContacts={cartaoContacts} crmLine={crmLine} localSlogan={localSlogan} brand={brand} editData={itemEditData} clinicaNome={clinicaNome} storyTemplateIdx={storyTemplateIdx} setStoryTemplateIdx={setStoryTemplateIdx} storyFormatIdx={storyFormatIdx} setStoryFormatIdx={setStoryFormatIdx} />
+            : currentItem === 'Recibo'
+              ? <ReciboPreview accentColor={accentColor} patternSrc={patternSrc} cartaoContacts={cartaoContacts} crmLine={crmLine} editData={{ ...itemEditData, tagline: localSlogan }} logoColor={logoColor} comBorda={comBorda} setComBorda={setComBorda} clinicaNome={clinicaNome} setClinicaNome={setClinicaNome} logoLayout={logoLayout} paletteColors={paletteColors} borderColor={borderColor} setBorderColor={setBorderColor} patternScale={patternScale} setPatternScale={setPatternScale} marca={marca} />
+            : currentItem.includes('Cartão de Retorno')
+              ? <CartaoRetornoPreview accentColor={accentColor} patternSrc={patternSrc} cartaoContacts={cartaoContacts} crmLine={crmLine} editData={{ ...itemEditData, tagline: localSlogan }} logoColor={logoColor} comBorda={comBorda} setComBorda={setComBorda} clinicaNome={clinicaNome} setClinicaNome={setClinicaNome} logoLayout={logoLayout} paletteColors={paletteColors} borderColor={borderColor} setBorderColor={setBorderColor} patternScale={patternScale} setPatternScale={setPatternScale} />
+            : currentItem === 'Ficha de Cadastro'
+              ? <FichaCadastroPreview accentColor={accentColor} patternSrc={patternSrc} editData={{ ...itemEditData, tagline: localSlogan }} logoColor={logoColor} logoLayout={logoLayout} cartaoContacts={cartaoContacts} crmLine={crmLine} clinicaNome={clinicaNome} comBorda={comBorda} setComBorda={setComBorda} paletteColors={paletteColors} borderColor={borderColor} setBorderColor={setBorderColor} patternScale={patternScale} setPatternScale={setPatternScale} fichaAdulto={fichaAdulto} setFichaAdulto={setFichaAdulto} />
+            : currentItem === 'Prontuário Médico'
+              ? <ProntuarioPreview accentColor={accentColor} patternSrc={patternSrc} editData={{ ...itemEditData, tagline: localSlogan }} logoColor={logoColor} logoLayout={logoLayout} cartaoContacts={cartaoContacts} crmLine={crmLine} clinicaNome={clinicaNome} comBorda={comBorda} setComBorda={setComBorda} paletteColors={paletteColors} borderColor={borderColor} setBorderColor={setBorderColor} patternScale={patternScale} setPatternScale={setPatternScale} />
+            : currentItem === 'Checklist Maternidade'
+              ? <ChecklistMaternidadePreview accentColor={accentColor} patternSrc={patternSrc} editData={{ ...itemEditData, tagline: localSlogan }} logoColor={logoColor} logoLayout={logoLayout} cartaoContacts={cartaoContacts} crmLine={crmLine} clinicaNome={clinicaNome} comBorda={comBorda} setComBorda={setComBorda} paletteColors={paletteColors} borderColor={borderColor} setBorderColor={setBorderColor} patternScale={patternScale} setPatternScale={setPatternScale} />
+            : currentItem.includes('Controle Especial')
+              ? <ControleEspecialPreview accentColor={accentColor} patternSrc={patternSrc} cartaoContacts={cartaoContacts} crmLine={crmLine} editData={{ ...itemEditData, tagline: localSlogan }} logoColor={logoColor} comBorda={comBorda} setComBorda={setComBorda} clinicaNome={clinicaNome} setClinicaNome={setClinicaNome} logoLayout={logoLayout} paletteColors={paletteColors} borderColor={borderColor} setBorderColor={setBorderColor} patternScale={patternScale} setPatternScale={setPatternScale} marca={marca} />
+            : currentItem === 'Gráfico de Crescimento'
+              ? <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', alignItems: 'center' }}>
+                  <BordaToggle comBorda={comBorda} setComBorda={setComBorda} accentColor={accentColor} paletteColors={paletteColors} borderColor={borderColor} setBorderColor={setBorderColor} patternScale={patternScale} setPatternScale={setPatternScale} />
+                  <GraficoCrescimentoPreview accentColor={accentColor} paletteColors={paletteColors} editData={itemEditData} logoColor={logoColor} logoLayout={logoLayout} cartaoContacts={cartaoContacts} crmLine={crmLine} clinicaNome={clinicaNome} comBorda={comBorda} setComBorda={setComBorda} borderColor={borderColor} setBorderColor={setBorderColor} patternSrc={patternSrc} patternScale={patternScale} setPatternScale={setPatternScale} />
+                </div>
+            : currentItem === 'Diário do Xixi'
+              ? <DiarioXixiPreview accentColor={accentColor} patternSrc={patternSrc} editData={{ ...itemEditData, tagline: localSlogan }} logoColor={logoColor} logoLayout={logoLayout} cartaoContacts={cartaoContacts} crmLine={crmLine} clinicaNome={clinicaNome} comBorda={comBorda} setComBorda={setComBorda} paletteColors={paletteColors} borderColor={borderColor} setBorderColor={setBorderColor} patternScale={patternScale} setPatternScale={setPatternScale} />
+            : currentItem === 'Receita de Alta'
+              ? <ReceitaAltaPreview accentColor={accentColor} patternSrc={patternSrc} editData={{ ...itemEditData, tagline: localSlogan }} logoColor={logoColor} logoLayout={logoLayout} cartaoContacts={cartaoContacts} crmLine={crmLine} clinicaNome={clinicaNome} comBorda={comBorda} setComBorda={setComBorda} paletteColors={paletteColors} borderColor={borderColor} setBorderColor={setBorderColor} patternScale={patternScale} setPatternScale={setPatternScale} receitaFields={receitaFields} setReceitaFields={setReceitaFields} />
+            : currentItem === 'Caneca' || currentItem === 'Arte para Caneca'
+              ? <CanecaPreview accentColor={accentColor} patternSrc={patternSrc} editData={{ ...itemEditData, tagline: localSlogan }} logoColor={logoColor} logoLayout={logoLayout} cartaoContacts={cartaoContacts} crmLine={crmLine} clinicaNome={clinicaNome} comBorda={comBorda} setComBorda={setComBorda} paletteColors={paletteColors} borderColor={borderColor} setBorderColor={setBorderColor} patternScale={patternScale} setPatternScale={setPatternScale} />
+            : currentItem === 'Papel de Presente'
+              ? <PapelPresentePreview accentColor={accentColor} paletteColors={paletteColors} comBorda={comBorda} setComBorda={setComBorda} patternSrc={patternSrc} patternScale={patternScale} setPatternScale={setPatternScale} borderColor={borderColor} setBorderColor={setBorderColor} sizeIdx={papelPresenteSizeIdx} setSizeIdx={setPapelPresenteSizeIdx} />
+            : currentItem === 'Tag para Sacola'
+              ? <TagSacolaPreview item={currentItem} accentColor={accentColor} patternSrc={patternSrc} editData={{ ...itemEditData, tagline: localSlogan }} logoColor={logoColor} logoLayout={logoLayout} cartaoContacts={cartaoContacts} crmLine={crmLine} clinicaNome={clinicaNome} comBorda={comBorda} setComBorda={setComBorda} paletteColors={paletteColors} borderColor={borderColor} setBorderColor={setBorderColor} patternScale={patternScale} setPatternScale={setPatternScale} sizeIdx={tagSacolaSizeIdx} setSizeIdx={setTagSacolaSizeIdx} />
+            : currentItem === 'Sacola de Papel'
+              ? <SacolaPapelPreview accentColor={accentColor} patternSrc={patternSrc} editData={{ ...itemEditData, tagline: localSlogan }} logoColor={logoColor} logoLayout={logoLayout} cartaoContacts={cartaoContacts} crmLine={crmLine} clinicaNome={clinicaNome} comBorda={comBorda} setComBorda={setComBorda} paletteColors={paletteColors} borderColor={borderColor} setBorderColor={setBorderColor} patternScale={patternScale} setPatternScale={setPatternScale} />
+            : currentItem === 'Etiqueta para Correios'
+              ? <EtiquetaCorreiosPreview accentColor={accentColor} patternSrc={patternSrc} editData={{ ...itemEditData, tagline: localSlogan }} logoColor={logoColor} logoLayout={logoLayout} cartaoContacts={cartaoContacts} crmLine={crmLine} clinicaNome={clinicaNome} comBorda={comBorda} setComBorda={setComBorda} paletteColors={paletteColors} borderColor={borderColor} setBorderColor={setBorderColor} patternScale={patternScale} setPatternScale={setPatternScale} sizeIdx={etiquetaSizeIdx} setSizeIdx={setEtiquetaSizeIdx} fraseIdx={etiquetaFraseIdx} setFraseIdx={setEtiquetaFraseIdx} />
+            : currentItem === 'Meu Pratinho'
+              ? <MeuPratinhoPreview accentColor={accentColor} patternSrc={patternSrc} editData={{ ...itemEditData, tagline: localSlogan }} logoColor={logoColor} logoLayout={logoLayout} cartaoContacts={cartaoContacts} crmLine={crmLine} clinicaNome={clinicaNome} comBorda={comBorda} setComBorda={setComBorda} paletteColors={paletteColors} borderColor={borderColor} setBorderColor={setBorderColor} patternScale={patternScale} setPatternScale={setPatternScale} />
+            : currentItem === 'Guia de Amamentação'
+              ? <GuiaAmamentacaoPreview brand={brand} editData={itemEditData} logoColor={logoColor} logoLayout={logoLayout} comBorda={comBorda} setComBorda={setComBorda} patternSrc={patternSrc} patternScale={patternScale} setPatternScale={setPatternScale} accentColor={accentColor} borderColor={borderColor} setBorderColor={setBorderColor} paletteColors={paletteColors} cartaoContacts={cartaoContacts} crmLine={crmLine} illustrationsSrc="/breastfeeding-guide.png" folderRoof={folderRoof} setFolderRoof={setFolderRoof} />
+            : currentItem === 'Guia de Cuidados'
+              ? <FolderTrifoldPreview brand={brand} editData={itemEditData} logoColor={logoColor} logoLayout={logoLayout} comBorda={comBorda} setComBorda={setComBorda} patternSrc={patternSrc} patternScale={patternScale} setPatternScale={setPatternScale} accentColor={accentColor} borderColor={borderColor} setBorderColor={setBorderColor} paletteColors={paletteColors} title={currentItem} cartaoContacts={cartaoContacts} folderRoof={folderRoof} setFolderRoof={setFolderRoof} crmLine={crmLine} />
+            : currentItem === 'Orientações p/ Recém Nascidos'
+              ? <OrientacoesRNPreview accentColor={accentColor} patternSrc={patternSrc} editData={itemEditData} logoColor={logoColor} logoLayout={logoLayout} cartaoContacts={cartaoContacts} crmLine={crmLine} clinicaNome={clinicaNome} comBorda={comBorda} setComBorda={setComBorda} paletteColors={paletteColors} borderColor={borderColor} setBorderColor={setBorderColor} patternScale={patternScale} setPatternScale={setPatternScale}
+                  rnFields={{ nomeBebe: rnNomeBebe, dataNasc: rnDataNasc, peso: rnPeso, altura: rnAltura, umbigo: rnUmbigo, soro: rnSoro, med1: rnMed1, dose1: rnDose1, int1: rnInt1, med2: rnMed2, dose2: rnDose2, int2: rnInt2, pomada: rnPomada, vitDMed: rnVitDMed, vitDDose: rnVitDDose, bcgData: rnBcgData, hepBData: rnHepBData, consultaData: rnConsultaData, consultaHora: rnConsultaHora, urgencia: rnUrgencia }}
+                  setRnFields={{ setNomeBebe: setRnNomeBebe, setDataNasc: setRnDataNasc, setPeso: setRnPeso, setAltura: setRnAltura, setUmbigo: setRnUmbigo, setSoro: setRnSoro, setMed1: setRnMed1, setDose1: setRnDose1, setInt1: setRnInt1, setMed2: setRnMed2, setDose2: setRnDose2, setInt2: setRnInt2, setPomada: setRnPomada, setVitDMed: setRnVitDMed, setVitDDose: setRnVitDDose, setBcgData: setRnBcgData, setHepBData: setRnHepBData, setConsultaData: setRnConsultaData, setConsultaHora: setRnConsultaHora, setUrgencia: setRnUrgencia }}
+                />
+            : currentItem.includes('Pré-Natal')
+              ? <FolderA5Preview brand={brand} editData={itemEditData} logoColor={logoColor} logoLayout={logoLayout} comBorda={comBorda} setComBorda={setComBorda} patternSrc={patternSrc} patternScale={patternScale} setPatternScale={setPatternScale} accentColor={accentColor} borderColor={borderColor} setBorderColor={setBorderColor} paletteColors={paletteColors} title={currentItem} cartaoContacts={cartaoContacts} crmLine={crmLine} folderRoof={folderRoof} />
+            : ['Guia Alimentar', 'Guia de Desenvolvimento', 'Guia de Vacina c/ Calendário', 'Cartão de Vacina', 'Guia do Sono'].some(n => currentItem === n)
+              ? <FolderTrifoldPreview brand={brand} editData={itemEditData} logoColor={logoColor} logoLayout={logoLayout} comBorda={comBorda} setComBorda={setComBorda} patternSrc={patternSrc} patternScale={patternScale} setPatternScale={setPatternScale} accentColor={accentColor} borderColor={borderColor} setBorderColor={setBorderColor} paletteColors={paletteColors} title={currentItem} cartaoContacts={cartaoContacts} folderRoof={folderRoof} setFolderRoof={setFolderRoof} crmLine={crmLine} />
+            : currentItem.includes('Atestado Médico')
+              ? <AtestadoPreview accentColor={accentColor} patternSrc={patternSrc} editData={{ ...itemEditData, tagline: localSlogan }} logoColor={logoColor} logoLayout={logoLayout} crmLine={crmLine} clinicaNome={clinicaNome} marca={marca} cartaoContacts={cartaoContacts} comBorda={comBorda} setComBorda={setComBorda} paletteColors={paletteColors} borderColor={borderColor} setBorderColor={setBorderColor} patternScale={patternScale} setPatternScale={setPatternScale} folderRoof={folderRoof} setFolderRoof={setFolderRoof} paperSize={paperSize} setPaperSize={setPaperSize} />
+            : currentItem.includes('Pasta')
+              ? <PastaPreview brand={brand} editData={{ ...itemEditData, tagline: localSlogan }} accentColor={accentColor} solidColor={paletteColors[0]} logoColor={logoColor} logoLayout={logoLayout} isSaude={isSaude} crmLine={crmLine} clinicaNome={clinicaNome} cartaoContacts={cartaoContacts} comBorda={comBorda} setComBorda={setComBorda} patternSrc={patternSrc} paletteColors={paletteColors} borderColor={borderColor} setBorderColor={setBorderColor} patternScale={patternScale} setPatternScale={setPatternScale} folderRoof={folderRoof} setFolderRoof={setFolderRoof} />
+            : currentItem === 'Papel Timbrado'
+              ? <PapelTimbradoPreview brand={brand} editData={itemEditData} accentColor={accentColor} patternSrc={patternSrc} logoColor={logoColor} logoLayout={logoLayout} comBorda={comBorda} setComBorda={setComBorda} paletteColors={paletteColors} borderColor={borderColor} setBorderColor={setBorderColor} patternScale={patternScale} setPatternScale={setPatternScale} cartaoContacts={cartaoContacts} crmLine={crmLine} localSlogan={localSlogan} clinicaNome={clinicaNome} storyTemplateIdx={storyTemplateIdx} setStoryTemplateIdx={setStoryTemplateIdx} storyFormatIdx={storyFormatIdx} setStoryFormatIdx={setStoryFormatIdx} folderRoof={folderRoof} setFolderRoof={setFolderRoof} />
+            : currentItem === 'Pack Digital para Instagram'
+              ? <FundoInstaPreview brand={brand} editData={itemEditData} accentColor={accentColor} patternSrc={patternSrc} logoColor={logoColor} logoLayout={logoLayout} comBorda={comBorda} setComBorda={setComBorda} paletteColors={paletteColors} borderColor={borderColor} setBorderColor={setBorderColor} patternScale={patternScale} setPatternScale={setPatternScale} cartaoContacts={cartaoContacts} crmLine={crmLine} localSlogan={localSlogan} clinicaNome={clinicaNome} storyTemplateIdx={storyTemplateIdx} setStoryTemplateIdx={setStoryTemplateIdx} storyFormatIdx={storyFormatIdx} setStoryFormatIdx={setStoryFormatIdx} />
+            : currentItem === 'Assinatura de E-mail'
+              ? <AssinaturaEmailPreview brand={brand} editData={itemEditData} accentColor={accentColor} logoColor={logoColor} logoLayout={logoLayout} cartaoContacts={cartaoContacts} crmLine={crmLine} localSlogan={localSlogan} clinicaNome={clinicaNome} storyTemplateIdx={storyTemplateIdx} setStoryTemplateIdx={setStoryTemplateIdx} storyFormatIdx={storyFormatIdx} setStoryFormatIdx={setStoryFormatIdx} setCartaoContacts={setCartaoContacts} setClinicaNome={setClinicaNome} setLocalSlogan={setLocalSlogan} />
+            : currentItem.includes('Certificado')
+              ? <CertificadoCoragemPreview accentColor={accentColor} patternSrc={patternSrc} editData={{ ...itemEditData, tagline: localSlogan }} logoColor={logoColor} logoLayout={logoLayout} cartaoContacts={cartaoContacts} crmLine={crmLine} clinicaNome={clinicaNome} comBorda={comBorda} setComBorda={setComBorda} paletteColors={paletteColors} borderColor={borderColor} setBorderColor={setBorderColor} patternScale={patternScale} setPatternScale={setPatternScale} />
+            : ['Receituário','Timbrado','Cartão','Guia','Calendário','Atestado','Dicas','Ficha','Orientação','Checklist','Prontuário','Receita','Quadro','Gráfico','Diário','Card','Pratinho','Fundo','Arte','Etiqueta','Assinatura','Tag'].some(n => currentItem.includes(n))
+              ? <A5ItemPreview item={currentItem} accentColor={accentColor} patternSrc={patternSrc} editData={{ ...itemEditData, tagline: localSlogan }} logoColor={logoColor} logoLayout={logoLayout} cartaoContacts={cartaoContacts} crmLine={crmLine} clinicaNome={clinicaNome} comBorda={comBorda} setComBorda={setComBorda} paletteColors={paletteColors} borderColor={borderColor} setBorderColor={setBorderColor} patternScale={patternScale} setPatternScale={setPatternScale} folderRoof={folderRoof} setFolderRoof={['Receituário','Atestado','Recibo','Ficha','Prontuário','Certificado','Checklist'].some(n => currentItem.includes(n)) ? setFolderRoof : undefined} paperSize={['Receituário','Recibo','Ficha','Prontuário','Certificado','Checklist'].some(n => currentItem.includes(n)) ? paperSize : undefined} setPaperSize={['Receituário','Recibo','Ficha','Prontuário','Certificado','Checklist'].some(n => currentItem.includes(n)) ? setPaperSize : undefined} />
+            : <GenericItemPreview item={currentItem} marca={marca} accentColor={accentColor} patternSrc={patternSrc} editData={{ ...itemEditData, tagline: localSlogan }} logoColor={logoColor} logoLayout={logoLayout} comBorda={comBorda} setComBorda={setComBorda} paletteColors={paletteColors} borderColor={borderColor} setBorderColor={setBorderColor} patternScale={patternScale} setPatternScale={setPatternScale} />
+          }
+        </UniversalPreviewScaler>
       </div>
 
       {/* Aviso preview ilustrativo */}

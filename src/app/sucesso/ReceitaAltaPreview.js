@@ -1,6 +1,7 @@
 'use client';
 import React from 'react';
 import { LogoPreviewHTML, BordaToggle } from './page';
+import { useScaleToFit } from './useScaleToFit';
 
 function F({ value, onChange, width = '20px', color, placeholder = '___' }) {
   return (
@@ -104,12 +105,15 @@ export default function ReceitaAltaPreview({ accentColor, paletteColors = [], ed
   const mainPhone = whatsapp || telefone || '';
   const contactLine = [mainPhone, site, instagram ? `@${instagram}` : ''].filter(Boolean).join('  ·  ');
   const [painelAberto, setPainelAberto] = React.useState(false);
+  const scaleReceita = useScaleToFit(226, 320 + 16);
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '16px', alignItems: 'center', width: '100%', padding: '20px 0' }}>
       <BordaToggle comBorda={comBorda} setComBorda={setComBorda} accentColor={accentColor} paletteColors={paletteColors} borderColor={borderColor} setBorderColor={setBorderColor} patternScale={patternScale} setPatternScale={setPatternScale} />
 
       {/* Preview A4 */}
+      <div ref={scaleReceita.wrapperRef} style={scaleReceita.wrapperStyle}>
+      <div style={scaleReceita.innerStyle}>
       <div style={{ width: '226px', height: '320px', position: 'relative', boxShadow: '0 6px 30px rgba(0,0,0,0.13)', borderRadius: '4px', overflow: 'hidden', background: '#fff', flexShrink: 0 }}>
         {comBorda && patternSrc 
           ? <div style={{ position: 'absolute', inset: 0, backgroundImage: `url(${patternSrc})`, backgroundSize: `${(patternScale || 150) / 2.5}px`, backgroundRepeat: 'repeat' }} />
@@ -169,6 +173,7 @@ export default function ReceitaAltaPreview({ accentColor, paletteColors = [], ed
           </div>
         </div>
       </div>
+      </div></div>
 
       {/* Painel de edição */}
       <div style={{ width: '100%', maxWidth: '420px', background: '#fafafa', borderRadius: '10px', border: '1px solid #eee', overflow: 'hidden' }}>

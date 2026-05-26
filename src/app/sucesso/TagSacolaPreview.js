@@ -1,6 +1,7 @@
 'use client';
 import React, { useState } from 'react';
 import { LogoPreviewHTML, BordaToggle } from './page';
+import { useScaleToFit } from './useScaleToFit';
 
 const SIZES = [
   { label: '4,8 × 4,8 cm', w: 4.8, h: 4.8, shape: 'square', scale: 36 },
@@ -31,16 +32,13 @@ function TagCard({ size, solidColor, c0, c1, paletteColors, effectiveSrc, patter
     return (
       <div style={containerStyle}>
         <div style={bgStyle} />
-        {/* Logo com fundo branco suave quando há estampa */}
         {(() => {
           const hasImg = !!editData?.customLogoSrc;
-          // tamanho proporcional ao item — tags pequenas precisam de logo menor
           const isRect = size.shape === 'rect';
           const boxW = Math.round(W * (isCircle ? 0.68 : isRect ? 0.75 : 0.80));
           const boxH = Math.round(H * (isCircle ? 0.55 : isRect ? 0.65 : 0.65));
           return (
-            // Externo: fundo branco + padding (não medido pelo autoFit)
-             <div style={{
+            <div style={{
               position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%)', zIndex: 2,
               display: 'flex', alignItems: 'center', justifyContent: 'center',
               background: effectiveSrc ? 'rgba(255,255,255,0.92)' : 'transparent',
@@ -48,7 +46,6 @@ function TagCard({ size, solidColor, c0, c1, paletteColors, effectiveSrc, patter
               borderRadius: '4px',
               maxWidth: `${boxW + 12}px`, maxHeight: `${boxH + 8}px`, overflow: 'visible',
             }}>
-              {/* Interno: dimensões fixas em px — autoFit mede este */}
               <div style={{
                 display: hasImg ? 'inline-flex' : 'flex',
                 ...(hasImg ? { maxWidth: `${boxW}px` } : { width: `${boxW}px`, height: `${boxH}px` }),
@@ -71,9 +68,8 @@ function TagCard({ size, solidColor, c0, c1, paletteColors, effectiveSrc, patter
   // Verso
   return (
     <div style={{ ...containerStyle, background: '#fff', border: `6px solid ${solidColor}` }}>
-      {/* Conteúdo verso centralizado */}
       {(() => {
-        const fs = Math.round(Math.min(W, H) * 0.075); // fonte proporcional ao item
+        const fs = Math.round(Math.min(W, H) * 0.075);
         const fsSmall = Math.round(fs * 0.72);
         return <div style={{ position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%)', width: '76%', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: Math.round(fs * 0.4), overflow: 'hidden', maxHeight: '80%' }}>
         {clinicaNome && <div style={{ fontSize: fs, fontWeight: 400, color: solidColor, fontFamily: "'Brush Script MT','Segoe Script','Dancing Script',cursive", textAlign: 'center', lineHeight: 1.3 }}>{clinicaNome}</div>}
@@ -102,11 +98,17 @@ export default function TagSacolaPreview({
   const effectiveSrc = comBorda ? patternSrc : null;
   const size = SIZES[sizeIdx];
 
+  const W = Math.round(size.w * size.scale);
+  const H = Math.round(size.h * size.scale);
+  // Two cards side by side with 40px gap
+  const totalW = W * 2 + 40;
+  const scaleCards = useScaleToFit(totalW, H + 32 + 24);
+
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '24px', alignItems: 'center', width: '100%', padding: '20px 0' }}>
 
       {/* Seletor de formato */}
-      <div style={{ display: 'flex', gap: '8px', background: '#f0f0f0', borderRadius: '20px', padding: '4px' }}>
+      <div style={{ display: 'flex', gap: '8px', background: '#f0f0f0', borderRadius: '20px', padding: '4px', flexWrap: 'wrap', justifyContent: 'center' }}>
         {SIZES.map((s, i) => (
           <button key={i} onClick={() => setSizeIdx(i)} style={{ padding: '6px 14px', borderRadius: '16px', border: 'none', cursor: 'pointer', fontFamily: 'Montserrat,sans-serif', fontSize: '11px', fontWeight: 700, background: sizeIdx === i ? solidColor : 'transparent', color: sizeIdx === i ? '#fff' : '#888', transition: 'all 0.2s' }}>
             {s.label}
@@ -116,15 +118,19 @@ export default function TagSacolaPreview({
 
       <BordaToggle comBorda={comBorda} setComBorda={setComBorda} accentColor={accentColor} paletteColors={paletteColors} borderColor={borderColor} setBorderColor={setBorderColor} patternScale={patternScale} setPatternScale={setPatternScale} />
 
-      {/* Frente e Verso lado a lado */}
-      <div style={{ display: 'flex', gap: '40px', alignItems: 'flex-start', justifyContent: 'center' }}>
-        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '8px' }}>
-          <span style={{ fontSize: '10px', fontWeight: 800, color: '#999', textTransform: 'uppercase' }}>Frente</span>
-          <TagCard size={size} solidColor={solidColor} c0={c0} c1={c1} paletteColors={paletteColors} effectiveSrc={effectiveSrc} patternScale={patternScale} editData={editData} logoColor={logoColor} logoLayout={logoLayout} clinicaNome={clinicaNome} cartaoContacts={cartaoContacts} crmLine={crmLine} side="frente" />
-        </div>
-        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '8px' }}>
-          <span style={{ fontSize: '10px', fontWeight: 800, color: '#999', textTransform: 'uppercase' }}>Verso</span>
-          <TagCard size={size} solidColor={solidColor} c0={c0} c1={c1} paletteColors={paletteColors} effectiveSrc={effectiveSrc} patternScale={patternScale} editData={editData} logoColor={logoColor} logoLayout={logoLayout} clinicaNome={clinicaNome} cartaoContacts={cartaoContacts} crmLine={crmLine} side="verso" />
+      {/* Frente e Verso lado a lado — escalado */}
+      <div ref={scaleCards.wrapperRef} style={scaleCards.wrapperStyle}>
+        <div style={scaleCards.innerStyle}>
+          <div style={{ display: 'flex', gap: '40px', alignItems: 'flex-start', justifyContent: 'center' }}>
+            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '8px' }}>
+              <span style={{ fontSize: '10px', fontWeight: 800, color: '#999', textTransform: 'uppercase' }}>Frente</span>
+              <TagCard size={size} solidColor={solidColor} c0={c0} c1={c1} paletteColors={paletteColors} effectiveSrc={effectiveSrc} patternScale={patternScale} editData={editData} logoColor={logoColor} logoLayout={logoLayout} clinicaNome={clinicaNome} cartaoContacts={cartaoContacts} crmLine={crmLine} side="frente" />
+            </div>
+            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '8px' }}>
+              <span style={{ fontSize: '10px', fontWeight: 800, color: '#999', textTransform: 'uppercase' }}>Verso</span>
+              <TagCard size={size} solidColor={solidColor} c0={c0} c1={c1} paletteColors={paletteColors} effectiveSrc={effectiveSrc} patternScale={patternScale} editData={editData} logoColor={logoColor} logoLayout={logoLayout} clinicaNome={clinicaNome} cartaoContacts={cartaoContacts} crmLine={crmLine} side="verso" />
+            </div>
+          </div>
         </div>
       </div>
 

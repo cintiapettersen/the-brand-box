@@ -5,6 +5,7 @@ import {
   FolderAmamentacaoPage5, FolderAmamentacaoPage6, FolderAmamentacaoPage7, FolderAmamentacaoPage8 
 } from './FolderAmamentacaoPages';
 import { LogoPreviewHTML, BordaToggle } from './page';
+import { useScaleToFit } from './useScaleToFit';
 
 export default function GuiaAmamentacaoPreview({
   brand, editData, logoColor, logoLayout,
@@ -60,6 +61,12 @@ export default function GuiaAmamentacaoPreview({
     </div>
   );
 
+  // Each folder side: 4 pages × 110px = 440px wide, 210px tall
+  const FOLDER_W = 440;
+  const FOLDER_H = 210;
+  const scaleA = useScaleToFit(FOLDER_W, FOLDER_H + 40);
+  const scaleB = useScaleToFit(FOLDER_W, FOLDER_H + 40);
+
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '30px', width: '100%', alignItems: 'center', paddingBottom: '40px' }}>
       
@@ -76,7 +83,8 @@ export default function GuiaAmamentacaoPreview({
       )}
 
       {/* SIDE A: 4 | 3 | 2 | 1 (Cover) */}
-      <div style={{ textAlign: 'center' }}>
+      <div ref={scaleA.wrapperRef} style={{ ...scaleA.wrapperStyle, textAlign: 'center' }}>
+        <div style={scaleA.innerStyle}>
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '10px', marginBottom: '12px' }}>
           <div style={{ height: '1px', width: '60px', background: '#eee' }} />
           <span style={{ fontSize: '10px', fontWeight: 800, color: '#aaa', textTransform: 'uppercase', letterSpacing: '1px' }}>LADO EXTERNO (FACE 1)</span>
@@ -88,10 +96,11 @@ export default function GuiaAmamentacaoPreview({
           <Page num={2}><FolderAmamentacaoPage2 accentColor={accentColor} borderColor={borderColor} palette={paletteColors} /></Page>
           <Page num={1}><FolderAmamentacaoPage1 accentColor={accentColor} borderColor={borderColor} palette={paletteColors} logoComponent={logoHtml} folderRoof={folderRoof} /></Page>
         </div>
-      </div>
+        </div></div>
 
       {/* SIDE B: 5 | 6 | 7 | 8 */}
-      <div style={{ textAlign: 'center' }}>
+      <div ref={scaleB.wrapperRef} style={{ ...scaleB.wrapperStyle, textAlign: 'center' }}>
+        <div style={scaleB.innerStyle}>
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '10px', marginBottom: '12px' }}>
           <div style={{ height: '1px', width: '60px', background: '#eee' }} />
           <span style={{ fontSize: '10px', fontWeight: 800, color: '#aaa', textTransform: 'uppercase', letterSpacing: '1px' }}>LADO INTERNO (FACE 2)</span>
@@ -103,7 +112,7 @@ export default function GuiaAmamentacaoPreview({
           <Page num={7}><FolderAmamentacaoPage7 accentColor={accentColor} borderColor={borderColor} palette={paletteColors} illustrationsSrc={illustrationsSrc} /></Page>
           <Page num={8}><FolderAmamentacaoPage8 accentColor={accentColor} borderColor={borderColor} palette={paletteColors} illustrationsSrc={illustrationsSrc} /></Page>
         </div>
-      </div>
+        </div></div>
     </div>
   );
 }
