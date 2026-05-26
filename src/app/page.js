@@ -1507,7 +1507,12 @@ export default function Home() {
                     </div>
                     <span style={{ display: 'inline-block', background: '#e8f7f5', color: '#1a7a6e', fontSize: '0.7rem', fontWeight: 700, borderRadius: '20px', padding: '3px 10px', letterSpacing: '0.5px', marginBottom: '10px' }}>Sua marca completa</span>
                     <ul style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', margin: '0 0 12px 0', paddingLeft: '0', display: 'flex', flexDirection: 'column', gap: '5px', listStyle: 'none' }}>
-                      {['Logo tipográfica + variações', 'Estampa exclusiva da marca', 'Manifesto e Tom de Voz', 'Paleta de cores + tipografia', 'Guia da Marca completo (PDF)'].map(i => <li key={i} style={{ display: 'flex', alignItems: 'center', gap: '8px' }}><span style={{ color: 'var(--accent-turquoise)', fontWeight: 700 }}>✔</span>{i}</li>)}
+                      {['Logo tipográfica + variações', 'Estampa exclusiva da marca', 'Manifesto e Tom de Voz', 'Paleta de cores + tipografia', 'Guia da Marca completo (PDF)'].map(i => (
+                        <li key={i} style={{ display: 'flex', alignItems: 'flex-start', gap: '8px' }}>
+                          <span style={{ color: 'var(--accent-turquoise)', fontWeight: 700, flexShrink: 0, marginTop: '2px' }}>✔</span>
+                          <span>{i}</span>
+                        </li>
+                      ))}
                     </ul>
                     <div style={{ background: '#f7f9ff', borderRadius: '10px', padding: '10px 12px', marginBottom: '12px', fontSize: '0.8rem', color: '#3a5a8a', lineHeight: 1.5 }}>
                       ✨ O essencial para começar sua marca
@@ -1592,14 +1597,16 @@ export default function Home() {
                       {['Tudo do Brand Box Starter', '5 Itens de papelaria à escolha', 'Pack completo para Instagram', 'Cartão Digital + Assinatura de E-mail'].map(i => {
                         const isPapelaria = i === '5 Itens de papelaria à escolha';
                         return (
-                          <li key={i} style={{ display: 'flex', alignItems: 'center', gap: '8px', color: '#4a1f3a', flexWrap: 'wrap' }}>
-                            {!i.startsWith('✨') && <span style={{ color: 'var(--accent-magenta)', fontWeight: 700 }}>✔</span>}
-                            <span>{i}</span>
-                            {isPapelaria && (
-                              <button onClick={() => setShowPediatriaModal(true)} style={{ background: 'rgba(220,52,149,0.1)', color: 'var(--accent-magenta)', border: 'none', padding: '3px 8px', borderRadius: '10px', fontSize: '0.7rem', fontWeight: 700, cursor: 'pointer', marginLeft: 'auto' }}>
-                                👀 Selecionar itens
-                              </button>
-                            )}
+                          <li key={i} style={{ display: 'flex', alignItems: 'flex-start', gap: '8px', color: '#4a1f3a' }}>
+                            {!i.startsWith('✨') && <span style={{ color: 'var(--accent-magenta)', fontWeight: 700, flexShrink: 0, marginTop: '2px' }}>✔</span>}
+                            <div style={{ display: 'flex', flexWrap: 'wrap', alignItems: 'center', gap: '6px', flex: 1 }}>
+                              <span>{i}</span>
+                              {isPapelaria && (
+                                <button onClick={() => setShowPediatriaModal(true)} style={{ background: 'rgba(220,52,149,0.1)', color: 'var(--accent-magenta)', border: 'none', padding: '3px 8px', borderRadius: '10px', fontSize: '0.7rem', fontWeight: 700, cursor: 'pointer', marginLeft: 'auto' }}>
+                                  👀 Selecionar itens
+                                </button>
+                              )}
+                            </div>
                           </li>
                         );
                       })}
