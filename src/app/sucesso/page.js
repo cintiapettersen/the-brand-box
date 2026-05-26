@@ -1993,14 +1993,14 @@ function ManifestoQuiz({ accentColor, marca, tagline, estiloNome, isSaude, onMan
       {/* Barra de progresso */}
       <div style={{ display: 'flex', gap: '4px' }}>
         {QUIZ_PERGUNTAS.map((_, i) => (
-          <div key={i} style={{ flex: 1, height: '4px', borderRadius: '2px', background: i < atual ? accentColor : i === atual ? accentColor + '55' : '#eee', transition: 'background 0.3s' }} />
+          <div key={i} style={{ flex: 1, height: '4px', borderRadius: '2px', background: i < atual ? '#C03B66' : i === atual ? '#C03B6655' : '#eee', transition: 'background 0.3s' }} />
         ))}
       </div>
 
       {/* Pergunta atual */}
       <div style={{ background: '#fff', borderRadius: '16px', padding: '22px 18px', boxShadow: '0 4px 16px rgba(0,0,0,0.07)', minHeight: '260px', display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
         <div>
-          <p style={{ fontSize: '0.6rem', fontWeight: 700, letterSpacing: '2px', textTransform: 'uppercase', color: accentColor + 'aa', marginBottom: '14px' }}>{atual + 1} de {QUIZ_PERGUNTAS.length}</p>
+          <p style={{ fontSize: '0.6rem', fontWeight: 700, letterSpacing: '2px', textTransform: 'uppercase', color: '#C03B66aa', marginBottom: '14px' }}>{atual + 1} de {QUIZ_PERGUNTAS.length}</p>
           <p style={{ fontSize: '0.9rem', fontWeight: 700, color: '#222', marginBottom: '18px', lineHeight: 1.4 }}>{QUIZ_PERGUNTAS[atual].pergunta}</p>
           <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
             {QUIZ_PERGUNTAS[atual].opcoes.map(opcao => {
@@ -2017,10 +2017,10 @@ function ManifestoQuiz({ accentColor, marca, tagline, estiloNome, isSaude, onMan
                   }}
                   style={{
                     textAlign: 'left', padding: '12px 16px', borderRadius: '12px',
-                    border: `1.5px solid ${selected ? accentColor : '#eee'}`,
-                    background: selected ? accentColor + '18' : '#fafafa', cursor: 'pointer',
+                    border: `1.5px solid ${selected ? '#C03B66' : '#eee'}`,
+                    background: selected ? '#C03B6618' : '#fafafa', cursor: 'pointer',
                     fontSize: '0.78rem', fontFamily: 'Montserrat, sans-serif', fontWeight: selected ? 700 : 500,
-                    color: selected ? accentColor : '#555', transition: 'all 0.15s',
+                    color: selected ? '#C03B66' : '#555', transition: 'all 0.15s',
                   }}
                 >
                   {opcao}
@@ -2042,7 +2042,7 @@ function ManifestoQuiz({ accentColor, marca, tagline, estiloNome, isSaude, onMan
           <button
             onClick={() => setAtual(a => a + 1)}
             disabled={!respostas[QUIZ_PERGUNTAS[atual].id]}
-            style={{ flex: 1, padding: '12px', borderRadius: '20px', border: 'none', background: respostas[QUIZ_PERGUNTAS[atual].id] ? accentColor : '#ddd', color: '#fff', fontWeight: 700, fontSize: '0.78rem', cursor: respostas[QUIZ_PERGUNTAS[atual].id] ? 'pointer' : 'not-allowed', fontFamily: 'Montserrat, sans-serif', transition: 'all 0.2s' }}
+            style={{ flex: 1, padding: '12px', borderRadius: '20px', border: 'none', background: respostas[QUIZ_PERGUNTAS[atual].id] ? '#C03B66' : '#ddd', color: '#fff', fontWeight: 700, fontSize: '0.78rem', cursor: respostas[QUIZ_PERGUNTAS[atual].id] ? 'pointer' : 'not-allowed', fontFamily: 'Montserrat, sans-serif', transition: 'all 0.2s' }}
           >
             Próxima →
           </button>
@@ -2050,7 +2050,7 @@ function ManifestoQuiz({ accentColor, marca, tagline, estiloNome, isSaude, onMan
           <button
             onClick={handleGerar}
             disabled={!completo || loading}
-            style={{ flex: 1, padding: '13px', borderRadius: '20px', border: 'none', background: completo ? accentColor : '#ddd', color: '#fff', fontWeight: 700, fontSize: '0.82rem', cursor: completo ? 'pointer' : 'not-allowed', fontFamily: 'Montserrat, sans-serif', opacity: loading ? 0.7 : 1, transition: 'all 0.2s' }}
+            style={{ flex: 1, padding: '13px', borderRadius: '20px', border: 'none', background: completo ? '#C03B66' : '#ddd', color: '#fff', fontWeight: 700, fontSize: '0.82rem', cursor: completo ? 'pointer' : 'not-allowed', fontFamily: 'Montserrat, sans-serif', opacity: loading ? 0.7 : 1, transition: 'all 0.2s' }}
           >
             {loading ? '✨ Criando manifesto...' : '✨ Gerar Manifesto'}
           </button>
@@ -2129,10 +2129,10 @@ function ManifestoDisplay({ manifesto, accentColor, marca, tagline, fontFamily, 
       </div>
 
       <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
-        <button onClick={handleBaixarPlaca} style={{ flex: 1, padding: '12px', borderRadius: '20px', background: '#fff', color: accentColor, border: `1.5px solid ${accentColor}`, fontWeight: 700, fontSize: '0.75rem', cursor: 'pointer', fontFamily: 'Montserrat, sans-serif' }}>
+        <button onClick={handleBaixarPlaca} style={{ flex: 1, padding: '12px', borderRadius: '20px', background: '#fff', color: '#C03B66', border: '1.5px solid #C03B66', fontWeight: 700, fontSize: '0.75rem', cursor: 'pointer', fontFamily: 'Montserrat, sans-serif' }}>
           ⬇ Baixar PNG
         </button>
-        <button onClick={handleCopiar} style={{ flex: 1, padding: '12px', borderRadius: '20px', border: `1.5px solid ${accentColor}`, background: copiado ? accentColor : 'transparent', color: copiado ? '#fff' : accentColor, fontWeight: 700, fontSize: '0.75rem', cursor: 'pointer', fontFamily: 'Montserrat, sans-serif', transition: 'all 0.2s' }}>
+        <button onClick={handleCopiar} style={{ flex: 1, padding: '12px', borderRadius: '20px', border: '1.5px solid #C03B66', background: copiado ? '#C03B66' : 'transparent', color: copiado ? '#fff' : '#C03B66', fontWeight: 700, fontSize: '0.75rem', cursor: 'pointer', fontFamily: 'Montserrat, sans-serif', transition: 'all 0.2s' }}>
           {copiado ? '✓ Copiado!' : '📋 Copiar'}
         </button>
         <button onClick={() => setEditando(e => !e)} style={{ flex: 1, padding: '12px', borderRadius: '20px', border: '1.5px solid #ddd', background: editando ? '#333' : 'transparent', color: editando ? '#fff' : '#888', fontWeight: 700, fontSize: '0.75rem', cursor: 'pointer', fontFamily: 'Montserrat, sans-serif', transition: 'all 0.2s' }}>
@@ -2198,7 +2198,7 @@ function ManifestoStep({ accentColor, marca, tagline, brand, isSaude, editData }
       </div>
       <button
         onClick={() => setShowQuiz(true)}
-        style={{ padding: '16px', borderRadius: '30px', border: 'none', background: accentColor, color: '#fff', fontWeight: 700, fontSize: '0.9rem', cursor: 'pointer', fontFamily: 'Montserrat, sans-serif' }}
+        style={{ padding: '16px', borderRadius: '30px', border: 'none', background: '#C03B66', color: '#fff', fontWeight: 700, fontSize: '0.9rem', cursor: 'pointer', fontFamily: 'Montserrat, sans-serif' }}
       >
         ✨ Criar Manifesto com IA
       </button>
@@ -2325,12 +2325,12 @@ function TomDeVozQuiz({ accentColor, marca, tagline, estiloNome, onTomDeVozGerad
     <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
       <div style={{ display: 'flex', gap: '4px' }}>
         {TOMDEVOZ_PERGUNTAS.map((_, i) => (
-          <div key={i} style={{ flex: 1, height: '4px', borderRadius: '2px', background: i < atual ? accentColor : i === atual ? accentColor + '55' : '#eee', transition: 'background 0.3s' }} />
+          <div key={i} style={{ flex: 1, height: '4px', borderRadius: '2px', background: i < atual ? '#C03B66' : i === atual ? '#C03B6655' : '#eee', transition: 'background 0.3s' }} />
         ))}
       </div>
       <div style={{ background: '#fff', borderRadius: '16px', padding: '22px 18px', boxShadow: '0 4px 16px rgba(0,0,0,0.07)', minHeight: '260px', display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
         <div>
-          <p style={{ fontSize: '0.6rem', fontWeight: 700, letterSpacing: '2px', textTransform: 'uppercase', color: accentColor + 'aa', marginBottom: '14px' }}>{atual + 1} de {TOMDEVOZ_PERGUNTAS.length}</p>
+          <p style={{ fontSize: '0.6rem', fontWeight: 700, letterSpacing: '2px', textTransform: 'uppercase', color: '#C03B66aa', marginBottom: '14px' }}>{atual + 1} de {TOMDEVOZ_PERGUNTAS.length}</p>
           <p style={{ fontSize: '0.9rem', fontWeight: 700, color: '#222', marginBottom: '18px', lineHeight: 1.4 }}>{TOMDEVOZ_PERGUNTAS[atual].pergunta}</p>
           <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
             {TOMDEVOZ_PERGUNTAS[atual].opcoes.map(opcao => {
@@ -2347,10 +2347,10 @@ function TomDeVozQuiz({ accentColor, marca, tagline, estiloNome, onTomDeVozGerad
                   }}
                   style={{
                     textAlign: 'left', padding: '12px 16px', borderRadius: '12px',
-                    border: `1.5px solid ${selected ? accentColor : '#eee'}`,
-                    background: selected ? accentColor + '18' : '#fafafa', cursor: 'pointer',
+                    border: `1.5px solid ${selected ? '#C03B66' : '#eee'}`,
+                    background: selected ? '#C03B6618' : '#fafafa', cursor: 'pointer',
                     fontSize: '0.78rem', fontFamily: 'Montserrat, sans-serif', fontWeight: selected ? 700 : 500,
-                    color: selected ? accentColor : '#555', transition: 'all 0.15s',
+                    color: selected ? '#C03B66' : '#555', transition: 'all 0.15s',
                   }}
                 >
                   {opcao}
@@ -2370,7 +2370,7 @@ function TomDeVozQuiz({ accentColor, marca, tagline, estiloNome, onTomDeVozGerad
           <button
             onClick={() => setAtual(a => a + 1)}
             disabled={!respostas[TOMDEVOZ_PERGUNTAS[atual].id]}
-            style={{ flex: 1, padding: '12px', borderRadius: '20px', border: 'none', background: respostas[TOMDEVOZ_PERGUNTAS[atual].id] ? accentColor : '#ddd', color: '#fff', fontWeight: 700, fontSize: '0.78rem', cursor: respostas[TOMDEVOZ_PERGUNTAS[atual].id] ? 'pointer' : 'not-allowed', fontFamily: 'Montserrat, sans-serif', transition: 'all 0.2s' }}
+            style={{ flex: 1, padding: '12px', borderRadius: '20px', border: 'none', background: respostas[TOMDEVOZ_PERGUNTAS[atual].id] ? '#C03B66' : '#ddd', color: '#fff', fontWeight: 700, fontSize: '0.78rem', cursor: respostas[TOMDEVOZ_PERGUNTAS[atual].id] ? 'pointer' : 'not-allowed', fontFamily: 'Montserrat, sans-serif', transition: 'all 0.2s' }}
           >
             Próxima →
           </button>
@@ -2378,7 +2378,7 @@ function TomDeVozQuiz({ accentColor, marca, tagline, estiloNome, onTomDeVozGerad
           <button
             onClick={handleGerar}
             disabled={!completo || loading}
-            style={{ flex: 1, padding: '13px', borderRadius: '20px', border: 'none', background: completo ? accentColor : '#ddd', color: '#fff', fontWeight: 700, fontSize: '0.82rem', cursor: completo ? 'pointer' : 'not-allowed', fontFamily: 'Montserrat, sans-serif', opacity: loading ? 0.7 : 1, transition: 'all 0.2s' }}
+            style={{ flex: 1, padding: '13px', borderRadius: '20px', border: 'none', background: completo ? '#C03B66' : '#ddd', color: '#fff', fontWeight: 700, fontSize: '0.82rem', cursor: completo ? 'pointer' : 'not-allowed', fontFamily: 'Montserrat, sans-serif', opacity: loading ? 0.7 : 1, transition: 'all 0.2s' }}
           >
             {loading ? '✨ Criando tom de voz...' : '✨ Gerar Tom de Voz'}
           </button>
@@ -2442,7 +2442,7 @@ function TomDeVozDisplay({ tomDeVoz, accentColor, marca, onRegerar, podeRefazer,
         </div>
       )}
       <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
-        <button onClick={handleCopiar} style={{ flex: 1, padding: '12px', borderRadius: '20px', border: `1.5px solid ${accentColor}`, background: copiado ? accentColor : 'transparent', color: copiado ? '#fff' : accentColor, fontWeight: 700, fontSize: '0.75rem', cursor: 'pointer', fontFamily: 'Montserrat, sans-serif', transition: 'all 0.2s' }}>
+        <button onClick={handleCopiar} style={{ flex: 1, padding: '12px', borderRadius: '20px', border: '1.5px solid #C03B66', background: copiado ? '#C03B66' : 'transparent', color: copiado ? '#fff' : '#C03B66', fontWeight: 700, fontSize: '0.75rem', cursor: 'pointer', fontFamily: 'Montserrat, sans-serif', transition: 'all 0.2s' }}>
           {copiado ? '✓ Copiado!' : '📋 Copiar'}
         </button>
         <button onClick={() => setEditando(e => !e)} style={{ flex: 1, padding: '12px', borderRadius: '20px', border: '1.5px solid #ddd', background: editando ? '#333' : 'transparent', color: editando ? '#fff' : '#888', fontWeight: 700, fontSize: '0.75rem', cursor: 'pointer', fontFamily: 'Montserrat, sans-serif', transition: 'all 0.2s' }}>
@@ -2508,7 +2508,7 @@ function TomDeVozStep({ accentColor, marca, tagline, brand, editData }) {
       </div>
       <button
         onClick={() => setShowQuiz(true)}
-        style={{ padding: '16px', borderRadius: '30px', border: 'none', background: accentColor, color: '#fff', fontWeight: 700, fontSize: '0.9rem', cursor: 'pointer', fontFamily: 'Montserrat, sans-serif' }}
+        style={{ padding: '16px', borderRadius: '30px', border: 'none', background: '#C03B66', color: '#fff', fontWeight: 700, fontSize: '0.9rem', cursor: 'pointer', fontFamily: 'Montserrat, sans-serif' }}
       >
         ✨ Criar Tom de Voz com IA
       </button>
@@ -8820,18 +8820,14 @@ function EntregaContent({ brand, plano, setBrand }) {
   return (
     <div style={{ minHeight: '100vh', background: '#faf9f7', fontFamily: 'Montserrat, sans-serif', paddingBottom: '3rem' }}>
 
-      {/* Banner topo */}
-      <div className="mobile-col" style={{ background: '#e8f7f5', padding: '10px 20px', textAlign: 'center', fontSize: '0.78rem', color: '#1a7a6e', fontWeight: 600, letterSpacing: '0.3px', display: 'flex', justifyContent: 'center', gap: '6px', alignItems: 'center' }}>
-        <span>🎉 Pagamento confirmado! Aqui está sua marca.</span>
-        <span style={{ fontSize: '0.7rem', color: '#115048' }}>Faça o download dos arquivos neste dispositivo atual por segurança.</span>
-      </div>
-
-      <div style={{ maxWidth: '480px', margin: '0 auto', padding: '1.5rem 1.4rem 0' }}>
+      <div style={{ maxWidth: '480px', margin: '0 auto' }}>
 
         {/* NOVO MENU DE NAVEGAÇÃO CATEGORIZADA */}
         <BrandBoxNav step={step} setStep={setStep} plano={plano} papelariaItens={papelariaNavItens} papelariaIdx={papelariaNavIdx} setPapelariaIdx={setPapelariaNavIdx} />
 
-        {/* Header (Simplificado) */}
+        <div style={{ padding: '0.5rem 1.4rem 0' }}>
+
+          {/* Header (Simplificado) */}
         <div style={{ display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between', marginBottom: '1.2rem' }}>
           <div>
             <h1 style={{ fontSize: '1.4rem', fontWeight: 700, color: '#1a1a1a', lineHeight: 1.2 }}>
@@ -9927,6 +9923,8 @@ function EntregaContent({ brand, plano, setBrand }) {
 
         </div>
 
+        </div> {/* Fecha o div de padding das etapas */}
+
         {/* Link de reset para testes */}
         <div style={{ marginTop: '3rem', textAlign: 'center' }}>
           <button
@@ -9954,6 +9952,7 @@ function SucessoContent() {
   const [brand, setBrand] = useState(null);
   const [loading, setLoading] = useState(true);
   const [showWelcome, setShowWelcome] = useState(false);
+  const [welcomeStep, setWelcomeStep] = useState(0); // 0 = Welcome screen, 1 = Instructions screen
   const [welcomeSeen, setWelcomeSeen] = useState(() => {
     try {
       return typeof window !== 'undefined' && localStorage.getItem('brandbox_welcome_seen') === 'true';
@@ -10120,6 +10119,120 @@ function SucessoContent() {
   if (showWelcome) {
     const rawNome = brand?.formData?.nome || brand?.editData?.marca || '';
     const nomeCliente = rawNome.split(' ').map(w => w.charAt(0).toUpperCase() + w.slice(1).toLowerCase()).join(' ');
+
+    if (welcomeStep === 1) {
+      return (
+        <div style={{
+          minHeight: '100vh', display: 'flex', flexDirection: 'column',
+          alignItems: 'center', justifyContent: 'center',
+          background: 'linear-gradient(160deg, #fff5fb 0%, #f0f9ff 100%)',
+          padding: '2rem', textAlign: 'center', fontFamily: 'Montserrat, sans-serif',
+          position: 'relative', overflow: 'hidden',
+        }}>
+          {/* Fundo decorativo */}
+          <div style={{ position: 'absolute', top: '-80px', right: '-80px', width: '320px', height: '320px', borderRadius: '50%', background: 'rgba(192,59,102,0.06)', pointerEvents: 'none' }} />
+          <div style={{ position: 'absolute', bottom: '-60px', left: '-60px', width: '240px', height: '240px', borderRadius: '50%', background: 'rgba(60,204,191,0.07)', pointerEvents: 'none' }} />
+
+          <div style={{ maxWidth: '480px', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '1.5rem', width: '100%' }}>
+            {/* Ícone */}
+            <div style={{ fontSize: '3rem', lineHeight: 1 }}>✨</div>
+
+            {/* Título */}
+            <div>
+              <p style={{ fontSize: '0.7rem', letterSpacing: '3px', textTransform: 'uppercase', color: '#C03B66', fontWeight: 700, marginBottom: '0.5rem' }}>
+                Instruções & Dicas
+              </p>
+              <h1 style={{ fontSize: '1.6rem', fontWeight: 800, color: '#1a1a1a', lineHeight: 1.3, margin: 0 }}>
+                Como aproveitar sua experiência
+              </h1>
+            </div>
+
+            {/* Instructions Card */}
+            <div style={{
+              background: 'rgba(255, 255, 255, 0.75)',
+              backdropFilter: 'blur(10px)',
+              borderRadius: '20px',
+              padding: '24px 20px',
+              boxShadow: '0 8px 32px rgba(192, 59, 102, 0.05)',
+              border: '1px solid rgba(255, 255, 255, 0.5)',
+              width: '100%',
+              display: 'flex',
+              flexDirection: 'column',
+              gap: '14px',
+              textAlign: 'left'
+            }}>
+              {[
+                {
+                  icon: '🖥️',
+                  title: 'Use um Computador',
+                  desc: 'Para melhor aproveitamento visual e facilidade ao baixar as artes e arquivos em alta qualidade.'
+                },
+                {
+                  icon: '➡️',
+                  title: 'Siga o Botão de Avançar',
+                  desc: 'Avançar passo a passo ajuda a construir sua identidade visual de forma fluida e natural.'
+                },
+                {
+                  icon: '🧘',
+                  title: 'Responda com Calma & Esteja Presente',
+                  desc: 'Responda às perguntas com carinho e presença enquanto você vivencia a criação da sua marca.'
+                },
+                {
+                  icon: '💡',
+                  title: 'Consulte o Guia de Ajuda',
+                  desc: 'Na dúvida, nossa aba de Ajuda tem todas as dicas e inspirações para te apoiar no processo.'
+                }
+              ].map((item, idx) => (
+                <div key={idx} style={{ display: 'flex', gap: '12px', alignItems: 'flex-start' }}>
+                  <span style={{ fontSize: '1.4rem', lineHeight: 1, flexShrink: 0, marginTop: '2px' }}>{item.icon}</span>
+                  <div>
+                    <p style={{ margin: 0, fontSize: '0.85rem', fontWeight: 700, color: '#1a1a1a', fontFamily: 'Montserrat, sans-serif' }}>{item.title}</p>
+                    <p style={{ margin: '2px 0 0 0', fontSize: '0.76rem', color: '#666', lineHeight: 1.4, fontFamily: 'Montserrat, sans-serif' }}>{item.desc}</p>
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            {/* Warm Closing */}
+            <p style={{
+              fontFamily: "'Playfair Display', serif",
+              fontStyle: 'italic',
+              fontSize: '1rem',
+              color: '#444',
+              lineHeight: 1.5,
+              margin: '0.5rem 0 0 0'
+            }}>
+              "Desejamos a você uma excelente experiência com a The Brand Box!" 🤍
+            </p>
+
+            {/* CTA Button */}
+            <button
+              onClick={() => {
+                if (!welcomeSeen) {
+                  try { localStorage.setItem('brandbox_welcome_seen', 'true'); } catch {}
+                  setWelcomeSeen(true);
+                }
+                setShowWelcome(false);
+              }}
+              style={{
+                background: 'linear-gradient(135deg, #C03B66, #a12d52)',
+                color: '#fff', border: 'none', borderRadius: '50px',
+                padding: '1rem 2.5rem', fontSize: '1rem', fontWeight: 700,
+                cursor: 'pointer', letterSpacing: '0.3px',
+                boxShadow: '0 10px 30px rgba(192, 59, 102, 0.3)',
+                transition: 'transform 0.2s ease',
+                width: '100%'
+              }}
+              onMouseEnter={e => e.currentTarget.style.transform = 'translateY(-2px)'}
+              onMouseLeave={e => e.currentTarget.style.transform = 'translateY(0)'}
+            >
+              {welcomeSeen ? 'Entrar na minha Brand Box →' : 'Começar minha experiência →'}
+            </button>
+          </div>
+        </div>
+      );
+    }
+
     return (
       <div style={{
         minHeight: '100vh', display: 'flex', flexDirection: 'column',
@@ -10129,7 +10242,7 @@ function SucessoContent() {
         position: 'relative', overflow: 'hidden',
       }}>
         {/* Fundo decorativo */}
-        <div style={{ position: 'absolute', top: '-80px', right: '-80px', width: '320px', height: '320px', borderRadius: '50%', background: 'rgba(220,52,149,0.06)', pointerEvents: 'none' }} />
+        <div style={{ position: 'absolute', top: '-80px', right: '-80px', width: '320px', height: '320px', borderRadius: '50%', background: 'rgba(192,59,102,0.06)', pointerEvents: 'none' }} />
         <div style={{ position: 'absolute', bottom: '-60px', left: '-60px', width: '240px', height: '240px', borderRadius: '50%', background: 'rgba(60,204,191,0.07)', pointerEvents: 'none' }} />
 
         <div style={{ maxWidth: '480px', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '1.5rem' }}>
@@ -10138,7 +10251,7 @@ function SucessoContent() {
 
           {/* Título */}
           <div>
-            <p style={{ fontSize: '0.7rem', letterSpacing: '3px', textTransform: 'uppercase', color: '#dc3495', fontWeight: 700, marginBottom: '0.75rem' }}>
+            <p style={{ fontSize: '0.7rem', letterSpacing: '3px', textTransform: 'uppercase', color: '#C03B66', fontWeight: 700, marginBottom: '0.75rem' }}>
               BRAND BOX
             </p>
             <h1 style={{ fontSize: '2rem', fontWeight: 800, color: '#1a1a1a', lineHeight: 1.3, margin: 0 }}>
@@ -10170,30 +10283,26 @@ function SucessoContent() {
               <p style={{ margin: 0 }}>
                 A partir de agora, vamos te guiar por uma experiência criativa construída para transformar ideias, referências e essência em uma identidade visual completa.
               </p>
-              <p style={{ margin: 0, fontWeight: 600, color: '#dc3495', marginTop: '0.4rem' }}>
+              <p style={{ margin: 0, fontWeight: 600, color: '#C03B66', marginTop: '0.4rem' }}>
                 Você faz as escolhas. Nós organizamos o caminho.
               </p>
             </div>
           )}
 
           {/* Separador */}
-          <div style={{ width: '40px', height: '2px', background: 'linear-gradient(90deg, #dc3495, #3cccbf)', borderRadius: '2px' }} />
+          <div style={{ width: '40px', height: '2px', background: 'linear-gradient(90deg, #C03B66, #3cccbf)', borderRadius: '2px' }} />
 
           {/* CTA */}
           <button
             onClick={() => {
-              if (!welcomeSeen) {
-                try { localStorage.setItem('brandbox_welcome_seen', 'true'); } catch {}
-                setWelcomeSeen(true);
-              }
-              setShowWelcome(false);
+              setWelcomeStep(1);
             }}
             style={{
-              background: 'linear-gradient(135deg, #dc3495, #c42d84)',
+              background: 'linear-gradient(135deg, #C03B66, #a12d52)',
               color: '#fff', border: 'none', borderRadius: '50px',
               padding: '1rem 2.5rem', fontSize: '1rem', fontWeight: 700,
               cursor: 'pointer', letterSpacing: '0.3px',
-              boxShadow: '0 10px 30px rgba(220,52,149,0.3)',
+              boxShadow: '0 10px 30px rgba(192, 59, 102, 0.3)',
               transition: 'transform 0.2s ease',
             }}
             onMouseEnter={e => e.currentTarget.style.transform = 'translateY(-2px)'}
