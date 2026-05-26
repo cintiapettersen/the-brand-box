@@ -1084,7 +1084,7 @@ export default function Home() {
 
                   {/* Mosaico Pinterest Estilo Original */}
                   <div style={{ gridColumn: 'span 3', columnCount: 2, columnGap: '10px' }}>
-                     {moodboards.map(m => (
+                     {moodboards.filter(m => !m.image_url.includes('/icons/')).map(m => (
                         <div key={m.id} style={{ breakInside: 'avoid', marginBottom: '10px', width: '100%' }}>
                            <img src={`${m.image_url}?t=${Date.now()}`} style={{ width: '100%', borderRadius: '12px', objectFit: 'cover', border: '1px solid var(--border)' }} />
                         </div>
