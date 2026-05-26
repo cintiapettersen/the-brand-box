@@ -1162,8 +1162,8 @@ export default function Home() {
                 </div>
               </div>
 
-              <div style={{ padding: '1.5rem', background: '#fff', borderTop: '1px solid var(--border)', zIndex: 10, display: 'flex', gap: '10px' }}>
-                <button onClick={() => setStep(11)} className="btn-secondary" style={{ padding: '14px 20px', flex: 0.3 }}>Voltar</button>
+              <div style={{ padding: '1.5rem', background: '#fff', borderTop: '1px solid var(--border)', zIndex: 10, display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '10px' }}>
+                <button onClick={() => setStep(11)} className="btn-secondary" style={{ padding: '12px 20px', borderRadius: '14px', fontSize: '0.92rem', fontWeight: 600, flex: '0 0 auto', height: '46px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>Voltar</button>
                 <button
                   onClick={() => {
                     const tagline = customTagline.trim() || selectedTagline;
@@ -1171,7 +1171,7 @@ export default function Home() {
                     setStep(11.7);
                   }}
                   className="btn-primary"
-                  style={{ flex: 1, background: (selectedTagline || customTagline.trim()) ? 'var(--accent-magenta)' : '#ccc', pointerEvents: (selectedTagline || customTagline.trim()) ? 'auto' : 'none' }}
+                  style={{ flex: 1, background: (selectedTagline || customTagline.trim()) ? 'var(--accent-magenta)' : '#ccc', pointerEvents: (selectedTagline || customTagline.trim()) ? 'auto' : 'none', padding: '12px 20px', borderRadius: '14px', fontSize: '0.92rem', fontWeight: 600, height: '46px', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: 'none' }}
                 >
                   Criar Minha Estampa ✨
                 </button>
