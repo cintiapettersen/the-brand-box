@@ -1256,9 +1256,9 @@ export default function Home() {
                             <img src={`data:${p.mimeType};base64,${p.base64}`} style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }} />
                           )}
                           <div style={{
-                            position: 'absolute', bottom: '15%', left: '10%', right: '10%',
+                            position: 'absolute', bottom: '15%', left: '6%', right: '6%',
                             background: 'rgba(255,255,255,0.92)', borderRadius: '6px',
-                            padding: '12px 10px', textAlign: 'center',
+                            padding: '10px 8px', textAlign: 'center',
                             backdropFilter: 'blur(4px)'
                           }}>
                             {(() => {
@@ -1275,7 +1275,7 @@ export default function Home() {
                                 </p>
                               );
                             })()}
-                            <p style={{ fontSize: '0.45rem', color: '#888', marginTop: '4px', letterSpacing: '1px', textTransform: 'uppercase' }}>
+                            <p style={{ fontSize: '0.36rem', color: '#736E6A', marginTop: '4px', letterSpacing: '0.5px', textTransform: 'uppercase', lineHeight: 1.3, maxWidth: '100%', wordBreak: 'keep-all', overflowWrap: 'break-word' }}>
                               {editData.tagline || ''}
                             </p>
                           </div>
