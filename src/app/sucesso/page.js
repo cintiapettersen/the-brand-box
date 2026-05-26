@@ -4404,6 +4404,20 @@ function AssinaturaEmailPreview({ brand, editData, accentColor, logoColor, logoL
   const [copied, setCopied] = React.useState(false);
   const [contactOpen, setContactOpen] = React.useState(false);
 
+  const wrapRef = React.useRef(null);
+  const [scale, setScale] = React.useState(1);
+
+  React.useEffect(() => {
+    const el = wrapRef.current;
+    if (!el) return;
+    const obs = new ResizeObserver(([e]) => {
+      const w = e.contentRect.width;
+      setScale(Math.min(1, w / 450));
+    });
+    obs.observe(el);
+    return () => obs.disconnect();
+  }, []);
+
   const copyToClipboard = () => {
     const html = `
       <table cellpadding="0" cellspacing="0" border="0" style="font-family: Arial, sans-serif; color: #333333; line-height: 1.4;">
@@ -4438,16 +4452,25 @@ function AssinaturaEmailPreview({ brand, editData, accentColor, logoColor, logoL
   };
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: '15px', alignItems: 'center' }}>
-      <div data-assinatura-preview style={{ width: '450px', height: '140px', background: '#fff', borderRadius: '8px', boxShadow: '0 10px 40px rgba(0,0,0,0.08)', padding: '20px', display: 'flex', alignItems: 'center', gap: '25px', position: 'relative', overflow: 'hidden' }}>
-         <div style={{ position: 'absolute', top: 0, right: 0, width: '40px', height: '40px', background: `${accentColor}10`, borderRadius: '0 0 0 40px' }} />
-         <div style={{ width: '150px', height: '90px', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
-            <LogoPreviewHTML editData={editData} color={logoColor} layout={logoLayout} scaleFactor={0.72} hideTagline maxWidth="150px" maxHeight="90px" />
-         </div>
-         <div style={{ width: '1px', height: '80%', background: '#eee', flexShrink: 0 }} />
-         <div style={{ display: 'flex', flexDirection: 'column', gap: '4px', flex: 1, paddingRight: '16px' }}>
-            <div style={{ fontSize: '14px', fontWeight: 800, color: '#1a1a1a', letterSpacing: '0.5px' }}>{clinicaNome}</div>
-            <div style={{ fontSize: '10px', fontWeight: 600, color: accentColor, textTransform: 'uppercase', letterSpacing: '1px', marginBottom: '4px' }}>{localSlogan || 'Saúde e Bem-Estar'}</div>
+    <div style={{ display: 'flex', flexDirection: 'column', gap: '15px', alignItems: 'center', width: '100%' }}>
+      {/* Container de Escala Responsivo para prevenir corte em telas mobile */}
+      <div ref={wrapRef} style={{ width: '100%', maxWidth: '450px', height: `${140 * scale}px`, overflow: 'hidden', position: 'relative', borderRadius: '8px' }}>
+        <div data-assinatura-preview style={{ 
+          width: '450px', height: '140px', background: '#fff', 
+          borderRadius: '8px', boxShadow: '0 10px 40px rgba(0,0,0,0.08)', 
+          padding: '20px', display: 'flex', alignItems: 'center', gap: '25px', 
+          position: 'absolute', top: 0, left: 0,
+          transform: `scale(${scale})`, transformOrigin: 'top left',
+          overflow: 'hidden' 
+        }}>
+           <div style={{ position: 'absolute', top: 0, right: 0, width: '40px', height: '40px', background: `${accentColor}10`, borderRadius: '0 0 0 40px' }} />
+           <div style={{ width: '150px', height: '90px', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+              <LogoPreviewHTML editData={editData} color={logoColor} layout={logoLayout} scaleFactor={0.72} hideTagline maxWidth="150px" maxHeight="90px" />
+           </div>
+           <div style={{ width: '1px', height: '80%', background: '#eee', flexShrink: 0 }} />
+           <div style={{ display: 'flex', flexDirection: 'column', gap: '4px', flex: 1, paddingRight: '16px' }}>
+              <div style={{ fontSize: '14px', fontWeight: 800, color: '#1a1a1a', letterSpacing: '0.5px' }}>{clinicaNome}</div>
+              <div style={{ fontSize: '10px', fontWeight: 600, color: accentColor, textTransform: 'uppercase', letterSpacing: '1px', marginBottom: '4px' }}>{localSlogan || 'Saúde e Bem-Estar'}</div>
             <div style={{ display: 'flex', flexDirection: 'column', gap: '2px' }}>
                {mainPhone && (
                  <div style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '9px', color: '#666' }}>
@@ -4473,7 +4496,8 @@ function AssinaturaEmailPreview({ brand, editData, accentColor, logoColor, logoL
                  </div>
                )}
             </div>
-         </div>
+          </div>
+        </div>
       </div>
       
       <button
