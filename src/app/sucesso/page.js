@@ -834,8 +834,8 @@ function CartaoStep({ brand, accentColor, paletteColors, marca, estampaPatterns,
 
       {/* Campos editáveis */}
       <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
-        <SectionLabel>Slogan / Especialidade</SectionLabel>
-        <input value={localSlogan} onChange={e => setLocalSlogan(e.target.value)} placeholder="Ex: Ginecologia e Obstetrícia" style={inputStyle} />
+        <SectionLabel>Tagline / Especialidade</SectionLabel>
+        <input value={localSlogan} onChange={e => setLocalSlogan(e.target.value.slice(0, 45))} maxLength={45} placeholder="Ex: Ginecologia e Obstetrícia" style={inputStyle} />
         
         <SectionLabel>Contatos</SectionLabel>
         {CONTACT_FIELDS.map(f => (
@@ -4500,11 +4500,12 @@ function AssinaturaEmailPreview({ brand, editData, accentColor, logoColor, logoL
           {contactOpen && (
             <div style={{ padding: '0 14px 14px', display: 'flex', flexDirection: 'column', gap: '8px' }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '8px', paddingBottom: '8px', borderBottom: '1px solid #eee' }}>
-                <span style={{ fontSize: '0.72rem', color: '#888', width: '74px', flexShrink: 0 }}>Slogan</span>
+                <span style={{ fontSize: '0.72rem', color: '#888', width: '74px', flexShrink: 0 }}>Tagline</span>
                 <input
                   value={localSlogan}
-                  onChange={e => setLocalSlogan(e.target.value)}
-                  placeholder="Slogan / Especialidade"
+                  onChange={e => setLocalSlogan(e.target.value.slice(0, 45))}
+                  maxLength={45}
+                  placeholder="Tagline / Especialidade"
                   style={{ flex: 1, padding: '6px 10px', fontSize: '0.8rem', border: '1px solid #e0e0e0', borderRadius: '8px', outline: 'none', fontFamily: 'Montserrat, sans-serif' }}
                 />
               </div>

@@ -57,12 +57,12 @@ export default function Home() {
 
   // Sugestões de tagline agrupadas por categoria
   const TAGLINES_BY_ESTILO = {
-    'Jardim Encantado':       ['Onde cada detalhe floresce com amor', 'Cuidado que encanta, saúde que transforma', 'Pequenos sonhos, grandes cuidados'],
-    'Escandinavo Acolhedor':  ['Cuidado gentil para os primeiros anos', 'Onde o amor encontra o cuidado', 'Cuidado que nutre e acolhe'],
-    'Essência Atemporal':     ['Elegância que cuida, confiança que permanece', 'Sofisticação com propósito', 'Cuidado que não precisa se explicar'],
-    'Doce Encantamento':      ['Delicadeza em cada detalhe', 'Feito com carinho para momentos especiais', 'Amor e cuidado em cada encontro'],
-    'Raízes & Cuidado':       ['Da natureza para o seu cuidado', 'Natural, consciente e verdadeiro', 'Raízes que nutrem, cuidado que transforma'],
-    'Estético Editorial':     ['Excelência e precisão em cada detalhe', 'A estética da autoridade', 'Projetando resultados de alto padrão', 'Técnica, elegância e exclusividade', 'A sofisticação de ser referência'],
+    'Jardim Encantado':       ['Onde a imaginação encontra o cuidado', 'Criatividade que floresce todos os dias', 'O olhar lúdico e afetuoso da infância'],
+    'Escandinavo Acolhedor':  ['Onde o cuidado encontra o aconchego', 'A beleza da simplicidade no acolhimento', 'Cuidado gentil que transforma e acolhe'],
+    'Essência Atemporal':     ['A sutil arte de revelar sua melhor versão', 'Onde a simplicidade encontra o extraordinário', 'Sutileza, elegância e essência'],
+    'Doce Encantamento':      ['Feito para encantar e acolher a alma', 'Criações exclusivas que carregam afeto', 'Delicadeza, arte e essência'],
+    'Raízes & Cuidado':       ['Orgânico, consciente e acolhedor', 'Essência da terra, respeito ao tempo', 'Onde o tempo vira afeto'],
+    'Estético Editorial':     ['Presença, precisão e estratégia', 'Estrutura, precisão e presença', 'Presença atemporal e estratégica', 'A estética da excelência e da autoridade', 'Técnica, elegância e exclusividade'],
   };
 
   const getTaglineSuggestions = () => {
@@ -1093,21 +1093,23 @@ export default function Home() {
               </div>
 
               <div style={{ padding: '1.5rem', background: '#fff', borderTop: '1px solid var(--border)', zIndex: 10 }}>
-                 <button onClick={() => { setSelectedTagline(''); setCustomTagline(''); setStep(11.5); }} className="btn-primary" style={{ width: '100%', background: 'var(--accent-turquoise)' }}>Criar meu Slogan ✨</button>
+                 <button onClick={() => { setSelectedTagline(''); setCustomTagline(''); setStep(11.5); }} className="btn-primary" style={{ width: '100%', background: 'var(--accent-turquoise)' }}>Definir minha Tagline ✨</button>
               </div>
             </motion.div>
           )}
 
-          {/* STEP 11.5: ESCOLHA SEU SLOGAN */}
+          {/* STEP 11.5: ESCOLHA SUA TAGLINE */}
           {step === 11.5 && (
             <motion.div
               key="step115" variants={variants} initial="initial" animate="animate" exit="exit" transition={{ duration: 0.5 }}
               style={{ position: 'absolute', width: '100%', height: '100%', display: 'flex', flexDirection: 'column', background: '#ffffff', borderRadius: '24px', overflow: 'hidden', border: '1px solid var(--border)' }}
             >
-              <div style={{ padding: '1.5rem', textAlign: 'center', borderBottom: '1px solid var(--border)', background: '#fff', zIndex: 10 }}>
+              <div style={{ padding: '1.25rem 1.5rem', textAlign: 'center', borderBottom: '1px solid var(--border)', background: '#fff', zIndex: 10 }}>
                 <p style={{ color: 'var(--text-secondary)', textTransform: 'uppercase', fontSize: '0.7rem', letterSpacing: '3px', fontWeight: 700, marginBottom: '4px' }}>Sua Voz de Marca</p>
-                <h2 style={{ fontSize: '1.6rem', color: 'var(--text-primary)' }}>Qual o seu slogan?</h2>
-                <p style={{ fontSize: '0.9rem', color: 'var(--text-secondary)', marginTop: '4px' }}>Escolha uma sugestão ou escreva do seu jeito</p>
+                <h2 style={{ fontSize: '1.6rem', color: 'var(--text-primary)' }}>Qual a sua tagline?</h2>
+                <p style={{ fontSize: '0.8rem', color: 'var(--text-secondary)', marginTop: '4px', lineHeight: 1.4, maxWidth: '480px', margin: '4px auto 0' }}>
+                  Frase curta e memorável que captura a essência, o propósito e o posicionamento da sua marca.
+                </p>
               </div>
 
               <div style={{ flex: 1, overflowY: 'auto', padding: '24px 20px', display: 'flex', flexDirection: 'column', gap: '12px' }}>
@@ -1139,18 +1141,24 @@ export default function Home() {
 
                 <div style={{ borderTop: '1px solid var(--border)', paddingTop: '16px', marginTop: '4px' }}>
                   <p style={{ fontSize: '0.72rem', fontWeight: 700, letterSpacing: '2px', textTransform: 'uppercase', color: 'var(--text-secondary)', marginBottom: '10px' }}>
-                    Ou escreva o seu
+                    Ou escreva a sua
                   </p>
                   <textarea
-                    placeholder="Ex: Cuidado que transforma vidas · Pediatria Integrativa · Saúde da Mulher"
+                    placeholder="Ex: Cuidado que transforma vidas · Design com Propósito · Beleza Consciente"
                     value={customTagline}
-                    onChange={(e) => { setCustomTagline(e.target.value); setSelectedTagline(''); }}
+                    onChange={(e) => { setCustomTagline(e.target.value.slice(0, 45)); setSelectedTagline(''); }}
+                    maxLength={45}
                     rows={2}
                     style={{ width: '100%', padding: '14px 16px', borderRadius: '12px', border: customTagline ? '2px solid var(--accent-magenta)' : '1.5px solid var(--border)', fontSize: '0.95rem', resize: 'none', fontFamily: 'inherit', outline: 'none', boxSizing: 'border-box', color: 'var(--text-primary)' }}
                   />
-                  <p style={{ fontSize: '0.72rem', color: 'var(--text-secondary)', marginTop: '6px', lineHeight: 1.5 }}>
-                    Pode ser um slogan, sua especialidade ou uma frase que representa você.
-                  </p>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: '6px' }}>
+                    <p style={{ fontSize: '0.72rem', color: 'var(--text-secondary)', lineHeight: 1.5, flex: 1 }}>
+                      Escreva sua especialidade ou uma frase de posicionamento curta.
+                    </p>
+                    <p style={{ fontSize: '0.72rem', color: customTagline.length >= 40 ? 'var(--accent-magenta)' : 'var(--text-secondary)', fontWeight: customTagline.length >= 40 ? 600 : 400, marginLeft: '10px' }}>
+                      {customTagline.length}/45
+                    </p>
+                  </div>
                 </div>
               </div>
 
@@ -1421,7 +1429,7 @@ export default function Home() {
                   <p style={{ fontSize: '0.7rem', color: 'var(--text-secondary)', textTransform: 'uppercase', letterSpacing: '2px', fontWeight: 600, marginBottom: '0.75rem' }}>Sua marca</p>
                   <p style={{ fontSize: '1.3rem', fontWeight: 700, color: 'var(--text-primary)', marginBottom: '0.25rem' }}>{formData.marca || 'Sua Marca'}</p>
                   <p style={{ fontSize: '0.85rem', color: 'var(--text-secondary)' }}>Estilo: <strong>{resultadoFinal?.estiloNome || '—'}</strong></p>
-                  {editData.tagline ? <p style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', marginTop: '4px' }}>Slogan: <strong>{editData.tagline}</strong></p> : null}
+                  {editData.tagline ? <p style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', marginTop: '4px' }}>Tagline: <strong>{editData.tagline}</strong></p> : null}
                   {editData.corAtiva ? (
                     <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginTop: '10px' }}>
                       <div style={{ width: '20px', height: '20px', borderRadius: '50%', background: editData.corAtiva, border: '1px solid #ddd' }} />
