@@ -1206,7 +1206,7 @@ export default function Home() {
                         <p style={{ width: '100%', textAlign: 'center', fontSize: '0.6rem', color: '#bbb', marginTop: '2px' }}>Referências do seu universo visual</p>
                       </div>
                     )}
-                    <button onClick={generatePatterns} className="btn-primary" style={{ background: 'linear-gradient(135deg, var(--accent-magenta), var(--accent-turquoise))', padding: '12px 24px', borderRadius: '14px', fontSize: '0.95rem', fontWeight: 600, height: '46px', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: 'none' }}>
+                    <button onClick={generatePatterns} className="btn-primary" style={{ background: 'var(--accent-turquoise)', padding: '12px 24px', borderRadius: '14px', fontSize: '0.95rem', fontWeight: 600, height: '46px', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: 'none' }}>
                       ✨ Criar Minha Estampa
                     </button>
                     {devMode && (
@@ -1407,7 +1407,7 @@ export default function Home() {
               })()}
 
               <div style={{ padding: '1.2rem', background: '#fff', borderTop: '1px solid var(--border)', zIndex: 10, display: 'flex', flexDirection: 'column', gap: '10px' }}>
-                 <button onClick={() => { setApprovalChecked(false); setStep(12.8); }} className="btn-primary" style={{ width: '100%', background: 'var(--accent-magenta)' }}>Ver pacotes disponíveis ✨</button>
+                 <button onClick={() => { setApprovalChecked(false); setStep(12.8); }} className="btn-primary" style={{ width: '100%', background: 'var(--accent-magenta)', padding: '12px 20px', borderRadius: '14px', fontSize: '0.92rem', fontWeight: 600, height: '46px', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: 'none' }}>Ver pacotes disponíveis ✨</button>
               </div>
             </motion.div>
           )}
@@ -1463,7 +1463,7 @@ export default function Home() {
                     onClick={() => setStep(13)}
                     disabled={!approvalChecked}
                     className="btn-primary"
-                    style={{ width: '100%', background: approvalChecked ? 'var(--accent-magenta)' : '#ccc', pointerEvents: approvalChecked ? 'auto' : 'none', transition: 'background 0.2s' }}
+                    style={{ width: '100%', background: approvalChecked ? 'var(--accent-magenta)' : '#ccc', pointerEvents: approvalChecked ? 'auto' : 'none', padding: '12px 20px', borderRadius: '14px', fontSize: '0.92rem', fontWeight: 600, height: '46px', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: 'none', transition: 'background 0.2s' }}
                   >
                     Escolher meu plano ✨
                   </button>
