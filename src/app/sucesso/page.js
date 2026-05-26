@@ -8423,7 +8423,7 @@ function EntregaContent({ brand, plano, setBrand }) {
     try { localStorage.setItem(`brandbox_cartao_${brand.id}`, JSON.stringify({ contacts: cartaoContacts, qrLink: cartaoQrLink, showQR: cartaoShowQR })); } catch {}
   }, [cartaoContacts, cartaoQrLink, cartaoShowQR]);
 
-  const atuacoesSaude = ['Pediatria / Saúde infantil', 'Obstetrícia / Saúde da mulher', 'Clínica / Saúde geral adulta', 'Terapia / Saúde mental', 'Estética / Bem-estar / Nutrição'];
+  const atuacoesSaude = ['Pediatria / Saúde infantil', 'Obstetrícia / Saúde da mulher', 'Clínica / Saúde geral adulta'];
   const isSaude = atuacoesSaude.includes(brand.formData?.atuacao);
 
   const [clinicaNome, setClinicaNomeState] = useState(() => { try { return JSON.parse(localStorage.getItem(`brandbox_papelaria_${brand.id}`) || '{}').clinicaNome || ''; } catch { return ''; } });

@@ -107,7 +107,7 @@ export default function Home() {
     viewType: 'itens'
   });
   
-  const atuacoesSaude = ['Pediatria / Saúde infantil', 'Obstetrícia / Saúde da mulher', 'Clínica / Saúde geral adulta', 'Terapia / Saúde mental', 'Estética / Bem-estar / Nutrição'];
+  const atuacoesSaude = ['Pediatria / Saúde infantil', 'Obstetrícia / Saúde da mulher', 'Clínica / Saúde geral adulta'];
   const isSaude = atuacoesSaude.includes(formData.atuacao);
 
   const [showPediatriaModal, setShowPediatriaModal] = useState(false);
