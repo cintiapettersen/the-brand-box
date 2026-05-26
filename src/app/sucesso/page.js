@@ -4369,25 +4369,25 @@ function FundoInstaPreview({ brand, editData, accentColor, patternSrc, logoColor
       </div>
 
       <div id="insta-bg-preview" data-insta-preview style={{ width: `${fmt.pw}px`, height: `${fmt.ph}px`, position: 'relative', boxShadow: '0 4px 60px rgba(0,0,0,0.15)', borderRadius: fmt.id === 'story' ? '24px' : '12px', overflow: 'hidden', background: '#fff', transition: 'width 0.3s, height 0.3s' }}>
-        <div style={{ position: 'absolute', inset: 0, overflow: 'hidden' }}>
-           {effectiveSrc && <div style={{ position: 'absolute', inset: 0, backgroundImage: `url(${effectiveSrc})`, backgroundSize: `${(patternScale || 150) / 1.5}px`, backgroundRepeat: 'repeat', opacity: 0.2 }} />}
+        <div style={{ position: 'absolute', inset: 0, overflow: 'hidden', zIndex: 1 }}>
+           {effectiveSrc && <div style={{ position: 'absolute', inset: 0, backgroundImage: `url(${effectiveSrc})`, backgroundSize: `${(patternScale || 150) / 1.5}px`, backgroundRepeat: 'repeat', opacity: 0.32 }} />}
            <div style={{ position: 'absolute', inset: 0, background: !effectiveSrc ? `${solidColor}10` : 'transparent' }} />
         </div>
         <div style={{ position: 'absolute', top: fmt.id === 'post' ? '18px' : '30px', left: '0', right: '0', display: 'flex', flexDirection: 'column', alignItems: 'center', zIndex: 3 }}>
            <LogoPreviewHTML editData={editData} color={logoColor} layout={logoLayout} scaleFactor={fmt.logoSF} crm={crmLine} maxWidth="150px" maxHeight="45px" />
         </div>
         <div style={{ position: 'absolute', top: fmt.titleTop, left: '0', right: '0', textAlign: 'center', zIndex: 3 }}>
-           <div style={{ fontFamily: "'Montserrat', sans-serif", fontSize: fmt.titleSize, fontWeight: 900, color: accentColor, letterSpacing: '2px', textTransform: 'uppercase', opacity: 0.8 }}>{tmpl.titulo}</div>
-           <div style={{ fontFamily: "'Montserrat', sans-serif", fontSize: fmt.subSize, fontWeight: 500, color: accentColor, opacity: 0.6, marginTop: '2px' }}>{tmpl.subtitulo}</div>
+           <div style={{ fontFamily: "'Montserrat', sans-serif", fontSize: fmt.titleSize, fontWeight: 900, color: '#000000', letterSpacing: '2px', textTransform: 'uppercase', opacity: 0.9 }}>{tmpl.titulo}</div>
+           <div style={{ fontFamily: "'Montserrat', sans-serif", fontSize: fmt.subSize, fontWeight: 500, color: '#000000', opacity: 0.7, marginTop: '2px' }}>{tmpl.subtitulo}</div>
         </div>
-        <div style={{ position: 'absolute', top: fmt.boxTop, left: '20px', right: '20px', height: fmt.boxH, border: `1.5px dashed ${accentColor}60`, borderRadius: '15px', display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'rgba(255,255,255,0.85)', backdropFilter: 'blur(4px)', zIndex: 2 }}>
-           <div data-html2canvas-ignore style={{ fontSize: '7px', color: `${accentColor}80`, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '1px' }}>Espaço para a {tmpl.caixinha}</div>
+        <div style={{ position: 'absolute', top: fmt.boxTop, left: '20px', right: '20px', height: fmt.boxH, border: '1.5px dashed rgba(0,0,0,0.22)', borderRadius: '15px', display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'rgba(255,255,255,0.92)', backdropFilter: 'blur(6px)', zIndex: 2 }}>
+           <div data-html2canvas-ignore style={{ fontSize: '7px', color: 'rgba(0,0,0,0.4)', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '1px' }}>Espaço para a {tmpl.caixinha}</div>
         </div>
         <div style={{ position: 'absolute', bottom: fmt.footerBottom, left: 0, right: 0, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '2px', zIndex: 3 }}>
            {instagram && (
              <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
-                <svg viewBox="0 0 24 24" width="8" height="8" fill={accentColor}><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.058-1.69-.072-4.949-.072zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4s1.791-4 4-4 4 1.791 4 4-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/></svg>
-                <div style={{ fontSize: '7px', fontWeight: 800, color: accentColor }}>@{instagram}</div>
+                <svg viewBox="0 0 24 24" width="8" height="8" fill="#000000" style={{ opacity: 0.85 }}><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.058-1.69-.072-4.949-.072zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4s1.791-4 4-4 4 1.791 4 4-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/></svg>
+                <div style={{ fontSize: '7px', fontWeight: 800, color: '#000000', opacity: 0.85 }}>@{instagram}</div>
              </div>
            )}
            <div style={{ fontSize: '5px', color: '#999', textTransform: 'uppercase', letterSpacing: '1px' }}>{clinicaNome}</div>
