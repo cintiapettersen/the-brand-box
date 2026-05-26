@@ -1206,7 +1206,7 @@ export default function Home() {
                         <p style={{ width: '100%', textAlign: 'center', fontSize: '0.6rem', color: '#bbb', marginTop: '2px' }}>Referências do seu universo visual</p>
                       </div>
                     )}
-                    <button onClick={generatePatterns} className="btn-primary" style={{ background: 'linear-gradient(135deg, var(--accent-magenta), var(--accent-turquoise))', padding: '16px 40px', fontSize: '1rem' }}>
+                    <button onClick={generatePatterns} className="btn-primary" style={{ background: 'linear-gradient(135deg, var(--accent-magenta), var(--accent-turquoise))', padding: '12px 24px', borderRadius: '14px', fontSize: '0.95rem', fontWeight: 600, height: '46px', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: 'none' }}>
                       ✨ Criar Minha Estampa
                     </button>
                     {devMode && (
@@ -1289,14 +1289,14 @@ export default function Home() {
                 )}
               </div>
 
-              <div style={{ padding: '1.2rem', background: '#fff', borderTop: '1px solid var(--border)', zIndex: 10, display: 'flex', gap: '10px' }}>
-                <button onClick={() => setStep(11.5)} className="btn-secondary" style={{ padding: '14px 20px', flex: 0.3 }}>Voltar</button>
+              <div style={{ padding: '1.2rem', background: '#fff', borderTop: '1px solid var(--border)', zIndex: 10, display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '10px' }}>
+                <button onClick={() => setStep(11.5)} className="btn-secondary" style={{ padding: '12px 20px', borderRadius: '14px', fontSize: '0.92rem', fontWeight: 600, flex: '0 0 auto', height: '46px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>Voltar</button>
                 <button 
                   onClick={() => setStep(12)} 
                   className="btn-primary" 
-                  style={{ flex: 1, background: selectedPattern !== null ? 'var(--accent-magenta)' : '#ccc', pointerEvents: selectedPattern !== null ? 'auto' : 'none' }}
+                  style={{ flex: 1, background: selectedPattern !== null ? 'var(--accent-magenta)' : '#ccc', pointerEvents: selectedPattern !== null ? 'auto' : 'none', padding: '12px 20px', borderRadius: '14px', fontSize: '0.92rem', fontWeight: 600, height: '46px', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: 'none' }}
                 >
-                  Ver Minha Placa da Marca ✨
+                  Ver Minha Placa ✨
                 </button>
               </div>
             </motion.div>
