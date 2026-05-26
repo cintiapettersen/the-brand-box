@@ -448,7 +448,7 @@ function CoresSalvarButton({ colorOrder, accentColor }) {
   };
   return (
     <button onClick={handleSave} style={{ width: '100%', padding: '14px', background: saved ? '#4CAF50' : accentColor, color: '#fff', border: 'none', borderRadius: '30px', fontWeight: 700, fontSize: '0.95rem', cursor: 'pointer', transition: 'background 0.3s' }}>
-      {saved ? '✓ Ordem salva! A papelaria já foi atualizada.' : 'Salvar ordem das cores →'}
+      {saved ? '✓ Ordem salva! Os impressos já foram atualizados.' : 'Salvar ordem das cores →'}
     </button>
   );
 }
@@ -1365,12 +1365,12 @@ function AjudaStep({ brand, accentColor }) {
   const [activeFaq, setActiveFaq] = useState(null);
 
   const KB_ANSWERS = {
-    impressao: "Para imprimir suas estampas e papelaria com máxima qualidade, recomendamos utilizar os arquivos em PDF Vetorial de Alta Resolução disponibilizados na aba 'Papelaria'. Se for imprimir em gráfica (como a Printi), selecione a opção 'Enviar minha arte final'. Se for imprimir em casa, utilize papel couchê ou offset de alta gramatura (mínimo 180g) na sua impressora caseira. Mas lembre-se: dobras complexas e formatos especiais exigem uma gráfica profissional!",
-    exportacao: "Você pode exportar sua Logo e Submarca em formato PNG com fundo transparente (perfeito para posts de Instagram, marca d'água ou assinaturas) ou em formato PNG com fundo colorido diretamente na aba 'Logo'. Já os itens de papelaria e guias são exportados em PDF padrão gráfica, com cores em alta definição e prontos para impressão!",
+    impressao: "Para imprimir suas estampas e impressos com máxima qualidade, recomendamos utilizar os arquivos em PDF Vetorial de Alta Resolução disponibilizados na aba 'Os Impressos'. Se for imprimir em gráfica (como a Printi), selecione a opção 'Enviar minha arte final'. Se for imprimir em casa, utilize papel couchê ou offset de alta gramatura (mínimo 180g) na sua impressora caseira. Mas lembre-se: dobras complexas e formatos especiais exigem uma gráfica profissional!",
+    exportacao: "Você pode exportar sua Logo e Submarca em formato PNG com fundo transparente (perfeito para posts de Instagram, marca d'água ou assinaturas) ou em formato PNG com fundo colorido diretamente na aba 'Logo'. Já os impressos e guias são exportados em PDF padrão gráfica, com cores em alta definição e prontos para impressão!",
     cores: "As cores da sua paleta são cuidadosamente geradas com base na essência da sua marca. Na aba 'Cores', você pode alterar a ordem de prioridade das cores (arrastando e soltando os blocos) para destacar qual cor deve ser mais dominante nas suas artes, assinaturas e materiais promocionais!",
-    tamanhos: "Os gabaritos gerados na aba 'Papelaria' seguem formatos oficiais de mercado. No entanto, para ajustar a escala da logo (já que fontes diferentes têm larguras e comportamentos distintos nas peças), disponibilizamos o controle deslizante de 'Escala da Logo' na aba Papelaria. Esse ajuste ajuda você a equilibrar perfeitamente a logo no espaço reservado, e sim, o PDF gerado atualiza em tempo real com o tamanho escolhido!",
-    'uso da marca': "Seu Guia de Marca (disponível para download na aba 'Guia') descreve exatamente as regras de ouro para o uso correto da sua nova identidade visual: como combinar as fontes, qual paleta de cores usar em fundos claros e escuros, e qual a aplicação correta da logo e do selo em diferentes superfícies!",
-    papelaria: "A aba 'Papelaria' é o seu hub completo de produção! Ela gera gabaritos perfeitos de sacolas, receitas de alta, cartões de agradecimento, tags de sacola, etiquetas de correios e gráficos de crescimento. Todos os arquivos são gerados dinamicamente em PDF vetorial de altíssima definição!",
+    tamanhos: "Os gabaritos gerados na aba 'Os Impressos' seguem formatos oficiais de mercado. No entanto, para ajustar a escala da logo (já que fontes diferentes têm larguras e comportamentos distintos nas peças), disponibilizamos o controle deslizante de 'Escala da Logo' na aba 'Os Impressos'. Esse ajuste ajuda você a equilibrar perfeitamente a logo no espaço reservado, e sim, o PDF gerado atualiza em tempo real com o tamanho escolhido!",
+    'uso da marca': "Seu Guia de Marca (disponível para download na aba 'Guia') descreve exatamente as regras de ouro para o uso correto da sua nova identidade visual: como combinar as fontes, qual paleta de cores usar in fundos claros e escuros, e qual a aplicação correta da logo e do selo em diferentes superfícies!",
+    papelaria: "A aba 'Os Impressos' é o seu hub completo de produção! Ela gera gabaritos perfeitos de sacolas, receitas de alta, cartões de agradecimento, tags de sacola, etiquetas de correios e gráficos de crescimento. Todos os arquivos são gerados dinamicamente em PDF vetorial de altíssima definição!",
     'limites do sistema': "Para garantir o equilíbrio técnico e a estabilidade da sua Brand Box, as gerações de estampa possuem um limite padrão de 3 tentativas na galeria. Além disso, as alterações de nome da marca são limitadas a 1 alteração por licença, o que previne abusos e assegura a consistência da sua nova identidade visual!"
   };
 
@@ -1400,7 +1400,7 @@ function AjudaStep({ brand, accentColor }) {
     } else {
       setSearchResult({
         topic: "ASSISTENTE DIGITAL",
-        text: "Desculpe, não encontrei uma resposta exata para a sua dúvida. Tente pesquisar por palavras como 'impressão', 'exportação', 'cores', 'papelaria' ou consulte as perguntas frequentes abaixo!"
+        text: "Desculpe, não encontrei uma resposta exata para a sua dúvida. Tente pesquisar por palavras como 'impressão', 'exportação', 'cores', 'impressos' ou consulte as perguntas frequentes abaixo!"
       });
     }
   };
@@ -1427,7 +1427,7 @@ function AjudaStep({ brand, accentColor }) {
         },
         {
           q: "Como escolher o melhor tamanho?",
-          a: "Os gabaritos gerados em PDF na aba 'Papelaria' já estão perfeitamente dimensionados nos formatos padrão de mercado (são gabaritos oficiais prontos). No entanto, para ajustar a escala da logo nas peças (já que fontes diferentes têm comportamentos e larguras distintas), disponibilizamos o controle deslizante de 'Escala da Logo' na aba Papelaria. Esse ajuste ajuda você a equilibrar perfeitamente a logo no espaço reservado, e sim, o PDF gerado é atualizado em tempo real com o tamanho escolhido!"
+          a: "Os gabaritos gerados em PDF na aba 'Os Impressos' já estão perfeitamente dimensionados nos formatos padrão de mercado (são gabaritos oficiais prontos). No entanto, para ajustar a escala da logo nas peças (já que fontes diferentes têm comportamentos e larguras distintas), disponibilizamos o controle deslizante de 'Escala da Logo' na aba 'Os Impressos'. Esse ajuste ajuda você a equilibrar perfeitamente a logo no espaço reservado, e sim, o PDF gerado é atualizado em tempo real com o tamanho escolhido!"
         },
         {
           q: "Posso ter mais opções de fonte?",
@@ -1435,7 +1435,7 @@ function AjudaStep({ brand, accentColor }) {
         },
         {
           q: "Posso enviar minha própria logo?",
-          a: "Sim! Se você já tiver uma imagem de logo ou um símbolo próprio, pode fazer o upload dela diretamente no topo da aba 'Logo'. O sistema aplicará a sua logo personalizada em todos os materiais de papelaria, cartão digital e posts de forma automática."
+          a: "Sim! Se você já tiver uma imagem de logo ou um símbolo próprio, pode fazer o upload dela diretamente no topo da aba 'Logo'. O sistema aplicará a sua logo personalizada em todos os materiais impressos, cartão digital e posts de forma automática."
         }
       ]
     },
@@ -1452,15 +1452,15 @@ function AjudaStep({ brand, accentColor }) {
         },
         {
           q: "Como enviar para uma gráfica?",
-          a: "Baixe o PDF em alta resolução da aba 'Papelaria' e envie diretamente para a gráfica de sua preferência (como a Printi). Os arquivos já estão fechados no padrão profissional de impressão. Dica importante: o preview na tela é apenas uma simulação visual aproximada. O arquivo PDF baixado é o documento oficial de alta definição 100% fiel e exato para impressão. Sempre abra e revise o arquivo PDF baixado no seu computador antes de enviá-lo para a gráfica para garantir que tudo está perfeito!"
+          a: "Baixe o PDF em alta resolução da aba 'Os Impressos' e envie diretamente para a gráfica de sua preferência (como a Printi). Os arquivos já estão fechados no padrão profissional de impressão. Dica importante: o preview na tela é apenas uma simulação visual aproximada. O arquivo PDF baixado é o documento oficial de alta definição 100% fiel e exato para impressão. Sempre abra e revise o arquivo PDF baixado no seu computador antes de enviá-lo para a gráfica para garantir que tudo está perfeito!"
         },
         {
           q: "Qual formato usar?",
-          a: "Para visualização digital e redes sociais, exporte em PNG (fundo transparente). Para impressão profissional de sacolas e papelaria, sempre use o PDF disponibilizado na aba correspondente."
+          a: "Para visualização digital e redes sociais, exporte em PNG (fundo transparente). Para impressão profissional de sacolas e materiais impressos, sempre use o PDF disponibilizado na aba correspondente."
         },
         {
           q: "Como saber qual papel devo usar para imprimir?",
-          a: "Você pode consultar a gráfica de sua preferência ou verificar diretamente os detalhes recomendados na plataforma! Ao clicar no botão de baixar o PDF de qualquer item na aba 'Papelaria', o sistema exibe uma ficha técnica completa com o tamanho exato da peça, a gramatura e tipo de papel indicados, e até o custo médio estimado de produção desse item no mercado."
+          a: "Você pode consultar a gráfica de sua preferência ou verificar diretamente os detalhes recomendados na plataforma! Ao clicar no botão de baixar o PDF de qualquer item na aba 'Os Impressos', o sistema exibe uma ficha técnica completa com o tamanho exato da peça, a gramatura e tipo de papel indicados, e até o custo médio estimado de produção desse item no mercado."
         },
         {
           q: "Como evitar cortes na estampa?",
@@ -1727,7 +1727,7 @@ function buildGuiaHTML({ marca, tagline, accentColor, paletteColors, fontFamily,
     ? `<div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:16px;align-items:center;">
         <div style="height:160px;border-radius:12px;background-image:url(${patternSrc});background-size:40%;border:1px solid #f0f0f0;"></div>
         <div>
-          <p style="font-size:0.8rem;color:#555;line-height:1.7;font-family:Montserrat,sans-serif;">A estampa é aplicada em embalagens, papelaria, tecidos e papel de parede.</p>
+          <p style="font-size:0.8rem;color:#555;line-height:1.7;font-family:Montserrat,sans-serif;">A estampa é aplicada em embalagens, impressos, tecidos e papel de parede.</p>
           <p style="font-size:0.75rem;color:#999;margin-top:10px;font-family:Montserrat,sans-serif;">Para gráficas: solicite arquivo PNG em alta resolução (300 dpi). A estampa é repetível — informe o padrão de repetição ao fornecedor.</p>
         </div>
       </div>`
@@ -4897,7 +4897,7 @@ function PapelariaStep({ brand, accentColor, paletteColors, estampaPatterns, est
         <div style={{ background: '#fff8f0', border: '1px solid #fde8c8', borderRadius: '16px', padding: '18px 20px' }}>
           <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: '12px' }}>
             <div>
-              <div style={{ fontSize: '0.82rem', fontWeight: 700, color: '#c87000', fontFamily: 'Montserrat,sans-serif', marginBottom: '4px' }}>📂 Papelaria não inclusa no seu plano</div>
+              <div style={{ fontSize: '0.82rem', fontWeight: 700, color: '#c87000', fontFamily: 'Montserrat,sans-serif', marginBottom: '4px' }}>📂 Impressos não inclusos no seu plano</div>
               <div style={{ fontSize: '0.75rem', color: '#999', fontFamily: 'Montserrat,sans-serif', lineHeight: 1.5 }}>
                 Selecione os itens que deseja adicionar. Cada item custa <strong style={{ color: '#c87000' }}>R$ 30,00</strong>.
               </div>
@@ -4915,7 +4915,7 @@ function PapelariaStep({ brand, accentColor, paletteColors, estampaPatterns, est
         {/* Grupo: Papelaria Geral */}
         <div>
           <div style={{ fontSize: '0.65rem', fontWeight: 800, color: '#bbb', textTransform: 'uppercase', letterSpacing: '1px', fontFamily: 'Montserrat,sans-serif', marginBottom: '8px' }}>
-            📄 Papelaria
+            📄 Impressos
           </div>
           <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
             {PAPELARIA_GERAL.filter(item => !_autoInclusos.includes(item) && !papelariaNorm.includes(item)).map(item => {
@@ -4938,7 +4938,7 @@ function PapelariaStep({ brand, accentColor, paletteColors, estampaPatterns, est
         {isSaude && (
           <div>
             <div style={{ fontSize: '0.65rem', fontWeight: 800, color: '#bbb', textTransform: 'uppercase', letterSpacing: '1px', fontFamily: 'Montserrat,sans-serif', marginBottom: '8px' }}>
-              🩺 Papelaria Clínica
+              🩺 Impressos Clínicos
             </div>
             <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
               {PAPELARIA_MEDICA.map(item => {
@@ -4962,7 +4962,7 @@ function PapelariaStep({ brand, accentColor, paletteColors, estampaPatterns, est
         {isSaude && (
           <div>
             <div style={{ fontSize: '0.65rem', fontWeight: 800, color: '#bbb', textTransform: 'uppercase', letterSpacing: '1px', fontFamily: 'Montserrat,sans-serif', marginBottom: '8px' }}>
-              📋 Guias e Papelaria Pediátrica
+              📋 Guias e Impressos Pediátricos
             </div>
             <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
               {DIGITAIS_MEDICOS.map(item => {

@@ -110,7 +110,7 @@ export default function BrandBoxNav({ step, setStep, plano, papelariaItens = [],
         {[
           { id: 'marca', label: 'A Marca', color: BB_MARCA, radius: '12px 0 0 0', action: () => setStep('placa') },
           { id: 'digital', label: 'O Digital', color: BB_DIGITAL, radius: '0', action: () => { if (!isDigital) setStep('cartao'); } },
-          { id: 'papelaria', label: 'Papelaria', color: BB_PAPELARIA, radius: '0', action: () => setStep('papelaria') },
+          { id: 'papelaria', label: 'Os Impressos', color: BB_PAPELARIA, radius: '0', action: () => setStep('papelaria') },
           { id: 'ajuda', label: 'Ajuda ✨', color: BB_AJUDA, radius: '0 12px 0 0', action: () => setStep('ajuda') },
         ].map(tab => {
           const active = activeCat === tab.id;

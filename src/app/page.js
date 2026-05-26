@@ -1588,14 +1588,14 @@ export default function Home() {
                       <p style={{ fontSize: '0.7rem', color: 'var(--accent-magenta)', letterSpacing: '2px', textTransform: 'uppercase', fontWeight: 600, marginBottom: '2px' }}>brand box</p>
                       <h3 style={{ color: '#3a1a2e', fontSize: '1.2rem', fontWeight: 700 }}>STUDIO</h3>
                     </div>
-                    <span style={{ display: 'inline-block', background: 'rgba(220,52,149,0.12)', color: 'var(--accent-magenta)', fontSize: '0.7rem', fontWeight: 700, borderRadius: '20px', padding: '3px 10px', letterSpacing: '0.5px', marginBottom: '10px' }}>Marca + Digital + Papelaria</span>
+                    <span style={{ display: 'inline-block', background: 'rgba(220,52,149,0.12)', color: 'var(--accent-magenta)', fontSize: '0.7rem', fontWeight: 700, borderRadius: '20px', padding: '3px 10px', letterSpacing: '0.5px', marginBottom: '10px' }}>Marca + Digital + Impressos</span>
                     <span style={{ fontWeight: 700, fontSize: '1.4rem', display: 'block', marginBottom: '10px', color: '#3a1a2e' }}>
                       R$ {897 + Math.max(0, papelariaSelecionada.length - 5) * 30}
                       {papelariaSelecionada.length > 5 && <span style={{ fontSize: '0.8rem', color: 'var(--accent-magenta)', fontWeight: 700, marginLeft: '8px' }}>(+ adicionais)</span>}
                     </span>
                     <ul style={{ fontSize: '0.85rem', margin: '0 0 12px 0', paddingLeft: '0', display: 'flex', flexDirection: 'column', gap: '5px', listStyle: 'none' }}>
-                      {['Tudo do Brand Box Starter', '5 Itens de papelaria à escolha', 'Pack completo para Instagram', 'Cartão Digital + Assinatura de E-mail'].map(i => {
-                        const isPapelaria = i === '5 Itens de papelaria à escolha';
+                      {['Tudo do Brand Box Starter', '5 Itens impressos à escolha', 'Pack completo para Instagram', 'Cartão Digital + Assinatura de E-mail'].map(i => {
+                        const isPapelaria = i === '5 Itens impressos à escolha';
                         return (
                           <li key={i} style={{ display: 'flex', alignItems: 'flex-start', gap: '8px', color: '#4a1f3a' }}>
                             {!i.startsWith('✨') && <span style={{ color: 'var(--accent-magenta)', fontWeight: 700, flexShrink: 0, marginTop: '2px' }}>✔</span>}
@@ -1626,7 +1626,7 @@ export default function Home() {
                           return;
                         }
                         if (papelariaSelecionada.length < 5) {
-                          const confirmar = window.confirm(`Você selecionou apenas ${papelariaSelecionada.length} iten${papelariaSelecionada.length > 1 ? 's' : ''} de papelaria, mas seu plano inclui 5 grátis. Deseja continuar assim ou voltar para escolher mais?`);
+                          const confirmar = window.confirm(`Você selecionou apenas ${papelariaSelecionada.length} impresso${papelariaSelecionada.length > 1 ? 's' : ''}, mas seu plano inclui 5 grátis. Deseja continuar assim ou voltar para escolher mais?`);
                           if (!confirmar) { setShowPediatriaModal(true); setLoadingCheckout(false); return; }
                         }
                         try {
@@ -1790,8 +1790,8 @@ export default function Home() {
                     
                     <div style={{ padding: '20px', background: 'var(--accent-magenta)', color: '#fff', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                        <div>
-                          <h2 style={{ fontSize: '1.5rem', marginBottom: '5px' }}>Bônus: Papelaria Completa</h2>
-                          <p style={{ opacity: 0.8, fontSize: '0.9rem' }}>Escolha seus 5 itens gratuitos. Itens adicionais saem por R$30 cada!</p>
+                          <h2 style={{ fontSize: '1.5rem', marginBottom: '5px' }}>Bônus: Seus Impressos</h2>
+                          <p style={{ opacity: 0.8, fontSize: '0.9rem' }}>Escolha seus 5 impressos gratuitos. Itens adicionais saem por R$30 cada!</p>
                        </div>
                        <button onClick={() => setShowPediatriaModal(false)} style={{ background: 'transparent', border: 'none', color: '#fff', fontSize: '2rem', cursor: 'pointer' }}>×</button>
                     </div>

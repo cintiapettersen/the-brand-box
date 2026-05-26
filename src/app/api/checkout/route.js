@@ -10,7 +10,7 @@ const PLANOS = {
   },
   pro: {
     name: 'Brand Box Pro',
-    description: 'Tudo do Starter + papelaria personalizada, templates para Instagram, mockups, ícones, avatares, estampa exclusiva, manifesto e tom de voz da marca. Arquivos entregues por e-mail imediatamente.',
+    description: 'Tudo do Starter + impressos personalizados, templates para Instagram, mockups, ícones, avatares, estampa exclusiva, manifesto e tom de voz da marca. Arquivos entregues por e-mail imediatamente.',
     amount: 89700,
   },
 };
@@ -34,7 +34,7 @@ export async function POST(request) {
           price_data: {
             currency: 'brl',
             product_data: {
-              name: 'Papelaria — Itens Avulsos',
+              name: 'Impressos — Itens Avulsos',
               description: `${itensSelecionados.length} itens: ${itensSelecionados.join(', ')}`,
             },
             unit_amount: 3000,
@@ -71,8 +71,8 @@ export async function POST(request) {
         price_data: {
           currency: 'brl',
           product_data: {
-            name: 'Gabaritos Extras de Papelaria',
-            description: `${extrasCount} itens avulsos de papelaria padrão-gráfica.`,
+            name: 'Gabaritos Extras de Impressos',
+            description: `${extrasCount} itens avulsos de impressos padrão-gráfica.`,
           },
           unit_amount: 3000,
         },

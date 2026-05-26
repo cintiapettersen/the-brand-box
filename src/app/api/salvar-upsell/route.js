@@ -69,7 +69,7 @@ async function sendUpsellEmail({ email, marca, sessionId, itens }) {
           <td style="background:#4EB0B5;padding:40px;border-radius:16px 16px 0 0;text-align:center;">
             <p style="color:rgba(255,255,255,0.8);font-size:11px;letter-spacing:4px;text-transform:uppercase;margin:0 0 12px;font-weight:700;">The Brand Box</p>
             <h1 style="color:#ffffff;font-size:26px;font-weight:700;margin:0;line-height:1.2;">
-              ✨ Novos itens adicionados à sua papelaria!
+              ✨ Novos impressos adicionados à sua marca!
             </h1>
           </td>
         </tr>
@@ -79,7 +79,7 @@ async function sendUpsellEmail({ email, marca, sessionId, itens }) {
               Olá! Seu pagamento foi confirmado e os novos itens já estão disponíveis na sua Brand Box. 🎉
             </p>
             <p style="color:#555;font-size:14px;line-height:1.7;margin:0 0 24px;">
-              Os seguintes itens foram adicionados à papelaria de <strong>${marcaDisplay}</strong>:
+              Os seguintes impressos foram adicionados à marca de <strong>${marcaDisplay}</strong>:
             </p>
             <ul style="color:#555;font-size:14px;line-height:2;margin:0 0 32px;padding-left:0;list-style:none;">
               ${itensHtml}
@@ -90,7 +90,7 @@ async function sendUpsellEmail({ email, marca, sessionId, itens }) {
                   <p style="color:#30706a;font-size:12px;font-weight:800;letter-spacing:2px;text-transform:uppercase;margin:0 0 16px;">ACESSAR AGORA</p>
                   <a href="${link}" target="_blank"
                     style="display:inline-block;background:#C03B66;color:#ffffff;text-decoration:none;font-weight:700;font-size:16px;padding:16px 40px;border-radius:30px;letter-spacing:0.5px;box-shadow:0 8px 20px rgba(192,59,102,0.2);">
-                    Ver minha papelaria →
+                    Ver meus impressos →
                   </a>
                 </td>
               </tr>
@@ -118,7 +118,7 @@ async function sendUpsellEmail({ email, marca, sessionId, itens }) {
   await transporter.sendMail({
     from: `"The Brand Box" <${smtpEmail}>`,
     to: email,
-    subject: `Novos itens adicionados à papelaria de ${marcaDisplay} ✨`,
+    subject: `Novos impressos adicionados à marca de ${marcaDisplay} ✨`,
     html: htmlBody,
   });
 
