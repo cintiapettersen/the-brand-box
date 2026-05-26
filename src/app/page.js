@@ -1439,9 +1439,12 @@ export default function Home() {
                 </div>
 
                 {/* Aviso importante */}
-                <div style={{ background: '#fff8f0', borderRadius: '14px', padding: '1rem 1.2rem', border: '1px solid #f5d9b8' }}>
+                <div style={{ background: '#fff8f0', borderRadius: '14px', padding: '1rem 1.2rem', border: '1px solid #f5d9b8', display: 'flex', flexDirection: 'column', gap: '8px' }}>
                   <p style={{ fontSize: '0.82rem', color: '#7a4a1e', lineHeight: 1.6 }}>
                     ⚠️ <strong>Atenção:</strong> o modelo visual acima foi gerado com base nas suas respostas. Ao prosseguir, você confirma que aprova esta base como ponto de partida para a sua marca.
+                  </p>
+                  <p style={{ fontSize: '0.78rem', color: '#7a4a1e', opacity: 0.85, lineHeight: 1.5, borderTop: '1px dashed #ebd2b8', paddingTop: '8px' }}>
+                    💡 <strong>Não se preocupe:</strong> na sua Área de Entrega (pós-pagamento), você poderá editar a sua Tagline, ajustar a Cor de destaque e atualizar os seus Contatos sempre que quiser!
                   </p>
                 </div>
 
