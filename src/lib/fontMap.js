@@ -27,7 +27,7 @@ const FONT_MAP = {
     fontFamily: "Raleway", googleFont: true, weight: 400, style: "sans",
   },
   "tipografia-secundaria-3": {
-    fontFamily: "Montserrat", googleFont: true, weight: 400, style: "sans",
+    fontFamily: "Plus Jakarta Sans", googleFont: true, weight: 500, style: "sans",
   },
   "tipografia principal-assinatura-2": {
     fontFamily: "Amelie", fontFile: "/fonts/Amelie.otf", weight: 400, style: "script", sizeBoost: 1.4,
@@ -98,8 +98,8 @@ const FONT_MAP = {
   "tipografia principal serif editorial-(Cormorant)": {
     fontFamily: "Cormorant Garamond", googleFont: true, weight: 400, style: "serif",
   },
-  "tipografia secundaria sans moderna-(Montserrat)": {
-    fontFamily: "Montserrat", googleFont: true, weight: 700, style: "sans",
+  "tipografia secundaria sans moderna-(Plus-Jakarta-Sans)": {
+    fontFamily: "Plus Jakarta Sans", googleFont: true, weight: 600, style: "sans",
   },
   "tipografia secundaria sans neutra-(Noto-Sans)": {
     fontFamily: "Noto Sans", googleFont: true, weight: 400, style: "sans",
