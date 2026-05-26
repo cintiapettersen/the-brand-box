@@ -799,7 +799,7 @@ export default function Home() {
                 transition={{ duration: 3, repeat: Infinity, ease: 'linear' }}
                 style={{ fontSize: '3.5rem', marginBottom: '1.5rem' }}
               >✦</motion.div>
-              <h2 style={{ fontSize: '1.8rem', marginBottom: '0.8rem', color: 'var(--accent-turquoise)' }}>Encontrando a sua essência visual...</h2>
+              <h2 style={{ fontSize: '1.8rem', marginBottom: '0.8rem', color: 'var(--accent-turquoise)' }}>Traduzindo sua essência em direção visual...</h2>
               <p style={{ fontSize: '1rem', color: 'var(--text-secondary)', lineHeight: 1.6, maxWidth: '320px' }}>Nosso motor criativo está analisando o seu perfil para encontrar a combinação perfeita para você.</p>
             </motion.div>
           )}
@@ -886,7 +886,7 @@ export default function Home() {
           {step === 10 && (
             <motion.div 
               key="step10" variants={variants} initial="initial" animate="animate" exit="exit" transition={{ duration: 0.5 }}
-              style={{ position: 'absolute', width: '100%', height: '100%', display: 'flex', flexDirection: 'column', background: '#ffffff', borderRadius: '24px', padding: '2rem', border: '1px solid var(--border)', overflowY: 'hidden' }}
+              style={{ position: 'absolute', width: '100%', height: '100%', display: 'flex', flexDirection: 'column', background: '#ffffff', borderRadius: '24px', padding: '1.5rem 1.25rem', border: '1px solid var(--border)', overflowY: 'hidden' }}
             >
               <h2 style={{ fontSize: '1.8rem', marginBottom: '0.5rem', textAlign: 'center' }}>Refinamento Visual</h2>
               <p style={{ fontSize: '1rem', color: 'var(--text-secondary)', marginBottom: '2rem', textAlign: 'center' }}>
@@ -968,7 +968,7 @@ export default function Home() {
                           return (
                             <div key={p.id} onClick={() => { setSelectedPaleta(p.id); setTimeout(() => setCustomStep('cor'), 300); }} style={{ 
                               border: selectedPaleta === p.id ? '2px solid var(--accent-magenta)' : '1px solid var(--border)', 
-                              borderRadius: '16px', padding: '20px 12px', cursor: 'pointer', 
+                              borderRadius: '16px', padding: '16px 10px', cursor: 'pointer', 
                               display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
                               background: selectedPaleta === p.id ? 'rgba(210,47,90,0.03)' : '#fafafa',
                               transition: 'all 0.2s ease',
@@ -979,8 +979,8 @@ export default function Home() {
                                   <div style={{ display: 'flex', gap: '6px', justifyContent: 'center' }}>
                                     {row1.map((hex, ci) => (
                                       <div key={ci} style={{
-                                        width: ci === 0 ? '45px' : '38px',
-                                        height: ci === 0 ? '45px' : '38px',
+                                        width: ci === 0 ? '34px' : '28px',
+                                        height: ci === 0 ? '34px' : '28px',
                                         backgroundColor: hex,
                                         borderRadius: blobShapes[(ci + pi) % blobShapes.length],
                                         boxShadow: `0 3px 10px ${hex}35`,
@@ -992,8 +992,8 @@ export default function Home() {
                                     <div style={{ display: 'flex', gap: '6px', justifyContent: 'center' }}>
                                       {row2.map((hex, ci) => (
                                         <div key={ci} style={{
-                                          width: '36px',
-                                          height: '36px',
+                                          width: '28px',
+                                          height: '28px',
                                           backgroundColor: hex,
                                           borderRadius: blobShapes[(ci + 3 + pi) % blobShapes.length],
                                           boxShadow: `0 3px 10px ${hex}35`,
@@ -1054,10 +1054,10 @@ export default function Home() {
                 </AnimatePresence>
               </div>
               
-              <div style={{ marginTop: 'auto', display: 'flex', justifyContent: 'space-between', gap: '10px' }}>
-                 {customStep === 'paleta' && <button onClick={() => setCustomStep('tipo')} className="btn-secondary" style={{ padding: '14px 20px', flex: 0.3 }}>Voltar</button>}
-                 {customStep === 'cor' && <button onClick={() => setCustomStep('paleta')} className="btn-secondary" style={{ padding: '14px 20px', flex: 0.3 }}>Voltar</button>}
-                 <button onClick={() => setStep(11)} className="btn-primary" style={{ flex: 1, background: (selectedTipo && selectedPaleta && editData.corAtiva) ? 'var(--accent-turquoise)' : '#ccc', pointerEvents: (selectedTipo && selectedPaleta && editData.corAtiva) ? 'auto' : 'none' }}>Ver Minha Inspiração ✨</button>
+              <div style={{ marginTop: 'auto', display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '10px' }}>
+                 {customStep === 'paleta' && <button onClick={() => setCustomStep('tipo')} className="btn-secondary" style={{ padding: '12px 20px', borderRadius: '14px', fontSize: '0.92rem', fontWeight: 600, flex: '0 0 auto', height: '46px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>Voltar</button>}
+                 {customStep === 'cor' && <button onClick={() => setCustomStep('paleta')} className="btn-secondary" style={{ padding: '12px 20px', borderRadius: '14px', fontSize: '0.92rem', fontWeight: 600, flex: '0 0 auto', height: '46px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>Voltar</button>}
+                 <button onClick={() => setStep(11)} className="btn-primary" style={{ flex: 1, background: (selectedTipo && selectedPaleta && editData.corAtiva) ? 'var(--accent-turquoise)' : '#ccc', pointerEvents: (selectedTipo && selectedPaleta && editData.corAtiva) ? 'auto' : 'none', padding: '12px 20px', borderRadius: '14px', fontSize: '0.92rem', fontWeight: 600, height: '46px', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: 'none' }}>Ver Inspiração ✨</button>
               </div>
             </motion.div>
           )}

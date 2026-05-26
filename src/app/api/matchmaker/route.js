@@ -41,12 +41,23 @@ export async function POST(req) {
     Elementos Visuais exigidos na arte: ${body.elementosVisuais ? body.elementosVisuais.join(", ") : "Nenhum específico"}
     
     Aja como uma consultora mágica. Identifique o melhor estilo com base nestas regras.
-    IMPORTANTE: Na 'mensagem', NUNCA mencione o ID numérico do estilo (ex: "ID 8", "(ID 5)"). Apenas o nome.
+
+    IMPORTANTE PARA A 'mensagem':
+    NUNCA mencione o ID numérico do estilo (ex: "ID 8", "(ID 5)"). Apenas o nome.
+    Escreva de forma extremamente mágica, emotiva e encantadora, e não de forma técnica ou racional. A cliente precisa ler a mensagem e pensar "uau, isso me representa!".
+    Use rigorosamente a seguinte estrutura em três partes na 'mensagem' (sem subtítulos ou marcações, apenas em texto fluido, natural e contínuo):
+    1. Reconhecimento Emocional: Reconheça a alma do negócio dela e o que a marca dela pede emocionalmente (ex: "Olá [Nome]! Sua marca pede delicadeza, magia e um toque lúdico." ou "Olá [Nome]! Sua marca pede sofisticação silenciosa, acolhimento e um toque de leveza.").
+    2. Interpretação: Faça a ponte entre as sensações desejadas e o estilo ideal escolhido (ex: "O estilo [Estilo Nome] traduz exatamente essa atmosfera..." ou "A coleção [Estilo Nome] captura perfeitamente essa essência...").
+    3. Promessa Visual: Explique como isso se manifestará no design dela de forma inspiradora e memorável, focando nos aspectos sensoriais do design (ex: "...através de cores suaves, elementos afetivos e uma identidade visual acolhedora e memorável." ou "...através de linhas limpas, tons terrosos suaves e uma identidade visual elegante, acolhedora e atemporal.").
+
+    Exemplo de tom e estrutura ideal para a 'mensagem':
+    "Olá [Nome]! Sua marca pede delicadeza, magia e um toque lúdico. O estilo Doce Encantamento traduz exatamente essa atmosfera através de cores suaves, elementos afetivos e uma identidade visual acolhedora e memorável."
+
     Responda EXCLUSIVAMENTE num formato JSON estruturado com 'estiloId' (numero), 'estiloNome' (string) e 'mensagem' (string).
     {
        "estiloId": 5,
        "estiloNome": "Essência Atemporal",
-       "mensagem": "Olá [Nome], para o seu trabalho com Saúde da Mulher, selecionamos o estilo Essência Atemporal..."
+       "mensagem": "Olá [Nome]! Sua marca pede sofisticação silenciosa, acolhimento e um cuidado genuíno. O estilo Essência Atemporal traduz exatamente essa atmosfera através de cores equilibradas, formas orgânicas elegantes e uma identidade visual acolhedora e memorável."
     }
     `;
 
