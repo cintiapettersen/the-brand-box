@@ -47,24 +47,33 @@ export default function CartaoAgradecimentoPreview({
             <div style={{ position: 'absolute', bottom: -W * 0.15, right: -W * 0.15, width: W * 0.6, height: W * 0.6, borderRadius: '50%', background: 'rgba(255,255,255,0.08)' }} />
             <div style={{ position: 'absolute', top: -W * 0.1, left: -W * 0.1, width: W * 0.45, height: W * 0.45, borderRadius: '50%', background: 'rgba(255,255,255,0.06)' }} />
 
-            <div style={{
-              position: 'absolute',
-              top: '42%',
-              left: '50%',
-              transform: 'translate(-50%, -50%)',
-              width: '65%',
-              textAlign: 'center',
-              filter: !!editData?.customLogoSrc ? 'none' : 'brightness(0) invert(1)'
-            }}>
-              <LogoPreviewHTML
-                editData={editData}
-                color="#fff"
-                layout={logoLayout}
-                scaleFactor={size.w * 0.055}
-                hideTagline={false}
-                withBackground={!!editData?.customLogoSrc}
-              />
-            </div>
+            {(() => {
+              const hasPattern = !!(comBorda && patternSrc);
+              const logoWithBg = hasPattern || !!editData?.customLogoSrc;
+              const logoColorToUse = logoWithBg ? (logoColor || solidColor) : '#fff';
+              const logoFilter = logoWithBg ? 'none' : 'brightness(0) invert(1)';
+
+              return (
+                <div style={{
+                  position: 'absolute',
+                  top: '42%',
+                  left: '50%',
+                  transform: 'translate(-50%, -50%)',
+                  width: '65%',
+                  textAlign: 'center',
+                  filter: logoFilter
+                }}>
+                  <LogoPreviewHTML
+                    editData={editData}
+                    color={logoColorToUse}
+                    layout={logoLayout}
+                    scaleFactor={size.w * 0.055}
+                    hideTagline={false}
+                    withBackground={logoWithBg}
+                  />
+                </div>
+              );
+            })()}
 
             <div style={{ position: 'absolute', bottom: W * 0.1, left: '50%', transform: 'translateX(-50%)', width: '85%', textAlign: 'center' }}>
               <div style={{ fontSize: size.scale * 0.52, color: 'rgba(255,255,255,0.85)', fontFamily: 'Montserrat,sans-serif', fontWeight: 300, fontStyle: 'italic', letterSpacing: '0.3px' }}>{MESSAGES[msgIdx]}</div>
