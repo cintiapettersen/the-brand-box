@@ -10491,8 +10491,9 @@ function SucessoContent() {
       <div style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '2rem', textAlign: 'center', fontFamily: 'Montserrat, sans-serif', background: '#fff' }}>
         <div style={{ fontSize: '3.5rem', marginBottom: '1.5rem' }}>🔍</div>
         <h1 style={{ fontSize: '1.8rem', fontWeight: 800, marginBottom: '1rem', color: '#1a1a1a' }}>Ops! Não encontramos sua marca</h1>
-        <p style={{ fontSize: '1rem', color: '#666', maxWidth: '400px', lineHeight: 1.7, marginBottom: '2rem' }}>
-          Não conseguimos localizar os dados da sua identidade visual. Isso pode acontecer se o link expirou ou se houve um erro na finalização.
+        <p style={{ fontSize: '1rem', color: '#666', maxWidth: '450px', lineHeight: 1.7, marginBottom: '2rem' }}>
+          Não conseguimos localizar os dados da sua identidade visual. Isso pode acontecer se o link expirou ou se houve um erro na finalização.<br/><br/>
+          <strong>💡 Dica:</strong> Verifique seu e-mail, procure pela mensagem de confirmação do <strong>The Brand Box</strong> e tente acessar o link exclusivo novamente.
         </p>
         <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap', justifyContent: 'center' }}>
           <a href="/" style={{ padding: '14px 28px', background: '#dc3495', color: '#fff', borderRadius: '30px', fontWeight: 700, fontSize: '0.9rem', textDecoration: 'none', boxShadow: '0 8px 20px rgba(220,52,149,0.2)' }}>
