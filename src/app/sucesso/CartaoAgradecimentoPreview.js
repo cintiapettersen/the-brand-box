@@ -18,10 +18,9 @@ const MESSAGES = [
 export default function CartaoAgradecimentoPreview({
   accentColor, paletteColors = [], editData, logoColor, logoLayout,
   cartaoContacts, crmLine, clinicaNome, comBorda, setComBorda,
-  patternSrc, patternScale, setPatternScale, borderColor, setBorderColor
+  patternSrc, patternScale, setPatternScale, borderColor, setBorderColor,
+  sizeIdx, setSizeIdx, msgIdx, setMsgIdx
 }) {
-  const [sizeIdx, setSizeIdx] = useState(0);
-  const [msgIdx, setMsgIdx] = useState(0);
   const solidColor = borderColor || accentColor;
   const c0 = paletteColors[0] || solidColor;
   const c1 = paletteColors[1] || solidColor;
@@ -56,7 +55,7 @@ export default function CartaoAgradecimentoPreview({
               return (
                 <div style={{
                   position: 'absolute',
-                  top: '42%',
+                  top: '50%',
                   left: '50%',
                   transform: 'translate(-50%, -50%)',
                   width: '65%',
@@ -86,11 +85,15 @@ export default function CartaoAgradecimentoPreview({
               <div style={{ fontSize: size.scale * 0.54, color: solidColor, fontFamily: 'Montserrat,sans-serif', fontWeight: 400, fontStyle: 'italic', textAlign: 'center', letterSpacing: '0.3px', maxWidth: '90%', lineHeight: 1.4 }}>
                 {MESSAGES[msgIdx]}
               </div>
-              <div style={{ width: W * 0.12, height: 1, background: `${c0}45` }} />
-              <div style={{ fontSize: size.scale * 0.6, fontWeight: 600, color: '#333', fontFamily: 'Montserrat,sans-serif', textAlign: 'center', lineHeight: 1.4 }}>
-                {clinicaNome || 'Nome da Clínica'}
-              </div>
-              <div style={{ width: W * 0.12, height: 1, background: `${c0}45` }} />
+              {clinicaNome && clinicaNome.trim() && (
+                <>
+                  <div style={{ width: W * 0.12, height: 1, background: `${c0}45` }} />
+                  <div style={{ fontSize: size.scale * 0.6, fontWeight: 600, color: '#333', fontFamily: 'Montserrat,sans-serif', textAlign: 'center', lineHeight: 1.4 }}>
+                    {clinicaNome}
+                  </div>
+                  <div style={{ width: W * 0.12, height: 1, background: `${c0}45` }} />
+                </>
+              )}
               <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: size.scale * 0.18 }}>
                 {cartaoContacts?.telefone && <div style={{ fontSize: size.scale * 0.44, color: '#999', fontFamily: 'Montserrat,sans-serif', fontWeight: 300 }}>{cartaoContacts.telefone}</div>}
                 {cartaoContacts?.instagram && <div style={{ fontSize: size.scale * 0.44, color: c0, fontFamily: 'Montserrat,sans-serif', fontWeight: 400 }}>@{cartaoContacts.instagram.replace('@','')}</div>}

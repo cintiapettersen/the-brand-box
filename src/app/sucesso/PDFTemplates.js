@@ -91,7 +91,7 @@ export const genPDFLogoHtml = ({ brand, editDataOverride = null, color, localSlo
   }
 
   const _finalFontPt = _baseFontPt.toFixed(1);
-  const effectiveSloganSize = sloganSize || (_baseFontPt * _sloganScale).toFixed(1) + 'pt';
+  const effectiveSloganSize = sloganSize || Math.max(parseFloat((_baseFontPt * _sloganScale).toFixed(1)), 5.0) + 'pt';
   const isStacked = true; // slogan sempre embaixo
   
   // Tracking (letter-spacing) compensatório para slogans longos

@@ -4931,6 +4931,8 @@ function PapelariaStep({ brand, accentColor, paletteColors, estampaPatterns, est
   const [cartaoRetrato, setCartaoRetrato] = useState(false);
   const [storyTemplateIdx, setStoryTemplateIdx] = useState(0);
   const [storyFormatIdx, setStoryFormatIdx] = useState(0);
+  const [agradecimentoSizeIdx, setAgradecimentoSizeIdx] = useState(0);
+  const [agradecimentoMsgIdx, setAgradecimentoMsgIdx] = useState(0);
 
   // Estado editável do Guia Alimentar
   const [guiaHorarios, setGuiaHorarios] = useState([
@@ -5597,6 +5599,126 @@ body { width: 485.775mm; height: 385.233mm; position: relative; overflow: hidden
       document.body.appendChild(iframe);
       iframe.contentDocument.open(); iframe.contentDocument.write(html); iframe.contentDocument.close();
       iframe.contentWindow.document.fonts.ready.then(() => { setTimeout(() => { iframe.contentWindow.focus(); iframe.contentWindow.print(); setTimeout(() => { iframe.remove(); }, 3000); }, 1000); });
+      return;
+    }
+
+    // ── CARTÃO DE AGRADECIMENTO ──────────────────────────────────────
+    if (item.includes('Agradecimento')) {
+      const BLEED = 3;
+      const _ffA = editData?.fontFamily || brand.editData?.fontFamily || 'Playfair Display';
+      const _lfA = LOCAL_FONT_FACES[_ffA];
+      const fiA = `<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;600;700;800&display=swap" rel="stylesheet">${_lfA ? `<style>${_lfA}</style>` : `<link href="https://fonts.googleapis.com/css2?family=${encodeURIComponent(_ffA)}:wght@400;700&display=swap" rel="stylesheet">`}`;
+      
+      const SIZES_A = [
+        { w: 100, h: 100 },
+        { w: 150, h: 150 },
+        { w: 200, h: 200 }
+      ];
+      const selASize = SIZES_A[agradecimentoSizeIdx] || SIZES_A[0];
+      const W = selASize.w;
+      const H = selASize.h;
+      const totalW = W + BLEED * 2;
+      const totalH = H + BLEED * 2;
+
+      const solidColor = borderColor || accentColor;
+      const c0 = paletteColors[0] || solidColor;
+
+      const logoHtmlForAgradecimento = genPDFLogoHtml({
+        brand,
+        editDataOverride: editData,
+        color: comBorda && patternSrc ? (logoColor || solidColor) : '#fff',
+        layout: logoLayout,
+        localSlogan,
+        crmLine: null,
+        fontPt: logoLayout === 'horizontal' ? 22 : 28,
+        lineH: _lineH,
+        letterSp: _letterSp,
+        customLogoSrc,
+        customLogoScale: customLogoSrc ? getCustomLogoScale(item) * (ITEM_CUSTOM_BASE_SCALES[item] || 1) : 100,
+        maxWidth: `${W * 0.65}mm`,
+        maxHeight: `${H * 0.35}mm`,
+        withBackground: !!(comBorda && patternSrc) || !!customLogoSrc
+      });
+
+      const MESSAGES_A = [
+        'Obrigada pela sua confiança! ✨',
+        'Foi um prazer te atender 🌸',
+        'Que bom ter você aqui! 💛',
+      ];
+      const selectedMessageText = MESSAGES_A[agradecimentoMsgIdx] || MESSAGES_A[0];
+
+      const frenteBgHtml = comBorda && patternSrc
+        ? `<div style="position:absolute;inset:0;background-image:url(${patternSrc});background-size:${((patternScale || 150) * 0.22).toFixed(1)}mm;background-repeat:repeat;opacity:0.9;"></div>`
+        : `<div style="position:absolute;inset:0;background:${solidColor};"></div>`;
+
+      const frenteA = `
+        <div class="card" style="position:relative;overflow:hidden;">
+          ${frenteBgHtml}
+          <!-- circles overlay -->
+          <div style="position:absolute; bottom:-15%; right:-15%; width:60%; height:60%; border-radius:50%; background:rgba(255,255,255,0.08);"></div>
+          <div style="position:absolute; top:-10%; left:-10%; width:45%; height:45%; border-radius:50%; background:rgba(255,255,255,0.06);"></div>
+          
+          <div style="position:absolute; top:50%; left:50%; transform:translate(-50%,-50%); width:65%; text-align:center;">
+            ${logoHtmlForAgradecimento}
+          </div>
+          <div class="cm cm-tl"></div><div class="cm cm-tr"></div><div class="cm cm-bl"></div><div class="cm cm-br"></div>
+        </div>`;
+
+      const versoA = `
+        <div class="card" style="position:relative;overflow:hidden;">
+          <div style="position:absolute;inset:0;background:#fff;"></div>
+          <div style="position:absolute; top:0; left:0; right:0; height:${(W * 0.045).toFixed(1)}mm; background:${solidColor};"></div>
+          <div style="position:absolute; bottom:0; left:0; right:0; height:${(W * 0.045).toFixed(1)}mm; background:${solidColor};"></div>
+
+          <div style="position:absolute; inset:0; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:6mm; padding:${(W * 0.1).toFixed(1)}mm;">
+            <div style="font-size:14pt; color:${solidColor}; font-family:'Montserrat',sans-serif; font-weight:400; font-style:italic; text-align:center; letter-spacing:0.3px; max-width:90%; line-height:1.4;">
+              ${selectedMessageText}
+            </div>
+            
+            ${clinicaNome && clinicaNome.trim() ? `
+              <div style="width:${(W * 0.12).toFixed(1)}mm; height:0.3mm; background:${c0}45;"></div>
+              <div style="font-size:16pt; font-weight:600; color:#333; font-family:'Montserrat',sans-serif; text-align:center; line-height:1.4;">
+                ${clinicaNome}
+              </div>
+              <div style="width:${(W * 0.12).toFixed(1)}mm; height:0.3mm; background:${c0}45;"></div>
+            ` : ''}
+
+            <div style="display:flex; flex-direction:column; align-items:center; gap:4mm; font-family:'Montserrat',sans-serif; margin-top:2mm;">
+              ${telefone ? `<div style="font-size:11pt; color:#999; font-weight:300;">${telefone}</div>` : ''}
+              ${instagram ? `<div style="font-size:11pt; color:${c0}; font-weight:400;">@${instagram.replace('@','')}</div>` : ''}
+              ${site ? `<div style="font-size:10pt; color:#bbb; font-weight:300;">${site}</div>` : ''}
+            </div>
+          </div>
+          <div class="cm cm-tl"></div><div class="cm cm-tr"></div><div class="cm cm-bl"></div><div class="cm cm-br"></div>
+        </div>`;
+
+      const html = `<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Cartão de Agradecimento - ${marca}</title>${fiA}
+<style>* { box-sizing:border-box; margin:0; padding:0; print-color-adjust:exact !important; -webkit-print-color-adjust:exact !important; }
+.card { width: ${totalW}mm; height: ${totalH}mm; position: relative; }
+.cm { position: absolute; width: 2mm; height: 2mm; pointer-events: none; }
+.cm-tl { top: ${BLEED}mm; left: ${BLEED}mm; border-top: 0.3px solid rgba(0,0,0,0.4); border-left: 0.3px solid rgba(0,0,0,0.4); }
+.cm-tr { top: ${BLEED}mm; right: ${BLEED}mm; border-top: 0.3px solid rgba(0,0,0,0.4); border-right: 0.3px solid rgba(0,0,0,0.4); }
+.cm-bl { bottom: ${BLEED}mm; left: ${BLEED}mm; border-bottom: 0.3px solid rgba(0,0,0,0.4); border-left: 0.3px solid rgba(0,0,0,0.4); }
+.cm-br { bottom: ${BLEED}mm; right: ${BLEED}mm; border-bottom: 0.3px solid rgba(0,0,0,0.4); border-right: 0.3px solid rgba(0,0,0,0.4); }
+@media print { body { margin:0; } .card { page-break-after: always; } @page { size: ${totalW}mm ${totalH}mm; margin: 0; } }
+</style></head><body>${frenteA}${versoA}</body></html>`;
+
+      const ex = document.getElementById('_gabarito_iframe'); if (ex) ex.remove();
+      const iframe = document.createElement('iframe');
+      iframe.id = '_gabarito_iframe';
+      iframe.style.cssText = 'position:fixed;top:-9999px;left:-9999px;width:300mm;height:300mm;border:none;visibility:hidden;';
+      document.body.appendChild(iframe);
+      iframe.contentDocument.open(); iframe.contentDocument.write(html); iframe.contentDocument.close();
+      const _docTitle = pdfTitle('Cartão de Agradecimento');
+      iframe.contentDocument.title = _docTitle;
+      const prevT = document.title;
+      iframe.contentWindow.document.fonts.ready.then(() => {
+        setTimeout(() => {
+          document.title = _docTitle;
+          iframe.contentWindow.focus(); iframe.contentWindow.print();
+          setTimeout(() => { document.title = prevT; iframe.remove(); }, 3000);
+        }, 400);
+      });
       return;
     }
 
@@ -7533,7 +7655,7 @@ body { background:#eee; }
   <div style="position:absolute; top:0; right:0; width:25mm; height:25mm; background:${accentColor}10; border-radius:0 0 0 25mm;"></div>
   
   <div style="width:50mm; display:flex; justify-content:center; flex-shrink:0;">
-    ${genPDFLogoHtml({ brand, color: accentColor, localSlogan: '', crmLine: '', fontPt: 24, lineH: _lineH, letterSp: _letterSp, hideSlogan: true, customLogoSrc, customLogoScale: getCustomLogoScale(item) * (ITEM_CUSTOM_BASE_SCALES[item] || 1), maxWidth: '40mm', maxHeight: '20mm', withBackground: comBorda && patternSrc })}
+    ${genPDFLogoHtml({ brand, editDataOverride: editData, color: accentColor, localSlogan: '', crmLine: '', fontPt: 24, lineH: _lineH, letterSp: _letterSp, hideSlogan: true, customLogoSrc, customLogoScale: getCustomLogoScale(item) * (ITEM_CUSTOM_BASE_SCALES[item] || 1), maxWidth: '40mm', maxHeight: '20mm', withBackground: comBorda && patternSrc })}
   </div>
 
   <div style="width:0.5mm; height:70%; background:#eee;"></div>
@@ -7612,7 +7734,7 @@ html, body { width:${RW}px; height:${RH}px; overflow:hidden; background:#fff; }
   </div>
 
   <div style="position:absolute; top:${isPost ? Math.round(RH*0.09) : Math.round(RH*0.07)}px; left:0; right:0; display:flex; justify-content:center; transform:scale(${isPost ? 1.3 : 1.0}); transform-origin:top center;">
-    ${genPDFLogoHtml({ brand, color: accentColor, localSlogan, crmLine, fontPt: 32, lineH: _lineH, letterSp: _letterSp, customLogoSrc, customLogoScale: getCustomLogoScale(item) * (ITEM_CUSTOM_BASE_SCALES[item] || 1), maxWidth: '100mm', maxHeight: '36mm', withBackground: comBorda && patternSrc })}
+    ${genPDFLogoHtml({ brand, editDataOverride: editData, color: accentColor, localSlogan, crmLine, fontPt: 32, lineH: _lineH, letterSp: _letterSp, customLogoSrc, customLogoScale: getCustomLogoScale(item) * (ITEM_CUSTOM_BASE_SCALES[item] || 1), maxWidth: '100mm', maxHeight: '36mm', withBackground: comBorda && patternSrc })}
   </div>
 
   <div style="position:absolute; top:${isPost ? Math.round(RH*0.40) : Math.round(RH*0.28)}px; left:0; right:0; text-align:center;">
@@ -7666,7 +7788,7 @@ body { background:#eee; }
   </div>
 
   <div style="position:absolute; top:50%; left:50%; transform:translate(-50%, -50%); opacity:0.15; width:140mm; display:flex; justify-content:center; pointer-events:none;">
-    ${genPDFLogoHtml({ brand, color: logoColor, localSlogan, crmLine, fontPt: 48, lineH: _lineH, letterSp: _letterSp, hideSlogan: true, customLogoSrc, customLogoScale: getCustomLogoScale(item) * (ITEM_CUSTOM_BASE_SCALES[item] || 1), maxWidth: '100mm', maxHeight: '36mm', withBackground: comBorda && patternSrc })}
+    ${genPDFLogoHtml({ brand, editDataOverride: editData, color: logoColor, localSlogan, crmLine, fontPt: 48, lineH: _lineH, letterSp: _letterSp, hideSlogan: true, customLogoSrc, customLogoScale: getCustomLogoScale(item) * (ITEM_CUSTOM_BASE_SCALES[item] || 1), maxWidth: '100mm', maxHeight: '36mm', withBackground: comBorda && patternSrc })}
   </div>
 
   <div style="position:absolute; bottom:${BLEED + 6}mm; left:0; right:0; text-align:center;">
@@ -7908,7 +8030,7 @@ ${fontImports2}
             : currentItem.includes('Cartão de Retorno')
               ? <CartaoRetornoPreview accentColor={accentColor} patternSrc={patternSrc} cartaoContacts={cartaoContacts} crmLine={crmLine} editData={{ ...itemEditData, tagline: localSlogan }} logoColor={logoColor} comBorda={comBorda} setComBorda={setComBorda} clinicaNome={clinicaNome} setClinicaNome={setClinicaNome} logoLayout={logoLayout} paletteColors={paletteColors} borderColor={borderColor} setBorderColor={setBorderColor} patternScale={patternScale} setPatternScale={setPatternScale} />
             : currentItem.includes('Agradecimento')
-              ? <CartaoAgradecimentoPreview accentColor={accentColor} patternSrc={patternSrc} editData={{ ...itemEditData, tagline: localSlogan }} logoColor={logoColor} logoLayout={logoLayout} cartaoContacts={cartaoContacts} crmLine={crmLine} clinicaNome={clinicaNome} comBorda={comBorda} setComBorda={setComBorda} paletteColors={paletteColors} borderColor={borderColor} setBorderColor={setBorderColor} patternScale={patternScale} setPatternScale={setPatternScale} />
+              ? <CartaoAgradecimentoPreview accentColor={accentColor} patternSrc={patternSrc} editData={{ ...itemEditData, tagline: localSlogan }} logoColor={logoColor} logoLayout={logoLayout} cartaoContacts={cartaoContacts} crmLine={crmLine} clinicaNome={clinicaNome} comBorda={comBorda} setComBorda={setComBorda} paletteColors={paletteColors} borderColor={borderColor} setBorderColor={setBorderColor} patternScale={patternScale} setPatternScale={setPatternScale} sizeIdx={agradecimentoSizeIdx} setSizeIdx={setAgradecimentoSizeIdx} msgIdx={agradecimentoMsgIdx} setMsgIdx={setAgradecimentoMsgIdx} />
             : currentItem === 'Ficha de Cadastro'
               ? <FichaCadastroPreview accentColor={accentColor} patternSrc={patternSrc} editData={{ ...itemEditData, tagline: localSlogan }} logoColor={logoColor} logoLayout={logoLayout} cartaoContacts={cartaoContacts} crmLine={crmLine} clinicaNome={clinicaNome} comBorda={comBorda} setComBorda={setComBorda} paletteColors={paletteColors} borderColor={borderColor} setBorderColor={setBorderColor} patternScale={patternScale} setPatternScale={setPatternScale} fichaAdulto={fichaAdulto} setFichaAdulto={setFichaAdulto} />
             : currentItem === 'Prontuário Médico'
