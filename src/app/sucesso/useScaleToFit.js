@@ -33,6 +33,15 @@ export function useScaleToFit(naturalWidth, naturalHeight = null) {
     };
 
     update();
+    
+    if (typeof window === 'undefined' || typeof ResizeObserver === 'undefined') {
+      if (typeof window !== 'undefined') {
+        window.addEventListener('resize', update);
+        return () => window.removeEventListener('resize', update);
+      }
+      return;
+    }
+
     const ro = new ResizeObserver(update);
     ro.observe(el);
     return () => ro.disconnect();

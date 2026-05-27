@@ -1,19 +1,20 @@
 import React from 'react';
 
-const BrandTemplateSVG = ({ data, color, side = 'frente', hideBackground = false, iconPath = null, textColor = '#ffffff' }) => {
-  const { marca, tagline, whatsapp, instagram } = data;
+const BrandTemplateSVG = ({ data = {}, color, side = 'frente', hideBackground = false, iconPath = null, textColor = '#ffffff' }) => {
+  const safeData = data || {};
+  const { marca = '', tagline = '', whatsapp = '', instagram = '' } = safeData;
   const activeColor = color || '#d22f5a';
-  const brandFont = data.fontFamily || 'Playfair Display';
-  const brandWeight = data.fontWeight || 700;
-  const isScript = data.fontStyle === 'script';
-  const sizeBoost = data.fontSizeBoost || 1;
+  const brandFont = safeData.fontFamily || 'Playfair Display';
+  const brandWeight = safeData.fontWeight || 700;
+  const isScript = safeData.fontStyle === 'script';
+  const sizeBoost = safeData.fontSizeBoost || 1;
   const formatMarca = (str) => isScript
     ? str.split(' ').map(w => w.charAt(0).toUpperCase() + w.slice(1).toLowerCase()).join(' ')
     : str.toUpperCase();
 
   // Fontes display com glifos visivelmente maiores — reduz font-size no texto circular do selo
   const CIRCLE_FONT_OVERRIDES = { 'LittleFriend': 16, 'GoldenBlast': 18, 'Cafigine': 18 };
-  const isSlogan = data?.submarcaTextType === 'slogan';
+  const isSlogan = safeData?.submarcaTextType === 'slogan';
   const circleFontSize = isSlogan ? 15 : (CIRCLE_FONT_OVERRIDES[brandFont] ?? 26);
 
   // O viewBox original é 0 0 1502.53 1082.02
@@ -130,7 +131,7 @@ const BrandTemplateSVG = ({ data, color, side = 'frente', hideBackground = false
           {(() => {
             const circumference = 2 * Math.PI * 91.64;
             const toTitleCase = (str) => str.replace(/\w\S*/g, w => w.charAt(0).toUpperCase() + w.slice(1).toLowerCase());
-            const circularText = data.submarcaTextType === 'slogan' ? (tagline || 'Slogan da Marca') : (marca || 'Sua Marca');
+            const circularText = safeData.submarcaTextType === 'slogan' ? (tagline || 'Slogan da Marca') : (marca || 'Sua Marca');
             const nameWithSep = toTitleCase(circularText) + '\u00A0\u00A0\u00A0•\u00A0\u00A0\u00A0';
             
             // Cálculo dinâmico e robusto da largura do caractere + espaçamento

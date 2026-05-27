@@ -123,7 +123,7 @@ function SeloCaneca({ editData, solidColor, size, usePattern, hasCustomLogo, log
   );
 }
 
-export default function CanecaPreview({
+function CanecaPreviewComponent({
   accentColor, paletteColors = [], editData, logoColor, logoLayout,
   cartaoContacts, crmLine, clinicaNome, comBorda, setComBorda,
   patternSrc, patternScale, setPatternScale, borderColor, setBorderColor,
@@ -271,5 +271,55 @@ export default function CanecaPreview({
         <div style={{ fontSize: '10px', color: '#aaa', fontFamily: 'Montserrat,sans-serif' }}>Faixas laterais = área de sobreposição do wrap</div>
       </div>
     </div>
+  );
+}
+
+class CanecaErrorBoundary extends React.Component {
+  constructor(props) {
+    super(props);
+    this.state = { hasError: false, error: null };
+  }
+  static getDerivedStateFromError(error) {
+    return { hasError: true, error };
+  }
+  componentDidCatch(error, errorInfo) {
+    console.error("Erro no CanecaPreview:", error, errorInfo);
+  }
+  render() {
+    if (this.state.hasError) {
+      return (
+        <div style={{ padding: '24px', background: '#fff0f0', border: '1.5px solid #ffcccc', borderRadius: '16px', color: '#cc0000', fontFamily: 'monospace', fontSize: '0.85rem', width: '100%', maxWidth: '500px', margin: '20px auto', boxShadow: '0 4px 16px rgba(0,0,0,0.06)', textAlign: 'left', boxSizing: 'border-box' }}>
+          <h4 style={{ margin: '0 0 10px 0', fontSize: '1rem', fontWeight: 700, display: 'flex', alignItems: 'center', gap: '8px' }}>⚠️ Erro ao carregar o Preview da Caneca</h4>
+          <p style={{ margin: '0 0 12px 0', fontWeight: 600, lineHeight: 1.4 }}>{this.state.error?.toString()}</p>
+          <p style={{ margin: '0 0 8px 0', fontSize: '0.78rem', color: '#666', fontWeight: 'bold' }}>Pilha de Execução (Stack Trace):</p>
+          <pre style={{ whiteSpace: 'pre-wrap', wordBreak: 'break-all', fontSize: '0.72rem', background: '#fff', border: '1px solid #ffdddd', padding: '10px', borderRadius: '8px', overflowX: 'auto', maxH: '200px', opacity: 0.9, color: '#444' }}>
+            {this.state.error?.stack}
+          </pre>
+          <div style={{ display: 'flex', gap: '10px', marginTop: '16px' }}>
+            <button 
+              onClick={() => this.setState({ hasError: false, error: null })}
+              style={{ padding: '8px 16px', background: '#cc0000', color: '#fff', border: 'none', borderRadius: '20px', cursor: 'pointer', fontWeight: 700, fontSize: '0.75rem', fontFamily: 'Montserrat, sans-serif' }}
+            >
+              Tentar novamente
+            </button>
+            <button 
+              onClick={() => window.location.reload()}
+              style={{ padding: '8px 16px', background: '#eee', color: '#333', border: 'none', borderRadius: '20px', cursor: 'pointer', fontWeight: 700, fontSize: '0.75rem', fontFamily: 'Montserrat, sans-serif' }}
+            >
+              Recarregar página
+            </button>
+          </div>
+        </div>
+      );
+    }
+    return this.props.children;
+  }
+}
+
+export default function CanecaPreview(props) {
+  return (
+    <CanecaErrorBoundary>
+      <CanecaPreviewComponent {...props} />
+    </CanecaErrorBoundary>
   );
 }
