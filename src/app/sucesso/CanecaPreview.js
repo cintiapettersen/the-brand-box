@@ -1,6 +1,5 @@
 'use client';
 import React from 'react';
-import { LogoPreviewHTML, BordaToggle } from './page';
 import { useScaleToFit } from './useScaleToFit';
 import BrandTemplateSVG from '../../components/BrandTemplateSVG';
 
@@ -16,6 +15,56 @@ const CIRCLE_FLAT = 92; // px
 const LOGO_SF_BASE   = 0.36;  // fundo sólido (sem círculo)
 const LOGO_SF_F_BASE = 0.44;  // fundo sólido — arte flat
 
+// BordaToggle local para evitar dependência circular com o arquivo page.js
+function BordaToggle({ comBorda, setComBorda, accentColor, paletteColors = [], borderColor, setBorderColor, patternScale, setPatternScale }) {
+  const btn = (active) => ({
+    padding: '6px 16px', borderRadius: '20px', fontSize: '0.72rem', fontWeight: 700,
+    cursor: 'pointer', border: 'none',
+    background: active ? accentColor : '#eee', color: active ? '#fff' : '#888',
+    transition: 'all 0.2s ease'
+  });
+  return (
+    <div style={{ display: 'flex', gap: '12px', alignItems: 'center', flexWrap: 'wrap', justifyContent: 'center', padding: '10px', background: '#fcfcfc', borderRadius: '30px', border: '1px solid #f0f0f0' }}>
+      <div style={{ display: 'flex', gap: '4px' }}>
+        <button style={btn(comBorda)} onClick={() => setComBorda(true)}>Estampa</button>
+        <button style={btn(!comBorda)} onClick={() => setComBorda(false)}>Sólida</button>
+      </div>
+
+      {comBorda && setPatternScale && (
+        <div style={{ display: 'flex', alignItems: 'center', gap: '8px', borderLeft: '1px solid #eee', paddingLeft: '12px', marginLeft: '4px' }}>
+          <span style={{ fontSize: '0.62rem', color: '#999', textTransform: 'uppercase', letterSpacing: '1px', fontWeight: 600 }}>Tamanho:</span>
+          <input 
+            type="range" min="50" max="600" step="10"
+            value={patternScale || 120} 
+            onChange={(e) => setPatternScale(parseInt(e.target.value))}
+            style={{ width: '80px', height: '4px', cursor: 'pointer', accentColor: accentColor }}
+          />
+        </div>
+      )}
+
+      {!comBorda && paletteColors?.length > 0 && (
+        <div style={{ display: 'flex', gap: '5px', alignItems: 'center', marginLeft: '4px', borderLeft: '1px solid #eee', paddingLeft: '12px' }}>
+          {paletteColors.map((hex, i) => {
+            const isSelected = (borderColor || accentColor) === hex;
+            return (
+              <div
+                key={i}
+                onClick={() => setBorderColor?.(hex)}
+                style={{
+                  width: '14px', height: '14px', borderRadius: '50%', background: hex,
+                  cursor: 'pointer', flexShrink: 0, transition: 'transform 0.15s',
+                  transform: isSelected ? 'scale(1.25)' : 'scale(1)',
+                  boxShadow: isSelected ? `0 0 0 2px #fff, 0 0 0 3.5px ${hex}` : '0 0 0 1px rgba(0,0,0,0.1)',
+                }}
+              />
+            );
+          })}
+        </div>
+      )}
+    </div>
+  );
+}
+
 // LogoBg: círculo exato atrás da logo (omitido quando logo customizada)
 function LogoBg({ children, solidColor, size = 80, hideCircle = false }) {
   return (
@@ -29,7 +78,7 @@ function LogoBg({ children, solidColor, size = 80, hideCircle = false }) {
 }
 
 // SeloCaneca: usa BrandTemplateSVG (o selo redondo já pronto) quando há estampa
-// Para logo customizada, cai de volta para LogoBg + LogoPreviewHTML
+// Para logo customizada, cai de volta para renderizador local de logo customizada
 function SeloCaneca({ editData, solidColor, size, usePattern, hasCustomLogo, logoLayout, scaleFactor, submarcaColor, submarcaTextColor, iconPath }) {
   if (!hasCustomLogo) {
     // Monta o seloData igual à página principal
@@ -55,16 +104,22 @@ function SeloCaneca({ editData, solidColor, size, usePattern, hasCustomLogo, log
     );
   }
 
-  // Logo customizada: usa logo normal
+  // Logo customizada: renderização direta e limpa sem dependência circular
+  const customScale = scaleFactor * (editData?.customLogoScale ? editData.customLogoScale / 100 : 1);
   return (
-    <LogoPreviewHTML
-      editData={editData}
-      color="#ffffff"
-      layout={logoLayout || 'stacked'}
-      scaleFactor={scaleFactor}
-      hideTagline={true}
-      withBackground={hasCustomLogo}
-    />
+    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', width: '100%', height: '100%', position: 'relative', background: hasCustomLogo ? 'rgba(255,255,255,0.92)' : 'transparent', padding: hasCustomLogo ? '8px' : '0', borderRadius: '4px' }}>
+      <img
+        src={editData.customLogoSrc}
+        alt="Logo"
+        style={{
+          maxWidth: '100%',
+          maxHeight: '100%',
+          objectFit: 'contain',
+          transform: `scale(${customScale})`,
+          transformOrigin: 'center center'
+        }}
+      />
+    </div>
   );
 }
 
