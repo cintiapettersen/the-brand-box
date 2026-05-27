@@ -8285,6 +8285,8 @@ function EntregaContent({ brand, plano, setBrand }) {
   const setSloganEnabled = (v) => { setSloganEnabledState(v); try { localStorage.setItem(`brandbox_slogan_enabled_${brand.id}`, v ? 'true' : 'false'); } catch {} };
   const [fontLineHeight, setFontLineHeightState] = useState(() => { try { return parseFloat(localStorage.getItem(`brandbox_font_line_height_${brand.id}`)) || brand.editData?.fontLineHeight || (brand.editData?.fontStyle === 'script' ? 0.9 : 1.1); } catch { return 1.1; } });
   const setFontLineHeight = (v) => { setFontLineHeightState(v); try { localStorage.setItem(`brandbox_font_line_height_${brand.id}`, v); } catch {} };
+  const [logoSizeBoost, setLogoSizeBoostState] = useState(() => { try { return parseFloat(localStorage.getItem(`brandbox_logo_size_boost_${brand.id}`)) || brand.editData?.fontSizeBoost || 1.0; } catch { return 1.0; } });
+  const setLogoSizeBoost = (v) => { setLogoSizeBoostState(v); try { localStorage.setItem(`brandbox_logo_size_boost_${brand.id}`, v); } catch {} };
   const [fontOverride, setFontOverrideState] = useState(() => {
     try { const s = localStorage.getItem(`brandbox_font_override_${brand.id}`); return s ? JSON.parse(s) : null; } catch { return null; }
   });
@@ -8525,13 +8527,14 @@ function EntregaContent({ brand, plano, setBrand }) {
   const editDataWithLogo = React.useMemo(() => ({
     ...brand.editData,
     tagline: sloganEnabled ? tagline : '',
-    ...(fontOverride ? { fontFamily: fontOverride.fontFamily, fontWeight: fontOverride.weight || 700, fontStyle: fontOverride.style || 'serif', fontSizeBoost: fontOverride.sizeBoost || 1, fontLetterSpacing: fontOverride.letterSpacing || null } : {}),
+    ...(fontOverride ? { fontFamily: fontOverride.fontFamily, fontWeight: fontOverride.weight || 700, fontStyle: fontOverride.style || 'serif', fontLetterSpacing: fontOverride.letterSpacing || null } : {}),
+    fontSizeBoost: logoSizeBoost,
     ...(customLogoSrc ? { customLogoSrc, customLogoScale } : {}),
     taglineGap,
     taglineWrap,
     fontLineHeight,
     taglineSizeBoost,
-  }), [brand.editData, tagline, customLogoSrc, customLogoScale, fontOverride, taglineGap, taglineWrap, fontLineHeight, taglineSizeBoost]);
+  }), [brand.editData, tagline, customLogoSrc, customLogoScale, fontOverride, taglineGap, taglineWrap, fontLineHeight, taglineSizeBoost, logoSizeBoost]);
   
   const currentIdx = estampaSelectedIdx || 0;
   const patternSrc = estampaPatterns?.[currentIdx]
@@ -8952,7 +8955,7 @@ function EntregaContent({ brand, plano, setBrand }) {
         <div style={{ display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between', marginBottom: '1.2rem' }}>
           <div>
             <h1 style={{ fontSize: '1.4rem', fontWeight: 700, color: '#1a1a1a', lineHeight: 1.2 }}>
-              {step === 'placa' ? 'Placa da Marca' : step === 'manifesto' ? 'Manifesto da Marca' : step === 'tomdevoz' ? 'Tom de Voz' : step === 'fonte' ? 'Fonte da Marca' : step === 'slogan' ? 'Slogan da Marca' : step === 'logo' ? 'Sua Logo' : step === 'submarca' ? 'Sua Submarca' : step === 'estampa' ? 'Sua Estampa' : step === 'cores' ? 'Suas Cores' : step === 'paleta' ? 'Sua Paleta' : step === 'cartao' ? 'Cartão Digital' : step === 'pack-instagram' ? 'Pack Digital para Instagram' : step === 'assinatura-email' ? 'Assinatura de E-mail' : step === 'guia' ? 'Guia da Marca' : step === 'ajuda' ? 'Ajuda & Inspiração ✨' : 'Sua Papelaria'}
+              {step === 'placa' ? 'Placa da Marca' : step === 'manifesto' ? 'Manifesto da Marca' : step === 'tomdevoz' ? 'Tom de Voz' : step === 'fonte' ? 'Fonte da Marca' : step === 'slogan' ? 'Tagline da Marca' : step === 'logo' ? 'Sua Logo' : step === 'submarca' ? 'Sua Submarca' : step === 'estampa' ? 'Sua Estampa' : step === 'cores' ? 'Suas Cores' : step === 'paleta' ? 'Sua Paleta' : step === 'cartao' ? 'Cartão Digital' : step === 'pack-instagram' ? 'Pack Digital para Instagram' : step === 'assinatura-email' ? 'Assinatura de E-mail' : step === 'guia' ? 'Guia da Marca' : step === 'ajuda' ? 'Ajuda & Inspiração ✨' : 'Sua Papelaria'}
             </h1>
           </div>
           <button 
@@ -9007,15 +9010,15 @@ function EntregaContent({ brand, plano, setBrand }) {
               </div>
             </div>
 
-            {/* Controles do slogan */}
+            {/* Controles da tagline */}
             <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', padding: '16px', background: '#fcfcfc', borderRadius: '16px', border: '1.5px solid #eaeaea', boxShadow: '0 4px 12px rgba(0,0,0,0.02)' }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                <span style={{ fontSize: '0.78rem', fontWeight: 800, fontFamily: 'Montserrat, sans-serif', color: '#333', letterSpacing: '0.3px', display: 'flex', alignItems: 'center', gap: '6px' }}>💬 Slogan da Marca</span>
+                <span style={{ fontSize: '0.78rem', fontWeight: 800, fontFamily: 'Montserrat, sans-serif', color: '#333', letterSpacing: '0.3px', display: 'flex', alignItems: 'center', gap: '6px' }}>💬 Tagline da Marca</span>
                 <button
                   onClick={() => setSloganEnabled(!sloganEnabled)}
                   style={{ padding: '5px 12px', borderRadius: '20px', fontSize: '0.65rem', fontWeight: 700, cursor: 'pointer', border: 'none', background: sloganEnabled ? `${accentColor}15` : '#eee', color: sloganEnabled ? accentColor : '#999', transition: 'all 0.2s', fontFamily: 'Montserrat, sans-serif' }}
                 >
-                  {sloganEnabled ? '✓ Com slogan' : '✗ Sem slogan'}
+                  {sloganEnabled ? '✓ Com tagline' : '✗ Sem tagline'}
                 </button>
               </div>
               {sloganEnabled && (<>
@@ -9031,7 +9034,7 @@ function EntregaContent({ brand, plano, setBrand }) {
               </div>
               <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', padding: '10px', background: '#f8f8f8', borderRadius: '12px' }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-                  <span style={{ fontSize: '0.68rem', color: '#888', fontWeight: 600, fontFamily: 'Montserrat,sans-serif', width: '100px' }}>Escala Slogan</span>
+                  <span style={{ fontSize: '0.68rem', color: '#888', fontWeight: 600, fontFamily: 'Montserrat,sans-serif', width: '100px' }}>Escala Tagline</span>
                   <input type="range" min="0.5" max="2.5" step="0.05" value={taglineSizeBoost} onChange={e => setTaglineSizeBoost(parseFloat(e.target.value))} style={{ flex: 1, accentColor }} />
                   <span style={{ fontSize: '0.68rem', color: '#aaa', width: '30px' }}>{taglineSizeBoost.toFixed(1)}×</span>
                 </div>
@@ -9203,6 +9206,16 @@ function EntregaContent({ brand, plano, setBrand }) {
                     ].filter(o => !o.hide).map(({ key, label }) => (
                       <button key={key} onClick={() => setLayout(key)} style={{ padding: '5px 13px', borderRadius: '20px', fontSize: '0.72rem', fontWeight: 600, cursor: 'pointer', border: 'none', background: logoLayout === key ? logoColor : '#eee', color: logoLayout === key ? '#fff' : '#888', transition: 'all 0.15s ease' }}>{label}</button>
                     ))}
+                  </div>
+                </div>
+              )}
+
+              {!customLogoSrc && (
+                <div style={{ padding: '12px 14px', background: '#fcfcfc', borderRadius: '14px', border: '1.5px solid #eaeaea' }}>
+                  <span style={{ fontSize: '0.72rem', fontWeight: 800, fontFamily: 'Montserrat, sans-serif', color: '#555', display: 'block', marginBottom: '8px' }}>🔍 Tamanho da Fonte da Logo</span>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                    <input type="range" min="0.5" max="2.0" step="0.05" value={logoSizeBoost} onChange={e => setLogoSizeBoost(parseFloat(e.target.value))} style={{ flex: 1, accentColor }} />
+                    <span style={{ fontSize: '0.68rem', color: '#aaa', width: '32px' }}>{logoSizeBoost.toFixed(2)}×</span>
                   </div>
                 </div>
               )}
@@ -9718,7 +9731,7 @@ function EntregaContent({ brand, plano, setBrand }) {
                     cursor: 'pointer', transition: 'all 0.2s ease'
                   }}
                 >
-                  Slogan da Marca
+                  Tagline da Marca
                 </button>
               </div>
             </div>
@@ -9837,7 +9850,7 @@ function EntregaContent({ brand, plano, setBrand }) {
             </div>
           )}
 
-          {/* Slogan — sempre visível na aba logo (agora abaixo da cor da logo) */}
+          {/* Tagline — sempre visível na aba logo (agora abaixo da cor da logo) */}
           {!customLogoSrc && step === 'logo' && (
             <div style={{
               display: 'flex',
@@ -9852,7 +9865,7 @@ function EntregaContent({ brand, plano, setBrand }) {
               marginBottom: '4px'
             }}>
               <span style={{ fontSize: '0.78rem', fontWeight: 800, fontFamily: 'Montserrat, sans-serif', color: '#333', letterSpacing: '0.3px', display: 'flex', alignItems: 'center', gap: '6px' }}>
-                💬 Slogan da Marca
+                💬 Tagline da Marca
               </span>
               <input
                 value={tagline}
@@ -9868,7 +9881,7 @@ function EntregaContent({ brand, plano, setBrand }) {
               {/* Sliders de ajuste fino */}
               <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', marginTop: '4px', padding: '10px', background: '#f8f8f8', borderRadius: '12px' }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-                  <span style={{ fontSize: '0.68rem', color: '#888', fontWeight: 600, fontFamily: 'Montserrat,sans-serif', width: '90px' }}>Distância Slogan</span>
+                  <span style={{ fontSize: '0.68rem', color: '#888', fontWeight: 600, fontFamily: 'Montserrat,sans-serif', width: '90px' }}>Distância Tagline</span>
                   <input type="range" min="0" max="1.5" step="0.05" 
                     value={taglineGap}
                     onChange={e => setTaglineGap(parseFloat(e.target.value))}
