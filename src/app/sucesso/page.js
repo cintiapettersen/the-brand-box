@@ -8599,8 +8599,8 @@ function EntregaContent({ brand, plano, setBrand }) {
     try {
       const s = localStorage.getItem(`brandbox_step_${brand.id}`); if (s) setStepState(s);
 
-      let allPatterns = JSON.parse(localStorage.getItem(`brandbox_patterns_all_${brand.id}`) || localStorage.getItem('brandbox_patterns_all') || 'null');
-      const singlePattern = JSON.parse(localStorage.getItem(`brandbox_pattern_${brand.id}`) || localStorage.getItem('brandbox_pattern') || 'null');
+      let allPatterns = JSON.parse(localStorage.getItem(`brandbox_patterns_all_${brand.id}`) || 'null');
+      const singlePattern = JSON.parse(localStorage.getItem(`brandbox_pattern_${brand.id}`) || 'null');
       if (allPatterns && allPatterns.length > 0) {
         if (allPatterns.length > 3) {
           allPatterns = allPatterns.slice(-3);
@@ -8660,9 +8660,7 @@ function EntregaContent({ brand, plano, setBrand }) {
     const patLocal = (() => {
       try {
         const scoped = localStorage.getItem(`brandbox_pattern_${brand.id}`);
-        if (scoped) return JSON.parse(scoped);
-        const globalPat = localStorage.getItem('brandbox_pattern');
-        return globalPat ? JSON.parse(globalPat) : null;
+        return scoped ? JSON.parse(scoped) : null;
       } catch {
         return null;
       }
@@ -8670,9 +8668,7 @@ function EntregaContent({ brand, plano, setBrand }) {
     const patAllLocal = (() => {
       try {
         const scoped = localStorage.getItem(`brandbox_patterns_all_${brand.id}`);
-        if (scoped) return JSON.parse(scoped);
-        const globalAll = localStorage.getItem('brandbox_patterns_all');
-        return globalAll ? JSON.parse(globalAll) : null;
+        return scoped ? JSON.parse(scoped) : null;
       } catch {
         return null;
       }
