@@ -235,8 +235,8 @@ export function LogoPreviewHTML({ item = null, editData, color, layout = 'stacke
   const gapMultiplier = editData?.taglineGap !== undefined ? editData.taglineGap : (taglineLen > 40 ? 0.20 : 0.35);
   const taglineGapPx = Math.round(taglineSizeRem * 16 * gapMultiplier);
   
-  // Tracking (letter-spacing) compensatório
-  const taglineLetterSpacing = taglineLen > 45 ? '0.55em' : taglineLen > 30 ? '0.48em' : taglineLen > 15 ? '0.4em' : '0.35em';
+  // Tracking (letter-spacing) compensatório ou manual
+  const taglineLetterSpacing = editData?.taglineLetterSpacing !== undefined ? `${editData.taglineLetterSpacing}em` : (taglineLen > 45 ? '0.55em' : taglineLen > 30 ? '0.48em' : taglineLen > 15 ? '0.4em' : '0.35em');
   // Slogan wrap dinâmico ou manual
   const shouldWrap = editData?.taglineWrap !== undefined ? editData.taglineWrap : (taglineLen > 25);
   const displaySlogan = (taglineText && taglineText.includes('\n'))
@@ -8285,8 +8285,8 @@ function EntregaContent({ brand, plano, setBrand }) {
   const setSloganEnabled = (v) => { setSloganEnabledState(v); try { localStorage.setItem(`brandbox_slogan_enabled_${brand.id}`, v ? 'true' : 'false'); } catch {} };
   const [fontLineHeight, setFontLineHeightState] = useState(() => { try { return parseFloat(localStorage.getItem(`brandbox_font_line_height_${brand.id}`)) || brand.editData?.fontLineHeight || (brand.editData?.fontStyle === 'script' ? 0.9 : 1.1); } catch { return 1.1; } });
   const setFontLineHeight = (v) => { setFontLineHeightState(v); try { localStorage.setItem(`brandbox_font_line_height_${brand.id}`, v); } catch {} };
-  const [logoSizeBoost, setLogoSizeBoostState] = useState(() => { try { return parseFloat(localStorage.getItem(`brandbox_logo_size_boost_${brand.id}`)) || brand.editData?.fontSizeBoost || 1.0; } catch { return 1.0; } });
-  const setLogoSizeBoost = (v) => { setLogoSizeBoostState(v); try { localStorage.setItem(`brandbox_logo_size_boost_${brand.id}`, v); } catch {} };
+  const [taglineLetterSpacing, setTaglineLetterSpacingState] = useState(() => { try { return parseFloat(localStorage.getItem(`brandbox_tagline_letter_spacing_${brand.id}`)) || 0.35; } catch { return 0.35; } });
+  const setTaglineLetterSpacing = (v) => { setTaglineLetterSpacingState(v); try { localStorage.setItem(`brandbox_tagline_letter_spacing_${brand.id}`, v); } catch {} };
   const [fontOverride, setFontOverrideState] = useState(() => {
     try { const s = localStorage.getItem(`brandbox_font_override_${brand.id}`); return s ? JSON.parse(s) : null; } catch { return null; }
   });
@@ -8527,14 +8527,14 @@ function EntregaContent({ brand, plano, setBrand }) {
   const editDataWithLogo = React.useMemo(() => ({
     ...brand.editData,
     tagline: sloganEnabled ? tagline : '',
-    ...(fontOverride ? { fontFamily: fontOverride.fontFamily, fontWeight: fontOverride.weight || 700, fontStyle: fontOverride.style || 'serif', fontLetterSpacing: fontOverride.letterSpacing || null } : {}),
-    fontSizeBoost: logoSizeBoost,
+    ...(fontOverride ? { fontFamily: fontOverride.fontFamily, fontWeight: fontOverride.weight || 700, fontStyle: fontOverride.style || 'serif', fontSizeBoost: fontOverride.sizeBoost || 1, fontLetterSpacing: fontOverride.letterSpacing || null } : {}),
     ...(customLogoSrc ? { customLogoSrc, customLogoScale } : {}),
     taglineGap,
     taglineWrap,
     fontLineHeight,
     taglineSizeBoost,
-  }), [brand.editData, tagline, customLogoSrc, customLogoScale, fontOverride, taglineGap, taglineWrap, fontLineHeight, taglineSizeBoost, logoSizeBoost]);
+    taglineLetterSpacing,
+  }), [brand.editData, tagline, customLogoSrc, customLogoScale, fontOverride, taglineGap, taglineWrap, fontLineHeight, taglineSizeBoost, taglineLetterSpacing]);
   
   const currentIdx = estampaSelectedIdx || 0;
   const patternSrc = estampaPatterns?.[currentIdx]
@@ -9035,13 +9035,18 @@ function EntregaContent({ brand, plano, setBrand }) {
               <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', padding: '10px', background: '#f8f8f8', borderRadius: '12px' }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
                   <span style={{ fontSize: '0.68rem', color: '#888', fontWeight: 600, fontFamily: 'Montserrat,sans-serif', width: '100px' }}>Escala Tagline</span>
-                  <input type="range" min="0.5" max="2.5" step="0.05" value={taglineSizeBoost} onChange={e => setTaglineSizeBoost(parseFloat(e.target.value))} style={{ flex: 1, accentColor }} />
-                  <span style={{ fontSize: '0.68rem', color: '#aaa', width: '30px' }}>{taglineSizeBoost.toFixed(1)}×</span>
+                  <input type="range" min="0.2" max="2.5" step="0.05" value={taglineSizeBoost} onChange={e => setTaglineSizeBoost(parseFloat(e.target.value))} style={{ flex: 1, accentColor }} />
+                  <span style={{ fontSize: '0.68rem', color: '#aaa', width: '30px' }}>{taglineSizeBoost.toFixed(2)}×</span>
                 </div>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
                   <span style={{ fontSize: '0.68rem', color: '#888', fontWeight: 600, fontFamily: 'Montserrat,sans-serif', width: '100px' }}>Distância</span>
                   <input type="range" min="0" max="1.5" step="0.05" value={taglineGap} onChange={e => setTaglineGap(parseFloat(e.target.value))} style={{ flex: 1, accentColor }} />
                   <span style={{ fontSize: '0.68rem', color: '#aaa', width: '30px' }}>{taglineGap.toFixed(2)}</span>
+                </div>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                  <span style={{ fontSize: '0.68rem', color: '#888', fontWeight: 600, fontFamily: 'Montserrat,sans-serif', width: '100px' }}>Espaçamento</span>
+                  <input type="range" min="0.05" max="1.2" step="0.05" value={taglineLetterSpacing} onChange={e => setTaglineLetterSpacing(parseFloat(e.target.value))} style={{ flex: 1, accentColor }} />
+                  <span style={{ fontSize: '0.68rem', color: '#aaa', width: '30px' }}>{taglineLetterSpacing.toFixed(2)}em</span>
                 </div>
               </div>
               </>)}
@@ -9210,15 +9215,7 @@ function EntregaContent({ brand, plano, setBrand }) {
                 </div>
               )}
 
-              {!customLogoSrc && (
-                <div style={{ padding: '12px 14px', background: '#fcfcfc', borderRadius: '14px', border: '1.5px solid #eaeaea' }}>
-                  <span style={{ fontSize: '0.72rem', fontWeight: 800, fontFamily: 'Montserrat, sans-serif', color: '#555', display: 'block', marginBottom: '8px' }}>🔍 Tamanho da Fonte da Logo</span>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-                    <input type="range" min="0.5" max="2.0" step="0.05" value={logoSizeBoost} onChange={e => setLogoSizeBoost(parseFloat(e.target.value))} style={{ flex: 1, accentColor }} />
-                    <span style={{ fontSize: '0.68rem', color: '#aaa', width: '32px' }}>{logoSizeBoost.toFixed(2)}×</span>
-                  </div>
-                </div>
-              )}
+
 
               {!customLogoSrc && (
                 <div style={{ padding: '12px 14px', background: '#fcfcfc', borderRadius: '14px', border: '1.5px solid #eaeaea' }}>
@@ -9881,12 +9878,28 @@ function EntregaContent({ brand, plano, setBrand }) {
               {/* Sliders de ajuste fino */}
               <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', marginTop: '4px', padding: '10px', background: '#f8f8f8', borderRadius: '12px' }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                  <span style={{ fontSize: '0.68rem', color: '#888', fontWeight: 600, fontFamily: 'Montserrat,sans-serif', width: '90px' }}>Escala Tagline</span>
+                  <input type="range" min="0.2" max="2.5" step="0.05" 
+                    value={taglineSizeBoost}
+                    onChange={e => setTaglineSizeBoost(parseFloat(e.target.value))}
+                    style={{ flex: 1, accentColor: '#C03B66' }} />
+                  <span style={{ fontSize: '0.68rem', color: '#aaa', width: '30px' }}>{taglineSizeBoost.toFixed(2)}×</span>
+                </div>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
                   <span style={{ fontSize: '0.68rem', color: '#888', fontWeight: 600, fontFamily: 'Montserrat,sans-serif', width: '90px' }}>Distância Tagline</span>
                   <input type="range" min="0" max="1.5" step="0.05" 
                     value={taglineGap}
                     onChange={e => setTaglineGap(parseFloat(e.target.value))}
                     style={{ flex: 1, accentColor: '#C03B66' }} />
                   <span style={{ fontSize: '0.68rem', color: '#aaa', width: '30px' }}>{taglineGap.toFixed(2)}</span>
+                </div>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                  <span style={{ fontSize: '0.68rem', color: '#888', fontWeight: 600, fontFamily: 'Montserrat,sans-serif', width: '90px' }}>Espaçamento</span>
+                  <input type="range" min="0.05" max="1.2" step="0.05" 
+                    value={taglineLetterSpacing}
+                    onChange={e => setTaglineLetterSpacing(parseFloat(e.target.value))}
+                    style={{ flex: 1, accentColor: '#C03B66' }} />
+                  <span style={{ fontSize: '0.68rem', color: '#aaa', width: '30px' }}>{taglineLetterSpacing.toFixed(2)}em</span>
                 </div>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
                   <span style={{ fontSize: '0.68rem', color: '#888', fontWeight: 600, fontFamily: 'Montserrat,sans-serif', width: '90px' }}>Altura Logo</span>

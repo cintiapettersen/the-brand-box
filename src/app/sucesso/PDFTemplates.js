@@ -61,7 +61,8 @@ export const genPDFLogoHtml = ({ brand, editDataOverride = null, color, localSlo
   // Slogan dinâmico: quanto mais longo, menor a fonte e maior o espaçamento (tracking)
   const _sloganLenRaw = (localSlogan && !hideSlogan) ? localSlogan.length : 0;
   // Ajuste mais agressivo para slogans gigantes (>50 caracteres) para não travar a logo
-  const _sloganScale = _sloganLenRaw > 50 ? 0.16 : _sloganLenRaw > 40 ? 0.20 : _sloganLenRaw > 25 ? 0.26 : 0.35;
+  const _taglineSizeBoost = _ed?.taglineSizeBoost !== undefined ? parseFloat(_ed.taglineSizeBoost) : 1.0;
+  const _sloganScale = (_sloganLenRaw > 50 ? 0.16 : _sloganLenRaw > 40 ? 0.20 : _sloganLenRaw > 25 ? 0.26 : 0.35) * _taglineSizeBoost;
   // Gap customizável via taglineGap (fallback para o cálculo dinâmico)
   const _sloganGapMultiplier = _ed?.taglineGap !== undefined ? parseFloat(_ed.taglineGap) : (_sloganLenRaw > 40 ? 0.20 : 0.35);
   
@@ -94,7 +95,7 @@ export const genPDFLogoHtml = ({ brand, editDataOverride = null, color, localSlo
   const isStacked = true; // slogan sempre embaixo
   
   // Tracking (letter-spacing) compensatório para slogans longos
-  const _sloganLs = _sloganLenRaw > 45 ? '0.55em' : _sloganLenRaw > 30 ? '0.48em' : _sloganLenRaw > 15 ? '0.4em' : '0.35em';
+  const _sloganLs = _ed?.taglineLetterSpacing !== undefined ? `${_ed.taglineLetterSpacing}em` : (_sloganLenRaw > 45 ? '0.55em' : _sloganLenRaw > 30 ? '0.48em' : _sloganLenRaw > 15 ? '0.4em' : '0.35em');
 
   const _sloganColor = sloganColor || '#666';
   // Gap adaptativo baseado no tamanho da fonte do slogan e complexidade
