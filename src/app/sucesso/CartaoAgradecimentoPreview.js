@@ -75,9 +75,6 @@ export default function CartaoAgradecimentoPreview({
               );
             })()}
 
-            <div style={{ position: 'absolute', bottom: W * 0.1, left: '50%', transform: 'translateX(-50%)', width: '85%', textAlign: 'center' }}>
-              <div style={{ fontSize: size.scale * 0.52, color: 'rgba(255,255,255,0.85)', fontFamily: 'Montserrat,sans-serif', fontWeight: 300, fontStyle: 'italic', letterSpacing: '0.3px' }}>{MESSAGES[msgIdx]}</div>
-            </div>
           </>
         ) : (
           <>
@@ -85,16 +82,19 @@ export default function CartaoAgradecimentoPreview({
             <div style={{ position: 'absolute', top: 0, left: 0, right: 0, height: W * 0.045, background: solidColor }} />
             <div style={{ position: 'absolute', bottom: 0, left: 0, right: 0, height: W * 0.045, background: solidColor }} />
 
-            <div style={{ position: 'absolute', inset: 0, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: size.scale * 0.35, padding: W * 0.1 }}>
-              <div style={{ width: W * 0.15, height: 1, background: `${c0}60` }} />
-              <div style={{ fontSize: size.scale * 0.62, fontWeight: 300, color: solidColor, fontFamily: 'Montserrat,sans-serif', textAlign: 'center', lineHeight: 1.4, fontStyle: 'italic' }}>
+            <div style={{ position: 'absolute', inset: 0, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: size.scale * 0.3, padding: W * 0.1 }}>
+              <div style={{ fontSize: size.scale * 0.54, color: solidColor, fontFamily: 'Montserrat,sans-serif', fontWeight: 400, fontStyle: 'italic', textAlign: 'center', letterSpacing: '0.3px', maxWidth: '90%', lineHeight: 1.4 }}>
+                {MESSAGES[msgIdx]}
+              </div>
+              <div style={{ width: W * 0.12, height: 1, background: `${c0}45` }} />
+              <div style={{ fontSize: size.scale * 0.6, fontWeight: 600, color: '#333', fontFamily: 'Montserrat,sans-serif', textAlign: 'center', lineHeight: 1.4 }}>
                 {clinicaNome || 'Nome da Clínica'}
               </div>
-              <div style={{ width: W * 0.15, height: 1, background: `${c0}60` }} />
-              <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: size.scale * 0.2 }}>
-                {cartaoContacts?.telefone && <div style={{ fontSize: size.scale * 0.46, color: '#999', fontFamily: 'Montserrat,sans-serif', fontWeight: 300 }}>{cartaoContacts.telefone}</div>}
-                {cartaoContacts?.instagram && <div style={{ fontSize: size.scale * 0.46, color: c0, fontFamily: 'Montserrat,sans-serif', fontWeight: 400 }}>@{cartaoContacts.instagram.replace('@','')}</div>}
-                {cartaoContacts?.site && <div style={{ fontSize: size.scale * 0.42, color: '#bbb', fontFamily: 'Montserrat,sans-serif', fontWeight: 300 }}>{cartaoContacts.site}</div>}
+              <div style={{ width: W * 0.12, height: 1, background: `${c0}45` }} />
+              <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: size.scale * 0.18 }}>
+                {cartaoContacts?.telefone && <div style={{ fontSize: size.scale * 0.44, color: '#999', fontFamily: 'Montserrat,sans-serif', fontWeight: 300 }}>{cartaoContacts.telefone}</div>}
+                {cartaoContacts?.instagram && <div style={{ fontSize: size.scale * 0.44, color: c0, fontFamily: 'Montserrat,sans-serif', fontWeight: 400 }}>@{cartaoContacts.instagram.replace('@','')}</div>}
+                {cartaoContacts?.site && <div style={{ fontSize: size.scale * 0.4, color: '#bbb', fontFamily: 'Montserrat,sans-serif', fontWeight: 300 }}>{cartaoContacts.site}</div>}
               </div>
             </div>
           </>
