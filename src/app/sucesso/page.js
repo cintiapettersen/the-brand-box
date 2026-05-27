@@ -4837,7 +4837,7 @@ const getPreviewTargetWidth = (item) => {
   return 595; // Default para folders A4, receituários, diários, Meu Pratinho, etc.
 };
 
-function PapelariaStep({ brand, accentColor, paletteColors, estampaPatterns, estampaSelectedIdx, cartaoContacts, setCartaoContacts, plano, isSaude, crmData, setCrmData, marca, editData, logoColor, logoLayout, setLayout, clinicaNome, setClinicaNome, onNavSync, navIdx, setNavIdx, customLogoSrc, getCustomLogoScale, setCustomLogoScale, getCustomLogoScaleMax, customLogoScaleMap }) {
+function PapelariaStep({ brand, accentColor, paletteColors, estampaPatterns, estampaSelectedIdx, cartaoContacts, setCartaoContacts, plano, isSaude, crmData, setCrmData, marca, editData, logoColor, logoLayout, setLayout, clinicaNome, setClinicaNome, onNavSync, navIdx, setNavIdx, customLogoSrc, getCustomLogoScale, setCustomLogoScale, getCustomLogoScaleMax, customLogoScaleMap, submarcaColor, submarcaTextColor }) {
   // Digitais: sempre inclusos no plano PRO
   const ITENS_DIGITAIS = []; // Pack Instagram e Assinatura ficam na aba Digital, não na Papelaria
   // Papelaria disponível para não-médicos
@@ -9063,7 +9063,7 @@ function EntregaContent({ brand, plano, setBrand }) {
         {step === 'guia' && <GuiaStep brand={brand} accentColor={accentColor} paletteColors={paletteColors} marca={marca} tagline={tagline} estampaPatterns={estampaPatterns} estampaSelectedIdx={estampaSelectedIdx} editData={editDataWithLogo} />}
 
         {/* Papelaria / Gabaritos */}
-        {step === 'papelaria' && <PapelariaStep brand={brand} accentColor={accentColor} paletteColors={orderedPaletteColors} estampaPatterns={estampaPatterns} estampaSelectedIdx={estampaSelectedIdx} cartaoContacts={cartaoContacts} setCartaoContacts={setCartaoContacts} plano={plano} isSaude={isSaude} crmData={crmData} setCrmData={setCrmData} marca={marca} editData={editDataWithLogo} logoColor={logoColor} logoLayout={logoLayout} setLayout={setLayout} clinicaNome={clinicaNome} setClinicaNome={setClinicaNome} onNavSync={setPapelariaNavItens} navIdx={papelariaNavIdx} setNavIdx={setPapelariaNavIdx} customLogoSrc={customLogoSrc} getCustomLogoScale={getCustomLogoScale} setCustomLogoScale={setCustomLogoScale} getCustomLogoScaleMax={getCustomLogoScaleMax} customLogoScaleMap={customLogoScaleMap} />}
+        {step === 'papelaria' && <PapelariaStep brand={brand} accentColor={accentColor} paletteColors={orderedPaletteColors} estampaPatterns={estampaPatterns} estampaSelectedIdx={estampaSelectedIdx} cartaoContacts={cartaoContacts} setCartaoContacts={setCartaoContacts} plano={plano} isSaude={isSaude} crmData={crmData} setCrmData={setCrmData} marca={marca} editData={editDataWithLogo} logoColor={logoColor} logoLayout={logoLayout} setLayout={setLayout} clinicaNome={clinicaNome} setClinicaNome={setClinicaNome} onNavSync={setPapelariaNavItens} navIdx={papelariaNavIdx} setNavIdx={setPapelariaNavIdx} customLogoSrc={customLogoSrc} getCustomLogoScale={getCustomLogoScale} setCustomLogoScale={setCustomLogoScale} getCustomLogoScaleMax={getCustomLogoScaleMax} customLogoScaleMap={customLogoScaleMap} submarcaColor={submarcaColor} submarcaTextColor={submarcaTextColor} />}
 
         {/* Ajuda & Inspiração */}
         {step === 'ajuda' && <AjudaStep brand={brand} accentColor={accentColor} />}
