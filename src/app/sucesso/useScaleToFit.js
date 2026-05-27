@@ -46,14 +46,17 @@ export function useScaleToFit(naturalWidth, naturalHeight = null) {
     ...(scaledHeight !== undefined ? { height: scaledHeight } : {}),
     overflow: 'hidden',
     position: 'relative',
+    display: 'flex',
+    justifyContent: 'center',
   };
 
   const innerStyle = {
-    transformOrigin: 'top left',
-    transform: `scale(${scale})`,
+    transformOrigin: 'top center',
+    transform: scaledHeight !== undefined ? `translateX(-50%) scale(${scale})` : `scale(${scale})`,
     width: naturalWidth,
     ...(naturalHeight !== null ? { height: naturalHeight } : {}),
     position: scaledHeight !== undefined ? 'absolute' : 'relative',
+    left: scaledHeight !== undefined ? '50%' : 'auto',
   };
 
   return { wrapperRef, wrapperStyle, innerStyle, scale };

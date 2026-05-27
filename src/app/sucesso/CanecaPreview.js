@@ -30,8 +30,8 @@ function LogoBg({ children, solidColor, size = 80, hideCircle = false }) {
 
 // SeloCaneca: usa BrandTemplateSVG (o selo redondo já pronto) quando há estampa
 // Para logo customizada, cai de volta para LogoBg + LogoPreviewHTML
-function SeloCaneca({ editData, solidColor, size, usePattern, hasCustomLogo, logoLayout, scaleFactor }) {
-  if (usePattern && !hasCustomLogo) {
+function SeloCaneca({ editData, solidColor, size, usePattern, hasCustomLogo, logoLayout, scaleFactor, submarcaColor, submarcaTextColor, iconPath }) {
+  if (!hasCustomLogo) {
     // Monta o seloData igual à página principal
     const seloData = editData?.fontStyle === 'script'
       ? { ...editData, fontFamily: 'Montserrat', fontWeight: 700, fontStyle: 'display' }
@@ -45,35 +45,34 @@ function SeloCaneca({ editData, solidColor, size, usePattern, hasCustomLogo, log
       }}>
         <BrandTemplateSVG
           data={seloData}
-          color={solidColor}
-          textColor="#ffffff"
+          color={submarcaColor || solidColor}
+          textColor={submarcaTextColor || '#ffffff'}
           side="verso"
           hideBackground={true}
-          iconPath={null}
+          iconPath={iconPath || null}
         />
       </div>
     );
   }
 
-  // Fundo sólido: usa logo normal com background transparente
+  // Logo customizada: usa logo normal
   return (
-    <LogoBg solidColor={solidColor} size={size} hideCircle={!usePattern || hasCustomLogo}>
-      <LogoPreviewHTML
-        editData={editData}
-        color="#ffffff"
-        layout={logoLayout || 'stacked'}
-        scaleFactor={scaleFactor}
-        hideTagline={true}
-        withBackground={hasCustomLogo}
-      />
-    </LogoBg>
+    <LogoPreviewHTML
+      editData={editData}
+      color="#ffffff"
+      layout={logoLayout || 'stacked'}
+      scaleFactor={scaleFactor}
+      hideTagline={true}
+      withBackground={hasCustomLogo}
+    />
   );
 }
 
 export default function CanecaPreview({
   accentColor, paletteColors = [], editData, logoColor, logoLayout,
   cartaoContacts, crmLine, clinicaNome, comBorda, setComBorda,
-  patternSrc, patternScale, setPatternScale, borderColor, setBorderColor
+  patternSrc, patternScale, setPatternScale, borderColor, setBorderColor,
+  submarcaColor, submarcaTextColor, iconPath
 }) {
   const solidColor = borderColor || accentColor;
   const usePattern = comBorda && patternSrc;
@@ -144,6 +143,9 @@ export default function CanecaPreview({
                       hasCustomLogo={hasCustomLogo}
                       logoLayout={logoLayout}
                       scaleFactor={LOGO_SF}
+                      submarcaColor={submarcaColor}
+                      submarcaTextColor={submarcaTextColor}
+                      iconPath={iconPath}
                     />
                   </div>
                 </div>
@@ -198,6 +200,9 @@ export default function CanecaPreview({
                     hasCustomLogo={hasCustomLogo}
                     logoLayout={logoLayout}
                     scaleFactor={LOGO_SF_F}
+                    submarcaColor={submarcaColor}
+                    submarcaTextColor={submarcaTextColor}
+                    iconPath={iconPath}
                   />
                 </div>
               ))}

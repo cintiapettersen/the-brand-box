@@ -47,8 +47,23 @@ export default function CartaoAgradecimentoPreview({
             <div style={{ position: 'absolute', bottom: -W * 0.15, right: -W * 0.15, width: W * 0.6, height: W * 0.6, borderRadius: '50%', background: 'rgba(255,255,255,0.08)' }} />
             <div style={{ position: 'absolute', top: -W * 0.1, left: -W * 0.1, width: W * 0.45, height: W * 0.45, borderRadius: '50%', background: 'rgba(255,255,255,0.06)' }} />
 
-            <div style={{ position: 'absolute', top: '42%', left: '50%', transform: 'translate(-50%, -50%)', width: '65%', textAlign: 'center', filter: 'brightness(0) invert(1)' }}>
-              <LogoPreviewHTML editData={editData} color="#fff" layout={logoLayout} scaleFactor={size.w * 0.055} hideTagline={false} />
+            <div style={{
+              position: 'absolute',
+              top: '42%',
+              left: '50%',
+              transform: 'translate(-50%, -50%)',
+              width: '65%',
+              textAlign: 'center',
+              filter: !!editData?.customLogoSrc ? 'none' : 'brightness(0) invert(1)'
+            }}>
+              <LogoPreviewHTML
+                editData={editData}
+                color="#fff"
+                layout={logoLayout}
+                scaleFactor={size.w * 0.055}
+                hideTagline={false}
+                withBackground={!!editData?.customLogoSrc}
+              />
             </div>
 
             <div style={{ position: 'absolute', bottom: W * 0.1, left: '50%', transform: 'translateX(-50%)', width: '85%', textAlign: 'center' }}>

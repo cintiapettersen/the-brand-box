@@ -819,7 +819,7 @@ function CartaoStep({ brand, accentColor, paletteColors, marca, estampaPatterns,
         </div>
       )}
 
-      <div style={{ display: 'flex', gap: '8px', marginTop: '1rem' }}>
+      <div style={{ display: 'flex', gap: '6px', marginTop: '1rem', width: '100%', flexWrap: 'wrap' }}>
         <button onClick={async () => {
           const html = downloadHTML(true);
           const file = new File([new Blob([html], { type: 'text/html' })], `${marca || 'marca'}-cartao-digital.html`, { type: 'text/html' });
@@ -827,10 +827,19 @@ function CartaoStep({ brand, accentColor, paletteColors, marca, estampaPatterns,
             try { await navigator.share({ files: [file], title: `Cartão Digital — ${marca || 'Marca'}` }); return; } catch {}
           }
           downloadHTML();
-        }} style={{ flex: 1, padding: '13px', background: '#C03B66', color: '#fff', border: 'none', borderRadius: '30px', fontWeight: 700, fontSize: '0.82rem', cursor: 'pointer', fontFamily: 'Montserrat, sans-serif' }}>
+        }} style={{ flex: 1, minWidth: '100px', padding: '13px 8px', background: '#C03B66', color: '#fff', border: 'none', borderRadius: '30px', fontWeight: 700, fontSize: '0.78rem', cursor: 'pointer', fontFamily: 'Montserrat, sans-serif', whiteSpace: 'nowrap' }}>
           ↑ Compartilhar
         </button>
-        <button onClick={downloadHTML} style={{ flex: 1, padding: '13px', background: 'none', color: '#C03B66', border: '1.5px solid #C03B66', borderRadius: '30px', fontWeight: 700, fontSize: '0.82rem', cursor: 'pointer', fontFamily: 'Montserrat, sans-serif' }}>
+        <button onClick={() => {
+          const text = `Olá! Segue meu Cartão de Visitas Digital Interativo. Salve o arquivo HTML em anexo no seu celular para acessar todos os meus contatos com apenas um clique! 📲✨`;
+          window.open(`https://api.whatsapp.com/send?text=${encodeURIComponent(text)}`, '_blank');
+        }} style={{ flex: 1, minWidth: '100px', padding: '13px 8px', background: '#25D366', color: '#fff', border: 'none', borderRadius: '30px', fontWeight: 700, fontSize: '0.78rem', cursor: 'pointer', fontFamily: 'Montserrat, sans-serif', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: '6px', whiteSpace: 'nowrap' }}>
+          <svg viewBox="0 0 24 24" width="15" height="15" fill="white" style={{ display: 'block' }}>
+            <path d="M.057 24l1.687-6.163c-1.041-1.804-1.588-3.849-1.587-5.946C.003 5.27 5.28.005 11.792.005c3.16.001 6.129 1.233 8.359 3.468s3.461 5.197 3.461 8.353c-.004 6.523-5.28 11.785-11.793 11.785-1.996-.002-3.957-.5-5.744-1.44L0 24zm5.824-2.871l.328.193c1.674.993 3.593 1.517 5.637 1.518 5.728 0 10.387-4.647 10.39-10.354.002-2.766-1.077-5.366-3.038-7.329s-4.564-3.04-7.33-3.04c-5.73 0-10.39 4.65-10.393 10.358 0 2.11.55 4.17 1.59 5.973l.21.36-1.002 3.658 3.73-.978zm13.125-7.794c-.315-.158-1.86-.918-2.175-1.033-.315-.115-.545-.172-.773.172-.228.345-.885 1.114-1.085 1.343-.2.228-.4.258-.715.1-.315-.158-1.33-.49-2.532-1.562-.936-.83-1.568-1.856-1.75-2.172-.182-.315-.02-.485.138-.642.142-.142.315-.368.473-.553.158-.185.21-.315.315-.525.105-.21.053-.394-.026-.552-.079-.158-.773-1.86-1.06-2.553-.28-.673-.562-.58-.773-.59-.2-.01-.428-.01-.657-.01-.228 0-.6.085-.914.428-.315.345-1.202 1.176-1.202 2.87 0 1.693 1.233 3.325 1.405 3.555.172.228 2.428 3.708 5.882 5.197.82.353 1.46.564 1.96.723.824.263 1.575.225 2.167.137.66-.098 1.86-.76 2.124-1.458.263-.697.263-1.3.185-1.428-.079-.128-.288-.208-.604-.366z"/>
+          </svg>
+          Enviar no Whats
+        </button>
+        <button onClick={downloadHTML} style={{ flex: 1, minWidth: '100px', padding: '13px 8px', background: 'none', color: '#C03B66', border: '1.5px solid #C03B66', borderRadius: '30px', fontWeight: 700, fontSize: '0.78rem', cursor: 'pointer', fontFamily: 'Montserrat, sans-serif', whiteSpace: 'nowrap' }}>
           ⬇ Baixar HTML
         </button>
       </div>
@@ -7918,7 +7927,7 @@ ${fontImports2}
             : currentItem === 'Receita de Alta'
               ? <ReceitaAltaPreview accentColor={accentColor} patternSrc={patternSrc} editData={{ ...itemEditData, tagline: localSlogan }} logoColor={logoColor} logoLayout={logoLayout} cartaoContacts={cartaoContacts} crmLine={crmLine} clinicaNome={clinicaNome} comBorda={comBorda} setComBorda={setComBorda} paletteColors={paletteColors} borderColor={borderColor} setBorderColor={setBorderColor} patternScale={patternScale} setPatternScale={setPatternScale} receitaFields={receitaFields} setReceitaFields={setReceitaFields} />
             : currentItem === 'Caneca' || currentItem === 'Arte para Caneca'
-              ? <CanecaPreview accentColor={accentColor} patternSrc={patternSrc} editData={{ ...itemEditData, tagline: localSlogan }} logoColor={logoColor} logoLayout={logoLayout} cartaoContacts={cartaoContacts} crmLine={crmLine} clinicaNome={clinicaNome} comBorda={comBorda} setComBorda={setComBorda} paletteColors={paletteColors} borderColor={borderColor} setBorderColor={setBorderColor} patternScale={patternScale} setPatternScale={setPatternScale} />
+              ? <CanecaPreview accentColor={accentColor} patternSrc={patternSrc} editData={{ ...itemEditData, tagline: localSlogan }} logoColor={logoColor} logoLayout={logoLayout} cartaoContacts={cartaoContacts} crmLine={crmLine} clinicaNome={clinicaNome} comBorda={comBorda} setComBorda={setComBorda} paletteColors={paletteColors} borderColor={borderColor} setBorderColor={setBorderColor} patternScale={patternScale} setPatternScale={setPatternScale} submarcaColor={submarcaColor} submarcaTextColor={submarcaTextColor} iconPath={currentIconPath} />
             : currentItem === 'Papel de Presente'
               ? <PapelPresentePreview accentColor={accentColor} paletteColors={paletteColors} comBorda={comBorda} setComBorda={setComBorda} patternSrc={patternSrc} patternScale={patternScale} setPatternScale={setPatternScale} borderColor={borderColor} setBorderColor={setBorderColor} sizeIdx={papelPresenteSizeIdx} setSizeIdx={setPapelPresenteSizeIdx} />
             : currentItem === 'Tag para Sacola'
