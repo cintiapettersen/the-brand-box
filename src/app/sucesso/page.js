@@ -2504,8 +2504,7 @@ function TomDeVozStep({ accentColor, marca, tagline, brand, editData }) {
   }
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem', paddingTop: '0.5rem' }}>
-      <div style={{ background: accentColor + '10', borderRadius: '16px', padding: '20px', textAlign: 'center' }}>
-        <p style={{ fontSize: '1.8rem', marginBottom: '10px' }}>🗣️</p>
+      <div style={{ background: accentColor + '10', borderRadius: '16px', padding: '24px 20px', textAlign: 'center' }}>
         <p style={{ fontFamily: `Georgia, serif`, fontSize: '1rem', color: '#555', lineHeight: 1.6, marginBottom: '6px' }}>O Tom de Voz define como sua marca fala com o mundo.</p>
         <p style={{ fontSize: '0.72rem', color: '#aaa', fontFamily: 'Montserrat, sans-serif' }}>Responda 4 perguntas e a IA cria o guia de voz para <strong style={{ color: accentColor }}>{marca}</strong>.</p>
       </div>
