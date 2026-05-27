@@ -41,7 +41,7 @@ export default function CartaoAgradecimentoPreview({
         {isFront ? (
           <>
             {effectiveSrc
-              ? <div style={{ position: 'absolute', inset: 0, backgroundImage: `url(${effectiveSrc})`, backgroundSize: `${(patternScale || 150) * size.scale / 150}px`, backgroundRepeat: 'repeat' }} />
+              ? <div style={{ position: 'absolute', inset: 0, backgroundImage: `url(${effectiveSrc})`, backgroundSize: `${(patternScale || 150) / 1.2}px`, backgroundRepeat: 'repeat' }} />
               : <div style={{ position: 'absolute', inset: 0, background: solidColor }} />}
 
             <div style={{ position: 'absolute', bottom: -W * 0.15, right: -W * 0.15, width: W * 0.6, height: W * 0.6, borderRadius: '50%', background: 'rgba(255,255,255,0.08)' }} />
