@@ -10285,28 +10285,28 @@ function SucessoContent() {
             }}>
               {[
                 {
-                  icon: '🖥️',
+                  color: '#C03B66',
                   title: 'Use um Computador',
                   desc: 'Para melhor aproveitamento visual e facilidade ao baixar as artes e arquivos em alta qualidade.'
                 },
                 {
-                  icon: '➡️',
+                  color: '#4EB0B5',
                   title: 'Siga o Botão de Avançar',
                   desc: 'Avançar passo a passo ajuda a construir sua identidade visual de forma fluida e natural.'
                 },
                 {
-                  icon: '🧘',
+                  color: '#FBDA86',
                   title: 'Responda com Calma & Esteja Presente',
                   desc: 'Responda às perguntas com carinho e presença enquanto você vivencia a criação da sua marca.'
                 },
                 {
-                  icon: '💡',
+                  color: '#E08E79',
                   title: 'Consulte o Guia de Ajuda',
                   desc: 'Na dúvida, nossa aba de Ajuda tem todas as dicas e inspirações para te apoiar no processo.'
                 }
               ].map((item, idx) => (
-                <div key={idx} style={{ display: 'flex', gap: '12px', alignItems: 'flex-start' }}>
-                  <span style={{ fontSize: '1.4rem', lineHeight: 1, flexShrink: 0, marginTop: '2px' }}>{item.icon}</span>
+                <div key={idx} style={{ display: 'flex', gap: '14px', alignItems: 'flex-start' }}>
+                  <div style={{ width: '8px', height: '8px', borderRadius: '50%', background: item.color, flexShrink: 0, marginTop: '6px' }} />
                   <div>
                     <p style={{ margin: 0, fontSize: '0.85rem', fontWeight: 700, color: '#1a1a1a', fontFamily: 'Montserrat, sans-serif' }}>{item.title}</p>
                     <p style={{ margin: '2px 0 0 0', fontSize: '0.76rem', color: '#666', lineHeight: 1.4, fontFamily: 'Montserrat, sans-serif' }}>{item.desc}</p>
