@@ -1,6 +1,31 @@
 'use client';
 import React from 'react';
 
+const getSafeColor = (hex, amount = 45) => {
+  if (!hex) return hex;
+  const h = hex.replace('#', '');
+  const r = parseInt(h.slice(0, 2), 16);
+  const g = parseInt(h.slice(2, 4), 16);
+  const b = parseInt(h.slice(4, 6), 16);
+  const brightness = (r * 299 + g * 587 + b * 114) / 1000;
+  if (brightness > 180) { 
+    const darken = (v) => Math.max(0, Math.min(255, Math.floor(v * (1 - amount/100))));
+    return `#${darken(r).toString(16).padStart(2, '0')}${darken(g).toString(16).padStart(2, '0')}${darken(b).toString(16).padStart(2, '0')}`;
+  }
+  return hex;
+};
+
+const isDarkColor = (hex) => {
+  if (!hex) return false;
+  const h = hex.replace('#', '');
+  if (h.length < 6) return false;
+  const r = parseInt(h.slice(0, 2), 16);
+  const g = parseInt(h.slice(2, 4), 16);
+  const b = parseInt(h.slice(4, 6), 16);
+  const brightness = (r * 299 + g * 587 + b * 114) / 1000;
+  return brightness < 128;
+};
+
 export default function FolderPage4Dynamic({ 
   accentColor = '#D8AD3A', 
   palette = [],
@@ -22595,13 +22620,35 @@ XAuihV4AAAAASUVORK5CYII=" transform="matrix(1 0 0 1 322.5884 288.4095)">
 		c-0.087,0.101,0.557,4.299,0.928,6.052c0.3,1.415,0.878,3.141,1.041,3.106c0.057-0.012,0.122,0.065,0.144,0.172
 		c0.122,0.574,1.422,1.643,2.036,1.674c0.156,0.008,0.294,0.061,0.306,0.118c0.033,0.154,1.513,0.169,1.906,0.02
 		C360.456,420.735,360.818,420.569,361.08,420.435L361.08,420.435z"/>
+	</g>
 </g>
 </svg>`;
-  
-  const getDynamicSvg = () => {
-    return svgBase.replace(/#D8AD3A/g, primaryColor);
-  };
 
+  const c1 = palette[0] || accentColor;
+  const c2 = palette[1] || c1;
+  const c3 = palette[2] || c2;
+  const c4 = palette[3] || c3;
+  const c5 = palette[4] || c4;
+  const headerColor = getSafeColor(c1, 45);
+
+  const leftTableLabelCol = isDarkColor(c4) ? '#FFFFFF' : '#231F20';
+  const leftTableValCol = isDarkColor(c5) ? '#FFFFFF' : '#231F20';
+  
+  const col1TextCol = isDarkColor(headerColor) ? '#FFFFFF' : '#231F20';
+  const col2TextCol = isDarkColor(c4) ? '#FFFFFF' : '#231F20';
+  const col3TextCol = isDarkColor(c5) ? '#FFFFFF' : '#231F20';
+
+  const getDynamicSvg = () => {
+    return svgBase
+      .replace(/#D8AD3A/g, headerColor)
+      .replace(/#F5F5F2/g, headerColor)
+      .replace(/#DAC784/g, c2)
+      .replace(/#D5BC74/g, c3)
+      .replace(/#C18E68/g, c4)
+      .replace(/#8AAD5C/g, c5)
+      .replace(/#5A789A/g, c1);
+  };
+  
   return (
     <div style={{ width: '148px', height: '210px', position: 'absolute', top: 0, left: 0, overflow: 'hidden', pointerEvents: 'none' }}>
       {/* 1. O FUNDO */}
@@ -22620,8 +22667,8 @@ XAuihV4AAAAASUVORK5CYII=" transform="matrix(1 0 0 1 322.5884 288.4095)">
         <div style={{ position: 'absolute', top: '23%', left: '10.5%', width: '79%', height: '27%' }}>
           {horarios.map((item, i) => (
             <div key={i} style={{ display: 'flex', height: '16.6%', alignItems: 'center' }}>
-               <div style={{ width: '31%', fontSize: '2.8px', fontWeight: 900, color: '#231F20', paddingLeft: '4px', textTransform: 'uppercase' }}>{item.label}</div>
-               <div style={{ flex: 1, fontSize: '2.8px', fontWeight: 700, color: '#231F20', paddingLeft: '6px', lineHeight: 1 }}>{item.val}</div>
+               <div style={{ width: '31%', fontSize: '2.8px', fontWeight: 900, color: leftTableLabelCol, paddingLeft: '4px', textTransform: 'uppercase' }}>{item.label}</div>
+               <div style={{ flex: 1, fontSize: '2.8px', fontWeight: 700, color: leftTableValCol, paddingLeft: '6px', lineHeight: 1 }}>{item.val}</div>
             </div>
           ))}
         </div>
@@ -22635,13 +22682,12 @@ XAuihV4AAAAASUVORK5CYII=" transform="matrix(1 0 0 1 322.5884 288.4095)">
         <div style={{ position: 'absolute', top: '55.5%', left: '13.5%', width: '73.5%', height: '35%' }}>
            {introducao.map((item, i) => (
              <div key={i} style={{ display: 'flex', height: '25%' }}>
-                <div style={{ width: '22%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '2.6px', fontWeight: 800, color: '#231F20', textAlign: 'center', padding: '2px' }}>{item.idade}</div>
-                <div style={{ width: '24%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '2.6px', fontWeight: 800, color: '#231F20', textAlign: 'center', padding: '2px' }}>{item.text}</div>
-                <div style={{ flex: 1, display: 'flex', alignItems: 'center', padding: '4px', fontSize: '2.6px', fontWeight: 800, color: '#231F20', lineHeight: 1.1 }}>{item.qty}</div>
+                <div style={{ width: '22%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '2.6px', fontWeight: 800, color: col1TextCol, textAlign: 'center', padding: '2px' }}>{item.idade}</div>
+                <div style={{ width: '24%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '2.6px', fontWeight: 800, color: col2TextCol, textAlign: 'center', padding: '2px' }}>{item.text}</div>
+                <div style={{ flex: 1, display: 'flex', alignItems: 'center', padding: '4px', fontSize: '2.6px', fontWeight: 800, color: col3TextCol, lineHeight: 1.1 }}>{item.qty}</div>
              </div>
            ))}
         </div>
-
       </div>
     </div>
   );

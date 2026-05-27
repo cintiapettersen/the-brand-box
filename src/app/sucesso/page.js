@@ -47,6 +47,8 @@ import ReceitaAltaPreview, { buildReceitaAltaHTML } from './ReceitaAltaPreview';
 import CanecaPreview from './CanecaPreview';
 import PapelPresentePreview from './PapelPresentePreview';
 import GuiaAmamentacaoPreview from './GuiaAmamentacaoPreview';
+import GuiaAlimentarPreview from './GuiaAlimentarPreview';
+import FolderPage4Dynamic from './FolderPage4Dynamic';
 import { useScaleToFit } from './useScaleToFit';
 import { createClient } from '@supabase/supabase-js';
 
@@ -4834,11 +4836,11 @@ function PapelariaStep({ brand, accentColor, paletteColors, estampaPatterns, est
   const PAPELARIA_GERAL = [
     "Cartão de Visita", "Papel Timbrado", "Papel de Presente", "Tag para Sacola",
     "Etiqueta para Correios", "Envelope Ofício (23x11,5cm)", "Envelope Saco (24x34cm)", "Recibo",
-    "Pasta A4", "Caneca",
+    "Pasta A4", "Caneca", "Cartão de Retorno", "Cartão de Agradecimento (10x15cm)"
   ];
   // Papelaria exclusiva para área médica
   const PAPELARIA_MEDICA = [
-    "Receituário Padrão (A4 e A5)", "Atestado Médico (A4 e A5)", "Cartão de Retorno",
+    "Receituário Padrão (A4 e A5)", "Atestado Médico (A4 e A5)",
     "Receituário de Controle Especial", "Prontuário Médico", "Receita de Alta",
     "Ficha de Cadastro",
   ];
@@ -4856,9 +4858,12 @@ function PapelariaStep({ brand, accentColor, paletteColors, estampaPatterns, est
   // Normaliza nomes legados para compatibilidade com dados salvos anteriormente
   const LEGACY_NAMES = {
     'Pasta A4 Exclusiva': 'Pasta A4',
-    'Papel Timbrado': 'Timbrado',
+    'Papel Timbrado': 'Papel Timbrado', // Fix: keep full name to match PAPELARIA_GERAL!
     'Arte para Caneca/Brindes': 'Caneca',
     'Arte para Caneca': 'Caneca',
+    'Recibo Comercial': 'Recibo', // Map to general Recibo
+    'Cartão de Retorno/Fidelidade': 'Cartão de Retorno', // Map to general Cartão de Retorno
+    'Cartão de Agradecimento (10x15cm)': 'Cartão de Agradecimento (10x15cm)',
     'Dicas de Introdução Alimentar': 'Guia Alimentar',
     'Orientação Pré-Natal': 'Guia de Cuidados',
     'Cartão de Exames': 'Cartão de Exame Pré-Natal',
@@ -4918,6 +4923,22 @@ function PapelariaStep({ brand, accentColor, paletteColors, estampaPatterns, est
   const [cartaoRetrato, setCartaoRetrato] = useState(false);
   const [storyTemplateIdx, setStoryTemplateIdx] = useState(0);
   const [storyFormatIdx, setStoryFormatIdx] = useState(0);
+
+  // Estado editável do Guia Alimentar
+  const [guiaHorarios, setGuiaHorarios] = useState([
+    { label: 'CAFÉ DA MANHÃ', val: 'Leite materno ou fórmula infantil' },
+    { label: 'LANCHE DA MANHÃ', val: 'Fruta / leite materno ou fórmula' },
+    { label: 'ALMOÇO', val: 'Cereal ou tubérculo + proteína animal + leguminosa + hortaliças (verduras +legumes) + fruta' },
+    { label: 'LANCHE DA TARDE', val: 'Fruta /leite materno ou fórmula' },
+    { label: 'JANTAR', val: 'Igual almoço' },
+    { label: 'LANCHE DA NOITE', val: 'Leite materno ou fórmula infantil' }
+  ]);
+  const [guiaIntroducao, setGuiaIntroducao] = useState([
+    { idade: 'A partir de 6 meses', text: 'Alimentos amassados', qty: 'Iniciar com 2 a 3 colheres de sopa e aumentar a quantidade conforme aceitação' },
+    { idade: 'A partir dos 7 meses', text: 'Alimentos amassados', qty: '2/3 de uma xícara ou tigela de 250 ml' },
+    { idade: '9 a 11 meses', text: 'Alimentos cortados ou levemente amassados', qty: '3/4 de uma xícara ou tigela de 250 ml' },
+    { idade: '12 a 24 meses', text: 'Alimentos cortados', qty: 'Uma xícara ou tigela de 250 ml' }
+  ]);
 
   const [etiquetaFraseIdx, setEtiquetaFraseIdx] = useState(0);
   const [receitaFields, setReceitaFields] = useState({
@@ -5205,7 +5226,7 @@ function PapelariaStep({ brand, accentColor, paletteColors, estampaPatterns, est
     const isCuidados = item.includes('Cuidados');
     const Art2 = isVacina ? FolderVacinaPage2 : (isDev ? FolderDevPage2 : (isSono ? FolderSonoPage2 : (isCuidados ? FolderCuidadosPage2 : FolderPage2Art)));
     const Art3 = isVacina ? FolderVacinaPage3 : (isDev ? FolderDevPage3 : (isSono ? FolderSonoPage3 : (isCuidados ? FolderCuidadosPage3 : FolderPage3Art)));
-    const Art4 = isVacina ? FolderVacinaPage4 : (isDev ? FolderDevPage4 : (isSono ? FolderSonoPage4 : (isCuidados ? FolderCuidadosPage4 : FolderPage4Art)));
+    const Art4 = isVacina ? FolderVacinaPage4 : (isDev ? FolderDevPage4 : (isSono ? FolderSonoPage4 : (isCuidados ? FolderCuidadosPage4 : (item === 'Guia Alimentar' ? FolderPage4Dynamic : FolderPage4Art))));
     const Art5 = isVacina ? FolderVacinaPage5 : (isDev ? FolderDevPage5 : (isSono ? FolderSonoPage5 : (isCuidados ? FolderCuidadosPage5 : FolderPage5Art)));
     const Art6 = isVacina ? FolderVacinaPage6 : null;
     const Art1 = isVacina ? FolderVacinaPage1 : null;
@@ -7448,7 +7469,7 @@ body { font-family:'Montserrat',sans-serif; }
         const page2 = renderTrifoldFace([
           { num: 2, w: W3, content: `<div style="position:absolute;top:3.5mm;left:3.5mm;width:148px;height:210px;transform:scale(${sInner});transform-origin:top left;">${ReactDOMServer.renderToString(React.createElement(Art2, { accentColor, palette: paletteColors }))}</div>` },
           { num: 3, w: W2, content: `<div style="position:absolute;top:3.5mm;left:3.5mm;width:148px;height:210px;transform:scale(${sInner});transform-origin:top left;">${ReactDOMServer.renderToString(React.createElement(Art3, { accentColor, palette: paletteColors }))}</div>` },
-          { num: 4, w: W1, content: `<div style="position:absolute;top:3.5mm;left:3.5mm;width:146px;height:210px;transform:scale(${sInner});transform-origin:top left;">${ReactDOMServer.renderToString(React.createElement(Art4, { accentColor, palette: paletteColors }))}</div>` }
+          { num: 4, w: W1, content: `<div style="position:absolute;top:3.5mm;left:3.5mm;width:146px;height:210px;transform:scale(${sInner});transform-origin:top left;">${ReactDOMServer.renderToString(React.createElement(Art4, { accentColor, palette: paletteColors, ...(item === 'Guia Alimentar' ? { horarios: guiaHorarios, introducao: guiaIntroducao } : {}) }))}</div>` }
         ], false);
 
         const html = `<!DOCTYPE html><html><head><meta charset="UTF-8"><title>${item} - ${marca}</title>${fiTri}
@@ -7748,6 +7769,7 @@ body { width:${W + BLEED*2}mm; height:${H + BLEED*2}mm; position:relative; overf
       'Envelope Ofício':     { w: 220, h: 113, bleed: 5 },
       'Recibo':              { w: 148, h: 210, bleed: 5 },
       'Cartão de Aniversário': { w: 105, h: 148, bleed: 5 },
+      'Agradecimento':       { w: 100, h: 150, bleed: 3 },
     };
     const psKey = Object.keys(PAGE_SIZES).find(k => item.includes(k));
     let ps = PAGE_SIZES[psKey] || { w: 210, h: 297, bleed: 5 };
@@ -7877,6 +7899,8 @@ ${fontImports2}
               ? <ReciboPreview accentColor={accentColor} patternSrc={patternSrc} cartaoContacts={cartaoContacts} crmLine={crmLine} editData={{ ...itemEditData, tagline: localSlogan }} logoColor={logoColor} comBorda={comBorda} setComBorda={setComBorda} clinicaNome={clinicaNome} setClinicaNome={setClinicaNome} logoLayout={logoLayout} paletteColors={paletteColors} borderColor={borderColor} setBorderColor={setBorderColor} patternScale={patternScale} setPatternScale={setPatternScale} marca={marca} />
             : currentItem.includes('Cartão de Retorno')
               ? <CartaoRetornoPreview accentColor={accentColor} patternSrc={patternSrc} cartaoContacts={cartaoContacts} crmLine={crmLine} editData={{ ...itemEditData, tagline: localSlogan }} logoColor={logoColor} comBorda={comBorda} setComBorda={setComBorda} clinicaNome={clinicaNome} setClinicaNome={setClinicaNome} logoLayout={logoLayout} paletteColors={paletteColors} borderColor={borderColor} setBorderColor={setBorderColor} patternScale={patternScale} setPatternScale={setPatternScale} />
+            : currentItem.includes('Agradecimento')
+              ? <CartaoAgradecimentoPreview accentColor={accentColor} patternSrc={patternSrc} editData={{ ...itemEditData, tagline: localSlogan }} logoColor={logoColor} logoLayout={logoLayout} cartaoContacts={cartaoContacts} crmLine={crmLine} clinicaNome={clinicaNome} comBorda={comBorda} setComBorda={setComBorda} paletteColors={paletteColors} borderColor={borderColor} setBorderColor={setBorderColor} patternScale={patternScale} setPatternScale={setPatternScale} />
             : currentItem === 'Ficha de Cadastro'
               ? <FichaCadastroPreview accentColor={accentColor} patternSrc={patternSrc} editData={{ ...itemEditData, tagline: localSlogan }} logoColor={logoColor} logoLayout={logoLayout} cartaoContacts={cartaoContacts} crmLine={crmLine} clinicaNome={clinicaNome} comBorda={comBorda} setComBorda={setComBorda} paletteColors={paletteColors} borderColor={borderColor} setBorderColor={setBorderColor} patternScale={patternScale} setPatternScale={setPatternScale} fichaAdulto={fichaAdulto} setFichaAdulto={setFichaAdulto} />
             : currentItem === 'Prontuário Médico'
@@ -7917,7 +7941,9 @@ ${fontImports2}
                 />
             : currentItem.includes('Pré-Natal')
               ? <FolderA5Preview brand={brand} editData={itemEditData} logoColor={logoColor} logoLayout={logoLayout} comBorda={comBorda} setComBorda={setComBorda} patternSrc={patternSrc} patternScale={patternScale} setPatternScale={setPatternScale} accentColor={accentColor} borderColor={borderColor} setBorderColor={setBorderColor} paletteColors={paletteColors} title={currentItem} cartaoContacts={cartaoContacts} crmLine={crmLine} folderRoof={folderRoof} />
-            : ['Guia Alimentar', 'Guia de Desenvolvimento', 'Guia de Vacina c/ Calendário', 'Cartão de Vacina', 'Guia do Sono'].some(n => currentItem === n)
+            : currentItem === 'Guia Alimentar'
+              ? <GuiaAlimentarPreview brand={brand} editData={itemEditData} logoColor={logoColor} logoLayout={logoLayout} comBorda={comBorda} setComBorda={setComBorda} patternSrc={patternSrc} patternScale={patternScale} setPatternScale={setPatternScale} accentColor={accentColor} borderColor={borderColor} setBorderColor={setBorderColor} paletteColors={paletteColors} cartaoContacts={cartaoContacts} folderRoof={folderRoof} setFolderRoof={setFolderRoof} crmLine={crmLine} horarios={guiaHorarios} setHorarios={setGuiaHorarios} introducao={guiaIntroducao} setIntroducao={setGuiaIntroducao} />
+            : ['Guia de Desenvolvimento', 'Guia de Vacina c/ Calendário', 'Cartão de Vacina', 'Guia do Sono'].some(n => currentItem === n)
               ? <FolderTrifoldPreview brand={brand} editData={itemEditData} logoColor={logoColor} logoLayout={logoLayout} comBorda={comBorda} setComBorda={setComBorda} patternSrc={patternSrc} patternScale={patternScale} setPatternScale={setPatternScale} accentColor={accentColor} borderColor={borderColor} setBorderColor={setBorderColor} paletteColors={paletteColors} title={currentItem} cartaoContacts={cartaoContacts} folderRoof={folderRoof} setFolderRoof={setFolderRoof} crmLine={crmLine} />
             : currentItem.includes('Atestado Médico')
               ? <AtestadoPreview accentColor={accentColor} patternSrc={patternSrc} editData={{ ...itemEditData, tagline: localSlogan }} logoColor={logoColor} logoLayout={logoLayout} crmLine={crmLine} clinicaNome={clinicaNome} marca={marca} cartaoContacts={cartaoContacts} comBorda={comBorda} setComBorda={setComBorda} paletteColors={paletteColors} borderColor={borderColor} setBorderColor={setBorderColor} patternScale={patternScale} setPatternScale={setPatternScale} folderRoof={folderRoof} setFolderRoof={setFolderRoof} paperSize={paperSize} setPaperSize={setPaperSize} />
@@ -8022,7 +8048,8 @@ ${fontImports2}
           'Cartão de Visita':       { cat: 'Cartão de visita', tam: '9 × 4,8 cm', papel: 'Couché 300g', acabamento: 'Refile', preco: '~R$52,94 / 250 un.' },
           'Receituário':            { cat: 'Receituário', tam: 'A5 (14,8×21 cm) ou A4 (21×29,7 cm)', papel: 'Offset 90g', acabamento: 'Blocado Colado · 25 vias', preco: '~R$109,19 / 10 blocos' },
           'Timbrado':               { cat: 'Timbrado', tam: 'A4 (21 × 29,7 cm)', papel: 'Offset 90g+', acabamento: 'Folhas avulsas', preco: '~R$170,85 / 250 un.' },
-          'Cartão de Retorno':      { cat: 'Cartão de visita', tam: '9 × 4,8 cm', papel: 'Couché Fosco 300g', acabamento: 'Refile', preco: '~R$52,94 / 250 un.' },
+          'Cartão de Retorno':      { cat: 'Cartão de retorno / fidelidade', tam: '9 × 4,8 cm', papel: 'Couché Fosco 300g', acabamento: 'Refile', preco: '~R$52,94 / 250 un.' },
+          'Agradecimento':          { cat: 'Cartão de agradecimento', tam: '10 × 15 cm', papel: 'Couché Fosco 250g+', acabamento: 'Refile', preco: '~R$85,00 / 100 un.' },
           'Pasta':                  { cat: 'Pasta com bolsa', tam: '22 × 31 cm fechada · gabarito 485×385mm', papel: 'Cartão 300g', acabamento: 'Faca c/ Bolsa · Vinco · Dobra', preco: '~R$205,04 / 50 un.' },
           'Envelope Ofício (23x11,5cm)': { cat: 'Envelope', tam: '23 × 11,5 cm', papel: 'Offset 90g', acabamento: 'Faca especial · Cola', preco: '~R$319,24 / 50 un.' },
           'Envelope Saco (24x34cm)':   { cat: 'Envelope Saco', tam: '24 × 34 cm', papel: 'Offset 120g', acabamento: 'Faca especial · Cola', preco: '~R$400,00 / 50 un.' },
