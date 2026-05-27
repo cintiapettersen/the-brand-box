@@ -48,7 +48,7 @@ function SeloCaneca({ editData, solidColor, size, usePattern, hasCustomLogo, log
           color={solidColor}
           textColor="#ffffff"
           side="verso"
-          hideBackground={false}
+          hideBackground={true}
           iconPath={null}
         />
       </div>
@@ -135,8 +135,7 @@ export default function CanecaPreview({
                     ? <div style={{ position: 'absolute', inset: 0, backgroundImage: `url(${patternSrc})`, backgroundSize: `${(patternScale || 150) * 0.65}px`, backgroundRepeat: 'repeat' }} />
                     : <div style={{ position: 'absolute', inset: 0, background: solidColor }} />
                   }
-                  {/* Selo ou logo centralizado */}
-                  <div style={{ position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%)', textAlign: 'center', width: `${Math.round(artWidth * 0.88)}px`, overflow: 'hidden' }}>
+                  <div style={{ position: 'absolute', top: '50%', left: '66%', transform: 'translate(-50%, -50%)', textAlign: 'center', width: `${Math.round(artWidth * 0.88)}px`, overflow: 'hidden' }}>
                     <SeloCaneca
                       editData={editData}
                       solidColor={solidColor}

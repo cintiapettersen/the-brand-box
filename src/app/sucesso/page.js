@@ -257,7 +257,7 @@ export function LogoPreviewHTML({ item = null, editData, color, layout = 'stacke
         fontSize,
         color: color,
         textAlign: alignLeft ? 'left' : 'center',
-        lineHeight: editData?.fontLineHeight || (isScript ? 0.9 : 1.1),
+        lineHeight: editData?.fontLineHeight || (isScript ? 0.9 : 1.22),
         letterSpacing: editData?.fontLetterSpacing || (isScript ? '0px' : '1px'),
       }}>
         {lines.map((line, i) => (
@@ -2529,7 +2529,7 @@ const FONTE_CURADA = [
   { label: 'Divertida',   fontFamily: 'Borel',             weight: 400, style: 'script',  sizeBoost: 1.2, googleFont: true  },
 ];
 
-function FonteStep({ brand, accentColor, marca, tagline, editData, logoLayout, onFontChange }) {
+function FonteStep({ brand, accentColor, logoColor, marca, tagline, editData, logoLayout, onFontChange }) {
   const currentFont = editData?.fontFamily || 'Playfair Display';
 
   // Garante que a fonte original sempre apareça como opção "Sugerida"
@@ -2588,7 +2588,7 @@ function FonteStep({ brand, accentColor, marca, tagline, editData, logoLayout, o
         <div style={{ width: '85%', height: '85%', padding: '10px 0', display: 'flex', alignItems: 'center', justifyContent: 'center', overflow: 'hidden' }}>
           <LogoPreviewHTML
             editData={{ ...editData, fontFamily: preview.fontFamily, fontWeight: preview.weight || 700, fontStyle: preview.style, fontSizeBoost: preview.sizeBoost || 1, tagline: null }}
-            color={accentColor}
+            color={logoColor || accentColor}
             layout="horizontal"
             scaleFactor={1.1}
             maxWidth="100%"
@@ -8283,7 +8283,7 @@ function EntregaContent({ brand, plano, setBrand }) {
   const setTaglineSizeBoost = (v) => { setTaglineSizeBoostState(v); try { localStorage.setItem(`brandbox_tagline_size_boost_${brand.id}`, v); } catch {} };
   const [sloganEnabled, setSloganEnabledState] = useState(() => { try { return localStorage.getItem(`brandbox_slogan_enabled_${brand.id}`) !== 'false'; } catch { return true; } });
   const setSloganEnabled = (v) => { setSloganEnabledState(v); try { localStorage.setItem(`brandbox_slogan_enabled_${brand.id}`, v ? 'true' : 'false'); } catch {} };
-  const [fontLineHeight, setFontLineHeightState] = useState(() => { try { return parseFloat(localStorage.getItem(`brandbox_font_line_height_${brand.id}`)) || brand.editData?.fontLineHeight || (brand.editData?.fontStyle === 'script' ? 0.9 : 1.1); } catch { return 1.1; } });
+  const [fontLineHeight, setFontLineHeightState] = useState(() => { try { return parseFloat(localStorage.getItem(`brandbox_font_line_height_${brand.id}`)) || brand.editData?.fontLineHeight || (brand.editData?.fontStyle === 'script' ? 0.9 : 1.22); } catch { return 1.22; } });
   const setFontLineHeight = (v) => { setFontLineHeightState(v); try { localStorage.setItem(`brandbox_font_line_height_${brand.id}`, v); } catch {} };
   const [taglineLetterSpacing, setTaglineLetterSpacingState] = useState(() => { try { return parseFloat(localStorage.getItem(`brandbox_tagline_letter_spacing_${brand.id}`)) || 0.35; } catch { return 0.35; } });
   const setTaglineLetterSpacing = (v) => { setTaglineLetterSpacingState(v); try { localStorage.setItem(`brandbox_tagline_letter_spacing_${brand.id}`, v); } catch {} };
@@ -8986,7 +8986,7 @@ function EntregaContent({ brand, plano, setBrand }) {
         {/* Tom de Voz */}
         {step === 'tomdevoz' && <TomDeVozStep accentColor={accentColor} marca={marca} tagline={tagline} brand={brand} editData={editDataWithLogo} />}
 
-        {step === 'fonte' && <FonteStep brand={brand} accentColor={accentColor} marca={marca} tagline={tagline} editData={editDataWithLogo} onFontChange={(f) => setFontOverride(f)} />}
+        {step === 'fonte' && <FonteStep brand={brand} accentColor={accentColor} logoColor={logoColor} marca={marca} tagline={tagline} editData={editDataWithLogo} onFontChange={(f) => setFontOverride(f)} />}
 
         {/* Aba Slogan */}
         {step === 'slogan' && (
@@ -9118,6 +9118,55 @@ function EntregaContent({ brand, plano, setBrand }) {
                 </div>
               </div>
 
+              {/* 📐 Disposição / Layout & Altura das Linhas */}
+              {!customLogoSrc && (
+                <div style={{ padding: '12px 14px', background: '#fcfcfc', borderRadius: '14px', border: '1.5px solid #eaeaea', display: 'flex', flexDirection: 'column', gap: '10px' }}>
+                  {marca.split(' ').length > 1 && (
+                    <div>
+                      <span style={{ fontSize: '0.72rem', fontWeight: 800, fontFamily: 'Montserrat, sans-serif', color: '#555', display: 'block', marginBottom: '8px' }}>📐 Disposição / Layout</span>
+                      <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap' }}>
+                        {[
+                          { key: 'horizontal', label: '⟵→ Uma linha' },
+                          { key: 'balanced', label: '⊟ Duas linhas', hide: marca.split(' ').length < 3 },
+                          { key: 'stacked', label: '≡ Empilhada' },
+                        ].filter(o => !o.hide).map(({ key, label }) => (
+                          <button key={key} onClick={() => setLayout(key)} style={{ padding: '5px 13px', borderRadius: '20px', fontSize: '0.72rem', fontWeight: 600, cursor: 'pointer', border: 'none', background: logoLayout === key ? logoColor : '#eee', color: logoLayout === key ? '#fff' : '#888', transition: 'all 0.15s ease' }}>{label}</button>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                  {logoLayout !== 'horizontal' && (
+                    <div style={{ marginTop: '4px' }}>
+                      <span style={{ fontSize: '0.72rem', fontWeight: 800, fontFamily: 'Montserrat, sans-serif', color: '#555', display: 'block', marginBottom: '8px' }}>↔️ Altura / Espaço entre Linhas</span>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                        <input type="range" min="0.5" max="2" step="0.05" value={fontLineHeight} onChange={e => setFontLineHeight(parseFloat(e.target.value))} style={{ flex: 1, accentColor }} />
+                        <span style={{ fontSize: '0.68rem', color: '#aaa', width: '32px' }}>{fontLineHeight.toFixed(2)}</span>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              )}
+
+              {/* Nome da Marca */}
+              {!customLogoSrc && (
+                <div style={{ padding: '12px 14px', background: '#fcfcfc', borderRadius: '14px', border: '1.5px solid #eaeaea' }}>
+                  <button onClick={() => setShowEdit(v => !v)} style={{ background: 'none', border: 'none', padding: 0, width: '100%', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                    <span style={{ fontSize: '0.72rem', fontWeight: 800, fontFamily: 'Montserrat, sans-serif', color: '#555', display: 'flex', alignItems: 'center', gap: '6px' }}>✏️ Nome da Marca</span>
+                    <span style={{ fontSize: '0.8rem', color: '#888' }}>{showEdit ? '▲' : '▼'}</span>
+                  </button>
+                  {showEdit && (
+                    <input
+                      value={tempMarca}
+                      onChange={e => setTempMarca(e.target.value)}
+                      onBlur={() => commitMarcaChange(tempMarca)}
+                      onKeyDown={e => { if (e.key === 'Enter') commitMarcaChange(tempMarca); }}
+                      placeholder="Nome da marca"
+                      style={{ width: '100%', padding: '10px 14px', borderRadius: '10px', border: '1px solid #e0e0e0', fontSize: '0.9rem', fontFamily: 'Montserrat, sans-serif', boxSizing: 'border-box', marginTop: '8px' }}
+                    />
+                  )}
+                </div>
+              )}
+
               {/* Origem da Logo */}
               <div style={{ padding: '12px 14px', background: '#fcfcfc', borderRadius: '14px', border: '1.5px solid #eaeaea' }}>
                 <span style={{ fontSize: '0.72rem', fontWeight: 800, fontFamily: 'Montserrat, sans-serif', color: '#555', display: 'block', marginBottom: '8px' }}>📂 Origem da Logo</span>
@@ -9128,6 +9177,15 @@ function EntregaContent({ brand, plano, setBrand }) {
                     <input type="file" accept="image/png" style={{ display: 'none' }} onClick={e => { e.target.value = null; }} onChange={e => {
                       const file = e.target.files[0];
                       if (!file) return;
+
+                      // Limite inteligente de 8 uploads para evitar abusos
+                      const uploadKey = `brandbox_custom_logo_upload_count_${brand.id}`;
+                      const currentCount = parseInt(localStorage.getItem(uploadKey) || '0', 10);
+                      if (currentCount >= 8) {
+                        setCustomLogoWarn('⚠️ Limite de uploads de logo atingido para este projeto. Caso precise alterar novamente, por favor entre em contato com nosso suporte.');
+                        return;
+                      }
+
                       if (file.type !== 'image/png') { setCustomLogoWarn('Por favor envie um arquivo PNG.'); return; }
                       if (file.size > 5 * 1024 * 1024) { setCustomLogoWarn('Arquivo muito grande (máx. 5MB). Otimize o PNG e tente novamente.'); return; }
                       const reader = new FileReader();
@@ -9137,6 +9195,9 @@ function EntregaContent({ brand, plano, setBrand }) {
                         img.onload = () => {
                           const minDim = Math.min(img.width, img.height);
                           if (minDim < 500) { setCustomLogoWarn(`Imagem muito pequena (${img.width}×${img.height}px). Envie pelo menos 500×500px.`); return; }
+                          
+                          // Incrementa upload válido
+                          try { localStorage.setItem(uploadKey, String(currentCount + 1)); } catch {}
                           const canvas = document.createElement('canvas'); canvas.width = img.width; canvas.height = img.height;
                           const ctx = canvas.getContext('2d'); ctx.drawImage(img, 0, 0);
                           const pts = [[0,0],[img.width-1,0],[0,img.height-1],[img.width-1,img.height-1],[Math.floor(img.width/2),0],[Math.floor(img.width/2),img.height-1]];
@@ -9192,52 +9253,6 @@ function EntregaContent({ brand, plano, setBrand }) {
                       {paletteColors.map((hex, i) => <ColorDot key={i} color={hex} selected={logoColor === hex} onClick={() => setLogoColor(hex)} />)}
                     </div>
                   </div>
-                </div>
-              </div>
-
-              {/* Disposição */}
-              {!customLogoSrc && marca.split(' ').length > 1 && (
-                <div style={{ padding: '12px 14px', background: '#fcfcfc', borderRadius: '14px', border: '1.5px solid #eaeaea' }}>
-                  <span style={{ fontSize: '0.72rem', fontWeight: 800, fontFamily: 'Montserrat, sans-serif', color: '#555', display: 'block', marginBottom: '8px' }}>📐 Disposição / Layout</span>
-                  <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap' }}>
-                    {[
-                      { key: 'horizontal', label: '⟵→ Uma linha' },
-                      { key: 'balanced', label: '⊟ Duas linhas', hide: marca.split(' ').length < 3 },
-                      { key: 'stacked', label: '≡ Empilhada' },
-                    ].filter(o => !o.hide).map(({ key, label }) => (
-                      <button key={key} onClick={() => setLayout(key)} style={{ padding: '5px 13px', borderRadius: '20px', fontSize: '0.72rem', fontWeight: 600, cursor: 'pointer', border: 'none', background: logoLayout === key ? logoColor : '#eee', color: logoLayout === key ? '#fff' : '#888', transition: 'all 0.15s ease' }}>{label}</button>
-                    ))}
-                  </div>
-                </div>
-              )}
-
-
-
-              {!customLogoSrc && (
-                <div style={{ padding: '12px 14px', background: '#fcfcfc', borderRadius: '14px', border: '1.5px solid #eaeaea' }}>
-                  <button onClick={() => setShowEdit(v => !v)} style={{ background: 'none', border: 'none', padding: 0, width: '100%', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                    <span style={{ fontSize: '0.72rem', fontWeight: 800, fontFamily: 'Montserrat, sans-serif', color: '#555', display: 'flex', alignItems: 'center', gap: '6px' }}>✏️ Nome da Marca</span>
-                    <span style={{ fontSize: '0.8rem', color: '#888' }}>{showEdit ? '▲' : '▼'}</span>
-                  </button>
-                  {showEdit && (
-                    <input
-                      value={tempMarca}
-                      onChange={e => setTempMarca(e.target.value)}
-                      onBlur={() => commitMarcaChange(tempMarca)}
-                      onKeyDown={e => { if (e.key === 'Enter') commitMarcaChange(tempMarca); }}
-                      placeholder="Nome da marca"
-                      style={{ width: '100%', padding: '10px 14px', borderRadius: '10px', border: '1px solid #e0e0e0', fontSize: '0.9rem', fontFamily: 'Montserrat, sans-serif', boxSizing: 'border-box', marginTop: '8px' }}
-                    />
-                  )}
-                </div>
-              )}
-
-              {/* Altura Logo */}
-              <div style={{ padding: '12px 14px', background: '#fcfcfc', borderRadius: '14px', border: '1.5px solid #eaeaea' }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-                  <span style={{ fontSize: '0.72rem', fontWeight: 800, fontFamily: 'Montserrat, sans-serif', color: '#555', whiteSpace: 'nowrap' }}>↕ Altura da Logo</span>
-                  <input type="range" min="0.5" max="2" step="0.05" value={fontLineHeight} onChange={e => setFontLineHeight(parseFloat(e.target.value))} style={{ flex: 1, accentColor }} />
-                  <span style={{ fontSize: '0.68rem', color: '#aaa', width: '32px' }}>{fontLineHeight.toFixed(2)}</span>
                 </div>
               </div>
             </div>
