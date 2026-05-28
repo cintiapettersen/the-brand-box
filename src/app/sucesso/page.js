@@ -5843,9 +5843,9 @@ body { width: 485.775mm; height: 385.233mm; position: relative; overflow: hidden
         <div class="card" style="position:relative;overflow:hidden;">
           ${frenteBgHtml}
           <div style="position:absolute;top:${BLEED}mm;left:${BLEED}mm;right:${BLEED}mm;bottom:${BLEED}mm;display:flex;align-items:center;justify-content:center;">
-            ${(comBorda && !!patternSrc && customLogoSrc)
+            ${(comBorda && !!patternSrc)
               ? `<div style="background:rgba(255,255,255,0.88);padding:${_bgPadStr};border-radius:4px;display:inline-flex;align-items:center;justify-content:center;max-height:${_logoBoxH};">
-                  ${genPDFLogoHtml({ brand, editDataOverride: editData, color: logoColor, localSlogan, crmLine, fontPt: _fontPtCV, lineH: _lineH, letterSp: _letterSp, layout: logoLayout, customLogoSrc, customLogoScale: getCustomLogoScale(item) * (ITEM_CUSTOM_BASE_SCALES[item] || 1), maxWidth: `${_availW}mm`, maxHeight: _logoBoxH, withBackground: false })}
+                  ${genPDFLogoHtml({ brand, editDataOverride: editData, color: logoColor, localSlogan, crmLine, fontPt: _fontPtCV, lineH: _lineH, letterSp: _letterSp, layout: logoLayout, customLogoSrc, customLogoScale: customLogoSrc ? getCustomLogoScale(item) * (ITEM_CUSTOM_BASE_SCALES[item] || 1) : 100, maxWidth: `${_availW}mm`, maxHeight: _logoBoxH, withBackground: false })}
                 </div>`
               : `<div style="width:${_logoW}; height:${_logoBoxH}; display:flex; align-items:center; justify-content:center; overflow:hidden; ${_isScript ? 'padding-top:2mm;' : ''}">
                   ${genPDFLogoHtml({ brand, editDataOverride: editData, color: logoColor, localSlogan, crmLine, fontPt: _fontPtCV, lineH: _lineH, letterSp: _letterSp, layout: logoLayout, customLogoSrc, customLogoScale: customLogoSrc ? getCustomLogoScale(item) * (ITEM_CUSTOM_BASE_SCALES[item] || 1) : 100, maxWidth: `${_availWContent}mm`, maxHeight: _logoBoxH, withBackground: false })}
