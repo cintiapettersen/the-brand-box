@@ -48,14 +48,14 @@ export const genPDFLogoHtml = ({ brand, editDataOverride = null, color, localSlo
   const marca = _ed.marca || brand.name || 'Marca';
   const words = marca.split(' ').map(w => isScript ? w.charAt(0).toUpperCase() + w.slice(1).toLowerCase() : w.toUpperCase());
   
-  let lines = [words.join(' ')];
-  if (layout === 'stacked' || layout === 'balanced') {
-    if (words.length === 2) {
-      lines = words;
-    } else if (words.length >= 3) {
-      const m = Math.ceil(words.length / 2);
-      lines = [words.slice(0, m).join(' '), words.slice(m).join(' ')];
-    }
+  let lines;
+  if (layout === 'horizontal') {
+    lines = [words.join(' ')];
+  } else if (layout === 'balanced' && words.length >= 3) {
+    const mid = Math.ceil(words.length / 2);
+    lines = [words.slice(0, mid).join(' '), words.slice(mid).join(' ')];
+  } else {
+    lines = words;
   }
 
   // Slogan dinâmico: quanto mais longo, menor a fonte e maior o espaçamento (tracking)
@@ -170,9 +170,11 @@ export const genPDFLogoHtml = ({ brand, editDataOverride = null, color, localSlo
 
   const finalWrapper = `
     <div style="display:inline-flex; flex-direction:column; align-items:${alignLeft ? 'flex-start' : 'center'}; justify-content:${alignLeft ? 'flex-start' : 'center'}; ${maxWidth ? `max-width:${maxWidth};` : ''} ${maxHeight ? `max-height:${maxHeight};` : ''}">
-      <div style="display:flex; flex-direction:${isStacked ? 'column' : 'row'}; align-items:${alignLeft ? 'flex-start' : 'center'}; justify-content:${alignLeft ? 'flex-start' : 'center'}; gap:${isStacked ? '0' : (_autoZoom * 5).toFixed(1) + 'mm'}; ${withBackground ? `background:rgba(255,255,255,0.92); padding:${_withBackgroundPaddingScaled}; border-radius:4px;` : ''}">
-        ${logoMain}
-        ${sloganPart}${crmPart}
+      <div style="${withBackground ? `background:rgba(255,255,255,0.92); padding:${_withBackgroundPaddingScaled}; border-radius:4px;` : ''} display:inline-block; width:100%; text-align:${alignLeft ? 'left' : 'center'};">
+        <div style="display:flex; flex-direction:${isStacked ? 'column' : 'row'}; align-items:${alignLeft ? 'flex-start' : 'center'}; justify-content:${alignLeft ? 'flex-start' : 'center'}; gap:${isStacked ? '0' : (_autoZoom * 5).toFixed(1) + 'mm'};">
+          ${logoMain}
+          ${sloganPart}${crmPart}
+        </div>
       </div>
     </div>
   `;
