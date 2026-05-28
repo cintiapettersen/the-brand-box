@@ -7371,10 +7371,10 @@ ${renderSide([4, 5, 6, 7])}
           const themeTaglinePrenatal = item.includes('Pré-Natal') ? 'CUIDANDO DESDE O INÍCIO..' : 'Saúde e Bem-Estar Pediátrico';
           const finalTaglinePrenatal = (item.includes('Pré-Natal')) ? themeTaglinePrenatal : (brand.editData?.tagline || themeTaglinePrenatal);
 
-          const p1 = ReactDOMServer.renderToString(<PrenatalPage1 accentColor={accentColor} palette={paletteColors} logoComponent={<div dangerouslySetInnerHTML={{ __html: logoHtmlPrenatal }} />} folderRoof={folderRoof} tagline={finalTaglinePrenatal} comBorda={comBorda} patternSrc={patternSrc} patternScale={patternScale} borderColor={borderColor} />);
+          const p1 = ReactDOMServer.renderToString(<PrenatalPage1 accentColor={accentColor} palette={paletteColors} logoComponent={<div dangerouslySetInnerHTML={{ __html: logoHtmlPrenatal }} />} folderRoof={folderRoof} tagline={finalTaglinePrenatal} comBorda={comBorda} patternSrc={null} patternScale={patternScale} borderColor={borderColor} />);
           const p2 = ReactDOMServer.renderToString(<PrenatalPage2 accentColor={accentColor} palette={paletteColors} />);
           const p3 = ReactDOMServer.renderToString(<PrenatalPage3 accentColor={accentColor} palette={paletteColors} />);
-          const p4 = ReactDOMServer.renderToString(<PrenatalPage4 accentColor={accentColor} palette={paletteColors} comBorda={comBorda} patternSrc={patternSrc} patternScale={patternScale} borderColor={borderColor} />);
+          const p4 = ReactDOMServer.renderToString(<PrenatalPage4 accentColor={accentColor} palette={paletteColors} comBorda={comBorda} patternSrc={null} patternScale={patternScale} borderColor={borderColor} />);
 
           // Escala exata 1px=1mm; fundo das páginas 1 e 4 estendido para cobrir a sangria
           const PX = 3.7795;
@@ -7382,7 +7382,7 @@ ${renderSide([4, 5, 6, 7])}
           const sY = PX.toFixed(4);
           const prenatalBg = borderColor || paletteColors[0] || accentColor;
           const prenatalBgStyle = (comBorda && patternSrc)
-            ? `background-image:url(${patternSrc});background-size:${(patternScale||120)*0.56}px;background-repeat:repeat;`
+            ? `background-image:url(${patternSrc});background-size:${((patternScale || 100) * 0.35).toFixed(1)}mm;background-repeat:repeat;`
             : `background:${prenatalBg};`;
 
           const html = `<!DOCTYPE html><html><head><meta charset="UTF-8"><title>${item} - ${marca}</title>${fiPrenatal}

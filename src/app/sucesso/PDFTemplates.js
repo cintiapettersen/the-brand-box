@@ -81,7 +81,7 @@ export const genPDFLogoHtml = ({ brand, editDataOverride = null, color, localSlo
     const _bgPadVmm = withBackground
       ? (parseFloat((withBackgroundPadding || '2px 4px').split(' ')[0]) * (withBackgroundPadding?.includes('mm') ? 1 : 0.264583)) * 2
       : 0;
-    const _sloganLinesCount = (localSlogan && !hideSlogan) ? (localSlogan.length > 35 ? 2 : 1) : 0;
+    const _sloganLinesCount = (localSlogan && !hideSlogan) ? (localSlogan.length > 25 ? 2 : 1) : 0;
     const _scriptHeightMul = _isScript ? 1.4 : 1.0;
     const _hPerPt = lines.length * _effectiveLineH * 0.353 * _scriptHeightMul
       + _sloganLinesCount * _sloganScale * 1.2 * 0.353
@@ -101,7 +101,7 @@ export const genPDFLogoHtml = ({ brand, editDataOverride = null, color, localSlo
   // Gap adaptativo baseado no tamanho da fonte do slogan e complexidade
   const _sloganGap = (parseFloat(effectiveSloganSize) * _sloganGapMultiplier).toFixed(1);
   
-  const _shouldWrap = _ed?.taglineWrap !== undefined ? _ed.taglineWrap : (_sloganLenRaw > 35);
+  const _shouldWrap = _ed?.taglineWrap !== undefined ? _ed.taglineWrap : (_sloganLenRaw > 25);
 
   const displaySloganLines = (localSlogan && localSlogan.includes('\n'))
     ? localSlogan.split('\n').filter(l => l.trim() !== '')
