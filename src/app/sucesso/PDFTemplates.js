@@ -163,7 +163,7 @@ export const genPDFLogoHtml = ({ brand, editDataOverride = null, color, localSlo
 
   const sloganPart = (localSlogan && !hideSlogan) ? `
     <div style="${PDFStyles.montserrat} font-size:${_effectiveSloganSizeScaled}; font-weight:700; letter-spacing:${_sloganLs}; text-transform:uppercase; color:${_sloganColor}; margin-top:${isStacked ? _sloganGapScaled + 'pt' : '0'}; text-align:${alignLeft ? 'left' : 'center'}; max-width:100%; overflow:hidden;">
-      ${displaySloganLines.map(l => `<div style="white-space:normal;overflow-wrap:break-word;word-break:break-word;text-align:${alignLeft ? 'left' : 'center'};">${l}</div>`).join('')}
+      ${displaySloganLines.map(l => `<div style="white-space:nowrap;text-align:${alignLeft ? 'left' : 'center'};">${l}</div>`).join('')}
     </div>` : '';
   
   const crmPart = crmLine ? `<div style="${PDFStyles.montserrat} font-size:${_effectiveCrmSizeScaled}; letter-spacing:1pt; text-transform:uppercase; color:#bbb; margin-top:${_crmGapScaled}pt; text-align:${alignLeft ? 'left' : 'center'}; opacity:0.8;">${crmLine}</div>` : '';
