@@ -49,6 +49,7 @@ import PapelPresentePreview from './PapelPresentePreview';
 import GuiaAmamentacaoPreview from './GuiaAmamentacaoPreview';
 import GuiaAlimentarPreview from './GuiaAlimentarPreview';
 import FolderPage4Dynamic from './FolderPage4Dynamic';
+import CadernetaPreview from './CadernetaPreview';
 import { useScaleToFit } from './useScaleToFit';
 import { createClient } from '@supabase/supabase-js';
 
@@ -4858,7 +4859,7 @@ function PapelariaStep({ brand, accentColor, paletteColors, estampaPatterns, est
     "Guia de Vacina c/ Calendário", "Cartão de Exame Pré-Natal",
     "Gráfico de Crescimento", "Checklist Maternidade", "Guia do Sono",
     "Orientações p/ Recém Nascidos", "Certificado de Coragem",
-    "Diário do Xixi", "Meu Pratinho", "Guia de Amamentação",
+    "Diário do Xixi", "Meu Pratinho", "Guia de Amamentação", "Caderneta de Saúde",
   ];
   // Monta lista final: papelaria selecionada no checkout + digitais automáticos
   const papelariaSelecionada = brand?.papelariaSelecionada || [];
@@ -5091,14 +5092,29 @@ function PapelariaStep({ brand, accentColor, paletteColors, estampaPatterns, est
             <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
               {DIGITAIS_MEDICOS.map(item => {
                 const sel = upsellSelecionados.includes(item);
+                const isCaderneta = item === 'Caderneta de Saúde';
                 return (
                   <label key={item} onClick={() => setUpsellSelecionados(sel ? upsellSelecionados.filter(i => i !== item) : [...upsellSelecionados, item])}
-                    style={{ display: 'flex', alignItems: 'center', gap: '12px', padding: '10px 14px', borderRadius: '12px', border: `1.5px solid ${sel ? accentColor : '#eee'}`, background: sel ? `${accentColor}08` : '#fff', cursor: 'pointer', transition: 'all 0.15s' }}>
-                    <div style={{ width: 18, height: 18, borderRadius: '5px', border: `2px solid ${sel ? accentColor : '#ddd'}`, background: sel ? accentColor : '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, transition: 'all 0.15s' }}>
+                    style={{ 
+                      display: 'flex', 
+                      alignItems: 'center', 
+                      gap: '12px', 
+                      padding: '10px 14px', 
+                      borderRadius: '12px', 
+                      border: `1.5px solid ${sel ? (isCaderneta ? '#e6af2e' : accentColor) : (isCaderneta ? '#f0d38d' : '#eee')}`, 
+                      background: sel ? (isCaderneta ? '#fffcf0' : `${accentColor}08`) : '#fff', 
+                      cursor: 'pointer', 
+                      transition: 'all 0.15s' 
+                    }}>
+                    <div style={{ width: 18, height: 18, borderRadius: '5px', border: `2px solid ${sel ? (isCaderneta ? '#e6af2e' : accentColor) : '#ddd'}`, background: sel ? (isCaderneta ? '#e6af2e' : accentColor) : '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, transition: 'all 0.15s' }}>
                       {sel && <svg viewBox="0 0 12 12" width="10" height="10"><polyline points="2,6 5,9 10,3" fill="none" stroke="#fff" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/></svg>}
                     </div>
-                    <span style={{ fontSize: '0.8rem', fontWeight: sel ? 700 : 500, color: sel ? '#333' : '#666', fontFamily: 'Montserrat,sans-serif', flex: 1 }}>{item}</span>
-                    <span style={{ fontSize: '0.72rem', color: '#aaa', fontFamily: 'Montserrat,sans-serif' }}>R$ 30</span>
+                    <span style={{ fontSize: '0.8rem', fontWeight: sel ? 700 : 500, color: sel ? '#333' : '#666', fontFamily: 'Montserrat,sans-serif', flex: 1 }}>
+                      {item} {isCaderneta && <span style={{ fontSize: '0.75rem', color: '#b5891b', fontWeight: 700, marginLeft: '4px' }}>— 👑 Premium (124 págs)</span>}
+                    </span>
+                    <span style={{ fontSize: '0.72rem', color: isCaderneta ? '#b5891b' : '#aaa', fontWeight: isCaderneta ? 700 : 500, fontFamily: 'Montserrat,sans-serif' }}>
+                      {isCaderneta ? 'R$ 180' : 'R$ 30'}
+                    </span>
                   </label>
                 );
               })}
@@ -5106,21 +5122,27 @@ function PapelariaStep({ brand, accentColor, paletteColors, estampaPatterns, est
           </div>
         )}
 
-        {upsellSelecionados.length > 0 && (
-          <div style={{ position: 'sticky', bottom: '16px', background: '#fff', borderRadius: '16px', boxShadow: '0 4px 24px rgba(0,0,0,0.12)', padding: '16px 20px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '12px' }}>
-            <div>
-              <div style={{ fontSize: '0.72rem', color: '#999', fontFamily: 'Montserrat,sans-serif' }}>{upsellSelecionados.length} iten{upsellSelecionados.length > 1 ? 's' : ''} selecionado{upsellSelecionados.length > 1 ? 's' : ''}</div>
-              <div style={{ fontSize: '1.1rem', fontWeight: 800, color: '#333', fontFamily: 'Montserrat,sans-serif' }}>R$ {total.toFixed(2).replace('.', ',')}</div>
+        {(() => {
+          const temCaderneta = upsellSelecionados.includes("Caderneta de Saúde");
+          const itensNormais = upsellSelecionados.filter(i => i !== "Caderneta de Saúde");
+          const total = (itensNormais.length * 30) + (temCaderneta ? 180 : 0);
+
+          return upsellSelecionados.length > 0 && (
+            <div style={{ position: 'sticky', bottom: '16px', background: '#fff', borderRadius: '16px', boxShadow: '0 4px 24px rgba(0,0,0,0.12)', padding: '16px 20px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '12px' }}>
+              <div>
+                <div style={{ fontSize: '0.72rem', color: '#999', fontFamily: 'Montserrat,sans-serif' }}>{upsellSelecionados.length} iten{upsellSelecionados.length > 1 ? 's' : ''} selecionado{upsellSelecionados.length > 1 ? 's' : ''}</div>
+                <div style={{ fontSize: '1.1rem', fontWeight: 800, color: '#333', fontFamily: 'Montserrat,sans-serif' }}>R$ {total.toFixed(2).replace('.', ',')}</div>
+              </div>
+              <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: '4px' }}>
+                {upsellErro && <div style={{ fontSize: '0.7rem', color: '#e55', fontFamily: 'Montserrat,sans-serif' }}>{upsellErro}</div>}
+                <button onClick={handleUpsellCheckout} disabled={upsellLoading}
+                  style={{ padding: '12px 24px', background: '#C03B66', color: '#fff', border: 'none', borderRadius: '30px', fontWeight: 700, fontSize: '0.85rem', fontFamily: 'Montserrat,sans-serif', cursor: upsellLoading ? 'wait' : 'pointer', opacity: upsellLoading ? 0.7 : 1 }}>
+                  {upsellLoading ? 'Aguarde...' : 'Ir para pagamento →'}
+                </button>
+              </div>
             </div>
-            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: '4px' }}>
-            {upsellErro && <div style={{ fontSize: '0.7rem', color: '#e55', fontFamily: 'Montserrat,sans-serif' }}>{upsellErro}</div>}
-            <button onClick={handleUpsellCheckout} disabled={upsellLoading}
-              style={{ padding: '12px 24px', background: '#C03B66', color: '#fff', border: 'none', borderRadius: '30px', fontWeight: 700, fontSize: '0.85rem', fontFamily: 'Montserrat,sans-serif', cursor: upsellLoading ? 'wait' : 'pointer', opacity: upsellLoading ? 0.7 : 1 }}>
-              {upsellLoading ? 'Aguarde...' : 'Ir para pagamento →'}
-            </button>
-          </div>
-          </div>
-        )}
+          );
+        })()}
       </div>
     );
   }
@@ -5167,6 +5189,41 @@ function PapelariaStep({ brand, accentColor, paletteColors, estampaPatterns, est
   };
 
   const openGabarito = async (item) => {
+    if (item === 'Caderneta de Saúde') {
+      try {
+        const response = await fetch('/api/generate-caderneta', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            logoSrc: editData?.customLogoSrc || null,
+            clinicaNome: clinicaNome || brand?.clinicaNome || '',
+            slogan: localSlogan || brand?.editData?.tagline || '',
+            crmLine: isSaude && crmData?.crm ? `CRM/${crmData.uf || 'UF'} ${crmData.crm}${crmData.rqe?.length > 0 ? ' · RQE ' + crmData.rqe.filter(Boolean).join(' / RQE ') : ''}` : null,
+            accentColor: paletteColors?.[0] || accentColor,
+            secondaryColor: paletteColors?.[1] || accentColor,
+            address: cartaoContacts?.endereco || '',
+            phone: [cartaoContacts?.whatsapp, cartaoContacts?.telefone].filter(Boolean).join(' · '),
+            instagram: cartaoContacts?.instagram || '',
+            email: brand?.email || '',
+            site: cartaoContacts?.site || ''
+          })
+        });
+        if (!response.ok) throw new Error('Erro ao gerar caderneta no servidor.');
+        const blob = await response.blob();
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `Caderneta_de_Saude_${(clinicaNome || 'Personalizada').replace(/\s+/g, '_')}.pdf`;
+        document.body.appendChild(a);
+        a.click();
+        a.remove();
+        window.URL.revokeObjectURL(url);
+      } catch (err) {
+        alert(err.message);
+      }
+      return;
+    }
+
     const patternSrc = estampaPatterns?.[currentIdx]
       ? (estampaPatterns[currentIdx].url || `data:${estampaPatterns[currentIdx].mimeType};base64,${estampaPatterns[currentIdx].base64}`)
       : null;
@@ -6665,8 +6722,34 @@ body { background:#fff; }
         <div style="position:relative;width:126mm;height:126mm;display:flex;align-items:center;justify-content:center;">
           <div style="position:absolute;inset:0;border-radius:50%;background:conic-gradient(${_c0} 0deg 180deg,${_c1} 180deg 360deg);"></div>
           <div style="position:absolute;inset:3.5mm;border-radius:50%;background:#fff;"></div>
-          <div style="position:absolute;inset:5mm;border-radius:50%;overflow:hidden;">
-            <img src="${window.location.origin}/pratinho-plate.svg" style="width:100%;height:100%;object-fit:cover;" />
+          <div style="position:absolute;inset:5mm;border-radius:50%;overflow:hidden;display:flex;align-items:center;justify-content:center;">
+            <!-- Pratinho CSS — igual ao GuiaAlimentar FolderPage5Art -->
+            <div style="position:relative;width:100%;height:100%;border-radius:50%;background:conic-gradient(from 270deg,${_c1}e0 0deg 180deg,${_c4}e0 180deg 225deg,${_c3}e0 225deg 270deg,${_c2}e0 270deg 360deg);">
+              <!-- Divisores brancos -->
+              <div style="position:absolute;top:50%;left:0;right:0;height:0.5mm;background:#fff;transform:translateY(-50%);"></div>
+              <div style="position:absolute;left:50%;top:50%;bottom:0;width:0.5mm;background:#fff;transform:translateX(-50%);"></div>
+              <div style="position:absolute;left:50%;top:50%;width:0.5mm;height:50%;background:#fff;transform-origin:top center;transform:translateX(-50%) rotate(-45deg);"></div>
+              <!-- Hortaliças (50%) -->
+              <div style="position:absolute;top:12%;left:50%;transform:translateX(-50%);display:flex;flex-direction:column;align-items:center;gap:1mm;">
+                <span style="font-size:13pt;line-height:1;">🥦🥕🍅</span>
+                <span style="font-size:4.5pt;font-weight:900;color:#fff;text-shadow:0 0.3mm 0.8mm rgba(0,0,0,0.4);text-transform:uppercase;letter-spacing:0.1pt;white-space:nowrap;font-family:Montserrat,sans-serif;">Hortaliças (50%)</span>
+              </div>
+              <!-- Carboidratos (25%) -->
+              <div style="position:absolute;bottom:18%;left:16%;display:flex;flex-direction:column;align-items:center;gap:0.5mm;">
+                <span style="font-size:13pt;line-height:1;">🍚🥔</span>
+                <span style="font-size:4pt;font-weight:900;color:#fff;text-shadow:0 0.3mm 0.8mm rgba(0,0,0,0.4);text-transform:uppercase;width:20mm;text-align:center;line-height:1.2;font-family:Montserrat,sans-serif;">Carbo (25%)</span>
+              </div>
+              <!-- Proteínas (12.5%) -->
+              <div style="position:absolute;bottom:12%;right:22%;display:flex;flex-direction:column;align-items:center;gap:0.5mm;">
+                <span style="font-size:13pt;line-height:1;">🍗</span>
+                <span style="font-size:4pt;font-weight:900;color:#fff;text-shadow:0 0.3mm 0.8mm rgba(0,0,0,0.4);text-transform:uppercase;text-align:center;line-height:1.2;font-family:Montserrat,sans-serif;">Proteína<br/>(12.5%)</span>
+              </div>
+              <!-- Grãos (12.5%) -->
+              <div style="position:absolute;bottom:28%;right:7%;display:flex;flex-direction:column;align-items:center;gap:0.5mm;">
+                <span style="font-size:13pt;line-height:1;">🫘</span>
+                <span style="font-size:4pt;font-weight:900;color:#fff;text-shadow:0 0.3mm 0.8mm rgba(0,0,0,0.4);text-transform:uppercase;text-align:center;line-height:1.2;font-family:Montserrat,sans-serif;">Grãos<br/>(12.5%)</span>
+              </div>
+            </div>
           </div>
         </div>
       </div>
@@ -7527,7 +7610,10 @@ body { font-family:'Montserrat',sans-serif; }
                   allPhones,
                   email: brand.email || '',
                   site: site || '',
-                  instagram: instagram || ''
+                  instagram: instagram || '',
+                  clinicaNome: clinicaNome || brand.clinicaNome || marca || '',
+                  endereco: endereco || '',
+                  accentColor
                 })}
             </div>
           </div>`;
@@ -7559,18 +7645,18 @@ body { font-family:'Montserrat',sans-serif; }
                 layout: logoLayout||'stacked',
                 localSlogan,
                 crmLine,
-                fontPt: 24,
+                fontPt: 38,
                 lineH: 1.1,
                 letterSp: _letterSp,
                 customLogoSrc,
                 customLogoScale: getCustomLogoScale(item) * (ITEM_CUSTOM_BASE_SCALES[item] || 1),
-                maxWidth: '20mm',
-                maxHeight: '10mm',
-                hideSlogan: true
+                maxWidth: '68mm',
+                maxHeight: '48mm',
+                hideSlogan: false
               })}</div>
               <div style="width:30mm;height:1.2mm;background:${accentColor};margin-top:4mm;margin-bottom:15mm;border-radius:1mm;"></div>
               
-              <div style="display:flex;flex-direction:column;align-items:center;margin-bottom:10mm;">
+              <div style="display:flex;flex-direction:column;align-items:center;margin-bottom:2mm;">
                   <div style="font-family:'Montserrat',sans-serif;font-weight:800;font-size:12pt;color:${accentColor}cc;letter-spacing:1.5pt;text-transform:uppercase;margin-bottom:4mm;font-style:italic;">
                      ${item.includes('Alimentar') || item.includes('Cuidados') || item.includes('Desenvolvimento') || item.includes('Vacina') ? 'GUIA DE' : item.includes('Sono') ? 'GUIA DO' : 'CARTÃO DE'}
                   </div>
@@ -7583,7 +7669,7 @@ body { font-family:'Montserrat',sans-serif; }
                   </div>
               </div>
 
-              <div style="padding:2.5mm 10mm; background:${(isPrenatal ? paletteColors[0] || accentColor : paletteColors[1] || accentColor) + '28'}; border-radius:15mm; border:0.25mm solid ${(isPrenatal ? paletteColors[0] || accentColor : paletteColors[1] || accentColor) + '50'}; margin-top:5mm;">
+              <div style="padding:2.5mm 10mm; background:${(isPrenatal ? paletteColors[0] || accentColor : paletteColors[1] || accentColor) + '28'}; border-radius:15mm; border:0.25mm solid ${(isPrenatal ? paletteColors[0] || accentColor : paletteColors[1] || accentColor) + '50'}; margin-top:1.5mm;">
                   <div style="font-family:'Montserrat', sans-serif; font-size:10pt; font-weight:800; color:${_darkenHex(isPrenatal ? paletteColors[0] || accentColor : paletteColors[1] || accentColor)}; text-transform:uppercase; letter-spacing:1pt;">${isSono ? 'DURMA BEM, CRESÇA BEM' : isCuidados ? 'DO PRIMEIRO DIA COM MUITO AMOR' : isDev ? 'CADA DIA UM NOVO DESCOBRIMENTO' : isVacina ? 'PROTEGIDO DESDE O PRIMEIRO DIA' : isPrenatal ? 'CUIDANDO DA SAÚDE DA MAMÃE E DO BEBÊ' : 'NUTRIÇÃO QUE TRANSFORMA'}</div>
               </div>
           </div>`;
@@ -8073,6 +8159,8 @@ ${fontImports2}
               ? <FolderA5Preview brand={brand} editData={itemEditData} logoColor={logoColor} logoLayout={logoLayout} comBorda={comBorda} setComBorda={setComBorda} patternSrc={patternSrc} patternScale={patternScale} setPatternScale={setPatternScale} accentColor={accentColor} borderColor={borderColor} setBorderColor={setBorderColor} paletteColors={paletteColors} title={currentItem} cartaoContacts={cartaoContacts} crmLine={crmLine} folderRoof={folderRoof} />
             : currentItem === 'Guia Alimentar'
               ? <GuiaAlimentarPreview brand={brand} editData={itemEditData} logoColor={logoColor} logoLayout={logoLayout} comBorda={comBorda} setComBorda={setComBorda} patternSrc={patternSrc} patternScale={patternScale} setPatternScale={setPatternScale} accentColor={accentColor} borderColor={borderColor} setBorderColor={setBorderColor} paletteColors={paletteColors} cartaoContacts={cartaoContacts} folderRoof={folderRoof} setFolderRoof={setFolderRoof} crmLine={crmLine} horarios={guiaHorarios} setHorarios={setGuiaHorarios} introducao={guiaIntroducao} setIntroducao={setGuiaIntroducao} localSlogan={localSlogan} />
+            : currentItem === 'Caderneta de Saúde'
+              ? <CadernetaPreview brand={brand} editData={itemEditData} logoColor={logoColor} logoLayout={logoLayout} comBorda={comBorda} setComBorda={setComBorda} patternSrc={patternSrc} patternScale={patternScale} setPatternScale={setPatternScale} accentColor={accentColor} borderColor={borderColor} setBorderColor={setBorderColor} paletteColors={paletteColors} cartaoContacts={cartaoContacts} crmLine={crmLine} localSlogan={localSlogan} setLocalSlogan={setLocalSlogan} clinicaNome={clinicaNome} setClinicaNome={setClinicaNome} crmData={crmData} setCrmData={setCrmData} setCartaoContacts={setCartaoContacts} isSaude={isSaude} />
             : ['Guia de Desenvolvimento', 'Guia de Vacina c/ Calendário', 'Cartão de Vacina', 'Guia do Sono'].some(n => currentItem === n)
               ? <FolderTrifoldPreview brand={brand} editData={itemEditData} logoColor={logoColor} logoLayout={logoLayout} comBorda={comBorda} setComBorda={setComBorda} patternSrc={patternSrc} patternScale={patternScale} setPatternScale={setPatternScale} accentColor={accentColor} borderColor={borderColor} setBorderColor={setBorderColor} paletteColors={paletteColors} title={currentItem} cartaoContacts={cartaoContacts} folderRoof={folderRoof} setFolderRoof={setFolderRoof} crmLine={crmLine} />
             : currentItem.includes('Atestado Médico')
@@ -8285,24 +8373,46 @@ ${fontImports2}
         const todosDisponiveis = [...PAPELARIA_GERAL, ...(isSaude ? PAPELARIA_MEDICA : []), ...(isSaude ? DIGITAIS_MEDICOS : [])];
         const faltando = todosDisponiveis.filter(i => !itens.includes(i));
         if (!isLastItem || faltando.length === 0) return null;
+
+        const temCadernetaSelecionada = upsellSelecionados.includes("Caderneta de Saúde");
+        const itensNormaisSelecionados = upsellSelecionados.filter(i => i !== "Caderneta de Saúde");
+        const totalCalculado = (itensNormaisSelecionados.length * 30) + (temCadernetaSelecionada ? 180 : 0);
+
         return (
           <div style={{ marginTop: '8px', padding: '16px 18px', background: '#f9f9f9', border: '1px solid #eee', borderRadius: '16px' }}>
             <div style={{ fontSize: '0.72rem', fontWeight: 800, color: '#bbb', textTransform: 'uppercase', letterSpacing: '1px', fontFamily: 'Montserrat,sans-serif', marginBottom: '10px' }}>
-              + Adicionar mais itens — R$ 30 cada
+              + Adicionar mais itens — R$ 30 cada (Item Premium: R$ 180)
             </div>
             <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px' }}>
-              {faltando.map(item => (
-                <button key={item} onClick={() => {
-                  setUpsellSelecionados(prev => prev.includes(item) ? prev.filter(i => i !== item) : [...prev, item]);
-                }} style={{ padding: '5px 12px', borderRadius: '20px', border: `1.5px solid ${upsellSelecionados.includes(item) ? accentColor : '#ddd'}`, background: upsellSelecionados.includes(item) ? `${accentColor}12` : '#fff', fontSize: '0.72rem', fontWeight: 600, color: upsellSelecionados.includes(item) ? accentColor : '#888', fontFamily: 'Montserrat,sans-serif', cursor: 'pointer', transition: 'all 0.15s' }}>
-                  {upsellSelecionados.includes(item) ? '✓ ' : '+ '}{item}
-                </button>
-              ))}
+              {faltando.map(item => {
+                const isCaderneta = item === "Caderneta de Saúde";
+                const btnStyle = {
+                  padding: '5px 12px',
+                  borderRadius: '20px',
+                  border: `1.5px solid ${upsellSelecionados.includes(item) ? (isCaderneta ? '#e6af2e' : accentColor) : (isCaderneta ? '#f0d38d' : '#ddd')}`,
+                  background: upsellSelecionados.includes(item) ? (isCaderneta ? '#fffcf0' : `${accentColor}12`) : '#fff',
+                  fontSize: '0.72rem',
+                  fontWeight: 600,
+                  color: upsellSelecionados.includes(item) ? (isCaderneta ? '#b5891b' : accentColor) : (isCaderneta ? '#b5891b' : '#888'),
+                  fontFamily: 'Montserrat,sans-serif',
+                  cursor: 'pointer',
+                  transition: 'all 0.15s'
+                };
+                return (
+                  <button key={item} onClick={() => {
+                    setUpsellSelecionados(prev => prev.includes(item) ? prev.filter(i => i !== item) : [...prev, item]);
+                  }} style={btnStyle}>
+                    {isCaderneta
+                      ? `${upsellSelecionados.includes(item) ? '✓ ' : '+ '}👑 Caderneta de Saúde (Premium - R$ 180)`
+                      : `${upsellSelecionados.includes(item) ? '✓ ' : '+ '}${item}`}
+                  </button>
+                );
+              })}
             </div>
             {upsellSelecionados.length > 0 && (
               <div style={{ marginTop: '12px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                 <div style={{ fontSize: '0.8rem', fontWeight: 700, color: '#333', fontFamily: 'Montserrat,sans-serif' }}>
-                  {upsellSelecionados.length} item{upsellSelecionados.length > 1 ? 's' : ''} · <strong>R$ {(upsellSelecionados.length * 30).toFixed(2).replace('.', ',')}</strong>
+                  {upsellSelecionados.length} item{upsellSelecionados.length > 1 ? 's' : ''} · <strong>R$ {totalCalculado.toFixed(2).replace('.', ',')}</strong>
                 </div>
                 <button onClick={handleUpsellCheckout} disabled={upsellLoading} style={{ padding: '8px 20px', background: accentColor, color: '#fff', border: 'none', borderRadius: '20px', fontWeight: 700, fontSize: '0.78rem', fontFamily: 'Montserrat,sans-serif', cursor: upsellLoading ? 'wait' : 'pointer', opacity: upsellLoading ? 0.7 : 1 }}>
                   {upsellLoading ? 'Aguarde...' : 'Adicionar →'}
@@ -8629,7 +8739,7 @@ function EntregaContent({ brand, plano, setBrand }) {
     'Guia Alimentar': 100,
     'Guia do Sono': 100,
     'Orientação Recém-Nascido': 100,
-    'Guia de Amamentação': 100,
+    'Guia de Amamentação': 115,
     'Envelope Saco': 100,
     'Cartão de Exame Pré-Natal': 100,
     'Checklist Maternidade': 100,

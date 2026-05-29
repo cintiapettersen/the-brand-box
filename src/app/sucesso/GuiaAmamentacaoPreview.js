@@ -20,50 +20,59 @@ export default function GuiaAmamentacaoPreview({
   const endereco = cartaoContacts?.endereco || brand?.endereco || _brandData?.endereco || '';
   const allPhones = [cartaoContacts?.whatsapp, cartaoContacts?.telefone].filter(Boolean).join(' · ');
 
-  const logoHtml = <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}><LogoPreviewHTML item="Guia de Amamentação" editData={_brandData} color={logoColor} layout={logoLayout} scaleFactor={1} crm={crmLine} maxWidth="55px" maxHeight="18px" hideTagline /></div>;
+  const logoHtml = <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}><LogoPreviewHTML item="Guia de Amamentação" editData={_brandData} color={logoColor} layout={logoLayout} scaleFactor={1} crm={crmLine} maxWidth="75px" maxHeight="25px" hideTagline /></div>;
+
+  // DL pages are 110px wide internally but displayed at 148px for readability
+  const PAGE_DISPLAY = 148;
+  const PAGE_NATIVE = 110;
+  const PAGE_SCALE = PAGE_DISPLAY / PAGE_NATIVE; // ~1.345
 
   const Page = ({ num, children }) => (
-    <div style={{ 
-      width: '110px', 
-      height: '210px', 
-      background: !comBorda ? (borderColor || paletteColors[0] || accentColor) : '#fff',
+    <div style={{
+      width: `${PAGE_DISPLAY}px`,
+      height: `${Math.round(210 * PAGE_SCALE)}px`,
       borderRight: num % 4 !== 0 ? '1px dashed rgba(0,0,0,0.06)' : 'none',
       position: 'relative',
       overflow: 'hidden',
       flexShrink: 0
     }}>
-      {/* Background Layer: Pattern or Solid */}
-      <div style={{ position: 'absolute', inset: 0, overflow: 'hidden' }}>
-        {comBorda && patternSrc ? (
-          <div style={{ position: 'absolute', inset: 0, backgroundImage: `url(${patternSrc})`, backgroundSize: `${patternScale * 0.25}px`, backgroundRepeat: 'repeat', opacity: 1 }} />
-        ) : (
-          !comBorda && <div style={{ position: 'absolute', inset: 0, background: borderColor || paletteColors[0] || accentColor }} />
-        )}
-        {comBorda && !patternSrc && <div style={{ position: 'absolute', inset: 0, background: `${accentColor}10` }} />}
-      </div>
-
-      <div style={{ position: 'absolute', top: '4px', right: '4px', fontSize: '5px', color: comBorda ? '#ddd' : '#fff', fontWeight: 700, zIndex: 10, opacity: 0.8 }}>PÁG {num}</div>
-      
-      {/* Content Layer in White Box */}
-      <div style={{ 
-        position: 'absolute', 
-        top: '6px', left: '6px', right: '6px', bottom: '6px', 
-        background: '#fff', 
-        borderRadius: '1.5px', 
-        boxShadow: '0 2px 10px rgba(0,0,0,0.05)', 
-        zIndex: 2, 
-        overflow: 'hidden',
-        clipPath: (num === 1 && folderRoof) ? 'polygon(0% 12%, 50% 0%, 100% 12%, 100% 100%, 0% 100%)' : 'none',
-        transition: 'clip-path 0.3s ease'
+      {/* Everything rendered at native 110×210, then scaled up */}
+      <div style={{
+        position: 'absolute', top: 0, left: 0,
+        transformOrigin: 'top left',
+        transform: `scale(${PAGE_SCALE})`,
+        width: `${PAGE_NATIVE}px`,
+        height: '210px',
       }}>
-        {children}
+        {/* Background */}
+        <div style={{ position: 'absolute', inset: 0 }}>
+          {comBorda && patternSrc ? (
+            <div style={{ position: 'absolute', inset: 0, backgroundImage: `url(${patternSrc})`, backgroundSize: `${patternScale * 0.25}px`, backgroundRepeat: 'repeat' }} />
+          ) : (
+            <div style={{ position: 'absolute', inset: 0, background: borderColor || paletteColors[0] || accentColor }} />
+          )}
+          {comBorda && !patternSrc && <div style={{ position: 'absolute', inset: 0, background: `${accentColor}10` }} />}
+        </div>
+
+        <div style={{ position: 'absolute', top: '4px', right: '4px', fontSize: '4.5px', color: comBorda ? '#ddd' : '#fff', fontWeight: 700, zIndex: 10, opacity: 0.8 }}>PÁG {num}</div>
+
+        {/* White content box */}
+        <div style={{
+          position: 'absolute', top: '6px', left: '6px', right: '6px', bottom: '6px',
+          background: '#fff', borderRadius: '1.5px',
+          boxShadow: '0 2px 10px rgba(0,0,0,0.05)', zIndex: 2, overflow: 'hidden',
+          clipPath: (num === 1 && folderRoof) ? 'polygon(0% 12%, 50% 0%, 100% 12%, 100% 100%, 0% 100%)' : 'none',
+          transition: 'clip-path 0.3s ease'
+        }}>
+          {children}
+        </div>
       </div>
     </div>
   );
 
-  // Each folder side: 4 pages × 110px = 440px wide, 210px tall
-  const FOLDER_W = 440;
-  const FOLDER_H = 210;
+  // Each folder side: 4 pages × PAGE_DISPLAY = total width
+  const FOLDER_W = 4 * PAGE_DISPLAY;
+  const FOLDER_H = Math.round(210 * PAGE_SCALE);
   const scaleA = useScaleToFit(FOLDER_W, FOLDER_H + 40);
   const scaleB = useScaleToFit(FOLDER_W, FOLDER_H + 40);
 
