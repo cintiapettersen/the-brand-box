@@ -25,14 +25,16 @@ export default function GuiaAlimentarPreview({
   paletteColors = [], cartaoContacts, crmLine,
   folderRoof, setFolderRoof,
   horarios, setHorarios,
-  introducao, setIntroducao
+  introducao, setIntroducao,
+  localSlogan
 }) {
   const mainColor = paletteColors?.[0] || accentColor;
   const _brandData = editData || brand?.editData || {};
   const clinicaNome = brand?.clinicaNome || _brandData?.marca || 'Sua Clínica';
   const endereco = cartaoContacts?.endereco || brand?.endereco || _brandData?.endereco || 'Endereço não informado';
   const allPhones = [cartaoContacts?.whatsapp, cartaoContacts?.telefone].filter(Boolean).join(' · ');
-  const logoHtml = <div style={{ display: "flex", alignItems: "center", justifyContent: "center"}}><LogoPreviewHTML item="Guia Alimentar" editData={_brandData} color={logoColor} layout={logoLayout} scaleFactor={1} crm={crmLine} maxWidth="70px" maxHeight="35px" hideTagline /></div>;
+  const _slogan = localSlogan || _brandData?.tagline || '';
+  const logoHtml = <div style={{ display: "flex", alignItems: "center", justifyContent: "center"}}><LogoPreviewHTML item="Guia Alimentar" editData={{ ..._brandData, tagline: _slogan }} color={logoColor} layout={logoLayout} scaleFactor={1} crm={crmLine} maxWidth="70px" maxHeight="40px" /></div>;
 
   const [painelAberto, setPainelAberto] = useState(false);
 
@@ -47,7 +49,7 @@ export default function GuiaAlimentarPreview({
     }}>
       {withPattern && (
         comBorda && patternSrc ? (
-          <div style={{ position: 'absolute', inset: 0, backgroundImage: `url(${patternSrc})`, backgroundSize: `${patternScale * 0.3}px`, backgroundRepeat: 'repeat', opacity: 0.1 }} />
+          <div style={{ position: 'absolute', inset: 0, backgroundImage: `url(${patternSrc})`, backgroundSize: `${patternScale * 0.45}px`, backgroundRepeat: 'repeat', opacity: 0.1 }} />
         ) : (
           <div style={{ position: 'absolute', inset: 0, background: borderColor || paletteColors[0] || accentColor, opacity: 0.12 }} />
         )
@@ -109,7 +111,7 @@ export default function GuiaAlimentarPreview({
           <Page num={5} isSmall>
             <div style={{ position: 'absolute', inset: 0, overflow: 'hidden', background: !comBorda ? (borderColor || paletteColors[0] || accentColor) : 'transparent' }}>
                {comBorda && patternSrc && (
-                 <div style={{ position: 'absolute', inset: 0, backgroundImage: `url(${patternSrc})`, backgroundSize: `${patternScale * 0.3}px`, backgroundRepeat: 'repeat', opacity: 1 }} />
+                 <div style={{ position: 'absolute', inset: 0, backgroundImage: `url(${patternSrc})`, backgroundSize: `${patternScale * 0.45}px`, backgroundRepeat: 'repeat', opacity: 1 }} />
                )}
                <div style={{ position: 'absolute', inset: 0, background: !patternSrc && comBorda ? `${accentColor}10` : 'transparent' }} />
             </div>
@@ -124,7 +126,7 @@ export default function GuiaAlimentarPreview({
           <Page num={6}>
             <div style={{ position: 'absolute', inset: 0, overflow: 'hidden', background: !comBorda ? (borderColor || paletteColors[0] || accentColor) : 'transparent' }}>
               {comBorda && patternSrc && (
-                <div style={{ position: 'absolute', inset: 0, backgroundImage: `url(${patternSrc})`, backgroundSize: `${patternScale * 0.3}px`, backgroundRepeat: 'repeat', opacity: 1 }} />
+                <div style={{ position: 'absolute', inset: 0, backgroundImage: `url(${patternSrc})`, backgroundSize: `${patternScale * 0.45}px`, backgroundRepeat: 'repeat', opacity: 1 }} />
               )}
               <div style={{ position: 'absolute', inset: 0, background: !patternSrc && comBorda ? `${accentColor}10` : 'transparent' }} />
             </div>
@@ -165,7 +167,7 @@ export default function GuiaAlimentarPreview({
           <Page num={1}>
             <div style={{ position: 'absolute', inset: 0, overflow: 'hidden', background: !comBorda ? (borderColor || paletteColors[0] || accentColor) : 'transparent' }}>
                {comBorda && patternSrc && (
-                 <div style={{ position: 'absolute', inset: 0, backgroundImage: `url(${patternSrc})`, backgroundSize: `${patternScale * 0.35}px`, backgroundRepeat: 'repeat', opacity: 1 }} />
+                 <div style={{ position: 'absolute', inset: 0, backgroundImage: `url(${patternSrc})`, backgroundSize: `${patternScale * 0.5}px`, backgroundRepeat: 'repeat', opacity: 1 }} />
                )}
                <div style={{ position: 'absolute', inset: 0, background: !patternSrc && comBorda ? `${accentColor}15` : 'transparent' }} />
             </div>

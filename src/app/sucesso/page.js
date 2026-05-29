@@ -6011,7 +6011,7 @@ body { width:${totalW}mm; height:${totalH}mm; position:relative; overflow:hidden
       const totalH = (H * 2) + ABA + (BLEED * 2);
 
       const solidColor = borderColor || accentColor;
-      const genPattern = (scaleMul = 1) => (comBorda && patternSrc) ? `<div style="position:absolute;inset:0;background-image:url(${patternSrc});background-size:${(patternScale * 0.18 * scaleMul).toFixed(1)}mm;background-repeat:repeat;opacity:1;"></div>` : '';
+      const genPattern = (scaleMul = 1) => (comBorda && patternSrc) ? `<div style="position:absolute;inset:0;background-image:url(${patternSrc});background-size:${(patternScale * 0.28 * scaleMul).toFixed(1)}mm;background-repeat:repeat;opacity:1;"></div>` : '';
       const _envPhones = [mainPhone, telefone].filter(Boolean).join(' / ');
 
       const _ffEnv = editData?.fontFamily || brand.editData?.fontFamily || 'Playfair Display';
@@ -6762,7 +6762,7 @@ body { background:#fff; }
       const _etMaxH = _etMaxHMap[etiquetaSizeIdx] ?? '22mm';
       // zoom: PDF px/mm (3.78) ÷ preview px/mm
       const _etZoom = (3.78 / selSize.previewScale).toFixed(3);
-      const logoHtmlEt = `<div style="zoom:${_etZoom};display:flex;flex-direction:column;align-items:center;">${genPDFLogoHtml({ brand, editDataOverride: editData, color: '#fff', layout: logoLayout || 'stacked', scaleFactor: _etSF, crmLine: null, maxWidth: '100mm', maxHeight: _etMaxH, withBackground: comBorda && patternSrc })}</div>`;
+      const logoHtmlEt = `<div style="zoom:${_etZoom};display:flex;flex-direction:column;align-items:center;">${genPDFLogoHtml({ brand, editDataOverride: editData, color: solidColor, layout: logoLayout || 'stacked', localSlogan, scaleFactor: _etSF, crmLine: null, customLogoSrc, customLogoScale: customLogoSrc ? getCustomLogoScale(item) * (ITEM_CUSTOM_BASE_SCALES[item] || 1) : 100, maxWidth: '100mm', maxHeight: _etMaxH, withBackground: false })}</div>`;
       // Marcas de corte padrão gráfica: ficam NO sangria, apontando para fora da área de corte
       // gap 0.5mm entre linha de corte e início da marca; marca com 2.5mm de comprimento
       const B = BLEED_ET;
@@ -8072,7 +8072,7 @@ ${fontImports2}
             : currentItem.includes('Pré-Natal')
               ? <FolderA5Preview brand={brand} editData={itemEditData} logoColor={logoColor} logoLayout={logoLayout} comBorda={comBorda} setComBorda={setComBorda} patternSrc={patternSrc} patternScale={patternScale} setPatternScale={setPatternScale} accentColor={accentColor} borderColor={borderColor} setBorderColor={setBorderColor} paletteColors={paletteColors} title={currentItem} cartaoContacts={cartaoContacts} crmLine={crmLine} folderRoof={folderRoof} />
             : currentItem === 'Guia Alimentar'
-              ? <GuiaAlimentarPreview brand={brand} editData={itemEditData} logoColor={logoColor} logoLayout={logoLayout} comBorda={comBorda} setComBorda={setComBorda} patternSrc={patternSrc} patternScale={patternScale} setPatternScale={setPatternScale} accentColor={accentColor} borderColor={borderColor} setBorderColor={setBorderColor} paletteColors={paletteColors} cartaoContacts={cartaoContacts} folderRoof={folderRoof} setFolderRoof={setFolderRoof} crmLine={crmLine} horarios={guiaHorarios} setHorarios={setGuiaHorarios} introducao={guiaIntroducao} setIntroducao={setGuiaIntroducao} />
+              ? <GuiaAlimentarPreview brand={brand} editData={itemEditData} logoColor={logoColor} logoLayout={logoLayout} comBorda={comBorda} setComBorda={setComBorda} patternSrc={patternSrc} patternScale={patternScale} setPatternScale={setPatternScale} accentColor={accentColor} borderColor={borderColor} setBorderColor={setBorderColor} paletteColors={paletteColors} cartaoContacts={cartaoContacts} folderRoof={folderRoof} setFolderRoof={setFolderRoof} crmLine={crmLine} horarios={guiaHorarios} setHorarios={setGuiaHorarios} introducao={guiaIntroducao} setIntroducao={setGuiaIntroducao} localSlogan={localSlogan} />
             : ['Guia de Desenvolvimento', 'Guia de Vacina c/ Calendário', 'Cartão de Vacina', 'Guia do Sono'].some(n => currentItem === n)
               ? <FolderTrifoldPreview brand={brand} editData={itemEditData} logoColor={logoColor} logoLayout={logoLayout} comBorda={comBorda} setComBorda={setComBorda} patternSrc={patternSrc} patternScale={patternScale} setPatternScale={setPatternScale} accentColor={accentColor} borderColor={borderColor} setBorderColor={setBorderColor} paletteColors={paletteColors} title={currentItem} cartaoContacts={cartaoContacts} folderRoof={folderRoof} setFolderRoof={setFolderRoof} crmLine={crmLine} />
             : currentItem.includes('Atestado Médico')
@@ -8543,7 +8543,7 @@ function EntregaContent({ brand, plano, setBrand }) {
   const setColorOrder = (v) => { setColorOrderState(v); try { localStorage.setItem(`brandbox_color_order_${brand.id}`, JSON.stringify(v)); } catch {} };
   const [downloadingCores, setDownloadingCores] = useState(false);
   const [comBorda, setComBorda] = useState(true);
-  const [patternScale, setPatternScale] = useState(150);
+  const [patternScale, setPatternScale] = useState(250);
   const [borderColor, setBorderColor] = useState(null);
   const [localSlogan, setLocalSlogan] = useState(brand?.editData?.tagline || '');
   const [copiedAssinatura, setCopiedAssinatura] = useState(false);
