@@ -1,6 +1,5 @@
 import React from 'react';
 import { LogoPreviewHTML, BordaToggle } from './page';
-import MeuPratinhoSVG from './MeuPratinhoSVG';
 import { useScaleToFit } from './useScaleToFit';
 
 export default function MeuPratinhoPreview({
@@ -122,9 +121,29 @@ export default function MeuPratinhoPreview({
                   <div style={{ position: 'absolute', inset: 0, borderRadius: '50%', background: `conic-gradient(${c0} 0deg 180deg, ${c1} 180deg 360deg)` }} />
                   {/* Espaço branco entre anel e prato */}
                   <div style={{ position: 'absolute', inset: '5px', borderRadius: '50%', background: '#fff' }} />
-                  {/* Prato centralizado */}
-                  <div style={{ position: 'absolute', inset: '8px', borderRadius: '50%', overflow: 'hidden', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                    <MeuPratinhoSVG width="100%" accentColor={accentColor} c0={c0} c1={c1} />
+                  {/* Prato CSS — igual FolderPage5Art */}
+                  <div style={{ position: 'absolute', inset: '8px', borderRadius: '50%', overflow: 'hidden' }}>
+                    <div style={{ position: 'relative', width: '100%', height: '100%', borderRadius: '50%', background: `conic-gradient(from 270deg, ${c1}e0 0deg 180deg, ${paletteColors[4]||c1}e0 180deg 225deg, ${paletteColors[3]||c1}e0 225deg 270deg, ${c0}e0 270deg 360deg)` }}>
+                      <div style={{ position: 'absolute', top: '50%', left: 0, right: 0, height: '1px', background: '#fff', transform: 'translateY(-50%)' }} />
+                      <div style={{ position: 'absolute', left: '50%', top: '50%', bottom: 0, width: '1px', background: '#fff', transform: 'translateX(-50%)' }} />
+                      <div style={{ position: 'absolute', left: '50%', top: '50%', width: '1px', height: '50%', background: '#fff', transformOrigin: 'top center', transform: 'translateX(-50%) rotate(-45deg)' }} />
+                      <div style={{ position: 'absolute', top: '18%', left: '50%', transform: 'translateX(-50%)', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '2px' }}>
+                        <span style={{ fontSize: '18px', lineHeight: 1 }}>🥦🥕🍅</span>
+                        <span style={{ fontSize: '7px', fontWeight: 900, color: '#fff', textShadow: '0 1px 2px rgba(0,0,0,0.4)', textTransform: 'uppercase', whiteSpace: 'nowrap' }}>Hortaliças (50%)</span>
+                      </div>
+                      <div style={{ position: 'absolute', bottom: '20%', left: '14%', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '2px' }}>
+                        <span style={{ fontSize: '18px', lineHeight: 1 }}>🍚🥔</span>
+                        <span style={{ fontSize: '6.5px', fontWeight: 900, color: '#fff', textShadow: '0 1px 2px rgba(0,0,0,0.4)', textTransform: 'uppercase', textAlign: 'center', lineHeight: 1.2, width: '45px' }}>Carbo (25%)</span>
+                      </div>
+                      <div style={{ position: 'absolute', bottom: '14%', right: '27%', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '2px' }}>
+                        <span style={{ fontSize: '18px', lineHeight: 1 }}>🍗</span>
+                        <span style={{ fontSize: '6.5px', fontWeight: 900, color: '#fff', textShadow: '0 1px 2px rgba(0,0,0,0.4)', textTransform: 'uppercase', textAlign: 'center', lineHeight: 1.2 }}>Proteína<br/>(12.5%)</span>
+                      </div>
+                      <div style={{ position: 'absolute', bottom: '27%', right: '12%', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '2px' }}>
+                        <span style={{ fontSize: '18px', lineHeight: 1 }}>🫘</span>
+                        <span style={{ fontSize: '6.5px', fontWeight: 900, color: '#fff', textShadow: '0 1px 2px rgba(0,0,0,0.4)', textTransform: 'uppercase', textAlign: 'center', lineHeight: 1.2 }}>Grãos<br/>(12.5%)</span>
+                      </div>
+                    </div>
                   </div>
                 </div>
               </div>

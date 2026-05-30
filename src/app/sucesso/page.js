@@ -6652,6 +6652,7 @@ body { width: 303mm; height: 216mm; position: relative; overflow: hidden; backgr
       const _c1 = paletteColors[1] || solidColor;
       const _c2 = paletteColors[2] || _c0;
       const _c3 = paletteColors[3] || _c1;
+      const _c4 = paletteColors[4] || _c2;
 
       const foodCard = (title, color, text) => `
         <div style="background:#fff;border-radius:2mm;box-shadow:0 0.5mm 2mm rgba(0,0,0,0.10);overflow:hidden;border:0.2mm solid ${color}30;display:flex;flex-direction:column;">
@@ -6719,35 +6720,34 @@ body { background:#fff; }
       </div>
       <!-- Prato com anel colorido -->
       <div style="flex:1;display:flex;align-items:center;justify-content:center;">
-        <div style="position:relative;width:126mm;height:126mm;display:flex;align-items:center;justify-content:center;">
+        <div style="position:relative;width:140mm;height:140mm;display:flex;align-items:center;justify-content:center;">
           <div style="position:absolute;inset:0;border-radius:50%;background:conic-gradient(${_c0} 0deg 180deg,${_c1} 180deg 360deg);"></div>
-          <div style="position:absolute;inset:3.5mm;border-radius:50%;background:#fff;"></div>
-          <div style="position:absolute;inset:5mm;border-radius:50%;overflow:hidden;display:flex;align-items:center;justify-content:center;">
-            <!-- Pratinho CSS — igual ao GuiaAlimentar FolderPage5Art -->
+          <div style="position:absolute;inset:4mm;border-radius:50%;background:#fff;"></div>
+          <div style="position:absolute;inset:6mm;border-radius:50%;overflow:hidden;">
             <div style="position:relative;width:100%;height:100%;border-radius:50%;background:conic-gradient(from 270deg,${_c1}e0 0deg 180deg,${_c4}e0 180deg 225deg,${_c3}e0 225deg 270deg,${_c2}e0 270deg 360deg);">
               <!-- Divisores brancos -->
               <div style="position:absolute;top:50%;left:0;right:0;height:0.5mm;background:#fff;transform:translateY(-50%);"></div>
               <div style="position:absolute;left:50%;top:50%;bottom:0;width:0.5mm;background:#fff;transform:translateX(-50%);"></div>
               <div style="position:absolute;left:50%;top:50%;width:0.5mm;height:50%;background:#fff;transform-origin:top center;transform:translateX(-50%) rotate(-45deg);"></div>
               <!-- Hortaliças (50%) -->
-              <div style="position:absolute;top:12%;left:50%;transform:translateX(-50%);display:flex;flex-direction:column;align-items:center;gap:1mm;">
-                <span style="font-size:13pt;line-height:1;">🥦🥕🍅</span>
-                <span style="font-size:4.5pt;font-weight:900;color:#fff;text-shadow:0 0.3mm 0.8mm rgba(0,0,0,0.4);text-transform:uppercase;letter-spacing:0.1pt;white-space:nowrap;font-family:Montserrat,sans-serif;">Hortaliças (50%)</span>
+              <div style="position:absolute;top:18%;left:50%;transform:translateX(-50%);display:flex;flex-direction:column;align-items:center;gap:1.5mm;">
+                <span style="font-size:26pt;line-height:1;">🥦🥕🍅</span>
+                <span style="font-size:13pt;font-weight:900;color:#fff;text-shadow:0 0.3mm 0.8mm rgba(0,0,0,0.4);text-transform:uppercase;letter-spacing:0.2pt;white-space:nowrap;font-family:Montserrat,sans-serif;">Hortaliças (50%)</span>
               </div>
               <!-- Carboidratos (25%) -->
-              <div style="position:absolute;bottom:18%;left:16%;display:flex;flex-direction:column;align-items:center;gap:0.5mm;">
-                <span style="font-size:13pt;line-height:1;">🍚🥔</span>
-                <span style="font-size:4pt;font-weight:900;color:#fff;text-shadow:0 0.3mm 0.8mm rgba(0,0,0,0.4);text-transform:uppercase;width:20mm;text-align:center;line-height:1.2;font-family:Montserrat,sans-serif;">Carbo (25%)</span>
+              <div style="position:absolute;bottom:20%;left:14%;display:flex;flex-direction:column;align-items:center;gap:1mm;">
+                <span style="font-size:26pt;line-height:1;">🍚🥔</span>
+                <span style="font-size:13pt;font-weight:900;color:#fff;text-shadow:0 0.3mm 0.8mm rgba(0,0,0,0.4);text-transform:uppercase;width:22mm;text-align:center;line-height:1.2;font-family:Montserrat,sans-serif;">Carbo (25%)</span>
               </div>
               <!-- Proteínas (12.5%) -->
-              <div style="position:absolute;bottom:12%;right:22%;display:flex;flex-direction:column;align-items:center;gap:0.5mm;">
-                <span style="font-size:13pt;line-height:1;">🍗</span>
-                <span style="font-size:4pt;font-weight:900;color:#fff;text-shadow:0 0.3mm 0.8mm rgba(0,0,0,0.4);text-transform:uppercase;text-align:center;line-height:1.2;font-family:Montserrat,sans-serif;">Proteína<br/>(12.5%)</span>
+              <div style="position:absolute;bottom:14%;right:27%;display:flex;flex-direction:column;align-items:center;gap:1mm;">
+                <span style="font-size:26pt;line-height:1;">🍗</span>
+                <span style="font-size:13pt;font-weight:900;color:#fff;text-shadow:0 0.3mm 0.8mm rgba(0,0,0,0.4);text-transform:uppercase;text-align:center;line-height:1.2;font-family:Montserrat,sans-serif;">Proteína<br/>(12.5%)</span>
               </div>
               <!-- Grãos (12.5%) -->
-              <div style="position:absolute;bottom:28%;right:7%;display:flex;flex-direction:column;align-items:center;gap:0.5mm;">
-                <span style="font-size:13pt;line-height:1;">🫘</span>
-                <span style="font-size:4pt;font-weight:900;color:#fff;text-shadow:0 0.3mm 0.8mm rgba(0,0,0,0.4);text-transform:uppercase;text-align:center;line-height:1.2;font-family:Montserrat,sans-serif;">Grãos<br/>(12.5%)</span>
+              <div style="position:absolute;bottom:27%;right:12%;display:flex;flex-direction:column;align-items:center;gap:1mm;">
+                <span style="font-size:26pt;line-height:1;">🫘</span>
+                <span style="font-size:13pt;font-weight:900;color:#fff;text-shadow:0 0.3mm 0.8mm rgba(0,0,0,0.4);text-transform:uppercase;text-align:center;line-height:1.2;font-family:Montserrat,sans-serif;">Grãos<br/>(12.5%)</span>
               </div>
             </div>
           </div>
@@ -7042,14 +7042,14 @@ html, body { width:${totalW}mm; height:${totalH}mm; overflow:hidden; }
         localSlogan: _hasImgT ? null : localSlogan,
         crmLine: null,
         fontPt: Math.min(
-          Math.round(parseFloat(_logoBoxW) * 0.42 / (Math.max(...(marca || '').split(' ').map(w => w.length)) * (itemEditData?.fontStyle === 'script' ? 0.70 : 0.55) * 0.353)),
-          Math.round(parseFloat(_logoBoxH) * 0.55 / 0.353 / (itemEditData?.fontStyle === 'script' ? 1.5 : 1.1))
+          Math.round(parseFloat(_logoBoxW) * 0.29 / (Math.max(...(marca || '').split(' ').map(w => w.length)) * (itemEditData?.fontStyle === 'script' ? 0.70 : 0.55) * 0.353)),
+          Math.round(parseFloat(_logoBoxH) * 0.38 / 0.353 / (itemEditData?.fontStyle === 'script' ? 1.5 : 1.1))
         ).toString(),
         lineH: itemEditData?.fontStyle === 'script' ? 1.5 : 1.1,
         letterSp: itemEditData?.fontLetterSpacing || (itemEditData?.fontStyle === 'script' ? '0pt' : '0.5pt'),
         layout: logoLayout || 'stacked',
         customLogoSrc: itemEditData?.customLogoSrc,
-        customLogoScale: _hasImgT ? getCustomLogoScale(item) * (ITEM_CUSTOM_BASE_SCALES[item] || 1) : 100,
+        customLogoScale: _hasImgT ? Math.min(getCustomLogoScale(item) * (ITEM_CUSTOM_BASE_SCALES[item] || 1), 100) : 100,
         maxWidth: `${_logoBoxW}mm`,
         maxHeight: `${_logoBoxH}mm`,
         withBackground: !!(comBorda && patternSrc),
@@ -7873,8 +7873,8 @@ body { background:#eee; }
     ${genPDFLogoHtml({ brand, editDataOverride: editData, color: logoColor, layout: logoLayout, localSlogan, crmLine, fontPt: _fontPt, lineH: _lineH, letterSp: _letterSp, customLogoSrc, customLogoScale: customLogoSrc ? getCustomLogoScale(item) : 100, maxWidth: '120mm', maxHeight: '45mm', withBackground: comBorda && patternSrc })}
   </div>
 
-  <div style="position:absolute; top:50%; left:50%; transform:translate(-50%, -50%); opacity:0.15; width:140mm; display:flex; justify-content:center; pointer-events:none;">
-    ${genPDFLogoHtml({ brand, editDataOverride: editData, color: logoColor, localSlogan, crmLine, fontPt: 48, lineH: _lineH, letterSp: _letterSp, hideSlogan: true, customLogoSrc, customLogoScale: getCustomLogoScale(item) * (ITEM_CUSTOM_BASE_SCALES[item] || 1), maxWidth: '100mm', maxHeight: '36mm', withBackground: comBorda && patternSrc })}
+  <div style="position:absolute; top:50%; left:50%; transform:translate(-50%, -50%); opacity:0.15; width:170mm; display:flex; justify-content:center; pointer-events:none;">
+    ${genPDFLogoHtml({ brand, editDataOverride: editData, color: logoColor, layout: logoLayout, localSlogan, crmLine, fontPt: 72, lineH: _lineH, letterSp: _letterSp, hideSlogan: true, customLogoSrc, customLogoScale: getCustomLogoScale(item) * (ITEM_CUSTOM_BASE_SCALES[item] || 1), maxWidth: '160mm', maxHeight: '80mm', withBackground: comBorda && patternSrc })}
   </div>
 
   <div style="position:absolute; bottom:${BLEED + 6}mm; left:0; right:0; text-align:center;">
