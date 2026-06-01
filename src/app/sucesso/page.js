@@ -8428,6 +8428,8 @@ ${fontImports2}
 }
 
 function EntregaContent({ brand, plano, setBrand }) {
+  const params = useSearchParams();
+  const devMode = params.get('dev') === '1';
   const [step, setStepState] = useState('placa');
   const setStep = (s) => { setStepState(s); try { localStorage.setItem(`brandbox_step_${brand.id}`, s); } catch {} };
 
