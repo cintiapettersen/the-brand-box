@@ -4886,7 +4886,9 @@ function PapelariaStep({ brand, accentColor, paletteColors, estampaPatterns, est
   const unsortedItens = papelariaNorm.length > 0
     ? TODOS_DISPONIVEIS.filter(i => papelariaNorm.includes(i) || _autoInclusos.includes(i) || (devMode && i === 'Caderneta de Saúde'))
     : TODOS_DISPONIVEIS;
-  const itens = [...unsortedItens].sort((a, b) => a.localeCompare(b, 'pt-BR'));
+  const itens = [
+    ...new Set([...unsortedItens, ...(devMode ? ['Caderneta de Saúde'] : [])])
+  ].sort((a, b) => a.localeCompare(b, 'pt-BR'));
   // eslint-disable-next-line react-hooks/exhaustive-deps
   React.useEffect(() => { if (onNavSync) onNavSync(itens); }, [itens.join(',')]);
    const [idxLocal, setIdxLocal] = useState(0);
@@ -5016,7 +5018,7 @@ function PapelariaStep({ brand, accentColor, paletteColors, estampaPatterns, est
       }
   };
 
-  if (!isProPlan || itens.length === 0) {
+  if ((!isProPlan && !devMode) || itens.length === 0) {
     return (
       <div style={{ display: 'flex', flexDirection: 'column', gap: '20px', padding: '8px 0' }}>
         <div style={{ background: '#fff8f0', border: '1px solid #fde8c8', borderRadius: '16px', padding: '18px 20px' }}>
