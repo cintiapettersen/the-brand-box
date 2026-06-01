@@ -4863,7 +4863,7 @@ function PapelariaStep({ brand, accentColor, paletteColors, estampaPatterns, est
   ];
   // Monta lista final: papelaria selecionada no checkout + digitais automáticos
   const papelariaSelecionada = brand?.papelariaSelecionada || [];
-  const TODOS_DISPONIVEIS = [...PAPELARIA_GERAL, ...(isSaude ? PAPELARIA_MEDICA : []), ...(isSaude ? DIGITAIS_MEDICOS : [])];
+  const TODOS_DISPONIVEIS = [...PAPELARIA_GERAL, ...(isSaude ? PAPELARIA_MEDICA : []), ...(isSaude ? DIGITAIS_MEDICOS : []), ...(devMode && !isSaude ? ["Caderneta de Saúde"] : [])];
   // Normaliza nomes legados para compatibilidade com dados salvos anteriormente
   const LEGACY_NAMES = {
     'Pasta A4 Exclusiva': 'Pasta A4',
@@ -4884,7 +4884,7 @@ function PapelariaStep({ brand, accentColor, paletteColors, estampaPatterns, est
   // Para médicos: PAPELARIA_GERAL sempre inclusa + itens comprados. Para não-médicos: só o que comprou.
   const _autoInclusos = isSaude ? PAPELARIA_GERAL : [];
   const unsortedItens = papelariaNorm.length > 0
-    ? TODOS_DISPONIVEIS.filter(i => papelariaNorm.includes(i) || _autoInclusos.includes(i))
+    ? TODOS_DISPONIVEIS.filter(i => papelariaNorm.includes(i) || _autoInclusos.includes(i) || (devMode && i === 'Caderneta de Saúde'))
     : TODOS_DISPONIVEIS;
   const itens = [...unsortedItens].sort((a, b) => a.localeCompare(b, 'pt-BR'));
   // eslint-disable-next-line react-hooks/exhaustive-deps
