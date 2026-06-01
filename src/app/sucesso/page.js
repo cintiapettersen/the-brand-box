@@ -4838,7 +4838,7 @@ const getPreviewTargetWidth = (item) => {
   return 595; // Default para folders A4, receituários, diários, Meu Pratinho, etc.
 };
 
-function PapelariaStep({ brand, accentColor, paletteColors, estampaPatterns, estampaSelectedIdx, cartaoContacts, setCartaoContacts, plano, isSaude, crmData, setCrmData, marca, editData, logoColor, logoLayout, setLayout, clinicaNome, setClinicaNome, onNavSync, navIdx, setNavIdx, customLogoSrc, getCustomLogoScale, setCustomLogoScale, getCustomLogoScaleMax, customLogoScaleMap, submarcaColor, submarcaTextColor, iconPath, devMode }) {
+function PapelariaStep({ brand, accentColor, paletteColors, estampaPatterns, estampaSelectedIdx, cartaoContacts, setCartaoContacts, plano, isSaude, crmData, setCrmData, marca, editData, logoColor, logoLayout, setLayout, clinicaNome, setClinicaNome, onNavSync, navIdx, setNavIdx, customLogoSrc, getCustomLogoScale, setCustomLogoScale, getCustomLogoScaleMax, customLogoScaleMap, submarcaColor, submarcaTextColor, iconPath }) {
   // Digitais: sempre inclusos no plano PRO
   const ITENS_DIGITAIS = []; // Pack Instagram e Assinatura ficam na aba Digital, não na Papelaria
   // Papelaria disponível para não-médicos
@@ -4859,11 +4859,11 @@ function PapelariaStep({ brand, accentColor, paletteColors, estampaPatterns, est
     "Guia de Vacina c/ Calendário", "Cartão de Exame Pré-Natal",
     "Gráfico de Crescimento", "Checklist Maternidade", "Guia do Sono",
     "Orientações p/ Recém Nascidos", "Certificado de Coragem",
-    "Diário do Xixi", "Meu Pratinho", "Guia de Amamentação", ...(devMode ? ["Caderneta de Saúde"] : []), // Caderneta: oculta do público, visível em ?dev=1
+    "Diário do Xixi", "Meu Pratinho", "Guia de Amamentação", "Caderneta de Saúde",
   ];
   // Monta lista final: papelaria selecionada no checkout + digitais automáticos
   const papelariaSelecionada = brand?.papelariaSelecionada || [];
-  const TODOS_DISPONIVEIS = [...PAPELARIA_GERAL, ...(isSaude ? PAPELARIA_MEDICA : []), ...(isSaude ? DIGITAIS_MEDICOS : []), ...(devMode && !isSaude ? ["Caderneta de Saúde"] : [])];
+  const TODOS_DISPONIVEIS = [...PAPELARIA_GERAL, ...(isSaude ? PAPELARIA_MEDICA : []), ...(isSaude ? DIGITAIS_MEDICOS : [])];
   // Normaliza nomes legados para compatibilidade com dados salvos anteriormente
   const LEGACY_NAMES = {
     'Pasta A4 Exclusiva': 'Pasta A4',
@@ -4884,11 +4884,9 @@ function PapelariaStep({ brand, accentColor, paletteColors, estampaPatterns, est
   // Para médicos: PAPELARIA_GERAL sempre inclusa + itens comprados. Para não-médicos: só o que comprou.
   const _autoInclusos = isSaude ? PAPELARIA_GERAL : [];
   const unsortedItens = papelariaNorm.length > 0
-    ? TODOS_DISPONIVEIS.filter(i => papelariaNorm.includes(i) || _autoInclusos.includes(i) || (devMode && i === 'Caderneta de Saúde'))
+    ? TODOS_DISPONIVEIS.filter(i => papelariaNorm.includes(i) || _autoInclusos.includes(i))
     : TODOS_DISPONIVEIS;
-  const itens = [
-    ...new Set([...unsortedItens, ...(devMode ? ['Caderneta de Saúde'] : [])])
-  ].sort((a, b) => a.localeCompare(b, 'pt-BR'));
+  const itens = [...unsortedItens].sort((a, b) => a.localeCompare(b, 'pt-BR'));
   // eslint-disable-next-line react-hooks/exhaustive-deps
   React.useEffect(() => { if (onNavSync) onNavSync(itens); }, [itens.join(',')]);
    const [idxLocal, setIdxLocal] = useState(0);
@@ -5018,7 +5016,7 @@ function PapelariaStep({ brand, accentColor, paletteColors, estampaPatterns, est
       }
   };
 
-  if ((!isProPlan && !devMode) || itens.length === 0) {
+  if (!isProPlan || itens.length === 0) {
     return (
       <div style={{ display: 'flex', flexDirection: 'column', gap: '20px', padding: '8px 0' }}>
         <div style={{ background: '#fff8f0', border: '1px solid #fde8c8', borderRadius: '16px', padding: '18px 20px' }}>
@@ -8430,8 +8428,6 @@ ${fontImports2}
 }
 
 function EntregaContent({ brand, plano, setBrand }) {
-  const params = useSearchParams();
-  const devMode = params.get('dev') === '1';
   const [step, setStepState] = useState('placa');
   const setStep = (s) => { setStepState(s); try { localStorage.setItem(`brandbox_step_${brand.id}`, s); } catch {} };
 
@@ -9299,7 +9295,7 @@ function EntregaContent({ brand, plano, setBrand }) {
         {step === 'guia' && <GuiaStep brand={brand} accentColor={accentColor} paletteColors={paletteColors} marca={marca} tagline={tagline} estampaPatterns={estampaPatterns} estampaSelectedIdx={estampaSelectedIdx} editData={editDataWithLogo} />}
 
         {/* Papelaria / Gabaritos */}
-        {step === 'papelaria' && <PapelariaStep brand={brand} accentColor={accentColor} paletteColors={orderedPaletteColors} estampaPatterns={estampaPatterns} estampaSelectedIdx={estampaSelectedIdx} cartaoContacts={cartaoContacts} setCartaoContacts={setCartaoContacts} plano={plano} isSaude={isSaude} crmData={crmData} setCrmData={setCrmData} marca={marca} editData={editDataWithLogo} logoColor={logoColor} logoLayout={logoLayout} setLayout={setLayout} clinicaNome={clinicaNome} setClinicaNome={setClinicaNome} onNavSync={setPapelariaNavItens} navIdx={papelariaNavIdx} setNavIdx={setPapelariaNavIdx} customLogoSrc={customLogoSrc} getCustomLogoScale={getCustomLogoScale} setCustomLogoScale={setCustomLogoScale} getCustomLogoScaleMax={getCustomLogoScaleMax} customLogoScaleMap={customLogoScaleMap} submarcaColor={submarcaColor} submarcaTextColor={submarcaTextColor} iconPath={currentIconPath} devMode={devMode} />}
+        {step === 'papelaria' && <PapelariaStep brand={brand} accentColor={accentColor} paletteColors={orderedPaletteColors} estampaPatterns={estampaPatterns} estampaSelectedIdx={estampaSelectedIdx} cartaoContacts={cartaoContacts} setCartaoContacts={setCartaoContacts} plano={plano} isSaude={isSaude} crmData={crmData} setCrmData={setCrmData} marca={marca} editData={editDataWithLogo} logoColor={logoColor} logoLayout={logoLayout} setLayout={setLayout} clinicaNome={clinicaNome} setClinicaNome={setClinicaNome} onNavSync={setPapelariaNavItens} navIdx={papelariaNavIdx} setNavIdx={setPapelariaNavIdx} customLogoSrc={customLogoSrc} getCustomLogoScale={getCustomLogoScale} setCustomLogoScale={setCustomLogoScale} getCustomLogoScaleMax={getCustomLogoScaleMax} customLogoScaleMap={customLogoScaleMap} submarcaColor={submarcaColor} submarcaTextColor={submarcaTextColor} iconPath={currentIconPath} />}
 
         {/* Ajuda & Inspiração */}
         {step === 'ajuda' && <AjudaStep brand={brand} accentColor={accentColor} />}
