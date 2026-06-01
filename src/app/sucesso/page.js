@@ -4838,7 +4838,7 @@ const getPreviewTargetWidth = (item) => {
   return 595; // Default para folders A4, receituários, diários, Meu Pratinho, etc.
 };
 
-function PapelariaStep({ brand, accentColor, paletteColors, estampaPatterns, estampaSelectedIdx, cartaoContacts, setCartaoContacts, plano, isSaude, crmData, setCrmData, marca, editData, logoColor, logoLayout, setLayout, clinicaNome, setClinicaNome, onNavSync, navIdx, setNavIdx, customLogoSrc, getCustomLogoScale, setCustomLogoScale, getCustomLogoScaleMax, customLogoScaleMap, submarcaColor, submarcaTextColor, iconPath }) {
+function PapelariaStep({ brand, accentColor, paletteColors, estampaPatterns, estampaSelectedIdx, cartaoContacts, setCartaoContacts, plano, isSaude, crmData, setCrmData, marca, editData, logoColor, logoLayout, setLayout, clinicaNome, setClinicaNome, onNavSync, navIdx, setNavIdx, customLogoSrc, getCustomLogoScale, setCustomLogoScale, getCustomLogoScaleMax, customLogoScaleMap, submarcaColor, submarcaTextColor, iconPath, devMode }) {
   // Digitais: sempre inclusos no plano PRO
   const ITENS_DIGITAIS = []; // Pack Instagram e Assinatura ficam na aba Digital, não na Papelaria
   // Papelaria disponível para não-médicos
@@ -4859,7 +4859,7 @@ function PapelariaStep({ brand, accentColor, paletteColors, estampaPatterns, est
     "Guia de Vacina c/ Calendário", "Cartão de Exame Pré-Natal",
     "Gráfico de Crescimento", "Checklist Maternidade", "Guia do Sono",
     "Orientações p/ Recém Nascidos", "Certificado de Coragem",
-    "Diário do Xixi", "Meu Pratinho", "Guia de Amamentação", // "Caderneta de Saúde": em desenvolvimento, temporariamente oculta
+    "Diário do Xixi", "Meu Pratinho", "Guia de Amamentação", ...(devMode ? ["Caderneta de Saúde"] : []), // Caderneta: oculta do público, visível em ?dev=1
   ];
   // Monta lista final: papelaria selecionada no checkout + digitais automáticos
   const papelariaSelecionada = brand?.papelariaSelecionada || [];
@@ -9295,7 +9295,7 @@ function EntregaContent({ brand, plano, setBrand }) {
         {step === 'guia' && <GuiaStep brand={brand} accentColor={accentColor} paletteColors={paletteColors} marca={marca} tagline={tagline} estampaPatterns={estampaPatterns} estampaSelectedIdx={estampaSelectedIdx} editData={editDataWithLogo} />}
 
         {/* Papelaria / Gabaritos */}
-        {step === 'papelaria' && <PapelariaStep brand={brand} accentColor={accentColor} paletteColors={orderedPaletteColors} estampaPatterns={estampaPatterns} estampaSelectedIdx={estampaSelectedIdx} cartaoContacts={cartaoContacts} setCartaoContacts={setCartaoContacts} plano={plano} isSaude={isSaude} crmData={crmData} setCrmData={setCrmData} marca={marca} editData={editDataWithLogo} logoColor={logoColor} logoLayout={logoLayout} setLayout={setLayout} clinicaNome={clinicaNome} setClinicaNome={setClinicaNome} onNavSync={setPapelariaNavItens} navIdx={papelariaNavIdx} setNavIdx={setPapelariaNavIdx} customLogoSrc={customLogoSrc} getCustomLogoScale={getCustomLogoScale} setCustomLogoScale={setCustomLogoScale} getCustomLogoScaleMax={getCustomLogoScaleMax} customLogoScaleMap={customLogoScaleMap} submarcaColor={submarcaColor} submarcaTextColor={submarcaTextColor} iconPath={currentIconPath} />}
+        {step === 'papelaria' && <PapelariaStep brand={brand} accentColor={accentColor} paletteColors={orderedPaletteColors} estampaPatterns={estampaPatterns} estampaSelectedIdx={estampaSelectedIdx} cartaoContacts={cartaoContacts} setCartaoContacts={setCartaoContacts} plano={plano} isSaude={isSaude} crmData={crmData} setCrmData={setCrmData} marca={marca} editData={editDataWithLogo} logoColor={logoColor} logoLayout={logoLayout} setLayout={setLayout} clinicaNome={clinicaNome} setClinicaNome={setClinicaNome} onNavSync={setPapelariaNavItens} navIdx={papelariaNavIdx} setNavIdx={setPapelariaNavIdx} customLogoSrc={customLogoSrc} getCustomLogoScale={getCustomLogoScale} setCustomLogoScale={setCustomLogoScale} getCustomLogoScaleMax={getCustomLogoScaleMax} customLogoScaleMap={customLogoScaleMap} submarcaColor={submarcaColor} submarcaTextColor={submarcaTextColor} iconPath={currentIconPath} devMode={devMode} />}
 
         {/* Ajuda & Inspiração */}
         {step === 'ajuda' && <AjudaStep brand={brand} accentColor={accentColor} />}
@@ -10373,6 +10373,7 @@ function SucessoContent() {
 
   const sessionParam = params.get('session');
   const planoParam = params.get('plano');
+  const devMode = params.get('dev') === '1';
 
   useEffect(() => {
     if (params.get('reset') === '1') {
