@@ -18,7 +18,7 @@ const PAPELARIA_CLINICA = [
   "Prontuário Médico", "Receita de Alta", "Ficha de Cadastro",
   "Certificado de Coragem", "Quadro de Incentivo",
   "Arte para Caneca/Brindes", "Gráfico de Crescimento", "Diário do Xixi", "Card de Orientação de Sono",
-  "Meu Pratinho", "Guia de Amamentação"
+  "Meu Pratinho", "Guia de Amamentação" // Caderneta de Saúde: em desenvolvimento, temporariamente oculta do checkout
 ];
 
 const PAPELARIA_INSTITUCIONAL = [
@@ -1590,8 +1590,15 @@ export default function Home() {
                     </div>
                     <span style={{ display: 'inline-block', background: 'rgba(220,52,149,0.12)', color: 'var(--accent-magenta)', fontSize: '0.7rem', fontWeight: 700, borderRadius: '20px', padding: '3px 10px', letterSpacing: '0.5px', marginBottom: '10px' }}>Marca + Digital + Impressos</span>
                     <span style={{ fontWeight: 700, fontSize: '1.4rem', display: 'block', marginBottom: '10px', color: '#3a1a2e' }}>
-                      R$ {897 + Math.max(0, papelariaSelecionada.length - 5) * 30}
-                      {papelariaSelecionada.length > 5 && <span style={{ fontSize: '0.8rem', color: 'var(--accent-magenta)', fontWeight: 700, marginLeft: '8px' }}>(+ adicionais)</span>}
+                      R$ {(() => {
+                        const temCaderneta = papelariaSelecionada.includes("Caderneta de Saúde");
+                        const itensNormais = papelariaSelecionada.filter(item => item !== "Caderneta de Saúde");
+                        const extrasCount = Math.max(0, itensNormais.length - 5);
+                        return 897 + extrasCount * 30 + (temCaderneta ? 180 : 0);
+                      })()}
+                      {(papelariaSelecionada.filter(item => item !== "Caderneta de Saúde").length > 5 || papelariaSelecionada.includes("Caderneta de Saúde")) && (
+                        <span style={{ fontSize: '0.8rem', color: 'var(--accent-magenta)', fontWeight: 700, marginLeft: '8px' }}>(+ adicionais)</span>
+                      )}
                     </span>
                     <ul style={{ fontSize: '0.85rem', margin: '0 0 12px 0', paddingLeft: '0', display: 'flex', flexDirection: 'column', gap: '5px', listStyle: 'none' }}>
                       {['Tudo do Brand Box Starter', '5 Itens impressos à escolha', 'Pack completo para Instagram', 'Cartão Digital + Assinatura de E-mail'].map(i => {
@@ -1625,8 +1632,9 @@ export default function Home() {
                           setLoadingCheckout(false);
                           return;
                         }
-                        if (papelariaSelecionada.length < 5) {
-                          const confirmar = window.confirm(`Você selecionou apenas ${papelariaSelecionada.length} impresso${papelariaSelecionada.length > 1 ? 's' : ''}, mas seu plano inclui 5 grátis. Deseja continuar assim ou voltar para escolher mais?`);
+                        const itensNormais = papelariaSelecionada.filter(item => item !== "Caderneta de Saúde");
+                        if (itensNormais.length < 5) {
+                          const confirmar = window.confirm(`Você selecionou apenas ${itensNormais.length} impresso${itensNormais.length > 1 ? 's' : ''} gratuito(s), mas seu plano inclui 5 grátis. Deseja continuar assim ou voltar para escolher mais?`);
                           if (!confirmar) { setShowPediatriaModal(true); setLoadingCheckout(false); return; }
                         }
                         try {
@@ -1649,7 +1657,7 @@ export default function Home() {
                           try { localStorage.setItem('brandbox_delivery', JSON.stringify({ ...brandState, pattern: null })); } catch {}
                           ['brandbox_step', 'brandbox_cartao', 'brandbox_crm', 'brandbox_papelaria'].forEach(k => localStorage.removeItem(k));
                           localStorage.setItem('brandbox_plano', 'pro');
-                          const extrasCount = Math.max(0, papelariaSelecionada.length - 5);
+                          const extrasCount = Math.max(0, papelariaSelecionada.filter(item => item !== "Caderneta de Saúde").length - 5);
 
                           let sessionId = null;
                           try {
@@ -1799,13 +1807,57 @@ export default function Home() {
                     <div style={{ padding: '20px', flex: 1, overflowY: 'auto', display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(250px, 1fr))', gap: '10px', background: '#fcfcfc' }}>
                        {(isSaude ? PAPELARIA_CLINICA : PAPELARIA_INSTITUCIONAL).map(item => {
                           const selecionado = papelariaSelecionada.includes(item);
+                          const isCaderneta = item === "Caderneta de Saúde";
+                          const cardStyle = isCaderneta
+                            ? {
+                                display: 'flex',
+                                flexDirection: 'column',
+                                alignItems: 'flex-start',
+                                gap: '8px',
+                                padding: '16px',
+                                background: selecionado ? 'linear-gradient(135deg, #fffcf0 0%, #fff6d6 100%)' : '#fff',
+                                border: `2px solid ${selecionado ? '#e6af2e' : '#f0d38d'}`,
+                                borderRadius: '12px',
+                                cursor: 'pointer',
+                                fontSize: '0.9rem',
+                                transition: 'all 0.2s',
+                                boxShadow: selecionado ? '0 4px 15px rgba(230,175,46,0.2)' : '0 2px 5px rgba(0,0,0,0.02)',
+                                position: 'relative',
+                                overflow: 'hidden',
+                                gridColumn: '1 / -1'
+                              }
+                            : {
+                                display: 'flex',
+                                alignItems: 'center',
+                                gap: '10px',
+                                padding: '12px',
+                                background: selecionado ? '#fff0f8' : '#fff',
+                                border: `1px solid ${selecionado ? 'var(--accent-magenta)' : 'var(--border)'}`,
+                                borderRadius: '8px',
+                                cursor: 'pointer',
+                                fontSize: '0.9rem',
+                                transition: 'all 0.2s',
+                                boxShadow: selecionado ? '0 2px 8px rgba(220,52,149,0.1)' : '0 2px 5px rgba(0,0,0,0.02)'
+                              };
                           return (
-                            <label key={item} style={{ display: 'flex', alignItems: 'center', gap: '10px', padding: '12px', background: selecionado ? '#fff0f8' : '#fff', border: `1px solid ${selecionado ? 'var(--accent-magenta)' : 'var(--border)'}`, borderRadius: '8px', cursor: 'pointer', fontSize: '0.9rem', transition: 'all 0.2s', boxShadow: selecionado ? '0 2px 8px rgba(220,52,149,0.1)' : '0 2px 5px rgba(0,0,0,0.02)' }}>
-                               <input type="checkbox" checked={selecionado} onChange={(e) => {
-                                 if (e.target.checked) setPapelariaSelecionada([...papelariaSelecionada, item]);
-                                 else setPapelariaSelecionada(papelariaSelecionada.filter(i => i !== item));
-                               }} style={{ width: '18px', height: '18px', accentColor: 'var(--accent-magenta)' }} />
-                               {item}
+                            <label key={item} style={cardStyle}>
+                               <div style={{ display: 'flex', alignItems: 'center', gap: '10px', width: '100%' }}>
+                                  <input type="checkbox" checked={selecionado} onChange={(e) => {
+                                    if (e.target.checked) setPapelariaSelecionada([...papelariaSelecionada, item]);
+                                    else setPapelariaSelecionada(papelariaSelecionada.filter(i => i !== item));
+                                  }} style={{ width: '18px', height: '18px', accentColor: isCaderneta ? '#e6af2e' : 'var(--accent-magenta)' }} />
+                                  <span style={{ fontWeight: isCaderneta ? 700 : 500, color: isCaderneta ? '#5c4308' : 'inherit' }}>{item}</span>
+                                  {isCaderneta && (
+                                    <span style={{ marginLeft: 'auto', background: 'linear-gradient(90deg, #e6af2e, #ffda73)', color: '#3a2700', fontSize: '0.7rem', fontWeight: 800, padding: '3px 8px', borderRadius: '20px', letterSpacing: '0.5px', textTransform: 'uppercase' }}>
+                                      👑 PREMIUM — 124 Págs
+                                    </span>
+                                  )}
+                               </div>
+                               {isCaderneta && (
+                                 <div style={{ paddingLeft: '28px', fontSize: '0.78rem', color: '#7a5e1d', lineHeight: 1.4, textAlign: 'left' }}>
+                                   Adicional exclusivo: <strong>+R$ 180,00</strong>. Ideal para acompanhamento completo do bebê. <em>Não consome os 5 bônus grátis!</em>
+                                 </div>
+                               )}
                             </label>
                           );
                        })}
@@ -1813,8 +1865,25 @@ export default function Home() {
 
                     <div style={{ padding: '20px', background: '#fff', borderTop: '1px solid var(--border)', display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '12px', flexWrap: 'wrap' }}>
                        <div style={{ textAlign: 'left' }}>
-                         <span style={{ fontWeight: 700, color: 'var(--text-primary)' }}>Selecionados: {papelariaSelecionada.length} de 5 grátis</span>
-                         {papelariaSelecionada.length > 5 && <div style={{ fontSize: '0.8rem', color: 'var(--accent-magenta)', fontWeight: 700, marginTop: '2px' }}>+{papelariaSelecionada.length - 5} extras (+R$ {(papelariaSelecionada.length - 5)*30})</div>}
+                         {(() => {
+                            const temCaderneta = papelariaSelecionada.includes("Caderneta de Saúde");
+                            const itensNormais = papelariaSelecionada.filter(item => item !== "Caderneta de Saúde");
+                            const extrasCount = Math.max(0, itensNormais.length - 5);
+                            return (
+                              <>
+                                <span style={{ fontWeight: 700, color: 'var(--text-primary)' }}>
+                                  Selecionados: {itensNormais.length} de 5 grátis {temCaderneta && `(+ 1 Item Premium)`}
+                                </span>
+                                {(extrasCount > 0 || temCaderneta) && (
+                                  <div style={{ fontSize: '0.8rem', color: 'var(--accent-magenta)', fontWeight: 700, marginTop: '2px' }}>
+                                    {extrasCount > 0 && `+${extrasCount} extra(s) (+R$ ${extrasCount * 30})`}
+                                    {extrasCount > 0 && temCaderneta && ' e '}
+                                    {temCaderneta && `+1 Item Premium (+R$ 180)`}
+                                  </div>
+                                )}
+                              </>
+                            );
+                          })()}
                          <button onClick={() => {
                            const lista = isSaude ? PAPELARIA_CLINICA : PAPELARIA_INSTITUCIONAL;
                            const todos = lista.length === papelariaSelecionada.length;

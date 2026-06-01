@@ -4859,7 +4859,7 @@ function PapelariaStep({ brand, accentColor, paletteColors, estampaPatterns, est
     "Guia de Vacina c/ Calendário", "Cartão de Exame Pré-Natal",
     "Gráfico de Crescimento", "Checklist Maternidade", "Guia do Sono",
     "Orientações p/ Recém Nascidos", "Certificado de Coragem",
-    "Diário do Xixi", "Meu Pratinho", "Guia de Amamentação", "Caderneta de Saúde",
+    "Diário do Xixi", "Meu Pratinho", "Guia de Amamentação", // "Caderneta de Saúde": em desenvolvimento, temporariamente oculta
   ];
   // Monta lista final: papelaria selecionada no checkout + digitais automáticos
   const papelariaSelecionada = brand?.papelariaSelecionada || [];
