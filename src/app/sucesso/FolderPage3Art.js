@@ -4,10 +4,10 @@ const textColor = (hex) => { const h = (hex || '#000').replace('#',''); const r 
 
 const Section = ({ title, color, children }) => (
   <div style={{ background: '#fff', border: `0.5px solid ${color}40`, borderRadius: '3px', overflow: 'hidden', flex: 1, display: 'flex', flexDirection: 'column' }}>
-    <div style={{ background: color, padding: '1.5px 4px' }}>
-      <span style={{ fontSize: '4px', fontWeight: 900, color: textColor(color), textTransform: 'uppercase', letterSpacing: '0.3px', fontFamily: 'Montserrat,sans-serif' }}>{title}</span>
+    <div style={{ background: color, padding: '2px 4px' }}>
+      <span style={{ fontSize: '3.5px', fontWeight: 900, color: textColor(color), textTransform: 'uppercase', letterSpacing: '0.3px', fontFamily: 'Montserrat,sans-serif' }}>{title}</span>
     </div>
-    <div style={{ padding: '1.5px 3px', display: 'flex', flexDirection: 'column', gap: '1.5px', flex: 1 }}>
+    <div style={{ padding: '2.5px 3.5px', display: 'flex', flexDirection: 'column', gap: '2px', flex: 1 }}>
       {children}
     </div>
   </div>
@@ -16,7 +16,7 @@ const Section = ({ title, color, children }) => (
 const Bullet = ({ text, color }) => (
   <div style={{ display: 'flex', gap: '2px', alignItems: 'flex-start' }}>
     <span style={{ fontSize: '3px', color: color, flexShrink: 0, fontWeight: 900, fontFamily: 'Montserrat,sans-serif' }}>›</span>
-    <span style={{ fontSize: '2.8px', color: '#444', lineHeight: 1.25, fontFamily: 'Montserrat,sans-serif' }}>{text}</span>
+    <span style={{ fontSize: '2.8px', color: '#444', lineHeight: 1.2, fontFamily: 'Montserrat,sans-serif' }}>{text}</span>
   </div>
 );
 
@@ -28,7 +28,7 @@ export default function FolderPage3Art({ accentColor, palette = [] }) {
   const c4 = palette[4] || c2;
 
   return (
-    <div style={{ width: '100%', height: '210px', display: 'flex', flexDirection: 'column', fontFamily: 'Montserrat,sans-serif', boxSizing: 'border-box', padding: '3px 8px 4px', gap: '2px', background: '#f8f8f8', overflow: 'hidden' }}>
+    <div style={{ width: '100%', height: '100%', display: 'flex', flexDirection: 'column', fontFamily: 'Montserrat,sans-serif', boxSizing: 'border-box', padding: '6px 8px 8px', gap: '4px', background: '#f8f8f8', overflow: 'hidden' }}>
 
       {/* Banner título */}
       <div style={{ background: c0, borderRadius: '3px', padding: '3px 5px', textAlign: 'center', flexShrink: 0 }}>
@@ -36,8 +36,8 @@ export default function FolderPage3Art({ accentColor, palette = [] }) {
         <div style={{ fontSize: '3px', color: textColor(c0), opacity: 0.85, marginTop: '1px', fontStyle: 'italic' }}>Prefira alimentos de estação e orgânicos</div>
       </div>
 
-      {/* Grid 2×2: linha de cima menor, linha de baixo maior */}
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gridTemplateRows: '1fr 1.4fr', gap: '2px', flex: 1, minHeight: 0, overflow: 'hidden', marginBottom: '2px' }}>
+      {/* Grid 2×2: linha de cima menor, linha de baixo ajustada para não encostar embaixo */}
+      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gridTemplateRows: '1fr 1.2fr', gap: '4px', flex: 1, minHeight: 0, overflow: 'hidden' }}>
 
         <Section title="💧 Água" color={c1}>
           <Bullet color={c1} text="Somente água filtrada ou fervida." />

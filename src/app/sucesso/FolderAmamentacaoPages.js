@@ -195,11 +195,13 @@ export function FolderAmamentacaoPage4({ accentColor, borderColor, palette = [],
         </div>
       </div>
       
-      <div style={{ marginTop: '12px', textAlign: 'center', borderTop: `0.3px solid ${mainColor}20`, paddingTop: '8px', paddingBottom: '5px' }}>
-        <div style={{ fontSize: '5px', fontWeight: 800, color: mainColor, marginBottom: '1px' }}>{clinicaNome}</div>
-        <div style={{ fontSize: '3.8px', color: '#999', marginBottom: '3px' }}>{endereco}</div>
-        <div style={{ fontSize: '5px', fontWeight: 800, color: '#444' }}>{allPhones}</div>
-      </div>
+      {(clinicaNome || endereco || allPhones) ? (
+        <div style={{ marginTop: '12px', textAlign: 'center', borderTop: `0.3px solid ${mainColor}20`, paddingTop: '8px', paddingBottom: '5px' }}>
+          {clinicaNome && <div style={{ fontSize: '5px', fontWeight: 800, color: mainColor, marginBottom: '1px' }}>{clinicaNome}</div>}
+          {endereco && <div style={{ fontSize: '3.8px', color: '#999', marginBottom: '3px' }}>{endereco}</div>}
+          {allPhones && <div style={{ fontSize: '5px', fontWeight: 800, color: '#444' }}>{allPhones}</div>}
+        </div>
+      ) : null}
     </div>
   );
 }

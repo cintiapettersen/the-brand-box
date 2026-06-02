@@ -25,7 +25,7 @@ export default function FolderSonoPage2({ accentColor, palette = [] }) {
 
   return (
     <div style={{
-      width: '100%', height: '210px',
+      width: '100%', height: '100%',
       display: 'flex', flexDirection: 'column',
       fontFamily: "'Montserrat', sans-serif",
       boxSizing: 'border-box',

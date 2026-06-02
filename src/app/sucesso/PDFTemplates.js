@@ -64,9 +64,12 @@ export const genPDFLogoHtml = ({ brand, editDataOverride = null, color, localSlo
   const _taglineSizeBoost = _ed?.taglineSizeBoost !== undefined ? parseFloat(_ed.taglineSizeBoost) : 1.0;
   const _sloganScale = (_sloganLenRaw > 50 ? 0.16 : _sloganLenRaw > 40 ? 0.20 : _sloganLenRaw > 25 ? 0.26 : 0.35) * _taglineSizeBoost;
   // Gap customizável via taglineGap (fallback para o cálculo dinâmico)
-  const _sloganGapMultiplier = _ed?.taglineGap !== undefined ? parseFloat(_ed.taglineGap) : (_sloganLenRaw > 40 ? 0.20 : 0.35);
+  const _sloganGapMultiplier = _ed?.taglineGap !== undefined ? parseFloat(_ed.taglineGap) : (_sloganLenRaw > 40 ? 0.06 : 0.10);
   
   const _scaleMultiplier = finalLogoScale / 100;
+  const effectiveCrmSize = crmSize.includes('pt') ? (parseFloat(crmSize) * _scaleMultiplier).toFixed(1) + 'pt' : crmSize;
+  const _crmGap = Math.max(2, 0.5 * _scaleMultiplier).toFixed(1);
+
   const _isScript = _ed.fontStyle === 'script';
   const _effectiveLineH = lineH || (_isScript ? 1.5 : 1.15);
   const _effectiveLetterSp = letterSp || 'normal';
@@ -83,10 +86,14 @@ export const genPDFLogoHtml = ({ brand, editDataOverride = null, color, localSlo
       : 0;
     const _sloganLinesCount = (localSlogan && !hideSlogan) ? (localSlogan.length > 25 ? 2 : 1) : 0;
     const _scriptHeightMul = _isScript ? 1.4 : 1.0;
+
+    // O tamanho do CRM no HTML é fixado por effectiveCrmSize (não escala com _baseFontPt).
+    // Para evitar penalizar agressivamente o tamanho da fonte da logo, extraímos a altura do CRM em mm como constante.
+    const _crmHeightMm = crmLine ? (parseFloat(effectiveCrmSize) * 1.2 * 0.353) : 0;
+
     const _hPerPt = lines.length * _effectiveLineH * 0.353 * _scriptHeightMul
-      + _sloganLinesCount * _sloganScale * 1.2 * 0.353
-      + (crmLine ? 5 * 0.353 : 0);
-    const _maxPtByH = (_maxHmm * 0.88 - _bgPadVmm) / (_hPerPt || 1);
+      + _sloganLinesCount * _sloganScale * 1.2 * 0.353;
+    const _maxPtByH = (_maxHmm * 0.88 - _bgPadVmm - _crmHeightMm) / (_hPerPt || 1);
     _baseFontPt = Math.min(_baseFontPt, _maxPtByH);
   }
 
@@ -112,9 +119,6 @@ export const genPDFLogoHtml = ({ brand, editDataOverride = null, color, localSlo
           return [words.slice(0, mid).join(' '), words.slice(mid).join(' ')];
         })()
       : [localSlogan];
-
-  const effectiveCrmSize = crmSize.includes('pt') ? (parseFloat(crmSize) * _scaleMultiplier).toFixed(1) + 'pt' : crmSize;
-  const _crmGap = Math.max(2, 0.5 * _scaleMultiplier).toFixed(1);
 
   const _sloganLen = (localSlogan && !hideSlogan) ? localSlogan.length : 0;
   const _crmLen = crmLine ? crmLine.length : 0;
@@ -254,10 +258,11 @@ export const PratinhoArtSVG = ({ circleColor, plateColor, accentColor, titleColo
   </div>
 `;
 
-/**
- * Gera o Rodapé Industrial (Dados de Contato) com LOGO OPCIONAL
- */
-export const genPDFFooter = ({ clinicaNome, endereco, allPhones, email, site, instagram, accentColor, logoHtml = null, crmLine = null }) => `
+export const genPDFFooter = ({ clinicaNome, endereco, allPhones, email, site, instagram, accentColor, logoHtml = null, crmLine = null }) => {
+  const hasContacts = !!(clinicaNome || endereco || allPhones || email || site || instagram);
+  if (!hasContacts) return '';
+
+  return `
   <div style="position:absolute; bottom:8mm; left:18mm; right:18mm; background:#fff; border:0.15mm solid ${accentColor}20; border-radius:1.5mm; padding:4.5mm; z-index:4; display:flex; align-items:center; justify-content:${logoHtml ? 'space-between' : 'center'}; box-shadow:0 0.5mm 2mm rgba(0,0,0,0.05); min-height:24mm;">
       
       ${logoHtml ? `
@@ -270,15 +275,17 @@ export const genPDFFooter = ({ clinicaNome, endereco, allPhones, email, site, in
       ` : ''}
 
       <div style="text-align:${logoHtml ? 'right' : 'center'}; flex-grow:1;">
-          <div style="${PDFStyles.montserrat} font-size:7.5pt; font-weight:800; color:${accentColor}; margin-bottom:1mm;">${clinicaNome || 'Sua Clínica'}</div>
-          <div style="${PDFStyles.montserrat} font-size:6pt; color:#666; font-weight:500; line-height:1.4;">${endereco || 'Endereço não informado'}</div>
+          ${clinicaNome ? `<div style="${PDFStyles.montserrat} font-size:7.5pt; font-weight:800; color:${accentColor}; margin-bottom:1mm;">${clinicaNome}</div>` : ''}
+          ${endereco ? `<div style="${PDFStyles.montserrat} font-size:6pt; color:#666; font-weight:500; line-height:1.4;">${endereco}</div>` : ''}
           
+          ${allPhones ? `
           <div style="display:flex; align-items:center; justify-content:${logoHtml ? 'flex-end' : 'center'}; gap:1.5mm; margin:1mm 0;">
               <div style="width:3.5mm; height:3.5mm; background:#25D366; border-radius:50%; display:flex; align-items:center; justify-content:center;">
                   <div style="width:1.8mm; height:1.8mm; border:0.35mm solid #fff; border-radius:0.4mm;"></div>
               </div>
               <div style="${PDFStyles.montserrat} font-size:7pt; font-weight:800; color:#333;">${allPhones}</div>
           </div>
+          ` : ''}
 
           <div style="${PDFStyles.montserrat} font-size:6pt; color:#888; font-weight:500; letter-spacing:0.2px;">
               ${[email, site, instagram ? `@${instagram}` : ''].filter(Boolean).join('  ·  ')}
@@ -286,13 +293,16 @@ export const genPDFFooter = ({ clinicaNome, endereco, allPhones, email, site, in
       </div>
   </div>
 `;
+};
 
 /**
  * Gera o Rodapé Minimalista (Apenas texto e linha)
  */
-export const genPDFSimpleFooter = ({ allPhones, email, site, instagram }) => `
-  <div style="position:absolute; bottom:12mm; left:12mm; right:12mm; border-top:0.5px solid #e0e0e0; padding-top:4mm; text-align:center; z-index:4;">
-      <div style="${PDFStyles.montserrat} font-size:7.5pt; font-weight:700; color:#444; margin-bottom:1mm;">${allPhones}</div>
+export const genPDFSimpleFooter = ({ allPhones, email, site, instagram, clinicaNome = null, endereco = null, accentColor = '#444' }) => `
+  <div style="position:absolute; bottom:12mm; left:30mm; right:30mm; border-top:0.5px solid #e0e0e0; padding-top:4mm; text-align:center; z-index:4;">
+      ${clinicaNome ? `<div style="${PDFStyles.montserrat} font-size:8.5pt; font-weight:800; color:${accentColor}; margin-bottom:1.5mm; text-transform:uppercase; letter-spacing:0.5px;">${clinicaNome}</div>` : ''}
+      ${endereco ? `<div style="${PDFStyles.montserrat} font-size:6.5pt; color:#666; font-weight:500; line-height:1.4; margin-bottom:2mm;">${endereco}</div>` : ''}
+      ${allPhones ? `<div style="${PDFStyles.montserrat} font-size:7.5pt; font-weight:700; color:#444; margin-bottom:1mm;">${allPhones}</div>` : ''}
       <div style="${PDFStyles.montserrat} font-size:6.5pt; color:#999; font-weight:500; letter-spacing:0.2px;">
           ${[instagram ? `@${instagram}` : '', email, site].filter(Boolean).join('  ·  ')}
       </div>

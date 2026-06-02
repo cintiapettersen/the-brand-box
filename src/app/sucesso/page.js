@@ -62,13 +62,13 @@ export const ITEM_CUSTOM_BASE_SCALES = {
   'Envelope Saco (24x34cm)': 2.0,
   'Envelope Saco': 2.0,
   'Pasta A4': 2.0,
-  'Receituário Padrão (A4 e A5)': 1.0,
-  'Receituário Padrão': 1.0, 
-  'Receituário de Controle Especial': 1.0,
-  'Atestado Médico (A4 e A5)': 1.0,
-  'Atestado Médico': 2.0, 'Recibo': 1.0, 'Cartão de Retorno': 1.0,
+  'Receituário Padrão (A4 e A5)': 2.0,
+  'Receituário Padrão': 2.0, 
+  'Receituário de Controle Especial': 2.0,
+  'Atestado Médico (A4 e A5)': 2.0,
+  'Atestado Médico': 2.0, 'Recibo': 2.0, 'Cartão de Retorno': 2.0,
   'Ficha de Cadastro': 2.0, 'Prontuário Médico': 2.0,
-  'Certificado de Coragem': 1.0,
+  'Certificado de Coragem': 2.0,
   // Folders and other standardized items
   'Guia Alimentar': 2.0,
   'Guia de Cuidados': 2.0,
@@ -176,7 +176,8 @@ export function LogoPreviewHTML({ item = null, editData, color, layout = 'stacke
 
   if (customLogoSrc) {
     // BASE_SCALES não amplifica logo imagem — só texto pequeno precisa do boost
-    const scaleMultiplier = (customLogoScale / 100) * scaleFactor;
+    let scaleMultiplier = (customLogoScale / 100) * scaleFactor;
+    if (!item) scaleMultiplier *= 1.5; // Boost general views (Sua Logo, Placa, etc)
     const explicitMaxH = (maxHeight && !String(maxHeight).includes('%')) ? parseInt(maxHeight) : null;
     const explicitMaxW = (maxWidth && !String(maxWidth).includes('%')) ? parseInt(maxWidth) : null;
     const baseH = 60; // Altura base fixa para imagens no preview
@@ -824,22 +825,33 @@ function CartaoStep({ brand, accentColor, paletteColors, marca, estampaPatterns,
         <button onClick={async () => {
           const html = downloadHTML(true);
           const file = new File([new Blob([html], { type: 'text/html' })], `${marca || 'marca'}-cartao-digital.html`, { type: 'text/html' });
-          if (navigator.canShare?.({ files: [file] })) {
-            try { await navigator.share({ files: [file], title: `Cartão Digital — ${marca || 'Marca'}` }); return; } catch {}
+          if (navigator.canShare && navigator.canShare({ files: [file] })) {
+            try { await navigator.share({ files: [file], title: `Cartão Digital — ${marca || 'Marca'}` }); } catch {}
+            return;
           }
           downloadHTML();
         }} style={{ flex: 1, minWidth: '100px', padding: '13px 8px', background: '#C03B66', color: '#fff', border: 'none', borderRadius: '30px', fontWeight: 700, fontSize: '0.78rem', cursor: 'pointer', fontFamily: 'Montserrat, sans-serif', whiteSpace: 'nowrap' }}>
           ↑ Compartilhar
         </button>
-        <button onClick={() => {
-          const text = `Olá! Segue meu Cartão de Visitas Digital Interativo. Salve o arquivo HTML em anexo no seu celular para acessar todos os meus contatos com apenas um clique! 📲✨`;
-          window.open(`https://api.whatsapp.com/send?text=${encodeURIComponent(text)}`, '_blank');
-        }} style={{ flex: 1, minWidth: '100px', padding: '13px 8px', background: '#25D366', color: '#fff', border: 'none', borderRadius: '30px', fontWeight: 700, fontSize: '0.78rem', cursor: 'pointer', fontFamily: 'Montserrat, sans-serif', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: '6px', whiteSpace: 'nowrap' }}>
+        <a 
+          href={`https://api.whatsapp.com/send?text=${encodeURIComponent('Olá! Segue meu Cartão de Visitas Digital Interativo. Salve o arquivo HTML em anexo no seu celular para acessar todos os meus contatos com apenas um clique! 📲✨')}`}
+          target="_blank"
+          onClick={() => {
+            // Baixa o arquivo primeiro
+            downloadHTML();
+            
+            // Avisa o usuário que ele precisa anexar manualmente
+            setTimeout(() => {
+              alert('Pronto! O arquivo HTML do seu cartão foi baixado. 📥\n\nLembre-se de clicar no "clip de papel" ou "+" 📎 na tela do WhatsApp e anexar o arquivo HTML que baixamos junto com a mensagem!');
+            }, 800);
+          }} 
+          style={{ flex: 1, minWidth: '100px', padding: '13px 8px', background: '#25D366', color: '#fff', border: 'none', borderRadius: '30px', fontWeight: 700, fontSize: '0.78rem', cursor: 'pointer', fontFamily: 'Montserrat, sans-serif', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: '6px', whiteSpace: 'nowrap', textDecoration: 'none' }}
+        >
           <svg viewBox="0 0 24 24" width="15" height="15" fill="white" style={{ display: 'block' }}>
             <path d="M.057 24l1.687-6.163c-1.041-1.804-1.588-3.849-1.587-5.946C.003 5.27 5.28.005 11.792.005c3.16.001 6.129 1.233 8.359 3.468s3.461 5.197 3.461 8.353c-.004 6.523-5.28 11.785-11.793 11.785-1.996-.002-3.957-.5-5.744-1.44L0 24zm5.824-2.871l.328.193c1.674.993 3.593 1.517 5.637 1.518 5.728 0 10.387-4.647 10.39-10.354.002-2.766-1.077-5.366-3.038-7.329s-4.564-3.04-7.33-3.04c-5.73 0-10.39 4.65-10.393 10.358 0 2.11.55 4.17 1.59 5.973l.21.36-1.002 3.658 3.73-.978zm13.125-7.794c-.315-.158-1.86-.918-2.175-1.033-.315-.115-.545-.172-.773.172-.228.345-.885 1.114-1.085 1.343-.2.228-.4.258-.715.1-.315-.158-1.33-.49-2.532-1.562-.936-.83-1.568-1.856-1.75-2.172-.182-.315-.02-.485.138-.642.142-.142.315-.368.473-.553.158-.185.21-.315.315-.525.105-.21.053-.394-.026-.552-.079-.158-.773-1.86-1.06-2.553-.28-.673-.562-.58-.773-.59-.2-.01-.428-.01-.657-.01-.228 0-.6.085-.914.428-.315.345-1.202 1.176-1.202 2.87 0 1.693 1.233 3.325 1.405 3.555.172.228 2.428 3.708 5.882 5.197.82.353 1.46.564 1.96.723.824.263 1.575.225 2.167.137.66-.098 1.86-.76 2.124-1.458.263-.697.263-1.3.185-1.428-.079-.128-.288-.208-.604-.366z"/>
           </svg>
           Enviar no Whats
-        </button>
+        </a>
         <button onClick={downloadHTML} style={{ flex: 1, minWidth: '100px', padding: '13px 8px', background: 'none', color: '#C03B66', border: '1.5px solid #C03B66', borderRadius: '30px', fontWeight: 700, fontSize: '0.78rem', cursor: 'pointer', fontFamily: 'Montserrat, sans-serif', whiteSpace: 'nowrap' }}>
           ⬇ Baixar HTML
         </button>
@@ -1677,6 +1689,174 @@ function AjudaStep({ brand, accentColor }) {
   );
 }
 
+function UpsellStep({ brand, accentColor, marca }) {
+  return (
+    <div style={{
+      display: 'flex',
+      flexDirection: 'column',
+      gap: '1.8rem',
+      padding: '24px 20px',
+      background: '#fff',
+      borderRadius: '24px',
+      boxShadow: '0 10px 30px rgba(0,0,0,0.04)',
+      border: '1.5px solid #eaeaea',
+      fontFamily: 'Montserrat, sans-serif'
+    }}>
+      {/* Premium Header */}
+      <div style={{ textAlign: 'center', position: 'relative', overflow: 'hidden', padding: '20px 10px 10px', borderRadius: '18px' }}>
+        <div style={{
+          display: 'inline-block',
+          background: 'linear-gradient(135deg, #FFF0F5, #F5E6EE)',
+          color: '#C03B66',
+          fontSize: '0.68rem',
+          fontWeight: 800,
+          letterSpacing: '2px',
+          textTransform: 'uppercase',
+          padding: '6px 14px',
+          borderRadius: '30px',
+          marginBottom: '12px',
+          border: '1px solid #F0D0E0'
+        }}>
+          ✨ Fechamento Premium & Arte Sob Medida
+        </div>
+        <h2 style={{
+          fontSize: '1.4rem',
+          fontWeight: 800,
+          color: '#1a1a1a',
+          lineHeight: 1.35,
+          marginBottom: '8px'
+        }}>
+          Deseja um toque extra de exclusividade autoral?
+        </h2>
+        <p style={{
+          fontSize: '0.85rem',
+          color: '#666',
+          lineHeight: 1.6,
+          maxWidth: '380px',
+          margin: '0 auto'
+        }}>
+          Se você ama aquela sensação de marca única, com desenhos e ilustrações autorais que conectam toda a sua identidade, criamos o fechamento sob medida.
+        </p>
+      </div>
+
+      {/* Cards de Opções */}
+      <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+        {/* Opção 1: Logotipo Ilustrado */}
+        <div style={{
+          background: '#fcfcfc',
+          border: '1.5px solid #eaeaea',
+          borderRadius: '16px',
+          padding: '20px',
+          transition: 'all 0.2s ease',
+          display: 'flex',
+          flexDirection: 'column',
+          gap: '12px'
+        }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+            <span style={{ fontSize: '1.6rem' }}>✍️</span>
+            <div>
+              <h3 style={{ fontSize: '0.92rem', fontWeight: 800, color: '#1a1a1a', margin: 0 }}>
+                Logotipo Ilustrado Exclusivo
+              </h3>
+              <span style={{ fontSize: '0.72rem', color: accentColor, fontWeight: 700 }}>Arte Autoral Sob Medida</span>
+            </div>
+          </div>
+          <p style={{ fontSize: '0.8rem', color: '#666', lineHeight: 1.5, margin: 0 }}>
+            Nossos planos automáticos criam lindas logos tipográficas. Com este serviço premium, nossa diretora de arte desenhará um <strong>símbolo ou ilustração autoral exclusiva</strong> para ser integrado à sua marca.
+          </p>
+          <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px', marginTop: '4px' }}>
+            {['100% autoral', 'Arquivo vetorial editável', 'Ajustes finos com designer'].map(tag => (
+              <span key={tag} style={{ background: '#f0f0f0', color: '#555', fontSize: '0.65rem', fontWeight: 600, padding: '4px 8px', borderRadius: '12px' }}>
+                ✓ {tag}
+              </span>
+            ))}
+          </div>
+        </div>
+
+        {/* Opção 2: Elementos Unificadores Ilustrados */}
+        <div style={{
+          background: '#fcfcfc',
+          border: '1.5px solid #eaeaea',
+          borderRadius: '16px',
+          padding: '20px',
+          transition: 'all 0.2s ease',
+          display: 'flex',
+          flexDirection: 'column',
+          gap: '12px'
+        }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+            <span style={{ fontSize: '1.6rem' }}>🎨</span>
+            <div>
+              <h3 style={{ fontSize: '0.92rem', fontWeight: 800, color: '#1a1a1a', margin: 0 }}>
+                Elementos Ilustrativos Unificadores
+              </h3>
+              <span style={{ fontSize: '0.72rem', color: accentColor, fontWeight: 700 }}>Conexão de Papelaria Premium</span>
+            </div>
+          </div>
+          <p style={{ fontSize: '0.8rem', color: '#666', lineHeight: 1.5, margin: 0 }}>
+            Criação de <strong>desenhos exclusivos para os rodapés e detalhes dos seus impressos</strong>. Ideal para criar uma experiência encantadora e um padrão visual acolhedor em todas as peças de papelaria.
+          </p>
+          <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px', marginTop: '4px' }}>
+            {['Rodapés exclusivos', 'Estilo unificado autoral', 'Pronto para impressão'].map(tag => (
+              <span key={tag} style={{ background: '#f0f0f0', color: '#555', fontSize: '0.65rem', fontWeight: 600, padding: '4px 8px', borderRadius: '12px' }}>
+                ✓ {tag}
+              </span>
+            ))}
+          </div>
+        </div>
+      </div>
+
+      {/* Nota Importante */}
+      <div style={{
+        background: '#FAF9F7',
+        borderRadius: '14px',
+        padding: '16px',
+        borderLeft: `4px solid ${accentColor}`
+      }}>
+        <p style={{ fontSize: '0.75rem', color: '#555', lineHeight: 1.5, margin: 0 }}>
+          💡 <strong>Como funciona:</strong> Ao contratar este serviço sob medida, você faz um briefing direto com o nosso time criativo e nós desenvolvemos as artes personalizadas e as inserimos diretamente nos seus gabaritos do The Brand Box.
+        </p>
+      </div>
+
+      {/* Call to Action WhatsApp */}
+      <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', alignItems: 'center', marginTop: '8px' }}>
+        <a
+          href={`https://wa.me/4793630746?text=Olá!%20Finalizei%20meu%20projeto%20no%20The%20Brand%20Box%20e%20amei!%20Gostaria%20de%20saber%20mais%20sobre%20o%20serviço%20de%20Desenhos%20de%20Rodapé%20e%20Logotipo%20Ilustrado%20para%20a%20minha%20marca%20\${encodeURIComponent(marca || '')}.`}
+          target="_blank"
+          rel="noopener noreferrer"
+          style={{
+            display: 'block',
+            width: '100%',
+            background: '#25D366',
+            color: '#fff',
+            border: 'none',
+            borderRadius: '30px',
+            padding: '14px',
+            fontSize: '0.88rem',
+            fontWeight: 800,
+            textDecoration: 'none',
+            textAlign: 'center',
+            cursor: 'pointer',
+            boxShadow: '0 6px 20px rgba(37, 211, 102, 0.25)',
+            transition: 'all 0.2s ease',
+          }}
+          onMouseEnter={e => {
+            e.currentTarget.style.transform = 'translateY(-2px)';
+            e.currentTarget.style.boxShadow = '0 8px 24px rgba(37, 211, 102, 0.35)';
+          }}
+          onMouseLeave={e => {
+            e.currentTarget.style.transform = 'translateY(0)';
+            e.currentTarget.style.boxShadow = '0 6px 20px rgba(37, 211, 102, 0.25)';
+          }}
+        >
+          💬 Falar com a Diretora de Arte no WhatsApp
+        </a>
+        <span style={{ fontSize: '0.7rem', color: '#999' }}>Disponibilidade imediata de atendimento</span>
+      </div>
+    </div>
+  );
+}
+
 const TONE_MAP = {
   'Romântico': ['Afetivo','Acolhedor','Delicado','Elegante','Emotivo'],
   'Minimalista': ['Limpo','Objetivo','Sofisticado','Atemporal','Preciso'],
@@ -2267,7 +2447,7 @@ function PlacaStep({ brand, accentColor, paletteColors, estampaPatterns, estampa
             patternImage={patternImage}
             iconPath={iconPath}
             customLogoSrc={customLogoSrc}
-            logoElement={<LogoPreviewHTML editData={editData} color={logoColor || accentColor} layout={logoLayout || 'stacked'} scaleFactor={1.0} maxWidth="400px" maxHeight="100px" />}
+            logoElement={<LogoPreviewHTML editData={editData} color={logoColor || accentColor} layout={logoLayout || 'stacked'} scaleFactor={1.0} maxWidth="400px" maxHeight="160px" />}
           />
         </div>
       </div>
@@ -2607,23 +2787,30 @@ function FonteStep({ brand, accentColor, logoColor, marca, tagline, editData, lo
         </div>
       </div>
 
-      {/* Fonte ativa em destaque */}
-      {(() => {
-        const activeFont = opcoes.find(f => isActive(f));
-        return activeFont ? (
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '10px 14px', background: `${accentColor}10`, borderRadius: '12px', border: `1.5px solid ${accentColor}30` }}>
-            <div>
-              <div style={{ fontSize: '0.58rem', fontWeight: 700, color: accentColor, textTransform: 'uppercase', letterSpacing: '1px', fontFamily: 'Montserrat,sans-serif', marginBottom: '2px' }}>Fonte ativa</div>
-              <div style={{ fontSize: '0.82rem', fontWeight: 800, color: '#1a1a1a', fontFamily: 'Montserrat,sans-serif' }}>{activeFont.label}</div>
-            </div>
-            <div style={{ background: accentColor, color: '#fff', borderRadius: '20px', padding: '4px 12px', fontSize: '0.65rem', fontWeight: 700, fontFamily: 'Montserrat,sans-serif' }}>✓ Aplicada</div>
-          </div>
-        ) : null;
-      })()}
+      {editData?.customLogoSrc ? (
+        <div style={{ padding: '16px', background: '#fff0f5', borderRadius: '12px', border: '1.5px solid #ffb3c6', color: '#c03b66', fontSize: '0.82rem', fontFamily: 'Montserrat, sans-serif', textAlign: 'center', fontWeight: 600 }}>
+          Você enviou sua própria logo, então a fonte já faz parte da sua imagem!<br/><br/>
+          <span style={{ fontSize: '0.72rem', fontWeight: 500, opacity: 0.8 }}>Para testar outras fontes ou usar as opções desta aba, volte à aba "Sua Logo" e selecione a "Logo sugerida".</span>
+        </div>
+      ) : (
+        <>
+          {/* Fonte ativa em destaque */}
+          {(() => {
+            const activeFont = opcoes.find(f => isActive(f));
+            return activeFont ? (
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '10px 14px', background: `${accentColor}10`, borderRadius: '12px', border: `1.5px solid ${accentColor}30` }}>
+                <div>
+                  <div style={{ fontSize: '0.58rem', fontWeight: 700, color: accentColor, textTransform: 'uppercase', letterSpacing: '1px', fontFamily: 'Montserrat,sans-serif', marginBottom: '2px' }}>Fonte ativa</div>
+                  <div style={{ fontSize: '0.82rem', fontWeight: 800, color: '#1a1a1a', fontFamily: 'Montserrat,sans-serif' }}>{activeFont.label}</div>
+                </div>
+                <div style={{ background: accentColor, color: '#fff', borderRadius: '20px', padding: '4px 12px', fontSize: '0.65rem', fontWeight: 700, fontFamily: 'Montserrat,sans-serif' }}>✓ Aplicada</div>
+              </div>
+            ) : null;
+          })()}
 
-      {/* Alternativas */}
-      <div>
-        <p style={{ fontSize: '0.65rem', color: '#aaa', fontFamily: 'Montserrat,sans-serif', marginBottom: '8px' }}>Quero tentar outra →</p>
+          {/* Alternativas */}
+          <div>
+            <p style={{ fontSize: '0.65rem', color: '#aaa', fontFamily: 'Montserrat,sans-serif', marginBottom: '8px' }}>Quero tentar outra →</p>
         <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap' }}>
           {opcoes.filter(f => !isActive(f)).map(f => {
             const previewing = preview.fontFamily === f.fontFamily;
@@ -2649,6 +2836,7 @@ function FonteStep({ brand, accentColor, logoColor, marca, tagline, editData, lo
           })}
         </div>
       </div>
+      </>)}
     </div>
   );
 }
@@ -2814,19 +3002,23 @@ function CartaoRetornoPreview({ accentColor, patternSrc, cartaoContacts, crmLine
               </div>
 
               {/* Rodapé */}
-              <div style={{ width: '100%', textAlign: 'left', borderTop: '0.6px solid #eee', paddingTop: '4px', marginTop: 'auto' }}>
-                <div style={{ fontFamily: brandFont, fontSize: '5.5px', color: accentColor, fontWeight: 700 }}>{clinicaNome || editData.marca}</div>
-                <div style={{ fontSize: '3.4px', color: '#888', marginTop: '1.2px', fontFamily: 'Montserrat, sans-serif', lineHeight: 1.2 }}>
-                  {endereco && <div style={{ whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{endereco}</div>}
-                  <div style={{ display: 'flex', flexWrap: 'wrap', gap: '3px', marginTop: '1px' }}>
-                     {instagram && <span>@{instagram}</span>}
-                     {site && <span>· {site}</span>}
-                  </div>
-                  <div style={{ marginTop: '1px', fontWeight: 700, color: '#444', fontSize: '4px' }}>
-                    {[mainPhone, cartaoContacts?.telefone2].filter(Boolean).join('  ·  ')}
+              {(clinicaNome || endereco || instagram || site || mainPhone) ? (
+                <div style={{ width: '100%', textAlign: 'left', borderTop: '0.6px solid #eee', paddingTop: '4px', marginTop: 'auto' }}>
+                  {clinicaNome && <div style={{ fontFamily: brandFont, fontSize: '5.5px', color: accentColor, fontWeight: 700 }}>{clinicaNome}</div>}
+                  <div style={{ fontSize: '3.4px', color: '#888', marginTop: '1.2px', fontFamily: 'Montserrat, sans-serif', lineHeight: 1.2 }}>
+                    {endereco && <div style={{ whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{endereco}</div>}
+                    <div style={{ display: 'flex', flexWrap: 'wrap', gap: '3px', marginTop: '1px' }}>
+                       {instagram && <span>@{instagram}</span>}
+                       {site && <span>· {site}</span>}
+                    </div>
+                    {(mainPhone || cartaoContacts?.telefone2) ? (
+                      <div style={{ marginTop: '1px', fontWeight: 700, color: '#444', fontSize: '4px' }}>
+                        {[mainPhone, cartaoContacts?.telefone2].filter(Boolean).join('  ·  ')}
+                      </div>
+                    ) : null}
                   </div>
                 </div>
-              </div>
+              ) : null}
             </div>
           </div>
         </div>
@@ -2900,7 +3092,8 @@ function CartaoDeVisitaPreview({ accentColor, patternSrc, cartaoContacts, crmLin
           ? <div style={{ position: 'absolute', inset: 0, backgroundImage: `url(${patternSrc})`, backgroundSize: `${(patternScale || 150) / 1.5}px`, backgroundRepeat: 'repeat', zIndex: 0 }} />
           : <div style={{ position: 'absolute', inset: 0, background: borderColor || accentColor, zIndex: 0 }} />}
         <div style={{ position: 'absolute', inset: 0, zIndex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-          <div style={{ background: 'rgba(255,255,255,0.93)', padding: '12px 22px', borderRadius: '6px', textAlign: 'center', width: '82%' }}>
+          {(clinicaNome || crmLine || endereco || whatsapp || telefone || instagram || email || site) ? (
+            <div style={{ background: 'rgba(255,255,255,0.93)', padding: '12px 22px', borderRadius: '6px', textAlign: 'center', width: '82%' }}>
             {clinicaNome && <div style={{ fontFamily: brandFont, fontSize: '9px', color: accentColor, fontWeight: editData?.fontWeight || 700, marginBottom: '3px' }}>{clinicaNome}</div>}
             {endereco && <div style={{ fontFamily: "'Montserrat',sans-serif", fontSize: '6.5px', color: '#444', lineHeight: 1.5, marginBottom: '6px' }}>{endereco}</div>}
             {whatsapp && <div style={{ fontFamily: "'Montserrat',sans-serif", fontSize: '8px', fontWeight: 700, color: '#222', marginTop: '2px', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '4px' }}>
@@ -2919,8 +3112,8 @@ function CartaoDeVisitaPreview({ accentColor, patternSrc, cartaoContacts, crmLin
                 {site}
               </span>}
             </div>}
-            {!clinicaNome && !crmLine && !endereco && !whatsapp && !telefone && !instagram && !email && !site && <div style={{ fontFamily: "'Montserrat',sans-serif", fontSize: '7px', color: '#aaa', fontStyle: 'italic' }}>Preencha seus dados no Cartão Digital</div>}
           </div>
+          ) : null}
         </div>
       </div>
     </div>
@@ -3008,7 +3201,7 @@ function CertificadoCoragemPreview({ accentColor, patternSrc, editData, logoColo
         }}>
           {/* Logo Rectangle / Space */}
           <div style={{ width: '160px', height: '55px', display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: '6px' }}>
-            <LogoPreviewHTML item="Certificado de Coragem" editData={editData} color={logoColor} layout={logoLayout} scaleFactor={0.22} withBackground={false} maxWidth="100%" maxHeight="100%" />
+            <LogoPreviewHTML item="Certificado de Coragem" editData={editData} color={logoColor} layout={logoLayout} scaleFactor={editData?.customLogoSrc ? 1.6 : 0.65} withBackground={false} maxWidth="100%" maxHeight="100%" />
           </div>
 
           <div style={{ fontFamily: "'Montserrat', sans-serif", fontSize: '0.5rem', fontWeight: 600, color: '#7a7a7a', letterSpacing: '1px', marginBottom: '0px' }}>
@@ -3053,11 +3246,13 @@ function A5ItemPreview({ item, accentColor, patternSrc, editData, logoColor, log
         )}
         {setPaperSize && (
           <div style={{ display: 'flex', background: '#f0f0f0', borderRadius: '20px', padding: '3px' }}>
-            {['a5', 'a4'].map(s => (
+            {['a5', 'a4'].map(s => {
+              const label = item === 'Caderno' ? (s === 'a5' ? '17 × 24 cm' : '21 × 28 cm') : s.toUpperCase();
+              return (
               <button key={s} onClick={() => setPaperSize(s)} style={{ padding: '3px 12px', borderRadius: '16px', border: 'none', cursor: 'pointer', fontSize: '0.68rem', fontWeight: 700, fontFamily: 'Montserrat,sans-serif', background: paperSize === s ? accentColor : 'transparent', color: paperSize === s ? '#fff' : '#888', transition: 'all 0.15s' }}>
-                {s.toUpperCase()}
+                {label}
               </button>
-            ))}
+            )})}
           </div>
         )}
       </div>
@@ -3450,7 +3645,7 @@ function ReciboPreview({ accentColor, patternSrc, editData, logoColor, logoLayou
               <div style={{ flex: 4, padding: '3px', fontSize: '4.5px', fontWeight: 700, color: '#1a1a1a', borderRight: '0.5px solid #eee' }}>DESCRIÇÃO DOS SERVIÇOS</div>
               <div style={{ flex: 1.5, padding: '3px', fontSize: '4.5px', fontWeight: 700, color: '#1a1a1a', textAlign: 'right' }}>TOTAL</div>
             </div>
-            {[1,2,3,4,5].map(i => (
+            {[1,2,3].map(i => (
               <div key={i} style={{ display: 'flex', borderBottom: '0.5px solid #f9f9f9', height: '11px' }}>
                 <div style={{ flex: 1.5, borderRight: '0.5px solid #f9f9f9' }}></div>
                 <div style={{ flex: 4, borderRight: '0.5px solid #f9f9f9' }}></div>
@@ -3458,14 +3653,14 @@ function ReciboPreview({ accentColor, patternSrc, editData, logoColor, logoLayou
               </div>
             ))}
             <div style={{ display: 'flex', height: '11px', background: '#f9f9f9' }}>
-              <div style={{ flex: 5.5, borderRight: '0.5px solid #f9f9f9', padding: '3px', textAlign: 'right', fontSize: '4.5px', fontWeight: 800, color: '#1a1a1a' }}>TOTAL</div>
-              <div style={{ flex: 1.5 }}></div>
+               <div style={{ flex: 5.5, borderRight: '0.5px solid #f9f9f9', padding: '3px', textAlign: 'right', fontSize: '4.5px', fontWeight: 800, color: '#1a1a1a' }}>TOTAL</div>
+               <div style={{ flex: 1.5 }}></div>
             </div>
           </div>
-
+ 
           <div style={{ marginTop: 'auto', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
             <div style={{ width: '50px', borderTop: '0.5px solid #333', marginBottom: '2.5px' }}></div>
-            <div style={{ fontSize: '5.5px', fontWeight: 700, color: '#1a1a1a' }}>{clinicaNome || marca}</div>
+            <div style={{ fontSize: '5.5px', fontWeight: 700, color: '#1a1a1a' }}>{clinicaNome || ''}</div>
             <div style={{ fontSize: '4px', color: '#999', textTransform: 'uppercase', letterSpacing: '0.6px', marginBottom: '4px' }}>{crmLine}</div>
             
             <div style={{ width: '100%', borderTop: '0.1mm solid #f2f2f2', paddingTop: '3px', display: 'flex', justifyContent: 'space-between', fontSize: '3.6px', color: '#aaa', fontFamily: 'Montserrat, sans-serif' }}>
@@ -3497,75 +3692,75 @@ function ControleEspecialPreview({ accentColor, patternSrc, editData, logoColor,
           : <div style={{ position: 'absolute', inset: 0, background: solidColor }} />}
         
         {/* Área branca interna */}
-        <div style={{ position: 'absolute', top: BORDER, left: BORDER, right: BORDER, bottom: BORDER, background: '#fff', display: 'flex', flexDirection: 'column', padding: '10px' }}>
+        <div style={{ position: 'absolute', top: BORDER, left: BORDER, right: BORDER, bottom: BORDER, background: '#fff', display: 'flex', flexDirection: 'column', padding: '8px' }}>
           
-          <div style={{ textAlign: 'center', fontSize: '5.5px', fontWeight: 800, color: '#999', letterSpacing: '1px', textTransform: 'uppercase', marginBottom: '16px' }}>
+          <div style={{ textAlign: 'center', fontSize: '5.5px', fontWeight: 800, color: '#999', letterSpacing: '1px', textTransform: 'uppercase', marginBottom: '6px' }}>
             RECEITUÁRIO DE CONTROLE ESPECIAL
           </div>
-
-          <div style={{ display: 'flex', gap: '8px', marginBottom: '8px', alignItems: 'stretch' }}>
+ 
+          <div style={{ display: 'flex', gap: '8px', marginBottom: '4px', alignItems: 'stretch' }}>
             {/* Box Emitente */}
-            <div style={{ flex: 1.4, background: `${accentColor}12`, border: `0.1mm solid ${accentColor}25`, padding: '5px 6px', borderRadius: '1.5px' }}>
-              <div style={{ fontSize: '4.8px', fontWeight: 800, color: accentColor, textTransform: 'uppercase', marginBottom: '4px', borderBottom: `0.1mm solid ${accentColor}30`, paddingBottom: '2px' }}>Identificação do Emitente</div>
-              <div style={{ fontSize: '3.8px', color: '#555', lineHeight: 1.6 }}>
+            <div style={{ flex: 1.4, background: `${accentColor}12`, border: `0.1mm solid ${accentColor}25`, padding: '3px 4px', borderRadius: '1.5px' }}>
+              <div style={{ fontSize: '4.8px', fontWeight: 800, color: accentColor, textTransform: 'uppercase', marginBottom: '3px', borderBottom: `0.1mm solid ${accentColor}30`, paddingBottom: '1.5px' }}>Identificação do Emitente</div>
+              <div style={{ fontSize: '3.8px', color: '#555', lineHeight: 1.4 }}>
                 <div style={{ fontWeight: 700, color: accentColor, marginBottom: '1px' }}>{clinicaNome || marca}</div>
                 {crmLine && <div style={{ fontWeight: 600 }}>{crmLine}</div>}
-                {endereco && <div style={{ opacity: 0.8 }}>{endereco}</div>}
+                {endereco && <div style={{ opacity: 0.8, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', maxWidth: '85px' }}>{endereco}</div>}
                 {mainPhone && <div style={{ fontWeight: 600 }}>{mainPhone}</div>}
                 {cartaoContacts?.email && <div style={{ opacity: 0.75 }}>{cartaoContacts.email}</div>}
                 {cartaoContacts?.site && <div style={{ opacity: 0.75 }}>{cartaoContacts.site}</div>}
               </div>
             </div>
-
+ 
             {/* Logo e Vias */}
-            <div style={{ flex: 1.6, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: '4px', overflow: 'hidden' }}>
-              <div style={{ width: '100%', height: '75px', display: 'flex', alignItems: 'center', justifyContent: 'center', overflow: 'hidden' }}>
+            <div style={{ flex: 1.6, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: '2px', overflow: 'hidden' }}>
+              <div style={{ width: '100%', height: '45px', display: 'flex', alignItems: 'center', justifyContent: 'center', overflow: 'hidden' }}>
                <LogoPreviewHTML item="Receituário de Controle Especial" editData={editData} color={logoColor} layout={logoLayout} scaleFactor={0.65} crm={crmLine} hideTagline={true} withBackground={false} maxWidth="100%" maxHeight="100%" />
               </div>
-               <div style={{ fontSize: '3.5px', color: '#aaa', textTransform: 'uppercase', letterSpacing: '0.3px', textAlign: 'center', marginTop: '2px' }}>
+               <div style={{ fontSize: '3.5px', color: '#aaa', textTransform: 'uppercase', letterSpacing: '0.3px', textAlign: 'center', marginTop: '1px' }}>
                   1ª VIA FARMÁCIA<br/>2ª VIA PACIENTE
                </div>
             </div>
           </div>
-
+ 
           {/* Campos Prescrição */}
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '3px', marginTop: '4px' }}>
-            <div style={{ borderBottom: '0.1mm solid #eee', paddingBottom: '1.5px', display: 'flex', gap: '4px' }}>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '2px', marginTop: '2px' }}>
+            <div style={{ borderBottom: '0.1mm solid #eee', paddingBottom: '1px', display: 'flex', gap: '4px' }}>
               <span style={{ fontSize: '4px', fontWeight: 700, color: '#333' }}>PACIENTE:</span>
             </div>
-            <div style={{ borderBottom: '0.1mm solid #eee', paddingBottom: '1.5px', display: 'flex', gap: '4px' }}>
+            <div style={{ borderBottom: '0.1mm solid #eee', paddingBottom: '1px', display: 'flex', gap: '4px' }}>
               <span style={{ fontSize: '4px', fontWeight: 700, color: '#333' }}>ENDEREÇO:</span>
             </div>
-            <div style={{ marginTop: '3px' }}>
+            <div style={{ marginTop: '2px' }}>
               <span style={{ fontSize: '4px', fontWeight: 700, color: '#333' }}>PRESCRIÇÃO:</span>
-              {[1,2,3,4,5,6,7,8].map(i => (
-                <div key={i} style={{ borderBottom: '0.1mm solid #f5f5f5', height: '8px' }}></div>
+              {[1,2,3,4,5].map(i => (
+                <div key={i} style={{ borderBottom: '0.1mm solid #f5f5f5', height: '5px' }}></div>
               ))}
             </div>
           </div>
-
+ 
           {/* Data e Assinatura */}
-          <div style={{ marginTop: 'auto', display: 'flex', gap: '15px', alignItems: 'flex-start', padding: '10px 15px' }}>
+          <div style={{ marginTop: 'auto', display: 'flex', gap: '15px', alignItems: 'flex-start', padding: '4px 6px' }}>
              <div style={{ width: '38%', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
                 <div style={{ width: '100%', borderTop: '0.5px solid #999' }} />
-                <div style={{ fontSize: '5.5px', fontWeight: 400, color: '#888', marginTop: '2px' }}>Data</div>
+                <div style={{ fontSize: '5.5px', fontWeight: 400, color: '#888', marginTop: '1px' }}>Data</div>
              </div>
              <div style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
                 <div style={{ width: '100%', borderTop: '0.5px solid #999' }} />
-                <div style={{ fontSize: '5.5px', fontWeight: 400, color: '#888', marginTop: '2px' }}>Assinatura do Médico</div>
+                <div style={{ fontSize: '5.5px', fontWeight: 400, color: '#888', marginTop: '1px' }}>Assinatura do Médico</div>
              </div>
           </div>
-
+ 
           {/* Rodapé Obrigatório */}
-          <div style={{ display: 'flex', gap: '6px', height: '36px', marginTop: '2px', flexShrink: 0 }}>
-             <div style={{ flex: 1, background: `${accentColor}10`, border: `0.5px solid ${accentColor}25`, padding: '4px 8px', borderRadius: '4px' }}>
-                <div style={{ fontSize: '5.5px', fontWeight: 800, color: accentColor, marginBottom: '2px', textAlign: 'center', textTransform: 'uppercase' }}>IDENTIFICAÇÃO DO COMPRADOR</div>
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '1.2px' }}>
-                  {['Nome', 'Ident.', 'Endereço', 'Cidade', 'Estado/Tel'].map(f => <div key={f} style={{ borderBottom: '0.5px solid rgba(0,0,0,0.06)', height: '5px' }} />)}
+          <div style={{ display: 'flex', gap: '6px', height: '26px', marginTop: '2px', flexShrink: 0 }}>
+             <div style={{ flex: 1, background: `${accentColor}10`, border: `0.5px solid ${accentColor}25`, padding: '2px 4px', borderRadius: '2px' }}>
+                <div style={{ fontSize: '4.5px', fontWeight: 800, color: accentColor, marginBottom: '1px', textAlign: 'center', textTransform: 'uppercase' }}>IDENTIFICAÇÃO DO COMPRADOR</div>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '0.8px' }}>
+                  {['Nome', 'Ident.', 'Endereço', 'Cidade', 'Estado/Tel'].map(f => <div key={f} style={{ borderBottom: '0.5px solid rgba(0,0,0,0.04)', height: '3px' }} />)}
                 </div>
              </div>
-             <div style={{ flex: 1, border: '0.5px solid #ddd', borderRadius: '4px', position: 'relative' }}>
-                <div style={{ position: 'absolute', bottom: '4px', left: 0, right: 0, textAlign: 'center', fontSize: '5.5px', color: '#bbb', textTransform: 'uppercase', fontWeight: 700 }}>ASSINATURA DO FARMACÊUTICO</div>
+             <div style={{ flex: 1, border: '0.5px solid #ddd', borderRadius: '2px', position: 'relative' }}>
+                <div style={{ position: 'absolute', bottom: '2px', left: 0, right: 0, textAlign: 'center', fontSize: '4.5px', color: '#bbb', textTransform: 'uppercase', fontWeight: 700 }}>ASSINATURA DO FARMACÊUTICO</div>
              </div>
           </div>
         </div>
@@ -3628,17 +3823,19 @@ function ChecklistMaternidadePreview({ accentColor, patternSrc, editData, logoCo
               {SECOES.map((s, i) => <Secao key={i} titulo={s.titulo} itens={s.itens} color={paletteColors[i % paletteColors.length] || accentColor} />)}
             </div>
             {/* Rodapé etiqueta */}
-            <div style={{ borderTop: `0.3px solid ${accentColor}30`, paddingTop: '3px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '4px' }}>
-              <div style={{ fontSize: '3px', fontWeight: 800, color: accentColor, textTransform: 'uppercase', letterSpacing: '0.5px', flexShrink: 0 }}>{clinicaNome || editData?.marca}</div>
-              <div style={{ fontSize: '2.6px', color: '#888', textAlign: 'center', lineHeight: 1.3 }}>
-                {endereco && <div>{endereco}</div>}
-                {mainPhone && <div>{mainPhone}</div>}
+            {!!(clinicaNome || endereco || mainPhone || site || instagram) ? (
+              <div style={{ borderTop: `0.3px solid ${accentColor}30`, paddingTop: '3px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '4px' }}>
+                <div style={{ fontSize: '3px', fontWeight: 800, color: accentColor, textTransform: 'uppercase', letterSpacing: '0.5px', flexShrink: 0 }}>{clinicaNome || ''}</div>
+                <div style={{ fontSize: '2.6px', color: '#888', textAlign: 'center', lineHeight: 1.3 }}>
+                  {endereco && <div>{endereco}</div>}
+                  {mainPhone && <div>{mainPhone}</div>}
+                </div>
+                <div style={{ fontSize: '2.6px', color: '#888', textAlign: 'right', flexShrink: 0 }}>
+                  {site && <div>{site}</div>}
+                  {instagram && <div>@{instagram}</div>}
+                </div>
               </div>
-              <div style={{ fontSize: '2.6px', color: '#888', textAlign: 'right', flexShrink: 0 }}>
-                {site && <div>{site}</div>}
-                {instagram && <div>@{instagram}</div>}
-              </div>
-            </div>
+            ) : null}
           </div>
         </div>
       </div>
@@ -3790,18 +3987,22 @@ function OrientacoesRNPreview({ accentColor, patternSrc, editData, logoColor, lo
           </div>
 
           {/* RODAPÉ */}
-          <div style={{ borderTop: `0.4px solid ${c0}30`, padding: '2px 6px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexShrink: 0 }}>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5px' }}>
-              <div style={{ fontSize: '3.5px', fontWeight: 800, color: c0, fontFamily: 'Montserrat,sans-serif', textTransform: 'uppercase' }}>{clinicaNome || editData?.marca || 'Sua Clínica'}</div>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '2px' }}>
-                <span style={{ fontSize: '3px', color: '#888', fontFamily: 'Montserrat,sans-serif' }}>Urgências:</span>
-                <F value={urgenciaTel} onChange={setUrgenciaTel} width="28px" placeholder="telefone" align="left" />
+          {!!(clinicaNome || urgenciaTel || mainPhone || site || instagram) ? (
+            <div style={{ borderTop: `0.4px solid ${c0}30`, padding: '2px 6px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexShrink: 0 }}>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5px' }}>
+                {clinicaNome && <div style={{ fontSize: '3.5px', fontWeight: 800, color: c0, fontFamily: 'Montserrat,sans-serif', textTransform: 'uppercase' }}>{clinicaNome}</div>}
+                {(urgenciaTel || mainPhone) && (
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '2px' }}>
+                    <span style={{ fontSize: '3px', color: '#888', fontFamily: 'Montserrat,sans-serif' }}>Urgências:</span>
+                    <F value={urgenciaTel} onChange={setUrgenciaTel} width="28px" placeholder="telefone" align="left" />
+                  </div>
+                )}
+              </div>
+              <div style={{ fontSize: '2.8px', color: '#aaa', fontFamily: 'Montserrat,sans-serif', textAlign: 'right' }}>
+                {[mainPhone, site, instagram ? `@${instagram}` : ''].filter(Boolean).join('  ·  ')}
               </div>
             </div>
-            <div style={{ fontSize: '2.8px', color: '#aaa', fontFamily: 'Montserrat,sans-serif', textAlign: 'right' }}>
-              {[mainPhone, site, instagram ? `@${instagram}` : ''].filter(Boolean).join('  ·  ')}
-            </div>
-          </div>
+          ) : null}
         </div>
       </div>
     </div>
@@ -3915,8 +4116,8 @@ function FolderTrifoldPreview({ brand, editData, logoColor, logoLayout, comBorda
   const _brandData = editData || brand.editData || {};
   const instagram = cartaoContacts?.instagram || brand?.instagram || '';
   const site = cartaoContacts?.site || brand?.site || '';
-  const clinicaNome = brand?.clinicaNome || brand?.editData?.clinicaNome || 'Sua Clínica';
-  const endereco = cartaoContacts?.endereco || brand?.endereco || brand?.editData?.endereco || 'Endereço não informado';
+  const clinicaNome = brand?.clinicaNome || brand?.editData?.clinicaNome || '';
+  const endereco = cartaoContacts?.endereco || brand?.endereco || brand?.editData?.endereco || '';
 
   const allPhones = [cartaoContacts?.whatsapp, cartaoContacts?.telefone].filter(Boolean).join(' · ');
   const logoHtml = <div style={{ display: "flex", alignItems: "center", justifyContent: "center"}}><LogoPreviewHTML item={title} editData={_brandData} color={logoColor} layout={logoLayout} scaleFactor={1} crm={crmLine} maxWidth="70px" maxHeight="35px" hideTagline /></div>;
@@ -4043,19 +4244,25 @@ function FolderTrifoldPreview({ brand, editData, logoColor, logoLayout, comBorda
             </div>
 
             {/* ETIQUETA DE DADOS NO RODAPÉ (DISCRETA E ELEGANTE) */}
-            <div style={{ position: 'absolute', bottom: '10px', left: '12px', right: '12px', background: '#fff', border: `0.5px solid ${mainColor}15`, borderRadius: '3px', padding: '4px 10px', zIndex: 4, boxShadow: '0 2px 10px rgba(0,0,0,0.04)', textAlign: 'center', display: 'flex', flexDirection: 'column', gap: '1px' }}>
-                <div style={{ fontSize: '5.2px', fontWeight: 800, color: mainColor, marginBottom: '0.5px' }}>{clinicaNome}</div>
-                <div style={{ fontSize: '4.2px', color: '#999', fontWeight: 500, lineHeight: 1.1 }}>{endereco}</div>
-                
-                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '2px', marginTop: '0.5px' }}>
-                   <svg viewBox="0 0 24 24" width="7" height="7" fill="#25D366" style={{ flexShrink: 0 }}><path d={ICON_PATHS.whatsapp}/></svg>
-                   <div style={{ fontSize: '5.5px', fontWeight: 800, color: '#444' }}>{allPhones}</div>
-                </div>
+            {!!(clinicaNome || endereco || allPhones || brand.email || site || instagram) ? (
+              <div style={{ position: 'absolute', bottom: '10px', left: '12px', right: '12px', background: '#fff', border: `0.5px solid ${mainColor}15`, borderRadius: '3px', padding: '4px 10px', zIndex: 4, boxShadow: '0 2px 10px rgba(0,0,0,0.04)', textAlign: 'center', display: 'flex', flexDirection: 'column', gap: '1px' }}>
+                  {clinicaNome && <div style={{ fontSize: '5.2px', fontWeight: 800, color: mainColor, marginBottom: '0.5px' }}>{clinicaNome}</div>}
+                  {endereco && <div style={{ fontSize: '4.2px', color: '#999', fontWeight: 500, lineHeight: 1.1 }}>{endereco}</div>}
+                  
+                  {allPhones && (
+                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '2px', marginTop: '0.5px' }}>
+                       <svg viewBox="0 0 24 24" width="7" height="7" fill="#25D366" style={{ flexShrink: 0 }}><path d={ICON_PATHS.whatsapp}/></svg>
+                       <div style={{ fontSize: '5.5px', fontWeight: 800, color: '#444' }}>{allPhones}</div>
+                    </div>
+                  )}
 
-                <div style={{ fontSize: '4px', color: '#aaa', marginTop: '0.5px' }}>
-                   {[brand.email, site, instagram ? `@${instagram}` : ''].filter(Boolean).join('  ·  ')}
-                </div>
-            </div>
+                  {(brand.email || site || instagram) && (
+                    <div style={{ fontSize: '4px', color: '#aaa', marginTop: '0.5px' }}>
+                       {[brand.email, site, instagram ? `@${instagram}` : ''].filter(Boolean).join('  ·  ')}
+                    </div>
+                  )}
+              </div>
+            ) : null}
           </Page>
 
           {/* Pág 1 - Capa Principal (ESTAMPA NA BORDA) */}
@@ -4528,10 +4735,15 @@ function AssinaturaEmailPreview({ brand, editData, accentColor, logoColor, logoL
         {copied ? 'Copiado!' : 'Copiar Assinatura HTML'}
       </button>
       
-      <div style={{ fontSize: '10px', color: '#aaa', textAlign: 'center' }}>
-        Dica: Ao copiar o HTML, você pode colá-lo diretamente nas configurações de assinatura do Gmail ou Outlook.
+      <div style={{ fontSize: '0.75rem', color: '#666', textAlign: 'left', background: '#f8f9fa', padding: '12px 16px', borderRadius: '12px', marginTop: '12px', border: '1px solid #eee' }}>
+        <div style={{ fontWeight: 700, marginBottom: '8px', color: '#333', fontSize: '0.8rem' }}>Como instalar no seu E-mail?</div>
+        <ol style={{ margin: 0, paddingLeft: '18px', display: 'flex', flexDirection: 'column', gap: '6px' }}>
+          <li>Clique no botão <b>Copiar HTML</b> (nós já formatamos tudo para você).</li>
+          <li>Abra as configurações do seu Gmail, Outlook ou Apple Mail.</li>
+          <li>Procure pela seção de <b>Assinatura</b> e crie uma nova.</li>
+          <li>Clique na caixa de texto em branco e <b>Cole (Ctrl+V ou Cmd+V)</b>. Pronto, a arte vai aparecer lá dentro magicamente! ✨</li>
+        </ol>
       </div>
-
       {(setCartaoContacts && setClinicaNome && setLocalSlogan) && (
         <div style={{ border: '1px solid #e8e8e8', borderRadius: '12px', overflow: 'hidden', width: '100%', maxWidth: '450px', background: '#fcfcfc', marginTop: '10px' }}>
           <button onClick={() => setContactOpen(o => !o)} style={{ width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '10px 14px', background: 'none', border: 'none', cursor: 'pointer', fontFamily: 'Montserrat, sans-serif', outline: 'none' }}>
@@ -4616,18 +4828,20 @@ function EnvelopeSacoPreview({ brand, editData, accentColor, patternSrc, logoCol
             <div style={{ position: 'absolute', top: 0, left: 0, right: 0, height: '45px', background: abaColor, zIndex: 5 }} />
             
             {/* Etiqueta discreta — igual ao Envelope Ofício */}
-            <div style={{ position: 'absolute', bottom: '12px', left: '50%', transform: 'translateX(-50%)', width: 'fit-content', maxWidth: '78%', padding: '5px 10px', background: 'rgba(255,255,255,0.97)', backdropFilter: 'blur(4px)', borderRadius: '2px', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', border: '0.5px solid #ddd', textAlign: 'center', fontFamily: 'Montserrat, sans-serif', whiteSpace: 'nowrap' }}>
-              <div style={{ fontSize: '4.5px', color: '#666', lineHeight: 1.55 }}>
-                  {clinicaNome && <div style={{ fontWeight: 700, color: accentColor, fontSize: '5px', marginBottom: '1px' }}>{clinicaNome}</div>}
-                  {endereco && <div style={{ opacity: 0.75 }}>{endereco}</div>}
-                  {mainPhone && <div style={{ fontWeight: 700, color: '#333', fontSize: '5.5px', margin: '1px 0', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '2px' }}>
-                    <svg viewBox="0 0 24 24" width="6" height="6" fill="#25D366" style={{ flexShrink: 0 }}><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
-                    {mainPhone}
-                  </div>}
-                  {email && <div style={{ opacity: 0.75 }}>{email}</div>}
-                  {(site || instagram) && <div style={{ opacity: 0.75 }}>{[site, instagram ? `@${instagram}` : ''].filter(Boolean).join('  ·  ')}</div>}
+            {!!(clinicaNome || endereco || mainPhone || email || site || instagram) ? (
+              <div style={{ position: 'absolute', bottom: '12px', left: '50%', transform: 'translateX(-50%)', width: 'fit-content', maxWidth: '78%', padding: '5px 10px', background: 'rgba(255,255,255,0.97)', backdropFilter: 'blur(4px)', borderRadius: '2px', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', border: '0.5px solid #ddd', textAlign: 'center', fontFamily: 'Montserrat, sans-serif', whiteSpace: 'nowrap' }}>
+                <div style={{ fontSize: '4.5px', color: '#666', lineHeight: 1.55 }}>
+                    {clinicaNome && <div style={{ fontWeight: 700, color: accentColor, fontSize: '5px', marginBottom: '1px' }}>{clinicaNome}</div>}
+                    {endereco && <div style={{ opacity: 0.75 }}>{endereco}</div>}
+                    {mainPhone && <div style={{ fontWeight: 700, color: '#333', fontSize: '5.5px', margin: '1px 0', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '2px' }}>
+                      <svg viewBox="0 0 24 24" width="6" height="6" fill="#25D366" style={{ flexShrink: 0 }}><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+                      {mainPhone}
+                    </div>}
+                    {email && <div style={{ opacity: 0.75 }}>{email}</div>}
+                    {(site || instagram) && <div style={{ opacity: 0.75 }}>{[site, instagram ? `@${instagram}` : ''].filter(Boolean).join('  ·  ')}</div>}
+                </div>
               </div>
-            </div>
+            ) : null}
           </div>
         </div>
       </div>
@@ -4673,18 +4887,77 @@ function EnvelopeOficioPreview({ brand, editData, accentColor, patternSrc, logoC
             <div style={{ position: 'absolute', top: 0, left: 0, right: 0, height: '35px', background: abaColor, zIndex: 5 }} />
             
             {/* Etiqueta discreta — largura automática */}
-            <div style={{ position: 'absolute', bottom: '10px', left: '50%', transform: 'translateX(-50%)', width: 'fit-content', maxWidth: '78%', padding: '5px 10px', background: 'rgba(255,255,255,0.97)', backdropFilter: 'blur(4px)', borderRadius: '2px', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', border: '0.5px solid #ddd', textAlign: 'center', fontFamily: 'Montserrat, sans-serif', whiteSpace: 'nowrap' }}>
-              <div style={{ fontSize: '4.5px', color: '#666', lineHeight: 1.55 }}>
-                  {clinicaNome && <div style={{ fontWeight: 700, color: accentColor, fontSize: '5px', marginBottom: '1px' }}>{clinicaNome}</div>}
-                  {endereco && <div style={{ opacity: 0.75 }}>{endereco}</div>}
-                  {allPhones && <div style={{ fontWeight: 700, color: '#333', fontSize: '5.5px', margin: '1px 0', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '2px' }}>
-                    <svg viewBox="0 0 24 24" width="6" height="6" fill="#25D366" style={{ flexShrink: 0 }}><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
-                    {allPhones}
-                  </div>}
-                  {email && <div style={{ opacity: 0.75 }}>{email}</div>}
-                  {(site || instagram) && <div style={{ opacity: 0.75 }}>{[site, instagram ? `@${instagram}` : ''].filter(Boolean).join('  ·  ')}</div>}
+            {!!(clinicaNome || endereco || allPhones || email || site || instagram) ? (
+              <div style={{ position: 'absolute', bottom: '10px', left: '50%', transform: 'translateX(-50%)', width: 'fit-content', maxWidth: '78%', padding: '5px 10px', background: 'rgba(255,255,255,0.97)', backdropFilter: 'blur(4px)', borderRadius: '2px', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', border: '0.5px solid #ddd', textAlign: 'center', fontFamily: 'Montserrat, sans-serif', whiteSpace: 'nowrap' }}>
+                <div style={{ fontSize: '4.5px', color: '#666', lineHeight: 1.55 }}>
+                    {clinicaNome && <div style={{ fontWeight: 700, color: accentColor, fontSize: '5px', marginBottom: '1px' }}>{clinicaNome}</div>}
+                    {endereco && <div style={{ opacity: 0.75 }}>{endereco}</div>}
+                    {allPhones && <div style={{ fontWeight: 700, color: '#333', fontSize: '5.5px', margin: '1px 0', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '2px' }}>
+                      <svg viewBox="0 0 24 24" width="6" height="6" fill="#25D366" style={{ flexShrink: 0 }}><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+                      {allPhones}
+                    </div>}
+                    {email && <div style={{ opacity: 0.75 }}>{email}</div>}
+                    {(site || instagram) && <div style={{ opacity: 0.75 }}>{[site, instagram ? `@${instagram}` : ''].filter(Boolean).join('  ·  ')}</div>}
+                </div>
+              </div>
+            ) : null}
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function CadernoPreview({ editData, accentColor, solidColor, logoColor, logoLayout, comBorda, setComBorda, patternSrc, paletteColors, borderColor, setBorderColor, patternScale, setPatternScale, hideTagline, paperSize, setPaperSize }) {
+  const scaleCaderno = useScaleToFit(480, 310 + 36);
+
+  return (
+    <div style={{ display: 'flex', flexDirection: 'column', gap: '15px', alignItems: 'center', width: '100%' }}>
+      <BordaToggle comBorda={comBorda} setComBorda={setComBorda} accentColor={accentColor} paletteColors={paletteColors} borderColor={borderColor} setBorderColor={setBorderColor} patternScale={patternScale} setPatternScale={setPatternScale} />
+      
+      {setPaperSize && (
+        <div style={{ display: 'flex', background: '#f0f0f0', borderRadius: '20px', padding: '3px' }}>
+          {['a5', 'a4'].map(s => {
+            const label = s === 'a5' ? '17 × 24 cm' : '21 × 28 cm';
+            return (
+              <button key={s} onClick={() => setPaperSize(s)} style={{ padding: '3px 12px', borderRadius: '16px', border: 'none', cursor: 'pointer', fontSize: '0.68rem', fontWeight: 700, fontFamily: 'Montserrat,sans-serif', background: paperSize === s ? accentColor : 'transparent', color: paperSize === s ? '#fff' : '#888', transition: 'all 0.15s' }}>
+                {label}
+              </button>
+            )
+          })}
+        </div>
+      )}
+
+      <p style={{ fontSize: '0.7rem', color: '#aaa', letterSpacing: '2px', textTransform: 'uppercase' }}>Capa e Contra-capa</p>
+      
+      <div ref={scaleCaderno.wrapperRef} style={scaleCaderno.wrapperStyle}>
+        <div style={scaleCaderno.innerStyle}>
+          <div style={{ width: '480px', height: '310px', position: 'relative', background: '#f5f5f5', borderRadius: '4px', boxShadow: '0 15px 45px rgba(0,0,0,0.15)', overflow: 'hidden' }}>
+            
+            {/* Camada de Fundo (Pega os dois lados) */}
+            {comBorda && patternSrc ? (
+              <div style={{ position: 'absolute', inset: 0, backgroundImage: `url(${patternSrc})`, backgroundSize: patternScale ? `${patternScale * 0.65}px` : '100%', opacity: 0.9 }} />
+            ) : (
+              <div style={{ position: 'absolute', inset: 0, background: borderColor || paletteColors?.[0] || accentColor }} />
+            )}
+
+            {/* FRENTE (Esquerda) */}
+            <div style={{ position: 'absolute', top: 0, left: 0, width: '240px', height: '310px' }}>
+              <div style={{ position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%)', width: '75%', height: '110px', display:'flex', justifyContent:'center', alignItems: 'center', zIndex: 1 }}>
+                <LogoPreviewHTML item="Caderno" editData={editData} color={logoColor} layout={logoLayout} scaleFactor={0.80} hideTagline={hideTagline} withBackground={comBorda} maxWidth="100%" maxHeight="100%" />
               </div>
             </div>
+
+            {/* Espiral (Centro simulando wire-o) */}
+            <div style={{ position: 'absolute', top: 0, bottom: 0, left: '235px', width: '10px', display: 'flex', flexDirection: 'column', justifyContent: 'space-evenly', zIndex: 10 }}>
+              {Array.from({ length: 18 }).map((_, i) => (
+                <div key={i} style={{ width: '10px', height: '5px', background: '#222', borderRadius: '2px', boxShadow: '0 1px 2px rgba(0,0,0,0.4)' }} />
+              ))}
+            </div>
+
+            {/* VERSO (Direita) - Sem logo, apenas mantém o fundo visível */}
+            <div style={{ position: 'absolute', top: 0, left: '240px', width: '240px', height: '310px' }} />
+            
           </div>
         </div>
       </div>
@@ -4696,9 +4969,10 @@ function PastaPreview({ brand, editData, accentColor, solidColor, logoColor, log
   const brandFont = editData?.fontFamily || 'Playfair Display';
   const marca = editData?.marca || '';
   const clinicaNome = clinicaNomeProp || cartaoContacts?.clinica || '';
-  const { endereco, instagram, site, whatsapp, telefone, telefone2 } = cartaoContacts;
+  const { endereco, instagram, site, whatsapp, telefone, telefone2 } = cartaoContacts || {};
   const mainPhone = whatsapp || telefone || '';
   const allPhones = [mainPhone, telefone2].filter(Boolean).join(' / ');
+  const hasPastaContacts = !!(clinicaNome || endereco || whatsapp || telefone || telefone2 || site || instagram);
   const scalePasta = useScaleToFit(480, 310 + 36);
 
   return (
@@ -4742,27 +5016,29 @@ function PastaPreview({ brand, editData, accentColor, solidColor, logoColor, log
 
         {/* Capa Direita (VERSO no preview) */}
         <div style={{ position: 'absolute', top: 0, right: 0, width: '240px', height: '310px', display: 'flex', flexDirection: 'column', justifyContent: 'flex-end' }}>
-             <div style={{
-               background: 'rgba(255,255,255,0.88)', backdropFilter: 'blur(5px)',
-               margin: '0 10px 18px', padding: '6px 12px', borderRadius: '1.5px',
-               display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '10px',
-               border: '0.1mm solid rgba(0,0,0,0.05)'
-             }}>
-                <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start', gap: '2px', width: '45%', height: '100%', justifyContent: 'center', overflow: 'hidden', flexShrink: 0 }}>
-                  <LogoPreviewHTML item="Pasta" editData={editData} color={logoColor} layout={logoLayout} scaleFactor={0.35} crm={crmLine} hideTagline={hideTagline} alignLeft={true} withBackground={false} maxWidth="100%" maxHeight="100%" />
-                </div>
-                <div style={{ 
-                  display: 'flex', flexDirection: 'column', fontSize: '3.8px', color: '#555', 
-                  fontFamily: 'Montserrat, sans-serif', lineHeight: 1.5, textAlign: 'right', flex: 1
-                }}>
-                  {clinicaNome && (
-                    <div style={{ fontFamily: brandFont, fontSize: '6px', color: accentColor, fontWeight: 700, letterSpacing: '0.3px', marginBottom: '1px' }}>{clinicaNome}</div>
-                  )}
-                  {endereco && <div style={{ opacity: 0.8 }}>{endereco}</div>}
-                  {allPhones && <div style={{ fontWeight: 600 }}>{allPhones}</div>}
-                  <div style={{ opacity: 0.8 }}>{[site, instagram ? `@${instagram}` : ''].filter(Boolean).join(' · ')}</div>
-                </div>
-             </div>
+             {hasPastaContacts ? (
+               <div style={{
+                 background: 'rgba(255,255,255,0.88)', backdropFilter: 'blur(5px)',
+                 margin: '0 10px 18px', padding: '6px 12px', borderRadius: '1.5px',
+                 display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '10px',
+                 border: '0.1mm solid rgba(0,0,0,0.05)'
+               }}>
+                  <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start', gap: '2px', width: '45%', height: '100%', justifyContent: 'center', overflow: 'hidden', flexShrink: 0 }}>
+                    <LogoPreviewHTML item="Pasta" editData={editData} color={logoColor} layout={logoLayout} scaleFactor={0.35} crm={crmLine} hideTagline={hideTagline} alignLeft={true} withBackground={false} maxWidth="100%" maxHeight="100%" />
+                  </div>
+                  <div style={{ 
+                    display: 'flex', flexDirection: 'column', fontSize: '3.8px', color: '#555', 
+                    fontFamily: 'Montserrat, sans-serif', lineHeight: 1.5, textAlign: 'right', flex: 1
+                  }}>
+                    {clinicaNome && (
+                      <div style={{ fontFamily: brandFont, fontSize: '6px', color: accentColor, fontWeight: 700, letterSpacing: '0.3px', marginBottom: '1px' }}>{clinicaNome}</div>
+                    )}
+                    {endereco && <div style={{ opacity: 0.8 }}>{endereco}</div>}
+                    {allPhones && <div style={{ fontWeight: 600 }}>{allPhones}</div>}
+                    <div style={{ opacity: 0.8 }}>{[site, instagram ? `@${instagram}` : ''].filter(Boolean).join(' · ')}</div>
+                  </div>
+               </div>
+             ) : null}
         </div>
 
         <div style={{ position: 'absolute', top: 30, bottom: 30, left: '240px', width: '1px', background: 'rgba(255,255,255,0.3)', zIndex: 5 }} />
@@ -4845,7 +5121,7 @@ function PapelariaStep({ brand, accentColor, paletteColors, estampaPatterns, est
   const PAPELARIA_GERAL = [
     "Cartão de Visita", "Papel Timbrado", "Papel de Presente", "Tag para Sacola",
     "Etiqueta para Correios", "Envelope Ofício (23x11,5cm)", "Envelope Saco (24x34cm)", "Recibo",
-    "Pasta A4", "Caneca", "Cartão de Retorno", "Cartão de Agradecimento (10x15cm)"
+    "Pasta A4", "Caneca", "Cartão de Retorno", "Cartão de Agradecimento (10x15cm)", "Caderno (Capa e Contra-capa)"
   ];
   // Papelaria exclusiva para área médica
   const PAPELARIA_MEDICA = [
@@ -4892,9 +5168,30 @@ function PapelariaStep({ brand, accentColor, paletteColors, estampaPatterns, est
    const [idxLocal, setIdxLocal] = useState(0);
   const idx = (navIdx !== undefined && setNavIdx) ? navIdx : idxLocal;
   const setIdx = (setNavIdx && onNavSync) ? setNavIdx : setIdxLocal;
-  const [comBorda, setComBordaState] = useState(true);
-  const [patternScale, setPatternScaleState] = useState(100);
-  const [borderColor, setBorderColorState] = useState(() => accentColor);
+  const [comBorda, setComBordaState] = useState(() => {
+    try {
+      const cur = JSON.parse(localStorage.getItem('brandbox_papelaria') || '{}');
+      return cur.comBorda !== undefined ? cur.comBorda : true;
+    } catch {
+      return true;
+    }
+  });
+  const [patternScale, setPatternScaleState] = useState(() => {
+    try {
+      const cur = JSON.parse(localStorage.getItem('brandbox_papelaria') || '{}');
+      return cur.patternScale !== undefined ? cur.patternScale : 320; // Default aumentado para 320
+    } catch {
+      return 320;
+    }
+  });
+  const [borderColor, setBorderColorState] = useState(() => {
+    try {
+      const cur = JSON.parse(localStorage.getItem('brandbox_papelaria') || '{}');
+      return cur.borderColor || accentColor;
+    } catch {
+      return accentColor;
+    }
+  });
   const [localSlogan, setLocalSlogan] = useState(editData?.tagline || '');
   const [folderRoof, setFolderRoof] = useState(() => brand?.niche?.toLowerCase()?.includes('pedi'));
   const [paperSize, setPaperSize] = useState('a5'); // 'a5' | 'a4'
@@ -5569,13 +5866,15 @@ body { font-family:'Montserrat',sans-serif; background:#fff; }
     </div>
 
     <!-- RODAPÉ -->
+    ${(clinicaNome || rnUrgencia || mainPhone || site || instagram) ? `
     <div style="border-top:0.3mm solid ${c0rn}30;padding:3.5mm 10mm;display:flex;justify-content:space-between;align-items:center;flex-shrink:0;">
       <div>
-        <div style="font-size:8.5pt;font-weight:800;color:${c0rn};text-transform:uppercase;">${clinicaNome || marca}</div>
-        <div style="font-size:7pt;color:#888;">Urgências: ${f(rnUrgencia, mainPhone || 'telefone')}</div>
+        ${clinicaNome ? `<div style="font-size:8.5pt;font-weight:800;color:${c0rn};text-transform:uppercase;">${clinicaNome}</div>` : ''}
+        ${(rnUrgencia || mainPhone) ? `<div style="font-size:7pt;color:#888;">Urgências: ${rnUrgencia || mainPhone}</div>` : ''}
       </div>
       <div style="font-size:6.5pt;color:#aaa;text-align:right;">${[mainPhone, site, instagram ? `@${instagram}` : ''].filter(Boolean).join('  ·  ')}</div>
     </div>
+    ` : ''}
   </div>
 </div>
 </body></html>`;
@@ -5603,7 +5902,8 @@ body { font-family:'Montserrat',sans-serif; background:#fff; }
       const allPhones = [mainPhone, telefone2].filter(Boolean).join(' / ');
 
       // Barra de Dados no Verso (Capa Esquerda no GABARITO TÉCNICO)
-      const _footerP = `
+      const hasPastaContacts = !!(clinicaNome || endereco || mainPhone || telefone2 || site || instagram);
+      const _footerP = hasPastaContacts ? `
         <div style="background:rgba(255,255,255,0.92);backdrop-filter:blur(3mm);padding:6mm 10mm;margin:0 10mm 8mm;border-radius:1.5mm;display:flex;align-items:center;justify-content:space-between;border:0.1mm solid rgba(0,0,0,0.1);font-family:'Montserrat',sans-serif;width:220mm;min-height:38mm;">
             <div style="display:flex;flex-direction:column;align-items:center;justify-content:center;width:48%;overflow:visible;">
                ${genPDFLogoHtml({ brand, editDataOverride: editData, color: logoColor, localSlogan, crmLine: null, fontPt: (parseFloat(_fontPt) * 1.8).toFixed(1), lineH: _lineH, letterSp: _letterSp, layout: logoLayout, customLogoSrc, customLogoScale: customLogoSrc ? getCustomLogoScale(item) * (ITEM_CUSTOM_BASE_SCALES[item] || 1) : 100, maxWidth: '95mm', maxHeight: '42mm', withBackground: comBorda && patternSrc })}
@@ -5614,7 +5914,7 @@ body { font-family:'Montserrat',sans-serif; background:#fff; }
                 <div style="font-weight:700;">${allPhones}</div>
                 <div style="opacity:0.8;">${[site, instagram ? `@${instagram}` : ''].filter(Boolean).join('  ·  ')}</div>
             </div>
-        </div>`;
+        </div>` : '';
 
       const html = `<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Pasta - ${marca}</title>${fiP}
 <style>* { box-sizing:border-box; margin:0; padding:0; print-color-adjust:exact !important; -webkit-print-color-adjust:exact !important; }
@@ -5659,6 +5959,78 @@ body { width: 485.775mm; height: 385.233mm; position: relative; overflow: hidden
       return;
     }
 
+    // ── CADERNO ──────────────────────────────────────────────
+    if (item.includes('Caderno')) {
+      const BLEED = 5;
+      const _ffC = editData?.fontFamily || brand.editData?.fontFamily || 'Playfair Display';
+      const _lfC = LOCAL_FONT_FACES[_ffC];
+      const fiC = `<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;600;700&display=swap" rel="stylesheet">${_lfC ? `<style>${_lfC}</style>` : `<link href="https://fonts.googleapis.com/css2?family=${encodeURIComponent(_ffC)}:wght@400;700&display=swap" rel="stylesheet">`}`;
+      
+      const genBgC = () => comBorda && patternSrc
+        ? `<div style="position:absolute;inset:0;background-image:url(${patternSrc});background-size:${patternScale ? ((patternScale * 0.55).toFixed(1) + 'mm') : '100%'};opacity:1;"></div>`
+        : `<div style="position:absolute;inset:0;background:${borderColor || paletteColors?.[0] || accentColor};"></div>`;
+
+      const w_mm = paperSize === 'a5' ? 170 : 210;
+      const h_mm = paperSize === 'a5' ? 240 : 280;
+      const totalW = w_mm + (BLEED * 2);
+      const totalH = h_mm + (BLEED * 2);
+
+      const html = `<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Caderno - ${marca}</title>${fiC}
+<style>
+  * { box-sizing:border-box; margin:0; padding:0; print-color-adjust:exact !important; -webkit-print-color-adjust:exact !important; }
+  body { width: ${totalW}mm; height: ${totalH}mm; position: relative; overflow: hidden; background: #fff; }
+  .page { width: ${totalW}mm; height: ${totalH}mm; position: relative; overflow: hidden; page-break-after: always; }
+  @media print { body { margin:0; } @page { size: ${totalW}mm ${totalH}mm; margin: 0; } }
+  .cm-tl-h { position:absolute; top:${BLEED}mm; left:0; width:${BLEED-0.5}mm; height:0.2mm; background:#000; z-index:100; }
+  .cm-tl-v { position:absolute; top:0; left:${BLEED}mm; width:0.2mm; height:${BLEED-0.5}mm; background:#000; z-index:100; }
+  .cm-tr-h { position:absolute; top:${BLEED}mm; right:0; width:${BLEED-0.5}mm; height:0.2mm; background:#000; z-index:100; }
+  .cm-tr-v { position:absolute; top:0; right:${BLEED}mm; width:0.2mm; height:${BLEED-0.5}mm; background:#000; z-index:100; }
+  .cm-bl-h { position:absolute; bottom:${BLEED}mm; left:0; width:${BLEED-0.5}mm; height:0.2mm; background:#000; z-index:100; }
+  .cm-bl-v { position:absolute; bottom:0; left:${BLEED}mm; width:0.2mm; height:${BLEED-0.5}mm; background:#000; z-index:100; }
+  .cm-br-h { position:absolute; bottom:${BLEED}mm; right:0; width:${BLEED-0.5}mm; height:0.2mm; background:#000; z-index:100; }
+  .cm-br-v { position:absolute; bottom:0; right:${BLEED}mm; width:0.2mm; height:${BLEED-0.5}mm; background:#000; z-index:100; }
+  .cropmarks { position: absolute; inset: 0; pointer-events: none; z-index: 100; }
+</style></head><body>
+
+<!-- CAPA -->
+<div class="page">
+    ${genBgC()}
+    <div style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:${w_mm * 0.75}mm;height:${h_mm * 0.4}mm;display:flex;align-items:center;justify-content:center;z-index:10;">
+        ${genPDFLogoHtml({ brand, editDataOverride: itemEditData, color: logoColor, layout: logoLayout, localSlogan, crmLine: null, fontPt: (parseFloat(_fontPt) * 1.65).toFixed(1), lineH: _lineH, letterSp: _letterSp, customLogoSrc, customLogoScale: customLogoSrc ? getCustomLogoScale(item) * (ITEM_CUSTOM_BASE_SCALES[item] || 1) * 1.2 : 120, maxWidth: '100%', maxHeight: '100%', withBackground: comBorda && patternSrc, hideSlogan: false })}
+    </div>
+    
+    <div class="cropmarks">
+        <div class="cm-tl-h"></div><div class="cm-tl-v"></div>
+        <div class="cm-tr-h"></div><div class="cm-tr-v"></div>
+        <div class="cm-bl-h"></div><div class="cm-bl-v"></div>
+        <div class="cm-br-h"></div><div class="cm-br-v"></div>
+    </div>
+</div>
+
+<!-- CONTRA-CAPA -->
+<div class="page">
+    ${genBgC()}
+    
+    <div class="cropmarks">
+        <div class="cm-tl-h"></div><div class="cm-tl-v"></div>
+        <div class="cm-tr-h"></div><div class="cm-tr-v"></div>
+        <div class="cm-bl-h"></div><div class="cm-bl-v"></div>
+        <div class="cm-br-h"></div><div class="cm-br-v"></div>
+    </div>
+</div>
+
+</body></html>`;
+
+      const ex = document.getElementById('_gabarito_v2'); if (ex) ex.remove();
+      const iframe = document.createElement('iframe');
+      iframe.id = '_gabarito_v2';
+      iframe.style.cssText = 'position:fixed;top:-9999px;left:-9999px;width:1000mm;height:1000mm;border:none;visibility:hidden;';
+      document.body.appendChild(iframe);
+      iframe.contentDocument.open(); iframe.contentDocument.write(html); iframe.contentDocument.close();
+      iframe.contentWindow.document.fonts.ready.then(() => { setTimeout(() => { iframe.contentWindow.focus(); iframe.contentWindow.print(); setTimeout(() => { iframe.remove(); }, 3000); }, 1000); });
+      return;
+    }
+
     // ── CARTÃO DE AGRADECIMENTO ──────────────────────────────────────
     if (item.includes('Agradecimento')) {
       const BLEED = 3;
@@ -5687,14 +6059,15 @@ body { width: 485.775mm; height: 385.233mm; position: relative; overflow: hidden
         layout: logoLayout,
         localSlogan,
         crmLine: null,
-        fontPt: logoLayout === 'horizontal' ? 22 : 28,
+        fontPt: logoLayout === 'horizontal' ? (22 * (W / 100)) : (28 * (W / 100)),
         lineH: _lineH,
         letterSp: _letterSp,
         customLogoSrc,
-        customLogoScale: customLogoSrc ? getCustomLogoScale(item) * (ITEM_CUSTOM_BASE_SCALES[item] || 1) : 100,
-        maxWidth: `${W * 0.65}mm`,
+        customLogoScale: customLogoSrc ? getCustomLogoScale(item) * 2.5 : 100,
+        maxWidth: `${W * 0.75}mm`,
         maxHeight: `${H * 0.35}mm`,
-        withBackground: !!(comBorda && patternSrc) || !!customLogoSrc
+        withBackground: !!(comBorda && patternSrc) || !!customLogoSrc,
+        withBackgroundPadding: '4mm'
       });
 
       const MESSAGES_A = [
@@ -5715,7 +6088,7 @@ body { width: 485.775mm; height: 385.233mm; position: relative; overflow: hidden
           <div style="position:absolute; bottom:-15%; right:-15%; width:60%; height:60%; border-radius:50%; background:rgba(255,255,255,0.08);"></div>
           <div style="position:absolute; top:-10%; left:-10%; width:45%; height:45%; border-radius:50%; background:rgba(255,255,255,0.06);"></div>
           
-          <div style="position:absolute; top:50%; left:50%; transform:translate(-50%,-50%); width:65%; text-align:center;">
+          <div style="position:absolute; top:50%; left:50%; transform:translate(-50%,-50%); width:75%; text-align:center;">
             ${logoHtmlForAgradecimento}
           </div>
           <div class="cm cm-tl"></div><div class="cm cm-tr"></div><div class="cm cm-bl"></div><div class="cm cm-br"></div>
@@ -5819,19 +6192,23 @@ body { width: 485.775mm; height: 385.233mm; position: relative; overflow: hidden
           ${genBg(4)}
           <div style="position:absolute;top:${BLEED + 4}mm;left:${BLEED + 4}mm;right:${BLEED + 4}mm;bottom:${BLEED + 3}mm;display:flex;flex-direction:column;align-items:center;padding:3mm;">
             ${genTable(12, '5.5mm')}
+            ${(clinicaNome || endereco || instagram || site || mainPhone || telefone2) ? `
             <div style="width:100%;text-align:left;border-top:0.3pt solid #eee;padding-top:1.5mm;margin-top:auto;font-family:'Montserrat',sans-serif;">
-              <div style="font-family:${_brandFont};font-size:5pt;color:${accentColor};font-weight:700;">${clinicaNome || marca}</div>
+              ${clinicaNome ? `<div style="font-family:${_brandFont};font-size:5pt;color:${accentColor};font-weight:700;">${clinicaNome}</div>` : ''}
               <div style="font-size:3.7pt;color:#888;margin-top:1.2mm;line-height:1.4;">
                 ${endereco ? `<div style="margin-bottom:0.5mm;">${endereco}</div>` : ''}
                 <div style="display:flex; flex-wrap:wrap; gap:3mm; margin-top:0.5mm;">
                   ${instagram ? `<span>@${instagram}</span>` : ''}
                   ${site ? `<span>${site}</span>` : ''}
                 </div>
+                ${(mainPhone || telefone2) ? `
                 <div style="font-weight:700;color:#444;margin-top:0.8mm;font-size:4pt;">
                   ${[mainPhone, telefone2].filter(Boolean).join('  ·  ')}
                 </div>
+                ` : ''}
               </div>
             </div>
+            ` : ''}
           </div>
           <div class="cm cm-tl"></div><div class="cm cm-tr"></div><div class="cm cm-bl"></div><div class="cm cm-br"></div>
         </div>`;
@@ -5931,14 +6308,18 @@ body { width: 485.775mm; height: 385.233mm; position: relative; overflow: hidden
         ? `<div style="position:absolute;inset:0;background-image:url(${patternSrc});background-size:${((patternScale || 150) * 0.22).toFixed(1)}mm;background-repeat:repeat;"></div>`
         : `<div style="position:absolute;inset:0;background:${_bc};"></div>`;
 
+      const versoInnerHtml = contactLines
+        ? `<div style="position:absolute;top:${BLEED}mm;left:${BLEED}mm;right:${BLEED}mm;bottom:${BLEED}mm;display:flex;align-items:center;justify-content:center;">
+            <div style="background:rgba(255,255,255,0.93);padding:${_isRetrato ? '2.5mm 4mm' : '3mm 5mm'};border-radius:1.5mm;width:${_isRetrato ? '86%' : '82%'};text-align:center;font-family:'Montserrat',sans-serif;font-size:${_isRetrato ? '0.82em' : '1em'};">
+              ${contactLines}
+            </div>
+          </div>`
+        : '';
+
       const versoHtml = `
         <div class="card" style="position:relative;overflow:hidden;">
           ${versoBgHtml}
-          <div style="position:absolute;top:${BLEED}mm;left:${BLEED}mm;right:${BLEED}mm;bottom:${BLEED}mm;display:flex;align-items:center;justify-content:center;">
-            <div style="background:rgba(255,255,255,0.93);padding:${_isRetrato ? '2.5mm 4mm' : '3mm 5mm'};border-radius:1.5mm;width:${_isRetrato ? '86%' : '82%'};text-align:center;font-family:'Montserrat',sans-serif;font-size:${_isRetrato ? '0.82em' : '1em'};">
-              ${contactLines || `<span style="font-size:5pt;color:#aaa;">Adicione seus dados no Cartão Digital</span>`}
-            </div>
-          </div>
+          ${versoInnerHtml}
           <div class="cm cm-tl"></div><div class="cm cm-tr"></div><div class="cm cm-bl"></div><div class="cm cm-br"></div>
         </div>`;
 
@@ -6019,9 +6400,11 @@ ${versoHtml}
             </div>
         </div>`;
 
+      const hasEnvelopeContacts = !!(clinicaNome || endereco || _sacPhones || email || site || instagram);
       const versoHtml = `
         <div style="position:absolute;top:${BLEED + ABA_S}mm;left:${BLEED + ABA_L + W}mm;width:${W + BLEED}mm;height:${H}mm;background:#fff;overflow:hidden;z-index:2;border-left:0.1mm dashed rgba(0,0,0,0.1);">
             ${genPattern(1)}
+            ${hasEnvelopeContacts ? `
             <div style="position:absolute;bottom:15mm;left:50%;transform:translateX(-50%);width:max-content;max-width:${W - 20}mm;background:rgba(255,255,255,0.97);padding:6mm 12mm;border-radius:2mm;display:flex;flex-direction:column;align-items:center;justify-content:center;border:0.2mm solid #ddd;text-align:center;white-space:nowrap;">
                <div style="font-size:11pt;color:#666;font-family:'Montserrat',sans-serif;line-height:1.7;">
                   ${clinicaNome ? `<div style="font-weight:700;color:${accentColor};font-size:14pt;margin-bottom:2mm;">${clinicaNome}</div>` : ''}
@@ -6031,6 +6414,7 @@ ${versoHtml}
                   ${(site || instagram) ? `<div style="opacity:0.75;">${[site, instagram ? `@${instagram}` : ''].filter(Boolean).join('  ·  ')}</div>` : ''}
                </div>
             </div>
+            ` : ''}
         </div>`;
 
       const _Bs = BLEED;
@@ -6077,7 +6461,7 @@ body { width:${totalW}mm; height:${totalH}mm; position:relative; overflow:hidden
 
       const abaHtml = `<div style="position:absolute;top:0;left:0;width:${totalW}mm;height:${ABA + BLEED}mm;background:${solidColor};"></div>`;
 
-      const _logoEnvHtml = genPDFLogoHtml({ brand, editDataOverride: editData, color: logoColor, layout: logoLayout, localSlogan, crmLine, fontPt: _fontPt, lineH: _lineH, letterSp: _letterSp, customLogoSrc, customLogoScale: customLogoSrc ? getCustomLogoScale(item) : 100, maxWidth: '68mm', maxHeight: '43mm', withBackground: false });
+      const _logoEnvHtml = genPDFLogoHtml({ brand, editDataOverride: editData, color: logoColor, layout: logoLayout, localSlogan, crmLine, fontPt: _fontPt, lineH: _lineH, letterSp: _letterSp, customLogoSrc, customLogoScale: customLogoSrc ? getCustomLogoScale(item) * (ITEM_CUSTOM_BASE_SCALES[item] || 1) : 100, maxWidth: '68mm', maxHeight: '43mm', withBackground: false });
       const frenteHtml = `
         <div style="position:absolute;top:${BLEED + ABA}mm;left:0;width:${totalW}mm;height:${H}mm;background:#fff;overflow:hidden;">
             ${genPattern(1)}
@@ -6085,9 +6469,11 @@ body { width:${totalW}mm; height:${totalH}mm; position:relative; overflow:hidden
         </div>`;
 
       const _waIco = `<svg viewBox="0 0 24 24" width="9" height="9" style="display:inline;vertical-align:middle;margin-right:1.5pt;" fill="#25D366"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>`;
+      const hasEnvelopeContacts = !!(clinicaNome || endereco || _envPhones || email || site || instagram);
       const versoHtml = `
         <div style="position:absolute;top:${BLEED + ABA + H}mm;left:0;width:${totalW}mm;height:${H + BLEED}mm;background:#fff;transform:rotate(180deg);overflow:hidden;">
             ${genPattern(1)}
+            ${hasEnvelopeContacts ? `
             <div style="position:absolute;bottom:10mm;left:50%;transform:translateX(-50%);width:max-content;max-width:${W - 20}mm;background:rgba(255,255,255,0.97);padding:5mm 10mm;border-radius:2mm;display:flex;flex-direction:column;align-items:center;justify-content:center;border:0.2mm solid #ddd;text-align:center;white-space:nowrap;">
                <div style="font-size:9pt;color:#666;font-family:'Montserrat',sans-serif;line-height:1.65;">
                   ${clinicaNome ? `<div style="font-weight:700;color:${accentColor};font-size:10.5pt;margin-bottom:1.5mm;">${clinicaNome}</div>` : ''}
@@ -6097,6 +6483,7 @@ body { width:${totalW}mm; height:${totalH}mm; position:relative; overflow:hidden
                   ${(site || instagram) ? `<div style="opacity:0.75;">${[site, instagram ? `@${instagram}` : ''].filter(Boolean).join('  ·  ')}</div>` : ''}
                </div>
             </div>
+            ` : ''}
         </div>`;
 
       const B = BLEED;
@@ -6400,6 +6787,21 @@ body { width: 220mm; height: 307mm; background: #fff; }
           </div>`;
       };
       const _allPhonesCk = [whatsapp || telefone, telefone2].filter(Boolean).join(' / ');
+      const hasFooterData = !!(clinicaNome || endereco || _allPhonesCk || site || instagram);
+      const footerHtml = hasFooterData ? `
+        <div style="border-top:0.3mm solid ${accentColor}30;padding:3mm 2mm 0;display:flex;align-items:center;justify-content:space-between;gap:6mm;">
+          <div style="font-family:'Montserrat',sans-serif;font-size:9pt;font-weight:800;color:${accentColor};text-transform:uppercase;letter-spacing:0.5pt;white-space:nowrap;">${clinicaNome || ''}</div>
+          <div style="font-family:'Montserrat',sans-serif;font-size:7.5pt;color:#888;text-align:center;line-height:1.4;">
+            ${endereco ? `<div>${endereco}</div>` : ''}
+            ${_allPhonesCk ? `<div>${_allPhonesCk}</div>` : ''}
+          </div>
+          <div style="font-family:'Montserrat',sans-serif;font-size:7.5pt;color:#888;text-align:right;white-space:nowrap;">
+            ${site ? `<div>${site}</div>` : ''}
+            ${instagram ? `<div>@${instagram}</div>` : ''}
+          </div>
+        </div>
+      ` : '';
+
       const _ffCk = editData?.fontFamily || brand.editData?.fontFamily || 'Playfair Display';
       const _lfCk = LOCAL_FONT_FACES[_ffCk];
       const _fiCk = _lfCk ? `<style>${_lfCk}</style>` : `<link href="https://fonts.googleapis.com/css2?family=${encodeURIComponent(_ffCk)}:wght@400;700&display=swap" rel="stylesheet">`;
@@ -6413,7 +6815,7 @@ body { width: 220mm; height: 307mm; background: #fff; }
         <div style="position:absolute;bottom:0;left:${BLEED}mm;width:0.2mm;height:${BLEED-0.5}mm;background:#000;z-index:100;"></div>
         <div style="position:absolute;bottom:${BLEED}mm;right:0;width:${BLEED-0.5}mm;height:0.2mm;background:#000;z-index:100;"></div>
         <div style="position:absolute;bottom:0;right:${BLEED}mm;width:0.2mm;height:${BLEED-0.5}mm;background:#000;z-index:100;"></div>`;
-      const htmlCk = `<!DOCTYPE html><html><head><meta charset="UTF-8"><link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;700;900&display=swap" rel="stylesheet">${_fiCk}<style>*{margin:0;padding:0;box-sizing:border-box;}body{width:220mm;height:307mm;}@media print{body{margin:0;}@page{size:220mm 307mm;margin:0;}}</style></head><body><div style="position:relative;width:220mm;height:307mm;${_patCk}">${_cmCk}<div style="position:absolute;top:${BLEED + 8}mm;left:${BLEED + 8}mm;right:${BLEED + 8}mm;bottom:${BLEED + 8}mm;background:#fff;display:flex;overflow:hidden;"><div style="width:16mm;flex-shrink:0;display:flex;align-items:center;justify-content:center;background:${accentColor}15;"><div style="transform:rotate(-90deg);white-space:nowrap;font-family:'Montserrat',sans-serif;font-size:15pt;font-weight:900;color:${accentColor};letter-spacing:4pt;text-transform:uppercase;">CHECKLIST MATERNIDADE</div></div><div style="flex:1;display:flex;flex-direction:column;padding:12mm 8mm 10mm 8mm;gap:4mm;overflow:hidden;"><div style="display:flex;justify-content:center;padding-bottom:5mm;border-bottom:0.2mm solid ${accentColor}25;">${_logoCk}</div><div style="flex:1;display:grid;grid-template-columns:1fr 1fr;gap:4mm;">${SECOES_CK.map((s, idx) => secaoHtmlCk(s, idx)).join('')}</div><div style="border-top:0.3mm solid ${accentColor}30;padding:3mm 2mm 0;display:flex;align-items:center;justify-content:space-between;gap:6mm;"><div style="font-family:'Montserrat',sans-serif;font-size:9pt;font-weight:800;color:${accentColor};text-transform:uppercase;letter-spacing:0.5pt;white-space:nowrap;">${clinicaNome || marca}</div><div style="font-family:'Montserrat',sans-serif;font-size:7.5pt;color:#888;text-align:center;line-height:1.4;">${endereco ? `<div>${endereco}</div>` : ''}${_allPhonesCk ? `<div>${_allPhonesCk}</div>` : ''}</div><div style="font-family:'Montserrat',sans-serif;font-size:7.5pt;color:#888;text-align:right;white-space:nowrap;">${site ? `<div>${site}</div>` : ''}${instagram ? `<div>@${instagram}</div>` : ''}</div></div></div></div></div></body></html>`;
+      const htmlCk = `<!DOCTYPE html><html><head><meta charset="UTF-8"><link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;700;900&display=swap" rel="stylesheet">${_fiCk}<style>*{margin:0;padding:0;box-sizing:border-box;}body{width:220mm;height:307mm;}@media print{body{margin:0;}@page{size:220mm 307mm;margin:0;}}</style></head><body><div style="position:relative;width:220mm;height:307mm;${_patCk}">${_cmCk}<div style="position:absolute;top:${BLEED + 8}mm;left:${BLEED + 8}mm;right:${BLEED + 8}mm;bottom:${BLEED + 8}mm;background:#fff;display:flex;overflow:hidden;"><div style="width:16mm;flex-shrink:0;display:flex;align-items:center;justify-content:center;background:${accentColor}15;"><div style="transform:rotate(-90deg);white-space:nowrap;font-family:'Montserrat',sans-serif;font-size:15pt;font-weight:900;color:${accentColor};letter-spacing:4pt;text-transform:uppercase;">CHECKLIST MATERNIDADE</div></div><div style="flex:1;display:flex;flex-direction:column;padding:12mm 8mm 10mm 8mm;gap:4mm;overflow:hidden;"><div style="display:flex;justify-content:center;padding-bottom:5mm;border-bottom:0.2mm solid ${accentColor}25;">${_logoCk}</div><div style="flex:1;display:grid;grid-template-columns:1fr 1fr;gap:4mm;">${SECOES_CK.map((s, idx) => secaoHtmlCk(s, idx)).join('')}</div>${footerHtml}</div></div></div></body></html>`;
       const exCk = document.getElementById('_gabarito_iframe'); if (exCk) exCk.remove();
       const blobCk = new Blob([htmlCk], { type: 'text/html;charset=utf-8' });
       const blobUrlCk = URL.createObjectURL(blobCk);
@@ -6919,7 +7321,8 @@ html, body { width:${totalW}mm; height:${totalH}mm; overflow:hidden; }
       const fiC = `<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700;800;900&display=swap" rel="stylesheet">${_lfC ? `<style>${_lfC}</style>` : `<link href="https://fonts.googleapis.com/css2?family=${encodeURIComponent(_ffC)}:wght@400;700&display=swap" rel="stylesheet">`}`;
       const hasCustomLogoC = !!itemEditData?.customLogoSrc;
       const effectiveLayoutC = (comBorda && patternSrc && !hasCustomLogoC) ? 'balanced' : (logoLayout || 'stacked');
-      const _sfC = (comBorda && patternSrc) ? 0.8 : 1.2; 
+      const baseSFC = (comBorda && patternSrc) ? 0.8 : 1.2;
+      const _sfC = hasCustomLogoC ? baseSFC * 1.45 : baseSFC; 
       const logoHtmlC = ReactDOMServer.renderToString(<LogoPreviewHTML editData={itemEditData} color="#ffffff" layout={effectiveLayoutC} scaleFactor={_sfC} crm={null} hideTagline={true} withBackground={hasCustomLogoC} />);
       const circleD = 44;
       const circleBgC = (comBorda && patternSrc) ? solidColor + 'd0' : 'rgba(255,255,255,0.22)';
@@ -7299,14 +7702,14 @@ td { padding: 4mm 3mm; border: 0.2mm solid #eee; font-size: 10pt; color: #555; }
         <table>
             <thead><tr><th style="width:20%;">Data</th><th>Descrição dos Serviços</th><th style="width:25%;text-align:right;">Total</th></tr></thead>
             <tbody>
-                ${Array.from({length: 5}).map(() => `<tr><td></td><td></td><td></td></tr>`).join('')}
+                ${Array.from({length: 3}).map(() => `<tr><td></td><td></td><td></td></tr>`).join('')}
                 <tr><td colspan="2" style="text-align:right;font-weight:700;color:#1a1a1a;">TOTAL</td><td style="background:#f9f9f9;"></td></tr>
             </tbody>
         </table>
 
-        <div style="margin-top:auto;display:flex;flex-direction:column;align-items:center;">
+        <div style="margin-top:auto;display:flex;flex-direction:column;align-items:center;padding-top:4mm;">
              <div style="width:80mm;border-top:0.2mm solid #333;margin-bottom:3mm;"></div>
-             <div style="font-size:9pt;font-weight:700;color:#1a1a1a;">${clinicaNome || marca}</div>
+             <div style="font-size:9pt;font-weight:700;color:#1a1a1a;">${clinicaNome || ''}</div>
              <div style="font-size:7.5pt;color:#999;margin-top:1mm;text-transform:uppercase;letter-spacing:1pt;">${crmLine || ''}</div>
         </div>
 
@@ -7354,7 +7757,7 @@ td { padding: 4mm 3mm; border: 0.2mm solid #eee; font-size: 10pt; color: #555; }
             lineH: 1.1,
             letterSp: _letterSp,
             customLogoSrc,
-            customLogoScale: customLogoSrc ? getCustomLogoScale(item) : 100,
+            customLogoScale: customLogoSrc ? getCustomLogoScale(item) * (ITEM_CUSTOM_BASE_SCALES[item] || 1) : 100,
             maxWidth: '18.5mm',
             maxHeight: '9.5mm',
             hideSlogan: true,
@@ -7870,7 +8273,7 @@ body { background:#eee; }
   <div style="position:absolute; top:${BLEED + BORDER}mm; left:${BLEED + BORDER}mm; right:${BLEED + BORDER}mm; bottom:${BLEED + BORDER}mm; background:#fff; clip-path:${_clipRoof}; -webkit-clip-path:${_clipRoof};"></div>
 
   <div style="position:absolute; top:${BLEED + BORDER + (folderRoof ? 22 : 14)}mm; left:50%; transform:translateX(-50%); width:120mm; display:flex; justify-content:center;">
-    ${genPDFLogoHtml({ brand, editDataOverride: editData, color: logoColor, layout: logoLayout, localSlogan, crmLine, fontPt: _fontPt, lineH: _lineH, letterSp: _letterSp, customLogoSrc, customLogoScale: customLogoSrc ? getCustomLogoScale(item) : 100, maxWidth: '120mm', maxHeight: '45mm', withBackground: comBorda && patternSrc })}
+    ${genPDFLogoHtml({ brand, editDataOverride: editData, color: logoColor, layout: logoLayout, localSlogan, crmLine, fontPt: _fontPt, lineH: _lineH, letterSp: _letterSp, customLogoSrc, customLogoScale: customLogoSrc ? getCustomLogoScale(item) * (ITEM_CUSTOM_BASE_SCALES[item] || 1) : 100, maxWidth: '120mm', maxHeight: '45mm', withBackground: comBorda && patternSrc })}
   </div>
 
   <div style="position:absolute; top:50%; left:50%; transform:translate(-50%, -50%); opacity:0.15; width:170mm; display:flex; justify-content:center; pointer-events:none;">
@@ -7879,6 +8282,8 @@ body { background:#eee; }
 
   <div style="position:absolute; bottom:${BLEED + 6}mm; left:0; right:0; text-align:center;">
     ${genPDFSimpleFooter({ 
+      clinicaNome,
+      endereco,
       allPhones,
       email: brand.email || '',
       site: site || '',
@@ -7911,7 +8316,7 @@ body { background:#eee; }
         const effectiveSrc = comBorda ? patternSrc : null;
 
         const _lColor = logoColor || _accent;
-        const logoHtmlCe = genPDFLogoHtml({ brand, editDataOverride: editData, color: _lColor, layout: logoLayout, localSlogan, crmLine, fontPt: logoLayout === 'horizontal' ? (marca.length > 18 ? 16 : marca.length > 12 ? 20 : 24) : _fontPt, lineH: _lineH, letterSp: editData?.fontLetterSpacing || brand.editData?.fontLetterSpacing || _letterSp, customLogoSrc, customLogoScale: customLogoSrc ? getCustomLogoScale(item) * (ITEM_CUSTOM_BASE_SCALES[item] || 1) : 100, maxWidth: '100mm', maxHeight: '28mm', withBackground: comBorda && patternSrc });
+        const logoHtmlCe = genPDFLogoHtml({ brand, editDataOverride: editData, color: _lColor, layout: logoLayout, localSlogan, crmLine, fontPt: logoLayout === 'horizontal' ? (marca.length > 18 ? 16 : marca.length > 12 ? 20 : 24) : _fontPt, lineH: _lineH, letterSp: editData?.fontLetterSpacing || brand.editData?.fontLetterSpacing || _letterSp, customLogoSrc, customLogoScale: customLogoSrc ? getCustomLogoScale(item) * 2.5 : 100, maxWidth: '100mm', maxHeight: '28mm', withBackground: comBorda && patternSrc });
 
         const html = `<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Certificado de Coragem - ${marca}</title>${fiCe}
 <style>* { box-sizing:border-box; margin:0; padding:0; print-color-adjust:exact !important; -webkit-print-color-adjust:exact !important; }
@@ -8175,6 +8580,8 @@ ${fontImports2}
               ? <AssinaturaEmailPreview brand={brand} editData={itemEditData} accentColor={accentColor} logoColor={logoColor} logoLayout={logoLayout} cartaoContacts={cartaoContacts} crmLine={crmLine} localSlogan={localSlogan} clinicaNome={clinicaNome} storyTemplateIdx={storyTemplateIdx} setStoryTemplateIdx={setStoryTemplateIdx} storyFormatIdx={storyFormatIdx} setStoryFormatIdx={setStoryFormatIdx} setCartaoContacts={setCartaoContacts} setClinicaNome={setClinicaNome} setLocalSlogan={setLocalSlogan} />
             : currentItem.includes('Certificado')
               ? <CertificadoCoragemPreview accentColor={accentColor} patternSrc={patternSrc} editData={{ ...itemEditData, tagline: localSlogan }} logoColor={logoColor} logoLayout={logoLayout} cartaoContacts={cartaoContacts} crmLine={crmLine} clinicaNome={clinicaNome} comBorda={comBorda} setComBorda={setComBorda} paletteColors={paletteColors} borderColor={borderColor} setBorderColor={setBorderColor} patternScale={patternScale} setPatternScale={setPatternScale} />
+            : currentItem.includes('Caderno')
+              ? <CadernoPreview editData={{ ...itemEditData, tagline: localSlogan }} accentColor={accentColor} solidColor={paletteColors[0]} logoColor={logoColor} logoLayout={logoLayout} comBorda={comBorda} setComBorda={setComBorda} patternSrc={patternSrc} paletteColors={paletteColors} borderColor={borderColor} setBorderColor={setBorderColor} patternScale={patternScale} setPatternScale={setPatternScale} paperSize={paperSize} setPaperSize={setPaperSize} />
             : ['Receituário','Timbrado','Cartão','Guia','Calendário','Atestado','Dicas','Ficha','Orientação','Checklist','Prontuário','Receita','Quadro','Gráfico','Diário','Card','Pratinho','Fundo','Arte','Etiqueta','Assinatura','Tag'].some(n => currentItem.includes(n))
               ? <A5ItemPreview item={currentItem} accentColor={accentColor} patternSrc={patternSrc} editData={{ ...itemEditData, tagline: localSlogan }} logoColor={logoColor} logoLayout={logoLayout} cartaoContacts={cartaoContacts} crmLine={crmLine} clinicaNome={clinicaNome} comBorda={comBorda} setComBorda={setComBorda} paletteColors={paletteColors} borderColor={borderColor} setBorderColor={setBorderColor} patternScale={patternScale} setPatternScale={setPatternScale} folderRoof={folderRoof} setFolderRoof={['Receituário','Atestado','Recibo','Ficha','Prontuário','Certificado','Checklist'].some(n => currentItem.includes(n)) ? setFolderRoof : undefined} paperSize={['Receituário','Recibo','Ficha','Prontuário','Certificado','Checklist'].some(n => currentItem.includes(n)) ? paperSize : undefined} setPaperSize={['Receituário','Recibo','Ficha','Prontuário','Certificado','Checklist'].some(n => currentItem.includes(n)) ? setPaperSize : undefined} />
             : <GenericItemPreview item={currentItem} marca={marca} accentColor={accentColor} patternSrc={patternSrc} editData={{ ...itemEditData, tagline: localSlogan }} logoColor={logoColor} logoLayout={logoLayout} comBorda={comBorda} setComBorda={setComBorda} paletteColors={paletteColors} borderColor={borderColor} setBorderColor={setBorderColor} patternScale={patternScale} setPatternScale={setPatternScale} />
@@ -8291,6 +8698,7 @@ ${fontImports2}
           'Cartão de Aniversário':  { cat: 'Flyer', tam: 'A6 (10,5 × 14,8 cm)', papel: 'Couché 240g+', acabamento: 'Refile', preco: '' },
           'Caderneta':              { cat: 'Livreto', tam: 'A5 (14,8 × 21 cm)', papel: 'Offset 120g+', acabamento: 'Grampo canoa', preco: '' },
           'Livro de Atividades':    { cat: 'Livreto', tam: 'A5 (14,8 × 21 cm)', papel: 'Offset 120g+', acabamento: 'Grampo canoa', preco: '' },
+          'Caderno (Capa e Contra-capa)': { cat: 'Caderno Capa Dura', tam: '17 × 24 cm ou 21 × 28 cm', papel: 'Capa Rígida + Miolo Offset 70g (192 pág.)', acabamento: 'Wire-o preto · Laminação Fosca', preco: '~R$45,28 / un. (10 un.)' },
         };
         const folderItems = ['Guia de Cuidados','Guia Alimentar','Guia de Desenvolvimento','Cartão de Vacina','Guia Pré-natal', 'Guia do Sono'];
         const isAmamentacaoModal = pendingItem?.includes('Amamentação');
@@ -8652,9 +9060,49 @@ function EntregaContent({ brand, plano, setBrand }) {
   const [colorOrder, setColorOrderState] = useState(() => { try { const s = localStorage.getItem(`brandbox_color_order_${brand.id}`); return s ? JSON.parse(s) : null; } catch { return null; } });
   const setColorOrder = (v) => { setColorOrderState(v); try { localStorage.setItem(`brandbox_color_order_${brand.id}`, JSON.stringify(v)); } catch {} };
   const [downloadingCores, setDownloadingCores] = useState(false);
-  const [comBorda, setComBorda] = useState(true);
-  const [patternScale, setPatternScale] = useState(250);
-  const [borderColor, setBorderColor] = useState(null);
+  const [comBorda, setComBordaState] = useState(() => {
+    try {
+      return localStorage.getItem(`brandbox_comborda_${brand.id}`) !== 'false';
+    } catch {
+      return true;
+    }
+  });
+  const setComBorda = (v) => {
+    setComBordaState(v);
+    try {
+      localStorage.setItem(`brandbox_comborda_${brand.id}`, v ? 'true' : 'false');
+    } catch {}
+  };
+
+  const [patternScale, setPatternScaleState] = useState(() => {
+    try {
+      const s = localStorage.getItem(`brandbox_pattern_scale_${brand.id}`);
+      return s ? parseInt(s, 10) : 520; // Default aumentado para 520
+    } catch {
+      return 520;
+    }
+  });
+  const setPatternScale = (v) => {
+    setPatternScaleState(v);
+    try {
+      localStorage.setItem(`brandbox_pattern_scale_${brand.id}`, String(v));
+    } catch {}
+  };
+
+  const [borderColor, setBorderColorState] = useState(() => {
+    try {
+      return localStorage.getItem(`brandbox_border_color_${brand.id}`) || null;
+    } catch {
+      return null;
+    }
+  });
+  const setBorderColor = (v) => {
+    setBorderColorState(v);
+    try {
+      if (v) localStorage.setItem(`brandbox_border_color_${brand.id}`, v);
+      else localStorage.removeItem(`brandbox_border_color_${brand.id}`);
+    } catch {}
+  };
   const [localSlogan, setLocalSlogan] = useState(brand?.editData?.tagline || '');
   const [copiedAssinatura, setCopiedAssinatura] = useState(false);
   const [storyTemplateIdx, setStoryTemplateIdx] = useState(0);
@@ -8667,7 +9115,7 @@ function EntregaContent({ brand, plano, setBrand }) {
     ...(plano === 'pro' ? ['submarca'] : []), 
     'cores', 'paleta', 'estampa', 'guia',
     'cartao', 'pack-instagram', 'assinatura-email', 'papelaria',
-    'ajuda'
+    'ajuda', 'upsell'
   ];
 
   const goNext = () => {
@@ -8692,6 +9140,9 @@ function EntregaContent({ brand, plano, setBrand }) {
       setStep('papelaria');
       setPapelariaNavIdx(papelariaNavItens.length - 1);
       window.scrollTo({ top: 0, behavior: 'smooth' });
+    } else if (step === 'upsell') {
+      setStep('ajuda');
+      window.scrollTo({ top: 0, behavior: 'smooth' });
     } else if (step === 'papelaria') {
       if (papelariaNavIdx > 0) {
         setPapelariaNavIdx(papelariaNavIdx - 1);
@@ -8706,7 +9157,7 @@ function EntregaContent({ brand, plano, setBrand }) {
     }
   };
 
-  const isLastStep = step === 'ajuda';
+  const isLastStep = step === 'upsell';
   const isFirstStep = step === 'placa';
   const [customLogoSrc, setCustomLogoSrcState] = useState(() => { try { return localStorage.getItem(`brandbox_custom_logo_${brand.id}`) || null; } catch { return null; } });
   const setCustomLogoSrc = (v) => { setCustomLogoSrcState(v); try { if (v) localStorage.setItem(`brandbox_custom_logo_${brand.id}`, v); else localStorage.removeItem(`brandbox_custom_logo_${brand.id}`); } catch {} };
@@ -9192,7 +9643,7 @@ function EntregaContent({ brand, plano, setBrand }) {
         <div style={{ display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between', marginBottom: '1.2rem' }}>
           <div>
             <h1 style={{ fontSize: '1.4rem', fontWeight: 700, color: '#1a1a1a', lineHeight: 1.2 }}>
-              {step === 'placa' ? 'Placa da Marca' : step === 'manifesto' ? 'Manifesto da Marca' : step === 'tomdevoz' ? 'Tom de Voz' : step === 'fonte' ? 'Fonte da Marca' : step === 'slogan' ? 'Tagline da Marca' : step === 'logo' ? 'Sua Logo' : step === 'submarca' ? 'Sua Submarca' : step === 'estampa' ? 'Sua Estampa' : step === 'cores' ? 'Suas Cores' : step === 'paleta' ? 'Sua Paleta' : step === 'cartao' ? 'Cartão Digital' : step === 'pack-instagram' ? 'Pack Digital para Instagram' : step === 'assinatura-email' ? 'Assinatura de E-mail' : step === 'guia' ? 'Guia da Marca' : step === 'ajuda' ? 'Ajuda & Inspiração ✨' : 'Sua Papelaria'}
+              {step === 'placa' ? 'Placa da Marca' : step === 'manifesto' ? 'Manifesto da Marca' : step === 'tomdevoz' ? 'Tom de Voz' : step === 'fonte' ? 'Fonte da Marca' : step === 'slogan' ? 'Tagline da Marca' : step === 'logo' ? 'Sua Logo' : step === 'submarca' ? 'Sua Submarca' : step === 'estampa' ? 'Sua Estampa' : step === 'cores' ? 'Suas Cores' : step === 'paleta' ? 'Sua Paleta' : step === 'cartao' ? 'Cartão Digital' : step === 'pack-instagram' ? 'Pack Digital para Instagram' : step === 'assinatura-email' ? 'Assinatura de E-mail' : step === 'guia' ? 'Guia da Marca' : step === 'ajuda' ? 'Ajuda & Inspiração ✨' : step === 'upsell' ? 'Quer ir além? ✨' : 'Sua Papelaria'}
             </h1>
           </div>
           <button 
@@ -9248,46 +9699,53 @@ function EntregaContent({ brand, plano, setBrand }) {
             </div>
 
             {/* Controles da tagline */}
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', padding: '16px', background: '#fcfcfc', borderRadius: '16px', border: '1.5px solid #eaeaea', boxShadow: '0 4px 12px rgba(0,0,0,0.02)' }}>
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                <span style={{ fontSize: '0.78rem', fontWeight: 800, fontFamily: 'Montserrat, sans-serif', color: '#333', letterSpacing: '0.3px', display: 'flex', alignItems: 'center', gap: '6px' }}>💬 Tagline da Marca</span>
-                <button
-                  onClick={() => setSloganEnabled(!sloganEnabled)}
-                  style={{ padding: '5px 12px', borderRadius: '20px', fontSize: '0.65rem', fontWeight: 700, cursor: 'pointer', border: 'none', background: sloganEnabled ? `${accentColor}15` : '#eee', color: sloganEnabled ? accentColor : '#999', transition: 'all 0.2s', fontFamily: 'Montserrat, sans-serif' }}
-                >
-                  {sloganEnabled ? '✓ Com tagline' : '✗ Sem tagline'}
-                </button>
+            {editDataWithLogo?.customLogoSrc ? (
+              <div style={{ padding: '16px', background: '#fff0f5', borderRadius: '12px', border: '1.5px solid #ffb3c6', color: '#c03b66', fontSize: '0.82rem', fontFamily: 'Montserrat, sans-serif', textAlign: 'center', fontWeight: 600 }}>
+                Você enviou sua própria logo, então a tagline (slogan) já faz parte da sua imagem!<br/><br/>
+                <span style={{ fontSize: '0.72rem', fontWeight: 500, opacity: 0.8 }}>Para alterar a tagline ou usar as opções desta aba, volte à aba "Sua Logo" e selecione a "Logo sugerida".</span>
               </div>
-              {sloganEnabled && (<>
-              <input
-                value={tagline}
-                onChange={e => setTagline(e.target.value)}
-                placeholder="Ex: Delicadeza em cada detalhe"
-                style={{ width: '100%', padding: '12px 16px', borderRadius: '12px', border: `1.5px solid ${logoColor}22`, fontSize: '0.88rem', fontFamily: 'Montserrat, sans-serif', boxSizing: 'border-box', background: '#fff', outline: 'none', color: '#444', letterSpacing: '0.3px' }}
-              />
-              <div style={{ display: 'flex', gap: '6px' }}>
-                <button onClick={() => setTaglineWrap(false)} style={{ flex: 1, padding: '6px 4px', border: 'none', borderRadius: '20px', fontSize: '0.68rem', fontWeight: 700, background: !taglineWrap ? logoColor : '#eee', color: !taglineWrap ? '#fff' : '#888', cursor: 'pointer', transition: '0.2s' }}>1 Linha</button>
-                <button onClick={() => setTaglineWrap(true)} style={{ flex: 1, padding: '6px 4px', border: 'none', borderRadius: '20px', fontSize: '0.68rem', fontWeight: 700, background: taglineWrap ? logoColor : '#eee', color: taglineWrap ? '#fff' : '#888', cursor: 'pointer', transition: '0.2s' }}>2 Linhas</button>
+            ) : (
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', padding: '16px', background: '#fcfcfc', borderRadius: '16px', border: '1.5px solid #eaeaea', boxShadow: '0 4px 12px rgba(0,0,0,0.02)' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                  <span style={{ fontSize: '0.78rem', fontWeight: 800, fontFamily: 'Montserrat, sans-serif', color: '#333', letterSpacing: '0.3px', display: 'flex', alignItems: 'center', gap: '6px' }}>💬 Tagline da Marca</span>
+                  <button
+                    onClick={() => setSloganEnabled(!sloganEnabled)}
+                    style={{ padding: '5px 12px', borderRadius: '20px', fontSize: '0.65rem', fontWeight: 700, cursor: 'pointer', border: 'none', background: sloganEnabled ? `${accentColor}15` : '#eee', color: sloganEnabled ? accentColor : '#999', transition: 'all 0.2s', fontFamily: 'Montserrat, sans-serif' }}
+                  >
+                    {sloganEnabled ? '✓ Com tagline' : '✗ Sem tagline'}
+                  </button>
+                </div>
+                {sloganEnabled && (<>
+                <input
+                  value={tagline}
+                  onChange={e => setTagline(e.target.value)}
+                  placeholder="Ex: Delicadeza em cada detalhe"
+                  style={{ width: '100%', padding: '12px 16px', borderRadius: '12px', border: `1.5px solid ${logoColor}22`, fontSize: '0.88rem', fontFamily: 'Montserrat, sans-serif', boxSizing: 'border-box', background: '#fff', outline: 'none', color: '#444', letterSpacing: '0.3px' }}
+                />
+                <div style={{ display: 'flex', gap: '6px' }}>
+                  <button onClick={() => setTaglineWrap(false)} style={{ flex: 1, padding: '6px 4px', border: 'none', borderRadius: '20px', fontSize: '0.68rem', fontWeight: 700, background: !taglineWrap ? logoColor : '#eee', color: !taglineWrap ? '#fff' : '#888', cursor: 'pointer', transition: '0.2s' }}>1 Linha</button>
+                  <button onClick={() => setTaglineWrap(true)} style={{ flex: 1, padding: '6px 4px', border: 'none', borderRadius: '20px', fontSize: '0.68rem', fontWeight: 700, background: taglineWrap ? logoColor : '#eee', color: taglineWrap ? '#fff' : '#888', cursor: 'pointer', transition: '0.2s' }}>2 Linhas</button>
+                </div>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', padding: '10px', background: '#f8f8f8', borderRadius: '12px' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                    <span style={{ fontSize: '0.68rem', color: '#888', fontWeight: 600, fontFamily: 'Montserrat,sans-serif', width: '100px' }}>Escala Tagline</span>
+                    <input type="range" min="0.2" max="2.5" step="0.05" value={taglineSizeBoost} onChange={e => setTaglineSizeBoost(parseFloat(e.target.value))} style={{ flex: 1, accentColor }} />
+                    <span style={{ fontSize: '0.68rem', color: '#aaa', width: '30px' }}>{taglineSizeBoost.toFixed(2)}×</span>
+                  </div>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                    <span style={{ fontSize: '0.68rem', color: '#888', fontWeight: 600, fontFamily: 'Montserrat,sans-serif', width: '100px' }}>Distância</span>
+                    <input type="range" min="0" max="1.5" step="0.05" value={taglineGap} onChange={e => setTaglineGap(parseFloat(e.target.value))} style={{ flex: 1, accentColor }} />
+                    <span style={{ fontSize: '0.68rem', color: '#aaa', width: '30px' }}>{taglineGap.toFixed(2)}</span>
+                  </div>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                    <span style={{ fontSize: '0.68rem', color: '#888', fontWeight: 600, fontFamily: 'Montserrat,sans-serif', width: '100px' }}>Espaçamento</span>
+                    <input type="range" min="0.05" max="1.2" step="0.05" value={taglineLetterSpacing} onChange={e => setTaglineLetterSpacing(parseFloat(e.target.value))} style={{ flex: 1, accentColor }} />
+                    <span style={{ fontSize: '0.68rem', color: '#aaa', width: '30px' }}>{taglineLetterSpacing.toFixed(2)}em</span>
+                  </div>
+                </div>
+                </>)}
               </div>
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', padding: '10px', background: '#f8f8f8', borderRadius: '12px' }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-                  <span style={{ fontSize: '0.68rem', color: '#888', fontWeight: 600, fontFamily: 'Montserrat,sans-serif', width: '100px' }}>Escala Tagline</span>
-                  <input type="range" min="0.2" max="2.5" step="0.05" value={taglineSizeBoost} onChange={e => setTaglineSizeBoost(parseFloat(e.target.value))} style={{ flex: 1, accentColor }} />
-                  <span style={{ fontSize: '0.68rem', color: '#aaa', width: '30px' }}>{taglineSizeBoost.toFixed(2)}×</span>
-                </div>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-                  <span style={{ fontSize: '0.68rem', color: '#888', fontWeight: 600, fontFamily: 'Montserrat,sans-serif', width: '100px' }}>Distância</span>
-                  <input type="range" min="0" max="1.5" step="0.05" value={taglineGap} onChange={e => setTaglineGap(parseFloat(e.target.value))} style={{ flex: 1, accentColor }} />
-                  <span style={{ fontSize: '0.68rem', color: '#aaa', width: '30px' }}>{taglineGap.toFixed(2)}</span>
-                </div>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-                  <span style={{ fontSize: '0.68rem', color: '#888', fontWeight: 600, fontFamily: 'Montserrat,sans-serif', width: '100px' }}>Espaçamento</span>
-                  <input type="range" min="0.05" max="1.2" step="0.05" value={taglineLetterSpacing} onChange={e => setTaglineLetterSpacing(parseFloat(e.target.value))} style={{ flex: 1, accentColor }} />
-                  <span style={{ fontSize: '0.68rem', color: '#aaa', width: '30px' }}>{taglineLetterSpacing.toFixed(2)}em</span>
-                </div>
-              </div>
-              </>)}
-            </div>
+            )}
           </div>
         )}
 
@@ -9299,6 +9757,11 @@ function EntregaContent({ brand, plano, setBrand }) {
 
         {/* Ajuda & Inspiração */}
         {step === 'ajuda' && <AjudaStep brand={brand} accentColor={accentColor} />}
+
+        {/* Upsell — página de fechamento com serviços extras */}
+        {step === 'upsell' && (
+          <UpsellStep brand={brand} accentColor={accentColor} marca={marca} />
+        )}
 
         {/* Estilos Salvos — acima do preview na aba logo */}
         {step === 'logo' && !customLogoSrc && (
@@ -9337,7 +9800,7 @@ function EntregaContent({ brand, plano, setBrand }) {
         )}
 
         {/* Área da logo — layout 2 colunas na aba logo, normal nas outras */}
-        {step !== 'estampa' && step !== 'cores' && step !== 'paleta' && step !== 'cartao' && step !== 'guia' && step !== 'manifesto' && step !== 'tomdevoz' && step !== 'fonte' && step !== 'placa' && step !== 'papelaria' && step !== 'pack-instagram' && step !== 'assinatura-email' && step !== 'slogan' && step !== 'ajuda' && (
+        {step !== 'estampa' && step !== 'cores' && step !== 'paleta' && step !== 'cartao' && step !== 'guia' && step !== 'manifesto' && step !== 'tomdevoz' && step !== 'fonte' && step !== 'placa' && step !== 'papelaria' && step !== 'pack-instagram' && step !== 'assinatura-email' && step !== 'slogan' && step !== 'ajuda' && step !== 'upsell' && (
           step === 'logo' ? (
             /* Layout coluna única: preview full-width + controles compactos abaixo */
             <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>

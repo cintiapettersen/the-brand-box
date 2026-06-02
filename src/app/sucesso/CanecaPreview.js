@@ -107,16 +107,14 @@ function SeloCaneca({ editData, solidColor, size, usePattern, hasCustomLogo, log
   // Logo customizada: renderização direta e limpa sem dependência circular
   const customScale = scaleFactor * (editData?.customLogoScale ? editData.customLogoScale / 100 : 1);
   return (
-    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', width: '100%', height: '100%', position: 'relative', background: hasCustomLogo ? 'rgba(255,255,255,0.92)' : 'transparent', padding: hasCustomLogo ? '8px' : '0', borderRadius: '4px' }}>
+    <div style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', position: 'relative', background: hasCustomLogo ? 'rgba(255,255,255,0.92)' : 'transparent', padding: hasCustomLogo ? '8px 12px' : '0', borderRadius: '4px', maxWidth: '100%' }}>
       <img
         src={editData.customLogoSrc}
         alt="Logo"
         style={{
-          maxWidth: '100%',
-          maxHeight: '100%',
-          objectFit: 'contain',
-          transform: `scale(${customScale})`,
-          transformOrigin: 'center center'
+          maxWidth: `${size * customScale * 2.2}px`,
+          maxHeight: `${size * customScale * 1.6}px`,
+          objectFit: 'contain'
         }}
       />
     </div>
@@ -189,7 +187,7 @@ function CanecaPreviewComponent({
                     ? <div style={{ position: 'absolute', inset: 0, backgroundImage: `url(${patternSrc})`, backgroundSize: `${(patternScale || 150) * 0.65}px`, backgroundRepeat: 'repeat' }} />
                     : <div style={{ position: 'absolute', inset: 0, background: solidColor }} />
                   }
-                  <div style={{ position: 'absolute', top: '50%', left: '66%', transform: 'translate(-50%, -50%)', textAlign: 'center', width: `${Math.round(artWidth * 0.88)}px`, overflow: 'hidden' }}>
+                  <div style={{ position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                     <SeloCaneca
                       editData={editData}
                       solidColor={solidColor}

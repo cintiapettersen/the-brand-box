@@ -30,8 +30,8 @@ export default function GuiaAlimentarPreview({
 }) {
   const mainColor = paletteColors?.[0] || accentColor;
   const _brandData = editData || brand?.editData || {};
-  const clinicaNome = brand?.clinicaNome || _brandData?.marca || 'Sua Clínica';
-  const endereco = cartaoContacts?.endereco || brand?.endereco || _brandData?.endereco || 'Endereço não informado';
+  const clinicaNome = brand?.clinicaNome || brand?.editData?.clinicaNome || '';
+  const endereco = cartaoContacts?.endereco || brand?.endereco || brand?.editData?.endereco || '';
   const allPhones = [cartaoContacts?.whatsapp, cartaoContacts?.telefone].filter(Boolean).join(' · ');
   const _slogan = localSlogan || _brandData?.tagline || '';
   const logoHtml = <div style={{ display: "flex", alignItems: "center", justifyContent: "center"}}><LogoPreviewHTML item="Guia Alimentar" editData={{ ..._brandData, tagline: _slogan }} color={logoColor} layout={logoLayout} scaleFactor={1} crm={crmLine} maxWidth="70px" maxHeight="40px" /></div>;
@@ -148,19 +148,25 @@ export default function GuiaAlimentarPreview({
             </div>
 
             {/* ETIQUETA DE DADOS NO RODAPÉ */}
-            <div style={{ position: 'absolute', bottom: '10px', left: '12px', right: '12px', background: '#fff', border: `0.5px solid ${mainColor}15`, borderRadius: '3px', padding: '4px 10px', zIndex: 4, boxShadow: '0 2px 10px rgba(0,0,0,0.04)', textAlign: 'center', display: 'flex', flexDirection: 'column', gap: '1px' }}>
-                <div style={{ fontSize: '5.2px', fontWeight: 800, color: mainColor, marginBottom: '0.5px' }}>{clinicaNome}</div>
-                <div style={{ fontSize: '4.2px', color: '#999', fontWeight: 500, lineHeight: 1.1 }}>{endereco}</div>
-                
-                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '2px', marginTop: '0.5px' }}>
-                   <svg viewBox="0 0 24 24" width="7" height="7" fill="#25D366" style={{ flexShrink: 0 }}><path d={WHATSAPP_PATH}/></svg>
-                   <div style={{ fontSize: '5.5px', fontWeight: 800, color: '#444' }}>{allPhones}</div>
-                </div>
+            {(clinicaNome || endereco || allPhones || brand?.email || cartaoContacts?.site || cartaoContacts?.instagram) ? (
+              <div style={{ position: 'absolute', bottom: '10px', left: '12px', right: '12px', background: '#fff', border: `0.5px solid ${mainColor}15`, borderRadius: '3px', padding: '4px 10px', zIndex: 4, boxShadow: '0 2px 10px rgba(0,0,0,0.04)', textAlign: 'center', display: 'flex', flexDirection: 'column', gap: '1px' }}>
+                  {clinicaNome && <div style={{ fontSize: '5.2px', fontWeight: 800, color: mainColor, marginBottom: '0.5px' }}>{clinicaNome}</div>}
+                  {endereco && <div style={{ fontSize: '4.2px', color: '#999', fontWeight: 500, lineHeight: 1.1 }}>{endereco}</div>}
+                  
+                  {allPhones && (
+                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '2px', marginTop: '0.5px' }}>
+                       <svg viewBox="0 0 24 24" width="7" height="7" fill="#25D366" style={{ flexShrink: 0 }}><path d={WHATSAPP_PATH}/></svg>
+                       <div style={{ fontSize: '5.5px', fontWeight: 800, color: '#444' }}>{allPhones}</div>
+                    </div>
+                  )}
 
-                <div style={{ fontSize: '4px', color: '#aaa', marginTop: '0.5px' }}>
-                   {[brand?.email, cartaoContacts?.site, cartaoContacts?.instagram ? `@${cartaoContacts.instagram}` : ''].filter(Boolean).join('  ·  ')}
-                </div>
-            </div>
+                  {(brand?.email || cartaoContacts?.site || cartaoContacts?.instagram) && (
+                    <div style={{ fontSize: '4px', color: '#aaa', marginTop: '0.5px' }}>
+                       {[brand?.email, cartaoContacts?.site, cartaoContacts?.instagram ? `@${cartaoContacts.instagram}` : ''].filter(Boolean).join('  ·  ')}
+                    </div>
+                  )}
+              </div>
+            ) : null}
           </Page>
 
           {/* Pág 1 - Capa Principal */}

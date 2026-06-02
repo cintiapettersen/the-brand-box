@@ -72,12 +72,13 @@ const BB_AJUDA = '#8a7b6e';
 
 const MARCA_STEPS = ['placa', 'manifesto', 'tomdevoz', 'fonte', 'logo', 'slogan', 'submarca', 'cores', 'paleta', 'estampa', 'guia'];
 const DIGITAL_STEPS = ['cartao', 'pack-instagram', 'assinatura-email'];
+const AJUDA_STEPS = ['ajuda', 'upsell'];
 
 export default function BrandBoxNav({ step, setStep, plano, papelariaItens = [], papelariaIdx = 0, setPapelariaIdx }) {
   const isMarca = MARCA_STEPS.includes(step);
   const isDigital = DIGITAL_STEPS.includes(step);
   const isPapelaria = step === 'papelaria';
-  const isAjuda = step === 'ajuda';
+  const isAjuda = AJUDA_STEPS.includes(step);
   const activeCat = isMarca ? 'marca' : isDigital ? 'digital' : isPapelaria ? 'papelaria' : 'ajuda';
 
   const marcaItems = [
@@ -100,6 +101,11 @@ export default function BrandBoxNav({ step, setStep, plano, papelariaItens = [],
     { id: 'assinatura-email', label: 'Assinatura E-mail' },
   ];
 
+  const ajudaItems = [
+    { id: 'ajuda', label: 'Ajuda & Inspiração' },
+    { id: 'upsell', label: 'Quer ir além? ✨' },
+  ];
+
   const subColor = isMarca ? BB_MARCA : isDigital ? BB_DIGITAL : isPapelaria ? BB_PAPELARIA : BB_AJUDA;
 
   return (
@@ -111,7 +117,7 @@ export default function BrandBoxNav({ step, setStep, plano, papelariaItens = [],
           { id: 'marca', label: 'A Marca', color: BB_MARCA, radius: '12px 0 0 0', action: () => setStep('placa') },
           { id: 'digital', label: 'O Digital', color: BB_DIGITAL, radius: '0', action: () => { if (!isDigital) setStep('cartao'); } },
           { id: 'papelaria', label: 'Os Impressos', color: BB_PAPELARIA, radius: '0', action: () => setStep('papelaria') },
-          { id: 'ajuda', label: 'Ajuda ✨', color: BB_AJUDA, radius: '0 12px 0 0', action: () => setStep('ajuda') },
+          { id: 'ajuda', label: 'Ajuda ✨', color: BB_AJUDA, radius: '0 12px 0 0', action: () => { if (!isAjuda) setStep('ajuda'); } },
         ].map(tab => {
           const active = activeCat === tab.id;
           return (
@@ -140,6 +146,7 @@ export default function BrandBoxNav({ step, setStep, plano, papelariaItens = [],
       {isPapelaria && papelariaItens.length > 0 && setPapelariaIdx && (
         <SubMenu items={papelariaItens.map((label, i) => ({ id: i, label }))} activeId={papelariaIdx} onSelect={setPapelariaIdx} color={BB_PAPELARIA} />
       )}
+      {isAjuda && <SubMenu items={ajudaItems} activeId={step} onSelect={setStep} color={BB_AJUDA} />}
     </div>
   );
 }

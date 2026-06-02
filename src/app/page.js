@@ -2,13 +2,13 @@
 
 import { useState, useRef, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import html2canvas from 'html2canvas';
-import { jsPDF } from 'jspdf';
+// Libraries dynamically imported for performance
 import BrandTemplateSVG from '../components/BrandTemplateSVG';
 import BrandBoard from '../components/BrandBoard';
 import { createClient } from '@supabase/supabase-js';
 import FONT_MAP from '../lib/fontMap';
 import { STYLE_ICONS, getIconById } from '../lib/styleIcons';
+import Image from 'next/image';
 
 const PAPELARIA_CLINICA = [
   "Cartão de Visita", "Receituário Padrão (A4 e A5)", "Atestado Médico (A4 e A5)", "Cartão de Retorno", "Pasta A4 Exclusiva",
@@ -193,6 +193,7 @@ export default function Home() {
   const downloadBrandBoard = async () => {
     if (brandBoardRef.current) {
       try {
+        const html2canvas = (await import('html2canvas')).default;
         const canvas = await html2canvas(brandBoardRef.current, {
           useCORS: true,
           scale: 2,
@@ -223,6 +224,7 @@ export default function Home() {
       
       // Adiciona página A4 se não for a padrão (a padrão já inicia com dims)
       // Melhor: Vamos iniciar o doc com A4 e depois adicionar as outras
+      const { jsPDF } = await import('jspdf');
       const docMaster = new jsPDF({ unit: 'mm', format: 'a4' });
       
       docMaster.setFillColor(255, 255, 255);
@@ -575,7 +577,7 @@ export default function Home() {
             >
               <p style={{ fontSize: '0.8rem', letterSpacing: '3px', textTransform: 'uppercase', color: 'var(--text-secondary)', marginBottom: '1rem', fontWeight: 500 }}>sonho de papel apresenta</p>
               {/* Logo com fonte Golden Blast */}
-              <img src="/the-brand-box-logo.png" alt="the brand box." style={{ width: '85%', maxWidth: '420px', marginBottom: '0.5rem', mixBlendMode: 'multiply' }} />
+              <Image src="/the-brand-box-logo.png" alt="the brand box." width={1024} height={225} priority={true} style={{ width: '85%', maxWidth: '420px', height: 'auto', marginBottom: '0.5rem', mixBlendMode: 'multiply' }} />
               <p style={{ fontSize: '1.05rem', color: 'var(--text-secondary)', marginBottom: '2.5rem', lineHeight: 1.7, maxWidth: '85%', fontWeight: 500 }}>Sua marca já existe dentro de você.</p>
               <p style={{ fontSize: '1.05rem', color: 'var(--text-secondary)', marginBottom: '2.5rem', lineHeight: 1.7, maxWidth: '85%' }}>A gente só ajuda ela a aparecer.<br/>Uma experiência guiada que transforma a essência do seu negócio em identidade visual — sem precisar saber nada de design.</p>
               <button onClick={nextStep} className="btn-primary">CRIAR MINHA MARCA AGORA</button>
@@ -1514,8 +1516,11 @@ export default function Home() {
                         </li>
                       ))}
                     </ul>
-                    <div style={{ background: '#f7f9ff', borderRadius: '10px', padding: '10px 12px', marginBottom: '12px', fontSize: '0.8rem', color: '#3a5a8a', lineHeight: 1.5 }}>
+                    <div style={{ background: '#f7f9ff', borderRadius: '10px', padding: '10px 12px', marginBottom: '10px', fontSize: '0.8rem', color: '#3a5a8a', lineHeight: 1.5 }}>
                       ✨ O essencial para começar sua marca
+                    </div>
+                    <div style={{ fontSize: '0.72rem', color: '#888', background: '#fafafa', borderRadius: '8px', padding: '8px 10px', marginBottom: '12px', border: '1px solid #eee', lineHeight: 1.4 }}>
+                      ⚠️ <strong>Aviso:</strong> Este plano é focado em design tipográfico moderno e estampa geométrica/abstrata do sistema. Não inclui ilustrações exclusivas personalizadas, logomarcas desenhadas à mão ou padrões ilustrados de rodapé.
                     </div>
                     <button
                       className="btn-secondary"
@@ -1618,8 +1623,11 @@ export default function Home() {
                         );
                       })}
                     </ul>
-                    <div style={{ background: 'rgba(255,255,255,0.6)', borderRadius: '10px', padding: '10px 12px', marginBottom: '12px', fontSize: '0.8rem', color: '#5a2a4a', lineHeight: 1.5 }}>
+                    <div style={{ background: 'rgba(255,255,255,0.6)', borderRadius: '10px', padding: '10px 12px', marginBottom: '10px', fontSize: '0.8rem', color: '#5a2a4a', lineHeight: 1.5 }}>
                       ✨ Sua marca pronta para o mundo
+                    </div>
+                    <div style={{ fontSize: '0.72rem', color: '#6a3d5a', background: 'rgba(255,255,255,0.4)', borderRadius: '8px', padding: '8px 10px', marginBottom: '12px', border: '1px solid rgba(220,52,149,0.15)', lineHeight: 1.4 }}>
+                      ⚠️ <strong>Aviso:</strong> Este plano é focado em layouts digitais e estruturação moderna de papelaria. Não inclui desenhos/ilustrações de rodapé sob medida, nem logotipos ilustrados à mão (estas opções de arte exclusiva podem ser solicitadas pós-checkout ou contratando o plano <em>Signature</em>).
                     </div>
                     <button
                       className="btn-primary"
@@ -1705,7 +1713,14 @@ export default function Home() {
                       <span style={{ fontWeight: 700, color: '#fff', fontSize: '1rem', whiteSpace: 'nowrap', opacity: 0.8 }}>A partir de<br/>R$ 2.900</span>
                     </div>
                     <ul style={{ fontSize: '0.85rem', color: 'rgba(255,255,255,0.7)', margin: '0 0 12px 0', paddingLeft: '0', display: 'flex', flexDirection: 'column', gap: '5px', listStyle: 'none' }}>
-                      {['Direção criativa personalizada', 'Ajustes e refinamentos exclusivos', 'Aplicações pensadas para o seu negócio', 'Acompanhamento próximo durante o processo'].map(i => <li key={i} style={{ display: 'flex', alignItems: 'center', gap: '8px' }}><span style={{ color: 'rgba(255,255,255,0.4)', fontWeight: 700 }}>✔</span>{i}</li>)}
+                      {[
+                        'Direção criativa personalizada',
+                        'Ajustes e refinamentos manuais ilimitados',
+                        'Logotipo ilustrado ou símbolo desenhado sob medida',
+                        'Desenhos e ilustrações unificadoras exclusivas (ex: detalhes de rodapé para impressos)',
+                        'Aplicações exclusivas sob medida para sua atuação',
+                        'Acompanhamento próximo pelo WhatsApp'
+                      ].map(i => <li key={i} style={{ display: 'flex', alignItems: 'flex-start', gap: '8px' }}><span style={{ color: 'rgba(255,255,255,0.4)', fontWeight: 700, flexShrink: 0, marginTop: '2px' }}>✔</span><span>{i}</span></li>)}
                     </ul>
                     <a
                       href={`https://wa.me/4793630746?text=Olá!%20Quero%20saber%20mais%20sobre%20o%20Brand%20Box%20Signature%20para%20a%20marca%20${encodeURIComponent(formData.marca || '')}`}

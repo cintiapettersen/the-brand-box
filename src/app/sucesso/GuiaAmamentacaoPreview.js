@@ -16,7 +16,7 @@ export default function GuiaAmamentacaoPreview({
 }) {
   const mainColor = paletteColors?.[0] || accentColor;
   const _brandData = editData || brand?.editData || {};
-  const clinicaNome = brand?.clinicaNome || _brandData?.marca || 'Sua Clínica';
+  const clinicaNome = brand?.clinicaNome || brand?.editData?.clinicaNome || '';
   const endereco = cartaoContacts?.endereco || brand?.endereco || _brandData?.endereco || '';
   const allPhones = [cartaoContacts?.whatsapp, cartaoContacts?.telefone].filter(Boolean).join(' · ');
 

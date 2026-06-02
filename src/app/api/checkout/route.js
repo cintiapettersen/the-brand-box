@@ -28,22 +28,44 @@ export async function POST(request) {
         ? `${origin}/sucesso?session=${sessionId}&plano=pro&upsell=1`
         : `${origin}/sucesso?plano=pro&upsell=1`;
 
-      const session = await stripe.checkout.sessions.create({
-        payment_method_types: ['card', 'pix'],
-        line_items: [{
+      const line_items = [];
+      const temCaderneta = itensSelecionados.includes("Caderneta de Saúde");
+      const itensNormais = itensSelecionados.filter(item => item !== "Caderneta de Saúde");
+
+      if (temCaderneta) {
+        line_items.push({
+          price_data: {
+            currency: 'brl',
+            product_data: {
+              name: 'Caderneta de Saúde (Customizada - 124 págs)',
+              description: 'Caderneta de Saúde premium customizada com a sua marca (124 páginas).',
+            },
+            unit_amount: 18000,
+          },
+          quantity: 1,
+        });
+      }
+
+      if (itensNormais.length > 0) {
+        line_items.push({
           price_data: {
             currency: 'brl',
             product_data: {
               name: 'Impressos — Itens Avulsos',
-              description: `${itensSelecionados.length} itens: ${itensSelecionados.join(', ')}`,
+              description: `${itensNormais.length} itens: ${itensNormais.join(', ')}`,
             },
             unit_amount: 3000,
           },
-          quantity: itensSelecionados.length,
-        }],
+          quantity: itensNormais.length,
+        });
+      }
+
+      const session = await stripe.checkout.sessions.create({
+        payment_method_types: ['card', 'pix'],
+        line_items,
         mode: 'payment',
         customer_email: email || undefined,
-        metadata: { plano: 'avulso', marca: (marca || '').slice(0, 100), sessionId: sessionId || '', qtd_itens: String(itensSelecionados.length) },
+        metadata: { plano: 'avulso', marca: (marca || '').slice(0, 100), sessionId: sessionId || '', qtd_itens: String(itensSelecionados.length), tem_caderneta: String(temCaderneta) },
         success_url: successUrl,
         cancel_url: `${origin}/sucesso?session=${sessionId || ''}&cancelado=1`,
       });
@@ -66,18 +88,39 @@ export async function POST(request) {
       },
     ];
 
-    if (plano === 'pro' && extrasCount > 0) {
-      line_items.push({
-        price_data: {
-          currency: 'brl',
-          product_data: {
-            name: 'Gabaritos Extras de Impressos',
-            description: `${extrasCount} itens avulsos de impressos padrão-gráfica.`,
+    if (plano === 'pro') {
+      const temCaderneta = papelaria && papelaria.includes("Caderneta de Saúde");
+      const extrasCountCalculado = papelaria
+        ? Math.max(0, papelaria.filter(item => item !== "Caderneta de Saúde").length - 5)
+        : (extrasCount || 0);
+
+      if (extrasCountCalculado > 0) {
+        line_items.push({
+          price_data: {
+            currency: 'brl',
+            product_data: {
+              name: 'Gabaritos Extras de Impressos',
+              description: `${extrasCountCalculado} itens avulsos de impressos bônus padrão-gráfica.`,
+            },
+            unit_amount: 3000,
           },
-          unit_amount: 3000,
-        },
-        quantity: extrasCount,
-      });
+          quantity: extrasCountCalculado,
+        });
+      }
+
+      if (temCaderneta) {
+        line_items.push({
+          price_data: {
+            currency: 'brl',
+            product_data: {
+              name: 'Caderneta de Saúde (Customizada - 124 págs)',
+              description: 'Caderneta de Saúde premium customizada com a sua marca (124 páginas).',
+            },
+            unit_amount: 18000,
+          },
+          quantity: 1,
+        });
+      }
     }
 
     const successUrl = sessionId

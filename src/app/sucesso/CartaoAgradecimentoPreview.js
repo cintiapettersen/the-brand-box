@@ -58,17 +58,20 @@ export default function CartaoAgradecimentoPreview({
                   top: '50%',
                   left: '50%',
                   transform: 'translate(-50%, -50%)',
-                  width: '65%',
+                  width: '75%',
                   textAlign: 'center',
                   filter: logoFilter
                 }}>
                   <LogoPreviewHTML
+                    item="Cartão de Agradecimento"
                     editData={editData}
                     color={logoColorToUse}
                     layout={logoLayout}
-                    scaleFactor={size.w * 0.055}
+                    scaleFactor={size.w * (editData?.customLogoSrc ? 0.14 : 0.055)}
                     hideTagline={false}
                     withBackground={logoWithBg}
+                    maxWidth="100%"
+                    maxHeight="100%"
                   />
                 </div>
               );

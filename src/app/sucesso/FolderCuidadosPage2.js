@@ -32,7 +32,7 @@ export default function FolderCuidadosPage2({ accentColor, palette = [] }) {
   const c3 = palette[3] || c1;
 
   return (
-    <div style={{ width: '100%', height: '210px', display: 'flex', flexDirection: 'column', fontFamily: 'Montserrat,sans-serif', boxSizing: 'border-box', padding: '4px 5px 3px', gap: '2px', background: '#f8f8f8', overflow: 'hidden' }}>
+    <div style={{ width: '100%', height: '100%', display: 'flex', flexDirection: 'column', fontFamily: 'Montserrat,sans-serif', boxSizing: 'border-box', padding: '4px 5px 3px', gap: '2px', background: '#f8f8f8', overflow: 'hidden' }}>
 
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '2px' }}>
         <Card color={c0} title="Amamentação" items={[
