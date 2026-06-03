@@ -4649,7 +4649,10 @@ function AssinaturaEmailPreview({ brand, editData, accentColor, logoColor, logoL
     if (!el) return;
     const obs = new ResizeObserver(([e]) => {
       const w = e.contentRect.width;
-      setScale(Math.min(1, w / 450));
+      setScale(prev => {
+        const next = Math.min(1, w / 450);
+        return Math.abs(prev - next) < 0.001 ? prev : next;
+      });
     });
     obs.observe(el);
     return () => obs.disconnect();
@@ -5083,12 +5086,15 @@ function UniversalPreviewScaler({ children, targetWidth = 595 }) {
       const parentW = el.clientWidth || el.getBoundingClientRect().width;
       if (parentW > 0 && parentW < targetWidth) {
         const s = parentW / targetWidth;
-        setScale(s);
+        setScale(prev => Math.abs(prev - s) < 0.001 ? prev : s);
         const origH = content.offsetHeight || content.scrollHeight || 300;
-        setHeight(`${origH * s}px`);
+        setHeight(prev => {
+          const nextH = `${origH * s}px`;
+          return prev === nextH ? prev : nextH;
+        });
       } else {
-        setScale(1);
-        setHeight('auto');
+        setScale(prev => prev === 1 ? prev : 1);
+        setHeight(prev => prev === 'auto' ? prev : 'auto');
       }
     };
 
