@@ -111,7 +111,9 @@ export default function BrandBoxNav({ step, setStep, plano, papelariaItens = [],
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '0', marginBottom: '1.2rem', position: 'relative' }}>
-      <LanguageSwitcher />
+      <div style={{ position: 'absolute', right: '4px', top: '-30px', display: 'flex', justifyContent: 'flex-end', zIndex: 10 }}>
+        <LanguageSwitcher />
+      </div>
 
       {/* Tabs principais */}
       <div style={{ display: 'flex', gap: '3px' }}>

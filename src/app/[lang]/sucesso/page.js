@@ -93,6 +93,7 @@ export const ITEM_CUSTOM_BASE_SCALES = {
 };
 
 export function LogoPreviewHTML({ item = null, editData, color, layout = 'stacked', scaleFactor = 1, crm = null, hideTagline = false, customLogoSrc: customLogoSrcProp = null, customLogoScale: customLogoScaleProp = 100, maxWidth = null, maxHeight = null, withBackground = false, alignLeft = false, taglineColor = null, autoFit = true }) {
+  const { dictionary } = useTranslation();
   const _fitRef = React.useRef(null);
   const _rootRef = React.useRef(null);
   const [_fitState, _setFitState] = React.useState({ scale: 1, w: 'auto', h: 'auto', ready: false });
@@ -4439,21 +4440,21 @@ function AtestadoPreview({ accentColor, patternSrc, editData, logoColor, logoLay
       </div>
 
       {/* Título */}
-      <div style={{ position: 'absolute', top: '110px', left: 0, right: 0, fontFamily: "'Montserrat',sans-serif", fontWeight: 800, fontSize: '7.5px', letterSpacing: '1.2px', textAlign: 'center', color: '#1a1a2e' }}>ATESTADO MÉDICO</div>
+      <div style={{ position: 'absolute', top: '110px', left: 0, right: 0, fontFamily: "'Montserrat',sans-serif", fontWeight: 800, fontSize: '7.5px', letterSpacing: '1.2px', textAlign: 'center', color: '#1a1a2e' }}>{dictionary?.atestado?.titulo?.toUpperCase() || 'ATESTADO MÉDICO'}</div>
 
       {/* Texto: padding horizontal de 9mm → ~25px */}
       <div style={{ position: 'absolute', top: '135px', left: '25px', right: '22px', fontFamily: "'Montserrat',sans-serif", fontSize: '5.5px', color: '#333', display: 'flex', flexDirection: 'column', gap: '8px', lineHeight: 1.2 }}>
         {[
-          [['Declaro para os devidos fins, que', false], ['', true]],
-          [['', true], [', esteve em consulta, das', false], ['', 'fixed:14px'], ['hs às', false], ['', 'fixed:14px'], ['hs,', false]],
-          [['acompanhado de seu responsável Sr. (a)', false], ['', true]],
-          [['', true], [', R.G. n°', false], ['', true], [', necessitando o mesmo', false]],
-          [['de', false], ['', 'fixed:12px'], ['(', false], ['', 'fixed:8px'], [') dias de dispensa.', false]],
+          [[dictionary?.atestado?.declaracao || 'Declaro para os devidos fins, que', false], ['', true]],
+          [['', true], [dictionary?.atestado?.esteve_em_consulta || ', esteve em consulta, das', false], ['', 'fixed:14px'], [dictionary?.atestado?.hs_as || 'hs às', false], ['', 'fixed:14px'], [',', false]],
+          [[dictionary?.atestado?.hs_acompanhado || 'acompanhado de seu responsável Sr. (a)', false], ['', true]],
+          [['', true], [dictionary?.atestado?.rg || ', R.G. n°', false], ['', true], [dictionary?.atestado?.necessitando || ', necessitando o mesmo', false]],
+          [['de', false], ['', 'fixed:12px'], ['(', false], ['', 'fixed:8px'], [') ' + (dictionary?.atestado?.dias_dispensa || 'dias de dispensa.'), false]],
         ].map((row, ri) => (
           <div key={ri} style={{ display: 'flex', alignItems: 'flex-end', gap: '1px' }}>
             {row.map(([text, isBlank], ci) => isBlank === true
               ? <span key={ci} style={{ flex: 1, borderBottom: '0.6px solid #555' }}>&nbsp;</span>
-              : isBlank && isBlank.startsWith('fixed:')
+              : isBlank && typeof isBlank === 'string' && isBlank.startsWith('fixed:')
                 ? <span key={ci} style={{ width: isBlank.replace('fixed:', ''), borderBottom: '0.6px solid #555', display: 'inline-block' }}>&nbsp;</span>
                 : <span key={ci} style={{ whiteSpace: 'nowrap' }}>{text}</span>
             )}
@@ -6874,35 +6875,35 @@ body { margin:0; } @media print { @page { size: ${_pw}mm ${_ph}mm; margin:0; } }
 
     <div style="position:absolute;top:${_isA4 ? 12 : 11}mm;left:50%;transform:translateX(-50%);width:${Math.round((_pw - 2 * BLEED) * 0.90)}mm;display:flex;align-items:center;justify-content:center;">${genPDFLogoHtml({ brand, editDataOverride: editData, color: logoColor, layout: logoLayout, localSlogan, crmLine, fontPt: (parseFloat(_fontPt) * 1.0).toFixed(1), lineH: _lineH, letterSp: _letterSp, customLogoSrc, customLogoScale: customLogoSrc ? getCustomLogoScale(item) * (ITEM_CUSTOM_BASE_SCALES[item] || 1) : 100, maxWidth: '100mm', maxHeight: '36mm', withBackground: false, hideSlogan: false })}</div>
 
-    <div style="position:absolute;top:${_isA4 ? 76 : 52}mm;left:0;right:0;text-align:center;font-size:${_isA4 ? 18 : 14}pt;font-weight:800;letter-spacing:2.5pt;color:#1a1a2e;">ATESTADO MÉDICO</div>
+    <div style="position:absolute;top:${_isA4 ? 76 : 52}mm;left:0;right:0;text-align:center;font-size:${_isA4 ? 18 : 14}pt;font-weight:800;letter-spacing:2.5pt;color:#1a1a2e;">${dictionary?.atestado?.titulo?.toUpperCase() || 'ATESTADO MÉDICO'}</div>
 
     <div style="position:absolute;top:${_isA4 ? 96 : 66}mm;left:9mm;right:9mm;font-size:${_isA4 ? 13 : 10}pt;color:#222;display:flex;flex-direction:column;gap:${_isA4 ? 14 : 6}mm;line-height:1.3;">
       <div style="display:flex;align-items:flex-end;gap:1mm;">
-        <span style="white-space:nowrap;">Declaro para os devidos fins, que</span>
+        <span style="white-space:nowrap;">${dictionary?.atestado?.declaracao || 'Declaro para os devidos fins, que'}</span>
         <span class="blank" style="flex:1;">&nbsp;</span>
       </div>
       <div style="display:flex;align-items:flex-end;gap:1mm;">
         <span class="blank" style="flex:1;">&nbsp;</span>
-        <span style="white-space:nowrap;">, esteve em consulta, das</span>
+        <span style="white-space:nowrap;">${dictionary?.atestado?.esteve_em_consulta || ', esteve em consulta, das'}</span>
         <span class="blank" style="width:${_isA4 ? 30 : 22}mm;">&nbsp;</span>
-        <span style="white-space:nowrap;">hs às</span>
+        <span style="white-space:nowrap;">${dictionary?.atestado?.hs_as || 'hs às'}</span>
         <span class="blank" style="width:${_isA4 ? 30 : 22}mm;">&nbsp;</span>
-        <span style="white-space:nowrap;">hs,</span>
+        <span style="white-space:nowrap;">,</span>
       </div>
       <div style="display:flex;align-items:flex-end;gap:1mm;">
-        <span style="white-space:nowrap;">acompanhado de seu responsável Sr. (a)</span>
+        <span style="white-space:nowrap;">${dictionary?.atestado?.hs_acompanhado || 'acompanhado de seu responsável Sr. (a)'}</span>
         <span class="blank" style="flex:1;">&nbsp;</span>
       </div>
       <div style="display:flex;align-items:flex-end;gap:1mm;">
         <span class="blank" style="flex:1;">&nbsp;</span>
-        <span style="white-space:nowrap;">, R.G. n°</span>
+        <span style="white-space:nowrap;">${dictionary?.atestado?.rg || ', R.G. n°'}</span>
         <span class="blank" style="flex:1;">&nbsp;</span>
-        <span style="white-space:nowrap;">, necessitando o mesmo</span>
+        <span style="white-space:nowrap;">${dictionary?.atestado?.necessitando || ', necessitando o mesmo'}</span>
       </div>
       <div style="display:flex;align-items:flex-end;gap:1mm;">
         <span style="white-space:nowrap;">de</span>
         <span class="blank" style="width:${_isA4 ? 28 : 20}mm;">&nbsp;</span>
-        <span style="white-space:nowrap;">(</span><span class="blank" style="width:${_isA4 ? 18 : 12}mm;">&nbsp;</span><span style="white-space:nowrap;">) dias de dispensa.</span>
+        <span style="white-space:nowrap;">(</span><span class="blank" style="width:${_isA4 ? 18 : 12}mm;">&nbsp;</span><span style="white-space:nowrap;">) ${dictionary?.atestado?.dias_dispensa || 'dias de dispensa.'}</span>
       </div>
     </div>
 
@@ -10811,6 +10812,7 @@ function EntregaContent({ brand, plano, setBrand }) {
 
 function SucessoContent() {
   const params = useSearchParams();
+  const { dictionary } = useTranslation();
   const [brand, setBrand] = useState(null);
   const [loading, setLoading] = useState(true);
   const [showWelcome, setShowWelcome] = useState(false);

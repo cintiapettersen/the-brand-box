@@ -563,7 +563,7 @@ export default function Home() {
 
   return (
     <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '100vh', padding: '2rem', background: '#ffffff', position: 'relative' }}>
-      <LanguageSwitcher />
+      <LanguageSwitcher style={{ position: 'absolute', top: '12px', right: '20px' }} />
       {devMode && (
         <div style={{ position: 'fixed', top: 0, left: 0, right: 0, background: '#1a1a1a', color: '#f90', textAlign: 'center', fontSize: '0.7rem', fontWeight: 700, padding: '4px', zIndex: 9999, letterSpacing: '1px' }}>
           ⚡ MODO DEV ATIVO — estampas não consomem créditos

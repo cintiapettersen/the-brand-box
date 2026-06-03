@@ -4,7 +4,7 @@ import React from 'react';
 import { useRouter, usePathname } from 'next/navigation';
 import { useTranslation } from '../app/LanguageContext';
 
-export default function LanguageSwitcher() {
+export default function LanguageSwitcher({ style }) {
   const router = useRouter();
   const pathname = usePathname();
   const { lang } = useTranslation();
@@ -18,12 +18,10 @@ export default function LanguageSwitcher() {
 
   return (
     <div style={{
-      position: 'absolute',
-      top: '12px',
-      right: '20px',
       display: 'flex',
       gap: '8px',
-      zIndex: 1000
+      zIndex: 1000,
+      ...style
     }}>
       <button 
         onClick={() => handleLanguageChange('pt-BR')}
