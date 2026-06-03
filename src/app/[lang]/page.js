@@ -6,6 +6,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import BrandTemplateSVG from '../../components/BrandTemplateSVG';
 import BrandBoard from '../../components/BrandBoard';
 import LanguageSwitcher from '../../components/LanguageSwitcher';
+import { useTranslation } from '../LanguageContext';
 import { createClient } from '@supabase/supabase-js';
 import FONT_MAP from '../../lib/fontMap';
 import { STYLE_ICONS, getIconById } from '../../lib/styleIcons';
@@ -33,6 +34,7 @@ const supabaseKey = (process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY ? process.env.NEX
 const supabase = createClient(supabaseUrl, supabaseKey);
 
 export default function Home() {
+  const { dictionary } = useTranslation();
   const [devMode, setDevMode] = useState(false);
   const [devTapCount, setDevTapCount] = useState(0);
   useEffect(() => {
@@ -586,12 +588,12 @@ export default function Home() {
               key="step1" variants={variants} initial="initial" animate="animate" exit="exit" transition={{ duration: 0.5 }}
               className="wizard-step" style={{ position: 'absolute', width: '100%', height: '100%', display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center', background: 'var(--bg-soft)', borderRadius: '24px' }}
             >
-              <p style={{ fontSize: '0.8rem', letterSpacing: '3px', textTransform: 'uppercase', color: 'var(--text-secondary)', marginBottom: '1rem', fontWeight: 500 }}>sonho de papel apresenta</p>
+              <p style={{ fontSize: '0.8rem', letterSpacing: '3px', textTransform: 'uppercase', color: 'var(--text-secondary)', marginBottom: '1rem', fontWeight: 500 }}>{dictionary?.landing?.apresenta || 'sonho de papel apresenta'}</p>
               {/* Logo com fonte Golden Blast */}
               <Image src="/the-brand-box-logo.png" alt="the brand box." width={1024} height={225} priority={true} style={{ width: '85%', maxWidth: '420px', height: 'auto', marginBottom: '0.5rem', mixBlendMode: 'multiply' }} />
-              <p style={{ fontSize: '1.05rem', color: 'var(--text-secondary)', marginBottom: '2.5rem', lineHeight: 1.7, maxWidth: '85%', fontWeight: 500 }}>Sua marca já existe dentro de você.</p>
-              <p style={{ fontSize: '1.05rem', color: 'var(--text-secondary)', marginBottom: '2.5rem', lineHeight: 1.7, maxWidth: '85%' }}>A gente só ajuda ela a aparecer.<br/>Uma experiência guiada que transforma a essência do seu negócio em identidade visual — sem precisar saber nada de design.</p>
-              <button onClick={nextStep} className="btn-primary">CRIAR MINHA MARCA AGORA</button>
+              <p style={{ fontSize: '1.05rem', color: 'var(--text-secondary)', marginBottom: '2.5rem', lineHeight: 1.7, maxWidth: '85%', fontWeight: 500 }}>{dictionary?.landing?.marca_ja_existe || 'Sua marca já existe dentro de você.'}</p>
+              <p style={{ fontSize: '1.05rem', color: 'var(--text-secondary)', marginBottom: '2.5rem', lineHeight: 1.7, maxWidth: '85%' }}>{dictionary?.landing?.ajuda_aparecer || 'A gente só ajuda ela a aparecer.'}<br/>{dictionary?.landing?.experiencia_guiada || 'Uma experiência guiada que transforma a essência do seu negócio em identidade visual — sem precisar saber nada de design.'}</p>
+              <button onClick={nextStep} className="btn-primary">{dictionary?.landing?.criar_marca || 'CRIAR MINHA MARCA AGORA'}</button>
 
               {/* DEV SHORTCUTS - só aparece em desenvolvimento */}
               {process.env.NODE_ENV === 'development' && (
