@@ -592,7 +592,12 @@ export default function Home() {
               {/* Logo com fonte Golden Blast */}
               <Image src="/the-brand-box-logo.png" alt="the brand box." width={1024} height={225} priority={true} style={{ width: '85%', maxWidth: '420px', height: 'auto', marginBottom: '0.5rem', mixBlendMode: 'multiply' }} />
               <p style={{ fontSize: '1.05rem', color: 'var(--text-secondary)', marginBottom: '2.5rem', lineHeight: 1.7, maxWidth: '85%', fontWeight: 500 }}>{dictionary?.landing?.marca_ja_existe || 'Sua marca já existe dentro de você.'}</p>
-              <p style={{ fontSize: '1.05rem', color: 'var(--text-secondary)', marginBottom: '2.5rem', lineHeight: 1.7, maxWidth: '85%' }}>{dictionary?.landing?.ajuda_aparecer || 'A gente só ajuda ela a aparecer.'}<br/>{dictionary?.landing?.experiencia_guiada || 'Uma experiência guiada que transforma a essência do seu negócio em identidade visual — sem precisar saber nada de design.'}</p>
+              <p style={{ fontSize: '1.05rem', color: 'var(--text-secondary)', marginBottom: '2.5rem', lineHeight: 1.7, maxWidth: '85%' }}>
+                {dictionary?.landing?.ajuda_aparecer || 'A gente só ajuda ela a aparecer.'}
+                {dictionary?.landing?.experiencia_guiada && (
+                  <><br/>{dictionary.landing.experiencia_guiada}</>
+                )}
+              </p>
               <button onClick={nextStep} className="btn-primary">{dictionary?.landing?.criar_marca || 'CRIAR MINHA MARCA AGORA'}</button>
 
               {/* DEV SHORTCUTS - só aparece em desenvolvimento */}

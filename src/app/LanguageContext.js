@@ -7,11 +7,10 @@ const LanguageContext = createContext();
 
 export function LanguageProvider({ children, initialDictionary }) {
   const params = useParams();
-  const [dictionary, setDictionary] = useState(initialDictionary);
   const lang = params?.lang || 'pt-BR';
 
   return (
-    <LanguageContext.Provider value={{ dictionary, lang }}>
+    <LanguageContext.Provider value={{ dictionary: initialDictionary, lang }}>
       {children}
     </LanguageContext.Provider>
   );
