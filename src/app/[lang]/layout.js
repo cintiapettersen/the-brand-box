@@ -1,4 +1,5 @@
 import { Geist, Geist_Mono } from "next/font/google";
+import Script from "next/script";
 import "../globals.css";
 import { getDictionary } from "../../getDictionary";
 import { LanguageProvider } from "../LanguageContext";
@@ -62,16 +63,14 @@ export default async function RootLayout({ children, params }) {
       <head>
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
-        <script
-          dangerouslySetInnerHTML={{
-            __html: `
-              var link = document.createElement('link');
-              link.rel = 'stylesheet';
-              link.href = 'https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600&family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;0,800;1,400&family=Montserrat:wght@300;400;500;600;700;800&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Cinzel:wght@400;500;600;700&family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,400&family=Noto+Sans:wght@300;400;500;600&family=Raleway:wght@300;400;500;600&family=Nunito:wght@300;400;500;600;700&family=Allura&family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&family=Manrope:wght@300;400;500;600;700;800&family=Poppins:wght@300;400;500;600&family=Quicksand:wght@300;400;500;600;700&family=Josefin+Sans:wght@300;400;500;600&family=DM+Sans:wght@300;400;500;600&family=Julius+Sans+One&family=Sacramento&family=Birthstone&family=Borel&display=swap';
-              document.head.appendChild(link);
-            `
-          }}
-        />
+        <Script id="font-loader" strategy="lazyOnload">
+          {`
+            var link = document.createElement('link');
+            link.rel = 'stylesheet';
+            link.href = 'https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600&family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;0,800;1,400&family=Montserrat:wght@300;400;500;600;700;800&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Cinzel:wght@400;500;600;700&family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,400&family=Noto+Sans:wght@300;400;500;600&family=Raleway:wght@300;400;500;600&family=Nunito:wght@300;400;500;600;700&family=Allura&family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&family=Manrope:wght@300;400;500;600;700;800&family=Poppins:wght@300;400;500;600&family=Quicksand:wght@300;400;500;600;700&family=Josefin+Sans:wght@300;400;500;600&family=DM+Sans:wght@300;400;500;600&family=Julius+Sans+One&family=Sacramento&family=Birthstone&family=Borel&display=swap';
+            document.head.appendChild(link);
+          `}
+        </Script>
         <noscript>
           <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600&family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;0,800;1,400&family=Montserrat:wght@300;400;500;600;700;800&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Cinzel:wght@400;500;600;700&family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,400&family=Noto+Sans:wght@300;400;500;600&family=Raleway:wght@300;400;500;600&family=Nunito:wght@300;400;500;600;700&family=Allura&family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&family=Manrope:wght@300;400;500;600;700;800&family=Poppins:wght@300;400;500;600&family=Quicksand:wght@300;400;500;600;700&family=Josefin+Sans:wght@300;400;500;600&family=DM+Sans:wght@300;400;500;600&family=Julius+Sans+One&family=Sacramento&family=Birthstone&family=Borel&display=swap" />
         </noscript>
