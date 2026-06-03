@@ -169,7 +169,14 @@ export function LogoPreviewHTML({ item = null, editData, color, layout = 'stacke
       // fillScale = escala para preencher o container; slider aplica % sobre esse fill
       const fillScale = Math.min(sx, sy);
       const scale = fillScale * (customLogoScale / 100);
-      _setFitState({ scale, w: natW * scale, h: natH * scale, ready: true });
+      _setFitState(prev => {
+        const nw = natW * scale;
+        const nh = natH * scale;
+        if (prev.ready && Math.abs(prev.scale - scale) < 0.001 && Math.abs(prev.w - nw) < 0.5 && Math.abs(prev.h - nh) < 0.5) {
+          return prev;
+        }
+        return { scale, w: nw, h: nh, ready: true };
+      });
     });
     observer.observe(el);
     // NÃO observar o pai — evita feedback loop quando wrapper muda de tamanho
@@ -2410,7 +2417,10 @@ function PlacaStep({ brand, accentColor, paletteColors, estampaPatterns, estampa
     if (!el) return;
     const obs = new ResizeObserver(([e]) => {
       const w = e.contentRect.width;
-      setScale(Math.min(1, w / 595));
+      setScale(prev => {
+        const next = Math.min(1, w / 595);
+        return Math.abs(prev - next) < 0.001 ? prev : next;
+      });
     });
     obs.observe(el);
     return () => obs.disconnect();
