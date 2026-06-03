@@ -52,7 +52,7 @@ export default function Home() {
   const [customTagline, setCustomTagline] = useState('');
   
   const [formData, setFormData] = useState({
-    nome: '', email: '', marca: '', atuacao: '', atuacaoOutra: '', publico: '', sentimentos: [], elementosVisuais: []
+    nome: '', email: '', marca: '', atuacao: '', atuacaoOutra: '', publico: '', sentimentos: [], elementosVisuais: [], identidade: ''
   });
 
   // Sugestões de tagline agrupadas por categoria
@@ -513,8 +513,13 @@ export default function Home() {
   const publicos = [
     "Bebês e criancinhas (0 a 6 anos)",
     "Crianças e adolescentes (6 a 18 anos)",
-    "Mulheres adultas",
     "Adultos em geral"
+  ];
+
+  const identidades = [
+    "Feminina",
+    "Masculina",
+    "Neutra / Unissex"
   ];
 
   const sensacoes = [
@@ -563,7 +568,11 @@ export default function Home() {
       <div style={{ width: '100%', maxWidth: '700px', position: 'relative', height: '85vh', marginTop: devMode ? '22px' : 0 }}>
 
         {step > 1 && step <= 7 && (
-           <button onClick={() => setStep(s => s - 1)} style={{ position: 'absolute', top: '10px', left: '10px', background: 'var(--bg-soft)', border: '1px solid var(--border)', borderRadius: '30px', padding: '6px 14px', color: 'var(--text-secondary)', cursor: 'pointer', zIndex: 100, fontSize: '0.85rem', fontWeight: 500, transition: 'all 0.2s ease', display: 'flex', alignItems: 'center', gap: '5px' }}>
+           <button onClick={() => {
+             if (step === 6) setStep(5.5);
+             else if (step === 5.5) setStep(5);
+             else setStep(s => s - 1);
+           }} style={{ position: 'absolute', top: '10px', left: '10px', background: 'var(--bg-soft)', border: '1px solid var(--border)', borderRadius: '30px', padding: '6px 14px', color: 'var(--text-secondary)', cursor: 'pointer', zIndex: 100, fontSize: '0.85rem', fontWeight: 500, transition: 'all 0.2s ease', display: 'flex', alignItems: 'center', gap: '5px' }}>
              ← Voltar
            </button>
         )}
@@ -746,7 +755,22 @@ export default function Home() {
               <div style={{ width: '100%', marginBottom: '2rem', display: 'flex', flexDirection: 'column', gap: '10px', alignItems: 'center' }}>
                 {publicos.map(p => (<button key={p} onClick={() => setSingleChoice('publico', p)} style={chipStyle(formData.publico === p)}>{p}</button>))}
               </div>
-              <button onClick={nextStep} className="btn-secondary" style={{ opacity: formData.publico ? 1 : 0.5, pointerEvents: formData.publico ? 'auto' : 'none' }}>Avançar</button>
+              <button onClick={() => setStep(5.5)} className="btn-secondary" style={{ opacity: formData.publico ? 1 : 0.5, pointerEvents: formData.publico ? 'auto' : 'none' }}>Avançar</button>
+            </motion.div>
+          )}
+
+          {step === 5.5 && (
+            <motion.div 
+              key="step5_5" variants={variants} initial="initial" animate="animate" exit="exit" transition={{ duration: 0.5 }}
+              className="wizard-step" style={{ position: 'absolute', width: '100%', height: '100%', display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center', background: '#ffffff', borderRadius: '24px', border: '1px solid var(--border)' }}
+            >
+              <div style={{ position: 'absolute', top: '3rem', left: '3rem', right: '3rem', height: '4px', background: 'var(--border)', borderRadius: '4px' }}><div style={{ height: '100%', background: 'var(--accent-turquoise)', width: '80%', borderRadius: '4px', transition: 'width 0.5s' }} /></div>
+              <h2 style={{ fontSize: '2rem', marginBottom: '0.5rem' }}>Qual a energia da sua marca?</h2>
+              <p style={{ fontSize: '1rem', color: 'var(--text-secondary)', marginBottom: '1.5rem' }}>Isso ajuda a calibrarmos as cores e os elementos visuais (evitando estampas que não combinem com você).</p>
+              <div style={{ width: '100%', marginBottom: '2rem', display: 'flex', flexDirection: 'column', gap: '10px', alignItems: 'center' }}>
+                {identidades.map(i => (<button key={i} onClick={() => setSingleChoice('identidade', i)} style={chipStyle(formData.identidade === i)}>{i}</button>))}
+              </div>
+              <button onClick={() => setStep(6)} className="btn-secondary" style={{ opacity: formData.identidade ? 1 : 0.5, pointerEvents: formData.identidade ? 'auto' : 'none' }}>Avançar</button>
             </motion.div>
           )}
 
