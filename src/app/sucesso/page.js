@@ -707,9 +707,8 @@ function CartaoStep({ brand, accentColor, paletteColors, marca, estampaPatterns,
 <body>
 <div class="card-container">
   <div class="card-content">
-    <div style="text-align:center;">
-      <p style="font-family:'Montserrat',sans-serif;font-size:1.8rem;font-weight:800;color:${accentColor};text-transform:uppercase;letter-spacing:3px;">${marca || ''}</p>
-      ${editData.tagline ? `<p style="font-size:0.7rem;color:#aaa;text-transform:uppercase;letter-spacing:2px;margin-top:4px;">${editData.tagline}</p>` : ''}
+    <div style="text-align:center; width: 100%; display: flex; justify-content: center; margin-bottom: 8px;">
+      ${genPDFLogoHtml({ brand, editDataOverride: editData, color: logoColor, layout: logoLayout, localSlogan: editData.tagline || '', crmLine: null, fontPt: 36, lineH: editData?.fontLineHeight || 1.1, letterSp: editData?.fontLetterSpacing || '1px', hideSlogan: false, maxWidth: '280px', maxHeight: '120px', withBackground: false })}
     </div>
     <div style="width:50%;height:1px;background:#eee;"></div>
     <p style="text-align:center;font-size:0.72rem;color:#aaa;font-family:'Montserrat',sans-serif;letter-spacing:0.5px;">Como prefere entrar em contato?</p>
@@ -770,7 +769,7 @@ function CartaoStep({ brand, accentColor, paletteColors, marca, estampaPatterns,
             </div>
           )}
           <div style={{ width: '100%', display: 'flex', justifyContent: 'center' }}>
-            <LogoPreviewHTML editData={{ ...editData, tagline: localSlogan }} color={accentColor} layout={logoLayout} maxWidth="220px" maxHeight="100px" />
+            <LogoPreviewHTML editData={{ ...editData, tagline: localSlogan }} color={logoColor} layout={logoLayout} maxWidth="220px" maxHeight="100px" />
           </div>
 
           <div style={{ width: '50%', height: '1px', background: '#eee' }} />
@@ -4434,8 +4433,8 @@ function AtestadoPreview({ accentColor, patternSrc, editData, logoColor, logoLay
       <div style={{ position: 'absolute', top: BORDER, left: BORDER, right: BORDER, bottom: BORDER, background: '#fff', clipPath: roofClip }} />
 
       {/* Logo no topo */}
-      <div style={{ position: 'absolute', top: `${BORDER + 18}px`, left: '50%', transform: 'translateX(-50%)', width: '180px', height: '50px', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
-        <LogoPreviewHTML item="Atestado Médico" editData={editData} color={logoColor} layout={logoLayout} scaleFactor={0.55} crm={crmLine} hideTagline={hideTagline} withBackground={false} maxWidth="100%" maxHeight="100%" />
+      <div style={{ position: 'absolute', top: `${BORDER + 18}px`, left: '50%', transform: 'translateX(-50%)', width: '180px', height: '60px', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
+        <LogoPreviewHTML item="Atestado Médico" editData={editData} color={logoColor} layout={logoLayout} scaleFactor={0.65} crm={crmLine} hideTagline={hideTagline} withBackground={false} maxWidth="100%" maxHeight="100%" />
       </div>
 
       {/* Título */}
