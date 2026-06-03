@@ -4398,6 +4398,7 @@ function FolderA5Preview({ brand, editData, logoColor, logoLayout, comBorda, set
 }
 
 function AtestadoPreview({ accentColor, patternSrc, editData, logoColor, logoLayout, crmLine, clinicaNome, marca, cartaoContacts, comBorda, setComBorda, paletteColors, borderColor, setBorderColor, patternScale, setPatternScale, hideTagline, folderRoof, setFolderRoof, paperSize, setPaperSize }) {
+  const { dictionary } = useTranslation();
   const BORDER = 14;
   const { whatsapp, telefone, instagram, site, endereco } = cartaoContacts || {};
   const mainPhone = whatsapp || telefone || '';
@@ -5116,6 +5117,7 @@ const getPreviewTargetWidth = (item) => {
 };
 
 function PapelariaStep({ brand, accentColor, paletteColors, estampaPatterns, estampaSelectedIdx, cartaoContacts, setCartaoContacts, plano, isSaude, crmData, setCrmData, marca, editData, logoColor, logoLayout, setLayout, clinicaNome, setClinicaNome, onNavSync, navIdx, setNavIdx, customLogoSrc, getCustomLogoScale, setCustomLogoScale, getCustomLogoScaleMax, customLogoScaleMap, submarcaColor, submarcaTextColor, iconPath }) {
+  const { dictionary } = useTranslation();
   // Digitais: sempre inclusos no plano PRO
   const ITENS_DIGITAIS = []; // Pack Instagram e Assinatura ficam na aba Digital, não na Papelaria
   // Papelaria disponível para não-médicos
