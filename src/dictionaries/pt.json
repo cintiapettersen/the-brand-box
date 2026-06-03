@@ -1,6 +1,12 @@
 {
-  "sucesso": {
-    "title": "Pronto! Sua identidade visual nasceu.",
-    "subtitle": "Você acaba de criar o primeiro passo para o sucesso."
+  "atestado": {
+    "titulo": "Atestado Médico",
+    "declaracao": "Declaro para os devidos fins, que",
+    "esteve_em_consulta": ", esteve em consulta, das",
+    "hs_as": "hs às",
+    "hs_acompanhado": "hs, acompanhado de seu responsável Sr. (a)",
+    "rg": ", R.G. nº",
+    "necessitando": ", necessitando o mesmo de",
+    "dias_dispensa": "dias de dispensa."
   }
 }

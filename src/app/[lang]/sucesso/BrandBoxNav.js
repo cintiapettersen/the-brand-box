@@ -1,5 +1,6 @@
 'use client';
 import { useRef, useState, useEffect } from 'react';
+import LanguageSwitcher from '../../../components/LanguageSwitcher';
 
 const BB_MARCA = '#65BDB9';
 const BB_DIGITAL = '#dc3895'; // pink mais vibrante
@@ -109,7 +110,8 @@ export default function BrandBoxNav({ step, setStep, plano, papelariaItens = [],
   const subColor = isMarca ? BB_MARCA : isDigital ? BB_DIGITAL : isPapelaria ? BB_PAPELARIA : BB_AJUDA;
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: '0', marginBottom: '1.2rem' }}>
+    <div style={{ display: 'flex', flexDirection: 'column', gap: '0', marginBottom: '1.2rem', position: 'relative' }}>
+      <LanguageSwitcher />
 
       {/* Tabs principais */}
       <div style={{ display: 'flex', gap: '3px' }}>

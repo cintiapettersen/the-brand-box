@@ -1,6 +1,12 @@
 {
-  "sucesso": {
-    "title": "Pronto! Sua identidade visual nasceu.",
-    "subtitle": "Você acaba de criar o primeiro passo para o sucesso."
+  "atestado": {
+    "titulo": "Medical Certificate",
+    "declaracao": "I declare for all due purposes that",
+    "esteve_em_consulta": ", was in consultation, from",
+    "hs_as": "to",
+    "hs_acompanhado": ", accompanied by guardian Mr./Mrs.",
+    "rg": ", ID No.",
+    "necessitando": ", requiring",
+    "dias_dispensa": "days of medical leave."
   }
 }

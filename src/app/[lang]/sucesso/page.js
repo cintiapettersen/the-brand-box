@@ -1,5 +1,6 @@
 'use client';
 import { useSearchParams } from 'next/navigation';
+import { useTranslation } from '../../LanguageContext';
 import BrandBoxNav from './BrandBoxNav';
 import React, { Suspense, useState, useEffect, useRef } from 'react';
 import ReactDOMServer from 'react-dom/server';
