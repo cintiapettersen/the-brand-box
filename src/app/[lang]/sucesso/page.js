@@ -2,6 +2,7 @@
 import { useSearchParams } from 'next/navigation';
 import { useTranslation } from '../../LanguageContext';
 import BrandBoxNav from './BrandBoxNav';
+import LanguageSwitcher from '../../../components/LanguageSwitcher';
 import React, { Suspense, useState, useEffect, useRef } from 'react';
 import ReactDOMServer from 'react-dom/server';
 import BrandTemplateSVG from '../../../components/BrandTemplateSVG';
@@ -9648,6 +9649,9 @@ function EntregaContent({ brand, plano, setBrand }) {
       <div style={{ maxWidth: '480px', margin: '0 auto' }}>
 
         {/* NOVO MENU DE NAVEGAÇÃO CATEGORIZADA */}
+        <div style={{ display: 'flex', justifyContent: 'flex-end', padding: '0 4px 8px 0' }}>
+          <LanguageSwitcher />
+        </div>
         <BrandBoxNav step={step} setStep={setStep} plano={plano} papelariaItens={papelariaNavItens} papelariaIdx={papelariaNavIdx} setPapelariaIdx={setPapelariaNavIdx} />
 
         <div style={{ padding: '0.5rem 1.4rem 0' }}>
