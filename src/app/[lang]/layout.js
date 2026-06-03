@@ -1,5 +1,7 @@
 import { Geist, Geist_Mono } from "next/font/google";
-import "./globals.css";
+import "../globals.css";
+import { getDictionary } from "../../getDictionary";
+import { LanguageProvider } from "../LanguageContext";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -50,9 +52,13 @@ export const metadata = {
   },
 };
 
-export default function RootLayout({ children }) {
+export default async function RootLayout({ children, params }) {
+  const resolvedParams = await params;
+  const lang = resolvedParams?.lang || 'pt-BR';
+  const dictionary = await getDictionary(lang);
+
   return (
-    <html lang="pt-BR" className={`${geistSans.variable} ${geistMono.variable}`} suppressHydrationWarning>
+    <html lang={lang} className={`${geistSans.variable} ${geistMono.variable}`} suppressHydrationWarning>
       <head>
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
@@ -70,7 +76,11 @@ export default function RootLayout({ children }) {
           <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600&family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;0,800;1,400&family=Montserrat:wght@300;400;500;600;700;800&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Cinzel:wght@400;500;600;700&family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,400&family=Noto+Sans:wght@300;400;500;600&family=Raleway:wght@300;400;500;600&family=Nunito:wght@300;400;500;600;700&family=Allura&family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&family=Manrope:wght@300;400;500;600;700;800&family=Poppins:wght@300;400;500;600&family=Quicksand:wght@300;400;500;600;700&family=Josefin+Sans:wght@300;400;500;600&family=DM+Sans:wght@300;400;500;600&family=Julius+Sans+One&family=Sacramento&family=Birthstone&family=Borel&display=swap" />
         </noscript>
       </head>
-      <body suppressHydrationWarning>{children}</body>
+      <body suppressHydrationWarning>
+        <LanguageProvider initialDictionary={dictionary}>
+          {children}
+        </LanguageProvider>
+      </body>
     </html>
   );
 }

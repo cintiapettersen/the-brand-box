@@ -1,7 +1,7 @@
 'use client';
 import React from 'react';
 import { useScaleToFit } from './useScaleToFit';
-import BrandTemplateSVG from '../../components/BrandTemplateSVG';
+import BrandTemplateSVG from '../../../components/BrandTemplateSVG';
 
 // Caneca padrão 325ml — wrap sublimação: 20 × 8,5 cm
 const WRAP_W_CM = 20;

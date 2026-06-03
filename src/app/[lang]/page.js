@@ -3,11 +3,11 @@
 import { useState, useRef, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 // Libraries dynamically imported for performance
-import BrandTemplateSVG from '../components/BrandTemplateSVG';
-import BrandBoard from '../components/BrandBoard';
+import BrandTemplateSVG from '../../components/BrandTemplateSVG';
+import BrandBoard from '../../components/BrandBoard';
 import { createClient } from '@supabase/supabase-js';
-import FONT_MAP from '../lib/fontMap';
-import { STYLE_ICONS, getIconById } from '../lib/styleIcons';
+import FONT_MAP from '../../lib/fontMap';
+import { STYLE_ICONS, getIconById } from '../../lib/styleIcons';
 import Image from 'next/image';
 
 const PAPELARIA_CLINICA = [
