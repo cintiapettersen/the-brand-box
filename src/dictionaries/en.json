@@ -1059,5 +1059,67 @@
     "custom_logo_msg": "You uploaded your own logo, so the font is already part of your image!",
     "custom_logo_sub": "To test other fonts or use the options on this tab, go back to the \"Your Logo\" tab and select the \"Suggested logo\"."
   },
-  "reiniciar_teste": "restart test"
+  "reiniciar_teste": "restart test",
+  "tagline_tab": {
+    "custom_logo_msg": "You uploaded your own logo, so the tagline is already part of your image!",
+    "custom_logo_sub": "To change the tagline or use the options on this tab, go back to the \"Your Logo\" tab and select \"Suggested logo\".",
+    "brand_tagline": "💬 Brand Tagline",
+    "with_tagline": "✓ With tagline",
+    "without_tagline": "✗ No tagline",
+    "placeholder": "Ex: Delicacy in every detail",
+    "ai_tip": "📝 AI Tip",
+    "choose_focused": "Choose a tagline focused on",
+    "examples": "Examples:",
+    "font_style": "Aa Font Style",
+    "spacing": "↔ Spacing"
+  },
+  "seal_tab": {
+    "custom_logo_msg": "You uploaded your own logo, so the seal was generated from it!",
+    "custom_logo_sub": "To test automatic formats, go back to the \"Your Logo\" tab and select \"Suggested logo\".",
+    "seal_style": "✨ Seal Style",
+    "circular": "⭕ Circular",
+    "minimal": "⚡ Minimal",
+    "seal_desc": "Seals (or submarks) are compact variations of your logo,",
+    "seal_desc_2": "perfect to use as profile pictures, stamps, or stickers."
+  },
+  "color_tab": {
+    "priority_order": "Color Priority Order",
+    "drag_reorder": "Drag to reorder. The top color appears more in your arts — the last one, less.",
+    "save_order": "Save color order →",
+    "order_saved": "✓ Order saved! Prints have been updated."
+  },
+  "palette_tab": {
+    "main": "Main",
+    "secondary": "Secondary",
+    "tertiary": "Tertiary",
+    "complementary": "Complementary",
+    "support": "Support",
+    "color": "Color",
+    "main_palette_color": "main palette color",
+    "shade": "shade"
+  },
+  "pattern_tab": {
+    "generating": "Generating patterns...",
+    "generate_new": "✨ Generate New Pattern",
+    "left": "left",
+    "limit_reached": "Limit reached",
+    "smooth_seams": "Smooth seams",
+    "zoom": "Zoom",
+    "qr_link": "Link for QR Code (website, WhatsApp...)",
+    "limit_reached_desc": "Generation limit reached. Pro plan allows...",
+    "change_reference": "Change reference",
+    "confirm": "Confirm",
+    "cancel": "Cancel",
+    "select_base": "Select the base reference pattern:"
+  },
+  "guide_tab": {
+    "brand_guidelines": "Brand Guidelines",
+    "color_palette": "Color Palette",
+    "main_typography": "Main Font",
+    "support": "Support",
+    "tone_of_voice": "Tone of Voice",
+    "download_pdf": "⬇ Download Full Guide in PDF",
+    "new_tab": "A new tab will open — use \"Save as PDF\" in the print menu.",
+    "popups": "(If it does not open, check if your browser blocked Pop-ups)"
+  }
 }

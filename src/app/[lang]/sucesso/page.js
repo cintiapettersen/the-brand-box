@@ -463,7 +463,7 @@ function CoresSalvarButton({ colorOrder, accentColor }) {
   };
   return (
     <button onClick={handleSave} style={{ width: '100%', padding: '14px', background: saved ? '#4CAF50' : '#C03B66', color: '#fff', border: 'none', borderRadius: '30px', fontWeight: 700, fontSize: '0.95rem', cursor: 'pointer', transition: 'background 0.3s' }}>
-      {saved ? '✓ Ordem salva! Os impressos já foram atualizados.' : 'Salvar ordem das cores →'}
+      {saved ? (dictionary?.color_tab?.order_saved || '✓ Ordem salva! Os impressos já foram atualizados.') : (dictionary?.color_tab?.save_order || 'Salvar ordem das cores →')}
     </button>
   );
 }
@@ -489,15 +489,15 @@ function CoresPrioridadeStep({ paletteColors, colorOrder, setColorOrder, accentC
     setDragging(null); setDragOver(null);
   };
 
-  const labels = ['Principal', '2ª cor', '3ª cor', '4ª cor', '5ª cor'];
+  const labels = [dictionary?.palette_tab?.main || 'Principal', '2ª cor', '3ª cor', '4ª cor', '5ª cor'];
   const sizes = [80, 68, 58, 50, 44];
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '24px', padding: '8px 0' }}>
       <div>
-        <p style={{ fontSize: '0.85rem', fontWeight: 700, color: '#333', marginBottom: '6px', fontFamily: 'Montserrat,sans-serif' }}>Ordem de Prioridade das Cores</p>
+        <p style={{ fontSize: '0.85rem', fontWeight: 700, color: '#333', marginBottom: '6px', fontFamily: 'Montserrat,sans-serif' }}>{dictionary?.color_tab?.priority_order || 'Ordem de Prioridade das Cores'}</p>
         <p style={{ fontSize: '0.75rem', color: '#999', fontFamily: 'Montserrat,sans-serif', lineHeight: 1.5 }}>
-          Arraste para reordenar. A cor no topo aparece mais nas suas artes — a última, menos.
+          {dictionary?.color_tab?.drag_reorder || 'Arraste para reordenar. A cor no topo aparece mais nas suas artes — a última, menos.'}
         </p>
       </div>
 
@@ -540,7 +540,7 @@ function CoresPrioridadeStep({ paletteColors, colorOrder, setColorOrder, accentC
 
 function CoresStep({ paletteColors, accentColor, paletaNome, coresRef }) {
   const tints = [0.25, 0.50, 0.72, 0.88];
-  const roleLabels = ['Principal', 'Secundária', 'Terciária', 'Complementar', 'Apoio'];
+  const roleLabels = [dictionary?.palette_tab?.main || 'Principal', dictionary?.palette_tab?.secondary || 'Secundária', dictionary?.palette_tab?.tertiary || 'Terciária', dictionary?.palette_tab?.complementary || 'Complementar', dictionary?.palette_tab?.support || 'Apoio'];
 
   return (
     <div ref={coresRef} style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
@@ -554,7 +554,7 @@ function CoresStep({ paletteColors, accentColor, paletaNome, coresRef }) {
           {/* Swatch principal */}
           <div style={{ background: hex, height: '100px', padding: '14px 16px', display: 'flex', flexDirection: 'column', justifyContent: 'flex-end' }}>
             <p style={{ margin: 0, fontSize: '0.62rem', color: 'rgba(255,255,255,0.7)', textTransform: 'uppercase', letterSpacing: '1.5px', fontWeight: 700 }}>
-              {roleLabels[ci] || 'Cor'}
+              {roleLabels[ci] || dictionary?.palette_tab?.color || 'Cor'}
             </p>
             <p style={{ margin: 0, fontSize: '1rem', fontWeight: 700, color: '#fff', textShadow: '0 1px 4px rgba(0,0,0,0.2)' }}>
               {colorNamePT(hex)}
@@ -562,7 +562,7 @@ function CoresStep({ paletteColors, accentColor, paletaNome, coresRef }) {
           </div>
           {/* Hex principal */}
           <div style={{ padding: '8px 16px 6px', borderBottom: '1px solid #f0f0f0', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-            <span style={{ fontSize: '0.62rem', color: '#bbb', textTransform: 'uppercase', letterSpacing: '1px', fontWeight: 700 }}>cor paleta principal</span>
+            <span style={{ fontSize: '0.62rem', color: '#bbb', textTransform: 'uppercase', letterSpacing: '1px', fontWeight: 700 }}>{dictionary?.palette_tab?.main_palette_color || 'cor paleta principal'}</span>
             <CopyHex hex={hex} accent={accentColor} />
           </div>
           {/* Tints */}
@@ -573,7 +573,7 @@ function CoresStep({ paletteColors, accentColor, paletaNome, coresRef }) {
                 <div key={ti} style={{ borderRight: ti < 3 ? '1px solid #f0f0f0' : 'none' }}>
                   <div style={{ background: tHex, height: '54px' }} />
                   <div style={{ padding: '6px 8px', borderTop: '1px solid #f0f0f0' }}>
-                    <p style={{ margin: '0 0 2px', fontSize: '0.55rem', color: '#ccc', textTransform: 'uppercase', letterSpacing: '0.8px', fontWeight: 700 }}>tom {ti+1}</p>
+                    <p style={{ margin: '0 0 2px', fontSize: '0.55rem', color: '#ccc', textTransform: 'uppercase', letterSpacing: '0.8px', fontWeight: 700 }}>{dictionary?.palette_tab?.shade || 'tom'} {ti+1}</p>
                     <CopyHex hex={tHex} accent={accentColor} />
                   </div>
                 </div>
@@ -879,7 +879,7 @@ function CartaoStep({ brand, accentColor, paletteColors, marca, estampaPatterns,
           {showQR ? '✓ QR Code ativo' : '+ QR Code'}
         </button>
         {showQR && (
-          <input value={qrLink} onChange={e => setQrLink(e.target.value)} placeholder="Link para o QR Code (site, WhatsApp...)" style={inputStyle} />
+          <input value={qrLink} onChange={e => setQrLink(e.target.value)} placeholder="{dictionary?.pattern_tab?.qr_link || 'Link para o QR Code (site, WhatsApp...)'}" style={inputStyle} />
         )}
       </div>
     </div>
@@ -1890,7 +1890,7 @@ body{font-family:'Montserrat',sans-serif;background:#f0ece6;color:#1a1a1a;}
 <!-- CAPA -->
 <div class="page" style="display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:1100px;text-align:center;">
   <div style="width:50px;height:2px;background:${accentColor};margin:0 auto 48px;"></div>
-  <p style="font-size:0.58rem;letter-spacing:2px;text-transform:uppercase;color:#ccc;margin-bottom:64px;">Guia de Identidade Visual</p>
+  <p style="font-size:0.58rem;letter-spacing:2px;text-transform:uppercase;color:#ccc;margin-bottom:64px;">{dictionary?.guide_tab?.brand_guidelines || 'Guia de Identidade Visual'}</p>
   <h1 style="font-family:'${fontFamily}',serif;font-weight:${fontWeight};font-size:4rem;color:${accentColor};letter-spacing:${isScript ? '0px' : '2px'};line-height:1;margin-bottom:14px;">${marcaDisplay}</h1>
   ${tagline ? `<p style="font-size:0.68rem;letter-spacing:1.5px;text-transform:uppercase;color:#aaa;margin-bottom:64px;">${tagline}</p>` : '<div style="height:64px;"></div>'}
   <div style="width:50px;height:1px;background:#e0e0e0;margin:0 auto 24px;"></div>
@@ -1912,7 +1912,7 @@ ${manifesto ? `<div class="page" style="display:flex;flex-direction:column;justi
 
 <!-- PALETA DE CORES -->
 <div class="page">
-  <div class="sec-label">Paleta de Cores</div>
+  <div class="sec-label">{dictionary?.guide_tab?.color_palette || 'Paleta de Cores'}</div>
   <div style="display:grid;grid-template-columns:repeat(${paletteColors.length},1fr);gap:10px;">
     ${colorsHtml}
   </div>
@@ -1925,7 +1925,7 @@ ${manifesto ? `<div class="page" style="display:flex;flex-direction:column;justi
   <div class="sec-label">Tipografia</div>
   <div style="display:grid;grid-template-columns:1fr 1fr;gap:32px;align-items:start;">
     <div>
-      <p style="font-size:0.6rem;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:#bbb;margin-bottom:12px;">Fonte Principal</p>
+      <p style="font-size:0.6rem;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:#bbb;margin-bottom:12px;">{dictionary?.guide_tab?.main_typography || 'Fonte Principal'}</p>
       <p style="font-family:'${fontFamily}',serif;font-weight:${fontWeight};font-size:2.6rem;color:${accentColor};line-height:1;margin-bottom:10px;">${fontFamily}</p>
       <p style="font-family:'${fontFamily}',serif;font-size:1.1rem;color:#666;line-height:1.6;margin-bottom:6px;">Aa Bb Cc Dd Ee Ff Gg</p>
       <p style="font-family:'${fontFamily}',serif;font-size:0.9rem;color:#999;line-height:1.6;">1 2 3 4 5 6 7 8 9 0</p>
@@ -2837,14 +2837,14 @@ function GuiaStep({ brand, accentColor, paletteColors, marca, tagline, estampaPa
       <div style={{ background: '#fff', borderRadius: '16px', overflow: 'hidden', boxShadow: '0 4px 20px rgba(0,0,0,0.08)' }}>
         {/* Capa mini */}
         <div style={{ background: accentColor, padding: '28px 24px', textAlign: 'center' }}>
-          <p style={{ fontSize: '0.52rem', letterSpacing: '4px', textTransform: 'uppercase', color: 'rgba(255,255,255,0.6)', marginBottom: '8px' }}>Guia de Identidade Visual</p>
+          <p style={{ fontSize: '0.52rem', letterSpacing: '4px', textTransform: 'uppercase', color: 'rgba(255,255,255,0.6)', marginBottom: '8px' }}>{dictionary?.guide_tab?.brand_guidelines || 'Guia de Identidade Visual'}</p>
           <h2 style={{ fontFamily: `'${fontFamily}', serif`, fontWeight, fontSize: '1.8rem', color: '#fff', letterSpacing: isScript ? '0px' : '1px', lineHeight: 1 }}>{marcaFormatted}</h2>
           {tagline && <p style={{ fontSize: '0.6rem', letterSpacing: '2px', textTransform: 'uppercase', color: 'rgba(255,255,255,0.6)', marginTop: '6px' }}>{tagline}</p>}
         </div>
 
         {/* Paleta */}
         <div style={{ padding: '16px 20px', borderBottom: '1px solid #f5f5f5' }}>
-          <p style={{ fontSize: '0.55rem', fontWeight: 700, letterSpacing: '2px', textTransform: 'uppercase', color: '#bbb', marginBottom: '10px' }}>Paleta de Cores</p>
+          <p style={{ fontSize: '0.55rem', fontWeight: 700, letterSpacing: '2px', textTransform: 'uppercase', color: '#bbb', marginBottom: '10px' }}>{dictionary?.guide_tab?.color_palette || 'Paleta de Cores'}</p>
           <div style={{ display: 'flex', gap: '6px' }}>
             {paletteColors.map((hex, i) => (
               <div key={i} style={{ flex: 1, borderRadius: '8px', overflow: 'hidden' }}>
@@ -2858,18 +2858,18 @@ function GuiaStep({ brand, accentColor, paletteColors, marca, tagline, estampaPa
         {/* Tipografia */}
         <div className="mobile-wrap" style={{ padding: '16px 20px', borderBottom: '1px solid #f5f5f5', display: 'flex', gap: '16px' }}>
           <div style={{ flex: 1 }}>
-            <p style={{ fontSize: '0.55rem', fontWeight: 700, letterSpacing: '2px', textTransform: 'uppercase', color: '#bbb', marginBottom: '6px' }}>Fonte Principal</p>
+            <p style={{ fontSize: '0.55rem', fontWeight: 700, letterSpacing: '2px', textTransform: 'uppercase', color: '#bbb', marginBottom: '6px' }}>{dictionary?.guide_tab?.main_typography || 'Fonte Principal'}</p>
             <p style={{ fontFamily: `'${fontFamily}', serif`, fontWeight, fontSize: '1.2rem', color: accentColor }}>{fontFamily}</p>
           </div>
           <div style={{ flex: 1 }}>
-            <p style={{ fontSize: '0.55rem', fontWeight: 700, letterSpacing: '2px', textTransform: 'uppercase', color: '#bbb', marginBottom: '6px' }}>Apoio</p>
+            <p style={{ fontSize: '0.55rem', fontWeight: 700, letterSpacing: '2px', textTransform: 'uppercase', color: '#bbb', marginBottom: '6px' }}>{dictionary?.guide_tab?.support || 'Apoio'}</p>
             <p style={{ fontFamily: 'Montserrat, sans-serif', fontWeight: 600, fontSize: '1.1rem', color: '#888' }}>Montserrat</p>
           </div>
         </div>
 
         {/* Tom de voz */}
         <div style={{ padding: '16px 20px' }}>
-          <p style={{ fontSize: '0.55rem', fontWeight: 700, letterSpacing: '2px', textTransform: 'uppercase', color: '#bbb', marginBottom: '10px' }}>Tom de Voz</p>
+          <p style={{ fontSize: '0.55rem', fontWeight: 700, letterSpacing: '2px', textTransform: 'uppercase', color: '#bbb', marginBottom: '10px' }}>{dictionary?.guide_tab?.tone_of_voice || 'Tom de Voz'}</p>
           <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px' }}>
             {toneWords.map((w, i) => (
               <span key={w} style={{ padding: '5px 12px', borderRadius: '16px', fontSize: '0.7rem', fontWeight: 600, background: i % 2 === 0 ? accentColor : 'transparent', color: i % 2 === 0 ? '#fff' : accentColor, border: `1.5px solid ${accentColor}` }}>{w}</span>
@@ -2883,11 +2883,11 @@ function GuiaStep({ brand, accentColor, paletteColors, marca, tagline, estampaPa
         onClick={openPrint}
         style={{ width: '100%', padding: '15px', background: '#fff', color: accentColor, border: `1.5px solid ${accentColor}`, borderRadius: '30px', fontWeight: 700, fontSize: '0.9rem', cursor: 'pointer', fontFamily: 'Montserrat, sans-serif' }}
       >
-        ⬇ Baixar Guia em PDF
+        {dictionary?.guide_tab?.download_pdf || '⬇ Baixar Guia em PDF'}
       </button>
       <p style={{ textAlign: 'center', fontSize: '0.7rem', color: '#bbb' }}>
-        Uma nova aba abrirá — use "Salvar como PDF" no menu de impressão.<br/>
-        <span style={{ fontSize: '0.62rem', color: '#ccc' }}>(Se não abrir, verifique se seu navegador bloqueou Pop-ups)</span>
+        {dictionary?.guide_tab?.new_tab || 'Uma nova aba abrirá — use "Salvar como PDF" no menu de impressão.'}<br/>
+        <span style={{ fontSize: '0.62rem', color: '#ccc' }}>{dictionary?.guide_tab?.popups || '(Se não abrir, verifique se seu navegador bloqueou Pop-ups)'}</span>
       </p>
     </div>
   );
@@ -9959,25 +9959,25 @@ function EntregaContent({ brand, plano, setBrand }) {
             {/* Controles da tagline */}
             {editDataWithLogo?.customLogoSrc ? (
               <div style={{ padding: '16px', background: '#fff0f5', borderRadius: '12px', border: '1.5px solid #ffb3c6', color: '#c03b66', fontSize: '0.82rem', fontFamily: 'Montserrat, sans-serif', textAlign: 'center', fontWeight: 600 }}>
-                Você enviou sua própria logo, então a tagline (slogan) já faz parte da sua imagem!<br/><br/>
-                <span style={{ fontSize: '0.72rem', fontWeight: 500, opacity: 0.8 }}>Para alterar a tagline ou usar as opções desta aba, volte à aba "Sua Logo" e selecione a "Logo sugerida".</span>
+                {dictionary?.tagline_tab?.custom_logo_msg || 'Você enviou sua própria logo, então a tagline (slogan) já faz parte da sua imagem!'}<br/><br/>
+                <span style={{ fontSize: '0.72rem', fontWeight: 500, opacity: 0.8 }}>{dictionary?.tagline_tab?.custom_logo_sub || 'Para alterar a tagline ou usar as opções desta aba, volte à aba "Sua Logo" e selecione a "Logo sugerida".'}</span>
               </div>
             ) : (
               <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', padding: '16px', background: '#fcfcfc', borderRadius: '16px', border: '1.5px solid #eaeaea', boxShadow: '0 4px 12px rgba(0,0,0,0.02)' }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                  <span style={{ fontSize: '0.78rem', fontWeight: 800, fontFamily: 'Montserrat, sans-serif', color: '#333', letterSpacing: '0.3px', display: 'flex', alignItems: 'center', gap: '6px' }}>💬 Tagline da Marca</span>
+                  <span style={{ fontSize: '0.78rem', fontWeight: 800, fontFamily: 'Montserrat, sans-serif', color: '#333', letterSpacing: '0.3px', display: 'flex', alignItems: 'center', gap: '6px' }}>{dictionary?.tagline_tab?.brand_tagline || '💬 Tagline da Marca'}</span>
                   <button
                     onClick={() => setSloganEnabled(!sloganEnabled)}
                     style={{ padding: '5px 12px', borderRadius: '20px', fontSize: '0.65rem', fontWeight: 700, cursor: 'pointer', border: 'none', background: sloganEnabled ? `${accentColor}15` : '#eee', color: sloganEnabled ? accentColor : '#999', transition: 'all 0.2s', fontFamily: 'Montserrat, sans-serif' }}
                   >
-                    {sloganEnabled ? '✓ Com tagline' : '✗ Sem tagline'}
+                    {sloganEnabled ? (dictionary?.tagline_tab?.with_tagline || '✓ Com tagline') : (dictionary?.tagline_tab?.without_tagline || '✗ Sem tagline')}
                   </button>
                 </div>
                 {sloganEnabled && (<>
                 <input
                   value={tagline}
                   onChange={e => setTagline(e.target.value)}
-                  placeholder="Ex: Delicadeza em cada detalhe"
+                  placeholder={dictionary?.tagline_tab?.placeholder || 'Ex: Delicadeza em cada detalhe'}
                   style={{ width: '100%', padding: '12px 16px', borderRadius: '12px', border: `1.5px solid ${logoColor}22`, fontSize: '0.88rem', fontFamily: 'Montserrat, sans-serif', boxSizing: 'border-box', background: '#fff', outline: 'none', color: '#444', letterSpacing: '0.3px' }}
                 />
                 <div style={{ display: 'flex', gap: '6px' }}>
@@ -10026,14 +10026,14 @@ function EntregaContent({ brand, plano, setBrand }) {
           <div style={{ marginTop: '1rem', display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
             <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', padding: '12px 16px', background: '#fcfcfc', borderRadius: '16px', border: '1.5px solid #eaeaea', boxShadow: '0 4px 12px rgba(0,0,0,0.02)' }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                <span style={{ fontSize: '0.75rem', fontWeight: 800, fontFamily: 'Montserrat, sans-serif', color: '#333', letterSpacing: '0.3px', display: 'flex', alignItems: 'center', gap: '6px' }}>🎨 Estilos Salvos</span>
+                <span style={{ fontSize: '0.75rem', fontWeight: 800, fontFamily: 'Montserrat, sans-serif', color: '#333', letterSpacing: '0.3px', display: 'flex', alignItems: 'center', gap: '6px' }}>{tLogo.saved_styles || '🎨 Estilos Salvos'}</span>
                 {!isSavingPreset ? (
-                  <button onClick={() => setIsSavingPreset(true)} style={{ background: `${accentColor}12`, color: accentColor, border: 'none', padding: '5px 10px', borderRadius: '20px', fontSize: '0.65rem', fontWeight: 700, cursor: 'pointer', fontFamily: 'Montserrat, sans-serif' }}>+ Salvar atual</button>
+                  <button onClick={() => setIsSavingPreset(true)} style={{ background: `${accentColor}12`, color: accentColor, border: 'none', padding: '5px 10px', borderRadius: '20px', fontSize: '0.65rem', fontWeight: 700, cursor: 'pointer', fontFamily: 'Montserrat, sans-serif' }}>{tLogo.save_current || '+ Salvar atual'}</button>
                 ) : null}
               </div>
               {isSavingPreset && (
                 <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
-                  <input type="text" placeholder="Nome do estilo..." value={newPresetName} onChange={e => setNewPresetName(e.target.value)} style={{ flex: 1, padding: '7px 12px', border: '1.5px solid #e0e0e0', borderRadius: '8px', fontSize: '0.75rem', fontFamily: 'Montserrat, sans-serif', outline: 'none' }} onFocus={e => e.currentTarget.style.borderColor = accentColor} onBlur={e => e.currentTarget.style.borderColor = '#e0e0e0'} />
+                  <input type="text" placeholder={tLogo.style_name_placeholder || 'Nome do estilo...'} value={newPresetName} onChange={e => setNewPresetName(e.target.value)} style={{ flex: 1, padding: '7px 12px', border: '1.5px solid #e0e0e0', borderRadius: '8px', fontSize: '0.75rem', fontFamily: 'Montserrat, sans-serif', outline: 'none' }} onFocus={e => e.currentTarget.style.borderColor = accentColor} onBlur={e => e.currentTarget.style.borderColor = '#e0e0e0'} />
                   <button onClick={() => saveCurrentPreset(newPresetName)} style={{ background: accentColor, color: '#fff', border: 'none', borderRadius: '8px', width: '28px', height: '28px', fontWeight: 700, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>✓</button>
                   <button onClick={() => { setIsSavingPreset(false); setNewPresetName(''); }} style={{ background: '#f0f0f0', color: '#666', border: 'none', borderRadius: '8px', width: '28px', height: '28px', fontWeight: 700, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>✗</button>
                 </div>
@@ -10080,17 +10080,17 @@ function EntregaContent({ brand, plano, setBrand }) {
                 </div>
               </div>
 
-              {/* 📐 Disposição / Layout & Altura das Linhas */}
+              {/* {tLogo.layout || '📐 Disposição / Layout'} & Altura das Linhas */}
               {!customLogoSrc && (
                 <div style={{ padding: '12px 14px', background: '#fcfcfc', borderRadius: '14px', border: '1.5px solid #eaeaea', display: 'flex', flexDirection: 'column', gap: '10px' }}>
                   {marca.split(' ').length > 1 && (
                     <div>
-                      <span style={{ fontSize: '0.72rem', fontWeight: 800, fontFamily: 'Montserrat, sans-serif', color: '#555', display: 'block', marginBottom: '8px' }}>📐 Disposição / Layout</span>
+                      <span style={{ fontSize: '0.72rem', fontWeight: 800, fontFamily: 'Montserrat, sans-serif', color: '#555', display: 'block', marginBottom: '8px' }}>{tLogo.layout || '📐 Disposição / Layout'}</span>
                       <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap' }}>
                         {[
-                          { key: 'horizontal', label: '⟵→ Uma linha' },
-                          { key: 'balanced', label: '⊟ Duas linhas', hide: marca.split(' ').length < 3 },
-                          { key: 'stacked', label: '≡ Empilhada' },
+                          { key: 'horizontal', label: tLogo.one_line || '⟵→ Uma linha' },
+                          { key: 'balanced', label: tLogo.two_lines || '⊟ Duas linhas', hide: marca.split(' ').length < 3 },
+                          { key: 'stacked', label: tLogo.stacked || '≡ Empilhada' },
                         ].filter(o => !o.hide).map(({ key, label }) => (
                           <button key={key} onClick={() => setLayout(key)} style={{ padding: '5px 13px', borderRadius: '20px', fontSize: '0.72rem', fontWeight: 600, cursor: 'pointer', border: 'none', background: logoLayout === key ? logoColor : '#eee', color: logoLayout === key ? '#fff' : '#888', transition: 'all 0.15s ease' }}>{label}</button>
                         ))}
@@ -10099,7 +10099,7 @@ function EntregaContent({ brand, plano, setBrand }) {
                   )}
                   {logoLayout !== 'horizontal' && (
                     <div style={{ marginTop: '4px' }}>
-                      <span style={{ fontSize: '0.72rem', fontWeight: 800, fontFamily: 'Montserrat, sans-serif', color: '#555', display: 'block', marginBottom: '8px' }}>↔️ Altura / Espaço entre Linhas</span>
+                      <span style={{ fontSize: '0.72rem', fontWeight: 800, fontFamily: 'Montserrat, sans-serif', color: '#555', display: 'block', marginBottom: '8px' }}>{tLogo.line_spacing || '↔️ Altura / Espaço entre Linhas'}</span>
                       <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
                         <input type="range" min="0.5" max="2" step="0.05" value={fontLineHeight} onChange={e => setFontLineHeight(parseFloat(e.target.value))} style={{ flex: 1, accentColor }} />
                         <span style={{ fontSize: '0.68rem', color: '#aaa', width: '32px' }}>{fontLineHeight.toFixed(2)}</span>
@@ -10113,7 +10113,7 @@ function EntregaContent({ brand, plano, setBrand }) {
               {!customLogoSrc && (
                 <div style={{ padding: '12px 14px', background: '#fcfcfc', borderRadius: '14px', border: '1.5px solid #eaeaea' }}>
                   <button onClick={() => setShowEdit(v => !v)} style={{ background: 'none', border: 'none', padding: 0, width: '100%', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                    <span style={{ fontSize: '0.72rem', fontWeight: 800, fontFamily: 'Montserrat, sans-serif', color: '#555', display: 'flex', alignItems: 'center', gap: '6px' }}>✏️ Nome da Marca</span>
+                    <span style={{ fontSize: '0.72rem', fontWeight: 800, fontFamily: 'Montserrat, sans-serif', color: '#555', display: 'flex', alignItems: 'center', gap: '6px' }}>{tLogo.brand_name || '✏️ Nome da Marca'}</span>
                     <span style={{ fontSize: '0.8rem', color: '#888' }}>{showEdit ? '▲' : '▼'}</span>
                   </button>
                   {showEdit && (
@@ -10273,7 +10273,7 @@ function EntregaContent({ brand, plano, setBrand }) {
             }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                 <span style={{ fontSize: '0.78rem', fontWeight: 800, fontFamily: 'Montserrat, sans-serif', color: '#333', letterSpacing: '0.3px', display: 'flex', alignItems: 'center', gap: '6px' }}>
-                  🎨 Estilos Salvos
+                  {tLogo.saved_styles || '🎨 Estilos Salvos'}
                 </span>
                 {!isSavingPreset ? (
                   <button
@@ -10306,7 +10306,7 @@ function EntregaContent({ brand, plano, setBrand }) {
                 <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
                   <input
                     type="text"
-                    placeholder="Nome do estilo..."
+                    placeholder={tLogo.style_name_placeholder || 'Nome do estilo...'}
                     value={newPresetName}
                     onChange={e => setNewPresetName(e.target.value)}
                     style={{
@@ -10567,7 +10567,7 @@ function EntregaContent({ brand, plano, setBrand }) {
                 style={{ background: 'none', border: 'none', padding: 0, width: '100%', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}
               >
                 <span style={{ fontSize: '0.78rem', fontWeight: 800, fontFamily: 'Montserrat, sans-serif', color: '#333', letterSpacing: '0.3px', display: 'flex', alignItems: 'center', gap: '6px' }}>
-                  ✏️ Nome da Marca
+                  {tLogo.brand_name || '✏️ Nome da Marca'}
                 </span>
                 <span style={{ fontSize: '0.8rem', color: '#888' }}>{showEdit ? '▲' : '▼'}</span>
               </button>
@@ -10609,11 +10609,11 @@ function EntregaContent({ brand, plano, setBrand }) {
               marginBottom: '4px'
             }}>
               <span style={{ fontSize: '0.78rem', fontWeight: 800, fontFamily: 'Montserrat, sans-serif', color: '#333', letterSpacing: '0.3px', display: 'flex', alignItems: 'center', gap: '6px' }}>
-                📐 Disposição / Layout
+                {tLogo.layout || '📐 Disposição / Layout'}
               </span>
               <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap', marginTop: '4px' }}>
                 {[
-                  { key: 'horizontal', label: '⟵→ Uma linha' },
+                  { key: 'horizontal', label: tLogo.one_line || '⟵→ Uma linha' },
                   { key: 'balanced',   label: '⊟ Duas linhas',     hide: marca.split(' ').length < 3 },
                   { key: 'stacked',    label: '≡ Empilhada' },
                 ].filter(o => !o.hide).map(({ key, label }) => (
@@ -10835,12 +10835,12 @@ function EntregaContent({ brand, plano, setBrand }) {
               marginBottom: '4px'
             }}>
               <span style={{ fontSize: '0.78rem', fontWeight: 800, fontFamily: 'Montserrat, sans-serif', color: '#333', letterSpacing: '0.3px', display: 'flex', alignItems: 'center', gap: '6px' }}>
-                💬 Tagline da Marca
+                {dictionary?.tagline_tab?.brand_tagline || '💬 Tagline da Marca'}
               </span>
               <input
                 value={tagline}
                 onChange={e => setTagline(e.target.value)}
-                placeholder="Ex: Delicadeza em cada detalhe"
+                placeholder={dictionary?.tagline_tab?.placeholder || 'Ex: Delicadeza em cada detalhe'}
                 style={{ width: '100%', padding: '12px 16px', borderRadius: '12px', border: `1.5px solid ${logoColor}22`, fontSize: '0.88rem', fontFamily: 'Montserrat, sans-serif', boxSizing: 'border-box', background: '#fff', outline: 'none', color: '#444', letterSpacing: '0.3px', marginTop: '4px' }}
               />
               {/* Toggle de quebra de slogan */}
@@ -11017,7 +11017,7 @@ function EntregaContent({ brand, plano, setBrand }) {
 
           {step === 'paleta' && (
             <button onClick={downloadCoresPNG} disabled={downloadingCores} style={{ width: '100%', padding: '14px', background: '#fff', color: '#C03B66', border: '1.5px solid #C03B66', borderRadius: '30px', fontWeight: 700, fontSize: '0.95rem', cursor: 'pointer', opacity: downloadingCores ? 0.6 : 1 }}>
-              {downloadingCores ? '...' : '⬇ Baixar Paleta de Cores'}
+              {downloadingCores ? '...' : `⬇ Baixar ${dictionary?.guide_tab?.color_palette || 'Paleta de Cores'}`}
             </button>
           )}
 

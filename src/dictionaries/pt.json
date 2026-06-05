@@ -1059,5 +1059,67 @@
     "custom_logo_msg": "Você enviou sua própria logo, então a fonte já faz parte da sua imagem!",
     "custom_logo_sub": "Para testar outras fontes ou usar as opções desta aba, volte à aba \"Sua Logo\" e selecione a \"Logo sugerida\"."
   },
-  "reiniciar_teste": "reiniciar teste"
+  "reiniciar_teste": "reiniciar teste",
+  "tagline_tab": {
+    "custom_logo_msg": "Você enviou sua própria logo, então a tagline (slogan) já faz parte da sua imagem!",
+    "custom_logo_sub": "Para alterar a tagline ou usar as opções desta aba, volte à aba \"Sua Logo\" e selecione a \"Logo sugerida\".",
+    "brand_tagline": "💬 Tagline da Marca",
+    "with_tagline": "✓ Com tagline",
+    "without_tagline": "✗ Sem tagline",
+    "placeholder": "Ex: Delicadeza em cada detalhe",
+    "ai_tip": "📝 Dica da IA",
+    "choose_focused": "Escolha uma tagline focada em",
+    "examples": "Exemplos:",
+    "font_style": "Aa Estilo da Fonte",
+    "spacing": "↔ Espaçamento"
+  },
+  "seal_tab": {
+    "custom_logo_msg": "Você enviou sua própria logo, então a submarca (selo) foi gerada a partir dela!",
+    "custom_logo_sub": "Para testar os formatos automáticos, volte à aba \"Sua Logo\" e selecione a \"Logo sugerida\".",
+    "seal_style": "✨ Estilo da Submarca",
+    "circular": "⭕ Circular",
+    "minimal": "⚡ Minimal",
+    "seal_desc": "As submarcas (ou selos) são variações compactas do seu logo,",
+    "seal_desc_2": "perfeitas para usar como foto de perfil, carimbos ou adesivos."
+  },
+  "color_tab": {
+    "priority_order": "Ordem de Prioridade das Cores",
+    "drag_reorder": "Arraste para reordenar. A cor no topo aparece mais nas suas artes — a última, menos.",
+    "save_order": "Salvar ordem das cores →",
+    "order_saved": "✓ Ordem salva! Os impressos já foram atualizados."
+  },
+  "palette_tab": {
+    "main": "Principal",
+    "secondary": "Secundária",
+    "tertiary": "Terciária",
+    "complementary": "Complementar",
+    "support": "Apoio",
+    "color": "Cor",
+    "main_palette_color": "cor paleta principal",
+    "shade": "tom"
+  },
+  "pattern_tab": {
+    "generating": "Gerando estampas...",
+    "generate_new": "✨ Gerar Nova Estampa",
+    "left": "Restam",
+    "limit_reached": "Restam 0",
+    "smooth_seams": "Suavizar emendas",
+    "zoom": "Zoom",
+    "qr_link": "Link para o QR Code (site, WhatsApp...)",
+    "limit_reached_desc": "Limite de gerações atingido. O plano Pro permite...",
+    "change_reference": "Mudar referência",
+    "confirm": "Confirmar",
+    "cancel": "Cancelar",
+    "select_base": "Selecione a estampa de referência base:"
+  },
+  "guide_tab": {
+    "brand_guidelines": "Guia de Identidade Visual",
+    "color_palette": "Paleta de Cores",
+    "main_typography": "Fonte Principal",
+    "support": "Apoio",
+    "tone_of_voice": "Tom de Voz",
+    "download_pdf": "⬇ Baixar Guia em PDF",
+    "new_tab": "Uma nova aba abrirá — use \"Salvar como PDF\" no menu de impressão.",
+    "popups": "(Se não abrir, verifique se seu navegador bloqueou Pop-ups)"
+  }
 }
