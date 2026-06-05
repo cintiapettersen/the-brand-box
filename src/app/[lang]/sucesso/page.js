@@ -1394,19 +1394,14 @@ function EstampaStep({ brand, accentColor, marca, patterns, setPatterns, genCoun
 }
 
 function AjudaStep({ brand, accentColor }) {
+  const { dictionary } = useTranslation();
+  const t = dictionary?.help || {};
+
   const [searchQuery, setSearchQuery] = useState('');
   const [searchResult, setSearchResult] = useState(null);
   const [activeFaq, setActiveFaq] = useState(null);
 
-  const KB_ANSWERS = {
-    impressao: "Para imprimir suas estampas e impressos com máxima qualidade, recomendamos utilizar os arquivos em PDF Vetorial de Alta Resolução disponibilizados na aba 'Os Impressos'. Se for imprimir em gráfica (como a Printi), selecione a opção 'Enviar minha arte final'. Se for imprimir em casa, utilize papel couchê ou offset de alta gramatura (mínimo 180g) na sua impressora caseira. Mas lembre-se: dobras complexas e formatos especiais exigem uma gráfica profissional!",
-    exportacao: "Você pode exportar sua Logo e Submarca em formato PNG com fundo transparente (perfeito para posts de Instagram, marca d'água ou assinaturas) ou em formato PNG com fundo colorido diretamente na aba 'Logo'. Já os impressos e guias são exportados em PDF padrão gráfica, com cores em alta definição e prontos para impressão!",
-    cores: "As cores da sua paleta são cuidadosamente geradas com base na essência da sua marca. Na aba 'Cores', você pode alterar a ordem de prioridade das cores (arrastando e soltando os blocos) para destacar qual cor deve ser mais dominante nas suas artes, assinaturas e materiais promocionais!",
-    tamanhos: "Os gabaritos gerados na aba 'Os Impressos' seguem formatos oficiais de mercado. No entanto, para ajustar a escala da logo (já que fontes diferentes têm larguras e comportamentos distintos nas peças), disponibilizamos o controle deslizante de 'Escala da Logo' na aba 'Os Impressos'. Esse ajuste ajuda você a equilibrar perfeitamente a logo no espaço reservado, e sim, o PDF gerado atualiza em tempo real com o tamanho escolhido!",
-    'uso da marca': "Seu Guia de Marca (disponível para download na aba 'Guia') descreve exatamente as regras de ouro para o uso correto da sua nova identidade visual: como combinar as fontes, qual paleta de cores usar in fundos claros e escuros, e qual a aplicação correta da logo e do selo em diferentes superfícies!",
-    papelaria: "A aba 'Os Impressos' é o seu hub completo de produção! Ela gera gabaritos perfeitos de sacolas, receitas de alta, cartões de agradecimento, tags de sacola, etiquetas de correios e gráficos de crescimento. Todos os arquivos são gerados dinamicamente em PDF vetorial de altíssima definição!",
-    'limites do sistema': "Para garantir o equilíbrio técnico e a estabilidade da sua Brand Box, as gerações de estampa possuem um limite padrão de 3 tentativas na galeria. Além disso, as alterações de nome da marca são limitadas a 1 alteração por licença, o que previne abusos e assegura a consistência da sua nova identidade visual!"
-  };
+  const KB_ANSWERS = t.kb || {};
 
   const handleSearch = (e) => {
     e.preventDefault();
@@ -1420,7 +1415,7 @@ function AjudaStep({ brand, accentColor }) {
     let matchedKey = null;
     const keys = Object.keys(KB_ANSWERS);
     for (const key of keys) {
-      if (query.includes(key) || key.includes(query) || (key === 'impressao' && query.includes('imprim')) || (key === 'exportacao' && (query.includes('baixar') || query.includes('export') || query.includes('png') || query.includes('pdf')))) {
+      if (query.includes(key) || key.includes(query) || (key === 'impressao' && (query.includes('imprim') || query.includes('print'))) || (key === 'exportacao' && (query.includes('baixar') || query.includes('export') || query.includes('png') || query.includes('pdf')))) {
         matchedKey = key;
         break;
       }
@@ -1433,114 +1428,13 @@ function AjudaStep({ brand, accentColor }) {
       });
     } else {
       setSearchResult({
-        topic: "ASSISTENTE DIGITAL",
-        text: "Desculpe, não encontrei uma resposta exata para a sua dúvida. Tente pesquisar por palavras como 'impressão', 'exportação', 'cores', 'impressos' ou consulte as perguntas frequentes abaixo!"
+        topic: t.busca_fallback_topico || "ASSISTENTE DIGITAL",
+        text: t.busca_fallback_texto || "Desculpe, não encontrei uma resposta exata."
       });
     }
   };
 
-  const faqs = [
-    {
-      category: "🎨 Personalização",
-      items: [
-        {
-          q: "Posso mudar minhas cores?",
-          a: "As cores são geradas com base no seu diagnóstico. Na aba 'Cores' você pode reorganizar a prioridade das cores (arrastando e soltando os blocos) para destacar suas cores favoritas no design."
-        },
-        {
-          q: "Quantas estampas posso gerar?",
-          a: "Cada projeto permite até 3 novas gerações de estampas na sua galeria para garantir que você tenha opções exclusivas e perfeitas."
-        },
-        {
-          q: "Posso trocar minha logo de lugar?",
-          a: "Para manter o equilíbrio visual e a consistência da identidade, as posições dos elementos seguem uma estrutura profissional fixa, mas você pode escolher entre diferentes layouts na aba 'Logo'."
-        },
-        {
-          q: "Como deixar minha logo mais equilibrada?",
-          a: "Utilize o controle 'Altura da Logo' para ajustar o espaçamento entre a marca e o slogan, e selecione layouts horizontais, verticais ou empilhados que combinem melhor com o seu nome!"
-        },
-        {
-          q: "Como escolher o melhor tamanho?",
-          a: "Os gabaritos gerados em PDF na aba 'Os Impressos' já estão perfeitamente dimensionados nos formatos padrão de mercado (são gabaritos oficiais prontos). No entanto, para ajustar a escala da logo nas peças (já que fontes diferentes têm comportamentos e larguras distintas), disponibilizamos o controle deslizante de 'Escala da Logo' na aba 'Os Impressos'. Esse ajuste ajuda você a equilibrar perfeitamente a logo no espaço reservado, e sim, o PDF gerado é atualizado em tempo real com o tamanho escolhido!"
-        },
-        {
-          q: "Posso ter mais opções de fonte?",
-          a: "Nosso algoritmo inteligente selecionou um grupo exclusivo de 6 fontes premium que possuem afinidade perfeita com a essência e o estilo identificados para a sua marca. Para manter a coerência e harmonia da sua identidade visual, a seleção é limitada a essas 6 opções curadas por projeto."
-        },
-        {
-          q: "Posso enviar minha própria logo?",
-          a: "Sim! Se você já tiver uma imagem de logo ou um símbolo próprio, pode fazer o upload dela diretamente no topo da aba 'Logo'. O sistema aplicará a sua logo personalizada em todos os materiais impressos, cartão digital e posts de forma automática."
-        }
-      ]
-    },
-    {
-      category: "🖨️ Impressão",
-      items: [
-        {
-          q: "Posso imprimir em casa?",
-          a: "Você pode imprimir itens planos comuns em formato A4 (como receitas, folhas de pedido ou papel timbrado) diretamente na sua impressora doméstica. No entanto, itens com dobras ou formatos mais complexos (como sacolas, pouches, papel de seda gigante ou tags de formato especial) exigem acabamentos que as impressoras caseiras não comportam. Para estes, a recomendação absoluta é o envio para uma gráfica profissional."
-        },
-        {
-          q: "O que fazer na hora de imprimir em casa?",
-          a: "Configuração crucial: sempre configure a sua impressora para 'Tamanho Real / Escala 100%'. Nunca selecione 'Ajustar à página' ou 'Reduzir para caber', pois isso desalinhará os gabaritos e as marcas de corte! E lembre-se de configurar a qualidade de impressão para 'Alta' no papel adequado para remover imperfeições e garantir fidelidade de cor."
-        },
-        {
-          q: "Como enviar para uma gráfica?",
-          a: "Baixe o PDF em alta resolução da aba 'Os Impressos' e envie diretamente para a gráfica de sua preferência (como a Printi). Os arquivos já estão fechados no padrão profissional de impressão. Dica importante: o preview na tela é apenas uma simulação visual aproximada. O arquivo PDF baixado é o documento oficial de alta definição 100% fiel e exato para impressão. Sempre abra e revise o arquivo PDF baixado no seu computador antes de enviá-lo para a gráfica para garantir que tudo está perfeito!"
-        },
-        {
-          q: "Qual formato usar?",
-          a: "Para visualização digital e redes sociais, exporte em PNG (fundo transparente). Para impressão profissional de sacolas e materiais impressos, sempre use o PDF disponibilizado na aba correspondente."
-        },
-        {
-          q: "Como saber qual papel devo usar para imprimir?",
-          a: "Você pode consultar a gráfica de sua preferência ou verificar diretamente os detalhes recomendados na plataforma! Ao clicar no botão de baixar o PDF de qualquer item na aba 'Os Impressos', o sistema exibe uma ficha técnica completa com o tamanho exato da peça, a gramatura e tipo de papel indicados, e até o custo médio estimado de produção desse item no mercado."
-        },
-        {
-          q: "Como evitar cortes na estampa?",
-          a: "Se a repetição da sua estampa apresentar marcas visíveis nas bordas ou cortes secos, acesse a aba 'Estampa' e clique no botão mágico 'Suavizar cortes'. Nosso algoritmo mesclará as emendas automaticamente para tornar a estampa 100% contínua! Se necessário, o profissional da sua gráfica parceira também poderá dar uma ajuda ajustando a escala de repetição para encaixe perfeito nas bobinas de papel ou sacolas."
-        }
-      ]
-    },
-    {
-      category: "💾 Projeto",
-      items: [
-        {
-          q: "Como acessar meu link novamente?",
-          a: "O link de acesso à sua Brand Box foi enviado para o seu e-mail cadastrado logo após a confirmação do pagamento. Você também pode salvá-lo nos seus favoritos do navegador."
-        },
-        {
-          q: "Posso mudar o nome do projeto?",
-          a: "Sim! Para evitar abusos do sistema, permitimos realizar 1 alteração de nome da marca na aba 'Logo' (completando o total de 2 nomes válidos: o original e a correção)."
-        },
-        {
-          q: "Meu link expira?",
-          a: "Não! O seu projeto e todos os seus downloads ficam disponíveis para acesso sempre que você precisar, sem data de expiração."
-        },
-        {
-          q: "Posso acessar pelo celular?",
-          a: "Sim! A Brand Box é totalmente responsiva. Você pode visualizar sua identidade, baixar as logos diretamente no rolo de câmera e revisar o seu guia de marca do seu smartphone."
-        }
-      ]
-    },
-    {
-      category: "✨ Experiência",
-      items: [
-        {
-          q: "Como descobrir o melhor estilo para minha marca?",
-          a: "O estilo ideal é o que conecta a essência do seu negócio ao coração do seu cliente. Nosso algoritmo inteligente cruzou suas respostas na pesquisa para encontrar o encaixe perfeito entre as 6 direções estéticas premium."
-        },
-        {
-          q: "O que é o manifesto da marca?",
-          a: "É a voz conceitual da sua marca escrita em prosa poética e inspiracional. Ele serve para alinhar o seu propósito e emocionar o seu cliente na sua comunicação oficial."
-        },
-        {
-          q: "Como definir meu tom de voz?",
-          a: "O tom de voz (aba 'Tom de Voz') define as diretrizes de escrita: as palavras a usar, o que evitar, e a atitude da sua marca ao falar com o público no dia a dia."
-        }
-      ]
-    }
-  ];
+  const faqs = t.faqs || [];
 
   const faqSchema = {
     "@context": "https://schema.org",
@@ -1567,16 +1461,16 @@ function AjudaStep({ brand, accentColor }) {
       {/* 1. Busca IA */}
       <div style={{ background: '#fff', borderRadius: '14px', padding: '20px 18px', border: '1.5px solid #eee', boxShadow: '0 4px 20px rgba(0,0,0,0.02)', marginBottom: '24px' }}>
         <h3 style={{ margin: 0, fontSize: '0.9rem', fontWeight: 800, color: '#333', display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '4px' }}>
-          <span>🤖</span> Busca Inteligente
+          {t.busca_titulo || '🤖 Busca Inteligente'}
         </h3>
         <p style={{ fontSize: '0.74rem', color: '#888', margin: '0 0 14px' }}>
-          Digite sua dúvida técnica abaixo para receber uma orientação instantânea sobre a plataforma.
+          {t.busca_desc || 'Digite sua dúvida técnica abaixo para receber uma orientação instantânea sobre a plataforma.'}
         </p>
 
         <form onSubmit={handleSearch} style={{ display: 'flex', gap: '8px' }}>
           <input
             type="text"
-            placeholder="Ex: Como imprimir? Como exportar em PNG?"
+            placeholder={t.busca_placeholder || 'Ex: Como imprimir? Como exportar em PNG?'}
             value={searchQuery}
             onChange={e => setSearchQuery(e.target.value)}
             style={{ flex: 1, padding: '10px 14px', border: '1.5px solid #e0e0e0', borderRadius: '10px', fontSize: '0.82rem', fontFamily: 'Montserrat, sans-serif', outline: 'none', transition: 'border-color 0.2s' }}
@@ -1584,14 +1478,14 @@ function AjudaStep({ brand, accentColor }) {
             onBlur={e => e.currentTarget.style.borderColor = '#e0e0e0'}
           />
           <button type="submit" style={{ padding: '10px 20px', background: '#C03B66', color: '#fff', border: 'none', borderRadius: '10px', fontWeight: 700, fontSize: '0.82rem', cursor: 'pointer', boxShadow: '0 4px 10px rgba(192, 59, 102, 0.2)' }}>
-            Perguntar
+            {t.busca_btn || 'Perguntar'}
           </button>
         </form>
 
         {searchResult && (
           <div style={{ marginTop: '16px', padding: '14px 16px', background: 'rgba(192, 59, 102, 0.04)', borderLeft: '3px solid #C03B66', borderRadius: '0 8px 8px 0', animation: 'fadeIn 0.3s ease' }}>
             <div style={{ fontSize: '0.66rem', fontWeight: 800, color: '#C03B66', letterSpacing: '0.5px', marginBottom: '6px' }}>
-              🔍 RESPOSTA PARA: {searchResult.topic}
+              {t.busca_resposta || '🔍 RESPOSTA PARA:'} {searchResult.topic}
             </div>
             <div style={{ fontSize: '0.78rem', color: '#555', lineHeight: 1.6 }}>
               {searchResult.text}
@@ -1602,7 +1496,7 @@ function AjudaStep({ brand, accentColor }) {
 
       {/* 2. Cards FAQ */}
       <h3 style={{ margin: '0 0 12px', fontSize: '0.85rem', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '1px', color: '#666' }}>
-        📋 Perguntas Frequentes
+        {t.faq_titulo || '📋 Perguntas Frequentes'}
       </h3>
 
       <div style={{ display: 'flex', flexDirection: 'column', gap: '16px', marginBottom: '28px' }}>
@@ -1638,44 +1532,65 @@ function AjudaStep({ brand, accentColor }) {
           </div>
         ))}
       </div>
+      
+      {/* 2.5 Sugestões & Melhorias (NEW) */}
+      <div style={{ background: '#fff', borderRadius: '14px', padding: '20px 18px', border: '1.5px dashed #ccc', marginBottom: '24px', textAlign: 'center' }}>
+        <h3 style={{ margin: 0, fontSize: '0.9rem', fontWeight: 800, color: '#333', marginBottom: '6px' }}>
+          {t.sugestoes_titulo || '💡 Sugestões & Melhorias'}
+        </h3>
+        <p style={{ fontSize: '0.78rem', color: '#666', lineHeight: 1.6, margin: '0 0 14px', maxWidth: '400px', display: 'inline-block' }}>
+          {t.sugestoes_desc || 'Sentiu falta de algum item de papelaria? Tem ideias para melhorar a plataforma? Mande uma mensagem pra gente! Lemos todas as sugestões para tornar a The Brand Box cada vez melhor.'}
+        </p>
+        <div style={{ marginTop: '4px' }}>
+          <a
+            href={`mailto:${t.sugestoes_email || 'brandbox@sonhodepapel.co'}?subject=Sugestão de Melhoria - The Brand Box`}
+            style={{
+              display: 'inline-flex', alignItems: 'center', gap: '8px',
+              padding: '10px 20px', background: '#f7f7f5', color: '#333', border: '1px solid #ddd', borderRadius: '30px', fontWeight: 700, fontSize: '0.8rem', textDecoration: 'none', cursor: 'pointer', transition: 'background 0.2s'
+            }}
+            onMouseEnter={e => e.currentTarget.style.background = '#eee'}
+            onMouseLeave={e => e.currentTarget.style.background = '#f7f7f5'}
+          >
+            ✉️ {t.sugestoes_email || 'brandbox@sonhodepapel.co'}
+          </a>
+        </div>
+      </div>
 
       {/* 3. Bloco Elegante Concierge Criativo */}
       <div style={{ background: '#fff', border: '1.5px solid #eaeaea', borderRadius: '16px', padding: '24px 20px', textAlign: 'center', boxShadow: '0 10px 30px rgba(0,0,0,0.02)' }}>
         <h2 style={{ margin: '0 0 10px', fontSize: '1rem', fontWeight: 800, color: '#1a1a1a', fontFamily: 'Montserrat, sans-serif' }}>
-          Quer ir além da experiência guiada?
+          {t.concierge_titulo || 'Quer ir além da experiência guiada?'}
         </h2>
         <p style={{ fontSize: '0.78rem', color: '#666', lineHeight: 1.7, maxWidth: '400px', margin: '0 auto 18px' }}>
-          Também oferecemos ajustes personalizados, refinamentos manuais e direção criativa exclusiva para marcas que desejam um acompanhamento mais próximo.
+          {t.concierge_desc || 'Também oferecemos ajustes personalizados, refinamentos manuais e direção criativa exclusiva para marcas que desejam um acompanhamento mais próximo.'}
         </p>
 
         {/* Divisão dos Serviços */}
         <div style={{ display: 'flex', gap: '16px', flexWrap: 'wrap', textAlign: 'left', margin: '0 auto 20px', maxWidth: '380px', background: '#fbfbf9', padding: '16px', borderRadius: '12px', border: '1px solid #f0eee9' }}>
           <div style={{ flex: 1, minWidth: '140px' }}>
             <div style={{ fontSize: '0.72rem', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.5px', color: '#888', marginBottom: '8px' }}>
-              Suporte Gratuito
+              {t.suporte_gratuito_titulo || 'Suporte Gratuito'}
             </div>
             <ul style={{ margin: 0, padding: 0, listStyle: 'none', fontSize: '0.74rem', color: '#555', display: 'flex', flexDirection: 'column', gap: '4px' }}>
-              <li>✨ Dúvidas de uso</li>
-              <li>✨ Problemas de acesso</li>
-              <li>✨ Suporte à impressão</li>
-              <li>✨ Auxílio na exportação</li>
+              {(t.suporte_gratuito_itens || ['Dúvidas de uso', 'Problemas de acesso', 'Suporte à impressão', 'Auxílio na exportação']).map((item, idx) => (
+                <li key={idx}>✨ {item}</li>
+              ))}
             </ul>
           </div>
           <div style={{ flex: 1, minWidth: '140px' }}>
             <div style={{ fontSize: '0.72rem', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.5px', color: '#b7791f', marginBottom: '8px' }}>
-              Concierge Criativo
+              {t.concierge_subtitulo || 'Concierge Criativo'}
             </div>
             <ul style={{ margin: 0, padding: 0, listStyle: 'none', fontSize: '0.74rem', color: '#555', display: 'flex', flexDirection: 'column', gap: '4px' }}>
-              <li>✨ Refinamentos de cores</li>
-              <li>✨ Alterações especiais</li>
-              <li>✨ Ajustes manuais de logo</li>
-              <li>✨ Aplicações personalizadas</li>
+              {(t.concierge_itens || ['Refinamentos de cores', 'Alterações especiais', 'Ajustes manuais de logo', 'Aplicações personalizadas']).map((item, idx) => (
+                <li key={idx}>✨ {item}</li>
+              ))}
             </ul>
           </div>
         </div>
 
         <a
-          href="https://wa.me/4793630746?text=Olá! Gostaria de saber mais sobre o acompanhamento de concierge criativo e ajustes extras premium para minha marca no Brand Box."
+          href={`https://wa.me/4793630746?text=${encodeURIComponent(t.concierge_wpp_msg || 'Olá! Gostaria de saber mais sobre o acompanhamento de concierge criativo e ajustes extras premium para minha marca no Brand Box.')}`}
           target="_blank"
           style={{
             display: 'inline-block',
@@ -1690,7 +1605,7 @@ function AjudaStep({ brand, accentColor }) {
           onMouseEnter={e => e.currentTarget.style.transform = 'translateY(-2px)'}
           onMouseLeave={e => e.currentTarget.style.transform = 'translateY(0)'}
         >
-          Solicitar ajuda personalizada →
+          {t.concierge_btn || 'Solicitar ajuda personalizada →'}
         </a>
       </div>
 
@@ -1699,6 +1614,9 @@ function AjudaStep({ brand, accentColor }) {
 }
 
 function UpsellStep({ brand, accentColor, marca }) {
+  const { dictionary } = useTranslation();
+  const t = dictionary?.upsell || {};
+
   return (
     <div style={{
       display: 'flex',
@@ -1726,7 +1644,7 @@ function UpsellStep({ brand, accentColor, marca }) {
           marginBottom: '12px',
           border: '1px solid #F0D0E0'
         }}>
-          ✨ Fechamento Premium & Arte Sob Medida
+          {t.tag || '✨ Fechamento Premium & Arte Sob Medida'}
         </div>
         <h2 style={{
           fontSize: '1.4rem',
@@ -1735,7 +1653,7 @@ function UpsellStep({ brand, accentColor, marca }) {
           lineHeight: 1.35,
           marginBottom: '8px'
         }}>
-          Deseja um toque extra de exclusividade autoral?
+          {t.titulo || 'Deseja um toque extra de exclusividade autoral?'}
         </h2>
         <p style={{
           fontSize: '0.85rem',
@@ -1744,7 +1662,7 @@ function UpsellStep({ brand, accentColor, marca }) {
           maxWidth: '380px',
           margin: '0 auto'
         }}>
-          Se você ama aquela sensação de marca única, com desenhos e ilustrações autorais que conectam toda a sua identidade, criamos o fechamento sob medida.
+          {t.desc || 'Se você ama aquela sensação de marca única, com desenhos e ilustrações autorais que conectam toda a sua identidade, criamos o fechamento sob medida.'}
         </p>
       </div>
 
@@ -1765,16 +1683,16 @@ function UpsellStep({ brand, accentColor, marca }) {
             <span style={{ fontSize: '1.6rem' }}>✍️</span>
             <div>
               <h3 style={{ fontSize: '0.92rem', fontWeight: 800, color: '#1a1a1a', margin: 0 }}>
-                Logotipo Ilustrado Exclusivo
+                {t.opc1_titulo || 'Logotipo Ilustrado Exclusivo'}
               </h3>
-              <span style={{ fontSize: '0.72rem', color: accentColor, fontWeight: 700 }}>Arte Autoral Sob Medida</span>
+              <span style={{ fontSize: '0.72rem', color: accentColor, fontWeight: 700 }}>
+                {t.opc1_sub || 'Arte Autoral Sob Medida'}
+              </span>
             </div>
           </div>
-          <p style={{ fontSize: '0.8rem', color: '#666', lineHeight: 1.5, margin: 0 }}>
-            Nossos planos automáticos criam lindas logos tipográficas. Com este serviço premium, nossa diretora de arte desenhará um <strong>símbolo ou ilustração autoral exclusiva</strong> para ser integrado à sua marca.
-          </p>
+          <p style={{ fontSize: '0.8rem', color: '#666', lineHeight: 1.5, margin: 0 }} dangerouslySetInnerHTML={{ __html: t.opc1_desc || 'Nossos planos automáticos criam lindas logos tipográficas. Com este serviço premium, nossa diretora de arte desenhará um <strong>símbolo ou ilustração autoral exclusiva</strong> para ser integrado à sua marca.' }} />
           <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px', marginTop: '4px' }}>
-            {['100% autoral', 'Arquivo vetorial editável', 'Ajustes finos com designer'].map(tag => (
+            {(t.opc1_tags || ['100% autoral', 'Arquivo vetorial editável', 'Ajustes finos com designer']).map(tag => (
               <span key={tag} style={{ background: '#f0f0f0', color: '#555', fontSize: '0.65rem', fontWeight: 600, padding: '4px 8px', borderRadius: '12px' }}>
                 ✓ {tag}
               </span>
@@ -1797,16 +1715,16 @@ function UpsellStep({ brand, accentColor, marca }) {
             <span style={{ fontSize: '1.6rem' }}>🎨</span>
             <div>
               <h3 style={{ fontSize: '0.92rem', fontWeight: 800, color: '#1a1a1a', margin: 0 }}>
-                Elementos Ilustrativos Unificadores
+                {t.opc2_titulo || 'Elementos Ilustrativos Unificadores'}
               </h3>
-              <span style={{ fontSize: '0.72rem', color: accentColor, fontWeight: 700 }}>Conexão de Papelaria Premium</span>
+              <span style={{ fontSize: '0.72rem', color: accentColor, fontWeight: 700 }}>
+                {t.opc2_sub || 'Conexão de Papelaria Premium'}
+              </span>
             </div>
           </div>
-          <p style={{ fontSize: '0.8rem', color: '#666', lineHeight: 1.5, margin: 0 }}>
-            Criação de <strong>desenhos exclusivos para os rodapés e detalhes dos seus impressos</strong>. Ideal para criar uma experiência encantadora e um padrão visual acolhedor em todas as peças de papelaria.
-          </p>
+          <p style={{ fontSize: '0.8rem', color: '#666', lineHeight: 1.5, margin: 0 }} dangerouslySetInnerHTML={{ __html: t.opc2_desc || 'Criação de <strong>desenhos exclusivos para os rodapés e detalhes dos seus impressos</strong>. Ideal para criar uma experiência encantadora e um padrão visual acolhedor em todas as peças de papelaria.' }} />
           <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px', marginTop: '4px' }}>
-            {['Rodapés exclusivos', 'Estilo unificado autoral', 'Pronto para impressão'].map(tag => (
+            {(t.opc2_tags || ['Rodapés exclusivos', 'Estilo unificado autoral', 'Pronto para impressão']).map(tag => (
               <span key={tag} style={{ background: '#f0f0f0', color: '#555', fontSize: '0.65rem', fontWeight: 600, padding: '4px 8px', borderRadius: '12px' }}>
                 ✓ {tag}
               </span>
@@ -1822,15 +1740,13 @@ function UpsellStep({ brand, accentColor, marca }) {
         padding: '16px',
         borderLeft: `4px solid ${accentColor}`
       }}>
-        <p style={{ fontSize: '0.75rem', color: '#555', lineHeight: 1.5, margin: 0 }}>
-          💡 <strong>Como funciona:</strong> Ao contratar este serviço sob medida, você faz um briefing direto com o nosso time criativo e nós desenvolvemos as artes personalizadas e as inserimos diretamente nos seus gabaritos do The Brand Box.
-        </p>
+        <p style={{ fontSize: '0.75rem', color: '#555', lineHeight: 1.5, margin: 0 }} dangerouslySetInnerHTML={{ __html: t.nota || '💡 <strong>Como funciona:</strong> Ao contratar este serviço sob medida, você faz um briefing direto com o nosso time criativo e nós desenvolvemos as artes personalizadas e as inserimos diretamente nos seus gabaritos do The Brand Box.' }} />
       </div>
 
       {/* Call to Action WhatsApp */}
       <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', alignItems: 'center', marginTop: '8px' }}>
         <a
-          href={`https://wa.me/4793630746?text=Olá!%20Finalizei%20meu%20projeto%20no%20The%20Brand%20Box%20e%20amei!%20Gostaria%20de%20saber%20mais%20sobre%20o%20serviço%20de%20Desenhos%20de%20Rodapé%20e%20Logotipo%20Ilustrado%20para%20a%20minha%20marca%20\${encodeURIComponent(marca || '')}.`}
+          href={`https://wa.me/4793630746?text=${encodeURIComponent((t.wpp_msg || 'Olá! Finalizei meu projeto no The Brand Box e amei! Gostaria de saber mais sobre o serviço de Desenhos de Rodapé e Logotipo Ilustrado para a minha marca ') + (marca || ''))}`}
           target="_blank"
           rel="noopener noreferrer"
           style={{
@@ -1858,9 +1774,11 @@ function UpsellStep({ brand, accentColor, marca }) {
             e.currentTarget.style.boxShadow = '0 6px 20px rgba(37, 211, 102, 0.25)';
           }}
         >
-          💬 Falar com a Diretora de Arte no WhatsApp
+          {t.wpp_btn || '💬 Falar com a Diretora de Arte no WhatsApp'}
         </a>
-        <span style={{ fontSize: '0.7rem', color: '#999' }}>Disponibilidade imediata de atendimento</span>
+        <span style={{ fontSize: '0.7rem', color: '#999' }}>
+          {t.wpp_desc || 'Disponibilidade imediata de atendimento'}
+        </span>
       </div>
     </div>
   );
@@ -2160,7 +2078,11 @@ const QUIZ_PERGUNTAS_SAUDE = [
 ];
 
 function ManifestoQuiz({ accentColor, marca, tagline, estiloNome, isSaude, onManifestoGerado }) {
-  const QUIZ_PERGUNTAS = isSaude ? QUIZ_PERGUNTAS_SAUDE : QUIZ_PERGUNTAS_GERAL;
+  const { dictionary } = useTranslation();
+  const tMan = dictionary?.manifesto || {};
+  const tQuiz = dictionary?.quiz || {};
+
+  const QUIZ_PERGUNTAS = isSaude ? (dictionary?.quiz_perguntas_saude || QUIZ_PERGUNTAS_SAUDE) : (dictionary?.quiz_perguntas_geral || QUIZ_PERGUNTAS_GERAL);
   const [respostas, setRespostas] = React.useState({});
   const [atual, setAtual] = React.useState(0);
   const [loading, setLoading] = React.useState(false);
@@ -2181,10 +2103,10 @@ function ManifestoQuiz({ accentColor, marca, tagline, estiloNome, isSaude, onMan
       if (data.success) {
         onManifestoGerado(data.manifesto);
       } else {
-        setErro('Não conseguimos gerar agora. Tente novamente.');
+        setErro(tQuiz.erro_gerar || 'Não conseguimos gerar agora. Tente novamente.');
       }
     } catch (e) {
-      setErro('Erro de conexão. Tente novamente.');
+      setErro(tQuiz.erro_conexao || 'Erro de conexão. Tente novamente.');
     } finally {
       setLoading(false);
     }
@@ -2202,7 +2124,7 @@ function ManifestoQuiz({ accentColor, marca, tagline, estiloNome, isSaude, onMan
       {/* Pergunta atual */}
       <div style={{ background: '#fff', borderRadius: '16px', padding: '22px 18px', boxShadow: '0 4px 16px rgba(0,0,0,0.07)', minHeight: '260px', display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
         <div>
-          <p style={{ fontSize: '0.6rem', fontWeight: 700, letterSpacing: '2px', textTransform: 'uppercase', color: '#C03B66aa', marginBottom: '14px' }}>{atual + 1} de {QUIZ_PERGUNTAS.length}</p>
+          <p style={{ fontSize: '0.6rem', fontWeight: 700, letterSpacing: '2px', textTransform: 'uppercase', color: '#C03B66aa', marginBottom: '14px' }}>{atual + 1} {tQuiz.de || 'de'} {QUIZ_PERGUNTAS.length}</p>
           <p style={{ fontSize: '0.9rem', fontWeight: 700, color: '#222', marginBottom: '18px', lineHeight: 1.4 }}>{QUIZ_PERGUNTAS[atual].pergunta}</p>
           <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
             {QUIZ_PERGUNTAS[atual].opcoes.map(opcao => {
@@ -2237,7 +2159,7 @@ function ManifestoQuiz({ accentColor, marca, tagline, estiloNome, isSaude, onMan
       <div style={{ display: 'flex', gap: '8px' }}>
         {atual > 0 && (
           <button onClick={() => setAtual(a => a - 1)} style={{ padding: '12px 20px', borderRadius: '20px', border: '1.5px solid #eee', background: 'transparent', color: '#aaa', fontWeight: 700, fontSize: '0.75rem', cursor: 'pointer', fontFamily: 'Montserrat, sans-serif' }}>
-            ← Voltar
+            {tQuiz.voltar || '← Voltar'}
           </button>
         )}
         {atual < QUIZ_PERGUNTAS.length - 1 ? (
@@ -2246,7 +2168,7 @@ function ManifestoQuiz({ accentColor, marca, tagline, estiloNome, isSaude, onMan
             disabled={!respostas[QUIZ_PERGUNTAS[atual].id]}
             style={{ flex: 1, padding: '12px', borderRadius: '20px', border: 'none', background: respostas[QUIZ_PERGUNTAS[atual].id] ? '#C03B66' : '#ddd', color: '#fff', fontWeight: 700, fontSize: '0.78rem', cursor: respostas[QUIZ_PERGUNTAS[atual].id] ? 'pointer' : 'not-allowed', fontFamily: 'Montserrat, sans-serif', transition: 'all 0.2s' }}
           >
-            Próxima →
+            {tQuiz.proxima || 'Próxima →'}
           </button>
         ) : (
           <button
@@ -2254,7 +2176,7 @@ function ManifestoQuiz({ accentColor, marca, tagline, estiloNome, isSaude, onMan
             disabled={!completo || loading}
             style={{ flex: 1, padding: '13px', borderRadius: '20px', border: 'none', background: completo ? '#C03B66' : '#ddd', color: '#fff', fontWeight: 700, fontSize: '0.82rem', cursor: completo ? 'pointer' : 'not-allowed', fontFamily: 'Montserrat, sans-serif', opacity: loading ? 0.7 : 1, transition: 'all 0.2s' }}
           >
-            {loading ? '✨ Criando manifesto...' : '✨ Gerar Manifesto'}
+            {loading ? (tMan.btn_creating || '✨ Criando manifesto...') : (tMan.btn_generate || '✨ Gerar Manifesto')}
           </button>
         )}
       </div>
@@ -2265,6 +2187,9 @@ function ManifestoQuiz({ accentColor, marca, tagline, estiloNome, isSaude, onMan
 }
 
 function ManifestoDisplay({ manifesto, accentColor, marca, tagline, fontFamily, fontWeight, isScript, onRegerar, podeRefazer, geracoes, limite }) {
+  const { dictionary } = useTranslation();
+  const tMan = dictionary?.manifesto || {};
+
   const [copiado, setCopiado] = React.useState(false);
   const [editando, setEditando] = React.useState(false);
   const [texto, setTexto] = React.useState(manifesto);
@@ -2308,7 +2233,7 @@ function ManifestoDisplay({ manifesto, accentColor, marca, tagline, fontFamily, 
 
         {/* Cabeçalho com nome da marca */}
         <div style={{ textAlign: 'center', marginBottom: '22px', paddingBottom: '16px', borderBottom: `1px solid ${accentColor}22` }}>
-          <p style={{ fontSize: '0.45rem', fontWeight: 700, letterSpacing: '4px', textTransform: 'uppercase', color: accentColor + '88', marginBottom: '6px' }}>Manifesto</p>
+          <p style={{ fontSize: '0.45rem', fontWeight: 700, letterSpacing: '4px', textTransform: 'uppercase', color: accentColor + '88', marginBottom: '6px' }}>{tMan.label || 'Manifesto'}</p>
           <h3 style={{ fontFamily: `'${fontFamily || 'Playfair Display'}', serif`, fontWeight: fontWeight || 700, fontSize: '1.3rem', color: accentColor, letterSpacing: isScript ? '0' : '1px', lineHeight: 1 }}>{marcaFormatted}</h3>
           {tagline && <p style={{ fontSize: '0.5rem', letterSpacing: '2px', textTransform: 'uppercase', color: '#bbb', marginTop: '5px' }}>{tagline}</p>}
         </div>
@@ -2332,20 +2257,20 @@ function ManifestoDisplay({ manifesto, accentColor, marca, tagline, fontFamily, 
 
       <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
         <button onClick={handleBaixarPlaca} style={{ flex: 1, padding: '12px', borderRadius: '20px', background: '#fff', color: '#C03B66', border: '1.5px solid #C03B66', fontWeight: 700, fontSize: '0.75rem', cursor: 'pointer', fontFamily: 'Montserrat, sans-serif' }}>
-          ⬇ Baixar PNG
+          {tMan.btn_download || '⬇ Baixar PNG'}
         </button>
         <button onClick={handleCopiar} style={{ flex: 1, padding: '12px', borderRadius: '20px', border: '1.5px solid #C03B66', background: copiado ? '#C03B66' : 'transparent', color: copiado ? '#fff' : '#C03B66', fontWeight: 700, fontSize: '0.75rem', cursor: 'pointer', fontFamily: 'Montserrat, sans-serif', transition: 'all 0.2s' }}>
-          {copiado ? '✓ Copiado!' : '📋 Copiar'}
+          {copiado ? (tMan.btn_copied || '✓ Copiado!') : (tMan.btn_copy || '📋 Copiar')}
         </button>
         <button onClick={() => setEditando(e => !e)} style={{ flex: 1, padding: '12px', borderRadius: '20px', border: '1.5px solid #ddd', background: editando ? '#333' : 'transparent', color: editando ? '#fff' : '#888', fontWeight: 700, fontSize: '0.75rem', cursor: 'pointer', fontFamily: 'Montserrat, sans-serif', transition: 'all 0.2s' }}>
-          {editando ? '✓ Feito' : '✏️ Editar'}
+          {editando ? (tMan.btn_done || '✓ Feito') : (tMan.btn_edit || '✏️ Editar')}
         </button>
         {podeRefazer ? (
           <button onClick={onRegerar} style={{ flex: 1, padding: '12px', borderRadius: '20px', border: '1.5px solid #eee', background: 'transparent', color: '#bbb', fontWeight: 700, fontSize: '0.75rem', cursor: 'pointer', fontFamily: 'Montserrat, sans-serif' }}>
-            🔄 Refazer ({limite - geracoes}x restante)
+            {tMan.btn_redo || '🔄 Refazer'} ({limite - geracoes}x {tMan.restante || 'restante'})
           </button>
         ) : (
-          <div style={{ flex: 1, padding: '12px', textAlign: 'center', fontSize: '0.65rem', color: '#ccc', fontFamily: 'Montserrat, sans-serif' }}>Limite de gerações atingido</div>
+          <div style={{ flex: 1, padding: '12px', textAlign: 'center', fontSize: '0.65rem', color: '#ccc', fontFamily: 'Montserrat, sans-serif' }}>{tMan.limite_atingido || 'Limite de gerações atingido'}</div>
         )}
       </div>
     </div>
@@ -2353,6 +2278,9 @@ function ManifestoDisplay({ manifesto, accentColor, marca, tagline, fontFamily, 
 }
 
 function ManifestoStep({ accentColor, marca, tagline, brand, isSaude, editData }) {
+  const { dictionary } = useTranslation();
+  const tMan = dictionary?.manifesto || {};
+
   const estiloNome = brand.resultadoFinal?.estiloNome || '';
   const fontFamily = editData?.fontFamily || 'Playfair Display';
   const fontWeight = editData?.fontWeight || 700;
@@ -2395,20 +2323,23 @@ function ManifestoStep({ accentColor, marca, tagline, brand, isSaude, editData }
     <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem', paddingTop: '0.5rem' }}>
       <div style={{ background: accentColor + '10', borderRadius: '16px', padding: '20px', textAlign: 'center' }}>
         <p style={{ fontSize: '1.8rem', marginBottom: '10px' }}>✦</p>
-        <p style={{ fontFamily: `Georgia, serif`, fontSize: '1rem', color: '#555', lineHeight: 1.6, marginBottom: '6px' }}>O Manifesto é a alma da sua marca em palavras.</p>
-        <p style={{ fontSize: '0.72rem', color: '#aaa', fontFamily: 'Montserrat, sans-serif' }}>Responda 5 perguntas e a IA cria um texto único para <strong style={{ color: accentColor }}>{marca}</strong>.</p>
+        <p style={{ fontFamily: `Georgia, serif`, fontSize: '1rem', color: '#555', lineHeight: 1.6, marginBottom: '6px' }}>{tMan.desc_title || 'O Manifesto é a alma da sua marca em palavras.'}</p>
+        <p style={{ fontSize: '0.72rem', color: '#aaa', fontFamily: 'Montserrat, sans-serif' }}>{tMan.desc_text || 'Responda 5 perguntas e a IA cria um texto único para '}<strong style={{ color: accentColor }}>{marca}</strong>.</p>
       </div>
       <button
         onClick={() => setShowQuiz(true)}
         style={{ padding: '16px', borderRadius: '30px', border: 'none', background: '#C03B66', color: '#fff', fontWeight: 700, fontSize: '0.9rem', cursor: 'pointer', fontFamily: 'Montserrat, sans-serif' }}
       >
-        ✨ Criar Manifesto com IA
+        {tMan.btn_create || '✨ Criar Manifesto com IA'}
       </button>
     </div>
   );
 }
 
 function PlacaStep({ brand, accentColor, paletteColors, estampaPatterns, estampaSelectedIdx, editData, logoColor, logoLayout, iconPath, submarcaColor, submarcaTextColor }) {
+  const { dictionary } = useTranslation();
+  const t = dictionary?.placa || {};
+
   const placaRef = React.useRef(null);
   const wrapRef = React.useRef(null);
   const [scale, setScale] = React.useState(1);
@@ -2467,7 +2398,7 @@ function PlacaStep({ brand, accentColor, paletteColors, estampaPatterns, estampa
         onClick={handleBaixar}
         style={{ width: '100%', padding: '14px', background: '#fff', color: '#C03B66', border: '1.5px solid #C03B66', borderRadius: '30px', fontWeight: 700, fontSize: '0.88rem', cursor: 'pointer', fontFamily: 'Montserrat, sans-serif' }}
       >
-        ⬇ Baixar Placa da Marca
+        {t.baixar || '⬇ Baixar Placa da Marca'}
       </button>
     </div>
   );
@@ -2497,17 +2428,23 @@ const TOMDEVOZ_PERGUNTAS = [
 ];
 
 function TomDeVozQuiz({ accentColor, marca, tagline, estiloNome, onTomDeVozGerado }) {
+  const { dictionary } = useTranslation();
+  const tTom = dictionary?.tom_de_voz || {};
+  const tQuiz = dictionary?.quiz || {};
+
+  const PERGUNTAS = dictionary?.tomdevoz_perguntas || TOMDEVOZ_PERGUNTAS;
+
   const [respostas, setRespostas] = React.useState({});
   const [atual, setAtual] = React.useState(0);
   const [loading, setLoading] = React.useState(false);
   const [erro, setErro] = React.useState(null);
-  const completo = TOMDEVOZ_PERGUNTAS.every(q => respostas[q.id]);
+  const completo = PERGUNTAS.every(q => respostas[q.id]);
 
   const handleGerar = async () => {
     setLoading(true);
     setErro(null);
     try {
-      const respostasArr = TOMDEVOZ_PERGUNTAS.map(q => ({ pergunta: q.pergunta, resposta: respostas[q.id] }));
+      const respostasArr = PERGUNTAS.map(q => ({ pergunta: q.pergunta, resposta: respostas[q.id] }));
       const res = await fetch('/api/generate-tomdevoz', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -2517,10 +2454,10 @@ function TomDeVozQuiz({ accentColor, marca, tagline, estiloNome, onTomDeVozGerad
       if (data.success) {
         onTomDeVozGerado({ palavras: data.palavras, frases: data.frases, descricao: data.descricao });
       } else {
-        setErro('Não conseguimos gerar agora. Tente novamente.');
+        setErro(tQuiz.erro_gerar || 'Não conseguimos gerar agora. Tente novamente.');
       }
     } catch (e) {
-      setErro('Erro de conexão. Tente novamente.');
+      setErro(tQuiz.erro_conexao || 'Erro de conexão. Tente novamente.');
     } finally {
       setLoading(false);
     }
@@ -2529,24 +2466,24 @@ function TomDeVozQuiz({ accentColor, marca, tagline, estiloNome, onTomDeVozGerad
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
       <div style={{ display: 'flex', gap: '4px' }}>
-        {TOMDEVOZ_PERGUNTAS.map((_, i) => (
+        {PERGUNTAS.map((_, i) => (
           <div key={i} style={{ flex: 1, height: '4px', borderRadius: '2px', background: i < atual ? '#C03B66' : i === atual ? '#C03B6655' : '#eee', transition: 'background 0.3s' }} />
         ))}
       </div>
       <div style={{ background: '#fff', borderRadius: '16px', padding: '22px 18px', boxShadow: '0 4px 16px rgba(0,0,0,0.07)', minHeight: '260px', display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
         <div>
-          <p style={{ fontSize: '0.6rem', fontWeight: 700, letterSpacing: '2px', textTransform: 'uppercase', color: '#C03B66aa', marginBottom: '14px' }}>{atual + 1} de {TOMDEVOZ_PERGUNTAS.length}</p>
-          <p style={{ fontSize: '0.9rem', fontWeight: 700, color: '#222', marginBottom: '18px', lineHeight: 1.4 }}>{TOMDEVOZ_PERGUNTAS[atual].pergunta}</p>
+          <p style={{ fontSize: '0.6rem', fontWeight: 700, letterSpacing: '2px', textTransform: 'uppercase', color: '#C03B66aa', marginBottom: '14px' }}>{atual + 1} {tQuiz.de || 'de'} {PERGUNTAS.length}</p>
+          <p style={{ fontSize: '0.9rem', fontWeight: 700, color: '#222', marginBottom: '18px', lineHeight: 1.4 }}>{PERGUNTAS[atual].pergunta}</p>
           <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-            {TOMDEVOZ_PERGUNTAS[atual].opcoes.map(opcao => {
-              const selected = respostas[TOMDEVOZ_PERGUNTAS[atual].id] === opcao;
+            {PERGUNTAS[atual].opcoes.map(opcao => {
+              const selected = respostas[PERGUNTAS[atual].id] === opcao;
               return (
                 <button
                   key={opcao}
                   onClick={() => {
-                    const novo = { ...respostas, [TOMDEVOZ_PERGUNTAS[atual].id]: opcao };
+                    const novo = { ...respostas, [PERGUNTAS[atual].id]: opcao };
                     setRespostas(novo);
-                    if (atual < TOMDEVOZ_PERGUNTAS.length - 1) {
+                    if (atual < PERGUNTAS.length - 1) {
                       setTimeout(() => setAtual(a => a + 1), 280);
                     }
                   }}
@@ -2568,16 +2505,16 @@ function TomDeVozQuiz({ accentColor, marca, tagline, estiloNome, onTomDeVozGerad
       <div style={{ display: 'flex', gap: '8px' }}>
         {atual > 0 && (
           <button onClick={() => setAtual(a => a - 1)} style={{ padding: '12px 20px', borderRadius: '20px', border: '1.5px solid #eee', background: 'transparent', color: '#aaa', fontWeight: 700, fontSize: '0.75rem', cursor: 'pointer', fontFamily: 'Montserrat, sans-serif' }}>
-            ← Voltar
+            {tQuiz.voltar || '← Voltar'}
           </button>
         )}
-        {atual < TOMDEVOZ_PERGUNTAS.length - 1 ? (
+        {atual < PERGUNTAS.length - 1 ? (
           <button
             onClick={() => setAtual(a => a + 1)}
-            disabled={!respostas[TOMDEVOZ_PERGUNTAS[atual].id]}
-            style={{ flex: 1, padding: '12px', borderRadius: '20px', border: 'none', background: respostas[TOMDEVOZ_PERGUNTAS[atual].id] ? '#C03B66' : '#ddd', color: '#fff', fontWeight: 700, fontSize: '0.78rem', cursor: respostas[TOMDEVOZ_PERGUNTAS[atual].id] ? 'pointer' : 'not-allowed', fontFamily: 'Montserrat, sans-serif', transition: 'all 0.2s' }}
+            disabled={!respostas[PERGUNTAS[atual].id]}
+            style={{ flex: 1, padding: '12px', borderRadius: '20px', border: 'none', background: respostas[PERGUNTAS[atual].id] ? '#C03B66' : '#ddd', color: '#fff', fontWeight: 700, fontSize: '0.78rem', cursor: respostas[PERGUNTAS[atual].id] ? 'pointer' : 'not-allowed', fontFamily: 'Montserrat, sans-serif', transition: 'all 0.2s' }}
           >
-            Próxima →
+            {tQuiz.proxima || 'Próxima →'}
           </button>
         ) : (
           <button
@@ -2585,7 +2522,7 @@ function TomDeVozQuiz({ accentColor, marca, tagline, estiloNome, onTomDeVozGerad
             disabled={!completo || loading}
             style={{ flex: 1, padding: '13px', borderRadius: '20px', border: 'none', background: completo ? '#C03B66' : '#ddd', color: '#fff', fontWeight: 700, fontSize: '0.82rem', cursor: completo ? 'pointer' : 'not-allowed', fontFamily: 'Montserrat, sans-serif', opacity: loading ? 0.7 : 1, transition: 'all 0.2s' }}
           >
-            {loading ? '✨ Criando tom de voz...' : '✨ Gerar Tom de Voz'}
+            {loading ? (tTom.btn_creating || '✨ Criando tom de voz...') : (tTom.btn_generate || '✨ Gerar Tom de Voz')}
           </button>
         )}
       </div>
@@ -2595,6 +2532,10 @@ function TomDeVozQuiz({ accentColor, marca, tagline, estiloNome, onTomDeVozGerad
 }
 
 function TomDeVozDisplay({ tomDeVoz, accentColor, marca, onRegerar, podeRefazer, geracoes, limite }) {
+  const { dictionary } = useTranslation();
+  const tTom = dictionary?.tom_de_voz || {};
+  const tMan = dictionary?.manifesto || {};
+
   const [copiado, setCopiado] = React.useState(false);
   const [editando, setEditando] = React.useState(false);
   const [descricao, setDescricao] = React.useState(tomDeVoz.descricao);
@@ -2602,7 +2543,7 @@ function TomDeVozDisplay({ tomDeVoz, accentColor, marca, onRegerar, podeRefazer,
   React.useEffect(() => { setDescricao(tomDeVoz.descricao); }, [tomDeVoz.descricao]);
 
   const handleCopiar = () => {
-    const texto = [tomDeVoz.descricao, '', 'Palavras-chave:', tomDeVoz.palavras.join(', '), '', 'Orientações:', ...(tomDeVoz.frases || [])].join('\n');
+    const texto = [tomDeVoz.descricao, '', `${tTom.palavras_chave || 'Palavras-chave'}:`, tomDeVoz.palavras.join(', '), '', `${tTom.orientacoes || 'Orientações'}:`, ...(tomDeVoz.frases || [])].join('\n');
     navigator.clipboard.writeText(texto).then(() => {
       setCopiado(true);
       setTimeout(() => setCopiado(false), 2000);
@@ -2612,7 +2553,7 @@ function TomDeVozDisplay({ tomDeVoz, accentColor, marca, onRegerar, podeRefazer,
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
       <div style={{ background: '#faf9f7', borderRadius: '16px', padding: '22px 20px', boxShadow: '0 4px 16px rgba(0,0,0,0.07)', border: `1.5px solid ${accentColor}33` }}>
-        <p style={{ fontSize: '0.52rem', fontWeight: 700, letterSpacing: '3px', textTransform: 'uppercase', color: accentColor + '88', marginBottom: '10px' }}>Tom de Voz — {marca}</p>
+        <p style={{ fontSize: '0.52rem', fontWeight: 700, letterSpacing: '3px', textTransform: 'uppercase', color: accentColor + '88', marginBottom: '10px' }}>{tTom.label || 'Tom de Voz'} — {marca}</p>
         {editando ? (
           <textarea
             value={descricao}
@@ -2624,7 +2565,7 @@ function TomDeVozDisplay({ tomDeVoz, accentColor, marca, onRegerar, podeRefazer,
         )}
       </div>
       <div style={{ background: '#fff', borderRadius: '16px', padding: '18px 20px', boxShadow: '0 2px 10px rgba(0,0,0,0.05)', border: '1px solid #f0f0f0' }}>
-        <p style={{ fontSize: '0.52rem', fontWeight: 700, letterSpacing: '3px', textTransform: 'uppercase', color: '#bbb', marginBottom: '12px' }}>Palavras-chave</p>
+        <p style={{ fontSize: '0.52rem', fontWeight: 700, letterSpacing: '3px', textTransform: 'uppercase', color: '#bbb', marginBottom: '12px' }}>{tTom.palavras_chave || 'Palavras-chave'}</p>
         <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
           {(tomDeVoz.palavras || []).map((w, i) => (
             <span key={i} style={{ padding: '8px 18px', borderRadius: '20px', fontSize: '0.78rem', fontWeight: 600, fontFamily: 'Montserrat, sans-serif', ...(i % 2 === 0 ? { background: accentColor, color: '#fff' } : { border: `1.5px solid ${accentColor}`, color: accentColor, background: 'transparent' }) }}>
@@ -2635,7 +2576,7 @@ function TomDeVozDisplay({ tomDeVoz, accentColor, marca, onRegerar, podeRefazer,
       </div>
       {tomDeVoz.frases?.length > 0 && (
         <div style={{ background: '#fff', borderRadius: '16px', padding: '18px 20px', boxShadow: '0 2px 10px rgba(0,0,0,0.05)', border: '1px solid #f0f0f0' }}>
-          <p style={{ fontSize: '0.52rem', fontWeight: 700, letterSpacing: '3px', textTransform: 'uppercase', color: '#bbb', marginBottom: '12px' }}>Orientações de comunicação</p>
+          <p style={{ fontSize: '0.52rem', fontWeight: 700, letterSpacing: '3px', textTransform: 'uppercase', color: '#bbb', marginBottom: '12px' }}>{tTom.orientacoes || 'Orientações de comunicação'}</p>
           <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
             {tomDeVoz.frases.map((f, i) => (
               <div key={i} style={{ display: 'flex', gap: '10px', alignItems: 'flex-start' }}>
@@ -2648,17 +2589,17 @@ function TomDeVozDisplay({ tomDeVoz, accentColor, marca, onRegerar, podeRefazer,
       )}
       <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
         <button onClick={handleCopiar} style={{ flex: 1, padding: '12px', borderRadius: '20px', border: '1.5px solid #C03B66', background: copiado ? '#C03B66' : 'transparent', color: copiado ? '#fff' : '#C03B66', fontWeight: 700, fontSize: '0.75rem', cursor: 'pointer', fontFamily: 'Montserrat, sans-serif', transition: 'all 0.2s' }}>
-          {copiado ? '✓ Copiado!' : '📋 Copiar'}
+          {copiado ? (tMan.btn_copied || '✓ Copiado!') : (tMan.btn_copy || '📋 Copiar')}
         </button>
         <button onClick={() => setEditando(e => !e)} style={{ flex: 1, padding: '12px', borderRadius: '20px', border: '1.5px solid #ddd', background: editando ? '#333' : 'transparent', color: editando ? '#fff' : '#888', fontWeight: 700, fontSize: '0.75rem', cursor: 'pointer', fontFamily: 'Montserrat, sans-serif', transition: 'all 0.2s' }}>
-          {editando ? '✓ Feito' : '✏️ Editar'}
+          {editando ? (tMan.btn_done || '✓ Feito') : (tMan.btn_edit || '✏️ Editar')}
         </button>
         {podeRefazer ? (
           <button onClick={onRegerar} style={{ flex: 1, padding: '12px', borderRadius: '20px', border: '1.5px solid #eee', background: 'transparent', color: '#bbb', fontWeight: 700, fontSize: '0.75rem', cursor: 'pointer', fontFamily: 'Montserrat, sans-serif' }}>
-            🔄 Refazer ({limite - geracoes}x restante)
+            {tMan.btn_redo || '🔄 Refazer'} ({limite - geracoes}x {tMan.restante || 'restante'})
           </button>
         ) : (
-          <div style={{ flex: 1, padding: '12px', textAlign: 'center', fontSize: '0.65rem', color: '#ccc', fontFamily: 'Montserrat, sans-serif' }}>Limite de gerações atingido</div>
+          <div style={{ flex: 1, padding: '12px', textAlign: 'center', fontSize: '0.65rem', color: '#ccc', fontFamily: 'Montserrat, sans-serif' }}>{tMan.limite_atingido || 'Limite de gerações atingido'}</div>
         )}
       </div>
     </div>
@@ -2666,6 +2607,9 @@ function TomDeVozDisplay({ tomDeVoz, accentColor, marca, onRegerar, podeRefazer,
 }
 
 function TomDeVozStep({ accentColor, marca, tagline, brand, editData }) {
+  const { dictionary } = useTranslation();
+  const tTom = dictionary?.tom_de_voz || {};
+
   const estiloNome = brand.resultadoFinal?.estiloNome || '';
   const [tomDeVoz, setTomDeVoz] = React.useState(() => {
     if (typeof window !== 'undefined') {
@@ -2707,14 +2651,14 @@ function TomDeVozStep({ accentColor, marca, tagline, brand, editData }) {
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem', paddingTop: '0.5rem' }}>
       <div style={{ background: accentColor + '10', borderRadius: '16px', padding: '24px 20px', textAlign: 'center' }}>
-        <p style={{ fontFamily: `Georgia, serif`, fontSize: '1rem', color: '#555', lineHeight: 1.6, marginBottom: '6px' }}>O Tom de Voz define como sua marca fala com o mundo.</p>
-        <p style={{ fontSize: '0.72rem', color: '#aaa', fontFamily: 'Montserrat, sans-serif' }}>Responda 4 perguntas e a IA cria o guia de voz para <strong style={{ color: accentColor }}>{marca}</strong>.</p>
+        <p style={{ fontFamily: `Georgia, serif`, fontSize: '1rem', color: '#555', lineHeight: 1.6, marginBottom: '6px' }}>{tTom.desc_title || 'O Tom de Voz define como sua marca fala com o mundo.'}</p>
+        <p style={{ fontSize: '0.72rem', color: '#aaa', fontFamily: 'Montserrat, sans-serif' }}>{tTom.desc_text || 'Responda 4 perguntas e a IA cria o guia de voz para '} <strong style={{ color: accentColor }}>{marca}</strong>.</p>
       </div>
       <button
         onClick={() => setShowQuiz(true)}
         style={{ padding: '16px', borderRadius: '30px', border: 'none', background: '#C03B66', color: '#fff', fontWeight: 700, fontSize: '0.9rem', cursor: 'pointer', fontFamily: 'Montserrat, sans-serif' }}
       >
-        ✨ Criar Tom de Voz com IA
+        {tTom.btn_create || '✨ Criar Tom de Voz com IA'}
       </button>
     </div>
   );
@@ -2722,16 +2666,19 @@ function TomDeVozStep({ accentColor, marca, tagline, brand, editData }) {
 
 // Uma fonte curada por categoria para oferecer variedade sem overwhelm
 const FONTE_CURADA = [
-  { label: 'Cursiva',     fontFamily: 'Amelie',            weight: 400, style: 'script',  sizeBoost: 1.4, googleFont: false },
-  { label: 'Delicada',    fontFamily: 'Birthstone',        weight: 400, style: 'script',  sizeBoost: 1.4, googleFont: true  },
-  { label: 'Elegante',    fontFamily: 'Alex Brush',        weight: 400, style: 'script',  sizeBoost: 1.6, googleFont: true  },
-  { label: 'Clássica',    fontFamily: 'Cinzel',            weight: 400, style: 'serif',   sizeBoost: 1.0, googleFont: true  },
-  { label: 'Moderna',     fontFamily: 'Raleway',           weight: 700, style: 'sans',    sizeBoost: 1.0, googleFont: true  },
-  { label: 'Lúdica',      fontFamily: 'LittleFriend',      weight: 400, style: 'display', sizeBoost: 1.0, googleFont: false },
-  { label: 'Divertida',   fontFamily: 'Borel',             weight: 400, style: 'script',  sizeBoost: 1.2, googleFont: true  },
+  { label: 'Cursiva',     labelId: 'cursiva',     fontFamily: 'Amelie',            weight: 400, style: 'script',  sizeBoost: 1.4, googleFont: false },
+  { label: 'Delicada',    labelId: 'delicada',    fontFamily: 'Birthstone',        weight: 400, style: 'script',  sizeBoost: 1.4, googleFont: true  },
+  { label: 'Elegante',    labelId: 'elegante',    fontFamily: 'Alex Brush',        weight: 400, style: 'script',  sizeBoost: 1.6, googleFont: true  },
+  { label: 'Clássica',    labelId: 'classica',    fontFamily: 'Cinzel',            weight: 400, style: 'serif',   sizeBoost: 1.0, googleFont: true  },
+  { label: 'Moderna',     labelId: 'moderna',     fontFamily: 'Raleway',           weight: 700, style: 'sans',    sizeBoost: 1.0, googleFont: true  },
+  { label: 'Lúdica',      labelId: 'ludica',      fontFamily: 'LittleFriend',      weight: 400, style: 'display', sizeBoost: 1.0, googleFont: false },
+  { label: 'Divertida',   labelId: 'divertida',   fontFamily: 'Borel',             weight: 400, style: 'script',  sizeBoost: 1.2, googleFont: true  },
 ];
 
 function FonteStep({ brand, accentColor, logoColor, marca, tagline, editData, logoLayout, onFontChange }) {
+  const { dictionary } = useTranslation();
+  const tFont = dictionary?.font || {};
+
   const currentFont = editData?.fontFamily || 'Playfair Display';
 
   // Garante que a fonte original sempre apareça como opção "Sugerida"
@@ -2745,7 +2692,7 @@ function FonteStep({ brand, accentColor, logoColor, marca, tagline, editData, lo
     // Descobrir dados da fonte original no FONT_MAP
     const found = Object.values(FONT_MAP).find(f => f.fontFamily === originalFont);
     if (found) {
-      filteredLista.unshift({ label: 'Sugerida', ...found });
+      filteredLista.unshift({ labelId: 'suggested', labelDefault: 'Sugerida', ...found });
     }
     
     return filteredLista.slice(0, 7);
@@ -2773,14 +2720,13 @@ function FonteStep({ brand, accentColor, logoColor, marca, tagline, editData, lo
     });
   }, [opcoes]);
 
-  const formatName = (f) => {
-    const text = marca || 'Sua Marca';
-    return f.style === 'script'
-      ? text.split(' ').map(w => w.charAt(0).toUpperCase() + w.slice(1).toLowerCase()).join(' ')
-      : text.toUpperCase();
-  };
-
   const isActive = (f) => f.fontFamily === currentFont;
+
+  const getLabel = (f) => {
+    if (f.labelId) return tFont[f.labelId] || f.labelDefault || f.label;
+    const key = f.label.toLowerCase().replace(/á/g, 'a').replace(/ú/g, 'u').replace(/í/g, 'i');
+    return tFont[key] || f.label;
+  };
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
@@ -2801,8 +2747,8 @@ function FonteStep({ brand, accentColor, logoColor, marca, tagline, editData, lo
 
       {editData?.customLogoSrc ? (
         <div style={{ padding: '16px', background: '#fff0f5', borderRadius: '12px', border: '1.5px solid #ffb3c6', color: '#c03b66', fontSize: '0.82rem', fontFamily: 'Montserrat, sans-serif', textAlign: 'center', fontWeight: 600 }}>
-          Você enviou sua própria logo, então a fonte já faz parte da sua imagem!<br/><br/>
-          <span style={{ fontSize: '0.72rem', fontWeight: 500, opacity: 0.8 }}>Para testar outras fontes ou usar as opções desta aba, volte à aba "Sua Logo" e selecione a "Logo sugerida".</span>
+          {tFont.custom_logo_msg || 'Você enviou sua própria logo, então a fonte já faz parte da sua imagem!'}<br/><br/>
+          <span style={{ fontSize: '0.72rem', fontWeight: 500, opacity: 0.8 }}>{tFont.custom_logo_sub || 'Para testar outras fontes ou usar as opções desta aba, volte à aba "Sua Logo" e selecione a "Logo sugerida".'}</span>
         </div>
       ) : (
         <>
@@ -2812,17 +2758,17 @@ function FonteStep({ brand, accentColor, logoColor, marca, tagline, editData, lo
             return activeFont ? (
               <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '10px 14px', background: `${accentColor}10`, borderRadius: '12px', border: `1.5px solid ${accentColor}30` }}>
                 <div>
-                  <div style={{ fontSize: '0.58rem', fontWeight: 700, color: accentColor, textTransform: 'uppercase', letterSpacing: '1px', fontFamily: 'Montserrat,sans-serif', marginBottom: '2px' }}>Fonte ativa</div>
-                  <div style={{ fontSize: '0.82rem', fontWeight: 800, color: '#1a1a1a', fontFamily: 'Montserrat,sans-serif' }}>{activeFont.label}</div>
+                  <div style={{ fontSize: '0.58rem', fontWeight: 700, color: accentColor, textTransform: 'uppercase', letterSpacing: '1px', fontFamily: 'Montserrat,sans-serif', marginBottom: '2px' }}>{tFont.active_font || 'Fonte ativa'}</div>
+                  <div style={{ fontSize: '0.82rem', fontWeight: 800, color: '#1a1a1a', fontFamily: 'Montserrat,sans-serif' }}>{getLabel(activeFont)}</div>
                 </div>
-                <div style={{ background: accentColor, color: '#fff', borderRadius: '20px', padding: '4px 12px', fontSize: '0.65rem', fontWeight: 700, fontFamily: 'Montserrat,sans-serif' }}>✓ Aplicada</div>
+                <div style={{ background: accentColor, color: '#fff', borderRadius: '20px', padding: '4px 12px', fontSize: '0.65rem', fontWeight: 700, fontFamily: 'Montserrat,sans-serif' }}>{tFont.applied || '✓ Aplicada'}</div>
               </div>
             ) : null;
           })()}
 
           {/* Alternativas */}
           <div>
-            <p style={{ fontSize: '0.65rem', color: '#aaa', fontFamily: 'Montserrat,sans-serif', marginBottom: '8px' }}>Quero tentar outra →</p>
+            <p style={{ fontSize: '0.65rem', color: '#aaa', fontFamily: 'Montserrat,sans-serif', marginBottom: '8px' }}>{tFont.try_another || 'Quero tentar outra →'}</p>
         <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap' }}>
           {opcoes.filter(f => !isActive(f)).map(f => {
             const previewing = preview.fontFamily === f.fontFamily;
@@ -2842,7 +2788,7 @@ function FonteStep({ brand, accentColor, logoColor, marca, tagline, editData, lo
                   color: previewing ? accentColor : '#666',
                 }}
               >
-                {f.label}
+                {getLabel(f)}
               </button>
             );
           })}
@@ -3134,6 +3080,7 @@ function CartaoDeVisitaPreview({ accentColor, patternSrc, cartaoContacts, crmLin
 
 // Toggle compartilhado: Com/Sem estampa + bolinhas clicáveis de cor da paleta + Slider de Escala
 export function BordaToggle({ comBorda, setComBorda, accentColor, paletteColors, borderColor, setBorderColor, patternScale, setPatternScale }) {
+  const { dictionary } = useTranslation();
   const btn = (active) => ({
     padding: '6px 16px', borderRadius: '20px', fontSize: '0.72rem', fontWeight: 700,
     cursor: 'pointer', border: 'none',
@@ -3143,13 +3090,13 @@ export function BordaToggle({ comBorda, setComBorda, accentColor, paletteColors,
   return (
     <div style={{ display: 'flex', gap: '12px', alignItems: 'center', flexWrap: 'wrap', justifyContent: 'center', padding: '10px', background: '#fcfcfc', borderRadius: '30px', border: '1px solid #f0f0f0' }}>
       <div style={{ display: 'flex', gap: '4px' }}>
-        <button style={btn(comBorda)} onClick={() => setComBorda(true)}>Estampa</button>
-        <button style={btn(!comBorda)} onClick={() => setComBorda(false)}>Sólida</button>
+        <button style={btn(comBorda)} onClick={() => setComBorda(true)}>{dictionary?.geral?.estampa || 'Estampa'}</button>
+        <button style={btn(!comBorda)} onClick={() => setComBorda(false)}>{dictionary?.geral?.solida || 'Sólida'}</button>
       </div>
 
       {comBorda && setPatternScale && (
         <div style={{ display: 'flex', alignItems: 'center', gap: '8px', borderLeft: '1px solid #eee', paddingLeft: '12px', marginLeft: '4px' }}>
-          <span style={{ fontSize: '0.62rem', color: '#999', textTransform: 'uppercase', letterSpacing: '1px', fontWeight: 600 }}>Tamanho:</span>
+          <span style={{ fontSize: '0.62rem', color: '#999', textTransform: 'uppercase', letterSpacing: '1px', fontWeight: 600 }}>{dictionary?.geral?.tamanho || 'Tamanho:'}</span>
           <input 
             type="range" min="50" max="600" step="10"
             value={patternScale || 120} 
@@ -3239,6 +3186,7 @@ function CertificadoCoragemPreview({ accentColor, patternSrc, editData, logoColo
 
 // Preview proporcional A5 — usado por receituário, timbrado, etc.
 function A5ItemPreview({ item, accentColor, patternSrc, editData, logoColor, logoLayout, cartaoContacts, crmLine, clinicaNome, comBorda, setComBorda, paletteColors, borderColor, setBorderColor, patternScale, setPatternScale, hideTagline, folderRoof, setFolderRoof, paperSize, setPaperSize }) {
+  const { dictionary } = useTranslation();
   const BORDER = 14;
   const { whatsapp, telefone, instagram, site, endereco } = cartaoContacts || {};
   const mainPhone = whatsapp || telefone || '';
@@ -3253,7 +3201,7 @@ function A5ItemPreview({ item, accentColor, patternSrc, editData, logoColor, log
       <div style={{ display: 'flex', gap: '6px', alignItems: 'center', flexWrap: 'wrap', justifyContent: 'center' }}>
         {setFolderRoof && (
           <button onClick={() => setFolderRoof(v => !v)} style={{ fontSize: '0.7rem', padding: '4px 12px', borderRadius: '20px', border: `1px solid ${folderRoof ? accentColor : '#eee'}`, background: folderRoof ? `${accentColor}10` : '#fff', color: folderRoof ? accentColor : '#aaa', cursor: 'pointer', fontFamily: 'Montserrat,sans-serif', fontWeight: folderRoof ? 700 : 400 }}>
-            {folderRoof ? '🏠 Recorte Casinha ATIVO' : '⬜️ Recorte Reto ATIVO'}
+            {folderRoof ? (dictionary?.geral?.recorte_casinha || '🏠 Recorte Casinha ATIVO') : (dictionary?.geral?.recorte_reto || '⬜️ Recorte Reto ATIVO')}
           </button>
         )}
         {setPaperSize && (
@@ -3300,6 +3248,7 @@ function A5ItemPreview({ item, accentColor, patternSrc, editData, logoColor, log
 }
 
 function ProntuarioPreview({ accentColor, patternSrc, editData, logoColor, logoLayout, cartaoContacts, crmLine, clinicaNome, comBorda, setComBorda, paletteColors, borderColor, setBorderColor, patternScale, setPatternScale, hideTagline }) {
+  const { dictionary } = useTranslation();
   const BORDER = 10;
   const effectiveSrc = comBorda ? patternSrc : null;
   const solidColor = borderColor || accentColor;
@@ -3333,11 +3282,11 @@ function ProntuarioPreview({ accentColor, patternSrc, editData, logoColor, logoL
               <LogoPreviewHTML item="Prontuário Médico" editData={editData} color={logoColor} layout={logoLayout} scaleFactor={0.6} crm={crmLine} hideTagline={hideTagline} withBackground={false} maxWidth="100%" maxHeight="100%" />
             </div>
             <div style={{ border: '0.4px solid #eee', borderRadius: '2px', padding: '6px 7px', display: 'flex', flexDirection: 'column', gap: '3.5px', marginTop: '2px' }}>
-              {formRow('PACIENTE:', 'DATA DE NASCIMENTO:')}
-              {formRow('NOME DA MÃE:', 'CPF:')}
-              {formRow('TELEFONE:', 'EMAIL:')}
-              {formRow('ENDEREÇO:', 'CIDADE:')}
-              {formRow('CONVÊNIO:', 'Nº CARTEIRINHA:')}
+              {formRow(dictionary?.prontuario?.paciente || 'PACIENTE:', dictionary?.prontuario?.data_nasc || 'DATA DE NASCIMENTO:')}
+              {formRow(dictionary?.prontuario?.mae || 'NOME DA MÃE:', dictionary?.prontuario?.cpf || 'CPF:')}
+              {formRow(dictionary?.prontuario?.telefone || 'TELEFONE:', dictionary?.prontuario?.email || 'EMAIL:')}
+              {formRow(dictionary?.prontuario?.endereco || 'ENDEREÇO:', dictionary?.prontuario?.cidade || 'CIDADE:')}
+              {formRow(dictionary?.prontuario?.convenio || 'CONVÊNIO:', dictionary?.prontuario?.carteirinha || 'Nº CARTEIRINHA:')}
             </div>
             <div style={{ marginTop: '10px', display: 'flex', flexDirection: 'column', gap: '8.5px' }}>
               {Array.from({ length: 18 }).map((_, i) => (
@@ -3615,6 +3564,7 @@ function FichaCadastroPreview({ accentColor, patternSrc, editData, logoColor, lo
 }
 
 function ReciboPreview({ accentColor, patternSrc, editData, logoColor, logoLayout, cartaoContacts, crmLine, clinicaNome, comBorda, setComBorda, paletteColors, borderColor, setBorderColor, patternScale, setPatternScale, hideTagline, marca }) {
+  const { dictionary } = useTranslation();
   const BORDER = 10;
   const { whatsapp, telefone, telefone2, instagram, site, endereco } = cartaoContacts || {};
   const mainPhone = whatsapp || telefone || '';
@@ -3638,12 +3588,12 @@ function ReciboPreview({ accentColor, patternSrc, editData, logoColor, logoLayou
                <LogoPreviewHTML item="Recibo" editData={editData} color={logoColor} layout={logoLayout} scaleFactor={0.55} crm={crmLine} hideTagline={hideTagline} withBackground={false} alignLeft={true} maxWidth="100%" maxHeight="100%" />
             </div>
             <div style={{ textAlign: 'right' }}>
-              <div style={{ fontSize: '12px', fontWeight: 800, color: accentColor, opacity: 0.12, letterSpacing: '2px' }}>RECIBO</div>
+              <div style={{ fontSize: '12px', fontWeight: 800, color: accentColor, opacity: 0.12, letterSpacing: '2px' }}>{dictionary?.recibo?.titulo || 'RECIBO'}</div>
             </div>
           </div>
 
           <div style={{ display: 'flex', flexDirection: 'column', gap: '5px', marginTop: '5px' }}>
-            {['Recebi de', 'A quantia de', 'Referente a'].map(label => (
+            {[dictionary?.recibo?.recebi_de || 'Recebi de', dictionary?.recibo?.quantia_de || 'A quantia de', dictionary?.recibo?.referente_a || 'Referente a'].map(label => (
               <div key={label} style={{ borderBottom: '0.5px solid #eee', paddingBottom: '3px', display: 'flex', gap: '5px', alignItems: 'flex-end', minHeight: '14px' }}>
                 <span style={{ fontSize: '4.5px', fontWeight: 800, color: '#1a1a1a', textTransform: 'uppercase', flexShrink: 0 }}>{label}</span>
                 <div style={{ flex: 1 }}></div>
@@ -3653,9 +3603,9 @@ function ReciboPreview({ accentColor, patternSrc, editData, logoColor, logoLayou
 
           <div style={{ marginTop: '10px', width: '100%', border: '0.5px solid #eee', borderRadius: '1px', overflow: 'hidden' }}>
             <div style={{ display: 'flex', background: '#f5f5f5', borderBottom: '0.5px solid #eee' }}>
-              <div style={{ flex: 1.5, padding: '3px', fontSize: '4.5px', fontWeight: 700, color: '#1a1a1a', borderRight: '0.5px solid #eee' }}>DATA</div>
-              <div style={{ flex: 4, padding: '3px', fontSize: '4.5px', fontWeight: 700, color: '#1a1a1a', borderRight: '0.5px solid #eee' }}>DESCRIÇÃO DOS SERVIÇOS</div>
-              <div style={{ flex: 1.5, padding: '3px', fontSize: '4.5px', fontWeight: 700, color: '#1a1a1a', textAlign: 'right' }}>TOTAL</div>
+              <div style={{ flex: 1.5, padding: '3px', fontSize: '4.5px', fontWeight: 700, color: '#1a1a1a', borderRight: '0.5px solid #eee' }}>{dictionary?.recibo?.data || 'DATA'}</div>
+              <div style={{ flex: 4, padding: '3px', fontSize: '4.5px', fontWeight: 700, color: '#1a1a1a', borderRight: '0.5px solid #eee' }}>{dictionary?.recibo?.descricao || 'DESCRIÇÃO DOS SERVIÇOS'}</div>
+              <div style={{ flex: 1.5, padding: '3px', fontSize: '4.5px', fontWeight: 700, color: '#1a1a1a', textAlign: 'right' }}>{dictionary?.recibo?.total || 'TOTAL'}</div>
             </div>
             {[1,2,3].map(i => (
               <div key={i} style={{ display: 'flex', borderBottom: '0.5px solid #f9f9f9', height: '11px' }}>
@@ -3665,7 +3615,7 @@ function ReciboPreview({ accentColor, patternSrc, editData, logoColor, logoLayou
               </div>
             ))}
             <div style={{ display: 'flex', height: '11px', background: '#f9f9f9' }}>
-               <div style={{ flex: 5.5, borderRight: '0.5px solid #f9f9f9', padding: '3px', textAlign: 'right', fontSize: '4.5px', fontWeight: 800, color: '#1a1a1a' }}>TOTAL</div>
+               <div style={{ flex: 5.5, borderRight: '0.5px solid #f9f9f9', padding: '3px', textAlign: 'right', fontSize: '4.5px', fontWeight: 800, color: '#1a1a1a' }}>{dictionary?.recibo?.total || 'TOTAL'}</div>
                <div style={{ flex: 1.5 }}></div>
             </div>
           </div>
@@ -3688,6 +3638,7 @@ function ReciboPreview({ accentColor, patternSrc, editData, logoColor, logoLayou
 }
 
 function ControleEspecialPreview({ accentColor, patternSrc, editData, logoColor, logoLayout, cartaoContacts, crmLine, clinicaNome, comBorda, setComBorda, paletteColors, borderColor, setBorderColor, patternScale, setPatternScale, hideTagline, marca }) {
+  const { dictionary } = useTranslation();
   const BORDER = 10;
   const { whatsapp, telefone, telefone2, instagram, site, endereco } = cartaoContacts || {};
   const mainPhone = [whatsapp || telefone, telefone2].filter(Boolean).join(' / ');
@@ -3707,13 +3658,13 @@ function ControleEspecialPreview({ accentColor, patternSrc, editData, logoColor,
         <div style={{ position: 'absolute', top: BORDER, left: BORDER, right: BORDER, bottom: BORDER, background: '#fff', display: 'flex', flexDirection: 'column', padding: '8px' }}>
           
           <div style={{ textAlign: 'center', fontSize: '5.5px', fontWeight: 800, color: '#999', letterSpacing: '1px', textTransform: 'uppercase', marginBottom: '6px' }}>
-            RECEITUÁRIO DE CONTROLE ESPECIAL
+            {dictionary?.controle_especial?.titulo || 'RECEITUÁRIO DE CONTROLE ESPECIAL'}
           </div>
  
           <div style={{ display: 'flex', gap: '8px', marginBottom: '4px', alignItems: 'stretch' }}>
             {/* Box Emitente */}
             <div style={{ flex: 1.4, background: `${accentColor}12`, border: `0.1mm solid ${accentColor}25`, padding: '3px 4px', borderRadius: '1.5px' }}>
-              <div style={{ fontSize: '4.8px', fontWeight: 800, color: accentColor, textTransform: 'uppercase', marginBottom: '3px', borderBottom: `0.1mm solid ${accentColor}30`, paddingBottom: '1.5px' }}>Identificação do Emitente</div>
+              <div style={{ fontSize: '4.8px', fontWeight: 800, color: accentColor, textTransform: 'uppercase', marginBottom: '3px', borderBottom: `0.1mm solid ${accentColor}30`, paddingBottom: '1.5px' }}>{dictionary?.controle_especial?.emitente || 'Identificação do Emitente'}</div>
               <div style={{ fontSize: '3.8px', color: '#555', lineHeight: 1.4 }}>
                 <div style={{ fontWeight: 700, color: accentColor, marginBottom: '1px' }}>{clinicaNome || marca}</div>
                 {crmLine && <div style={{ fontWeight: 600 }}>{crmLine}</div>}
@@ -3729,8 +3680,8 @@ function ControleEspecialPreview({ accentColor, patternSrc, editData, logoColor,
               <div style={{ width: '100%', height: '45px', display: 'flex', alignItems: 'center', justifyContent: 'center', overflow: 'hidden' }}>
                <LogoPreviewHTML item="Receituário de Controle Especial" editData={editData} color={logoColor} layout={logoLayout} scaleFactor={0.65} crm={crmLine} hideTagline={true} withBackground={false} maxWidth="100%" maxHeight="100%" />
               </div>
-               <div style={{ fontSize: '3.5px', color: '#aaa', textTransform: 'uppercase', letterSpacing: '0.3px', textAlign: 'center', marginTop: '1px' }}>
-                  1ª VIA FARMÁCIA<br/>2ª VIA PACIENTE
+               <div style={{ fontSize: '3.5px', color: '#aaa', textTransform: 'uppercase', letterSpacing: '0.3px', textAlign: 'center', marginTop: '1px', whiteSpace: 'pre-wrap' }}>
+                  {dictionary?.controle_especial?.vias || '1ª VIA FARMÁCIA\n2ª VIA PACIENTE'}
                </div>
             </div>
           </div>
@@ -3738,13 +3689,13 @@ function ControleEspecialPreview({ accentColor, patternSrc, editData, logoColor,
           {/* Campos Prescrição */}
           <div style={{ display: 'flex', flexDirection: 'column', gap: '2px', marginTop: '2px' }}>
             <div style={{ borderBottom: '0.1mm solid #eee', paddingBottom: '1px', display: 'flex', gap: '4px' }}>
-              <span style={{ fontSize: '4px', fontWeight: 700, color: '#333' }}>PACIENTE:</span>
+              <span style={{ fontSize: '4px', fontWeight: 700, color: '#333' }}>{dictionary?.controle_especial?.paciente || 'PACIENTE:'}</span>
             </div>
             <div style={{ borderBottom: '0.1mm solid #eee', paddingBottom: '1px', display: 'flex', gap: '4px' }}>
-              <span style={{ fontSize: '4px', fontWeight: 700, color: '#333' }}>ENDEREÇO:</span>
+              <span style={{ fontSize: '4px', fontWeight: 700, color: '#333' }}>{dictionary?.controle_especial?.endereco || 'ENDEREÇO:'}</span>
             </div>
             <div style={{ marginTop: '2px' }}>
-              <span style={{ fontSize: '4px', fontWeight: 700, color: '#333' }}>PRESCRIÇÃO:</span>
+              <span style={{ fontSize: '4px', fontWeight: 700, color: '#333' }}>{dictionary?.controle_especial?.prescricao || 'PRESCRIÇÃO:'}</span>
               {[1,2,3,4,5].map(i => (
                 <div key={i} style={{ borderBottom: '0.1mm solid #f5f5f5', height: '5px' }}></div>
               ))}
@@ -3755,24 +3706,24 @@ function ControleEspecialPreview({ accentColor, patternSrc, editData, logoColor,
           <div style={{ marginTop: 'auto', display: 'flex', gap: '15px', alignItems: 'flex-start', padding: '4px 6px' }}>
              <div style={{ width: '38%', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
                 <div style={{ width: '100%', borderTop: '0.5px solid #999' }} />
-                <div style={{ fontSize: '5.5px', fontWeight: 400, color: '#888', marginTop: '1px' }}>Data</div>
+                <div style={{ fontSize: '5.5px', fontWeight: 400, color: '#888', marginTop: '1px' }}>{dictionary?.controle_especial?.data || 'Data'}</div>
              </div>
              <div style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
                 <div style={{ width: '100%', borderTop: '0.5px solid #999' }} />
-                <div style={{ fontSize: '5.5px', fontWeight: 400, color: '#888', marginTop: '1px' }}>Assinatura do Médico</div>
+                <div style={{ fontSize: '5.5px', fontWeight: 400, color: '#888', marginTop: '1px' }}>{dictionary?.controle_especial?.assinatura || 'Assinatura do Médico'}</div>
              </div>
           </div>
  
           {/* Rodapé Obrigatório */}
           <div style={{ display: 'flex', gap: '6px', height: '26px', marginTop: '2px', flexShrink: 0 }}>
              <div style={{ flex: 1, background: `${accentColor}10`, border: `0.5px solid ${accentColor}25`, padding: '2px 4px', borderRadius: '2px' }}>
-                <div style={{ fontSize: '4.5px', fontWeight: 800, color: accentColor, marginBottom: '1px', textAlign: 'center', textTransform: 'uppercase' }}>IDENTIFICAÇÃO DO COMPRADOR</div>
+                <div style={{ fontSize: '4.5px', fontWeight: 800, color: accentColor, marginBottom: '1px', textAlign: 'center', textTransform: 'uppercase' }}>{dictionary?.controle_especial?.comprador || 'IDENTIFICAÇÃO DO COMPRADOR'}</div>
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '0.8px' }}>
                   {['Nome', 'Ident.', 'Endereço', 'Cidade', 'Estado/Tel'].map(f => <div key={f} style={{ borderBottom: '0.5px solid rgba(0,0,0,0.04)', height: '3px' }} />)}
                 </div>
              </div>
              <div style={{ flex: 1, border: '0.5px solid #ddd', borderRadius: '2px', position: 'relative' }}>
-                <div style={{ position: 'absolute', bottom: '2px', left: 0, right: 0, textAlign: 'center', fontSize: '4.5px', color: '#bbb', textTransform: 'uppercase', fontWeight: 700 }}>ASSINATURA DO FARMACÊUTICO</div>
+                <div style={{ position: 'absolute', bottom: '2px', left: 0, right: 0, textAlign: 'center', fontSize: '4.5px', color: '#bbb', textTransform: 'uppercase', fontWeight: 700 }}>{dictionary?.controle_especial?.farmaceutico || 'ASSINATURA DO FARMACÊUTICO'}</div>
              </div>
           </div>
         </div>
@@ -3856,6 +3807,15 @@ function ChecklistMaternidadePreview({ accentColor, patternSrc, editData, logoCo
 }
 
 function OrientacoesRNPreview({ accentColor, patternSrc, editData, logoColor, logoLayout, cartaoContacts, crmLine, clinicaNome, comBorda, setComBorda, paletteColors, borderColor, setBorderColor, patternScale, setPatternScale, rnFields = {}, setRnFields = {} }) {
+  const { lang, dictionary } = useTranslation();
+  const t = dictionary?.orientacoes_rn || {};
+  const isEn = lang === 'en';
+
+  const tVal = (val, ptDef, enDef) => {
+    if (!val || val === ptDef || val === enDef) return isEn ? enDef : ptDef;
+    return val;
+  };
+
   const { whatsapp, telefone, telefone2, email, site, instagram } = cartaoContacts || {};
   const mainPhone = [whatsapp || telefone, telefone2].filter(Boolean).join(' / ');
   const solidColor = borderColor || paletteColors[0] || accentColor;
@@ -3865,7 +3825,17 @@ function OrientacoesRNPreview({ accentColor, patternSrc, editData, logoColor, lo
   const c2 = ensureLegibleColor(paletteColors[2] || paletteColors[0] || accentColor);
   const c3 = ensureLegibleColor(paletteColors[3] || paletteColors[1] || accentColor);
 
-  const { nomeBebe='', dataNasc='', peso='', altura='', umbigo='álcool 70%', soro='Rinosoro ou Salsep', med1='Luftal', dose1='', int1='8/8h', med2='Tylenol baby', dose2='', int2='6/6h', pomada='Desitin ou Bepantol', vitDMed='Baby-D ou Addera D3', vitDDose='1', bcgData='', hepBData='', consultaData='', consultaHora='', urgencia='' } = rnFields;
+  const f = rnFields;
+  const umbigo = tVal(f.umbigo, 'álcool 70%', '70% rubbing alcohol');
+  const soro = tVal(f.soro, 'Rinosoro ou Salsep', 'Saline nasal spray');
+  const med1 = tVal(f.med1, 'Luftal', 'Infant Gas Relief / Simethicone');
+  const int1 = tVal(f.int1, '8/8h', 'every 8 hours');
+  const med2 = tVal(f.med2, 'Tylenol baby', 'Infant Tylenol / Acetaminophen');
+  const int2 = tVal(f.int2, '6/6h', 'every 6 hours');
+  const pomada = tVal(f.pomada, 'Desitin ou Bepantol', 'Desitin or Triple Paste');
+  const vitDMed = tVal(f.vitDMed, 'Baby-D ou Addera D3', 'Infant Vitamin D3 Drops');
+  
+  const { nomeBebe='', dataNasc='', peso='', altura='', dose1='', dose2='', vitDDose='1', bcgData='', hepBData='', consultaData='', consultaHora='', urgencia='' } = rnFields;
   const { setNomeBebe=()=>{}, setDataNasc=()=>{}, setPeso=()=>{}, setAltura=()=>{}, setUmbigo=()=>{}, setSoro=()=>{}, setMed1=()=>{}, setDose1=()=>{}, setInt1=()=>{}, setMed2=()=>{}, setDose2=()=>{}, setInt2=()=>{}, setPomada=()=>{}, setVitDMed=()=>{}, setVitDDose=()=>{}, setBcgData=()=>{}, setHepBData=()=>{}, setConsultaData=()=>{}, setConsultaHora=()=>{}, setUrgencia=()=>{} } = setRnFields;
   const urgenciaTel = urgencia; const setUrgenciaTel = setUrgencia;
 
@@ -3909,8 +3879,8 @@ function OrientacoesRNPreview({ accentColor, patternSrc, editData, logoColor, lo
 
           {/* CABEÇALHO */}
           <div style={{ background: solidColor, padding: '3px 6px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexShrink: 0 }}>
-            <div style={{ fontSize: '5.5px', fontWeight: 900, color: '#fff', textTransform: 'uppercase', letterSpacing: '0.3px', fontFamily: 'Montserrat,sans-serif', lineHeight: 1.2 }}>
-              OS PRIMEIROS DIAS<br/>COM MEU BEBÊ
+            <div style={{ fontSize: '5.5px', fontWeight: 900, color: '#fff', textTransform: 'uppercase', letterSpacing: '0.3px', fontFamily: 'Montserrat,sans-serif', lineHeight: 1.2, whiteSpace: 'pre-wrap' }}>
+              {t.titulo || 'OS PRIMEIROS DIAS\nCOM MEU BEBÊ'}
             </div>
             <div style={{ width: '110px', height: '45px', display: 'flex', alignItems: 'center', justifyContent: 'flex-end', flexShrink: 0 }}>
               <LogoPreviewHTML item="Orientações p/ Recém Nascidos" editData={editData} color={'#fff'} layout={logoLayout} scaleFactor={0.28} crm={null} hideTagline maxWidth="100%" maxHeight="100%" />
@@ -3920,19 +3890,19 @@ function OrientacoesRNPreview({ accentColor, patternSrc, editData, logoColor, lo
           {/* FAIXA DO BEBÊ */}
           <div style={{ background: c0+'12', borderBottom: `0.5px solid ${c0}30`, padding: '2px 6px', display: 'flex', gap: '6px', alignItems: 'center', flexShrink: 0 }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: '2px', flex: 2 }}>
-              <span style={{ fontSize: '3px', color: c0, fontWeight: 700, fontFamily: 'Montserrat,sans-serif', whiteSpace: 'nowrap' }}>Bebê:</span>
-              <F value={nomeBebe} onChange={setNomeBebe} width="40px" placeholder="nome do bebê" align="left" />
+              <span style={{ fontSize: '3px', color: c0, fontWeight: 700, fontFamily: 'Montserrat,sans-serif', whiteSpace: 'nowrap' }}>{t.bebe || 'Bebê:'}</span>
+              <F value={nomeBebe} onChange={setNomeBebe} width="40px" placeholder="" align="left" />
             </div>
             <div style={{ display: 'flex', alignItems: 'center', gap: '2px' }}>
-              <span style={{ fontSize: '3px', color: c0, fontWeight: 700, fontFamily: 'Montserrat,sans-serif', whiteSpace: 'nowrap' }}>Nasc:</span>
+              <span style={{ fontSize: '3px', color: c0, fontWeight: 700, fontFamily: 'Montserrat,sans-serif', whiteSpace: 'nowrap' }}>{t.nasc || 'Nasc:'}</span>
               <F value={dataNasc} onChange={setDataNasc} width="22px" placeholder="dd/mm/aa" />
             </div>
             <div style={{ display: 'flex', alignItems: 'center', gap: '2px' }}>
-              <span style={{ fontSize: '3px', color: c0, fontWeight: 700, fontFamily: 'Montserrat,sans-serif' }}>Peso:</span>
+              <span style={{ fontSize: '3px', color: c0, fontWeight: 700, fontFamily: 'Montserrat,sans-serif' }}>{t.peso || 'Peso:'}</span>
               <F value={peso} onChange={setPeso} width="14px" placeholder="kg" />
             </div>
             <div style={{ display: 'flex', alignItems: 'center', gap: '2px' }}>
-              <span style={{ fontSize: '3px', color: c0, fontWeight: 700, fontFamily: 'Montserrat,sans-serif' }}>Alt:</span>
+              <span style={{ fontSize: '3px', color: c0, fontWeight: 700, fontFamily: 'Montserrat,sans-serif' }}>{t.alt || 'Alt:'}</span>
               <F value={altura} onChange={setAltura} width="14px" placeholder="cm" />
             </div>
           </div>
@@ -3940,40 +3910,40 @@ function OrientacoesRNPreview({ accentColor, patternSrc, editData, logoColor, lo
           {/* CORPO - 2 colunas */}
           <div style={{ flex: 1, display: 'flex', overflow: 'hidden', alignItems: 'center' }}>
             <div style={{ flex: '0 0 45%', padding: '4px 4px 2px 5px', borderRight: `0.4px solid ${c0}20`, display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
-              <Sec label="Alimentação:" color={c0}>Aleitamento materno sob livre demanda (à vontade).</Sec>
-              <Sec label="Umbigo:" color={c1}>Limpeza com <F value={umbigo} onChange={setUmbigo} width="28px" placeholder="álcool 70%" /> a cada troca de fralda e após o banho.</Sec>
-              <Sec label="Icterícia:" color={c2}>Pele amarelada? Procure o pediatra imediatamente.</Sec>
-              <Sec label="Febre:" color={c3}>Menores de 3 meses: emergência. Maiores de 3 meses: siga as orientações médicas.</Sec>
-              <Sec label="Higiene:" color={c0}>1 banho/dia com sabonete neutro. Sem talco ou perfume. Trocas com água morna e algodão.</Sec>
+              <Sec label={t.alimentacao_label || 'Alimentação:'} color={c0}>{t.alimentacao_text || 'Aleitamento materno sob livre demanda (à vontade).'}</Sec>
+              <Sec label={t.umbigo_label || 'Umbigo:'} color={c1}>{t.umbigo_text_pre || 'Limpeza com '}<F value={umbigo} onChange={setUmbigo} width="36px" placeholder={t.umbigo || 'álcool 70%'} />{t.umbigo_text_pos || ' a cada troca de fralda e após o banho.'}</Sec>
+              <Sec label={t.ictericia_label || 'Icterícia:'} color={c2}>{t.ictericia_text || 'Pele amarelada? Procure o pediatra imediatamente.'}</Sec>
+              <Sec label={t.febre_label || 'Febre:'} color={c3}>{t.febre_text || 'Menores de 3 meses: emergência. Maiores de 3 meses: siga as orientações médicas.'}</Sec>
+              <Sec label={t.higiene_label || 'Higiene:'} color={c0}>{t.higiene_text || '1 banho/dia com sabonete neutro. Sem talco ou perfume. Trocas com água morna e algodão.'}</Sec>
             </div>
             <div style={{ flex: 1, padding: '4px 5px 2px 4px', display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
-              <Sec label="Nariz:" color={c1}>Spray de soro 0,9% (<F value={soro} onChange={setSoro} width="28px" placeholder="marca" />) antes de cada mamada.</Sec>
-              <Sec label="Cólicas:" color={c2}>
-                Compressa morna. Se necessário: <F value={med1} onChange={setMed1} width="20px" placeholder="remédio" /> <F value={dose1} onChange={setDose1} width="10px" placeholder="gts" /> gts <F value={int1} onChange={setInt1} width="14px" placeholder="8/8h" />. Sem melhora: <F value={med2} onChange={setMed2} width="22px" placeholder="remédio" /> <F value={dose2} onChange={setDose2} width="10px" placeholder="gts" /> gts <F value={int2} onChange={setInt2} width="14px" placeholder="6/6h" />.
+              <Sec label={t.nariz_label || 'Nariz:'} color={c1}>{t.nariz_text_pre || 'Spray de soro 0,9% ('}<F value={soro} onChange={setSoro} width="38px" placeholder={t.soro || 'marca'} />{t.nariz_text_pos || ') antes de cada mamada.'}</Sec>
+              <Sec label={t.colicas_label || 'Cólicas:'} color={c2}>
+                {t.colicas_text_pre || 'Compressa morna. Se necessário: '}<F value={med1} onChange={setMed1} width="40px" placeholder={t.med1 || 'remédio'} /> <F value={dose1} onChange={setDose1} width="10px" placeholder="gts" /> {t.colicas_text_mid || 'gts'} <F value={int1} onChange={setInt1} width="22px" placeholder={t.int1 || '8/8h'} />. {t.colicas_text_mid2 || 'Sem melhora: '}<F value={med2} onChange={setMed2} width="40px" placeholder={t.med2 || 'remédio'} /> <F value={dose2} onChange={setDose2} width="10px" placeholder="gts" /> {t.colicas_text_mid || 'gts'} <F value={int2} onChange={setInt2} width="22px" placeholder={t.int2 || '6/6h'} />.
               </Sec>
-              <Sec label="Assaduras:" color={c3}>Secar bem antes de aplicar (<F value={pomada} onChange={setPomada} width="36px" placeholder="pomada" />).</Sec>
-              <Sec label="Vitamina D:" color={c0}><F value={vitDMed} onChange={setVitDMed} width="30px" placeholder="marca" /> — <F value={vitDDose} onChange={setVitDDose} width="8px" placeholder="1" /> gota/dia desde o nascimento.</Sec>
+              <Sec label={t.assaduras_label || 'Assaduras:'} color={c3}>{t.assaduras_text_pre || 'Secar bem antes de aplicar ('}<F value={pomada} onChange={setPomada} width="40px" placeholder={t.pomada || 'pomada'} />{t.assaduras_text_pos || ').'}</Sec>
+              <Sec label={t.vitD_label || 'Vitamina D:'} color={c0}>{t.vitD_text_pre || ''}<F value={vitDMed} onChange={setVitDMed} width="42px" placeholder={t.vitDMed || 'marca'} />{t.vitD_text_pos || ' — '}<F value={vitDDose} onChange={setVitDDose} width="10px" placeholder="1" /> {t.vitD_text_pos2 || 'gota/dia desde o nascimento.'}</Sec>
             </div>
           </div>
 
           {/* VACINAS + PRÓXIMA CONSULTA */}
           <div style={{ borderTop: `0.5px solid ${c0}25`, padding: '2.5px 6px', flexShrink: 0, display: 'flex', gap: '6px', alignItems: 'center', background: c1+'0a' }}>
             <div style={{ flex: 1 }}>
-              <div style={{ fontSize: '3.2px', fontWeight: 800, color: c1, fontFamily: 'Montserrat,sans-serif', marginBottom: '1px', textTransform: 'uppercase' }}>Vacinas na maternidade</div>
+              <div style={{ fontSize: '3.2px', fontWeight: 800, color: c1, fontFamily: 'Montserrat,sans-serif', marginBottom: '1px', textTransform: 'uppercase' }}>{t.vacinas_maternidade || 'Vacinas na maternidade'}</div>
               <div style={{ display: 'flex', gap: '6px' }}>
                 <div style={{ fontSize: '3.2px', color: '#555', fontFamily: 'Montserrat,sans-serif', display: 'flex', alignItems: 'center', gap: '2px' }}>
-                  BCG: <F value={bcgData} onChange={setBcgData} width="20px" placeholder="data" />
+                  {t.bcg || 'BCG:'} <F value={bcgData} onChange={setBcgData} width="20px" placeholder="" />
                 </div>
                 <div style={{ fontSize: '3.2px', color: '#555', fontFamily: 'Montserrat,sans-serif', display: 'flex', alignItems: 'center', gap: '2px' }}>
-                  Hep B: <F value={hepBData} onChange={setHepBData} width="20px" placeholder="data" />
+                  {t.hepB || 'Hep B:'} <F value={hepBData} onChange={setHepBData} width="20px" placeholder="" />
                 </div>
               </div>
             </div>
             <div style={{ flex: 1, background: c2+'18', borderRadius: '3px', padding: '2px 4px', border: `0.5px solid ${c2}40` }}>
-              <div style={{ fontSize: '3.2px', fontWeight: 800, color: c2, fontFamily: 'Montserrat,sans-serif', marginBottom: '1px', textTransform: 'uppercase' }}>📅 Próxima consulta</div>
+              <div style={{ fontSize: '3.2px', fontWeight: 800, color: c2, fontFamily: 'Montserrat,sans-serif', marginBottom: '1px', textTransform: 'uppercase' }}>{t.proxima_consulta || '📅 Próxima consulta'}</div>
               <div style={{ fontSize: '3.2px', color: '#555', fontFamily: 'Montserrat,sans-serif', display: 'flex', gap: '4px', alignItems: 'center' }}>
                 <F value={consultaData} onChange={setConsultaData} width="24px" placeholder="dd/mm/aa" />
-                <span>às</span>
+                <span>{t.as || 'às'}</span>
                 <F value={consultaHora} onChange={setConsultaHora} width="16px" placeholder="00h00" />
               </div>
             </div>
@@ -3981,19 +3951,19 @@ function OrientacoesRNPreview({ accentColor, patternSrc, editData, logoColor, lo
 
           {/* OBSERVAÇÕES */}
           <div style={{ borderTop: `0.5px solid ${c0}25`, padding: '2px 6px', flexShrink: 0, background: c0+'08' }}>
-            <div style={{ fontSize: '3.5px', fontWeight: 900, color: c0, fontFamily: 'Montserrat,sans-serif', fontStyle: 'italic', marginBottom: '1.5px' }}>Observações:</div>
+            <div style={{ fontSize: '3.5px', fontWeight: 900, color: c0, fontFamily: 'Montserrat,sans-serif', fontStyle: 'italic', marginBottom: '1.5px' }}>{t.observacoes || 'Observações:'}</div>
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0 8px' }}>
               <div>
-                <Bullet>Consulta entre 7 e 14 dias de vida.</Bullet>
-                <Bullet>Levar ao Posto para vacinação.</Bullet>
-                <Bullet>Teste do Pezinho entre o 3º e 7º dia.</Bullet>
-                <Bullet>Teste da Orelhinha o quanto antes.</Bullet>
+                <Bullet>{t.obs_1 || 'Consulta entre 7 e 14 dias de vida.'}</Bullet>
+                <Bullet>{t.obs_2 || 'Levar ao Posto para vacinação.'}</Bullet>
+                <Bullet>{t.obs_3 || 'Teste do Pezinho entre o 3º e 7º dia.'}</Bullet>
+                <Bullet>{t.obs_4 || 'Teste da Orelhinha o quanto antes.'}</Bullet>
               </div>
               <div>
-                <Bullet>Dormir sempre de barriga para cima.</Bullet>
-                <Bullet>Sem travesseiros ou cobertores pesados.</Bullet>
-                <Bullet>Roupas leves no bebê.</Bullet>
-                <Bullet>Sólidos só após os 6 meses com orientação.</Bullet>
+                <Bullet>{t.obs_5 || 'Dormir sempre de barriga para cima.'}</Bullet>
+                <Bullet>{t.obs_6 || 'Sem travesseiros ou cobertores pesados.'}</Bullet>
+                <Bullet>{t.obs_7 || 'Roupas leves no bebê.'}</Bullet>
+                <Bullet>{t.obs_8 || 'Sólidos só após os 6 meses com orientação.'}</Bullet>
               </div>
             </div>
           </div>
@@ -4124,6 +4094,7 @@ function GuiaCuidadosPreview({ brand, logoColor, logoLayout, comBorda, setComBor
 }
 
 function FolderTrifoldPreview({ brand, editData, logoColor, logoLayout, comBorda, setComBorda, patternSrc, patternScale, setPatternScale, accentColor, borderColor, setBorderColor, paletteColors, title, subtitle, cartaoContacts, folderRoof, setFolderRoof, crmLine }) {
+  const { dictionary, lang } = useTranslation();
   const mainColor = paletteColors?.[0] || accentColor;
   const _brandData = editData || brand.editData || {};
   const instagram = cartaoContacts?.instagram || brand?.instagram || '';
@@ -4152,7 +4123,7 @@ function FolderTrifoldPreview({ brand, editData, logoColor, logoLayout, comBorda
           <div style={{ position: 'absolute', inset: 0, background: borderColor || paletteColors[0] || accentColor, opacity: 0.12 }} />
         )
       )}
-      <div style={{ position: 'absolute', top: '5px', right: '5px', fontSize: '6px', color: '#ccc', fontWeight: 700, zIndex: 10 }}>PÁG {num} {num === 1 ? '(CAPA)' : ''}</div>
+      <div style={{ position: 'absolute', top: '5px', right: '5px', fontSize: '6px', color: '#ccc', fontWeight: 700, zIndex: 10 }}>{lang === 'en' ? 'PG' : 'PÁG'} {num} {num === 1 ? (lang === 'en' ? '(COVER)' : '(CAPA)') : ''}</div>
       <div style={{ position: 'relative', zIndex: 2, padding, height: '100%', boxSizing: 'border-box' }}>
         {children}
       </div>
@@ -4161,13 +4132,53 @@ function FolderTrifoldPreview({ brand, editData, logoColor, logoLayout, comBorda
 
   // Lógica de Título em dois níveis
   const getTitleData = (raw) => {
-    if (raw.includes('Alimentar')) return { pre: 'GUIA DE', main: 'INTRODUÇÃO ALIMENTAR', tagline: 'Nutrição e Saúde para o seu Bebê' };
-    if (raw.includes('Cuidados')) return { pre: 'CUIDADOS', main: 'COM O BEBÊ', tagline: 'Carinho e Atenção em Cada Detalhe' };
-    if (raw.includes('Desenvolvimento')) return { pre: 'GUIA DE', main: 'DESENVOLVIMENTO', tagline: 'Acompanhe Cada Passo do Crescimento do Seu Bebê' };
-    if (raw.includes('Vacina')) return { pre: 'GUIA DE', main: 'VACINAÇÃO', tagline: 'Calendário e Acompanhamento de Imunização' };
-    if (raw.includes('Sono')) return { pre: 'GUIA DO', main: 'SONO SAUDÁVEL', tagline: 'Rotina e Segurança para o Sono do Bebê' };
-    if (raw.includes('Pré-Natal')) return { pre: 'CARTÃO DE', main: 'EXAME PRÉ-NATAL', tagline: 'Cuidando da saúde do bebê e da mamãe desde o início...' };
-    return { pre: 'GUIA DE', main: raw.toUpperCase(), tagline: 'Saúde e Bem-Estar Pediátrico' };
+    if (raw.includes('Alimentar')) {
+      return { 
+        pre: lang === 'en' ? 'GUIDE TO' : 'GUIA DE', 
+        main: lang === 'en' ? 'COMPLEMENTARY FEEDING' : 'INTRODUÇÃO ALIMENTAR', 
+        tagline: lang === 'en' ? 'Nutrition and Health for Your Baby' : 'Nutrição e Saúde para o seu Bebê' 
+      };
+    }
+    if (raw.includes('Cuidados')) {
+      return { 
+        pre: lang === 'en' ? 'BABY' : 'CUIDADOS', 
+        main: lang === 'en' ? 'CARE' : 'COM O BEBÊ', 
+        tagline: lang === 'en' ? 'Love and Attention in Every Detail' : 'Carinho e Atenção in Cada Detalhe' 
+      };
+    }
+    if (raw.includes('Desenvolvimento')) {
+      return { 
+        pre: lang === 'en' ? 'GUIDE TO' : 'GUIA DE', 
+        main: lang === 'en' ? 'DEVELOPMENT' : 'DESENVOLVIMENTO', 
+        tagline: lang === 'en' ? 'Follow Every Step of Your Baby\'s Growth' : 'Acompanhe Cada Passo do Crescimento do Seu Bebê' 
+      };
+    }
+    if (raw.includes('Vacina')) {
+      return { 
+        pre: lang === 'en' ? 'GUIDE TO' : 'GUIA DE', 
+        main: lang === 'en' ? 'VACCINATION' : 'VACINAÇÃO', 
+        tagline: lang === 'en' ? 'Immunization Schedule and Tracking' : 'Calendário e Acompanhamento de Imunização' 
+      };
+    }
+    if (raw.includes('Sono')) {
+      return { 
+        pre: lang === 'en' ? 'GUIDE TO' : 'GUIA DO', 
+        main: lang === 'en' ? 'HEALTHY SLEEP' : 'SONO SAUDÁVEL', 
+        tagline: lang === 'en' ? 'Routine and Safety for Baby\'s Sleep' : 'Rotina e Segurança para o Sono do Bebê' 
+      };
+    }
+    if (raw.includes('Pré-Natal')) {
+      return { 
+        pre: lang === 'en' ? 'CARD FOR' : 'CARTÃO DE', 
+        main: lang === 'en' ? 'PRENATAL EXAM' : 'EXAME PRÉ-NATAL', 
+        tagline: lang === 'en' ? 'Caring for baby\'s and mom\'s health from the start...' : 'Cuidando da saúde do bebê e da mamãe desde o início...' 
+      };
+    }
+    return { 
+      pre: lang === 'en' ? 'GUIDE TO' : 'GUIA DE', 
+      main: raw.toUpperCase(), 
+      tagline: lang === 'en' ? 'Pediatric Health and Well-Being' : 'Saúde e Bem-Estar Pediátrico' 
+    };
   };
   const { pre, main, tagline: themeTagline } = getTitleData(title || 'Guia Alimentar');
   const isPrenatal = (title || '').includes('Pré-Natal');
@@ -4202,7 +4213,7 @@ function FolderTrifoldPreview({ brand, editData, logoColor, logoLayout, comBorda
       <BordaToggle comBorda={comBorda} setComBorda={setComBorda} accentColor={accentColor} paletteColors={paletteColors} borderColor={borderColor} setBorderColor={setBorderColor} patternScale={patternScale} setPatternScale={setPatternScale} />
       {setFolderRoof && (
         <button onClick={() => setFolderRoof(v => !v)} style={{ fontSize: '0.7rem', padding: '4px 12px', borderRadius: '20px', border: `1px solid ${folderRoof ? accentColor : '#eee'}`, background: folderRoof ? `${accentColor}10` : '#fff', color: folderRoof ? accentColor : '#aaa', cursor: 'pointer', fontFamily: 'Montserrat,sans-serif', fontWeight: folderRoof ? 700 : 400 }}>
-          {folderRoof ? '🏠 Recorte Casinha ATIVO' : '⬜️ Recorte Reto ATIVO'}
+          {folderRoof ? (lang === 'en' ? '🏠 House Cutout ACTIVE' : '🏠 Recorte Casinha ATIVO') : (lang === 'en' ? '⬜️ Straight Cutout ACTIVE' : '⬜️ Recorte Reto ATIVO')}
         </button>
       )}
 
@@ -4210,7 +4221,7 @@ function FolderTrifoldPreview({ brand, editData, logoColor, logoLayout, comBorda
       <div style={{ textAlign: 'center' }}>
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '10px', marginBottom: '12px' }}>
           <div style={{ height: '1px', flex: 1, background: '#eee' }} />
-          <span style={{ fontSize: '10px', fontWeight: 800, color: '#aaa', textTransform: 'uppercase', letterSpacing: '1px' }}>LADO EXTERNO (FACE 1)</span>
+          <span style={{ fontSize: '10px', fontWeight: 800, color: '#aaa', textTransform: 'uppercase', letterSpacing: '1px' }}>{lang === 'en' ? 'OUTSIDE (FACE 1)' : 'LADO EXTERNO (FACE 1)'}</span>
           <div style={{ height: '1px', flex: 1, background: '#eee' }} />
         </div>
         <div style={{ display: 'flex', boxShadow: '0 20px 50px rgba(0,0,0,0.1)', borderRadius: '4px', overflow: 'hidden', background: '#fff' }}>
@@ -4242,9 +4253,23 @@ function FolderTrifoldPreview({ brand, editData, logoColor, logoLayout, comBorda
              <div style={{ position: 'absolute', top: '6px', left: '6px', right: '6px', bottom: '6px', background: '#fff', borderRadius: '1.5px', boxShadow: '0 2px 5px rgba(0,0,0,0.05)', zIndex: 2, display: 'flex', flexDirection: 'column', alignItems: 'center', overflow: 'hidden' }}>
                 <div style={{ position: 'absolute', top: '48%', left: '10px', right: '10px', zIndex: 3, display: 'flex', justifyContent: 'center', transform: 'translateY(-50%)' }}>
                   <div style={{ width: '92%', background: mainColor, borderRadius: '4px', padding: '12px 14px', textAlign: 'center', position: 'relative', border: `0.4px solid ${mainColor}`, boxShadow: '0 4px 12px rgba(0,0,0,0.1)' }}>
-                     <div style={{ fontFamily: `'Great Vibes', cursive`, color: '#fff', fontSize: '9px', marginBottom: '4px', textTransform: 'none' }}>{isSono ? '"Um bebê bem descansado é um bebê mais feliz!"' : isCuidados ? '"Você não precisa ser perfeita — precisa estar presente."' : isVacina ? '"Proteção que começa desde o primeiro dia."' : '"Brinque, converse e explore!"'}</div>
+                     <div style={{ fontFamily: `'Great Vibes', cursive`, color: '#fff', fontSize: '9px', marginBottom: '4px', textTransform: 'none' }}>
+                       {isSono 
+                         ? (lang === 'en' ? '"A well-rested baby is a happier baby!"' : '"Um bebê bem descansado é um bebê mais feliz!"')
+                         : isCuidados 
+                           ? (lang === 'en' ? '"You don\'t need to be perfect — you need to be present."' : '"Você não precisa ser perfeita — precisa estar presente."')
+                           : isVacina 
+                             ? (lang === 'en' ? '"Protection that starts from day one."' : '"Proteção que começa desde o primeiro dia."') 
+                             : (lang === 'en' ? '"Play, talk and explore!"' : '"Brinque, converse e explore!"')}
+                     </div>
                      <div style={{ fontSize: '3.5px', color: '#fff', fontWeight: 500, lineHeight: 1.5, fontFamily: 'Montserrat, sans-serif' }}>
-                        {isSono ? 'O sono é uma necessidade fisiológica essencial para o desenvolvimento do seu bebê. Uma rotina consistente, ambiente seguro e respeito aos sinais de sono fazem toda a diferença.' : isCuidados ? 'Cuidar de um bebê é aprender junto com ele. Cada dúvida é normal, cada conquista é sua também. Você está fazendo um trabalho incrível.' : isVacina ? 'A vacinação é o maior gesto de amor e cuidado. Ela protege não apenas o seu bebê, mas toda a comunidade ao redor.' : 'As brincadeiras são mais do que momentos de divertimento. Elas ajudam seu bebê a aprender, a desenvolver novas habilidades e a se sentir seguro e amado.'}
+                        {isSono 
+                          ? (lang === 'en' ? 'Sleep is an essential physiological need for your baby\'s development. A consistent routine, safe environment, and respecting sleep cues make all the difference.' : 'O sono é uma necessidade fisiológica essencial para o desenvolvimento do seu bebê. Uma rotina consistente, ambiente seguro e respeito aos sinais de sono fazem toda a diferença.')
+                          : isCuidados 
+                            ? (lang === 'en' ? 'Caring for a baby is learning along with them. Every doubt is normal, every achievement is yours too. You are doing an amazing job.' : 'Cuidar de um bebê é aprender junto com ele. Cada dúvida é normal, cada conquista é sua também. Você está fazendo um trabalho incrível.')
+                            : isVacina 
+                              ? (lang === 'en' ? 'Vaccination is the greatest act of love and care. It protects not only your baby, but the entire community around them.' : 'A vacinação é o maior gesto de amor e cuidado. Ela protege não apenas o seu bebê, mas toda a comunidade ao redor.')
+                              : (lang === 'en' ? 'Playtime is more than just fun. It helps your baby learn, develop new skills, and feel safe and loved.' : 'As brincadeiras são mais do que momentos de divertimento. Elas ajudam seu bebê a aprender, a desenvolver novas habilidades e a se sentir seguro e amado.')}
                      </div>
                   </div>
                 </div>
@@ -4307,7 +4332,19 @@ function FolderTrifoldPreview({ brand, editData, logoColor, logoLayout, comBorda
                       letterSpacing: '0.2px',
                       fontFamily: '"Myriad Pro Condensed", "MyriadPro-Cond", sans-serif',
                       textTransform: 'uppercase'
-                    }}>{isSono ? 'DURMA BEM, CRESÇA BEM' : isCuidados ? 'DO PRIMEIRO DIA COM MUITO AMOR' : isDev ? 'CADA DIA UM NOVO DESCOBRIMENTO' : isVacina ? 'PROTEGIDO DESDE O PRIMEIRO DIA' : isPrenatal ? 'CUIDANDO DA SAÚDE DA MAMÃE E DO BEBÊ' : 'NUTRIÇÃO QUE TRANSFORMA'}</div>
+                    }}>
+                      {isSono 
+                        ? (lang === 'en' ? 'SLEEP WELL, GROW WELL' : 'DURMA BEM, CRESÇA BEM') 
+                        : isCuidados 
+                          ? (lang === 'en' ? 'FROM DAY ONE WITH LOVE' : 'DO PRIMEIRO DIA COM MUITO AMOR') 
+                          : isDev 
+                            ? (lang === 'en' ? 'EVERY DAY A NEW DISCOVERY' : 'CADA DIA UM NOVO DESCOBRIMENTO') 
+                            : isVacina 
+                              ? (lang === 'en' ? 'PROTECTED FROM DAY ONE' : 'PROTEGIDO DESDE O PRIMEIRO DIA') 
+                              : isPrenatal 
+                                ? (lang === 'en' ? 'CARING FOR MOM AND BABY\'S HEALTH' : 'CUIDANDO DA SAÚDE DA MAMÃE E DO BEBÊ') 
+                                : (lang === 'en' ? 'NUTRITION THAT TRANSFORMS' : 'NUTRIÇÃO QUE TRANSFORMA')}
+                    </div>
                   </div>
                 </div>
             </div>
@@ -4319,7 +4356,7 @@ function FolderTrifoldPreview({ brand, editData, logoColor, logoLayout, comBorda
       <div style={{ textAlign: 'center' }}>
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '10px', marginBottom: '12px' }}>
           <div style={{ height: '1px', flex: 1, background: '#eee' }} />
-          <span style={{ fontSize: '10px', fontWeight: 800, color: '#aaa', textTransform: 'uppercase', letterSpacing: '1px' }}>LADO INTERNO (FACE 2)</span>
+          <span style={{ fontSize: '10px', fontWeight: 800, color: '#aaa', textTransform: 'uppercase', letterSpacing: '1px' }}>{lang === 'en' ? 'INSIDE (FACE 2)' : 'LADO INTERNO (FACE 2)'}</span>
           <div style={{ height: '1px', flex: 1, background: '#eee' }} />
         </div>
         <div style={{ display: 'flex', boxShadow: '0 20px 50px rgba(0,0,0,0.1)', borderRadius: '4px', overflow: 'hidden', background: '#fff' }}>
@@ -4339,18 +4376,58 @@ function FolderTrifoldPreview({ brand, editData, logoColor, logoLayout, comBorda
 }
 
 function FolderA5Preview({ brand, editData, logoColor, logoLayout, comBorda, setComBorda, patternSrc, patternScale, setPatternScale, accentColor, borderColor, setBorderColor, paletteColors, title, cartaoContacts, crmLine, folderRoof }) {
+  const { dictionary, lang } = useTranslation();
   const mainColor = paletteColors?.[0] || accentColor;
   const _brandData = editData || brand.editData || {};
-  const logoHtml = <div style={{ width: "110px", height: "58px", overflow: "hidden", display: "flex", alignItems: "center", justifyContent: "center"}}><LogoPreviewHTML editData={_brandData} color={logoColor} layout={logoLayout} scaleFactor={1} crm={crmLine} maxWidth="110px" maxHeight="58px" /></div>;
 
   const getTitleData = (raw) => {
-    if (raw.includes('Alimentar')) return { pre: 'GUIA DE', main: 'INTRODUÇÃO ALIMENTAR', tagline: 'Nutrição e Saúde para o seu Bebê' };
-    if (raw.includes('Cuidados')) return { pre: 'CUIDADOS', main: 'COM O BEBÊ', tagline: 'Carinho e Atenção em Cada Detalhe' };
-    if (raw.includes('Desenvolvimento')) return { pre: 'GUIA DE', main: 'DESENVOLVIMENTO', tagline: 'Acompanhe Cada Passo do Crescimento do Seu Bebê' };
-    if (raw.includes('Vacina')) return { pre: 'GUIA DE', main: 'VACINA', tagline: 'Calendário e Acompanhamento de Imunização' };
-    if (raw.includes('Sono')) return { pre: 'GUIA DO', main: 'SONO SAUDÁVEL', tagline: 'Rotina e Segurança para o Sono do Bebê' };
-    if (raw.includes('Pré-Natal')) return { pre: 'CARTÃO DE', main: 'EXAME PRÉ-NATAL', tagline: 'Cuidado desde o Início' };
-    return { pre: 'GUIA DE', main: raw.toUpperCase(), tagline: 'Saúde e Bem-Estar Pediátrico' };
+    if (raw.includes('Alimentar')) {
+      return { 
+        pre: lang === 'en' ? 'GUIDE TO' : 'GUIA DE', 
+        main: lang === 'en' ? 'COMPLEMENTARY FEEDING' : 'INTRODUÇÃO ALIMENTAR', 
+        tagline: lang === 'en' ? 'Nutrition and Health for Your Baby' : 'Nutrição e Saúde para o seu Bebê' 
+      };
+    }
+    if (raw.includes('Cuidados')) {
+      return { 
+        pre: lang === 'en' ? 'BABY' : 'CUIDADOS', 
+        main: lang === 'en' ? 'CARE' : 'COM O BEBÊ', 
+        tagline: lang === 'en' ? 'Love and Attention in Every Detail' : 'Carinho e Atenção em Cada Detalhe' 
+      };
+    }
+    if (raw.includes('Desenvolvimento')) {
+      return { 
+        pre: lang === 'en' ? 'GUIDE TO' : 'GUIA DE', 
+        main: lang === 'en' ? 'DEVELOPMENT' : 'DESENVOLVIMENTO', 
+        tagline: lang === 'en' ? 'Follow Every Step of Your Baby\'s Growth' : 'Acompanhe Cada Passo do Crescimento do Seu Bebê' 
+      };
+    }
+    if (raw.includes('Vacina')) {
+      return { 
+        pre: lang === 'en' ? 'GUIDE TO' : 'GUIA DE', 
+        main: lang === 'en' ? 'VACCINATION' : 'VACINAÇÃO', 
+        tagline: lang === 'en' ? 'Immunization Schedule and Tracking' : 'Calendário e Acompanhamento de Imunização' 
+      };
+    }
+    if (raw.includes('Sono')) {
+      return { 
+        pre: lang === 'en' ? 'GUIDE TO' : 'GUIA DO', 
+        main: lang === 'en' ? 'HEALTHY SLEEP' : 'SONO SAUDÁVEL', 
+        tagline: lang === 'en' ? 'Routine and Safety for Baby\'s Sleep' : 'Rotina e Segurança for Baby\'s Sleep' 
+      };
+    }
+    if (raw.includes('Pré-Natal')) {
+      return { 
+        pre: lang === 'en' ? 'CARD FOR' : 'CARTÃO DE', 
+        main: lang === 'en' ? 'PRENATAL EXAM' : 'EXAME PRÉ-NATAL', 
+        tagline: lang === 'en' ? 'Care from the Start' : 'Cuidado desde o Início' 
+      };
+    }
+    return { 
+      pre: lang === 'en' ? 'GUIDE TO' : 'GUIA DE', 
+      main: raw.toUpperCase(), 
+      tagline: lang === 'en' ? 'Pediatric Health and Well-Being' : 'Saúde e Bem-Estar Pediátrico' 
+    };
   };
   const { pre, main, tagline: themeTagline } = getTitleData(title || 'Pré-Natal');
   const isPrenatal = (title || '').includes('Pré-Natal');
@@ -4372,7 +4449,7 @@ function FolderA5Preview({ brand, editData, logoColor, logoLayout, comBorda, set
           <div style={{ position: 'absolute', inset: 0, background: borderColor || paletteColors[0] || accentColor, opacity: 0.12 }} />
         )
       )}
-      <div style={{ position: 'absolute', top: '5px', right: '5px', fontSize: '6px', color: '#ccc', fontWeight: 700, zIndex: 10 }}>PÁG {num} {num === 1 ? '(CAPA)' : ''}</div>
+      <div style={{ position: 'absolute', top: '5px', right: '5px', fontSize: '6px', color: '#ccc', fontWeight: 700, zIndex: 10 }}>{lang === 'en' ? 'PG' : 'PÁG'} {num} {num === 1 ? (lang === 'en' ? '(COVER)' : '(CAPA)') : ''}</div>
       <div style={{ position: 'relative', zIndex: 2, height: '100%', boxSizing: 'border-box' }}>
         {children}
       </div>
@@ -4386,18 +4463,18 @@ function FolderA5Preview({ brand, editData, logoColor, logoLayout, comBorda, set
       {/* FACE 1: Pág 4 (Verso) | Pág 1 (Capa) */}
       <div style={{ textAlign: 'center' }}>
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '10px', marginBottom: '12px' }}>
-          <span style={{ fontSize: '10px', fontWeight: 800, color: '#aaa', textTransform: 'uppercase' }}>LADO EXTERNO (FACE 1)</span>
+          <span style={{ fontSize: '10px', fontWeight: 800, color: '#aaa', textTransform: 'uppercase' }}>{lang === 'en' ? 'OUTSIDE (FACE 1)' : 'LADO EXTERNO (FACE 1)'}</span>
         </div>
         <div style={{ display: 'flex', boxShadow: '0 20px 50px rgba(0,0,0,0.1)', borderRadius: '4px', overflow: 'hidden', background: '#fff' }}>
           <Page num={4} withPattern><PrenatalPage4 accentColor={accentColor} palette={paletteColors} comBorda={comBorda} patternSrc={patternSrc} patternScale={patternScale} borderColor={borderColor} /></Page>
-          <Page num={1} withPattern><PrenatalPage1 accentColor={accentColor} palette={paletteColors} logoComponent={<LogoPreviewHTML editData={_brandData} color={logoColor} layout={logoLayout} scaleFactor={0.45} crm={crmLine} maxWidth="100%" maxHeight="100%" />} folderRoof={folderRoof} tagline={finalTagline} comBorda={comBorda} patternSrc={patternSrc} patternScale={patternScale} borderColor={borderColor} /></Page>
+          <Page num={1} withPattern><PrenatalPage1 accentColor={accentColor} palette={paletteColors} logoComponent={<LogoPreviewHTML item={title} editData={_brandData} color={logoColor} layout={logoLayout} scaleFactor={1} crm={crmLine} maxWidth="70px" maxHeight="35px" hideTagline />} folderRoof={folderRoof} tagline={finalTagline} comBorda={comBorda} patternSrc={patternSrc} patternScale={patternScale} borderColor={borderColor} /></Page>
         </div>
       </div>
 
       {/* FACE 2: Pág 2 | Pág 3 */}
       <div style={{ textAlign: 'center' }}>
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '10px', marginBottom: '12px' }}>
-          <span style={{ fontSize: '10px', fontWeight: 800, color: '#aaa', textTransform: 'uppercase' }}>LADO INTERNO (FACE 2)</span>
+          <span style={{ fontSize: '10px', fontWeight: 800, color: '#aaa', textTransform: 'uppercase' }}>{lang === 'en' ? 'INSIDE (FACE 2)' : 'LADO INTERNO (FACE 2)'}</span>
         </div>
         <div style={{ display: 'flex', boxShadow: '0 20px 50px rgba(0,0,0,0.1)', borderRadius: '4px', overflow: 'hidden', background: '#fff' }}>
           <Page num={2} withPattern><PrenatalPage2 accentColor={accentColor} palette={paletteColors} /></Page>
@@ -4427,7 +4504,7 @@ function AtestadoPreview({ accentColor, patternSrc, editData, logoColor, logoLay
       <div style={{ display: 'flex', gap: '6px', alignItems: 'center', flexWrap: 'wrap', justifyContent: 'center' }}>
         {setFolderRoof && (
           <button onClick={() => setFolderRoof(v => !v)} style={{ fontSize: '0.7rem', padding: '4px 12px', borderRadius: '20px', border: `1px solid ${folderRoof ? accentColor : '#eee'}`, background: folderRoof ? `${accentColor}10` : '#fff', color: folderRoof ? accentColor : '#aaa', cursor: 'pointer', fontFamily: 'Montserrat,sans-serif', fontWeight: folderRoof ? 700 : 400 }}>
-            {folderRoof ? '🏠 Recorte Casinha ATIVO' : '⬜️ Recorte Reto ATIVO'}
+            {folderRoof ? (dictionary?.geral?.recorte_casinha || '🏠 Recorte Casinha ATIVO') : (dictionary?.geral?.recorte_reto || '⬜️ Recorte Reto ATIVO')}
           </button>
         )}
         {setPaperSize && (
@@ -4515,6 +4592,7 @@ function GenericItemPreview({ item, marca, accentColor, patternSrc, editData, lo
 }
 
 function PapelTimbradoPreview({ brand, editData, accentColor, patternSrc, logoColor, logoLayout, comBorda, setComBorda, paletteColors, borderColor, setBorderColor, patternScale, setPatternScale, cartaoContacts, crmLine, localSlogan, clinicaNome, folderRoof, setFolderRoof }) {
+  const { dictionary } = useTranslation();
   const BORDER = 12;
   const effectiveSrc = comBorda ? patternSrc : null;
   const solidColor = borderColor || paletteColors[0] || accentColor;
@@ -4526,7 +4604,7 @@ function PapelTimbradoPreview({ brand, editData, accentColor, patternSrc, logoCo
       {setFolderRoof && (
         <div style={{ display: 'flex', gap: '6px', alignItems: 'center', flexWrap: 'wrap', justifyContent: 'center' }}>
           <button onClick={() => setFolderRoof(v => !v)} style={{ fontSize: '0.7rem', padding: '4px 12px', borderRadius: '20px', border: `1px solid ${folderRoof ? accentColor : '#eee'}`, background: folderRoof ? `${accentColor}10` : '#fff', color: folderRoof ? accentColor : '#aaa', cursor: 'pointer', fontFamily: 'Montserrat,sans-serif', fontWeight: folderRoof ? 700 : 400 }}>
-            {folderRoof ? '🏠 Recorte Casinha ATIVO' : '⬜️ Recorte Reto ATIVO'}
+            {folderRoof ? (dictionary?.geral?.recorte_casinha || '🏠 Recorte Casinha ATIVO') : (dictionary?.geral?.recorte_reto || '⬜️ Recorte Reto ATIVO')}
           </button>
         </div>
       )}
@@ -4636,6 +4714,7 @@ function FundoInstaPreview({ brand, editData, accentColor, patternSrc, logoColor
 }
 
 function AssinaturaEmailPreview({ brand, editData, accentColor, logoColor, logoLayout, cartaoContacts, crmLine, localSlogan, clinicaNome, setCartaoContacts, setClinicaNome, setLocalSlogan }) {
+  const { dictionary } = useTranslation();
   const { whatsapp, telefone, email, site, instagram } = cartaoContacts || {};
   const mainPhone = whatsapp || telefone || '';
   const [copied, setCopied] = React.useState(false);
@@ -4763,7 +4842,7 @@ function AssinaturaEmailPreview({ brand, editData, accentColor, logoColor, logoL
       {(setCartaoContacts && setClinicaNome && setLocalSlogan) && (
         <div style={{ border: '1px solid #e8e8e8', borderRadius: '12px', overflow: 'hidden', width: '100%', maxWidth: '450px', background: '#fcfcfc', marginTop: '10px' }}>
           <button onClick={() => setContactOpen(o => !o)} style={{ width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '10px 14px', background: 'none', border: 'none', cursor: 'pointer', fontFamily: 'Montserrat, sans-serif', outline: 'none' }}>
-            <span style={{ fontWeight: 600, fontSize: '0.78rem', color: '#555' }}>Editar dados</span>
+            <span style={{ fontWeight: 600, fontSize: '0.78rem', color: '#555' }}>{dictionary?.ui?.editar_dados || 'Editar dados'}</span>
             <span style={{ fontSize: '0.7rem', color: '#aaa' }}>{contactOpen ? '▲' : '▼'}</span>
           </button>
           {contactOpen && (
@@ -4982,6 +5061,7 @@ function CadernoPreview({ editData, accentColor, solidColor, logoColor, logoLayo
 }
 
 function PastaPreview({ brand, editData, accentColor, solidColor, logoColor, logoLayout, isSaude, crmData, comBorda, setComBorda, patternSrc, cartaoContacts, crmLine, paletteColors, borderColor, setBorderColor, patternScale, setBorderColorState, patternScaleState, setPatternScaleState, setPatternScale, hideTagline, folderRoof, setFolderRoof, clinicaNome: clinicaNomeProp }) {
+  const { dictionary } = useTranslation();
   const brandFont = editData?.fontFamily || 'Playfair Display';
   const marca = editData?.marca || '';
   const clinicaNome = clinicaNomeProp || cartaoContacts?.clinica || '';
@@ -4989,21 +5069,17 @@ function PastaPreview({ brand, editData, accentColor, solidColor, logoColor, log
   const mainPhone = whatsapp || telefone || '';
   const allPhones = [mainPhone, telefone2].filter(Boolean).join(' / ');
   const hasPastaContacts = !!(clinicaNome || endereco || whatsapp || telefone || telefone2 || site || instagram);
-  const scalePasta = useScaleToFit(480, 310 + 36);
-
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '15px', alignItems: 'center', width: '100%' }}>
       <BordaToggle comBorda={comBorda} setComBorda={setComBorda} accentColor={accentColor} paletteColors={paletteColors} borderColor={borderColor} setBorderColor={setBorderColor} patternScale={patternScale} setPatternScale={setPatternScale} />
       {setFolderRoof && (
         <button onClick={() => setFolderRoof(v => !v)} style={{ fontSize: '0.7rem', padding: '4px 12px', borderRadius: '20px', border: `1px solid ${folderRoof ? accentColor : '#eee'}`, background: folderRoof ? `${accentColor}10` : '#fff', color: folderRoof ? accentColor : '#aaa', cursor: 'pointer', fontFamily: 'Montserrat,sans-serif', fontWeight: folderRoof ? 700 : 400 }}>
-          {folderRoof ? '🏠 Recorte Casinha ATIVO' : '⬜️ Recorte Reto ATIVO'}
+          {folderRoof ? (dictionary?.geral?.recorte_casinha || '🏠 Recorte Casinha ATIVO') : (dictionary?.geral?.recorte_reto || '⬜️ Recorte Reto ATIVO')}
         </button>
       )}
 
-      <p style={{ fontSize: '0.7rem', color: '#aaa', letterSpacing: '2px', textTransform: 'uppercase' }}>Preview da Pasta (Frente e Verso)</p>
+      <p style={{ fontSize: '0.7rem', color: '#aaa', letterSpacing: '2px', textTransform: 'uppercase' }}>{dictionary?.pasta_a4?.preview || 'Preview da Pasta (Frente e Verso)'}</p>
       
-      <div ref={scalePasta.wrapperRef} style={scalePasta.wrapperStyle}>
-      <div style={scalePasta.innerStyle}>
       <div style={{ width: '480px', height: '310px', position: 'relative', background: '#f5f5f5', borderRadius: '4px', boxShadow: '0 15px 45px rgba(0,0,0,0.15)', overflow: 'hidden' }}>
         
         {/* Camada de Fundo */}
@@ -5059,12 +5135,11 @@ function PastaPreview({ brand, editData, accentColor, solidColor, logoColor, log
 
         <div style={{ position: 'absolute', top: 30, bottom: 30, left: '240px', width: '1px', background: 'rgba(255,255,255,0.3)', zIndex: 5 }} />
       </div>
-      </div></div>
 
       <div style={{ width: '100%', maxWidth: '480px', padding: '15px', background: `${accentColor}08`, borderRadius: '8px', border: `1px solid ${accentColor}20` }}>
-        <p style={{ fontSize: '0.8rem', color: accentColor, fontWeight: 600, marginBottom: '5px' }}>Detalhamento</p>
+        <p style={{ fontSize: '0.8rem', color: accentColor, fontWeight: 600, marginBottom: '5px' }}>{dictionary?.pasta_a4?.detalhamento || 'Detalhamento'}</p>
         <p style={{ fontSize: '0.75rem', color: '#666', lineHeight: 1.5 }}>
-          A etiqueta foi afinada e os elementos (Logo, Clínica e CRM) agora estão harmoniosamente centralizados. O PDF final reflete esta atualização de alta fidelidade.
+          {dictionary?.pasta_a4?.detalhamento_desc || 'A etiqueta foi afinada e os elementos (Logo, Clínica e CRM) agora estão harmoniosamente centralizados. O PDF final reflete esta atualização de alta fidelidade.'}
         </p>
       </div>
     </div>
@@ -5089,7 +5164,7 @@ function UniversalPreviewScaler({ children, targetWidth = 595 }) {
         setScale(prev => Math.abs(prev - s) < 0.001 ? prev : s);
         const origH = content.offsetHeight || content.scrollHeight || 300;
         setHeight(prev => {
-          const nextH = `${origH * s}px`;
+          const nextH = `${Math.round(origH * s)}px`;
           return prev === nextH ? prev : nextH;
         });
       } else {
@@ -5103,7 +5178,7 @@ function UniversalPreviewScaler({ children, targetWidth = 595 }) {
     obs.observe(el);
     obs.observe(content);
     return () => obs.disconnect();
-  }, [targetWidth, children]);
+  }, [targetWidth]);
 
   return (
     <div ref={wrapRef} style={{ width: '100%', height, overflow: 'hidden', position: 'relative', display: 'flex', justifyContent: 'center' }}>
@@ -5134,7 +5209,7 @@ const getPreviewTargetWidth = (item) => {
 };
 
 function PapelariaStep({ brand, accentColor, paletteColors, estampaPatterns, estampaSelectedIdx, cartaoContacts, setCartaoContacts, plano, isSaude, crmData, setCrmData, marca, editData, logoColor, logoLayout, setLayout, clinicaNome, setClinicaNome, onNavSync, navIdx, setNavIdx, customLogoSrc, getCustomLogoScale, setCustomLogoScale, getCustomLogoScaleMax, customLogoScaleMap, submarcaColor, submarcaTextColor, iconPath }) {
-  const { dictionary } = useTranslation();
+  const { dictionary, lang } = useTranslation();
   // Digitais: sempre inclusos no plano PRO
   const ITENS_DIGITAIS = []; // Pack Instagram e Assinatura ficam na aba Digital, não na Papelaria
   // Papelaria disponível para não-médicos
@@ -5368,7 +5443,47 @@ function PapelariaStep({ brand, accentColor, paletteColors, estampaPatterns, est
                   <div style={{ width: 18, height: 18, borderRadius: '5px', border: `2px solid ${sel ? accentColor : '#ddd'}`, background: sel ? accentColor : '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, transition: 'all 0.15s' }}>
                     {sel && <svg viewBox="0 0 12 12" width="10" height="10"><polyline points="2,6 5,9 10,3" fill="none" stroke="#fff" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/></svg>}
                   </div>
-                  <span style={{ fontSize: '0.8rem', fontWeight: sel ? 700 : 500, color: sel ? '#333' : '#666', fontFamily: 'Montserrat,sans-serif', flex: 1 }}>{item}</span>
+                  <span style={{ fontSize: '0.8rem', fontWeight: sel ? 700 : 500, color: sel ? '#333' : '#666', fontFamily: 'Montserrat,sans-serif', flex: 1 }}>
+                    {(() => {
+                      const keyMap = {
+                        'Cartão de Visita': 'cartao_visita', 'Papel Timbrado': 'papel_timbrado', 'Papel de Presente': 'papel_presente',
+                        'Tag para Sacola': 'tag_sacola', 'Etiqueta para Correios': 'etiqueta_correios', 'Envelope Ofício (23x11,5cm)': 'envelope_oficio',
+                        'Envelope Ofício': 'envelope_oficio', 'Envelope Saco (24x34cm)': 'envelope_saco', 'Envelope Saco': 'envelope_saco',
+                        'Recibo': 'recibo', 'Pasta A4': 'pasta_a4', 'Pasta': 'pasta_a4', 'Caneca': 'caneca', 'Arte para Caneca': 'arte_caneca',
+                        'Cartão de Retorno': 'cartao_retorno', 'Cartão de Agradecimento (10x15cm)': 'cartao_agradecimento', 'Cartão de Agradecimento': 'cartao_agradecimento',
+                        'Caderno (Capa e Contra-capa)': 'caderno', 'Caderno': 'caderno', 'Receituário Padrão (A4 e A5)': 'receituario_padrao',
+                        'Receituário Padrão': 'receituario_padrao', 'Receituário': 'receituario_padrao', 'Atestado Médico (A4 e A5)': 'atestado_medico',
+                        'Atestado Médico': 'atestado_medico', 'Receituário de Controle Especial': 'receituario_controle', 'Controle Especial (A4 e A5)': 'receituario_controle',
+                        'Controle Especial': 'receituario_controle', 'Prontuário Médico': 'prontuario_medico', 'Receita de Alta': 'receita_alta',
+                        'Ficha de Cadastro': 'ficha_cadastro', 'Guia Alimentar': 'guia_alimentar', 'Guia de Cuidados': 'guia_cuidados',
+                        'Guia de Desenvolvimento': 'guia_desenvolvimento', 'Guia de Vacina c/ Calendário': 'guia_vacina', 'Guia de Vacina': 'guia_vacina',
+                        'Cartão de Vacina': 'cartao_vacina', 'Cartão de Exame Pré-Natal': 'cartao_prenatal', 'Cartão Pré-Natal': 'cartao_prenatal',
+                        'Gráfico de Crescimento': 'grafico_crescimento', 'Checklist Maternidade': 'checklist_maternidade', 'Guia do Sono': 'guia_sono',
+                        'Orientações p/ Recém Nascidos': 'orientacoes_rn', 'Certificado de Coragem': 'certificado_coragem', 'Diário do Xixi': 'diario_xixi',
+                        'Meu Pratinho': 'meu_pratinho', 'Guia de Amamentação': 'guia_amamentacao', 'Caderneta de Saúde': 'caderneta_saude',
+                        'Pack Digital para Instagram': 'pack_instagram', 'Assinatura de E-mail': 'assinatura_email'
+                      };
+                      const key = keyMap[item];
+                      if (key && dictionary?.papelaria_itens?.[key]) return dictionary.papelaria_itens[key];
+                      
+                      const baseName = item.split('(')[0].split(' c/ ')[0].split(' p/ ')[0].trim();
+                      let fKey = baseName.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase().replace(/ /g, '_').replace(/-/g, '_');
+                      if (fKey === 'guia_de_vacina' || fKey === 'cartao_de_vacina') fKey = 'guia_vacina';
+                      if (fKey === 'orientacoes') return dictionary?.papelaria_itens?.orientacoes_rn || item;
+                      if (fKey === 'diario_do_xixi') fKey = 'diario_xixi';
+                      if (fKey === 'guia_de_amamentacao') fKey = 'guia_amamentacao';
+                      if (fKey === 'guia_de_cuidados') fKey = 'guia_cuidados';
+                      if (fKey === 'guia_de_desenvolvimento') fKey = 'guia_desenvolvimento';
+                      if (fKey === 'guia_do_sono') fKey = 'guia_sono';
+                      if (fKey === 'controle_especial' || fKey === 'receituario_de_controle_especial') fKey = 'receituario_controle';
+                      if (fKey === 'pasta') fKey = 'pasta_a4';
+                      const t = dictionary?.papelaria_itens?.[fKey];
+                      if (!t) return item;
+                      if (item.includes('(A4 e A5)')) return `${t} ${lang === 'en' ? '(A4 & A5)' : '(A4 e A5)'}`;
+                      if (item.includes('c/ Calendário')) return `${t} ${lang === 'en' ? 'w/ Calendar' : 'c/ Calendário'}`;
+                      return t;
+                    })()}
+                  </span>
                   <span style={{ fontSize: '0.72rem', color: '#aaa', fontFamily: 'Montserrat,sans-serif' }}>R$ 30</span>
                 </label>
               );
@@ -5777,6 +5892,7 @@ ${renderPage('menino','verso')}
 
     // ── ORIENTAÇÕES RECÉM NASCIDO ──────────────────────────────────
     if (item === 'Orientações p/ Recém Nascidos') {
+      const isEn = lang === 'en';
       const _ffRN = editData?.fontFamily || brand.editData?.fontFamily || 'Playfair Display';
       const _lfRN = LOCAL_FONT_FACES[_ffRN];
       const fiRN = `<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;600;700;800&display=swap" rel="stylesheet">${_lfRN ? `<style>${_lfRN}</style>` : `<link href="https://fonts.googleapis.com/css2?family=${_ffRN.replace(/ /g,'+')}:wght@400;700&display=swap" rel="stylesheet">`}`;
@@ -5799,7 +5915,9 @@ ${renderPage('menino','verso')}
       const bul = (text) => `<div style="display:flex;gap:1.5mm;margin-bottom:1.2mm;"><span style="color:${c0rn};font-weight:900;">•</span><span style="font-size:7.5pt;color:#444;line-height:1.4;">${text}</span></div>`;
       const logoHtmlRN = genPDFLogoHtml({ brand, editDataOverride: editData, color: '#fff', localSlogan, crmLine, fontPt: 24, lineH: 1.1, letterSp: editData?.fontLetterSpacing || brand.editData?.fontLetterSpacing || '0.5pt', layout: logoLayout, hideSlogan: true, crmSize: '0', customLogoSrc, customLogoScale: customLogoSrc ? getCustomLogoScale(item) * (ITEM_CUSTOM_BASE_SCALES[item] || 1) : 100, maxWidth: '100mm', maxHeight: '36mm', withBackground: false });
 
-      const html = `<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Orientações RN - ${marca}</title>${fiRN}
+      const rnTitle = dictionary?.orientacoes_rn?.titulo || 'OS PRIMEIROS DIAS\nCOM MEU BEBÊ';
+
+      const html = `<!DOCTYPE html><html><head><meta charset="UTF-8"><title>${rnTitle.replace('\n', ' ')} - ${marca}</title>${fiRN}
 <style>* { box-sizing:border-box; margin:0; padding:0; print-color-adjust:exact !important; -webkit-print-color-adjust:exact !important; }
 body { font-family:'Montserrat',sans-serif; background:#fff; }
 .page { width:${210 + BLEED*2}mm; height:${297 + BLEED*2}mm; position:relative; overflow:hidden; background:#fff; display:flex; flex-direction:column; }
@@ -5822,65 +5940,65 @@ body { font-family:'Montserrat',sans-serif; background:#fff; }
   <div style="position:absolute;top:${BLEED + BORDER_RN}mm;left:${BLEED + BORDER_RN}mm;right:${BLEED + BORDER_RN}mm;bottom:${BLEED + BORDER_RN}mm;background:#fff;display:flex;flex-direction:column;overflow:hidden;">
     <!-- HEADER -->
     <div style="background:${solidColor};padding:6mm 10mm;display:flex;align-items:center;justify-content:space-between;flex-shrink:0;">
-      <div style="font-size:14pt;font-weight:900;color:#fff;text-transform:uppercase;letter-spacing:0.5pt;line-height:1.2;">OS PRIMEIROS DIAS<br/>COM MEU BEBÊ</div>
+      <div style="font-size:14pt;font-weight:900;color:#fff;text-transform:uppercase;letter-spacing:0.5pt;line-height:1.2;">${rnTitle.replace('\n', '<br/>')}</div>
       <div style="width:65mm;display:flex;align-items:center;justify-content:center;">${logoHtmlRN}</div>
     </div>
 
     <!-- FAIXA BEBÊ -->
     <div style="background:${solidColor}12;border-bottom:0.3mm solid ${solidColor}30;padding:3.5mm 10mm;display:flex;gap:8mm;align-items:center;flex-shrink:0;">
-      <div style="display:flex;align-items:center;gap:2mm;flex:2;"><span style="font-size:8pt;font-weight:700;color:${solidColor};white-space:nowrap;">Bebê:</span> ${f(rnNomeBebe,'nome do bebê')}</div>
-      <div style="display:flex;align-items:center;gap:2mm;"><span style="font-size:8pt;font-weight:700;color:${solidColor};white-space:nowrap;">Nasc:</span> ${f(rnDataNasc,'__/__/____')}</div>
-      <div style="display:flex;align-items:center;gap:2mm;"><span style="font-size:8pt;font-weight:700;color:${solidColor};">Peso:</span> ${f(rnPeso,'___')} kg</div>
-      <div style="display:flex;align-items:center;gap:2mm;"><span style="font-size:8pt;font-weight:700;color:${solidColor};">Alt:</span> ${f(rnAltura,'___')} cm</div>
+      <div style="display:flex;align-items:center;gap:2mm;flex:2;"><span style="font-size:8pt;font-weight:700;color:${solidColor};white-space:nowrap;">${dictionary?.orientacoes_rn?.bebe || 'Bebê:'}</span> ${f(rnNomeBebe, isEn ? 'baby name' : 'nome do bebê')}</div>
+      <div style="display:flex;align-items:center;gap:2mm;"><span style="font-size:8pt;font-weight:700;color:${solidColor};white-space:nowrap;">${dictionary?.orientacoes_rn?.nasc || 'Nasc:'}</span> ${f(rnDataNasc, isEn ? 'mm/dd/yyyy' : '__/__/____')}</div>
+      <div style="display:flex;align-items:center;gap:2mm;"><span style="font-size:8pt;font-weight:700;color:${solidColor};">${dictionary?.orientacoes_rn?.peso || 'Peso:'}</span> ${f(rnPeso,'___')} kg</div>
+      <div style="display:flex;align-items:center;gap:2mm;"><span style="font-size:8pt;font-weight:700;color:${solidColor};">${dictionary?.orientacoes_rn?.alt || 'Alt:'}</span> ${f(rnAltura,'___')} cm</div>
     </div>
 
     <!-- CORPO -->
     <div style="flex:1;display:flex;overflow:hidden;align-items:center;">
       <div style="flex:0 0 47%;padding:8mm 5mm 6mm 10mm;border-right:0.3mm solid ${c0rn}20;display:flex;flex-direction:column;justify-content:center;">
-        ${sec('Alimentação:', c0rn, 'Aleitamento materno sob livre demanda (à vontade).')}
-        ${sec('Umbigo:', c1rn, `Limpeza com ${f(rnUmbigo,'álcool 70%')} a cada troca de fralda e após o banho.`)}
-        ${sec('Icterícia:', c2rn, 'Pele amarelada? Procure o pediatra imediatamente.')}
-        ${sec('Febre:', c3rn, 'Menores de 3 meses: emergência. Maiores de 3 meses: siga as orientações médicas.')}
-        ${sec('Higiene:', c0rn, '1 banho/dia com sabonete neutro. Sem talco ou perfume. Trocas com água morna e algodão.')}
+        ${sec(dictionary?.orientacoes_rn?.alimentacao_label || 'Alimentação:', c0rn, dictionary?.orientacoes_rn?.alimentacao_text || 'Aleitamento materno sob livre demanda (à vontade).')}
+        ${sec(dictionary?.orientacoes_rn?.umbigo_label || 'Umbigo:', c1rn, `${dictionary?.orientacoes_rn?.umbigo_text_pre || 'Limpeza com '}${f(rnUmbigo, dictionary?.orientacoes_rn?.umbigo || 'álcool 70%')}${dictionary?.orientacoes_rn?.umbigo_text_pos || ' a cada troca de fralda e após o banho.'}`)}
+        ${sec(dictionary?.orientacoes_rn?.ictericia_label || 'Icterícia:', c2rn, dictionary?.orientacoes_rn?.ictericia_text || 'Pele amarelada? Procure o pediatra imediatamente.')}
+        ${sec(dictionary?.orientacoes_rn?.febre_label || 'Febre:', c3rn, dictionary?.orientacoes_rn?.febre_text || 'Menores de 3 meses: emergência. Maiores de 3 meses: siga as orientações médicas.')}
+        ${sec(dictionary?.orientacoes_rn?.higiene_label || 'Higiene:', c0rn, dictionary?.orientacoes_rn?.higiene_text || '1 banho/dia com sabonete neutro. Sem talco ou perfume. Trocas com água morna e algodão.')}
       </div>
       <div style="flex:1;padding:8mm 10mm 6mm 5mm;display:flex;flex-direction:column;justify-content:center;">
-        ${sec('Nariz:', c1rn, `Spray de soro 0,9% (${f(rnSoro,'Rinosoro ou Salsep')}) antes de cada mamada.`)}
-        ${sec('Cólicas:', c2rn, `Compressa morna. Se necessário: ${f(rnMed1,'Luftal')} ${f(rnDose1,'__')} gts ${f(rnInt1,'8/8h')}. Sem melhora: ${f(rnMed2,'Tylenol baby')} ${f(rnDose2,'__')} gts ${f(rnInt2,'6/6h')}.`)}
-        ${sec('Assaduras:', c3rn, `Secar bem antes de aplicar (${f(rnPomada,'Desitin ou Bepantol')}).`)}
-        ${sec('Vitamina D:', c0rn, `${f(rnVitDMed,'Baby-D ou Addera D3')} — ${f(rnVitDDose,'1')} gota/dia desde o nascimento.`)}
+        ${sec(dictionary?.orientacoes_rn?.nariz_label || 'Nariz:', c1rn, `${dictionary?.orientacoes_rn?.nariz_text_pre || 'Spray de soro 0,9% ('}${f(rnSoro, dictionary?.orientacoes_rn?.soro || 'Rinosoro ou Salsep')}${dictionary?.orientacoes_rn?.nariz_text_pos || ') antes de cada mamada.'}`)}
+        ${sec(dictionary?.orientacoes_rn?.colicas_label || 'Cólicas:', c2rn, `${dictionary?.orientacoes_rn?.colicas_text_pre || 'Compressa morna. Se necessário: '}${f(rnMed1, dictionary?.orientacoes_rn?.med1 || 'Luftal')} ${f(rnDose1,'__')}${dictionary?.orientacoes_rn?.colicas_text_mid || ' gotas se cólica de '}${f(rnInt1, dictionary?.orientacoes_rn?.int1 || '8/8h')}. ${isEn ? 'Without improvement: ' : 'Sem melhora: '}${f(rnMed2, dictionary?.orientacoes_rn?.med2 || 'Tylenol baby')} ${f(rnDose2,'__')}${dictionary?.orientacoes_rn?.colicas_text_mid2 || ' gotas se cólica de '}${f(rnInt2, dictionary?.orientacoes_rn?.int2 || '6/6h')}.`)}
+        ${sec(dictionary?.orientacoes_rn?.assaduras_label || 'Assaduras:', c3rn, `${dictionary?.orientacoes_rn?.assaduras_text_pre || 'Secar bem antes de aplicar ('}${f(rnPomada, dictionary?.orientacoes_rn?.pomada || 'Desitin ou Bepantol')}${dictionary?.orientacoes_rn?.assaduras_text_pos || ').'}`)}
+        ${sec(dictionary?.orientacoes_rn?.vitD_label || 'Vitamina D:', c0rn, `${dictionary?.orientacoes_rn?.vitD_text_pre || ''}${f(rnVitDMed, dictionary?.orientacoes_rn?.vitDMed || 'Baby-D ou Addera D3')} — ${f(rnVitDDose, dictionary?.orientacoes_rn?.vitDDose || '1')}${dictionary?.orientacoes_rn?.vitD_text_pos2 || ' gota/dia desde o nascimento.'}`)}
       </div>
     </div>
 
     <!-- VACINAS + CONSULTA -->
     <div style="border-top:0.3mm solid ${c0rn}25;padding:4mm 10mm;display:flex;gap:10mm;align-items:center;flex-shrink:0;background:${c1rn}0a;">
       <div style="flex:1;">
-        <div style="font-size:8pt;font-weight:800;color:${c1rn};text-transform:uppercase;margin-bottom:2mm;">Vacinas na maternidade</div>
+        <div style="font-size:8pt;font-weight:800;color:${c1rn};text-transform:uppercase;margin-bottom:2mm;">${dictionary?.orientacoes_rn?.vacinas_maternidade || 'Vacinas na maternidade'}</div>
         <div style="display:flex;gap:10mm;">
-          <div style="font-size:8pt;color:#555;display:flex;align-items:center;gap:2mm;">BCG: ${f(rnBcgData,'data')}</div>
-          <div style="font-size:8pt;color:#555;display:flex;align-items:center;gap:2mm;">Hepatite B: ${f(rnHepBData,'data')}</div>
+          <div style="font-size:8pt;color:#555;display:flex;align-items:center;gap:2mm;">${dictionary?.orientacoes_rn?.bcg || 'BCG:'} ${f(rnBcgData,'data')}</div>
+          <div style="font-size:8pt;color:#555;display:flex;align-items:center;gap:2mm;">${dictionary?.orientacoes_rn?.hepB || 'Hepatite B:'} ${f(rnHepBData,'data')}</div>
         </div>
       </div>
       <div style="flex:1;background:${c2rn}18;border-radius:2.5mm;padding:3mm 5mm;border:0.2mm solid ${c2rn}40;">
-        <div style="font-size:8pt;font-weight:800;color:${c2rn};text-transform:uppercase;margin-bottom:2mm;">📅 Próxima consulta</div>
-        <div style="font-size:8.5pt;color:#444;display:flex;gap:4mm;align-items:center;">${f(rnConsultaData,'dd/mm/aaaa')} às ${f(rnConsultaHora,'00h00')}</div>
+        <div style="font-size:8pt;font-weight:800;color:${c2rn};text-transform:uppercase;margin-bottom:2mm;">${dictionary?.orientacoes_rn?.proxima_consulta || '📅 Próxima consulta'}</div>
+        <div style="font-size:8.5pt;color:#444;display:flex;gap:4mm;align-items:center;">${f(rnConsultaData, isEn ? 'mm/dd/yyyy' : 'dd/mm/aaaa')} ${dictionary?.orientacoes_rn?.as || 'às'} ${f(rnConsultaHora,'00h00')}</div>
       </div>
     </div>
 
     <!-- OBSERVAÇÕES -->
     <div style="border-top:0.3mm solid ${c0rn}25;padding:4mm 10mm;flex-shrink:0;background:${c0rn}08;">
-      <div style="font-size:9pt;font-weight:900;color:${c0rn};font-style:italic;margin-bottom:2.5mm;">Observações:</div>
+      <div style="font-size:9pt;font-weight:900;color:${c0rn};font-style:italic;margin-bottom:2.5mm;">${dictionary?.orientacoes_rn?.observacoes || 'Observações:'}</div>
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:0 12mm;">
         <div>
-          ${bul('Consulta entre 7 e 14 dias de vida.')}
-          ${bul('Levar ao Posto de Saúde para vacinação.')}
-          ${bul('Teste do Pezinho entre o 3º e 7º dia.')}
-          ${bul('Teste da Orelhinha o quanto antes.')}
+          ${bul(dictionary?.orientacoes_rn?.obs_1 || 'Consulta entre 7 e 14 dias de vida.')}
+          ${bul(dictionary?.orientacoes_rn?.obs_2 || 'Levar ao Posto de Saúde para vacinação.')}
+          ${bul(dictionary?.orientacoes_rn?.obs_3 || 'Teste do Pezinho entre o 3º e 7º dia.')}
+          ${bul(dictionary?.orientacoes_rn?.obs_4 || 'Teste da Orelhinha o quanto antes.')}
         </div>
         <div>
-          ${bul('Dormir sempre de barriga para cima.')}
-          ${bul('Sem travesseiros ou cobertores pesados.')}
-          ${bul('Roupas leves no bebê.')}
-          ${bul('Sólidos só após os 6 meses com orientação.')}
+          ${bul(dictionary?.orientacoes_rn?.obs_5 || 'Dormir sempre de barriga para cima.')}
+          ${bul(dictionary?.orientacoes_rn?.obs_6 || 'Sem travesseiros ou cobertores pesados.')}
+          ${bul(dictionary?.orientacoes_rn?.obs_7 || 'Roupas leves no bebê.')}
+          ${bul(dictionary?.orientacoes_rn?.obs_8 || 'Sólidos só após os 6 meses com orientação.')}
         </div>
       </div>
     </div>
@@ -5890,7 +6008,7 @@ body { font-family:'Montserrat',sans-serif; background:#fff; }
     <div style="border-top:0.3mm solid ${c0rn}30;padding:3.5mm 10mm;display:flex;justify-content:space-between;align-items:center;flex-shrink:0;">
       <div>
         ${clinicaNome ? `<div style="font-size:8.5pt;font-weight:800;color:${c0rn};text-transform:uppercase;">${clinicaNome}</div>` : ''}
-        ${(rnUrgencia || mainPhone) ? `<div style="font-size:7pt;color:#888;">Urgências: ${rnUrgencia || mainPhone}</div>` : ''}
+        ${(rnUrgencia || mainPhone) ? `<div style="font-size:7pt;color:#888;">${dictionary?.orientacoes_rn?.urgencias || 'Urgências:'} ${rnUrgencia || mainPhone}</div>` : ''}
       </div>
       <div style="font-size:6.5pt;color:#aaa;text-align:right;">${[mainPhone, site, instagram ? `@${instagram}` : ''].filter(Boolean).join('  ·  ')}</div>
     </div>
@@ -5904,7 +6022,7 @@ body { font-family:'Montserrat',sans-serif; background:#fff; }
       document.body.appendChild(iframe);
       iframe.contentDocument.open(); iframe.contentDocument.write(html); iframe.contentDocument.close();
       const prevT = document.title;
-      iframe.contentWindow.document.fonts.ready.then(() => { setTimeout(() => { document.title = pdfTitle('Orientações RN'); iframe.contentWindow.focus(); iframe.contentWindow.print(); setTimeout(() => { document.title = prevT; iframe.remove(); }, 3000); }, 1500); });
+      iframe.contentWindow.document.fonts.ready.then(() => { setTimeout(() => { document.title = pdfTitle(dictionary?.orientacoes_rn?.titulo?.replace('\n', ' ') || 'Orientações RN'); iframe.contentWindow.focus(); iframe.contentWindow.print(); setTimeout(() => { document.title = prevT; iframe.remove(); }, 3000); }, 1500); });
       return;
     }
 
@@ -6719,11 +6837,11 @@ body { width: 220mm; height: 307mm; position: relative; overflow: hidden; backgr
                ${genPDFLogoHtml({ brand, editDataOverride: editData, color: logoColor, layout: logoLayout, localSlogan, crmLine, fontPt: _fontPt, lineH: _lineH, letterSp: _letterSp, customLogoSrc, customLogoScale: customLogoSrc ? getCustomLogoScale(item) * (ITEM_CUSTOM_BASE_SCALES[item] || 1) : 100, maxWidth: '100mm', maxHeight: '36mm', withBackground: comBorda && patternSrc })}
             </div>
             <div style="display:flex;flex-direction:column;gap:4mm;font-family:'Montserrat',sans-serif;width:100%;margin-top:1mm;border:0.25mm solid #eee;border-radius:1mm;padding:5mm 6mm;">
-              ${formRow('PACIENTE:', 'NASC:', 0.6)}
-              ${formRow('NOME DA MÃE:', 'CPF:', 0.45)}
-              ${formRow('TELEFONE:', 'EMAIL:', 0.45)}
-              ${formRow('ENDEREÇO:', 'CIDADE:', 0.45)}
-              ${formRow('CONVÊNIO:', 'Nº CARTEIRINHA:', 0.7)}
+              ${formRow(dictionary?.prontuario?.paciente || 'PACIENTE:', dictionary?.prontuario?.data_nasc || 'NASC:', 0.6)}
+              ${formRow(dictionary?.prontuario?.mae || 'NOME DA MÃE:', dictionary?.prontuario?.cpf || 'CPF:', 0.45)}
+              ${formRow(dictionary?.prontuario?.telefone || 'TELEFONE:', dictionary?.prontuario?.email || 'EMAIL:', 0.45)}
+              ${formRow(dictionary?.prontuario?.endereco || 'ENDEREÇO:', dictionary?.prontuario?.cidade || 'CIDADE:', 0.45)}
+              ${formRow(dictionary?.prontuario?.convenio || 'CONVÊNIO:', dictionary?.prontuario?.carteirinha || 'Nº CARTEIRINHA:', 0.7)}
             </div>
             <div style="flex:1;width:100%;margin-top:10mm;">
               ${lines(18, '10mm')}
@@ -7102,29 +7220,29 @@ body { background:#fff; }
     <div style="flex:0 0 105mm;display:flex;flex-direction:column;padding:8mm 8mm 8mm 10mm;border-right:0.2mm solid ${solidColor}20;">
       <!-- Título -->
       <div style="margin-bottom:5mm;">
-        <div style="font-family:'Montserrat',sans-serif;font-size:8pt;font-weight:700;color:#aaa;text-transform:uppercase;letter-spacing:0.5pt;">passo a passo</div>
-        <div style="font-family:'Montserrat',sans-serif;font-size:26pt;font-weight:900;color:${solidColor};text-transform:uppercase;line-height:0.95;">ALIMENTAÇÃO</div>
-        <div style="font-family:'Montserrat',sans-serif;font-size:21pt;font-weight:900;color:${solidColor};text-transform:uppercase;line-height:0.95;">COMPLEMENTAR</div>
+        <div style="font-family:'Montserrat',sans-serif;font-size:8pt;font-weight:700;color:#aaa;text-transform:uppercase;letter-spacing:0.5pt;">${dictionary?.meu_pratinho?.passo_a_passo || 'passo a passo'}</div>
+        <div style="font-family:'Montserrat',sans-serif;font-size:26pt;font-weight:900;color:${solidColor};text-transform:uppercase;line-height:0.95;">${dictionary?.meu_pratinho?.alimentacao || 'ALIMENTAÇÃO'}</div>
+        <div style="font-family:'Montserrat',sans-serif;font-size:21pt;font-weight:900;color:${solidColor};text-transform:uppercase;line-height:0.95;">${dictionary?.meu_pratinho?.complementar || 'COMPLEMENTAR'}</div>
       </div>
       <!-- Campos -->
       <div style="display:flex;flex-direction:column;gap:2mm;margin-bottom:6mm;padding:3mm 5mm;background:${solidColor}10;border-radius:2mm;border:0.2mm solid ${solidColor}20;">
-        ${[['NOME'],['DATA DE NASCIMENTO']].map(([l]) => `
+        ${[[dictionary?.meu_pratinho?.nome || 'NOME'],[dictionary?.meu_pratinho?.data_nascimento || 'DATA DE NASCIMENTO']].map(([l]) => `
           <div style="display:flex;flex-direction:column;gap:0.5mm;">
             <span style="font-family:'Montserrat',sans-serif;font-size:6.5pt;font-weight:800;color:#555;">${l}:</span>
             <div style="border-bottom:0.2mm solid ${solidColor}50;height:4mm;"></div>
           </div>`).join('')}
         <div style="display:flex;gap:6mm;font-family:'Montserrat',sans-serif;font-size:6.5pt;font-weight:800;color:#555;">
-          <div style="display:flex;align-items:center;gap:1.5mm;"><div style="width:3.5mm;height:3.5mm;border:0.2mm solid ${solidColor}60;border-radius:50%;"></div>MENINO</div>
-          <div style="display:flex;align-items:center;gap:1.5mm;"><div style="width:3.5mm;height:3.5mm;border:0.2mm solid ${solidColor}60;border-radius:50%;"></div>MENINA</div>
+          <div style="display:flex;align-items:center;gap:1.5mm;"><div style="width:3.5mm;height:3.5mm;border:0.2mm solid ${solidColor}60;border-radius:50%;"></div>${dictionary?.meu_pratinho?.menino || 'MENINO'}</div>
+          <div style="display:flex;align-items:center;gap:1.5mm;"><div style="width:3.5mm;height:3.5mm;border:0.2mm solid ${solidColor}60;border-radius:50%;"></div>${dictionary?.meu_pratinho?.menina || 'MENINA'}</div>
         </div>
         <div style="display:flex;flex-direction:column;gap:0.5mm;">
-          <span style="font-family:'Montserrat',sans-serif;font-size:6.5pt;font-weight:800;color:#555;">NOME DO RESPONSÁVEL:</span>
+          <span style="font-family:'Montserrat',sans-serif;font-size:6.5pt;font-weight:800;color:#555;">${dictionary?.meu_pratinho?.responsavel || 'NOME DO RESPONSÁVEL'}:</span>
           <div style="border-bottom:0.2mm solid ${solidColor}50;height:4mm;"></div>
         </div>
       </div>
       <!-- Steps -->
       <div style="display:flex;flex-direction:column;gap:5mm;flex:1;">
-        ${[[1,'IDADE',_c0,'6 meses, com os sinais de prontidão presentes.'],[2,'CONSISTÊNCIA',_c1,'Proibido mixer, liquidificador, peneira ou redinha. O que não amassar, ofereça em pedaços para estimular a mastigação e o desenvolvimento orofacial.'],[3,'ESCOLHA O TAMANHO DA COLHER',_c2,'Tamanho adequado ao diâmetro da boca da criança. Prefira silicone ou plástico.'],[4,'MONTAR O PRATO',_c3,'Siga a proporção da imagem dando preferência a alimentos ricos, frescos e variados.']].map(([n,t,c,tx]) => `
+        ${[[1,dictionary?.meu_pratinho?.idade_titulo || 'IDADE',_c0,dictionary?.meu_pratinho?.idade_desc || '6 meses, com os sinais de prontidão presentes.'],[2,dictionary?.meu_pratinho?.consistencia_titulo || 'CONSISTÊNCIA',_c1,dictionary?.meu_pratinho?.consistencia_desc || 'Proibido mixer, liquidificador, peneira ou redinha. O que não amassar, ofereça em pedaços para estimular a mastigação e o desenvolvimento orofacial.'],[3,dictionary?.meu_pratinho?.colher_titulo || 'ESCOLHA O TAMANHO DA COLHER',_c2,dictionary?.meu_pratinho?.colher_desc || 'Tamanho adequado ao diâmetro da boca da criança. Prefira silicone ou plástico.'],[4,dictionary?.meu_pratinho?.montar_titulo || 'MONTAR O PRATO',_c3,dictionary?.meu_pratinho?.montar_desc || 'Siga a proporção da imagem dando preferência a alimentos ricos, frescos e variados.']].map(([n,t,c,tx]) => `
           <div style="display:flex;gap:3mm;align-items:flex-start;">
             <div style="width:5.5mm;height:5.5mm;background:${c};color:#fff;border-radius:50%;display:flex;align-items:center;justify-content:center;font-family:'Montserrat',sans-serif;font-size:8pt;font-weight:900;flex-shrink:0;">${n}</div>
             <div>
@@ -7154,22 +7272,22 @@ body { background:#fff; }
               <!-- Hortaliças (50%) -->
               <div style="position:absolute;top:18%;left:50%;transform:translateX(-50%);display:flex;flex-direction:column;align-items:center;gap:1.5mm;">
                 <span style="font-size:26pt;line-height:1;">🥦🥕🍅</span>
-                <span style="font-size:13pt;font-weight:900;color:#fff;text-shadow:0 0.3mm 0.8mm rgba(0,0,0,0.4);text-transform:uppercase;letter-spacing:0.2pt;white-space:nowrap;font-family:Montserrat,sans-serif;">Hortaliças (50%)</span>
+                <span style="font-size:13pt;font-weight:900;color:#fff;text-shadow:0 0.3mm 0.8mm rgba(0,0,0,0.4);text-transform:uppercase;letter-spacing:0.2pt;white-space:nowrap;font-family:Montserrat,sans-serif;">${dictionary?.meu_pratinho?.hortalicas_label || 'Hortaliças (50%)'}</span>
               </div>
               <!-- Carboidratos (25%) -->
               <div style="position:absolute;bottom:20%;left:14%;display:flex;flex-direction:column;align-items:center;gap:1mm;">
                 <span style="font-size:26pt;line-height:1;">🍚🥔</span>
-                <span style="font-size:13pt;font-weight:900;color:#fff;text-shadow:0 0.3mm 0.8mm rgba(0,0,0,0.4);text-transform:uppercase;width:22mm;text-align:center;line-height:1.2;font-family:Montserrat,sans-serif;">Carbo (25%)</span>
+                <span style="font-size:13pt;font-weight:900;color:#fff;text-shadow:0 0.3mm 0.8mm rgba(0,0,0,0.4);text-transform:uppercase;width:22mm;text-align:center;line-height:1.2;font-family:Montserrat,sans-serif;">${dictionary?.meu_pratinho?.carbo_label || 'Carbo (25%)'}</span>
               </div>
               <!-- Proteínas (12.5%) -->
               <div style="position:absolute;bottom:14%;right:27%;display:flex;flex-direction:column;align-items:center;gap:1mm;">
                 <span style="font-size:26pt;line-height:1;">🍗</span>
-                <span style="font-size:13pt;font-weight:900;color:#fff;text-shadow:0 0.3mm 0.8mm rgba(0,0,0,0.4);text-transform:uppercase;text-align:center;line-height:1.2;font-family:Montserrat,sans-serif;">Proteína<br/>(12.5%)</span>
+                <span style="font-size:13pt;font-weight:900;color:#fff;text-shadow:0 0.3mm 0.8mm rgba(0,0,0,0.4);text-transform:uppercase;text-align:center;line-height:1.2;font-family:Montserrat,sans-serif;">${dictionary?.meu_pratinho?.proteina_label?.replace(' ', '<br/>') || 'Proteína<br/>(12.5%)'}</span>
               </div>
               <!-- Grãos (12.5%) -->
               <div style="position:absolute;bottom:27%;right:12%;display:flex;flex-direction:column;align-items:center;gap:1mm;">
                 <span style="font-size:26pt;line-height:1;">🫘</span>
-                <span style="font-size:13pt;font-weight:900;color:#fff;text-shadow:0 0.3mm 0.8mm rgba(0,0,0,0.4);text-transform:uppercase;text-align:center;line-height:1.2;font-family:Montserrat,sans-serif;">Grãos<br/>(12.5%)</span>
+                <span style="font-size:13pt;font-weight:900;color:#fff;text-shadow:0 0.3mm 0.8mm rgba(0,0,0,0.4);text-transform:uppercase;text-align:center;line-height:1.2;font-family:Montserrat,sans-serif;">${dictionary?.meu_pratinho?.graos_label?.replace(' ', '<br/>') || 'Grãos<br/>(12.5%)'}</span>
               </div>
             </div>
           </div>
@@ -7180,7 +7298,7 @@ body { background:#fff; }
   </div>
   <div style="position:absolute;bottom:${BLEED+BORDER+2}mm;left:${BLEED+BORDER+5}mm;right:${BLEED+BORDER+5}mm;display:flex;justify-content:space-between;border-top:0.2mm solid #eee;padding-top:2mm;z-index:4;">
     <span style="font-family:'Montserrat',sans-serif;font-size:7pt;color:#bbb;">${clinicaNome}${cartaoContacts?.telefone ? ` · ${cartaoContacts.telefone}` : ''}</span>
-    <span style="font-family:'Montserrat',sans-serif;font-size:7pt;font-weight:900;color:${solidColor};text-transform:uppercase;">GUIA ALIMENTAR: MEU PRATINHO</span>
+    <span style="font-family:'Montserrat',sans-serif;font-size:7pt;font-weight:900;color:${solidColor};text-transform:uppercase;">${dictionary?.meu_pratinho?.guia_alimentar_label || 'GUIA ALIMENTAR: MEU PRATINHO'}</span>
   </div>
   <div style="position:absolute;top:${BLEED}mm;left:0;width:${BLEED-0.5}mm;height:0.2mm;background:#000;z-index:100;"></div><div style="position:absolute;top:0;left:${BLEED}mm;width:0.2mm;height:${BLEED-0.5}mm;background:#000;z-index:100;"></div>
   <div style="position:absolute;top:${BLEED}mm;right:0;width:${BLEED-0.5}mm;height:0.2mm;background:#000;z-index:100;"></div><div style="position:absolute;top:0;right:${BLEED}mm;width:0.2mm;height:${BLEED-0.5}mm;background:#000;z-index:100;"></div>
@@ -7192,22 +7310,22 @@ body { background:#fff; }
 <div class="page">
   ${patternBorder}
   <div style="position:absolute;top:${BLEED+BORDER}mm;left:${BLEED+BORDER}mm;right:${BLEED+BORDER}mm;bottom:${BLEED+BORDER}mm;display:flex;flex-direction:column;z-index:3;background:#f5f5f5;padding:5mm 6mm 6mm;overflow:hidden;">
-    <div style="font-family:'Montserrat',sans-serif;font-size:14pt;font-weight:900;color:${solidColor};text-transform:uppercase;text-align:center;margin-bottom:1mm;flex-shrink:0;">MEU PRATINHO</div>
-    <div style="font-family:'Montserrat',sans-serif;font-size:7pt;color:#999;text-align:center;margin-bottom:3mm;flex-shrink:0;">Como montar um prato equilibrado para as crianças</div>
+    <div style="font-family:'Montserrat',sans-serif;font-size:14pt;font-weight:900;color:${solidColor};text-transform:uppercase;text-align:center;margin-bottom:1mm;flex-shrink:0;">${dictionary?.meu_pratinho?.guia_alimentar_label?.replace('GUIA ALIMENTAR: ', '') || 'MEU PRATINHO'}</div>
+    <div style="font-family:'Montserrat',sans-serif;font-size:7pt;color:#999;text-align:center;margin-bottom:3mm;flex-shrink:0;">${dictionary?.meu_pratinho?.como_montar_subtitulo || 'Como montar um prato equilibrado para as crianças'}</div>
     <div style="display:grid;grid-template-columns:1fr 1fr 1fr;grid-template-rows:1fr 1fr 1fr;gap:2.5mm;flex:1;overflow:hidden;">
-      ${foodCard('Legumes e Verduras',_c0,'Ricos em vitaminas, minerais, fibras e ferro. Quanto mais colorido, melhor! Beterraba, chuchu, abobrinha, cenoura, alface, brócolis, couve-flor, espinafre, acelga, rúcula, agrião. Devem ocupar metade do pratinho.')}
-      ${foodCard('Proteínas',_c1,'Fonte de proteína, gordura, ferro, zinco e vitamina B12. Carne, ovo, peixe e frango. Opte por carnes magras. Escolha 1 opção por refeição e varie ao longo da semana.')}
-      ${foodCard('Água',_c2,'Oferte sempre após cada refeição e lanches. A água é fundamental para o bom funcionamento do organismo. Evite bebidas açucaradas, sucos e chás.')}
-      ${foodCard('Leguminosas',_c3,'Proteínas, fibras, ferro, zinco e vitaminas do complexo B. Feijão, grão de bico, ervilha, lentilha, soja. Escolha 1 opção por refeição e varie a proteína vegetal.')}
-      ${foodCard('Frutas',_c0,'Fonte de vitaminas, minerais, fibras e energia. Ótimas para sobremesa e lanchinhos. Abacate, abacaxi, banana, caqui, goiaba, kiwi, laranja, maçã, mamão, melancia, morango, pêra, uva.')}
-      ${foodCard('Cereais, Raízes e Tubérculos',_c1,'Fontes de vitaminas, minerais e energia. Arroz, macarrão, batata, mandioca, inhame, cará. Varie ao longo da semana e prefira os integrais pela maior presença de fibras e nutrientes.')}
-      ${foodCard('Óleos e Gorduras',_c2,'Importantes para o desenvolvimento saudável e absorção de vitaminas. Use pequenas quantidades de azeite de oliva ou óleo de canola. Evite gorduras saturadas, trans, margarina e frituras.')}
-      ${foodCard('Leite e Derivados',_c3,'Fonte de proteína, gordura, cálcio e vitamina A. Leite, coalhadas, iogurtes naturais sem açúcar e queijos. Ótimos para o café da manhã e lanches. Prefira versões integrais.')}
-      ${foodCard('Oleaginosas',_c0,'Fontes de vitaminas, fibras, gorduras saudáveis e antioxidantes. Amêndoas, amendoim, avelã, castanha-de-caju, castanha-do-brasil, noz-pecã e pistache. Ótimas para os lanchinhos.')}
+      ${foodCard(dictionary?.meu_pratinho?.legumes_verduras_titulo || 'Legumes e Verduras',_c0,dictionary?.meu_pratinho?.legumes_verduras_desc || 'Ricos em vitaminas, minerais, fibras e ferro. Quanto mais colorido, melhor! Beterraba, chuchu, abobrinha, cenoura, alface, brócolis, couve-flor, espinafre, acelga, rúcula, agrião. Devem ocupar metade do pratinho.')}
+      ${foodCard(dictionary?.meu_pratinho?.proteinas_titulo || 'Proteínas',_c1,dictionary?.meu_pratinho?.proteinas_desc || 'Fonte de proteína, gordura, ferro, zinco e vitamina B12. Carne, ovo, peixe e frango. Opte por carnes magras. Escolha 1 opção por refeição e varie ao longo da semana.')}
+      ${foodCard(dictionary?.meu_pratinho?.agua_titulo || 'Água',_c2,dictionary?.meu_pratinho?.agua_desc || 'Oferte sempre após cada refeição e lanches. A água é fundamental para o bom funcionamento do organismo. Evite bebidas açucaradas, sucos e chás.')}
+      ${foodCard(dictionary?.meu_pratinho?.leguminosas_titulo || 'Leguminosas',_c3,dictionary?.meu_pratinho?.leguminosas_desc || 'Proteínas, fibras, ferro, zinco e vitaminas do complexo B. Feijão, grão de bico, ervilha, lentilha, soja. Escolha 1 opção por refeição e varie a proteína vegetal.')}
+      ${foodCard(dictionary?.meu_pratinho?.frutas_titulo || 'Frutas',_c0,dictionary?.meu_pratinho?.frutas_desc || 'Fonte de vitaminas, minerais, fibras e energia. Ótimas para sobremesa e lanchinhos. Abacate, abacaxi, banana, caqui, goiaba, kiwi, laranja, maçã, mamão, melancia, morango, pêra, uva.')}
+      ${foodCard(dictionary?.meu_pratinho?.cereais_titulo || 'Cereais, Raízes e Tubérculos',_c1,dictionary?.meu_pratinho?.cereais_desc || 'Fontes de vitaminas, minerais e energia. Arroz, macarrão, batata, mandioca, inhame, cará. Varie ao longo da semana e prefira os integrais pela maior presença de fibras e nutrientes.')}
+      ${foodCard(dictionary?.meu_pratinho?.oleos_titulo || 'Óleos e Gorduras',_c2,dictionary?.meu_pratinho?.oleos_desc || 'Importantes para o desenvolvimento saudável e absorção de vitaminas. Use pequenas quantidades de azeite de oliva ou óleo de canola. Evite gorduras saturadas, trans, margarina e frituras.')}
+      ${foodCard(dictionary?.meu_pratinho?.leite_titulo || 'Leite e Derivados',_c3,dictionary?.meu_pratinho?.leite_desc || 'Fonte de proteína, gordura, cálcio e vitamina A. Leite, coalhadas, iogurtes naturais sem açúcar e queijos. Ótimos para o café da manhã e lanches. Prefira versões integrais.')}
+      ${foodCard(dictionary?.meu_pratinho?.oleaginosas_titulo || 'Oleaginosas',_c0,dictionary?.meu_pratinho?.oleaginosas_desc || 'Fontes de vitaminas, fibras, gorduras saudáveis e antioxidantes. Amêndoas, amendoim, avelã, castanha-de-caju, castanha-do-brasil, noz-pecã e pistache. Ótimas para os lanchinhos.')}
     </div>
     <div style="display:flex;justify-content:space-between;border-top:0.2mm solid #ddd;padding-top:2mm;margin-top:2mm;flex-shrink:0;">
       <span style="font-family:'Montserrat',sans-serif;font-size:7pt;color:#999;">${clinicaNome}</span>
-      <span style="font-family:'Montserrat',sans-serif;font-size:7pt;font-weight:900;color:${solidColor};text-transform:uppercase;">GUIA ALIMENTAR: MEU PRATINHO (VERSO)</span>
+      <span style="font-family:'Montserrat',sans-serif;font-size:7pt;font-weight:900;color:${solidColor};text-transform:uppercase;">${dictionary?.meu_pratinho?.guia_alimentar_verso_label || 'GUIA ALIMENTAR: MEU PRATINHO (VERSO)'}</span>
     </div>
   </div>
   <div style="position:absolute;top:${BLEED}mm;left:0;width:${BLEED-0.5}mm;height:0.2mm;background:#000;z-index:100;"></div><div style="position:absolute;top:0;left:${BLEED}mm;width:0.2mm;height:${BLEED-0.5}mm;background:#000;z-index:100;"></div>
@@ -7321,7 +7439,7 @@ html, body { width:${totalW}mm; height:${totalH}mm; overflow:hidden; }
       const fiRA = `<link href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,300;0,400;0,600;0,700;0,800;0,900;1,700;1,800&display=swap" rel="stylesheet">${_lfRA ? `<style>${_lfRA}</style>` : `<link href="https://fonts.googleapis.com/css2?family=${encodeURIComponent(_ffRA)}:wght@400;700&display=swap" rel="stylesheet">`}`;
       const _lyRA = logoLayout || 'stacked';
       const logoHtmlRA = genPDFLogoHtml({ brand, editDataOverride: editData, color: '#fff', layout: _lyRA, localSlogan, hideSlogan: true, crmLine: null, fontPt: 22, lineH: 1.1, letterSp: _letterSp, customLogoSrc, customLogoScale: customLogoSrc ? getCustomLogoScale(item) * (ITEM_CUSTOM_BASE_SCALES[item] || 1) : 100, maxWidth: '100mm', maxHeight: '36mm', withBackground: false });
-      const html = buildReceitaAltaHTML({ logoHtml: logoHtmlRA, solidColor, paletteColors, clinicaNome, cartaoContacts, crmLine, marca, fields: receitaFields, comBorda, patternSrc, patternScale });
+      const html = buildReceitaAltaHTML({ logoHtml: logoHtmlRA, solidColor, paletteColors, clinicaNome, cartaoContacts, crmLine, marca, fields: receitaFields, comBorda, patternSrc, patternScale, dictionary, lang });
       const htmlFinal = html.replace('<head>', `<head>${fiRA.replace(/<link[^>]*>/, '')}`);
       const exRA = document.getElementById('_gabarito_receita_alta'); if (exRA) exRA.remove();
       const iframeRA = document.createElement('iframe');
@@ -7610,11 +7728,11 @@ body { width:${W + BLEED*2}mm; height:${H + BLEED*2}mm; position:relative; overf
     ${patternBorder}
     
     <div style="position:absolute;top:${BLEED + BORDER + 8}mm;left:${BLEED + BORDER + 8}mm;right:${BLEED + BORDER + 8}mm;bottom:${BLEED + BORDER + 4}mm;display:flex;flex-direction:column;gap:3mm;z-index:3;">
-        <div style="text-align:center;font-size:9pt;font-weight:800;color:#aaa;letter-spacing:2pt;text-transform:uppercase;margin-bottom:1mm;">RECEITUÁRIO DE CONTROLE ESPECIAL</div>
+        <div style="text-align:center;font-size:9pt;font-weight:800;color:#aaa;letter-spacing:2pt;text-transform:uppercase;margin-bottom:1mm;">${dictionary?.controle_especial?.titulo || 'RECEITUÁRIO DE CONTROLE ESPECIAL'}</div>
 
         <div style="display:flex;gap:6mm;align-items:stretch;">
             <div style="flex:2.5;background:${_accent}08;border:0.2mm solid ${_accent}20;padding:3mm 4mm;border-radius:1.5mm;">
-                <div style="font-size:7pt;font-weight:800;color:${_accent};margin-bottom:1.5mm;border-bottom:0.2mm solid ${_accent}20;padding-bottom:1mm;text-transform:uppercase;">IDENTIFICAÇÃO DO EMITENTE</div>
+                <div style="font-size:7pt;font-weight:800;color:${_accent};margin-bottom:1.5mm;border-bottom:0.2mm solid ${_accent}20;padding-bottom:1mm;text-transform:uppercase;">${dictionary?.controle_especial?.emitente || 'IDENTIFICAÇÃO DO EMITENTE'}</div>
                 <div style="font-size:7.5pt;line-height:1.5;color:#444;">
                     <div style="font-weight:700;color:${_accent};">${clinicaNome || marca}</div>
                     ${crmLine ? `<div style="font-weight:700;">${crmLine}</div>` : ''}
@@ -7626,14 +7744,15 @@ body { width:${W + BLEED*2}mm; height:${H + BLEED*2}mm; position:relative; overf
             </div>
             <div style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2mm;">
                 <div style="display:flex;align-items:center;justify-content:center;">${logoHtmlCe}</div>
-                <div style="font-size:6.5pt;font-weight:600;color:#bbb;text-transform:uppercase;letter-spacing:0.5pt;text-align:center;line-height:1.4;">1ª VIA FARMÁCIA<br/>2ª VIA PACIENTE</div>
+                <div style="font-size:6.5pt;font-weight:600;color:#bbb;text-transform:uppercase;letter-spacing:0.5pt;text-align:center;line-height:1.4;white-space:pre-wrap;">${dictionary?.controle_especial?.vias || '1ª VIA FARMÁCIA\n2ª VIA PACIENTE'}</div>
             </div>
         </div>
 
         <div style="display:flex;flex-direction:column;gap:2.5mm;">
-            ${['PACIENTE', 'ENDEREÇO'].map(l => `<div style="border-bottom:0.15mm solid #eee;padding-bottom:1.5mm;display:flex;gap:3mm;"><span style="font-size:8pt;font-weight:700;color:#333;text-transform:uppercase;">${l}:</span></div>`).join('')}
+            <div style="border-bottom:0.15mm solid #eee;padding-bottom:1.5mm;display:flex;gap:3mm;"><span style="font-size:8pt;font-weight:700;color:#333;text-transform:uppercase;">${dictionary?.controle_especial?.paciente || 'PACIENTE:'}</span></div>
+            <div style="border-bottom:0.15mm solid #eee;padding-bottom:1.5mm;display:flex;gap:3mm;"><span style="font-size:8pt;font-weight:700;color:#333;text-transform:uppercase;">${dictionary?.controle_especial?.endereco || 'ENDEREÇO:'}</span></div>
             <div style="margin-top:1mm;">
-               <div style="font-size:8pt;font-weight:700;color:#333;margin-bottom:1mm;">PRESCRIÇÃO:</div>
+               <div style="font-size:8pt;font-weight:700;color:#333;margin-bottom:1mm;">${dictionary?.controle_especial?.prescricao || 'PRESCRIÇÃO:'}</div>
                ${Array.from({length: 8}).map(() => `<div style="border-bottom:0.1mm solid #f2f2f2;height:7mm;"></div>`).join('')}
             </div>
         </div>
@@ -7641,23 +7760,23 @@ body { width:${W + BLEED*2}mm; height:${H + BLEED*2}mm; position:relative; overf
         <div style="margin-top:auto;display:flex;gap:15mm;align-items:flex-start;padding:0 5mm;margin-bottom:3mm;">
              <div style="width:38mm;display:flex;flex-direction:column;align-items:center;">
                 <div style="width:100%;border-top:0.2mm solid #999;"></div>
-                <div style="font-size:7pt;font-weight:400;margin-top:1.5mm;color:#888;">Data</div>
+                <div style="font-size:7pt;font-weight:400;margin-top:1.5mm;color:#888;">${dictionary?.controle_especial?.data || 'Data'}</div>
              </div>
              <div style="flex:1;display:flex;flex-direction:column;align-items:center;">
                 <div style="width:100%;border-top:0.2mm solid #999;"></div>
-                <div style="font-size:7pt;font-weight:400;margin-top:1.5mm;color:#888;">Assinatura do Médico</div>
+                <div style="font-size:7pt;font-weight:400;margin-top:1.5mm;color:#888;">${dictionary?.controle_especial?.assinatura || 'Assinatura do Médico'}</div>
              </div>
         </div>
 
         <div style="display:flex;gap:6mm;height:24mm;">
              <div style="flex:1;background:${_accent}10;border:0.2mm solid ${_accent}25;padding:2.5mm 4mm;border-radius:1.5mm;">
-                <div style="font-size:6.5pt;font-weight:800;color:${_accent};margin-bottom:1.5mm;text-align:center;text-transform:uppercase;">IDENTIFICAÇÃO DO COMPRADOR</div>
+                <div style="font-size:6.5pt;font-weight:800;color:${_accent};margin-bottom:1.5mm;text-align:center;text-transform:uppercase;">${dictionary?.controle_especial?.comprador || 'IDENTIFICAÇÃO DO COMPRADOR'}</div>
                 <div style="display:flex;flex-direction:column;gap:1mm;">
                   ${['Nome', 'Ident.', 'Endereço', 'Cidade'].map(f => `<div style="border-bottom:0.1mm solid rgba(0,0,0,0.08);height:3.5mm;"></div>`).join('')}
                 </div>
              </div>
              <div style="flex:1;border:0.2mm solid #ddd;border-radius:1.5mm;position:relative;">
-                <div style="position:absolute;bottom:2.5mm;left:0;right:0;text-align:center;font-size:6pt;color:#bbb;text-transform:uppercase;font-weight:700;">ASSINATURA DO FARMACÊUTICO</div>
+                <div style="position:absolute;bottom:2.5mm;left:0;right:0;text-align:center;font-size:6pt;color:#bbb;text-transform:uppercase;font-weight:700;">${dictionary?.controle_especial?.farmaceutico || 'ASSINATURA DO FARMACÊUTICO'}</div>
              </div>
         </div>
     </div>
@@ -7711,19 +7830,19 @@ td { padding: 4mm 3mm; border: 0.2mm solid #eee; font-size: 10pt; color: #555; }
         <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12mm;padding-bottom:4mm;border-bottom:0.1mm solid #f0f0f0;">
             <div style="display:flex;justify-content:flex-start;">${genPDFLogoHtml({ brand, editDataOverride: editData, color: logoColor, layout: logoLayout, localSlogan, crmLine, fontPt: _fontPt, lineH: _lineH, letterSp: _letterSp, customLogoSrc, customLogoScale: customLogoSrc ? getCustomLogoScale(item) * (ITEM_CUSTOM_BASE_SCALES[item] || 1) : 100, maxWidth: '100mm', maxHeight: '36mm', alignLeft: true, withBackground: comBorda && patternSrc })}</div>
             <div style="text-align:right;">
-                <div style="font-size:18pt;font-weight:800;color:${accentColor};opacity:0.1;letter-spacing:4pt;line-height:1;">RECIBO</div>
+                <div style="font-size:18pt;font-weight:800;color:${accentColor};opacity:0.1;letter-spacing:4pt;line-height:1;">${dictionary?.recibo?.titulo || 'RECIBO'}</div>
             </div>
         </div>
 
-        <div class="field"><span class="label">Recebi de</span> <div style="flex:1;"></div></div>
-        <div class="field"><span class="label">A quantia de</span> <div style="flex:1;"></div></div>
-        <div class="field"><span class="label">Referente a</span> <div style="flex:1;"></div></div>
+        <div class="field"><span class="label">${dictionary?.recibo?.recebi_de || 'Recebi de'}</span> <div style="flex:1;"></div></div>
+        <div class="field"><span class="label">${dictionary?.recibo?.quantia_de || 'A quantia de'}</span> <div style="flex:1;"></div></div>
+        <div class="field"><span class="label">${dictionary?.recibo?.referente_a || 'Referente a'}</span> <div style="flex:1;"></div></div>
 
         <table>
-            <thead><tr><th style="width:20%;">Data</th><th>Descrição dos Serviços</th><th style="width:25%;text-align:right;">Total</th></tr></thead>
+            <thead><tr><th style="width:20%;">${dictionary?.recibo?.data || 'Data'}</th><th>${dictionary?.recibo?.descricao || 'Descrição dos Serviços'}</th><th style="width:25%;text-align:right;">${dictionary?.recibo?.total || 'Total'}</th></tr></thead>
             <tbody>
                 ${Array.from({length: 3}).map(() => `<tr><td></td><td></td><td></td></tr>`).join('')}
-                <tr><td colspan="2" style="text-align:right;font-weight:700;color:#1a1a1a;">TOTAL</td><td style="background:#f9f9f9;"></td></tr>
+                <tr><td colspan="2" style="text-align:right;font-weight:700;color:#1a1a1a;text-transform:uppercase;">${dictionary?.recibo?.total || 'TOTAL'}</td><td style="background:#f9f9f9;"></td></tr>
             </tbody>
         </table>
 
@@ -7754,6 +7873,7 @@ td { padding: 4mm 3mm; border: 0.2mm solid #eee; font-size: 10pt; color: #555; }
       if (['Guia Alimentar', 'Guia de Cuidados', 'Guia de Desenvolvimento', 'Guia de Vacina c/ Calendário', 'Cartão de Vacina', 'Cartão de Exame Pré-Natal', 'Cartão de Exames Pré-Natal', 'Guia de Amamentação', 'Guia do Sono'].includes(item)) {
         const isPrenatal = item.includes('Pré-Natal');
         const isAmamentacao = item.includes('Amamentação');
+        const isEn = lang === 'en';
         const BLEED = 5;
 
         if (isAmamentacao) {
@@ -8018,9 +8138,31 @@ body { font-family:'Montserrat',sans-serif; }
         const p6Content = `
           <div style="width:100%; height:100%; position:relative; display:flex; flex-direction:column; align-items:center;">
             <div class="quote-box" style="position:absolute; top:48%; left:50%; transform:translate(-50%, -50%); width:88%; background:${paletteColors[0] || accentColor}; border:0.4mm solid ${paletteColors[0] || accentColor}; border-radius:4mm; padding:10mm 8mm; text-align:center; box-shadow:0 2mm 8mm rgba(0,0,0,0.1); z-index:3;">
-                <div style="font-family:'Brush Script MT','Segoe Script',cursive; font-style:italic; color:#fff !important; -webkit-text-fill-color:#fff; font-size:30pt; margin-bottom:4mm; text-transform:none;">${isSono ? '"Um bebê bem descansado é um bebê mais feliz!"' : isCuidados ? '"Você não precisa ser perfeita — precisa estar presente."' : isVacina ? '"Proteção que começa desde o primeiro dia."' : '"Brinque, converse e explore!"'}</div>
+                <div style="font-family:'Brush Script MT','Segoe Script',cursive; font-style:italic; color:#fff !important; -webkit-text-fill-color:#fff; font-size:30pt; margin-bottom:4mm; text-transform:none;">
+                   ${isSono 
+                     ? (isEn ? '"A well-rested baby is a happier baby!"' : '"Um bebê bem descansado é um bebê mais feliz!"')
+                     : isCuidados 
+                       ? (isEn ? '"You don\'t need to be perfect — you need to be present."' : '"Você não precisa ser perfeita — precisa estar presente."')
+                       : isVacina 
+                         ? (isEn ? '"Protection that starts from day one."' : '"Proteção que começa desde o primeiro dia."') 
+                         : (isEn ? '"Play, talk and explore!"' : '"Brinque, converse e explore!"')}
+                </div>
                 <div style="font-family:'Montserrat',sans-serif;font-size:9pt;color:#fff !important;-webkit-text-fill-color:#fff;font-weight:500;line-height:1.5;">
-                   ${isSono ? 'O sono é uma necessidade fisiológica essencial para o desenvolvimento do seu bebê. Uma rotina consistente, ambiente seguro e respeito aos sinais de sono fazem toda a diferença. Você não está sozinha nessa jornada!' : isCuidados ? 'Cuidar de um bebê é aprender junto com ele. Cada dúvida é normal, cada conquista é sua também. Você está fazendo um trabalho incrível.' : isVacina ? 'A vacinação é o maior gesto de amor e cuidado. Ela protege não apenas o seu bebê, mas toda a comunidade ao redor. Mantenha a carteirinha sempre em dia e conte conosco para acompanhar cada etapa dessa proteção.' : 'As brincadeiras são mais do que momentos de diversão. Elas ajudam seu bebê a aprender, a desenvolver novas habilidades e a se sentir seguro e amado. Pergunte, cante, brinque de esconde-esconde e observe o quanto seu bebê cresce a cada dia.'}
+                   ${isSono 
+                     ? (isEn 
+                        ? 'Sleep is an essential physiological need for your baby\'s development. A consistent routine, safe environment, and respecting sleep cues make all the difference. You are not alone in this journey!' 
+                        : 'O sono é uma necessidade fisiológica essencial para o desenvolvimento do seu bebê. Uma rotina consistente, ambiente seguro e respeito aos sinais de sono fazem toda a diferença. Você não está sozinha nessa jornada!')
+                     : isCuidados 
+                       ? (isEn 
+                          ? 'Caring for a baby is learning along with them. Every doubt is normal, every achievement is yours too. You are doing an amazing job.' 
+                          : 'Cuidar de um bebê é aprender junto com ele. Cada dúvida é normal, cada conquista é sua também. Você está fazendo um trabalho incrível.')
+                       : isVacina 
+                         ? (isEn 
+                            ? 'Vaccination is the greatest act of love and care. It protects not only your baby, but the entire community around them. Keep the records up to date and count on us to accompany each step of this protection.' 
+                            : 'A vacinação é o maior gesto de amor e cuidado. Ela protege não apenas o seu bebê, mas toda a comunidade ao redor. Mantenha a carteirinha sempre em dia e conte conosco para acompanhar cada etapa dessa proteção.')
+                         : (isEn 
+                            ? 'Playtime is more than just fun. It helps your baby learn, develop new skills, and feel safe and loved. Ask questions, sing, play peek-a-boo and watch how much your baby grows every day.' 
+                            : 'As brincadeiras são mais do que momentos de diversão. Elas ajudam seu bebê a aprender, a desenvolver novas habilidades e a se sentir seguro e amado. Pergunte, cante, brinque de esconde-esconde e observe o quanto seu bebê cresce a cada dia.')}
                 </div>
             </div>
 
@@ -8081,19 +8223,35 @@ body { font-family:'Montserrat',sans-serif; }
               
               <div style="display:flex;flex-direction:column;align-items:center;margin-bottom:2mm;">
                   <div style="font-family:'Montserrat',sans-serif;font-weight:800;font-size:12pt;color:${accentColor}cc;letter-spacing:1.5pt;text-transform:uppercase;margin-bottom:4mm;font-style:italic;">
-                     ${item.includes('Alimentar') || item.includes('Cuidados') || item.includes('Desenvolvimento') || item.includes('Vacina') ? 'GUIA DE' : item.includes('Sono') ? 'GUIA DO' : 'CARTÃO DE'}
+                     ${item.includes('Alimentar') || item.includes('Cuidados') || item.includes('Desenvolvimento') || item.includes('Vacina') 
+                       ? (isEn ? 'GUIDE TO' : 'GUIA DE') 
+                       : item.includes('Sono') 
+                         ? (isEn ? 'GUIDE TO' : 'GUIA DO') 
+                         : (isEn ? 'PRENATAL' : 'CARTÃO DE')}
                   </div>
                   <div style="font-family:'Montserrat',sans-serif;font-weight:800;font-size:24pt;color:#1a1a1a;letter-spacing:1.2pt;text-transform:uppercase;line-height:1.25;">
-                     ${item.includes('Alimentar') ? 'INTRODUÇÃO<br/>ALIMENTAR' :
-                       item.includes('Cuidados') ? 'CUIDADOS<br/>COM O BEBÊ' :
-                       item.includes('Desenvolvimento') ? 'DESENVOLVIMENTO' :
-                       item.includes('Vacina') ? 'VACINAÇÃO' :
-                       item.includes('Sono') ? 'SONO<br/>SAUDÁVEL' : 'EXAME<br/>PRÉ-NATAL'}
+                     ${item.includes('Alimentar') ? (isEn ? 'COMPLEMENTARY<br/>FEEDING' : 'INTRODUÇÃO<br/>ALIMENTAR') :
+                       item.includes('Cuidados') ? (isEn ? 'BABY CARE' : 'CUIDADOS<br/>COM O BEBÊ') :
+                       item.includes('Desenvolvimento') ? (isEn ? 'DEVELOPMENT' : 'DESENVOLVIMENTO') :
+                       item.includes('Vacina') ? (isEn ? 'VACCINATION' : 'VACINAÇÃO') :
+                       item.includes('Sono') ? (isEn ? 'HEALTHY<br/>SLEEP' : 'SONO<br/>SAUDÁVEL') : (isEn ? 'PRENATAL<br/>CARD' : 'EXAME<br/>PRÉ-NATAL')}
                   </div>
               </div>
 
               <div style="padding:2.5mm 10mm; background:${(isPrenatal ? paletteColors[0] || accentColor : paletteColors[1] || accentColor) + '28'}; border-radius:15mm; border:0.25mm solid ${(isPrenatal ? paletteColors[0] || accentColor : paletteColors[1] || accentColor) + '50'}; margin-top:1.5mm;">
-                  <div style="font-family:'Montserrat', sans-serif; font-size:10pt; font-weight:800; color:${_darkenHex(isPrenatal ? paletteColors[0] || accentColor : paletteColors[1] || accentColor)}; text-transform:uppercase; letter-spacing:1pt;">${isSono ? 'DURMA BEM, CRESÇA BEM' : isCuidados ? 'DO PRIMEIRO DIA COM MUITO AMOR' : isDev ? 'CADA DIA UM NOVO DESCOBRIMENTO' : isVacina ? 'PROTEGIDO DESDE O PRIMEIRO DIA' : isPrenatal ? 'CUIDANDO DA SAÚDE DA MAMÃE E DO BEBÊ' : 'NUTRIÇÃO QUE TRANSFORMA'}</div>
+                  <div style="font-family:'Montserrat', sans-serif; font-size:10pt; font-weight:800; color:${_darkenHex(isPrenatal ? paletteColors[0] || accentColor : paletteColors[1] || accentColor)}; text-transform:uppercase; letter-spacing:1pt;">
+                     ${isSono 
+                       ? (isEn ? 'SLEEP WELL, GROW WELL' : 'DURMA BEM, CRESÇA BEM') 
+                       : isCuidados 
+                         ? (isEn ? 'FROM DAY ONE WITH MUCH LOVE' : 'DO PRIMEIRO DIA COM MUITO AMOR') 
+                         : isDev 
+                           ? (isEn ? 'EVERY DAY A NEW DISCOVERY' : 'CADA DIA UM NOVO DISCOBRIMENTO') 
+                           : isVacina 
+                             ? (isEn ? 'PROTECTED FROM DAY ONE' : 'PROTEGIDO DESDE O PRIMEIRO DIA') 
+                             : isPrenatal 
+                               ? (isEn ? 'CARING FOR MOTHER AND BABY HEALTH' : 'CUIDANDO DA SAÚDE DA MAMÃE E DO BEBÊ') 
+                               : (isEn ? 'NUTRITION THAT TRANSFORMS' : 'NUTRIÇÃO QUE TRANSFORMA')}
+                  </div>
               </div>
           </div>`;
 
@@ -8513,11 +8671,87 @@ ${fontImports2}
     <div style={{ display: 'flex', flexDirection: 'column', gap: '1.2rem' }}>
 
       {/* Nome do item atual */}
-      <div style={{ fontWeight: 700, fontSize: '1.1rem', color: '#1a1a1a' }}>{currentItem}</div>
+      <div style={{ fontWeight: 700, fontSize: '1.1rem', color: '#1a1a1a' }}>
+        {(() => {
+          if (!currentItem) return '';
+          const keyMap = {
+            'Cartão de Visita': 'cartao_visita',
+            'Papel Timbrado': 'papel_timbrado',
+            'Papel de Presente': 'papel_presente',
+            'Tag para Sacola': 'tag_sacola',
+            'Etiqueta para Correios': 'etiqueta_correios',
+            'Envelope Ofício (23x11,5cm)': 'envelope_oficio',
+            'Envelope Ofício': 'envelope_oficio',
+            'Envelope Saco (24x34cm)': 'envelope_saco',
+            'Envelope Saco': 'envelope_saco',
+            'Recibo': 'recibo',
+            'Pasta A4': 'pasta_a4',
+            'Pasta': 'pasta_a4',
+            'Caneca': 'caneca',
+            'Arte para Caneca': 'arte_caneca',
+            'Cartão de Retorno': 'cartao_retorno',
+            'Cartão de Agradecimento (10x15cm)': 'cartao_agradecimento',
+            'Cartão de Agradecimento': 'cartao_agradecimento',
+            'Caderno (Capa e Contra-capa)': 'caderno',
+            'Caderno': 'caderno',
+            'Receituário Padrão (A4 e A5)': 'receituario_padrao',
+            'Receituário Padrão': 'receituario_padrao',
+            'Receituário': 'receituario_padrao',
+            'Atestado Médico (A4 e A5)': 'atestado_medico',
+            'Atestado Médico': 'atestado_medico',
+            'Receituário de Controle Especial': 'receituario_controle',
+            'Controle Especial (A4 e A5)': 'receituario_controle',
+            'Controle Especial': 'receituario_controle',
+            'Prontuário Médico': 'prontuario_medico',
+            'Receita de Alta': 'receita_alta',
+            'Ficha de Cadastro': 'ficha_cadastro',
+            'Guia Alimentar': 'guia_alimentar',
+            'Guia de Cuidados': 'guia_cuidados',
+            'Guia de Desenvolvimento': 'guia_desenvolvimento',
+            'Guia de Vacina c/ Calendário': 'guia_vacina',
+            'Guia de Vacina': 'guia_vacina',
+            'Cartão de Vacina': 'cartao_vacina',
+            'Cartão de Exame Pré-Natal': 'cartao_prenatal',
+            'Cartão Pré-Natal': 'cartao_prenatal',
+            'Gráfico de Crescimento': 'grafico_crescimento',
+            'Checklist Maternidade': 'checklist_maternidade',
+            'Guia do Sono': 'guia_sono',
+            'Orientações p/ Recém Nascidos': 'orientacoes_rn',
+            'Certificado de Coragem': 'certificado_coragem',
+            'Diário do Xixi': 'diario_xixi',
+            'Meu Pratinho': 'meu_pratinho',
+            'Guia de Amamentação': 'guia_amamentacao',
+            'Caderneta de Saúde': 'caderneta_saude',
+            'Pack Digital para Instagram': 'pack_instagram',
+            'Assinatura de E-mail': 'assinatura_email'
+          };
+          const key = keyMap[currentItem];
+          if (key && dictionary?.papelaria_itens?.[key]) {
+            return dictionary.papelaria_itens[key];
+          }
+          // Fallback parsing for anything missed
+          const baseName = currentItem.split('(')[0].split(' c/ ')[0].split(' p/ ')[0].trim();
+          let fKey = baseName.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase().replace(/ /g, '_').replace(/-/g, '_');
+          if (fKey === 'guia_de_vacina' || fKey === 'cartao_de_vacina') fKey = 'guia_vacina';
+          if (fKey === 'orientacoes') return dictionary?.papelaria_itens?.orientacoes_rn || currentItem;
+          if (fKey === 'diario_do_xixi') fKey = 'diario_xixi';
+          if (fKey === 'guia_de_amamentacao') fKey = 'guia_amamentacao';
+          if (fKey === 'guia_de_cuidados') fKey = 'guia_cuidados';
+          if (fKey === 'guia_de_desenvolvimento') fKey = 'guia_desenvolvimento';
+          if (fKey === 'guia_do_sono') fKey = 'guia_sono';
+          if (fKey === 'controle_especial' || fKey === 'receituario_de_controle_especial') fKey = 'receituario_controle';
+          if (fKey === 'pasta') fKey = 'pasta_a4';
+          const t = dictionary?.papelaria_itens?.[fKey];
+          if (!t) return currentItem;
+          if (currentItem.includes('(A4 e A5)')) return `${t} ${lang === 'en' ? '(A4 & A5)' : '(A4 e A5)'}`;
+          if (currentItem.includes('c/ Calendário')) return `${t} ${lang === 'en' ? 'w/ Calendar' : 'c/ Calendário'}`;
+          return t;
+        })()}
+      </div>
 
       {/* Escala da logo — acima do preview para ajuste em tempo real */}
       <div style={{ display: 'flex', alignItems: 'center', gap: '10px', padding: '4px 0' }}>
-        <span style={{ fontSize: '0.68rem', color: '#999', fontWeight: 600, fontFamily: 'Montserrat,sans-serif', whiteSpace: 'nowrap' }}>Escala da logo</span>
+        <span style={{ fontSize: '0.68rem', color: '#999', fontWeight: 600, fontFamily: 'Montserrat,sans-serif', whiteSpace: 'nowrap' }}>{dictionary?.ui?.escala_logo || 'Escala da logo'}</span>
         <input type="range" min="10"
           max={currentItem.includes('Cartão de Visita') && cartaoRetrato ? 105 : getCustomLogoScaleMax(currentItem)}
           step="5"
@@ -8612,14 +8846,14 @@ ${fontImports2}
       {/* Aviso preview ilustrativo */}
       <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginBottom: '8px', padding: '6px 10px', background: '#f9f9f9', borderRadius: '8px', border: '1px solid #eee' }}>
         <span style={{ fontSize: '0.6rem', color: '#aaa', fontFamily: 'Montserrat,sans-serif', lineHeight: 1.4 }}>
-          ℹ️ <strong style={{ color: '#bbb' }}>Preview ilustrativo.</strong> Proporções e tamanhos podem variar. Confira as dimensões reais no PDF antes de enviar para a gráfica.
+          ℹ️ <strong style={{ color: '#bbb' }}>{dictionary?.ui?.preview_aviso || 'Preview ilustrativo.'}</strong> {dictionary?.ui?.preview_aviso_desc || 'Proporções e tamanhos podem variar. Confira as dimensões reais no PDF antes de enviar para a gráfica.'}
         </span>
       </div>
 
       {/* Editar contatos — acordeão (todos os itens exceto caneca) */}
       {currentItem !== 'Caneca' && currentItem !== 'Arte para Caneca' && <div style={{ border: '1px solid #e8e8e8', borderRadius: '12px', overflow: 'hidden' }}>
           <button onClick={() => setContactOpen(o => !o)} style={{ width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '10px 14px', background: 'none', border: 'none', cursor: 'pointer' }}>
-            <span style={{ fontWeight: 600, fontSize: '0.78rem', color: '#555' }}>Editar dados</span>
+            <span style={{ fontWeight: 600, fontSize: '0.78rem', color: '#555' }}>{dictionary?.ui?.editar_dados || 'Editar dados'}</span>
             <span style={{ fontSize: '0.7rem', color: '#aaa' }}>{contactOpen ? '▲' : '▼'}</span>
           </button>
           {contactOpen && (
@@ -8792,7 +9026,7 @@ ${fontImports2}
         onClick={() => { if (currentItem === 'Pack Digital para Instagram' || currentItem === 'Assinatura de E-mail') { openGabarito(currentItem); } else { setPendingItem(currentItem); setShowPrintModal(true); } }}
         style={{ width: '100%', padding: '10px', background: '#fff', color: '#C03B66', border: '1.5px solid #C03B66', borderRadius: '30px', fontWeight: 700, fontSize: '0.8rem', cursor: 'pointer', marginBottom: '8px' }}
       >
-        {currentItem === 'Pack Digital para Instagram' ? `⬇ Baixar PNG / JPG` : currentItem === 'Assinatura de E-mail' ? '⬇ Baixar Assinatura' : '⬇ Baixar PDF Padrão Gráfica'}
+        {currentItem === 'Pack Digital para Instagram' ? (dictionary?.ui?.baixar_png || '⬇ Baixar PNG / JPG') : currentItem === 'Assinatura de E-mail' ? (dictionary?.ui?.baixar_assinatura || '⬇ Baixar Assinatura') : (dictionary?.ui?.baixar_pdf || '⬇ Baixar PDF Padrão Gráfica')}
       </button>
 
       {/* Upsell: só no último item */}
@@ -8856,6 +9090,7 @@ ${fontImports2}
 }
 
 function EntregaContent({ brand, plano, setBrand }) {
+  const { dictionary } = useTranslation();
   const [step, setStepState] = useState('placa');
   const setStep = (s) => { setStepState(s); try { localStorage.setItem(`brandbox_step_${brand.id}`, s); } catch {} };
 
@@ -9666,7 +9901,7 @@ function EntregaContent({ brand, plano, setBrand }) {
         <div style={{ display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between', marginBottom: '1.2rem' }}>
           <div>
             <h1 style={{ fontSize: '1.4rem', fontWeight: 700, color: '#1a1a1a', lineHeight: 1.2 }}>
-              {step === 'placa' ? 'Placa da Marca' : step === 'manifesto' ? 'Manifesto da Marca' : step === 'tomdevoz' ? 'Tom de Voz' : step === 'fonte' ? 'Fonte da Marca' : step === 'slogan' ? 'Tagline da Marca' : step === 'logo' ? 'Sua Logo' : step === 'submarca' ? 'Sua Submarca' : step === 'estampa' ? 'Sua Estampa' : step === 'cores' ? 'Suas Cores' : step === 'paleta' ? 'Sua Paleta' : step === 'cartao' ? 'Cartão Digital' : step === 'pack-instagram' ? 'Pack Digital para Instagram' : step === 'assinatura-email' ? 'Assinatura de E-mail' : step === 'guia' ? 'Guia da Marca' : step === 'ajuda' ? 'Ajuda & Inspiração ✨' : step === 'upsell' ? 'Quer ir além? ✨' : 'Sua Papelaria'}
+              {step === 'placa' ? (dictionary?.nav?.placa || 'Placa da Marca') : step === 'manifesto' ? (dictionary?.nav?.manifesto || 'Manifesto da Marca') : step === 'tomdevoz' ? (dictionary?.nav?.tomdevoz || 'Tom de Voz') : step === 'fonte' ? (dictionary?.nav?.fonte || 'Fonte da Marca') : step === 'slogan' ? (dictionary?.nav?.slogan || 'Tagline da Marca') : step === 'logo' ? (dictionary?.nav?.logo || 'Sua Logo') : step === 'submarca' ? (dictionary?.nav?.submarca || 'Sua Submarca') : step === 'estampa' ? (dictionary?.nav?.estampa || 'Sua Estampa') : step === 'cores' ? (dictionary?.nav?.cores || 'Suas Cores') : step === 'paleta' ? (dictionary?.nav?.paleta || 'Sua Paleta') : step === 'cartao' ? (dictionary?.nav?.cartao || 'Cartão Digital') : step === 'pack-instagram' ? (dictionary?.nav?.pack_instagram || 'Pack Digital para Instagram') : step === 'assinatura-email' ? (dictionary?.nav?.assinatura_email || 'Assinatura de E-mail') : step === 'guia' ? (dictionary?.nav?.guia || 'Guia da Marca') : step === 'ajuda' ? (dictionary?.nav?.ajuda_inspiracao || 'Ajuda & Inspiração ✨') : step === 'upsell' ? (dictionary?.nav?.upsell || 'Quer ir além? ✨') : (dictionary?.nav?.papelaria || 'Sua Papelaria')}
             </h1>
           </div>
           <button 
@@ -9674,7 +9909,7 @@ function EntregaContent({ brand, plano, setBrand }) {
             disabled={resendingEmail}
             style={{ padding: '6px 12px', background: resendStatus?.includes('✓') ? '#e8f7f5' : '#fff', color: resendStatus?.includes('✓') ? '#1a7a6e' : '#888', border: '1px solid #e0e0e0', borderRadius: '20px', fontSize: '0.65rem', fontWeight: 700, cursor: resendingEmail ? 'wait' : 'pointer', transition: 'all 0.2s', display: 'flex', alignItems: 'center', gap: '4px' }}
           >
-            {resendingEmail ? 'Enviando...' : resendStatus || '📧 Reenviar e-mail'}
+            {resendingEmail ? (dictionary?.geral?.enviando || 'Enviando...') : resendStatus || `📧 ${dictionary?.geral?.reenviar_email || 'Reenviar e-mail'}`}
           </button>
         </div>
 
@@ -10793,7 +11028,7 @@ function EntregaContent({ brand, plano, setBrand }) {
                 onClick={goBack}
                 style={{ flex: 0.4, padding: '14px', background: '#eee', color: '#888', border: 'none', borderRadius: '30px', fontWeight: 700, fontSize: '0.9rem', cursor: 'pointer' }}
               >
-                ← Voltar
+                ← {dictionary?.geral?.voltar || 'Voltar'}
               </button>
             )}
             {!isLastStep && (
@@ -10801,7 +11036,7 @@ function EntregaContent({ brand, plano, setBrand }) {
                 onClick={goNext}
                 style={{ flex: 1, padding: '14px', background: '#C03B66', color: '#fff', border: 'none', borderRadius: '30px', fontWeight: 700, fontSize: '0.95rem', cursor: 'pointer', boxShadow: '0 4px 15px rgba(192, 59, 102, 0.3)' }}
               >
-                {step === 'guia' ? 'Ir para o Digital →' : step === 'assinatura-email' ? 'Ir para Papelaria →' : 'Próxima etapa →'}
+                {step === 'guia' ? `${dictionary?.geral?.ir_digital || 'Ir para o Digital'} →` : step === 'assinatura-email' ? `${dictionary?.geral?.ir_papelaria || 'Ir para Papelaria'} →` : `${dictionary?.geral?.proxima_etapa || 'Próxima etapa'} →`}
               </button>
             )}
           </div>
@@ -10823,7 +11058,7 @@ function EntregaContent({ brand, plano, setBrand }) {
             }}
             style={{ background: 'none', border: 'none', fontSize: '0.62rem', color: '#ddd', cursor: 'pointer', letterSpacing: '1px' }}
           >
-            reiniciar teste
+            {dictionary?.reiniciar_teste || 'reiniciar teste'}
           </button>
         </div>
 

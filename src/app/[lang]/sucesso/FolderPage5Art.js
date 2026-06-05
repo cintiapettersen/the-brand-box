@@ -1,5 +1,6 @@
 'use client';
 import React from 'react';
+import { useTranslation } from '../../LanguageContext';
 
 const textColor = (hex) => {
   const h = (hex || '#000').replace('#','');
@@ -10,6 +11,7 @@ const textColor = (hex) => {
 };
 
 export default function FolderPage5Art({ accentColor = '#879A6C', palette = [] }) {
+  const { lang } = useTranslation();
   const c0 = palette[0] || accentColor;
   const c1 = palette[1] || c0;
   const c2 = palette[2] || c0;
@@ -39,8 +41,12 @@ export default function FolderPage5Art({ accentColor = '#879A6C', palette = [] }
 
       {/* Banner título */}
       <div style={{ background: c0, borderRadius: '3px', padding: '3px 5px', textAlign: 'center', flexShrink: 0 }}>
-        <div style={{ fontSize: '4.5px', fontWeight: 900, color: textColor(c0), textTransform: 'uppercase', letterSpacing: '0.4px', fontFamily: 'Montserrat,sans-serif' }}>Esquema do Prato Saudável</div>
-        <div style={{ fontSize: '3px', color: textColor(c0), opacity: 0.85, marginTop: '1px', fontStyle: 'italic' }}>Proporção ideal para todas as idades, variando as porções</div>
+        <div style={{ fontSize: '4.5px', fontWeight: 900, color: textColor(c0), textTransform: 'uppercase', letterSpacing: '0.4px', fontFamily: 'Montserrat,sans-serif' }}>
+          {lang === 'en' ? 'Healthy Plate Guide' : 'Esquema do Prato Saudável'}
+        </div>
+        <div style={{ fontSize: '3px', color: textColor(c0), opacity: 0.85, marginTop: '1px', fontStyle: 'italic' }}>
+          {lang === 'en' ? 'Ideal proportion for all ages, varying portion sizes' : 'Proporção ideal para todas as idades, variando as porções'}
+        </div>
       </div>
 
       {/* Pratinho em CSS Conic-Gradient com Emojis */}
@@ -81,20 +87,24 @@ export default function FolderPage5Art({ accentColor = '#879A6C', palette = [] }
             {/* 1. Hortaliças (50%) */}
             <div style={{ position: 'absolute', top: '13%', left: '50%', transform: 'translateX(-50%)', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '0.5px' }}>
               <span style={{ fontSize: '5.5px', filter: 'drop-shadow(0 0.5px 1px rgba(0,0,0,0.15))' }}>🥦🥕🍅</span>
-              <span style={{ fontSize: '3px', fontWeight: 900, color: '#fff', textShadow: '0 0.5px 1px rgba(0,0,0,0.4)', textTransform: 'uppercase', letterSpacing: '0.1px', whiteSpace: 'nowrap' }}>Hortaliças (50%)</span>
+              <span style={{ fontSize: '3px', fontWeight: 900, color: '#fff', textShadow: '0 0.5px 1px rgba(0,0,0,0.4)', textTransform: 'uppercase', letterSpacing: '0.1px', whiteSpace: 'nowrap' }}>
+                {lang === 'en' ? 'Vegetables (50%)' : 'Hortaliças (50%)'}
+              </span>
             </div>
 
             {/* 2. Carboidratos (25%) */}
             <div style={{ position: 'absolute', bottom: '18%', left: '16%', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '0.5px' }}>
               <span style={{ fontSize: '5.5px', filter: 'drop-shadow(0 0.5px 1px rgba(0,0,0,0.15))' }}>🍚🥔🍠</span>
-              <span style={{ fontSize: '2.5px', fontWeight: 900, color: '#fff', textShadow: '0 0.5px 1px rgba(0,0,0,0.4)', textTransform: 'uppercase', width: '22px', textAlign: 'center', lineHeight: 1.1 }}>Carbo (25%)</span>
+              <span style={{ fontSize: '2.5px', fontWeight: 900, color: '#fff', textShadow: '0 0.5px 1px rgba(0,0,0,0.4)', textTransform: 'uppercase', width: '22px', textAlign: 'center', lineHeight: 1.1 }}>
+                {lang === 'en' ? 'Carbs (25%)' : 'Carbo (25%)'}
+              </span>
             </div>
 
             {/* 3. Proteínas (12.5%) */}
             <div style={{ position: 'absolute', bottom: '12%', right: '23%', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '0.2px' }}>
               <span style={{ fontSize: '5.5px', filter: 'drop-shadow(0 0.5px 1px rgba(0,0,0,0.15))' }}>🍗</span>
               <span style={{ fontSize: '2.8px', fontWeight: 900, color: '#fff', textShadow: '0 0.5px 1px rgba(0,0,0,0.4)', textTransform: 'uppercase', letterSpacing: '0.1px', textAlign: 'center', lineHeight: 1.05 }}>
-                Proteína
+                {lang === 'en' ? 'Protein' : 'Proteína'}
                 <span style={{ display: 'block', fontSize: '2.3px', fontWeight: 800, marginTop: '0.2px' }}>(12.5%)</span>
               </span>
             </div>
@@ -103,7 +113,7 @@ export default function FolderPage5Art({ accentColor = '#879A6C', palette = [] }
             <div style={{ position: 'absolute', bottom: '26%', right: '8%', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '0.2px' }}>
               <span style={{ fontSize: '5.5px', filter: 'drop-shadow(0 0.5px 1px rgba(0,0,0,0.15))' }}>🫘</span>
               <span style={{ fontSize: '2.8px', fontWeight: 900, color: '#fff', textShadow: '0 0.5px 1px rgba(0,0,0,0.4)', textTransform: 'uppercase', letterSpacing: '0.1px', textAlign: 'center', lineHeight: 1.05 }}>
-                Grãos
+                {lang === 'en' ? 'Grains' : 'Grãos'}
                 <span style={{ display: 'block', fontSize: '2.3px', fontWeight: 800, marginTop: '0.2px' }}>(12.5%)</span>
               </span>
             </div>
@@ -117,36 +127,52 @@ export default function FolderPage5Art({ accentColor = '#879A6C', palette = [] }
         <div style={{ background: '#fff', border: `0.5px solid ${c1}30`, borderRadius: '3px', padding: '2px 4px' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '2px', marginBottom: '1px' }}>
             <div style={{ width: '3px', height: '3px', borderRadius: '50%', background: c1 }} />
-            <span style={{ fontSize: '3px', fontWeight: 800, color: '#333', textTransform: 'uppercase' }}>Hortaliças (50%)</span>
+            <span style={{ fontSize: '3px', fontWeight: 800, color: '#333', textTransform: 'uppercase' }}>
+              {lang === 'en' ? 'Vegetables (50%)' : 'Hortaliças (50%)'}
+            </span>
           </div>
-          <div style={{ fontSize: '2.6px', color: '#666', lineHeight: 1.25 }}>Legumes e verduras cozidos ou ralados (cenoura, brócolis, tomate, abóbora).</div>
+          <div style={{ fontSize: '2.6px', color: '#666', lineHeight: 1.25 }}>
+            {lang === 'en' ? 'Cooked or grated vegetables (carrots, broccoli, tomatoes, pumpkin).' : 'Legumes e verduras cozidos ou ralados (cenoura, brócolis, tomate, abóbora).'}
+          </div>
         </div>
 
         {/* Carboidratos */}
         <div style={{ background: '#fff', border: `0.5px solid ${c2}30`, borderRadius: '3px', padding: '2px 4px' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '2px', marginBottom: '1px' }}>
             <div style={{ width: '3px', height: '3px', borderRadius: '50%', background: c2 }} />
-            <span style={{ fontSize: '3px', fontWeight: 800, color: '#333', textTransform: 'uppercase' }}>Carboidratos (25%)</span>
+            <span style={{ fontSize: '3px', fontWeight: 800, color: '#333', textTransform: 'uppercase' }}>
+              {lang === 'en' ? 'Carbohydrates (25%)' : 'Carboidratos (25%)'}
+            </span>
           </div>
-          <div style={{ fontSize: '2.6px', color: '#666', lineHeight: 1.25 }}>Fontes de energia limpa (arroz integral, batata, mandioca, macarrão, cará).</div>
+          <div style={{ fontSize: '2.6px', color: '#666', lineHeight: 1.25 }}>
+            {lang === 'en' ? 'Clean energy sources (brown rice, potatoes, cassava, pasta, yams).' : 'Fontes de energia limpa (arroz integral, batata, mandioca, macarrão, cará).'}
+          </div>
         </div>
 
         {/* Proteínas */}
         <div style={{ background: '#fff', border: `0.5px solid ${c3}30`, borderRadius: '3px', padding: '2px 4px' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '2px', marginBottom: '1px' }}>
             <div style={{ width: '3px', height: '3px', borderRadius: '50%', background: c3 }} />
-            <span style={{ fontSize: '3px', fontWeight: 800, color: '#333', textTransform: 'uppercase' }}>Proteínas (12.5%)</span>
+            <span style={{ fontSize: '3px', fontWeight: 800, color: '#333', textTransform: 'uppercase' }}>
+              {lang === 'en' ? 'Proteins (12.5%)' : 'Proteínas (12.5%)'}
+            </span>
           </div>
-          <div style={{ fontSize: '2.6px', color: '#666', lineHeight: 1.25 }}>Crescimento e tecidos (frango desfiado, ovo cozido, peixe sem espinhos, carne).</div>
+          <div style={{ fontSize: '2.6px', color: '#666', lineHeight: 1.25 }}>
+            {lang === 'en' ? 'Growth and tissues (shredded chicken, boiled egg, deboned fish, meat).' : 'Crescimento e tecidos (frango desfiado, ovo cozido, peixe sem espinhos, carne).'}
+          </div>
         </div>
 
         {/* Grãos e Fibras */}
         <div style={{ background: '#fff', border: `0.5px solid ${c4}30`, borderRadius: '3px', padding: '2px 4px' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '2px', marginBottom: '1px' }}>
             <div style={{ width: '3px', height: '3px', borderRadius: '50%', background: c4 }} />
-            <span style={{ fontSize: '3px', fontWeight: 800, color: '#333', textTransform: 'uppercase' }}>Grãos (12.5%)</span>
+            <span style={{ fontSize: '3px', fontWeight: 800, color: '#333', textTransform: 'uppercase' }}>
+              {lang === 'en' ? 'Grains (12.5%)' : 'Grãos (12.5%)'}
+            </span>
           </div>
-          <div style={{ fontSize: '2.6px', color: '#666', lineHeight: 1.25 }}>Leguminosas ricas em ferro e fibras (feijão carioca/preto, lentilha, grão-de-bico).</div>
+          <div style={{ fontSize: '2.6px', color: '#666', lineHeight: 1.25 }}>
+            {lang === 'en' ? 'Legumes rich in iron and fiber (pinto/black beans, lentils, chickpeas).' : 'Leguminosas ricas em ferro e fibras (feijão carioca/preto, lentilha, grão-de-bico).'}
+          </div>
         </div>
       </div>
 
@@ -156,15 +182,17 @@ export default function FolderPage5Art({ accentColor = '#879A6C', palette = [] }
         <div style={{ background: '#fff', border: '0.5px solid #e2874340', borderRadius: '3px', padding: '2px 5px', display: 'flex', alignItems: 'center', gap: '4px' }}>
           <span style={{ fontSize: '4.5px' }}>🍉</span>
           <div style={{ fontSize: '2.8px', color: '#333', lineHeight: 1.2 }}>
-            <strong>Sobremesa:</strong> Ofereça sempre uma fruta fresca (de preferência cítrica).
+            <strong>{lang === 'en' ? 'Dessert:' : 'Sobremesa:'}</strong> {lang === 'en' ? 'Always offer fresh fruit (preferably citrus).' : 'Ofereça sempre uma fruta fresca (de preferência cítrica).'}
           </div>
         </div>
 
         {/* Lembrete Dinâmico */}
         <div style={{ background: `${c1}08`, border: `0.5px solid ${c1}25`, borderRadius: '3px', padding: '3.5px 5px', textAlign: 'center' }}>
-          <div style={{ fontSize: '3px', fontWeight: 800, color: titleColor, textTransform: 'uppercase', letterSpacing: '0.1px', marginBottom: '1px' }}>💡 Dica de Absorção de Ferro</div>
+          <div style={{ fontSize: '3px', fontWeight: 800, color: titleColor, textTransform: 'uppercase', letterSpacing: '0.1px', marginBottom: '1px' }}>
+            {lang === 'en' ? '💡 Iron Absorption Tip' : '💡 Dica de Absorção de Ferro'}
+          </div>
           <div style={{ fontSize: '2.6px', color: '#555', lineHeight: 1.3 }}>
-            Frutas cítricas (laranja, limão, acerola) após a refeição melhoram muito a absorção do ferro não-heme dos vegetais e grãos!
+            {lang === 'en' ? 'Citrus fruits (orange, lemon, acerola) after the meal greatly improve absorption of non-heme iron from vegetables and grains!' : 'Frutas cítricas (laranja, limão, acerola) após a refeição melhoram muito a absorção do ferro não-heme dos vegetais e grãos!'}
           </div>
         </div>
       </div>

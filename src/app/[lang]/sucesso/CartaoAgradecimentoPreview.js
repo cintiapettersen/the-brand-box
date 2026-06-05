@@ -2,17 +2,12 @@
 import React, { useState } from 'react';
 import { LogoPreviewHTML, BordaToggle } from './page';
 import { useScaleToFit } from './useScaleToFit';
+import { useTranslation } from '../../LanguageContext';
 
 const SIZES = [
   { label: '10 × 10 cm', w: 10, h: 10, scale: 26 },
   { label: '15 × 15 cm', w: 15, h: 15, scale: 20 },
   { label: '20 × 20 cm', w: 20, h: 20, scale: 16 },
-];
-
-const MESSAGES = [
-  'Obrigada pela sua confiança! ✨',
-  'Foi um prazer te atender 🌸',
-  'Que bom ter você aqui! 💛',
 ];
 
 export default function CartaoAgradecimentoPreview({
@@ -21,6 +16,12 @@ export default function CartaoAgradecimentoPreview({
   patternSrc, patternScale, setPatternScale, borderColor, setBorderColor,
   sizeIdx, setSizeIdx, msgIdx, setMsgIdx
 }) {
+  const { dictionary } = useTranslation();
+  const MESSAGES = [
+    dictionary?.cartao_agradecimento?.msg1 || 'Obrigada pela sua confiança! ✨',
+    dictionary?.cartao_agradecimento?.msg2 || 'Foi um prazer te atender 🌸',
+    dictionary?.cartao_agradecimento?.msg3 || 'Que bom ter você aqui! 💛',
+  ];
   const solidColor = borderColor || accentColor;
   const c0 = paletteColors[0] || solidColor;
   const c1 = paletteColors[1] || solidColor;
@@ -138,7 +139,7 @@ export default function CartaoAgradecimentoPreview({
           <div style={{ display: 'flex', gap: '32px', alignItems: 'flex-start', justifyContent: 'center' }}>
             {['frente', 'verso'].map(side => (
               <div key={side} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '8px' }}>
-                <span style={{ fontSize: '10px', fontWeight: 800, color: '#999', textTransform: 'uppercase' }}>{side}</span>
+                <span style={{ fontSize: '10px', fontWeight: 800, color: '#999', textTransform: 'uppercase' }}>{side === 'frente' ? (dictionary?.geral?.frente || 'Frente') : (dictionary?.geral?.verso || 'Verso')}</span>
                 <CardFace side={side} />
               </div>
             ))}
@@ -146,7 +147,7 @@ export default function CartaoAgradecimentoPreview({
         </div>
       </div>
 
-      <div style={{ fontSize: '11px', color: '#999', fontFamily: 'Montserrat,sans-serif', fontWeight: 600 }}>{size.label} · Quadrado</div>
+      <div style={{ fontSize: '11px', color: '#999', fontFamily: 'Montserrat,sans-serif', fontWeight: 600 }}>{size.label} · {dictionary?.geral?.quadrado || 'Quadrado'}</div>
     </div>
   );
 }

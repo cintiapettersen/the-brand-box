@@ -2,6 +2,7 @@
 import React, { useState } from 'react';
 import { LogoPreviewHTML, BordaToggle } from './page';
 import { useScaleToFit } from './useScaleToFit';
+import { useTranslation } from '../../LanguageContext';
 
 const SIZES = [
   { label: '10 × 10 cm', w: 10, h: 10, scale: 26 },
@@ -37,6 +38,7 @@ export default function EtiquetaCorreiosPreview({
   sizeIdx: sizeIdxProp, setSizeIdx: setSizeIdxProp,
   fraseIdx: fraseIdxProp, setFraseIdx: setFraseIdxProp,
 }) {
+  const { dictionary } = useTranslation();
   const [sizeIdxLocal, setSizeIdxLocal] = useState(0);
   const [fraseIdxLocal, setFraseIdxLocal] = useState(0);
   const sizeIdx = sizeIdxProp ?? sizeIdxLocal;
@@ -49,7 +51,10 @@ export default function EtiquetaCorreiosPreview({
   const size = SIZES[sizeIdx];
   const W = size.w * size.scale;
   const H = size.h * size.scale;
-  const frase = FRASES[fraseIdx];
+
+  const frases = dictionary?.etiqueta_correios?.frases || FRASES;
+  const labelAdesivo = dictionary?.etiqueta_correios?.adesivo || 'Adesivo';
+  const frase = frases[fraseIdx] || frases[0] || '';
 
   const { instagram, telefone, whatsapp } = cartaoContacts || {};
   const mainPhone = whatsapp || telefone || '';
@@ -69,7 +74,7 @@ export default function EtiquetaCorreiosPreview({
       </div>
 
       <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap', justifyContent: 'center' }}>
-        {FRASES.map((f, i) => (
+        {frases.map((f, i) => (
           <button key={i} onClick={() => setFraseIdx(i)} style={{ padding: '4px 12px', borderRadius: '12px', border: `1px solid ${fraseIdx === i ? solidColor : '#ddd'}`, cursor: 'pointer', fontFamily: 'Montserrat,sans-serif', fontSize: '10px', fontWeight: 600, background: fraseIdx === i ? solidColor + '15' : 'transparent', color: fraseIdx === i ? solidColor : '#999', transition: 'all 0.2s' }}>
             {f}
           </button>
@@ -125,7 +130,7 @@ export default function EtiquetaCorreiosPreview({
             </div>
           </div>
         </div>
-        <div style={{ fontSize: '11px', color: '#999', fontFamily: 'Montserrat,sans-serif', fontWeight: 600 }}>{size.label} · Adesivo</div>
+        <div style={{ fontSize: '11px', color: '#999', fontFamily: 'Montserrat,sans-serif', fontWeight: 600 }}>{size.label} · {labelAdesivo}</div>
       </div>
     </div>
   );

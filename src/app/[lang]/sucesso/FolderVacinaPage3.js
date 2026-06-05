@@ -1,6 +1,9 @@
+'use client';
 import React from 'react';
+import { useTranslation } from '../../LanguageContext';
 
 export default function FolderVacinaPage3({ accentColor, palette = [] }) {
+  const { lang } = useTranslation();
   const mainColor = palette[0] || accentColor;
   
   const rowCount = 18; // Matching the number of vaccines in Page 2
@@ -27,7 +30,9 @@ export default function FolderVacinaPage3({ accentColor, palette = [] }) {
         display: 'flex',
         alignItems: 'center'
       }}>
-        <div style={{ color: '#fff', fontSize: '5px', fontWeight: 900, letterSpacing: '1px' }}>DATA</div>
+        <div style={{ color: '#fff', fontSize: '5px', fontWeight: 900, letterSpacing: '1px' }}>
+          {lang === 'en' ? "DATE" : "DATA"}
+        </div>
       </div>
 
       <div style={{ display: 'flex', flexDirection: 'column', gap: '0' }}>

@@ -1,9 +1,13 @@
+'use client';
 import React from 'react';
+import { useTranslation } from '../../LanguageContext';
 
 export default function PrenatalPage1({ accentColor, palette = [], logoComponent, folderRoof = true, tagline, comBorda, patternSrc, patternScale, borderColor }) {
+  const { lang } = useTranslation();
   const mainColor = palette[0] || accentColor;
   const secondaryColor = palette[1] || '#72A9D1';
-  const displayTagline = tagline || 'Acompanhamento e Cuidado na Gestação';
+  const defaultTagline = lang === 'en' ? 'Follow-up and Care during Pregnancy' : 'Acompanhamento e Cuidado na Gestação';
+  const displayTagline = tagline || defaultTagline;
   const _borderColor = borderColor || mainColor;
 
   return (
@@ -70,7 +74,7 @@ export default function PrenatalPage1({ accentColor, palette = [], logoComponent
             fontStyle: 'italic',
             fontFamily: "'Montserrat', sans-serif"
           }}>
-            CARTÃO DE
+            {lang === 'en' ? "CARD FOR" : "CARTÃO DE"}
           </div>
           <div style={{ 
             fontSize: '9.2px', 
@@ -80,7 +84,7 @@ export default function PrenatalPage1({ accentColor, palette = [], logoComponent
             letterSpacing: '0.8px', 
             lineHeight: 1.2 
           }}>
-            EXAME PRÉ-NATAL
+            {lang === 'en' ? "PRENATAL EXAM" : "EXAME PRÉ-NATAL"}
           </div>
         </div>
 

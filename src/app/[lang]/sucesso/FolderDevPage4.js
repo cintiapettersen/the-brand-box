@@ -1,4 +1,6 @@
+'use client';
 import React from 'react';
+import { useTranslation } from '../../LanguageContext';
 
 const StormIcon = () => (
   <svg viewBox="0 0 24 24" width="6" height="6" fill="none" stroke="#666" strokeWidth="1.5">
@@ -16,13 +18,14 @@ const SunCloudIcon = () => (
 );
 
 export default function FolderDevPage4({ accentColor, palette = [] }) {
+  const { lang } = useTranslation();
   const mainColor = palette[0] || accentColor;
   const secondaryColor = palette[1] || '#72A9D1';
   const tertiaryColor = palette[2] || '#E6C673';
 
   const redWeeks = [5, 8, 9, 12, 15, 16, 17, 18, 19, 23, 24, 25, 26, 34, 35, 36, 37, 41, 42, 43, 44, 45, 46, 51, 52, 53, 54, 60, 61, 62, 63, 64, 71, 72, 73, 74, 75];
   
-  const icons = {
+  const iconsPt = {
     5: { type: 'storm', label: 'salto 1' },
     6: { type: 'sun' },
     8: { type: 'storm', label: 'salto 2' },
@@ -44,6 +47,31 @@ export default function FolderDevPage4({ accentColor, palette = [] }) {
     71: { type: 'storm', label: 'salto 10' },
     76: { type: 'sun' },
   };
+
+  const iconsEn = {
+    5: { type: 'storm', label: 'leap 1' },
+    6: { type: 'sun' },
+    8: { type: 'storm', label: 'leap 2' },
+    10: { type: 'sun' },
+    12: { type: 'storm', label: 'leap 3' },
+    13: { type: 'sun' },
+    15: { type: 'storm', label: 'leap 4' },
+    20: { type: 'sun' },
+    23: { type: 'storm', label: 'leap 5' },
+    27: { type: 'sun' },
+    34: { type: 'storm', label: 'leap 6' },
+    39: { type: 'sun' },
+    41: { type: 'storm', label: 'leap 7' },
+    48: { type: 'sun' },
+    51: { type: 'storm', label: 'leap 8' },
+    55: { type: 'sun' },
+    60: { type: 'storm', label: 'leap 9' },
+    62: { type: 'sun' },
+    71: { type: 'storm', label: 'leap 10' },
+    76: { type: 'sun' },
+  };
+
+  const icons = lang === 'en' ? iconsEn : iconsPt;
 
   const block1Rows = [
     [0, 1, 2, 3, 4, 5, 6],
@@ -93,25 +121,46 @@ export default function FolderDevPage4({ accentColor, palette = [] }) {
         {/* Left Col */}
         <div style={{ flex: '0 0 53%', display: 'flex', flexDirection: 'column', gap: '4px' }}>
           <div style={{ alignSelf: 'flex-start', background: '#E67E7E', color: '#fff', fontSize: '4.8px', fontWeight: 900, fontStyle: 'italic', padding: '2px 6px', borderRadius: '8px', textTransform: 'uppercase', boxShadow: '1px 1px 0 rgba(0,0,0,0.1)' }}>
-            SALTO DE DESENVOLVIMENTO:
+            {lang === 'en' ? 'DEVELOPMENTAL LEAP:' : 'SALTO DE DESENVOLVIMENTO:'}
           </div>
           <div style={{ fontSize: '3.3px', color: '#444', lineHeight: 1.25, textAlign: 'justify', fontWeight: 500 }}>
-            Quando a criança aprende algo novo, adquire alguma habilidade nova ela quer treinar aquela habilidade exaustivamente, até mesmo enquanto deveria estar dormindo. São os chamados saltos de desenvolvimento. Ao longo do tempo, essa habilidade nova vai dando prazer para a criança e a ansiedade vai indo embora. Os saltos têm datas para ocorrer, mas, como tudo na infância, isso varia de bebê para bebê. Eles se tornam mais importantes no 3-4º mês e no 9º mês. Eles podem durar dias ou persistirem até duas semanas em média.
+            {lang === 'en' ? (
+              'When a child learns something new or acquires a new skill, they want to practice that skill exhaustively, even when they should be sleeping. These are called developmental leaps. Over time, this new ability brings pleasure to the child, and their anxiety goes away. Leaps have estimated times of occurrence, but like everything in childhood, this varies from baby to baby. They become more prominent around the 3rd-4th month and the 9th month. They can last for days or persist up to two weeks on average.'
+            ) : (
+              'Quando a criança aprende algo novo, adquire alguma habilidade nova ela quer treinar aquela habilidade exaustivamente, até mesmo enquanto deveria estar dormindo. São os chamados saltos de desenvolvimento. Ao longo do tempo, essa habilidade nova vai dando prazer para a criança e a ansiedade vai indo embora. Os saltos têm datas para ocorrer, mas, como tudo na infância, isso varia de bebê para bebê. Eles se tornam mais importantes no 3-4º mês e no 9º mês. Eles podem durar dias ou persistirem até duas semanas em média.'
+            )}
           </div>
         </div>
 
         {/* Right Col */}
         <div style={{ flex: '1', background: secondaryColor, borderRadius: '4px', overflow: 'hidden', display: 'flex', flexDirection: 'column' }}>
           <div style={{ background: tertiaryColor, padding: '2.5px', textAlign: 'center', fontWeight: 800, fontSize: '3px', color: '#222' }}>
-            Nesse período, é esperado<br/>que o bebê:
+            {lang === 'en' ? (
+              <>During this period, it is<br/>expected that the baby:</>
+            ) : (
+              <>Nesse período, é esperado<br/>que o bebê:</>
+            )}
           </div>
           <div style={{ padding: '3.5px', fontSize: '2.8px', color: '#222', display: 'flex', flexDirection: 'column', gap: '2px', lineHeight: 1.15, fontWeight: 500 }}>
-            <div style={{ display: 'flex', gap: '2px' }}><span style={{fontWeight:800}}>◊</span><span>Procure ficar mais perto da MÃE, ou seja sua base de tudo, pois é o que ele conhece melhor;</span></div>
-            <div style={{ display: 'flex', gap: '2px' }}><span style={{fontWeight:800}}>◊</span><span>Fique mais carente, precisando de colo, segurança e orientação maternal de perto;</span></div>
-            <div style={{ display: 'flex', gap: '2px' }}><span style={{fontWeight:800}}>◊</span><span>Coma mal e durma pior;</span></div>
-            <div style={{ display: 'flex', gap: '2px' }}><span style={{fontWeight:800}}>◊</span><span>Pode pedir para mamar com mais frequência;</span></div>
-            <div style={{ display: 'flex', gap: '2px' }}><span style={{fontWeight:800}}>◊</span><span>Comece a fazer coisas que não fazia antes da crise tal como rir, sentar, engatinhar, interagir, ....</span></div>
-            <div style={{ display: 'flex', gap: '2px' }}><span style={{fontWeight:800}}>◊</span><span>Demonstre felicidade com o final da crise e superação do desenvolvimento adquirida.</span></div>
+            {lang === 'en' ? (
+              <>
+                <div style={{ display: 'flex', gap: '2px' }}><span style={{fontWeight:800}}>◊</span><span>Seek to stay closer to the MOTHER, as she is their secure base and what they know best;</span></div>
+                <div style={{ display: 'flex', gap: '2px' }}><span style={{fontWeight:800}}>◊</span><span>Become more clingy, needing comfort, security, and close maternal guidance;</span></div>
+                <div style={{ display: 'flex', gap: '2px' }}><span style={{fontWeight:800}}>◊</span><span>Eat poorly and sleep worse;</span></div>
+                <div style={{ display: 'flex', gap: '2px' }}><span style={{fontWeight:800}}>◊</span><span>May ask to nurse/feed more frequently;</span></div>
+                <div style={{ display: 'flex', gap: '2px' }}><span style={{fontWeight:800}}>◊</span><span>Start doing things they did not do before the crisis, such as laughing, sitting, crawling, interacting, etc.</span></div>
+                <div style={{ display: 'flex', gap: '2px' }}><span style={{fontWeight:800}}>◊</span><span>Show happiness at the end of the crisis and with the newly acquired developmental milestone.</span></div>
+              </>
+            ) : (
+              <>
+                <div style={{ display: 'flex', gap: '2px' }}><span style={{fontWeight:800}}>◊</span><span>Procure ficar mais perto da MÃE, ou seja sua base de tudo, pois é o que ele conhece melhor;</span></div>
+                <div style={{ display: 'flex', gap: '2px' }}><span style={{fontWeight:800}}>◊</span><span>Fique mais carente, precisando de colo, segurança e orientação maternal de perto;</span></div>
+                <div style={{ display: 'flex', gap: '2px' }}><span style={{fontWeight:800}}>◊</span><span>Coma mal e durma pior;</span></div>
+                <div style={{ display: 'flex', gap: '2px' }}><span style={{fontWeight:800}}>◊</span><span>Pode pedir para mamar com mais frequência;</span></div>
+                <div style={{ display: 'flex', gap: '2px' }}><span style={{fontWeight:800}}>◊</span><span>Comece a fazer coisas que não fazia antes da crise tal como rir, sentar, engatinhar, interagir, ....</span></div>
+                <div style={{ display: 'flex', gap: '2px' }}><span style={{fontWeight:800}}>◊</span><span>Demonstre felicidade com o final da crise e superação do desenvolvimento adquirida.</span></div>
+              </>
+            )}
           </div>
         </div>
 
@@ -127,11 +176,15 @@ export default function FolderDevPage4({ accentColor, palette = [] }) {
       <div style={{ display: 'flex', gap: '8px', justifyContent: 'center', marginTop: '1px' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '2px' }}>
           <div style={{ width: '6px', height: '3px', background: '#E67E7E' }} />
-          <span style={{ fontSize: '2.8px', fontWeight: 700, color: '#444' }}>Período de Salto</span>
+          <span style={{ fontSize: '2.8px', fontWeight: 700, color: '#444' }}>
+            {lang === 'en' ? 'Leap Period' : 'Período de Salto'}
+          </span>
         </div>
         <div style={{ display: 'flex', alignItems: 'center', gap: '2px' }}>
           <div style={{ width: '6px', height: '3px', background: '#E6C673' }} />
-          <span style={{ fontSize: '2.8px', fontWeight: 700, color: '#444' }}>Período Calmo</span>
+          <span style={{ fontSize: '2.8px', fontWeight: 700, color: '#444' }}>
+            {lang === 'en' ? 'Calm Period' : 'Período Calmo'}
+          </span>
         </div>
       </div>
 

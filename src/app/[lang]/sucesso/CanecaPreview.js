@@ -2,6 +2,7 @@
 import React from 'react';
 import { useScaleToFit } from './useScaleToFit';
 import BrandTemplateSVG from '../../../components/BrandTemplateSVG';
+import { useTranslation } from '../../LanguageContext';
 
 // Caneca padrão 325ml — wrap sublimação: 20 × 8,5 cm
 const WRAP_W_CM = 20;
@@ -17,6 +18,7 @@ const LOGO_SF_F_BASE = 0.44;  // fundo sólido — arte flat
 
 // BordaToggle local para evitar dependência circular com o arquivo page.js
 function BordaToggle({ comBorda, setComBorda, accentColor, paletteColors = [], borderColor, setBorderColor, patternScale, setPatternScale }) {
+  const { dictionary } = useTranslation();
   const btn = (active) => ({
     padding: '6px 16px', borderRadius: '20px', fontSize: '0.72rem', fontWeight: 700,
     cursor: 'pointer', border: 'none',
@@ -26,13 +28,13 @@ function BordaToggle({ comBorda, setComBorda, accentColor, paletteColors = [], b
   return (
     <div style={{ display: 'flex', gap: '12px', alignItems: 'center', flexWrap: 'wrap', justifyContent: 'center', padding: '10px', background: '#fcfcfc', borderRadius: '30px', border: '1px solid #f0f0f0' }}>
       <div style={{ display: 'flex', gap: '4px' }}>
-        <button style={btn(comBorda)} onClick={() => setComBorda(true)}>Estampa</button>
-        <button style={btn(!comBorda)} onClick={() => setComBorda(false)}>Sólida</button>
+        <button style={btn(comBorda)} onClick={() => setComBorda(true)}>{dictionary?.borda?.estampa || 'Estampa'}</button>
+        <button style={btn(!comBorda)} onClick={() => setComBorda(false)}>{dictionary?.borda?.solida || 'Sólida'}</button>
       </div>
 
       {comBorda && setPatternScale && (
         <div style={{ display: 'flex', alignItems: 'center', gap: '8px', borderLeft: '1px solid #eee', paddingLeft: '12px', marginLeft: '4px' }}>
-          <span style={{ fontSize: '0.62rem', color: '#999', textTransform: 'uppercase', letterSpacing: '1px', fontWeight: 600 }}>Tamanho:</span>
+          <span style={{ fontSize: '0.62rem', color: '#999', textTransform: 'uppercase', letterSpacing: '1px', fontWeight: 600 }}>{dictionary?.borda?.tamanho || 'Tamanho:'}</span>
           <input 
             type="range" min="50" max="600" step="10"
             value={patternScale || 120} 
@@ -127,6 +129,7 @@ function CanecaPreviewComponent({
   patternSrc, patternScale, setPatternScale, borderColor, setBorderColor,
   submarcaColor, submarcaTextColor, iconPath
 }) {
+  const { lang } = useTranslation();
   const solidColor = borderColor || accentColor;
   const usePattern = comBorda && patternSrc;
   const hasCustomLogo = !!editData?.customLogoSrc;
@@ -221,12 +224,16 @@ function CanecaPreviewComponent({
           </div>
         </div>
 
-        <div style={{ fontSize: '11px', color: '#999', fontFamily: 'Montserrat,sans-serif', fontWeight: 600 }}>Caneca 325ml · Sublimação</div>
+        <div style={{ fontSize: '11px', color: '#999', fontFamily: 'Montserrat,sans-serif', fontWeight: 600 }}>
+          {lang === 'en' ? 'Mug 325ml · Sublimation' : 'Caneca 325ml · Sublimação'}
+        </div>
       </div>
 
       {/* Arte flat para gráfica */}
       <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '8px', width: '100%' }}>
-        <span style={{ fontSize: '10px', fontWeight: 800, color: '#999', textTransform: 'uppercase', fontFamily: 'Montserrat,sans-serif' }}>Arte para Sublimação ({WRAP_W_CM} × {WRAP_H_CM} cm)</span>
+        <span style={{ fontSize: '10px', fontWeight: 800, color: '#999', textTransform: 'uppercase', fontFamily: 'Montserrat,sans-serif' }}>
+          {lang === 'en' ? `Art for Sublimation (${WRAP_W_CM} × ${WRAP_H_CM} cm)` : `Arte para Sublimação (${WRAP_W_CM} × ${WRAP_H_CM} cm)`}
+        </span>
         <div ref={scaleWrap.wrapperRef} style={scaleWrap.wrapperStyle}>
           <div style={scaleWrap.innerStyle}>
             <div style={{
@@ -266,7 +273,9 @@ function CanecaPreviewComponent({
             </div>
           </div>
         </div>
-        <div style={{ fontSize: '10px', color: '#aaa', fontFamily: 'Montserrat,sans-serif' }}>Faixas laterais = área de sobreposição do wrap</div>
+        <div style={{ fontSize: '10px', color: '#aaa', fontFamily: 'Montserrat,sans-serif' }}>
+          {lang === 'en' ? 'Side bands = wrap overlap area' : 'Faixas laterais = área de sobreposição do wrap'}
+        </div>
       </div>
     </div>
   );
@@ -284,12 +293,17 @@ class CanecaErrorBoundary extends React.Component {
     console.error("Erro no CanecaPreview:", error, errorInfo);
   }
   render() {
+    const isEn = this.props.lang === 'en';
     if (this.state.hasError) {
       return (
         <div style={{ padding: '24px', background: '#fff0f0', border: '1.5px solid #ffcccc', borderRadius: '16px', color: '#cc0000', fontFamily: 'monospace', fontSize: '0.85rem', width: '100%', maxWidth: '500px', margin: '20px auto', boxShadow: '0 4px 16px rgba(0,0,0,0.06)', textAlign: 'left', boxSizing: 'border-box' }}>
-          <h4 style={{ margin: '0 0 10px 0', fontSize: '1rem', fontWeight: 700, display: 'flex', alignItems: 'center', gap: '8px' }}>⚠️ Erro ao carregar o Preview da Caneca</h4>
+          <h4 style={{ margin: '0 0 10px 0', fontSize: '1rem', fontWeight: 700, display: 'flex', alignItems: 'center', gap: '8px' }}>
+            {isEn ? '⚠️ Error loading Mug Preview' : '⚠️ Erro ao carregar o Preview da Caneca'}
+          </h4>
           <p style={{ margin: '0 0 12px 0', fontWeight: 600, lineHeight: 1.4 }}>{this.state.error?.toString()}</p>
-          <p style={{ margin: '0 0 8px 0', fontSize: '0.78rem', color: '#666', fontWeight: 'bold' }}>Pilha de Execução (Stack Trace):</p>
+          <p style={{ margin: '0 0 8px 0', fontSize: '0.78rem', color: '#666', fontWeight: 'bold' }}>
+            {isEn ? 'Stack Trace:' : 'Pilha de Execução (Stack Trace):'}
+          </p>
           <pre style={{ whiteSpace: 'pre-wrap', wordBreak: 'break-all', fontSize: '0.72rem', background: '#fff', border: '1px solid #ffdddd', padding: '10px', borderRadius: '8px', overflowX: 'auto', maxH: '200px', opacity: 0.9, color: '#444' }}>
             {this.state.error?.stack}
           </pre>
@@ -298,13 +312,13 @@ class CanecaErrorBoundary extends React.Component {
               onClick={() => this.setState({ hasError: false, error: null })}
               style={{ padding: '8px 16px', background: '#cc0000', color: '#fff', border: 'none', borderRadius: '20px', cursor: 'pointer', fontWeight: 700, fontSize: '0.75rem', fontFamily: 'Montserrat, sans-serif' }}
             >
-              Tentar novamente
+              {isEn ? 'Try again' : 'Tentar novamente'}
             </button>
             <button 
               onClick={() => window.location.reload()}
               style={{ padding: '8px 16px', background: '#eee', color: '#333', border: 'none', borderRadius: '20px', cursor: 'pointer', fontWeight: 700, fontSize: '0.75rem', fontFamily: 'Montserrat, sans-serif' }}
             >
-              Recarregar página
+              {isEn ? 'Reload page' : 'Recarregar página'}
             </button>
           </div>
         </div>
@@ -315,8 +329,9 @@ class CanecaErrorBoundary extends React.Component {
 }
 
 export default function CanecaPreview(props) {
+  const { lang } = useTranslation();
   return (
-    <CanecaErrorBoundary>
+    <CanecaErrorBoundary lang={lang}>
       <CanecaPreviewComponent {...props} />
     </CanecaErrorBoundary>
   );

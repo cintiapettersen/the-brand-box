@@ -1,26 +1,46 @@
+'use client';
 import React from 'react';
+import { useTranslation } from '../../LanguageContext';
 
 export default function FolderSonoPage5({ accentColor, palette = [] }) {
+  const { lang } = useTranslation();
   const c0 = palette[0] || accentColor;
   const c1 = palette[1] || accentColor;
   const c2 = palette[2] || c0;
   const c3 = palette[3] || c1;
 
-  const posP1meses = [
+  const posP1meses = lang === 'en' ? [
+    { title: 'Sleep Window', text: 'Increases to 1h30–2h. Ideal for 2–3 naps per day.', color: c0 },
+    { title: 'Sleep Associations', text: 'Avoid depending on holding or feeding to sleep. Put down drowsy!', color: c1 },
+    { title: 'Flexible Routine', text: 'Bath time and predictable ritual help regulate the body clock.', color: c2 },
+    { title: 'Regressions', text: 'Peaks at 4, 8 and 12 months are normal. Maintain the routine!', color: c3 },
+  ] : [
     { title: 'Janela de Sono', text: 'Aumenta para 1h30–2h. Ideal para 2–3 cochilos por dia.', color: c0 },
     { title: 'Associações de Sono', text: 'Evite depender do colo ou mamada para dormir. Coloque sonolento!', color: c1 },
     { title: 'Rotina Flexível', text: 'Horário de banho e ritual previsível ajudam a regular o relógio biológico.', color: c2 },
     { title: 'Regressões', text: 'Picos às 4, 8 e 12 meses são normais. Mantenha a rotina!', color: c3 },
   ];
 
-  const associacoes = [
+  const associacoes = lang === 'en' ? [
+    { bad: 'Falling asleep in arms', good: 'Putting down drowsy in crib' },
+    { bad: 'Nursing to sleep every time', good: 'Feed → wait → lay down' },
+    { bad: 'Rocking to sleep', good: 'Short rock + lay down' },
+    { bad: 'TV or cell phone at night', good: 'Soft music or white noise' },
+  ] : [
     { bad: 'Adormecer no colo', good: 'Colocar sonolento no berço' },
     { bad: 'Mamar até dormir sempre', good: 'Mamar → aguardar → deitar' },
     { bad: 'Balançar até dormir', good: 'Ninada curta + pousar' },
     { bad: 'TV ou celular à noite', good: 'Música suave ou ruído branco' },
   ];
 
-  const razoes = [
+  const razoes = lang === 'en' ? [
+    { icon: '🌡️', text: 'Inadequate temperature' },
+    { icon: '😤', text: 'Colic or reflux' },
+    { icon: '🏠', text: 'Noise or excessive light' },
+    { icon: '📵', text: 'Lack of routine' },
+    { icon: '⏰', text: 'Immature circadian rhythm' },
+    { icon: '🔗', text: 'Inadequate association' },
+  ] : [
     { icon: '🌡️', text: 'Temperatura inadequada' },
     { icon: '😤', text: 'Cólicas ou refluxo' },
     { icon: '🏠', text: 'Barulho ou luz excessiva' },
@@ -52,7 +72,7 @@ export default function FolderSonoPage5({ accentColor, palette = [] }) {
         border: `0.3px solid ${c0}25`
       }}>
         <div style={{ fontSize: '4.8px', fontWeight: 900, color: c0, textTransform: 'uppercase', letterSpacing: '0.3px', marginBottom: '2px' }}>
-          📈 Após o Primeiro Mês
+          {lang === 'en' ? "📈 After the First Month" : "📈 Após o Primeiro Mês"}
         </div>
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1.5px' }}>
           {posP1meses.map((item, i) => (
@@ -78,12 +98,12 @@ export default function FolderSonoPage5({ accentColor, palette = [] }) {
         border: `0.3px solid ${c1}25`
       }}>
         <div style={{ fontSize: '4.8px', fontWeight: 900, color: c1, textTransform: 'uppercase', letterSpacing: '0.3px', marginBottom: '1.5px' }}>
-          🔄 Trocando Associações de Sono
+          {lang === 'en' ? "🔄 Changing Sleep Associations" : "🔄 Trocando Associações de Sono"}
         </div>
         <div style={{ display: 'flex', gap: '2px', marginBottom: '1px' }}>
-          <div style={{ flex: 1, fontSize: '2.8px', fontWeight: 800, color: '#e05', textAlign: 'center' }}>❌ EVITAR</div>
+          <div style={{ flex: 1, fontSize: '2.8px', fontWeight: 800, color: '#e05', textAlign: 'center' }}>{lang === 'en' ? "❌ AVOID" : "❌ EVITAR"}</div>
           <div style={{ width: '6px' }} />
-          <div style={{ flex: 1, fontSize: '2.8px', fontWeight: 800, color: '#0a6', textAlign: 'center' }}>✓ SUBSTITUIR</div>
+          <div style={{ flex: 1, fontSize: '2.8px', fontWeight: 800, color: '#0a6', textAlign: 'center' }}>{lang === 'en' ? "✓ REPLACE" : "✓ SUBSTITUIR"}</div>
         </div>
         <div style={{ display: 'flex', flexDirection: 'column', gap: '1px' }}>
           {associacoes.map((a, i) => (
@@ -115,7 +135,7 @@ export default function FolderSonoPage5({ accentColor, palette = [] }) {
         border: `0.3px solid ${c2}25`
       }}>
         <div style={{ fontSize: '4.8px', fontWeight: 900, color: c2, textTransform: 'uppercase', letterSpacing: '0.3px', marginBottom: '2px' }}>
-          🤔 Por Que Meu Bebê Não Dorme?
+          {lang === 'en' ? "🤔 Why Doesn't My Baby Sleep?" : "🤔 Por Que Meu Bebê Não Dorme?"}
         </div>
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1.2px' }}>
           {razoes.map((r, i) => (

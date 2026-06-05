@@ -1,5 +1,6 @@
 'use client';
 import React from 'react';
+import { useTranslation } from '../../LanguageContext';
 
 // ─── WHO Growth Standards Data (WHO Child Growth Standards 2006 / SBP) ─────────
 const MONTHS = [0, 3, 6, 9, 12, 18, 24, 36, 48, 60];
@@ -97,6 +98,7 @@ function smoothPath(pts) {
 
 // ─── Generic Growth Chart ─────────────────────────────────────────────────────
 function GrowthChart({ data, months, yMin, yMax, yStep, xLabel, title, w = 200, h = 110, mainColor, plotPoint = null }) {
+  const { dictionary } = useTranslation();
   const PAD = { top: 10, right: 20, bottom: 22, left: 24 };
   const CW = w - PAD.left - PAD.right;
   const CH = h - PAD.top - PAD.bottom;
@@ -105,7 +107,7 @@ function GrowthChart({ data, months, yMin, yMax, yStep, xLabel, title, w = 200, 
   const toY = (v) => PAD.top + CH - ((v - yMin) / (yMax - yMin)) * CH;
 
   const years = [0, 12, 24, 36, 48, 60];
-  const yearLabels = ['Nasc.', '1 ano', '2 anos', '3 anos', '4 anos', '5 anos'];
+  const yearLabels = dictionary?.graficos_crescimento?.yearLabels || ['Nasc.', '1 ano', '2 anos', '3 anos', '4 anos', '5 anos'];
   const minorX = Array.from({ length: 31 }, (_, i) => i * 2);
   const yTicks = [];
   for (let v = yMin; v <= yMax; v += yStep) yTicks.push(v);
@@ -200,6 +202,7 @@ export default function GraficoCrescimentoPreview({
   borderColor, setBorderColor, patternSrc, patternScale, setPatternScale,
   measurements = {},
 }) {
+  const { dictionary } = useTranslation();
   const [gender, setGender] = React.useState('menina');
   const [face, setFace] = React.useState('frente');
 
@@ -210,7 +213,9 @@ export default function GraficoCrescimentoPreview({
   const d = WHO[gender];
   const isMenina = gender === 'menina';
   const gColor = isMenina ? '#c8699a' : '#4a8bb5';
-  const gLabel = isMenina ? 'MENINA' : 'MENINO';
+  const gLabel = (isMenina
+    ? (dictionary?.graficos_crescimento?.menina || 'MENINA')
+    : (dictionary?.graficos_crescimento?.menino || 'MENINO')).toUpperCase();
   const { site, instagram } = cartaoContacts || {};
 
   const chartProps = { mainColor: gColor, w: 198, h: 108 };
@@ -228,16 +233,24 @@ export default function GraficoCrescimentoPreview({
       {/* Controls */}
       <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap', justifyContent: 'center' }}>
         <div style={{ display: 'flex', border: `1px solid ${mainColor}30`, borderRadius: '20px', overflow: 'hidden' }}>
-          {['menina', 'menino'].map(g => (
-            <button key={g} onClick={() => setGender(g)} style={{
-              padding: '3px 10px', fontSize: '9px', fontWeight: 700, cursor: 'pointer',
-              background: gender === g ? mainColor : '#fff', color: gender === g ? '#fff' : '#888',
-              border: 'none', fontFamily: 'Montserrat,sans-serif', textTransform: 'uppercase'
-            }}>{g === 'menina' ? '♀ Menina' : '♂ Menino'}</button>
-          ))}
+          {['menina', 'menino'].map(g => {
+            const btnLabel = g === 'menina'
+              ? `♀ ${dictionary?.graficos_crescimento?.menina || 'Menina'}`
+              : `♂ ${dictionary?.graficos_crescimento?.menino || 'Menino'}`;
+            return (
+              <button key={g} onClick={() => setGender(g)} style={{
+                padding: '3px 10px', fontSize: '9px', fontWeight: 700, cursor: 'pointer',
+                background: gender === g ? mainColor : '#fff', color: gender === g ? '#fff' : '#888',
+                border: 'none', fontFamily: 'Montserrat,sans-serif', textTransform: 'uppercase'
+              }}>{btnLabel}</button>
+            );
+          })}
         </div>
         <div style={{ display: 'flex', border: `1px solid ${mainColor}30`, borderRadius: '20px', overflow: 'hidden' }}>
-          {[['frente', 'IMC + P.Cefálico'], ['verso', 'Peso + Altura']].map(([f, lbl]) => (
+          {[
+            ['frente', dictionary?.graficos_crescimento?.face_frente_btn || 'IMC + P.Cefálico'],
+            ['verso', dictionary?.graficos_crescimento?.face_verso_btn || 'Peso + Altura']
+          ].map(([f, lbl]) => (
             <button key={f} onClick={() => setFace(f)} style={{
               padding: '3px 10px', fontSize: '9px', fontWeight: 700, cursor: 'pointer',
               background: face === f ? c1 : '#fff', color: face === f ? '#fff' : '#888',
@@ -262,13 +275,13 @@ export default function GraficoCrescimentoPreview({
             <div style={{ padding: '4px 7px 3px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
               <div>
                 <div style={{ fontSize: '3.8px', fontWeight: 600, color: 'rgba(255,255,255,0.8)', fontFamily: 'Montserrat,sans-serif', textTransform: 'uppercase', letterSpacing: '0.3px', marginBottom: '1px' }}>
-                  {face === 'frente' ? 'Crescimento — IMC · Perímetro Cefálico' : 'Crescimento — Peso · Altura'}
+                  {(dictionary?.graficos_crescimento?.titulo || 'Gráfico de Crescimento')} — {face === 'frente' ? (dictionary?.graficos_crescimento?.face_frente_lbl || 'IMC · Perímetro Cefálico') : (dictionary?.graficos_crescimento?.face_verso_lbl || 'Peso · Altura')}
                 </div>
                 <div style={{ fontSize: '13px', fontWeight: 900, color: '#fff', fontFamily: 'Montserrat,sans-serif', letterSpacing: '1px', lineHeight: 1 }}>
                   {gLabel}
                 </div>
                 <div style={{ fontSize: '3px', color: 'rgba(255,255,255,0.6)', fontFamily: 'Montserrat,sans-serif', marginTop: '1px' }}>
-                  Fonte: OMS — WHO Child Growth Standards 2006 · SBP
+                  {dictionary?.graficos_crescimento?.fonte || 'Fonte: OMS — WHO Child Growth Standards 2006 · SBP'}
                 </div>
               </div>
               {/* Logo area */}
@@ -286,24 +299,29 @@ export default function GraficoCrescimentoPreview({
             {/* Linha de dobra + campos da criança */}
             <div style={{ borderTop: '0.5px dashed rgba(255,255,255,0.4)', margin: '0 6px', padding: '4px 2px 4px' }}>
               <div style={{ fontSize: '3.5px', color: 'rgba(255,255,255,0.65)', fontFamily: 'Montserrat,sans-serif', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.4px', marginBottom: '3px' }}>
-                ✎ Dados da consulta
+                {dictionary?.graficos_crescimento?.dados_consulta || '✎ Dados da consulta'}
               </div>
               <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
                 <div style={{ display: 'flex', alignItems: 'flex-end', gap: '2px' }}>
-                  <span style={fieldLabel}>Paciente:</span>
+                  <span style={fieldLabel}>{dictionary?.graficos_crescimento?.paciente || 'Paciente'}:</span>
                   <span style={{ ...fieldStyle, minWidth: '50px' }} />
                 </div>
                 <div style={{ display: 'flex', alignItems: 'flex-end', gap: '2px' }}>
-                  <span style={fieldLabel}>Idade:</span>
+                  <span style={fieldLabel}>{dictionary?.graficos_crescimento?.idade || 'Idade'}:</span>
                   <span style={{ ...fieldStyle, minWidth: '18px' }} />
                 </div>
                 <div style={{ display: 'flex', alignItems: 'flex-end', gap: '2px' }}>
-                  <span style={fieldLabel}>Data:</span>
+                  <span style={fieldLabel}>{dictionary?.graficos_crescimento?.data || 'Data'}:</span>
                   <span style={{ ...fieldStyle, minWidth: '24px' }} />
                 </div>
               </div>
               <div style={{ display: 'flex', gap: '8px', marginTop: '3px', flexWrap: 'wrap' }}>
-                {[['Peso', 'kg'], ['Altura', 'cm'], ['PC', 'cm'], ['IMC', '']].map(([lbl, unit]) => (
+                {[
+                  [dictionary?.graficos_crescimento?.peso || 'Peso', 'kg'],
+                  [dictionary?.graficos_crescimento?.altura || 'Altura', 'cm'],
+                  [dictionary?.graficos_crescimento?.pc || 'PC', 'cm'],
+                  [dictionary?.graficos_crescimento?.imc || 'IMC', '']
+                ].map(([lbl, unit]) => (
                   <div key={lbl} style={{ display: 'flex', alignItems: 'flex-end', gap: '2px' }}>
                     <span style={fieldLabel}>{lbl}:</span>
                     <span style={{ ...fieldStyle, minWidth: '18px' }} />
@@ -311,7 +329,7 @@ export default function GraficoCrescimentoPreview({
                   </div>
                 ))}
                 <div style={{ display: 'flex', alignItems: 'flex-end', gap: '2px' }}>
-                  <span style={fieldLabel}>Percentil:</span>
+                  <span style={fieldLabel}>{dictionary?.graficos_crescimento?.percentil || 'Percentil'}:</span>
                   <span style={{ ...fieldStyle, minWidth: '22px' }} />
                 </div>
               </div>
@@ -323,22 +341,22 @@ export default function GraficoCrescimentoPreview({
             {face === 'frente' ? (<>
               <div style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                 <GrowthChart data={d.imc} months={MONTHS} yMin={10} yMax={22} yStep={1}
-                  xLabel="IMC" title="IMC por Idade" {...chartProps} h={102} />
+                  xLabel={dictionary?.graficos_crescimento?.imc_label || 'IMC'} title={dictionary?.graficos_crescimento?.imc_por_idade || 'IMC por Idade'} {...chartProps} h={102} />
               </div>
               <div style={{ height: '0.5px', background: '#e0e0e0' }} />
               <div style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                 <GrowthChart data={d.pc} months={PC_MONTHS} yMin={30} yMax={58} yStep={2}
-                  xLabel="PC (cm)" title="Perímetro Cefálico" {...chartProps} h={102} />
+                  xLabel={dictionary?.graficos_crescimento?.pc_label || 'PC (cm)'} title={dictionary?.graficos_crescimento?.perimetro_cefalico || 'Perímetro Cefálico'} {...chartProps} h={102} />
               </div>
             </>) : (<>
               <div style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                 <GrowthChart data={d.peso} months={MONTHS} yMin={0} yMax={30} yStep={2}
-                  xLabel="Peso (kg)" title="Peso por Idade" {...chartProps} h={102} />
+                  xLabel={dictionary?.graficos_crescimento?.peso_label || 'Peso (kg)'} title={dictionary?.graficos_crescimento?.peso_por_idade || 'Peso por Idade'} {...chartProps} h={102} />
               </div>
               <div style={{ height: '0.5px', background: '#e0e0e0' }} />
               <div style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                 <GrowthChart data={d.altura} months={MONTHS} yMin={40} yMax={130} yStep={5}
-                  xLabel="Altura (cm)" title="Altura por Idade" {...chartProps} h={102} />
+                  xLabel={dictionary?.graficos_crescimento?.altura_label || 'Altura (cm)'} title={dictionary?.graficos_crescimento?.altura_por_idade || 'Altura por Idade'} {...chartProps} h={102} />
               </div>
             </>)}
           </div>

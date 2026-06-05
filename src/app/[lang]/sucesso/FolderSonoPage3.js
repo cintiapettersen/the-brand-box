@@ -1,12 +1,22 @@
+'use client';
 import React from 'react';
+import { useTranslation } from '../../LanguageContext';
 
 export default function FolderSonoPage3({ accentColor, palette = [] }) {
+  const { lang } = useTranslation();
   const c0 = palette[0] || accentColor;
   const c1 = palette[1] || accentColor;
   const c2 = palette[2] || c0;
   const c3 = palette[3] || c1;
 
-  const habitos = [
+  const habitos = lang === 'en' ? [
+    { title: 'Differentiate day and night', text: 'Bright and active environment by day; dark, silent, and calm at night.' },
+    { title: 'Routine before sleep', text: 'Bath → feed → soft music → crib. Consistency is everything!' },
+    { title: 'Sensory rituals', text: 'Lullaby, shushing (shhh), gentle rocking create sleep anchors.' },
+    { title: 'Sleep window', text: 'Respect the ideal awake time. Babies up to 3m: 45–90 min between naps.' },
+    { title: 'Avoid associations', text: 'Do not associate sleep with holding or feeding every time. Put down drowsy, not asleep.' },
+    { title: 'No screens at night', text: 'Blue light inhibits melatonin. Turn off TVs and cell phones 1h before sleeping.' },
+  ] : [
     { title: 'Diferencie dia e noite', text: 'Ambiente claro e agitado de dia; escuro, silencioso e calmo à noite.' },
     { title: 'Rotina antes de dormir', text: 'Banho → mamada → música suave → berço. Consistência é tudo!' },
     { title: 'Rituais sensoriais', text: 'Canção de ninar, shushing (shhh), ninadas suaves criam âncoras de sono.' },
@@ -15,7 +25,14 @@ export default function FolderSonoPage3({ accentColor, palette = [] }) {
     { title: 'Sem telas à noite', text: 'Luz azul inibe melatonina. Desligue TVs e celulares 1h antes de dormir.' },
   ];
 
-  const seguranca = [
+  const seguranca = lang === 'en' ? [
+    { ok: true,  text: 'Firm crib, rigid mattress and no gaps' },
+    { ok: true,  text: 'Baby on their back (supine position)' },
+    { ok: true,  text: 'Smoke-free environment' },
+    { ok: false, text: 'No pillows, cushions, or fluffy blankets' },
+    { ok: false, text: 'No objects or stuffed animals in the crib' },
+    { ok: false, text: 'No adult sofas or beds without supervision' },
+  ] : [
     { ok: true,  text: 'Berço firme, colchão rígido e sem buracos' },
     { ok: true,  text: 'Bebê de barriga para cima (decúbito dorsal)' },
     { ok: true,  text: 'Ambiente livre de fumaça' },
@@ -42,7 +59,7 @@ export default function FolderSonoPage3({ accentColor, palette = [] }) {
       {/* SEÇÃO: Bons Hábitos */}
       <div style={{ flex: '0 0 auto' }}>
         <div style={{ fontSize: '5px', fontWeight: 900, color: c0, textTransform: 'uppercase', letterSpacing: '0.3px', marginBottom: '2px' }}>
-          ✨ Como Criar Bons Hábitos
+          {lang === 'en' ? "✨ How to Create Good Habits" : "✨ Como Criar Bons Hábitos"}
         </div>
         <div style={{ display: 'flex', flexDirection: 'column', gap: '1.2px' }}>
           {habitos.map((h, i) => (
@@ -65,10 +82,10 @@ export default function FolderSonoPage3({ accentColor, palette = [] }) {
       {/* SEÇÃO: Segurança */}
       <div style={{ flex: 1, minHeight: 0, display: 'flex', flexDirection: 'column', marginTop: '3px' }}>
         <div style={{ fontSize: '5px', fontWeight: 900, color: c1, textTransform: 'uppercase', letterSpacing: '0.3px', marginBottom: '0.5px' }}>
-          🛡️ Segurança no Sono
+          {lang === 'en' ? "🛡️ Safe Sleep" : "🛡️ Segurança no Sono"}
         </div>
         <div style={{ fontSize: '2.5px', color: '#888', marginBottom: '5px', fontStyle: 'italic' }}>
-          Ambiente seguro reduz o risco de morte súbita (SMSL)
+          {lang === 'en' ? "Safe environment reduces the risk of sudden infant death syndrome (SIDS)" : "Ambiente seguro reduz o risco de morte súbita (SMSL)"}
         </div>
         <div style={{ flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'flex-start', gap: '5px' }}>
           {seguranca.map((s, i) => (

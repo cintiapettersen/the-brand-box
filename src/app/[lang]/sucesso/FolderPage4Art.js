@@ -1,5 +1,6 @@
 'use client';
 import React from 'react';
+import { useTranslation } from '../../LanguageContext';
 
 const isDarkColor = (hex) => {
   if (!hex) return false;
@@ -11,7 +12,7 @@ const isDarkColor = (hex) => {
   return (r * 299 + g * 587 + b * 114) / 1000 < 128;
 };
 
-const horarios = [
+const horariosPt = [
   { label: 'CAFÉ DA MANHÃ', val: 'Leite materno ou fórmula infantil' },
   { label: 'LANCHE DA MANHÃ', val: 'Fruta / leite materno ou fórmula' },
   { label: 'ALMOÇO', val: 'Cereal ou tubérculo + proteína + leguminosa + hortaliças + fruta' },
@@ -20,14 +21,31 @@ const horarios = [
   { label: 'LANCHE DA NOITE', val: 'Leite materno ou fórmula infantil' },
 ];
 
-const introducao = [
+const horariosEn = [
+  { label: 'BREAKFAST', val: 'Breast milk or infant formula' },
+  { label: 'MORNING SNACK', val: 'Fruit / breast milk or formula' },
+  { label: 'LUNCH', val: 'Cereal or tuber + protein + legume + vegetables + fruit' },
+  { label: 'AFTERNOON SNACK', val: 'Fruit / breast milk or formula' },
+  { label: 'DINNER', val: 'Same as lunch' },
+  { label: 'BEDTIME SNACK', val: 'Breast milk or infant formula' },
+];
+
+const introducaoPt = [
   { idade: 'A partir de 6 meses', text: 'Alimentos amassados', qty: 'Iniciar com 2–3 colheres e aumentar conforme aceitação' },
   { idade: 'A partir dos 7 meses', text: 'Alimentos amassados', qty: '2/3 de uma xícara de 250 ml' },
   { idade: '9 a 11 meses', text: 'Cortados ou amassados', qty: '3/4 de uma xícara de 250 ml' },
   { idade: '12 a 24 meses', text: 'Alimentos cortados', qty: 'Uma xícara ou tigela de 250 ml' },
 ];
 
+const introducaoEn = [
+  { idade: 'From 6 months', text: 'Mashed foods', qty: 'Start with 2–3 spoons and increase based on acceptance' },
+  { idade: 'From 7 months', text: 'Mashed foods', qty: '2/3 of a 250 ml cup' },
+  { idade: '9 to 11 months', text: 'Chopped or mashed', qty: '3/4 of a 250 ml cup' },
+  { idade: '12 to 24 months', text: 'Chopped foods', qty: 'One 250 ml cup or bowl' },
+];
+
 export default function FolderPage4Art({ accentColor = '#D8AD3A', palette = [] }) {
+  const { lang } = useTranslation();
   const c1 = palette[0] || accentColor;
   const c2 = palette[1] || c1;
   const c3 = palette[2] || c2;
@@ -39,6 +57,9 @@ export default function FolderPage4Art({ accentColor = '#D8AD3A', palette = [] }
   const col1TextCol = isDarkColor(c3) ? '#FFFFFF' : '#231F20';
   const col2TextCol = isDarkColor(c4) ? '#FFFFFF' : '#231F20';
   const col3TextCol = isDarkColor(c5) ? '#FFFFFF' : '#231F20';
+
+  const horarios = lang === 'en' ? horariosEn : horariosPt;
+  const introducao = lang === 'en' ? introducaoEn : introducaoPt;
 
   return (
     <div style={{ width: '148px', height: '210px', position: 'absolute', top: 0, left: 0, overflow: 'hidden', pointerEvents: 'none' }}>
@@ -75,7 +96,9 @@ export default function FolderPage4Art({ accentColor = '#D8AD3A', palette = [] }
       {/* CAMADA DE TEXTO */}
       <div style={{ position: 'absolute', inset: 0, fontFamily: 'sans-serif' }}>
 
-        <div style={{ position: 'absolute', top: '5%', left: '7%', fontSize: '4px', fontWeight: 900, color: '#999', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Cardápio</div>
+        <div style={{ position: 'absolute', top: '5%', left: '7%', fontSize: '4px', fontWeight: 900, color: '#999', textTransform: 'uppercase', letterSpacing: '0.5px' }}>
+          {lang === 'en' ? 'Menu' : 'Cardápio'}
+        </div>
 
         <div style={{ position: 'absolute', top: '11.6%', left: '7%', width: '84.9%', height: '30.3%' }}>
           {horarios.map((item, i) => (
@@ -87,13 +110,19 @@ export default function FolderPage4Art({ accentColor = '#D8AD3A', palette = [] }
         </div>
 
         <div style={{ position: 'absolute', top: '47.6%', left: '7%', fontSize: '4.5px', fontStyle: 'italic', fontWeight: 900, color: '#999', textTransform: 'uppercase' }}>
-          Introdução Alimentar Clássica
+          {lang === 'en' ? 'Classical Food Introduction' : 'Introdução Alimentar Clássica'}
         </div>
 
         <div style={{ position: 'absolute', top: '53.8%', left: '7%', width: '86%', height: '4.7%', display: 'flex', alignItems: 'center' }}>
-          <div style={{ width: '27%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '3.2px', fontWeight: 900, color: col1TextCol, textTransform: 'uppercase', letterSpacing: '0.3px' }}>IDADE</div>
-          <div style={{ width: '27%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '3.2px', fontWeight: 900, color: col2TextCol, textTransform: 'uppercase', letterSpacing: '0.3px' }}>TEXTURA</div>
-          <div style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '3.2px', fontWeight: 900, color: col3TextCol, textTransform: 'uppercase', letterSpacing: '0.3px' }}>QUANTIDADE</div>
+          <div style={{ width: '27%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '3.2px', fontWeight: 900, color: col1TextCol, textTransform: 'uppercase', letterSpacing: '0.3px' }}>
+            {lang === 'en' ? 'AGE' : 'IDADE'}
+          </div>
+          <div style={{ width: '27%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '3.2px', fontWeight: 900, color: col2TextCol, textTransform: 'uppercase', letterSpacing: '0.3px' }}>
+            {lang === 'en' ? 'TEXTURE' : 'TEXTURA'}
+          </div>
+          <div style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '3.2px', fontWeight: 900, color: col3TextCol, textTransform: 'uppercase', letterSpacing: '0.3px' }}>
+            {lang === 'en' ? 'QUANTITY' : 'QUANTIDADE'}
+          </div>
         </div>
         {introducao.map((item, i) => (
           <div key={i} style={{ position: 'absolute', top: `${58.7 + i * 8.7}%`, left: '7%', width: '86%', height: '8.7%', display: 'flex', overflow: 'hidden' }}>

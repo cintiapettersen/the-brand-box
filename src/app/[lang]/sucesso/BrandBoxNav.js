@@ -1,5 +1,7 @@
 'use client';
 import { useRef, useState, useEffect } from 'react';
+import { useTranslation } from '../../LanguageContext';
+
 const BB_MARCA = '#65BDB9';
 const BB_DIGITAL = '#dc3895'; // pink mais vibrante
 const BB_PAPELARIA = '#8DBD8E';
@@ -16,7 +18,7 @@ function SubMenu({ items, activeId, onSelect, color, renderLabel }) {
     const obs = new ResizeObserver(check);
     obs.observe(el);
     return () => obs.disconnect();
-  }, [items]);
+  }, [items.map(i => (i.id ?? i)).join(',')]);
 
   // Scroll ativo para visível ao montar/mudar
   useEffect(() => {
@@ -74,35 +76,92 @@ const DIGITAL_STEPS = ['cartao', 'pack-instagram', 'assinatura-email'];
 const AJUDA_STEPS = ['ajuda', 'upsell'];
 
 export default function BrandBoxNav({ step, setStep, plano, papelariaItens = [], papelariaIdx = 0, setPapelariaIdx }) {
+  const { dictionary } = useTranslation();
   const isMarca = MARCA_STEPS.includes(step);
   const isDigital = DIGITAL_STEPS.includes(step);
   const isPapelaria = step === 'papelaria';
   const isAjuda = AJUDA_STEPS.includes(step);
   const activeCat = isMarca ? 'marca' : isDigital ? 'digital' : isPapelaria ? 'papelaria' : 'ajuda';
 
+  const renderItemLabel = (item) => {
+    const keyMap = {
+      'Cartão de Visita': 'cartao_visita',
+      'Papel Timbrado': 'papel_timbrado',
+      'Papel de Presente': 'papel_presente',
+      'Tag para Sacola': 'tag_sacola',
+      'Etiqueta para Correios': 'etiqueta_correios',
+      'Envelope Ofício (23x11,5cm)': 'envelope_oficio',
+      'Envelope Ofício': 'envelope_oficio',
+      'Envelope Saco (24x34cm)': 'envelope_saco',
+      'Envelope Saco': 'envelope_saco',
+      'Recibo': 'recibo',
+      'Pasta A4': 'pasta_a4',
+      'Pasta': 'pasta_a4',
+      'Caneca': 'caneca',
+      'Arte para Caneca': 'arte_caneca',
+      'Cartão de Retorno': 'cartao_retorno',
+      'Cartão de Agradecimento (10x15cm)': 'cartao_agradecimento',
+      'Cartão de Agradecimento': 'cartao_agradecimento',
+      'Caderno (Capa e Contra-capa)': 'caderno',
+      'Caderno': 'caderno',
+      'Receituário Padrão (A4 e A5)': 'receituario_padrao',
+      'Receituário Padrão': 'receituario_padrao',
+      'Receituário': 'receituario_padrao',
+      'Atestado Médico (A4 e A5)': 'atestado_medico',
+      'Atestado Médico': 'atestado_medico',
+      'Receituário de Controle Especial': 'receituario_controle',
+      'Controle Especial (A4 e A5)': 'receituario_controle',
+      'Controle Especial': 'receituario_controle',
+      'Prontuário Médico': 'prontuario_medico',
+      'Receita de Alta': 'receita_alta',
+      'Ficha de Cadastro': 'ficha_cadastro',
+      'Guia Alimentar': 'guia_alimentar',
+      'Guia de Cuidados': 'guia_cuidados',
+      'Guia de Desenvolvimento': 'guia_desenvolvimento',
+      'Guia de Vacina c/ Calendário': 'guia_vacina',
+      'Guia de Vacina': 'guia_vacina',
+      'Cartão de Vacina': 'cartao_vacina',
+      'Cartão de Exame Pré-Natal': 'cartao_prenatal',
+      'Cartão Pré-Natal': 'cartao_prenatal',
+      'Gráfico de Crescimento': 'grafico_crescimento',
+      'Checklist Maternidade': 'checklist_maternidade',
+      'Guia do Sono': 'guia_sono',
+      'Orientações p/ Recém Nascidos': 'orientacoes_rn',
+      'Certificado de Coragem': 'certificado_coragem',
+      'Diário do Xixi': 'diario_xixi',
+      'Meu Pratinho': 'meu_pratinho',
+      'Guia de Amamentação': 'guia_amamentacao',
+      'Caderneta de Saúde': 'caderneta_saude',
+      'Pack Digital para Instagram': 'pack_instagram',
+      'Assinatura de E-mail': 'assinatura_email'
+    };
+    const key = keyMap[item.label];
+    return (key && dictionary?.papelaria_itens?.[key]) || item.label;
+  };
+
   const marcaItems = [
-    { id: 'placa', label: 'Placa' },
-    { id: 'manifesto', label: 'Manifesto' },
-    { id: 'tomdevoz', label: 'Tom de Voz' },
-    { id: 'fonte', label: 'Fonte' },
-    { id: 'logo', label: 'Logo' },
-    { id: 'slogan', label: 'Tagline' },
-    { id: 'submarca', label: 'Selo', planOnly: 'pro' },
-    { id: 'cores', label: 'Cores' },
-    { id: 'paleta', label: 'Paleta' },
-    { id: 'estampa', label: 'Estampa' },
-    { id: 'guia', label: 'Guia' },
+    { id: 'placa', label: dictionary?.nav?.placa || 'Placa' },
+    { id: 'manifesto', label: dictionary?.nav?.manifesto || 'Manifesto' },
+    { id: 'tomdevoz', label: dictionary?.nav?.tomdevoz || 'Tom de Voz' },
+    { id: 'fonte', label: dictionary?.nav?.fonte || 'Fonte' },
+    { id: 'logo', label: dictionary?.nav?.logo || 'Logo' },
+    { id: 'slogan', label: dictionary?.nav?.slogan || 'Tagline' },
+    { id: 'submarca', label: dictionary?.nav?.submarca || 'Selo', planOnly: 'pro' },
+    { id: 'cores', label: dictionary?.nav?.cores || 'Cores' },
+    { id: 'paleta', label: dictionary?.nav?.paleta || 'Paleta' },
+    { id: 'estampa', label: dictionary?.nav?.estampa || 'Estampa' },
+    { id: 'guia', label: dictionary?.nav?.guia || 'Guia' },
   ].filter(i => !i.planOnly || plano === i.planOnly);
 
   const digitalItems = [
-    { id: 'cartao', label: 'Cartão Digital' },
-    { id: 'pack-instagram', label: 'Pack Instagram' },
-    { id: 'assinatura-email', label: 'Assinatura E-mail' },
+    { id: 'cartao', label: dictionary?.nav?.cartao || 'Cartão Digital' },
+    { id: 'pack-instagram', label: dictionary?.nav?.pack_instagram || 'Pack Instagram' },
+    { id: 'assinatura-email', label: dictionary?.nav?.assinatura_email || 'Assinatura E-mail' },
   ];
 
   const ajudaItems = [
-    { id: 'ajuda', label: 'Ajuda & Inspiração' },
-    { id: 'upsell', label: 'Quer ir além? ✨' },
+    { id: 'ajuda', label: dictionary?.nav?.ajuda_inspiracao || 'Ajuda & Inspiração' },
+    { id: 'upsell', label: dictionary?.nav?.upsell || 'Quer ir além? ✨' },
   ];
 
   const subColor = isMarca ? BB_MARCA : isDigital ? BB_DIGITAL : isPapelaria ? BB_PAPELARIA : BB_AJUDA;
@@ -112,10 +171,10 @@ export default function BrandBoxNav({ step, setStep, plano, papelariaItens = [],
       {/* Tabs principais */}
       <div style={{ display: 'flex', gap: '3px' }}>
         {[
-          { id: 'marca', label: 'A Marca', color: BB_MARCA, radius: '12px 0 0 0', action: () => setStep('placa') },
-          { id: 'digital', label: 'O Digital', color: BB_DIGITAL, radius: '0', action: () => { if (!isDigital) setStep('cartao'); } },
-          { id: 'papelaria', label: 'Os Impressos', color: BB_PAPELARIA, radius: '0', action: () => setStep('papelaria') },
-          { id: 'ajuda', label: 'Ajuda ✨', color: BB_AJUDA, radius: '0 12px 0 0', action: () => { if (!isAjuda) setStep('ajuda'); } },
+          { id: 'marca', label: dictionary?.nav?.marca || 'A Marca', color: BB_MARCA, radius: '12px 0 0 0', action: () => setStep('placa') },
+          { id: 'digital', label: dictionary?.nav?.digital || 'O Digital', color: BB_DIGITAL, radius: '0', action: () => { if (!isDigital) setStep('cartao'); } },
+          { id: 'papelaria', label: dictionary?.nav?.papelaria || 'Os Impressos', color: BB_PAPELARIA, radius: '0', action: () => setStep('papelaria') },
+          { id: 'ajuda', label: dictionary?.nav?.ajuda || 'Ajuda ✨', color: BB_AJUDA, radius: '0 12px 0 0', action: () => { if (!isAjuda) setStep('ajuda'); } },
         ].map(tab => {
           const active = activeCat === tab.id;
           return (
@@ -142,7 +201,7 @@ export default function BrandBoxNav({ step, setStep, plano, papelariaItens = [],
       {isMarca && <SubMenu items={marcaItems} activeId={step} onSelect={setStep} color={BB_MARCA} />}
       {isDigital && <SubMenu items={digitalItems} activeId={step} onSelect={setStep} color={BB_DIGITAL} />}
       {isPapelaria && papelariaItens.length > 0 && setPapelariaIdx && (
-        <SubMenu items={papelariaItens.map((label, i) => ({ id: i, label }))} activeId={papelariaIdx} onSelect={setPapelariaIdx} color={BB_PAPELARIA} />
+        <SubMenu items={papelariaItens.map((label, i) => ({ id: i, label }))} activeId={papelariaIdx} onSelect={setPapelariaIdx} color={BB_PAPELARIA} renderLabel={renderItemLabel} />
       )}
       {isAjuda && <SubMenu items={ajudaItems} activeId={step} onSelect={setStep} color={BB_AJUDA} />}
     </div>

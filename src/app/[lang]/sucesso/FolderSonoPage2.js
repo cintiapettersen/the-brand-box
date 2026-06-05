@@ -1,11 +1,21 @@
+'use client';
 import React from 'react';
+import { useTranslation } from '../../LanguageContext';
 
 export default function FolderSonoPage2({ accentColor, palette = [] }) {
+  const { lang } = useTranslation();
   const c0 = palette[0] || accentColor;
   const c1 = palette[1] || accentColor;
   const c2 = palette[2] || c0;
 
-  const sleepData = [
+  const sleepData = lang === 'en' ? [
+    { faixa: 'Newborn', hours: '16–22h', cochilos: 'Included', icon: '🌙' },
+    { faixa: '4–12 months',    hours: '12–16h', cochilos: 'Included', icon: '⭐' },
+    { faixa: '1–2 years',      hours: '11–14h', cochilos: 'Included', icon: '⭐' },
+    { faixa: '3–5 years',      hours: '10–13h', cochilos: 'Included', icon: '☀️' },
+    { faixa: '6–12 years',     hours: '9–12h',  cochilos: '—',         icon: '☀️' },
+    { faixa: '13–18 years',    hours: '8–10h',  cochilos: '—',         icon: '☀️' },
+  ] : [
     { faixa: 'Recém-Nascido', horas: '16–22h', cochilos: 'Incluídos', icon: '🌙' },
     { faixa: '4–12 meses',    horas: '12–16h', cochilos: 'Incluídos', icon: '⭐' },
     { faixa: '1–2 anos',      horas: '11–14h', cochilos: 'Incluídos', icon: '⭐' },
@@ -14,7 +24,14 @@ export default function FolderSonoPage2({ accentColor, palette = [] }) {
     { faixa: '13–18 anos',    horas: '8–10h',  cochilos: '—',         icon: '☀️' },
   ];
 
-  const sinais = [
+  const sinais = lang === 'en' ? [
+    { icon: '👀', text: 'Red or rubbing eyes' },
+    { icon: '🥱', text: 'Frequent yawning' },
+    { icon: '😢', text: 'Crying for no apparent reason' },
+    { icon: '👂', text: 'Pulls ears or hair' },
+    { icon: '🫥', text: 'Staring and inattentive look' },
+    { icon: '😤', text: 'Fidgeting and irritability' },
+  ] : [
     { icon: '👀', text: 'Olhos vermelhos ou coçando' },
     { icon: '🥱', text: 'Bocejo frequente' },
     { icon: '😢', text: 'Choro sem motivo aparente' },
@@ -40,18 +57,18 @@ export default function FolderSonoPage2({ accentColor, palette = [] }) {
         <div style={{ display: 'flex', alignItems: 'center', gap: '3px', marginBottom: '1px' }}>
           <span style={{ fontSize: '7px' }}>🌙</span>
           <div style={{ fontSize: '5px', fontWeight: 900, color: c0, textTransform: 'uppercase', letterSpacing: '0.3px' }}>
-            Médias de Sono por Idade
+            {lang === 'en' ? "Average Sleep by Age" : "Médias de Sono por Idade"}
           </div>
         </div>
         <div style={{ fontSize: '2.8px', color: '#888', marginBottom: '2px', fontStyle: 'italic', paddingLeft: '2px' }}>
-          Necessidades médias — cada criança é única. Observe os sinais!
+          {lang === 'en' ? "Average needs — every child is unique. Watch the signs!" : "Necessidades médias — cada criança é única. Observe os sinais!"}
         </div>
 
         <div style={{ border: `0.3px solid ${c0}35`, borderRadius: '2px', overflow: 'hidden' }}>
           <div style={{ display: 'flex', background: c0, padding: '1.2px 3px' }}>
-            <div style={{ flex: 2, fontSize: '3px', fontWeight: 800, color: '#fff', letterSpacing: '0.3px' }}>FAIXA ETÁRIA</div>
-            <div style={{ flex: 1.2, fontSize: '3px', fontWeight: 800, color: '#fff', textAlign: 'center' }}>SONO TOTAL</div>
-            <div style={{ flex: 1.2, fontSize: '3px', fontWeight: 800, color: '#fff', textAlign: 'center' }}>COCHILOS</div>
+            <div style={{ flex: 2, fontSize: '3px', fontWeight: 800, color: '#fff', letterSpacing: '0.3px' }}>{lang === 'en' ? "AGE GROUP" : "FAIXA ETÁRIA"}</div>
+            <div style={{ flex: 1.2, fontSize: '3px', fontWeight: 800, color: '#fff', textAlign: 'center' }}>{lang === 'en' ? "TOTAL SLEEP" : "SONO TOTAL"}</div>
+            <div style={{ flex: 1.2, fontSize: '3px', fontWeight: 800, color: '#fff', textAlign: 'center' }}>{lang === 'en' ? "NAPS" : "COCHILOS"}</div>
           </div>
           {sleepData.map((row, i) => (
             <div key={i} style={{
@@ -64,7 +81,7 @@ export default function FolderSonoPage2({ accentColor, palette = [] }) {
                 <span style={{ fontSize: '4.5px' }}>{row.icon}</span>
                 <span style={{ fontSize: '3px', fontWeight: 700, color: '#444', lineHeight: 1 }}>{row.faixa}</span>
               </div>
-              <div style={{ flex: 1.2, fontSize: '3.5px', fontWeight: 800, color: c0, textAlign: 'center' }}>{row.horas}</div>
+              <div style={{ flex: 1.2, fontSize: '3.5px', fontWeight: 800, color: c0, textAlign: 'center' }}>{row.hours}</div>
               <div style={{ flex: 1.2, fontSize: '2.8px', color: '#888', textAlign: 'center' }}>{row.cochilos}</div>
             </div>
           ))}
@@ -79,11 +96,11 @@ export default function FolderSonoPage2({ accentColor, palette = [] }) {
         <div style={{ display: 'flex', alignItems: 'center', gap: '3px', marginBottom: '1px' }}>
           <span style={{ fontSize: '7px' }}>😴</span>
           <div style={{ fontSize: '5px', fontWeight: 900, color: c1, textTransform: 'uppercase', letterSpacing: '0.3px' }}>
-            Sinais de Sono
+            {lang === 'en' ? "Sleep Signs" : "Sinais de Sono"}
           </div>
         </div>
         <div style={{ fontSize: '2.8px', color: '#777', marginBottom: '2px', paddingLeft: '2px', lineHeight: 1.2 }}>
-          Quando seu bebê dá esses sinais, inicie o ritual — não espere o choro!
+          {lang === 'en' ? "When your baby shows these signs, start the routine — don't wait for crying!" : "Quando seu bebê dá esses sinais, inicie o ritual — não espere o choro!"}
         </div>
 
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1.5px' }}>

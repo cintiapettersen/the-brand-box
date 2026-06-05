@@ -1,9 +1,40 @@
+'use client';
 import React from 'react';
+import { useTranslation } from '../../LanguageContext';
 
 export default function FolderVacinaPage5({ accentColor, palette = [] }) {
+  const { lang } = useTranslation();
   const mainColor = palette[0] || accentColor;
   
-  const tables = [
+  const tables = lang === 'en' ? [
+    {
+      title: "Meningo B",
+      headers: ["FIRST DOSE", "SECOND DOSE", "BOOSTER"],
+      rows: [
+        ["6-11 MONTHS", "2 MONTHS AFTER 1ST DOSE", "In the second year of life"],
+        ["12-23 MONTHS", "2 MONTHS AFTER 1ST DOSE", "12-23 months after 1st dose"],
+        [">24 MONTHS", "1 MONTH OR MORE AFTER 1ST DOSE", "Need not established"]
+      ]
+    },
+    {
+      title: "Menveo (ACWY-CRM)",
+      headers: ["FIRST DOSE", "SECOND DOSE", "BOOSTER"],
+      rows: [
+        ["More than 6 weeks", "2 MONTHS AFTER 1ST DOSE", "Every 5 years"],
+        ["12 months or more", "None", "Every 5 years"]
+      ]
+    },
+    {
+      title: "Nimenrix ( ACWY - TT )",
+      headers: ["", "", "", ""],
+      customHeaders: ["", "2 MONTHS AFTER 1ST DOSE", "2 MONTHS AFTER 2ND DOSE", "Every 5 years"],
+      rows: [
+        ["6-11 MONTHS", "2 MONTHS AFTER 1ST DOSE", "2 MONTHS AFTER 2ND DOSE", "Every 5 years"],
+        ["12-23 MONTHS", "2 MONTHS AFTER 1ST DOSE", "None", "Every 5 years"],
+        [">24 MONTHS", "None", "None", "Every 5 years"]
+      ]
+    }
+  ] : [
     {
       title: "Meningo B",
       headers: ["PRIMEIRA DOSE", "SEGUNDA DOSE", "REFORÇO"],
@@ -46,7 +77,7 @@ export default function FolderVacinaPage5({ accentColor, palette = [] }) {
       gap: '8px'
     }}>
       <div style={{ fontSize: '4.5px', fontWeight: 800, color: '#000', marginBottom: '2px', lineHeight: 1.2 }}>
-        Esquema das meningites quando iniciado fora do período do calendário vacinal:
+        {lang === 'en' ? "Meningitis schedule when started outside the routine vaccination calendar:" : "Esquema das meningites quando iniciado fora do período do calendário vacinal:"}
       </div>
 
       <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
@@ -74,7 +105,9 @@ export default function FolderVacinaPage5({ accentColor, palette = [] }) {
       </div>
 
       <div style={{ marginTop: '2px' }}>
-        <div style={{ fontSize: '5px', fontWeight: 900, color: mainColor, marginBottom: '2px' }}>Outras recomendações:</div>
+        <div style={{ fontSize: '5px', fontWeight: 900, color: mainColor, marginBottom: '2px' }}>
+          {lang === 'en' ? "Other recommendations:" : "Outras recomendações:"}
+        </div>
         {Array.from({ length: 6 }).map((_, i) => (
           <div key={i} style={{ borderBottom: `0.15px solid ${mainColor}30`, height: '7px', width: '100%' }} />
         ))}

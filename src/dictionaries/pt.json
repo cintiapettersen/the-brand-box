@@ -15,5 +15,1049 @@
     "ajuda_aparecer": "Deixe a IA e a direção criativa guiarem o seu caminho. Construa uma identidade visual profissional e única para o seu negócio em poucos minutos, sem complicações.",
     "experiencia_guiada": "",
     "criar_marca": "CRIAR MINHA MARCA AGORA"
-  }
+  },
+  "nav": {
+    "marca": "A Marca",
+    "digital": "O Digital",
+    "papelaria": "Os Impressos",
+    "ajuda": "Ajuda ✨",
+    "placa": "Brand Board",
+    "manifesto": "Manifesto",
+    "tomdevoz": "Tom de Voz",
+    "fonte": "Fonte",
+    "logo": "Logo",
+    "slogan": "Tagline",
+    "submarca": "Selo",
+    "cores": "Cores",
+    "paleta": "Paleta",
+    "estampa": "Estampa",
+    "guia": "Guia",
+    "cartao": "Cartão Digital",
+    "pack_instagram": "Pack Instagram",
+    "assinatura_email": "Assinatura E-mail",
+    "ajuda_inspiracao": "Ajuda & Inspiração",
+    "upsell": "Quer ir além? ✨"
+  },
+  "papelaria_itens": {
+    "cartao_visita": "Cartão de Visita",
+    "papel_timbrado": "Papel Timbrado",
+    "papel_presente": "Papel de Presente",
+    "tag_sacola": "Tag para Sacola",
+    "etiqueta_correios": "Etiqueta para Correios",
+    "envelope_oficio": "Envelope Ofício",
+    "envelope_saco": "Envelope Saco",
+    "recibo": "Recibo",
+    "pasta_a4": "Pasta A4",
+    "caneca": "Caneca",
+    "cartao_retorno": "Cartão de Retorno",
+    "cartao_agradecimento": "Cartão de Agradecimento",
+    "caderno": "Caderno",
+    "receituario_padrao": "Receituário Padrão",
+    "atestado_medico": "Atestado Médico",
+    "receituario_controle": "Controle Especial",
+    "prontuario_medico": "Prontuário Médico",
+    "receita_alta": "Receita de Alta",
+    "ficha_cadastro": "Ficha de Cadastro",
+    "guia_alimentar": "Guia Alimentar",
+    "guia_cuidados": "Guia de Cuidados",
+    "guia_desenvolvimento": "Guia de Desenvolvimento",
+    "guia_vacina": "Guia de Vacina",
+    "cartao_prenatal": "Cartão Pré-Natal",
+    "grafico_crescimento": "Gráfico de Crescimento",
+    "checklist_maternidade": "Checklist Maternidade",
+    "guia_sono": "Guia do Sono",
+    "orientacoes_rn": "Orientações RN",
+    "certificado_coragem": "Certificado de Coragem",
+    "diario_xixi": "Diário do Xixi",
+    "meu_pratinho": "Meu Pratinho",
+    "guia_amamentacao": "Guia de Amamentação",
+    "caderneta_saude": "Caderneta de Saúde"
+  },
+  "meu_pratinho": {
+    "passo_a_passo": "passo a passo",
+    "alimentacao": "ALIMENTAÇÃO",
+    "complementar": "COMPLEMENTAR",
+    "nome": "NOME",
+    "data_nascimento": "DATA DE NASCIMENTO",
+    "menino": "MENINO",
+    "menina": "MENINA",
+    "responsavel": "NOME DO RESPONSÁVEL",
+    "idade_titulo": "Idade",
+    "idade_desc": "6 meses, com os sinais de prontidão presentes.",
+    "consistencia_titulo": "Consistência",
+    "consistencia_desc": "Proibido mixer, liquidificador, peneira ou redinha. O que não amassar, ofereça em pedaços para estimular a mastigação e o desenvolvimento orofacial.",
+    "colher_titulo": "Escolha o tamanho da colher",
+    "colher_desc": "Tamanho adequado ao diâmetro da boca da criança. Prefira silicone ou plástico.",
+    "montar_titulo": "Montar o prato",
+    "montar_desc": "Siga a proporção da imagem dando preferência a alimentos ricos, frescos e variados.",
+    "hortalicas_label": "Hortaliças (50%)",
+    "carbo_label": "Carbo (25%)",
+    "proteina_label": "Proteína (12.5%)",
+    "graos_label": "Grãos (12.5%)",
+    "guia_alimentar_label": "GUIA ALIMENTAR: MEU PRATINHO",
+    "guia_alimentar_verso_label": "GUIA ALIMENTAR: MEU PRATINHO (VERSO)",
+    "como_montar_subtitulo": "Como montar um prato equilibrado para as crianças",
+    "legumes_verduras_titulo": "Legumes e Verduras",
+    "legumes_verduras_desc": "Ricos em vitaminas, minerais, fibras e ferro não-heme. Aposte na variedade — quanto mais colorido, melhor! Beterraba, chuchu, abobrinha, cenoura, alface, brócolis, couve-flor, espinafre, acelga, rúcula, agrião. Devem ocupar metade do pratinho.",
+    "proteinas_titulo": "Proteínas",
+    "proteinas_desc": "Fonte de proteína, gordura, ferro, zinco e vitamina B12. Inclui carne, ovo, peixe e frango. Opte por carnes e aves magras ou com baixo teor de gordura. Escolha 1 opção por refeição e varie ao longo da semana.",
+    "agua_titulo": "Água",
+    "agua_desc": "Oferte sempre após cada refeição e lanches. Hidrate-se constantemente! A água é fundamental para o bom funcionamento do organismo. Evite bebidas açucaradas, sucos e chás.",
+    "leguminosas_titulo": "Leguminosas",
+    "leguminosas_desc": "Proteínas, fibras, ferro, zinco e vitaminas do complexo B. Feijão, grão de bico, ervilha, lentilha, soja. Escolha 1 opção por refeição e varie a proteína vegetal ao longo da semana.",
+    "frutas_titulo": "Frutas",
+    "frutas_desc": "Fonte de vitaminas, minerais, fibras e energia. Ótimas para sobremesa e lanchinhos. Abacate, abacaxi, acerola, banana, caqui, goiaba, kiwi, laranja, maçã, mamão, melancia, morango, pêra, uva e muito mais.",
+    "cereais_titulo": "Cereais, Raízes e Tubérculos",
+    "cereais_desc": "Fontes de vitaminas, minerais e energia. Arroz, macarrão, batata, mandioca, inhame, cará. Varie ao longo da semana e prefira os integrais pela maior presença de fibras e nutrientes.",
+    "oleos_titulo": "Óleos e Gorduras",
+    "oleos_desc": "Importantes para o desenvolvimento saudável do bebê e absorção de vitaminas lipossolúveis. Use pequenas quantidades de azeite de oliva ou óleo de canola. Evite gorduras saturadas, trans, margarina e frituras.",
+    "leite_titulo": "Leite e Derivados",
+    "leite_desc": "Fonte de proteína, gordura, cálcio e vitamina A. Leite, coalhadas, iogurtes naturais sem açúcar e queijos. Ótimos para incluir no café da manhã e lanches. Prefira versões integrais e sem adição de açúcar.",
+    "oleaginosas_titulo": "Oleaginosas",
+    "oleaginosas_desc": "Fontes de vitaminas, fibras, gorduras saudáveis e substâncias antioxidantes. Amêndoas, amendoim, avelã, castanha-de-caju, castanha-do-brasil, noz-pecã e pistache. Ótimas opções para os lanchinhos."
+  },
+  "recibo": {
+    "titulo": "RECIBO",
+    "recebi_de": "Recebi de",
+    "quantia_de": "A quantia de",
+    "referente_a": "Referente a",
+    "data": "DATA",
+    "descricao": "DESCRIÇÃO DOS SERVIÇOS",
+    "total": "TOTAL"
+  },
+  "ui": {
+    "escala_logo": "Escala da logo",
+    "preview_aviso": "Preview ilustrativo.",
+    "preview_aviso_desc": "Proporções e tamanhos podem variar. Confira as dimensões reais no PDF antes de enviar para a gráfica.",
+    "editar_dados": "Editar dados",
+    "slogan": "Slogan",
+    "empresa": "Empresa",
+    "adicionar_rqe": "+ Adicionar RQE",
+    "baixar_pdf": "⬇ Baixar PDF Padrão Gráfica",
+    "baixar_png": "⬇ Baixar PNG / JPG",
+    "baixar_assinatura": "⬇ Baixar Assinatura",
+    "upsell_titulo": "+ Adicionar mais itens — R$ 30 cada (Item Premium: R$ 180)",
+    "upsell_caderneta": "Caderneta de Saúde (Premium)",
+    "upsell_item_count_singular": "item",
+    "upsell_item_count_plural": "itens",
+    "adicionar": "Adicionar →",
+    "aguarde": "Aguarde...",
+    "cancelar": "Cancelar",
+    "entendi_baixar": "Entendi, baixar PDF →",
+    "modal_titulo": "Como salvar o PDF padrão gráfica",
+    "modal_passo1_titulo": "Margens → Nenhuma",
+    "modal_passo1_desc": "Na janela de impressão, defina as margens como Nenhuma para preservar a sangria.",
+    "modal_passo2_titulo": "Gráficos de fundo ativado",
+    "modal_passo2_desc": "Ative \"Gráficos de fundo\" (Background graphics) para cores e estampas aparecerem.",
+    "modal_passo3_titulo": "Destino → Salvar como PDF",
+    "modal_passo3_desc": "Selecione Salvar como PDF — não envie para impressora.",
+    "modal_specs_titulo": "Especificações para a gráfica",
+    "modal_grafica_sugestao": "Sugestão de gráfica:",
+    "modal_grafica_enviar": "Selecione \"Enviar minha arte final\" e envie o PDF gerado.",
+    "modal_cupom": "Cupom 5% off:",
+    "modal_cupom_primeira": "(primeira compra)",
+    "spec_categoria": "Categoria:",
+    "spec_tamanho": "Tamanho:",
+    "spec_papel": "Papel:",
+    "spec_acabamento": "Acabamento:",
+    "spec_preco": "Preço médio:",
+    "label_telefone": "Telefone",
+    "label_telefone2": "Telefone 2",
+    "label_endereco": "Endereço"
+  },
+  "controle_especial": {
+    "titulo": "RECEITUÁRIO DE CONTROLE ESPECIAL",
+    "emitente": "Identificação do Emitente",
+    "vias": "1ª VIA FARMÁCIA\n2ª VIA PACIENTE",
+    "paciente": "PACIENTE:",
+    "endereco": "ENDEREÇO:",
+    "prescricao": "PRESCRIÇÃO:",
+    "data": "Data",
+    "assinatura": "Assinatura do Médico",
+    "comprador": "IDENTIFICAÇÃO DO COMPRADOR",
+    "farmaceutico": "ASSINATURA DO FARMACÊUTICO"
+  },
+  "ficha_cadastro": {
+    "titulo": "CADASTRO DE PACIENTES",
+    "data": "DATA :",
+    "crianca": "Criança",
+    "adulto": "Adulto",
+    "crianca_nome": "NOME COMPLETO DA CRIANÇA :",
+    "data_nasc": "DATA DE NASCIMENTO:",
+    "idade": "IDADE:",
+    "mae_nome": "NOME DA MÃE :",
+    "profissao": "PROFISSÃO:",
+    "cpf": "CPF:",
+    "pai_nome": "NOME DO PAI :",
+    "completo_nome": "NOME COMPLETO :",
+    "rg": "RG:",
+    "estado_civil": "ESTADO CIVIL:",
+    "responsavel_nome": "NOME DO RESPONSÁVEL (se menor):",
+    "grau_parentesco": "GRAU DE PARENTESCO:",
+    "responsavel_acompanhante": "NOME DO (A) RESPONSÁVEL ACOMPANHANTE:",
+    "endereco": "ENDEREÇO:",
+    "complemento": "COMPLEMENTO:",
+    "bairro": "BAIRRO:",
+    "cidade": "CIDADE:",
+    "estado": "ESTADO:",
+    "telefones": "TELEFONES :",
+    "celular": "CELULAR:",
+    "residencial": "RESIDENCIAL:",
+    "mae": "MÃE :",
+    "pai": "PAI :",
+    "responsavel": "RESPONSÁVEL:",
+    "outros_telefones": "OUTROS TELEFONES :",
+    "residencial_comercial": "RESIDENCIAL ( ) COMERCIAL ( )",
+    "emails": "E-MAILS:",
+    "como_conheceu": "COMO CONHECEU A CLÍNICA:"
+  },
+  "cartao": {
+    "como_entrar_contato": "Como prefere entrar em contato?",
+    "baixar": "⬇ Baixar Cartão Digital"
+  },
+  "cartao_agradecimento": {
+    "msg1": "Obrigada pela sua confiança! ✨",
+    "msg2": "Foi um prazer te atender 🌸",
+    "msg3": "Que bom ter você aqui! 💛"
+  },
+  "placa": {
+    "logomarca_principal": "LOGOMARCA PRINCIPAL",
+    "paleta_de_cores": "PALETA DE CORES",
+    "tipografia": "TIPOGRAFIA",
+    "submarca": "SUBMARCA",
+    "estampa": "ESTAMPA",
+    "estampa_exclusiva": "ESTAMPA EXCLUSIVA",
+    "baixar": "⬇ Baixar Brand Board"
+  },
+  "geral": {
+    "baixar_gabarito": "Exportar Gabarito para Impressão (PDF)",
+    "baixar_pdf": "Baixar PDF",
+    "visualizar": "Visualizar",
+    "reordenar_cores": "Ordem de Prioridade das Cores",
+    "salvar_ordem": "Salvar ordem das cores →",
+    "tom_especial": "Tom Especial",
+    "cor_especial": "Cor Especial",
+    "como_contato": "Como prefere entrar em contato?",
+    "reenviar_email": "📧 Reenviar e-mail",
+    "enviando": "Enviando...",
+    "email_enviado": "✓ E-mail enviado!",
+    "erro_conexao": "❌ Erro de conexão",
+    "escala_logo": "Escala da logo",
+    "solida": "Sólida",
+    "estampa": "Estampa",
+    "tamanho": "TAMANHO:",
+    "recorte_reto": "⬜️ Recorte Reto ATIVO",
+    "recorte_casinha": "🏠 Recorte Casinha ATIVO",
+    "preview_ilustrativo_titulo": "Preview ilustrativo.",
+    "preview_ilustrativo_desc": "Proporções e tamanhos podem variar. Confira as dimensões reais no PDF antes de enviar para a gráfica.",
+    "baixar_instagram": "⬇ Baixar PNG / JPG",
+    "baixar_assinatura": "⬇ Baixar Assinatura",
+    "baixar_papelaria": "⬇ Baixar PDF Padrão Gráfica",
+    "voltar": "Voltar",
+    "ir_digital": "Ir para o Digital",
+    "ir_papelaria": "Ir para Papelaria",
+    "proxima_etapa": "Próxima etapa",
+    "editar_dados": "Editar dados",
+    "slogan_placeholder": "Slogan / Especialidade",
+    "empresa": "Empresa",
+    "empresa_placeholder": "Nome complementar (opcional)",
+    "adicionar_rqe": "+ Adicionar RQE",
+    "telefone": "Telefone",
+    "telefone_2": "Telefone 2",
+    "whatsapp": "WhatsApp",
+    "instagram": "Instagram",
+    "email": "E-mail",
+    "site": "Site",
+    "endereco": "Endereço",
+    "cancelar": "Cancelar",
+    "entendi_baixar": "Entendi, baixar PDF →",
+    "compartilhar": "↑ Compartilhar",
+    "enviar_whats": "Enviar no Whats",
+    "baixar_html": "⬇ Baixar HTML",
+    "especialidade": "Especialidade",
+    "contatos": "Contatos",
+    "baixar_paleta": "⬇ Baixar Paleta de Cores",
+    "baixar_guia_pdf": "⬇ Baixar Guia em PDF",
+    "guia_pdf_instrucoes": "Uma nova aba abrirá — use \"Salvar como PDF\" no menu de impressão.",
+    "guia_pdf_popup_aviso": "(Se não abrir, verifique se seu navegador bloqueou Pop-ups)",
+    "baixar_png": "⬇ Baixar PNG",
+    "copiar": "📋 Copiar",
+    "copiado_ok": "✓ Copiado!",
+    "editar": "✏️ Editar",
+    "feito": "✓ Feito",
+    "refazer_restante": "🔄 Refazer ({restante}x restante)",
+    "refazer_limite": "🔄 Refazer (Limite atingido)",
+    "proxima": "Próxima",
+    "criando_manifesto": "✨ Criando manifesto...",
+    "gerar_manifesto": "✨ Gerar Manifesto",
+    "criando_tom": "✨ Criando tom de voz...",
+    "gerar_tom": "✨ Gerar Tom de Voz",
+    "preview_gerado": "Preview gerado ao exportar o PDF",
+    "premium": "Premium",
+    "frente": "Frente",
+    "verso": "Verso",
+    "paisagem": "Paisagem",
+    "retrato": "Retrato",
+    "data": "Data",
+    "horario": "Horário",
+    "retorno_consultas": "RETORNO DE CONSULTAS",
+    "lado_externo": "LADO EXTERNO (FACE 1)",
+    "lado_interno": "LADO INTERNO (FACE 2)",
+    "pag": "PÁG",
+    "capa": "(CAPA)",
+    "quadrado": "Quadrado"
+  },
+  "checklist": {
+    "titulo": "CHECKLIST MATERNIDADE",
+    "secao_bebe": {
+      "titulo": "check list bebê",
+      "itens": [
+        "4 mudas para troca de roupas",
+        "1 saída de maternidade",
+        "4 pares de meia",
+        "Fraldinhas de boca",
+        "2 mantas",
+        "1 pacote de fralda descartável (RN/P dependendo do tamanho do bebê)",
+        "1 toalha fralda",
+        "Sabonete líquido de glicerina",
+        "Algodão",
+        "Frasco de álcool",
+        "Pomada para prevenção de assadura",
+        "1 sacolinha para roupas sujas",
+        "Pente para cabelo",
+        "Almofada de amamentação",
+        "1 Coeiro",
+        "Cadeirinha ou bebê conforto para o carro"
+      ]
+    },
+    "secao_mamae": {
+      "titulo": "check list mamãe",
+      "itens": [
+        "2 ou mais camisolas/pijamas com abertura frontal",
+        "5 calcinhas confortáveis",
+        "Chinelo de dedo confortável",
+        "Sutiã de amamentação",
+        "Absorvente íntimo",
+        "Produtos de higiene pessoal ex: (escova de dente, pasta de dente, sabonete, sabonete íntimo, desodorante sem cheiro por causa do bebê, pente de cabelo, absorvente noturno)",
+        "1 muda de roupa para saída pós parto",
+        "Prendedor de cabelo",
+        "Produtos de beleza (batom pra animar a puérpera)",
+        "1 sacola para roupas sujas",
+        "Travesseiro de uso pessoal",
+        "Toalha de banho"
+      ]
+    },
+    "secao_documentos": {
+      "titulo": "check list documentos",
+      "itens": [
+        "RG dos pais ou documento com foto",
+        "Carteirinha do plano de saúde",
+        "Cartão do pré natal!!!",
+        "Últimos exames feitos",
+        "Se pais casados: certidão de casamento"
+      ]
+    },
+    "secao_acompanhante": {
+      "titulo": "check list acompanhante",
+      "itens": [
+        "2 mudas de roupa",
+        "Produtos de higiene pessoal",
+        "Chinelo",
+        "Carregador de celular",
+        "Lanchinho"
+      ]
+    }
+  },
+  "upsell": {
+    "tag": "✨ Fechamento Premium & Arte Sob Medida",
+    "titulo": "Deseja um toque extra de exclusividade autoral?",
+    "desc": "Se você ama aquela sensação de marca única, com desenhos e ilustrações autorais que conectam toda a sua identidade, criamos o fechamento sob medida.",
+    "opc1_titulo": "Logotipo Ilustrado Exclusivo",
+    "opc1_sub": "Arte Autoral Sob Medida",
+    "opc1_desc": "Nossos planos automáticos criam lindas logos tipográficas. Com este serviço premium, nossa diretora de arte desenhará um <strong>símbolo ou ilustração autoral exclusiva</strong> para ser integrado à sua marca.",
+    "opc1_tags": [
+      "100% autoral",
+      "Arquivo vetorial editável",
+      "Ajustes finos com designer"
+    ],
+    "opc2_titulo": "Elementos Ilustrativos Unificadores",
+    "opc2_sub": "Conexão de Papelaria Premium",
+    "opc2_desc": "Criação de <strong>desenhos exclusivos para os rodapés e detalhes dos seus impressos</strong>. Ideal para criar uma experiência encantadora e um padrão visual acolhedor em todas as peças de papelaria.",
+    "opc2_tags": [
+      "Rodapés exclusivos",
+      "Estilo unificado autoral",
+      "Pronto para impressão"
+    ],
+    "nota": "💡 <strong>Como funciona:</strong> Ao contratar este serviço sob medida, você faz um briefing direto com o nosso time criativo e nós desenvolvemos as artes personalizadas e as inserimos diretamente nos seus gabaritos do The Brand Box.",
+    "wpp_btn": "💬 Falar com a Diretora de Arte no WhatsApp",
+    "wpp_desc": "Disponibilidade imediata de atendimento",
+    "wpp_msg": "Olá! Finalizei meu projeto no The Brand Box e amei! Gostaria de saber mais sobre o serviço de Desenhos de Rodapé e Logotipo Ilustrado para a minha marca "
+  },
+  "modal_impressao": {
+    "titulo_modal": "Como salvar o PDF padrão gráfica",
+    "passo_1_titulo": "Margens → Nenhuma",
+    "passo_1_desc": "Na janela de impressão, defina as margens como Nenhuma para preservar a sangria.",
+    "passo_2_titulo": "Gráficos de fundo ativado",
+    "passo_2_desc": "Ative \"Gráficos de fundo\" (Background graphics) para cores e estampas aparecerem.",
+    "passo_3_titulo": "Destino → Salvar como PDF",
+    "passo_3_desc": "Selecione Salvar como PDF — não envie para impressora.",
+    "specs_grafica": "Especificações para a gráfica",
+    "categoria": "Categoria",
+    "tamanho": "Tamanho",
+    "papel": "Papel",
+    "acabamento": "Acabamento",
+    "preco_medio": "Preço médio",
+    "sugestao_grafica": "Sugestão de gráfica",
+    "sugestao_desc": "Selecione \"Enviar minha arte final\" e envie o PDF gerado.",
+    "cupom": "Cupom 5% off",
+    "primeira_compra": "primeira compra"
+  },
+  "prontuario": {
+    "paciente": "PACIENTE:",
+    "data_nasc": "DATA DE NASCIMENTO:",
+    "mae": "NOME DA MÃE:",
+    "cpf": "CPF:",
+    "telefone": "TELEFONE:",
+    "email": "EMAIL:",
+    "endereco": "ENDEREÇO:",
+    "cidade": "CIDADE:",
+    "convenio": "CONVÊNIO:",
+    "carteirinha": "Nº CARTEIRINHA:"
+  },
+  "certificado": {
+    "pediatrico_de": "Certificado Pediátrico de",
+    "coragem": "Coragem",
+    "certifico_fins": "Certifico para os devidos e lúdicos fins, que __________________",
+    "idade_comportou": "idade _____ comportou-se corretamente na consulta de hoje,",
+    "sendo_educado": "sendo educado e demonstrando muita coragem e valentia."
+  },
+  "orientacoes_rn": {
+    "umbigo": "álcool 70%",
+    "soro": "Rinosoro ou Salsep",
+    "med1": "Luftal",
+    "med2": "Tylenol baby",
+    "int1": "8/8h",
+    "int2": "6/6h",
+    "pomada": "Desitin ou Bepantol",
+    "vitDMed": "Baby-D ou Addera D3",
+    "vitDDose": "1",
+    "titulo": "OS PRIMEIROS DIAS\nCOM MEU BEBÊ",
+    "bebe": "Bebê:",
+    "nasc": "Nasc:",
+    "peso": "Peso:",
+    "alt": "Alt:",
+    "alimentacao_label": "Alimentação:",
+    "alimentacao_text": "Aleitamento materno sob livre demanda (à vontade).",
+    "umbigo_label": "Umbigo:",
+    "umbigo_text_pre": "Limpeza com ",
+    "umbigo_text_pos": " a cada troca de fralda e após o banho.",
+    "ictericia_label": "Icterícia:",
+    "ictericia_text": "Pele amarelada? Procure o pediatra imediatamente.",
+    "febre_label": "Febre:",
+    "febre_text": "Menores de 3 meses: emergência. Maiores de 3 meses: siga as orientações médicas.",
+    "higiene_label": "Higiene:",
+    "higiene_text": "1 banho/dia com sabonete neutro. Sem talco ou perfume. Trocas com água morna e algodão.",
+    "nariz_label": "Nariz:",
+    "nariz_text_pre": "Spray de soro 0,9% (",
+    "nariz_text_pos": ") antes de cada mamada.",
+    "colicas_label": "Cólicas:",
+    "colicas_text_pre": "Compressa morna. Se necessário: ",
+    "colicas_text_mid": " gotas se cólica de ",
+    "colicas_text_mid2": " gotas se cólica de ",
+    "colicas_text_pos": "",
+    "assaduras_label": "Assaduras:",
+    "assaduras_text_pre": "Secar bem antes de aplicar (",
+    "assaduras_text_pos": ").",
+    "vitD_label": "Vitamina D:",
+    "vitD_text_pre": "",
+    "vitD_text_pos": " — ",
+    "vitD_text_pos2": " gota/dia desde o nascimento.",
+    "vacinas_maternidade": "Vacinas na maternidade",
+    "bcg": "BCG:",
+    "hepB": "Hep B:",
+    "proxima_consulta": "📅 Próxima consulta",
+    "as": "às",
+    "observacoes": "Observações:",
+    "obs_1": "Consulta entre 7 e 14 dias de vida.",
+    "obs_2": "Levar ao Posto para vacinação.",
+    "obs_3": "Teste do Pezinho entre o 3º e 7º dia.",
+    "obs_4": "Teste da Orelhinha o quanto antes.",
+    "obs_5": "Dormir sempre de barriga para cima.",
+    "obs_6": "Sem travesseiros ou cobertores pesados.",
+    "obs_7": "Roupas leves no bebê.",
+    "obs_8": "Sólidos só após os 6 meses com orientação.",
+    "urgencias": "Urgências:"
+  },
+  "receita_alta": {
+    "titulo": "Receita de Alta do Bebê",
+    "uso_oral": "📋 Uso Oral:",
+    "gotas_dia": "Dar {gotas} gotas por dia",
+    "gotas_dor_febre": "Dar {gotas} gotas de 6/6h se dor ou febre",
+    "gotas_colica": "Dar {gotas} gotas de 8/8h se cólica",
+    "uso_topico": "🧴 Uso Tópico:",
+    "troca_fraldas": "Aplicar a cada troca de fraldas",
+    "coto_umbilical": "Aplicar no coto umbilical a cada troca de fralda",
+    "obstrucao_nasal": "Aplicar 3 jatos em cada narina se obstrução nasal",
+    "banho_diario": "Dar banho diariamente",
+    "consulta_medica": "Consulta médica em:",
+    "carimbo": "CARIMBO",
+    "medico_responsavel": "Médico(a) Responsável",
+    "personalizar": "Personalizar Receita",
+    "data_consulta_label": "Data da próxima consulta",
+    "obs_extra_label": "Observações extras (opcional)",
+    "texto_livre": "texto livre…"
+  },
+  "guia_alimentar": {
+    "horarios": [
+      {
+        "label": "CAFÉ DA MANHÃ",
+        "val": "Leite materno ou fórmula infantil"
+      },
+      {
+        "label": "LANCHE DA MANHÃ",
+        "val": "Fruta / leite materno ou fórmula"
+      },
+      {
+        "label": "ALMOÇO",
+        "val": "Cereal ou tubérculo + proteína animal + leguminosa + hortaliças (verduras + legumes) + fruta"
+      },
+      {
+        "label": "LANCHE DA TARDE",
+        "val": "Fruta / leite materno ou fórmula"
+      },
+      {
+        "label": "JANTAR",
+        "val": "Igual almoço"
+      },
+      {
+        "label": "LANCHE DA NOITE",
+        "val": "Leite materno ou fórmula infantil"
+      }
+    ],
+    "introducao": [
+      {
+        "idade": "A partir de 6 meses",
+        "text": "Alimentos amassados",
+        "qty": "Iniciar com 2 a 3 colheres de sopa e aumentar a quantidade conforme aceitação"
+      },
+      {
+        "idade": "A partir dos 7 meses",
+        "text": "Alimentos amassados",
+        "qty": "2/3 de uma xícara ou tigela de 250 ml"
+      },
+      {
+        "idade": "9 a 11 meses",
+        "text": "Alimentos cortados ou levemente amassados",
+        "qty": "3/4 de uma xícara ou tigela de 250 ml"
+      },
+      {
+        "idade": "12 a 24 meses",
+        "text": "Alimentos cortados",
+        "qty": "Uma xícara ou tigela de 250 ml"
+      }
+    ],
+    "titulo_lado_externo": "LADO EXTERNO (FACE 1)",
+    "titulo_lado_interno": "LADO INTERNO (FACE 2)",
+    "guia_de": "GUIA DE",
+    "titulo_capa": "INTRODUÇÃO ALIMENTAR",
+    "tagline": "NUTRIÇÃO QUE TRANSFORMA",
+    "quote_text": "\"Brinque, converse e explore!\"",
+    "quote_desc": "As brincadeiras são mais do que momentos de divertimento. Elas ajudam seu bebê a aprender, a desenvolver novas habilidades e a se sentir seguro e amado.",
+    "quote_desc_pdf": "As brincadeiras são mais do que momentos de diversão. Elas ajudam seu bebê a aprender, a desenvolver novas habilidades e a se sentir seguro e amado. Pergunte, cante, brinque de esconde-esconde e observe o quanto seu bebê cresce a cada dia.",
+    "recorte_casinha": "🏠 Recorte Casinha ATIVO",
+    "recorte_reto": "⬜️ Recorte Reto ATIVO",
+    "personalizar_titulo": "Personalizar Conteúdo do Guia Alimentar",
+    "tabela_horarios": "Tabela de Horários",
+    "tabela_introducao": "Tabela de Introdução Clássica",
+    "textura_recomendada": "Textura Recomendada",
+    "quantidade_recomendada": "Quantidade Recomendada",
+    "fase_label": "Fase: ",
+    "pag_label": "PÁG",
+    "capa_label": "(CAPA)",
+    "cardapio": "Cardápio",
+    "introducao_classica": "Introdução Alimentar Clássica",
+    "idade_col": "IDADE",
+    "textura_col": "TEXTURA",
+    "quantidade_col": "QUANTIDADE"
+  },
+  "diario_xixi": {
+    "titulo": "DIÁRIO DO XIXI (HÁBITO MICCIONAL)",
+    "subtitulo": "Controle de Escapes e Enurese (Xixi na Cama)",
+    "nome": "Nome:",
+    "legenda": "Legenda:",
+    "seco": "Acordou Seco(a)",
+    "gotas": "Gotas/Umidade",
+    "molhou_roupa": "Molhou a Roupa/Fralda",
+    "abundante": "Abundante (Molhou Cama)",
+    "marque_0_3": "Marque 0 a 3",
+    "semana": "Semana",
+    "dias": [
+      "Segunda",
+      "Terça",
+      "Quarta",
+      "Quinta",
+      "Sexta",
+      "Sábado",
+      "Domingo"
+    ]
+  },
+  "checklist_maternidade": {
+    "titulo_vertical": "CHECKLIST MATERNIDADE",
+    "secoes": [
+      {
+        "titulo": "check list bebê",
+        "itens": [
+          "4 mudas para troca de roupas",
+          "1 saída de maternidade",
+          "4 pares de meia",
+          "Fraldinhas de boca",
+          "2 mantas",
+          "1 pacote de fralda descartável (RN P dependendo do tamanho do bebê)",
+          "1 toalha fralda",
+          "Sabonete líquido de glicerina",
+          "Algodão",
+          "Frasco de álcool",
+          "Pomada para prevenção de assadura",
+          "1 sacolinha para roupas sujas",
+          "Pente para cabelo",
+          "Almofada de amamentação",
+          "1 Coeiro",
+          "Cadeirinha ou bebê conforto para o carro"
+        ]
+      },
+      {
+        "titulo": "check list mamãe",
+        "itens": [
+          "2 ou mais camisolas/pijamas com abertura frontal",
+          "5 calcinhas confortáveis",
+          "Chinelo de dedo confortável",
+          "Sutiã de amamentação",
+          "Absorvente íntimo",
+          "Produtos de higiene pessoal ex: (escova de dente, pasta de dente, sabonete, desodorante sem cheiro por causa do bebê, pente de cabelo, absorvente noturno)",
+          "1 muda de roupa para saída pós parto",
+          "Prendedor de cabelo",
+          "Produtos de beleza (batom pra animar a puérpera)",
+          "1 sacola para roupas sujas",
+          "Travesseiro de uso pessoal",
+          "Toalha de banho"
+        ]
+      },
+      {
+        "titulo": "check list documentos",
+        "itens": [
+          "RG dos pais ou documento com foto",
+          "Carteirinha do plano de saúde",
+          "Cartão do pré natal!!!",
+          "Últimos exames feitos",
+          "Se pais casados: certidão de casamento"
+        ]
+      },
+      {
+        "titulo": "check list acompanhante",
+        "itens": [
+          "2 mudas de roupa",
+          "Produtos de higiene pessoal",
+          "Chinelo",
+          "Carregador de celular",
+          "Lanchinho"
+        ]
+      }
+    ]
+  },
+  "etiqueta_correios": {
+    "adesivo": "Adesivo",
+    "frases": [
+      "Oba, chegou!",
+      "Com muito amor e cuidado",
+      "Feito especialmente pra você",
+      "Sua encomenda chegou!"
+    ]
+  },
+  "graficos_crescimento": {
+    "titulo": "Gráfico de Crescimento",
+    "dados_consulta": "✎ Dados da consulta",
+    "paciente": "Paciente",
+    "idade": "Idade",
+    "data": "Data",
+    "peso": "Peso",
+    "altura": "Altura",
+    "pc": "PC",
+    "imc": "IMC",
+    "percentil": "Percentil",
+    "fonte": "Fonte: OMS — WHO Child Growth Standards 2006 · SBP",
+    "menina": "Menina",
+    "menino": "Menino",
+    "imc_por_idade": "IMC por Idade",
+    "perimetro_cefalico": "Perímetro Cefálico",
+    "peso_por_idade": "Peso por Idade",
+    "altura_por_idade": "Altura por Idade",
+    "yearLabels": [
+      "Nasc.",
+      "1 ano",
+      "2 anos",
+      "3 anos",
+      "4 anos",
+      "5 anos"
+    ],
+    "imc_label": "IMC",
+    "pc_label": "PC (cm)",
+    "peso_label": "Peso (kg)",
+    "altura_label": "Altura (cm)",
+    "face_frente_btn": "IMC + P.Cefálico",
+    "face_verso_btn": "Peso + Altura",
+    "face_frente_lbl": "IMC · Perímetro Cefálico",
+    "face_verso_lbl": "Peso · Altura"
+  },
+  "pasta_a4": {
+    "preview": "Preview da Pasta (Frente e Verso)",
+    "detalhamento": "Detalhamento",
+    "detalhamento_desc": "A etiqueta foi afinada e os elementos (Logo, Clínica e CRM) agora estão harmoniosamente centralizados. O PDF final reflete esta atualização de alta fidelidade."
+  },
+  "help": {
+    "busca_titulo": "🤖 Busca Inteligente",
+    "busca_desc": "Digite sua dúvida técnica abaixo para receber uma orientação instantânea sobre a plataforma.",
+    "busca_placeholder": "Ex: Como imprimir? Como exportar em PNG?",
+    "busca_btn": "Perguntar",
+    "busca_resposta": "🔍 RESPOSTA PARA:",
+    "busca_fallback_topico": "ASSISTENTE DIGITAL",
+    "busca_fallback_texto": "Desculpe, não encontrei uma resposta exata para a sua dúvida. Tente pesquisar por palavras como 'impressão', 'exportação', 'cores', 'impressos' ou consulte as perguntas frequentes abaixo!",
+    "faq_titulo": "📋 Perguntas Frequentes",
+    "concierge_titulo": "Quer ir além da experiência guiada?",
+    "concierge_desc": "Também oferecemos ajustes personalizados, refinamentos manuais e direção criativa exclusiva para marcas que desejam um acompanhamento mais próximo.",
+    "sugestoes_titulo": "💡 Sugestões & Melhorias",
+    "sugestoes_desc": "Sentiu falta de algum item de papelaria? Tem ideias para melhorar a plataforma? Mande uma mensagem pra gente! Lemos todas as sugestões para tornar a The Brand Box cada vez melhor.",
+    "sugestoes_email": "brandbox@sonhodepapel.co",
+    "kb": {
+      "impressao": "Para imprimir suas estampas e impressos com máxima qualidade, recomendamos utilizar os arquivos em PDF Vetorial de Alta Resolução disponibilizados na aba 'Os Impressos'. Se for imprimir em gráfica (como a Printi), selecione a opção 'Enviar minha arte final'. Se for imprimir em casa, utilize papel couchê ou offset de alta gramatura (mínimo 180g) na sua impressora caseira. Mas lembre-se: dobras complexas e formatos especiais exigem uma gráfica profissional!",
+      "exportacao": "Você pode exportar sua Logo e Submarca em formato PNG com fundo transparente (perfeito para posts de Instagram, marca d'água ou assinaturas) ou em formato PNG com fundo colorido diretamente na aba 'Logo'. Já os impressos e guias são exportados em PDF padrão gráfica, com cores em alta definição e prontos para impressão!",
+      "cores": "As cores da sua paleta são cuidadosamente geradas com base na essência da sua marca. Na aba 'Cores', você pode alterar a ordem de prioridade das cores (arrastando e soltando os blocos) para destacar qual cor deve ser mais dominante nas suas artes, assinaturas e materiais promocionais!",
+      "tamanhos": "Os gabaritos gerados na aba 'Os Impressos' seguem formatos oficiais de mercado. No entanto, para ajustar a escala da logo (já que fontes diferentes têm larguras e comportamentos distintos nas peças), disponibilizamos o controle deslizante de 'Escala da Logo' na aba 'Os Impressos'. Esse ajuste ajuda você a equilibrar perfeitamente a logo no espaço reservado, e sim, o PDF gerado atualiza em tempo real com o tamanho escolhido!",
+      "uso da marca": "Seu Guia de Marca (disponível para download na aba 'Guia') descreve exatamente as regras de ouro para o uso correto da sua nova identidade visual: como combinar as fontes, qual paleta de cores usar in fundos claros e escuros, e qual a aplicação correta da logo e do selo em diferentes superfícies!",
+      "papelaria": "A aba 'Os Impressos' é o seu hub completo de produção! Ela gera gabaritos perfeitos de sacolas, receitas de alta, cartões de agradecimento, tags de sacola, etiquetas de correios e gráficos de crescimento. Todos os arquivos são gerados dinamicamente em PDF vetorial de altíssima definição!",
+      "limites do sistema": "Para garantir o equilíbrio técnico e a estabilidade da sua Brand Box, as gerações de estampa possuem um limite padrão de 3 tentativas na galeria. Além disso, as alterações de nome da marca são limitadas a 1 alteração por licença, o que previne abusos e assegura a consistência da sua nova identidade visual!"
+    },
+    "faqs": [
+      {
+        "category": "🎨 Personalização",
+        "items": [
+          {
+            "q": "Posso mudar minhas cores?",
+            "a": "As cores são geradas com base no seu diagnóstico. Na aba 'Cores' você pode reorganizar a prioridade das cores (arrastando e soltando os blocos) para destacar suas cores favoritas no design."
+          },
+          {
+            "q": "Quantas estampas posso gerar?",
+            "a": "Cada projeto permite até 3 novas gerações de estampas na sua galeria para garantir que você tenha opções exclusivas e perfeitas."
+          },
+          {
+            "q": "Posso trocar minha logo de lugar?",
+            "a": "Para manter o equilíbrio visual e a consistência da identidade, as posições dos elementos seguem uma estrutura profissional fixa, mas você pode escolher entre diferentes layouts na aba 'Logo'."
+          },
+          {
+            "q": "Como deixar minha logo mais equilibrada?",
+            "a": "Utilize o controle 'Altura da Logo' para ajustar o espaçamento entre a marca e o slogan, e selecione layouts horizontais, verticais ou empilhados que combinem melhor com o seu nome!"
+          },
+          {
+            "q": "Como escolher o melhor tamanho?",
+            "a": "Os gabaritos gerados em PDF na aba 'Os Impressos' já estão perfeitamente dimensionados nos formatos padrão de mercado (são gabaritos oficiais prontos). No entanto, para ajustar a escala da logo nas peças (já que fontes diferentes têm comportamentos e larguras distintas), disponibilizamos o controle deslizante de 'Escala da Logo' na aba 'Os Impressos'. Esse ajuste ajuda você a equilibrar perfeitamente a logo no espaço reservado, e sim, o PDF gerado é atualizado em tempo real com o tamanho escolhido!"
+          },
+          {
+            "q": "Posso ter mais opções de fonte?",
+            "a": "Nosso algoritmo inteligente selecionou um grupo exclusivo de 6 fontes premium que possuem afinidade perfeita com a essência e o estilo identificados para a sua marca. Para manter a coerência e harmonia da sua identidade visual, a seleção é limitada a essas 6 opções curadas por projeto."
+          },
+          {
+            "q": "Posso enviar minha própria logo?",
+            "a": "Sim! Se você já tiver uma imagem de logo ou um símbolo próprio, pode fazer o upload dela diretamente no topo da aba 'Logo'. O sistema aplicará a sua logo personalizada em todos os materiais impressos, cartão digital e posts de forma automática."
+          }
+        ]
+      },
+      {
+        "category": "🖨️ Impressão",
+        "items": [
+          {
+            "q": "Posso imprimir em casa?",
+            "a": "Você pode imprimir itens planos comuns em formato A4 (como receitas, folhas de pedido ou papel timbrado) diretamente na sua impressora doméstica. No entanto, itens com dobras ou formatos mais complexos (como sacolas, pouches, papel de seda gigante ou tags de formato especial) exigem acabamentos que as impressoras caseiras não comportam. Para estes, a recomendação absoluta é o envio para uma gráfica profissional."
+          },
+          {
+            "q": "O que fazer na hora de imprimir em casa?",
+            "a": "Configuração crucial: sempre configure a sua impressora para 'Tamanho Real / Escala 100%'. Nunca selecione 'Ajustar à página' ou 'Reduzir para caber', pois isso desalinhará os gabaritos e as marcas de corte! E lembre-se de configurar a qualidade de impressão para 'Alta' no papel adequado para remover imperfeições e garantir fidelidade de cor."
+          },
+          {
+            "q": "Como enviar para uma gráfica?",
+            "a": "Baixe o PDF em alta resolução da aba 'Os Impressos' e envie diretamente para a gráfica de sua preferência (como a Printi). Os arquivos já estão fechados no padrão profissional de impressão. Dica importante: o preview na tela é apenas uma simulação visual aproximada. O arquivo PDF baixado é o documento oficial de alta definição 100% fiel e exato para impressão. Sempre abra e revise o arquivo PDF baixado no seu computador antes de enviá-lo para a gráfica para garantir que tudo está perfeito!"
+          },
+          {
+            "q": "Qual formato usar?",
+            "a": "Para visualização digital e redes sociais, exporte em PNG (fundo transparente). Para impressão profissional de sacolas e materiais impressos, sempre use o PDF disponibilizado na aba correspondente."
+          },
+          {
+            "q": "Como saber qual papel devo usar para imprimir?",
+            "a": "Você pode consultar a gráfica de sua preferência ou verificar diretamente os detalhes recomendados na plataforma! Ao clicar no botão de baixar o PDF de qualquer item na aba 'Os Impressos', o sistema exibe uma ficha técnica completa com o tamanho exato da peça, a gramatura e tipo de papel indicados, e até o custo médio estimado de produção desse item no mercado."
+          },
+          {
+            "q": "Como evitar cortes na estampa?",
+            "a": "Se a repetição da sua estampa apresentar marcas visíveis nas bordas ou cortes secos, acesse a aba 'Estampa' e clique no botão mágico 'Suavizar cortes'. Nosso algoritmo mesclará as emendas automaticamente para tornar a estampa 100% contínua! Se necessário, o profissional da sua gráfica parceira também poderá dar uma ajuda ajustando a escala de repetição para encaixe perfeito nas bobinas de papel ou sacolas."
+          }
+        ]
+      },
+      {
+        "category": "💾 Projeto",
+        "items": [
+          {
+            "q": "Como acessar meu link novamente?",
+            "a": "O link de acesso à sua Brand Box foi enviado para o seu e-mail cadastrado logo após a confirmação do pagamento. Você também pode salvá-lo nos seus favoritos do navegador."
+          },
+          {
+            "q": "Posso mudar o nome do projeto?",
+            "a": "Sim! Para evitar abusos do sistema, permitimos realizar 1 alteração de nome da marca na aba 'Logo' (completando o total de 2 nomes válidos: o original e a correção)."
+          },
+          {
+            "q": "Meu link expira?",
+            "a": "Não! O seu projeto e todos os seus downloads ficam disponíveis para acesso sempre que você precisar, sem data de expiração."
+          },
+          {
+            "q": "Posso acessar pelo celular?",
+            "a": "Sim! A Brand Box é totalmente responsiva. Você pode visualizar sua identidade, baixar as logos diretamente no rolo de câmera e revisar o seu guia de marca do seu smartphone."
+          }
+        ]
+      },
+      {
+        "category": "✨ Experiência",
+        "items": [
+          {
+            "q": "Como descobrir o melhor estilo para minha marca?",
+            "a": "O estilo ideal é o que conecta a essência do seu negócio ao coração do seu cliente. Nosso algoritmo inteligente cruzou suas respostas na pesquisa para encontrar o encaixe perfeito entre as 6 direções estéticas premium."
+          },
+          {
+            "q": "O que é o manifesto da marca?",
+            "a": "É a voz conceitual da sua marca escrita em prosa poética e inspiracional. Ele serve para alinhar o seu propósito e emocionar o seu cliente na sua comunicação oficial."
+          },
+          {
+            "q": "Como definir meu tom de voz?",
+            "a": "O tom de voz (aba 'Tom de Voz') define as diretrizes de escrita: as palavras a usar, o que evitar, e a atitude da sua marca ao falar com o público no dia a dia."
+          }
+        ]
+      }
+    ],
+    "suporte_gratuito_titulo": "Suporte Gratuito",
+    "suporte_gratuito_itens": [
+      "Dúvidas de uso",
+      "Problemas de acesso",
+      "Suporte à impressão",
+      "Auxílio na exportação"
+    ],
+    "concierge_subtitulo": "Concierge Criativo",
+    "concierge_itens": [
+      "Refinamentos de cores",
+      "Alterações especiais",
+      "Ajustes manuais de logo",
+      "Aplicações personalizadas"
+    ],
+    "concierge_btn": "Solicitar ajuda personalizada →",
+    "concierge_wpp_msg": "Olá! Gostaria de saber mais sobre o acompanhamento de concierge criativo e ajustes extras premium para minha marca no Brand Box."
+  },
+  "manifesto": {
+    "desc_title": "O Manifesto é a alma da sua marca em palavras.",
+    "desc_text": "Responda 5 perguntas e a IA cria um texto único para ",
+    "btn_create": "✨ Criar Manifesto com IA",
+    "btn_creating": "✨ Criando manifesto...",
+    "btn_generate": "✨ Gerar Manifesto",
+    "label": "Manifesto",
+    "btn_download": "⬇ Baixar PNG",
+    "btn_copy": "📋 Copiar",
+    "btn_copied": "✓ Copiado!",
+    "btn_edit": "✏️ Editar",
+    "btn_done": "✓ Feito",
+    "btn_redo": "🔄 Refazer",
+    "restante": "restante",
+    "limite_atingido": "Limite de gerações atingido"
+  },
+  "tom_de_voz": {
+    "desc_title": "O Tom de Voz dita como sua marca conversa com o mundo.",
+    "desc_text": "Responda 4 perguntas e a IA define o estilo da sua marca.",
+    "btn_create": "✨ Criar Tom de Voz com IA",
+    "btn_creating": "✨ Criando tom de voz...",
+    "btn_generate": "✨ Gerar Tom de Voz",
+    "label": "Tom de Voz",
+    "palavras_chave": "Palavras-chave",
+    "orientacoes": "Orientações de Comunicação"
+  },
+  "quiz": {
+    "de": "de",
+    "voltar": "← Voltar",
+    "proxima": "Próxima →",
+    "erro_gerar": "Não conseguimos gerar agora. Tente novamente.",
+    "erro_conexao": "Erro de conexão. Tente novamente."
+  },
+  "quiz_perguntas_geral": [
+    {
+      "id": "origem",
+      "pergunta": "Como você descreveria a origem da sua marca?",
+      "opcoes": [
+        "Nasceu de um sonho pessoal e paixão",
+        "De uma necessidade que eu mesma senti",
+        "Queria mudar algo no meu mercado",
+        "Foi evoluindo naturalmente da minha vida"
+      ]
+    },
+    {
+      "id": "cliente",
+      "pergunta": "Para quem você cria?",
+      "opcoes": [
+        "Mulheres que buscam cuidado e acolhimento",
+        "Pessoas que valorizam qualidade e exclusividade",
+        "Quem quer se sentir especial no dia a dia",
+        "Mulheres em transformação e autoconhecimento"
+      ]
+    },
+    {
+      "id": "promessa",
+      "pergunta": "O que você entrega além do produto/serviço?",
+      "opcoes": [
+        "Uma experiência de leveza e beleza",
+        "Confiança e segurança",
+        "Conexão e pertencimento",
+        "Transformação e empoderamento"
+      ]
+    },
+    {
+      "id": "essencia",
+      "pergunta": "Se sua marca fosse uma sensação, seria…",
+      "opcoes": [
+        "Aquele abraço quentinho",
+        "A leveza de uma manhã ensolarada",
+        "A elegância de algo feito à mão com amor",
+        "A emoção de uma descoberta"
+      ]
+    },
+    {
+      "id": "diferencial",
+      "pergunta": "O que torna sua marca única?",
+      "opcoes": [
+        "O carinho em cada detalhe",
+        "A autenticidade e história real por trás",
+        "A combinação de estética e propósito",
+        "O olhar humano e personalizado"
+      ]
+    }
+  ],
+  "quiz_perguntas_saude": [
+    {
+      "id": "origem",
+      "pergunta": "O que te levou a escolher essa área da saúde?",
+      "opcoes": [
+        "Uma vocação que sempre existiu em mim",
+        "A vontade de fazer a diferença na vida das pessoas",
+        "Uma experiência pessoal que me transformou",
+        "O desejo de unir ciência e acolhimento"
+      ]
+    },
+    {
+      "id": "publico",
+      "pergunta": "Você atende principalmente…",
+      "opcoes": [
+        "Crianças e suas famílias",
+        "Mulheres em diferentes fases da vida",
+        "Adultos em geral",
+        "Pessoas em busca de equilíbrio mental e emocional"
+      ]
+    },
+    {
+      "id": "paciente",
+      "pergunta": "Como você quer que seus pacientes se sintam ao te procurar?",
+      "opcoes": [
+        "Acolhidos e seguros desde o primeiro contato",
+        "Confiantes de que estão em boas mãos",
+        "Ouvidos e respeitados em cada detalhe",
+        "Em paz — como se finalmente encontrassem a pessoa certa"
+      ]
+    },
+    {
+      "id": "promessa",
+      "pergunta": "O que você entrega além do atendimento técnico?",
+      "opcoes": [
+        "Humanização e escuta verdadeira",
+        "Clareza e confiança para o paciente e família",
+        "Um espaço seguro para falar abertamente",
+        "Cuidado que vai além da consulta"
+      ]
+    },
+    {
+      "id": "essencia",
+      "pergunta": "Se seu consultório fosse uma sensação, seria…",
+      "opcoes": [
+        "Aquele abraço de mãe que acalma tudo",
+        "A leveza de sair com respostas e tranquilidade",
+        "A segurança de estar em mãos competentes e gentis",
+        "A clareza de finalmente entender o que está acontecendo"
+      ]
+    },
+    {
+      "id": "diferencial",
+      "pergunta": "O que torna sua prática única?",
+      "opcoes": [
+        "O olhar humano e a presença de verdade",
+        "A combinação de rigor técnico e cuidado gentil",
+        "A forma como explico e envolvo a família no processo",
+        "O vínculo que construo com cada paciente ao longo do tempo"
+      ]
+    }
+  ],
+  "tomdevoz_perguntas": [
+    {
+      "id": "estilo",
+      "pergunta": "Como você escreve para sua audiência?",
+      "opcoes": [
+        "De forma próxima e informal, como uma amiga",
+        "Com leveza mas com cuidado — nem formal, nem íntimo demais",
+        "De forma profissional e clara",
+        "Com inspiração — textos que tocam e emocionam"
+      ]
+    },
+    {
+      "id": "tratamento",
+      "pergunta": "Como você trata seu cliente nas mensagens?",
+      "opcoes": [
+        "Você (próximo e direto)",
+        "Você + nome próprio às vezes",
+        "Prezado/a (mais formal)",
+        "Amiga, amor, querida (muito íntimo)"
+      ]
+    },
+    {
+      "id": "nunca",
+      "pergunta": "Que tipo de comunicação você NUNCA faria?",
+      "opcoes": [
+        "Linguagem fria e corporativa",
+        "Texto longo e difícil de ler",
+        "Algo exagerado ou apelativo",
+        "Conteúdo técnico sem humanização"
+      ]
+    },
+    {
+      "id": "ritmo",
+      "pergunta": "Qual o ritmo das suas mensagens?",
+      "opcoes": [
+        "Curto, direto e objetivo",
+        "Narrativo — gosto de contar histórias",
+        "Poético e cheio de metáforas",
+        "Informativo e educativo"
+      ]
+    }
+  ],
+  "font": {
+    "active_font": "Fonte ativa",
+    "suggested": "Sugerida",
+    "applied": "✓ Aplicada",
+    "try_another": "Quero tentar outra →",
+    "cursiva": "Cursiva",
+    "delicada": "Delicada",
+    "elegante": "Elegante",
+    "classica": "Clássica",
+    "moderna": "Moderna",
+    "ludica": "Lúdica",
+    "divertida": "Divertida",
+    "custom_logo_msg": "Você enviou sua própria logo, então a fonte já faz parte da sua imagem!",
+    "custom_logo_sub": "Para testar outras fontes ou usar as opções desta aba, volte à aba \"Sua Logo\" e selecione a \"Logo sugerida\"."
+  },
+  "reiniciar_teste": "reiniciar teste"
 }

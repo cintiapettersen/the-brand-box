@@ -1,6 +1,7 @@
 'use client';
 import React from 'react';
 import { LogoPreviewHTML, BordaToggle } from './page';
+import { useTranslation } from '../../LanguageContext';
 import { useScaleToFit } from './useScaleToFit';
 
 function F({ value, onChange, width = '20px', color, placeholder = '___' }) {
@@ -66,6 +67,7 @@ function FieldRow({ label, children }) {
 }
 
 export default function ReceitaAltaPreview({ accentColor, paletteColors = [], editData, logoColor, logoLayout, cartaoContacts, crmLine, clinicaNome, comBorda, setComBorda, patternSrc, patternScale, setPatternScale, borderColor, setBorderColor, receitaFields, setReceitaFields }) {
+  const { dictionary, lang } = useTranslation();
   const solidColor = borderColor || paletteColors[0] || accentColor;
   const c0 = ensureLegibleColor(paletteColors[0] || accentColor);
   const c1 = ensureLegibleColor(paletteColors[1] || c0);
@@ -74,22 +76,29 @@ export default function ReceitaAltaPreview({ accentColor, paletteColors = [], ed
   const f = receitaFields || {};
   const set = (key) => (val) => setReceitaFields && setReceitaFields(prev => ({ ...prev, [key]: val }));
 
-  const med1Nome = f.med1Nome ?? 'Vitamina D 200UI/gota';
-  const med1Qty = f.med1Qty ?? '1 vidro';
+  const tVal = (saved, ptDef, enDef) => {
+    if (!saved) return lang === 'en' ? enDef : ptDef;
+    if (lang === 'en' && saved === ptDef) return enDef;
+    if (lang !== 'en' && saved === enDef) return ptDef;
+    return saved;
+  };
+
+  const med1Nome = tVal(f.med1Nome, 'Vitamina D 200UI/gota', 'Vitamin D 200UI/drop');
+  const med1Qty = tVal(f.med1Qty, '1 vidro', '1 bottle');
   const med1Dose = f.med1Dose ?? '2';
-  const med2Nome = f.med2Nome ?? 'Colidis';
-  const med2Qty = f.med2Qty ?? '1 vidro';
-  const med2Dose = f.med2Dose ?? '5 gotas 1 vez ao dia';
-  const med3Nome = f.med3Nome ?? 'Tylenol baby 140mg/ml';
-  const med3Qty = f.med3Qty ?? '1 frasco';
+  const med2Nome = tVal(f.med2Nome, 'Colidis', 'Colidis / Probiotics');
+  const med2Qty = tVal(f.med2Qty, '1 vidro', '1 bottle');
+  const med2Dose = tVal(f.med2Dose, '5 gotas 1 vez ao dia', '5 drops once a day');
+  const med3Nome = tVal(f.med3Nome, 'Tylenol baby 140mg/ml', 'Infant Tylenol / Acetaminophen');
+  const med3Qty = tVal(f.med3Qty, '1 frasco', '1 bottle');
   const med3Dose = f.med3Dose ?? '___';
-  const med4Nome = f.med4Nome ?? 'Mylicon / Simeticona';
-  const med4Qty = f.med4Qty ?? '1 frasco';
+  const med4Nome = tVal(f.med4Nome, 'Mylicon / Simeticona', 'Infant Gas Relief / Simethicone');
+  const med4Qty = tVal(f.med4Qty, '1 frasco', '1 bottle');
   const med4Dose = f.med4Dose ?? '3';
-  const top1Nome = f.top1Nome ?? 'Bepantol baby';
-  const top2Nome = f.top2Nome ?? 'Álcool 70%';
-  const top3Nome = f.top3Nome ?? 'Rinossoro infantil';
-  const top4Nome = f.top4Nome ?? 'Sabonete Johnsons / Cetrilan';
+  const top1Nome = tVal(f.top1Nome, 'Bepantol baby', 'Desitin / Triple Paste');
+  const top2Nome = tVal(f.top2Nome, 'Álcool 70%', 'Rubbing Alcohol 70%');
+  const top3Nome = tVal(f.top3Nome, 'Rinossoro infantil', 'Saline nose drops');
+  const top4Nome = tVal(f.top4Nome, 'Sabonete Johnsons / Cetrilan', "Johnson's Baby Wash / Cetrilan");
   const consulta = f.consulta ?? '';
   const obsExtra = f.obsExtra ?? '';
 
@@ -127,22 +136,22 @@ export default function ReceitaAltaPreview({ accentColor, paletteColors = [], ed
             <div style={{ width: '160px', height: '45px', overflow: 'hidden', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
               <LogoPreviewHTML item="Receita de Alta" editData={editData} color="#fff" layout={logoLayout} scaleFactor={0.6} crm={null} hideTagline maxWidth="100%" maxHeight="100%" />
             </div>
-            <div style={{ fontSize: '5.5px', fontWeight: 900, color: '#fff', fontFamily: 'Montserrat,sans-serif', textTransform: 'uppercase', letterSpacing: '0.4px', marginTop: '-1px' }}>Receita de Alta do Bebê</div>
+            <div style={{ fontSize: '5.5px', fontWeight: 900, color: '#fff', fontFamily: 'Montserrat,sans-serif', textTransform: 'uppercase', letterSpacing: '0.4px', marginTop: '-1px' }}>{dictionary?.receita_alta?.titulo || 'Receita de Alta do Bebê'}</div>
           </div>
 
           {/* Body */}
           <div style={{ flex: 1, padding: '3px 8px 2px' }}>
-            <SecTitle color={c0}>📋 Uso Oral:</SecTitle>
-            <MedLine solidColor={c0} name={med1Nome} qty={med1Qty} instructions={<>Dar <F value={med1Dose} onChange={setMed1Dose} width="12px" color={c0} /> gotas por dia</>} />
+            <SecTitle color={c0}>{dictionary?.receita_alta?.uso_oral || '📋 Uso Oral:'}</SecTitle>
+            <MedLine solidColor={c0} name={med1Nome} qty={med1Qty} instructions={<>{(dictionary?.receita_alta?.gotas_dia || 'Dar {gotas} gotas por dia').split('{gotas}')[0]}<F value={med1Dose} onChange={setMed1Dose} width="12px" color={c0} />{(dictionary?.receita_alta?.gotas_dia || 'Dar {gotas} gotas por dia').split('{gotas}')[1]}</>} />
             <MedLine solidColor={c0} name={med2Nome} qty={med2Qty} instructions={<F value={med2Dose} onChange={setMed2Dose} width="80px" color={c0} />} />
-            <MedLine solidColor={c0} name={med3Nome} qty={med3Qty} instructions={<>Dar <F value={med3Dose} onChange={setMed3Dose} width="14px" color={c0} /> gotas de 6/6h se dor ou febre</>} />
-            <MedLine solidColor={c0} name={med4Nome} qty={med4Qty} instructions={<>Dar <F value={med4Dose} onChange={setMed4Dose} width="12px" color={c0} /> gotas de 8/8h se cólica</>} />
+            <MedLine solidColor={c0} name={med3Nome} qty={med3Qty} instructions={<>{(dictionary?.receita_alta?.gotas_dor_febre || 'Dar {gotas} gotas de 6/6h se dor ou febre').split('{gotas}')[0]}<F value={med3Dose} onChange={setMed3Dose} width="14px" color={c0} />{(dictionary?.receita_alta?.gotas_dor_febre || 'Dar {gotas} gotas de 6/6h se dor ou febre').split('{gotas}')[1]}</>} />
+            <MedLine solidColor={c0} name={med4Nome} qty={med4Qty} instructions={<>{(dictionary?.receita_alta?.gotas_colica || 'Dar {gotas} gotas de 8/8h se cólica').split('{gotas}')[0]}<F value={med4Dose} onChange={setMed4Dose} width="12px" color={c0} />{(dictionary?.receita_alta?.gotas_colica || 'Dar {gotas} gotas de 8/8h se cólica').split('{gotas}')[1]}</>} />
 
-            <SecTitle color={c1}>🧴 Uso Tópico:</SecTitle>
-            <MedLine solidColor={c1} name={top1Nome} qty="1 tubo" instructions="Aplicar a cada troca de fraldas" />
-            <MedLine solidColor={c1} name={top2Nome} qty="1 frasco" instructions="Aplicar no coto umbilical a cada troca de fralda" />
-            <MedLine solidColor={c1} name={top3Nome} qty="1 frasco" instructions="Aplicar 3 jatos em cada narina se obstrução nasal" />
-            <MedLine solidColor={c1} name={top4Nome} qty="1 frasco" instructions="Dar banho diariamente" />
+            <SecTitle color={c1}>{dictionary?.receita_alta?.uso_topico || '🧴 Uso Tópico:'}</SecTitle>
+            <MedLine solidColor={c1} name={top1Nome} qty={lang === 'en' ? "1 tube" : "1 tubo"} instructions={dictionary?.receita_alta?.troca_fraldas || "Aplicar a cada troca de fraldas"} />
+            <MedLine solidColor={c1} name={top2Nome} qty={lang === 'en' ? "1 bottle" : "1 frasco"} instructions={dictionary?.receita_alta?.coto_umbilical || "Aplicar no coto umbilical a cada troca de fralda"} />
+            <MedLine solidColor={c1} name={top3Nome} qty={lang === 'en' ? "1 bottle" : "1 frasco"} instructions={dictionary?.receita_alta?.obstrucao_nasal || "Aplicar 3 jatos em cada narina se obstrução nasal"} />
+            <MedLine solidColor={c1} name={top4Nome} qty={lang === 'en' ? "1 bottle" : "1 frasco"} instructions={dictionary?.receita_alta?.banho_diario || "Dar banho diariamente"} />
 
             {obsExtra && (
               <div style={{ marginTop: '3px', padding: '2px 4px', background: `${c0}0d`, borderRadius: '3px', border: `0.4px solid ${c0}30` }}>
@@ -154,18 +163,18 @@ export default function ReceitaAltaPreview({ accentColor, paletteColors = [], ed
           {/* Footer */}
           <div style={{ borderTop: `0.5px solid ${c0}25`, padding: '3px 8px 3px', flexShrink: 0, background: `${c0}06` }}>
             <div style={{ fontSize: '3.5px', fontFamily: 'Montserrat,sans-serif', color: '#555', marginBottom: '3px', display: 'flex', alignItems: 'baseline', gap: '2px' }}>
-              <span style={{ fontWeight: 700, color: c0, whiteSpace: 'nowrap' }}>Consulta médica em:</span>
+              <span style={{ fontWeight: 700, color: c0, whiteSpace: 'nowrap' }}>{dictionary?.receita_alta?.consulta_medica || 'Consulta médica em:'}</span>
               <span style={{ flex: 1, borderBottom: '0.5px dashed #ccc', margin: '0 3px', position: 'relative', top: '-0.5px' }} />
               <span style={{ fontSize: '3px', color: '#aaa' }}>{consulta || '___/___/______'}</span>
             </div>
             {/* Espaço para carimbo */}
             <div style={{ height: '18px', border: `0.4px dashed ${c0}30`, borderRadius: '2px', marginBottom: '3px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-              <span style={{ fontSize: '2.5px', color: '#ccc', fontFamily: 'Montserrat,sans-serif', letterSpacing: '0.3px' }}>CARIMBO</span>
+              <span style={{ fontSize: '2.5px', color: '#ccc', fontFamily: 'Montserrat,sans-serif', letterSpacing: '0.3px' }}>{dictionary?.receita_alta?.carimbo || 'CARIMBO'}</span>
             </div>
             <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
               <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '1px', minWidth: '70px' }}>
                 <div style={{ width: '70px', borderBottom: `0.5px solid #999`, marginBottom: '1px' }} />
-                <div style={{ fontSize: '3px', fontFamily: 'Montserrat,sans-serif', color: '#888', textAlign: 'center' }}>{clinicaNome || editData?.marca || 'Médico(a) Responsável'}</div>
+                <div style={{ fontSize: '3px', fontFamily: 'Montserrat,sans-serif', color: '#888', textAlign: 'center' }}>{clinicaNome || editData?.marca || (dictionary?.receita_alta?.medico_responsavel || 'Médico(a) Responsável')}</div>
                 {crmLine && <div style={{ fontSize: '2.8px', fontFamily: 'Montserrat,sans-serif', color: '#aaa' }}>{crmLine}</div>}
               </div>
             </div>
@@ -178,44 +187,44 @@ export default function ReceitaAltaPreview({ accentColor, paletteColors = [], ed
       {/* Painel de edição */}
       <div style={{ width: '100%', maxWidth: '420px', background: '#fafafa', borderRadius: '10px', border: '1px solid #eee', overflow: 'hidden' }}>
         <button onClick={() => setPainelAberto(v => !v)} style={{ width: '100%', padding: '12px 16px', background: 'none', border: 'none', cursor: 'pointer', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-          <span style={{ fontSize: '11px', fontWeight: 800, color: '#666', fontFamily: 'Montserrat,sans-serif', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Personalizar Receita</span>
+          <span style={{ fontSize: '11px', fontWeight: 800, color: '#666', fontFamily: 'Montserrat,sans-serif', textTransform: 'uppercase', letterSpacing: '0.5px' }}>{dictionary?.receita_alta?.personalizar || 'Personalizar Receita'}</span>
           <span style={{ fontSize: '14px', color: '#aaa', fontWeight: 700 }}>{painelAberto ? '▲' : '▼'}</span>
         </button>
       {painelAberto && <div style={{ padding: '0 16px 14px', display: 'flex', flexDirection: 'column', gap: '10px' }}>
 
-        <div style={{ fontSize: '10px', fontWeight: 700, color: c0, fontFamily: 'Montserrat,sans-serif', textTransform: 'uppercase' }}>Uso Oral</div>
+        <div style={{ fontSize: '10px', fontWeight: 700, color: c0, fontFamily: 'Montserrat,sans-serif', textTransform: 'uppercase' }}>{dictionary?.receita_alta?.uso_oral?.replace(/[^a-zA-Z\s]/g, '').trim() || 'Uso Oral'}</div>
         {[
-          { label: 'Medicamento 1 (nome)', value: med1Nome, onChange: setMed1Nome },
-          { label: 'Medicamento 1 (dose — gotas/dia)', value: med1Dose, onChange: setMed1Dose, width: '60px' },
-          { label: 'Medicamento 2 (nome/marca)', value: med2Nome, onChange: setMed2Nome },
-          { label: 'Medicamento 2 (dose completa)', value: med2Dose, onChange: setMed2Dose },
-          { label: 'Medicamento 3 (nome)', value: med3Nome, onChange: setMed3Nome },
-          { label: 'Medicamento 3 (gotas de 6/6h)', value: med3Dose, onChange: setMed3Dose, width: '60px' },
-          { label: 'Medicamento 4 (nome)', value: med4Nome, onChange: setMed4Nome },
-          { label: 'Medicamento 4 (gotas de 8/8h)', value: med4Dose, onChange: setMed4Dose, width: '60px' },
+          { label: lang === 'en' ? 'Medication 1 (name)' : 'Medicamento 1 (nome)', value: med1Nome, onChange: setMed1Nome },
+          { label: lang === 'en' ? 'Medication 1 (dose — drops/day)' : 'Medicamento 1 (dose — gotas/dia)', value: med1Dose, onChange: setMed1Dose, width: '60px' },
+          { label: lang === 'en' ? 'Medication 2 (name/brand)' : 'Medicamento 2 (nome/marca)', value: med2Nome, onChange: setMed2Nome },
+          { label: lang === 'en' ? 'Medication 2 (full dose)' : 'Medicamento 2 (dose completa)', value: med2Dose, onChange: setMed2Dose },
+          { label: lang === 'en' ? 'Medication 3 (name)' : 'Medicamento 3 (nome)', value: med3Nome, onChange: setMed3Nome },
+          { label: lang === 'en' ? 'Medication 3 (drops every 6h)' : 'Medicamento 3 (gotas de 6/6h)', value: med3Dose, onChange: setMed3Dose, width: '60px' },
+          { label: lang === 'en' ? 'Medication 4 (name)' : 'Medicamento 4 (nome)', value: med4Nome, onChange: setMed4Nome },
+          { label: lang === 'en' ? 'Medication 4 (drops every 8h)' : 'Medicamento 4 (gotas de 8/8h)', value: med4Dose, onChange: setMed4Dose, width: '60px' },
         ].map(({ label, value, onChange, width }) => (
           <FieldRow key={label} label={label}>
             <input value={value} onChange={e => onChange(e.target.value)} style={{ width: width || '100%', border: 'none', borderBottom: '1px solid #ccc', outline: 'none', fontSize: '12px', fontFamily: 'Montserrat,sans-serif', color: solidColor, background: 'transparent', padding: '2px 0' }} />
           </FieldRow>
         ))}
 
-        <div style={{ fontSize: '10px', fontWeight: 700, color: c1, fontFamily: 'Montserrat,sans-serif', textTransform: 'uppercase', marginTop: '4px' }}>Uso Tópico</div>
+        <div style={{ fontSize: '10px', fontWeight: 700, color: c1, fontFamily: 'Montserrat,sans-serif', textTransform: 'uppercase', marginTop: '4px' }}>{dictionary?.receita_alta?.uso_topico?.replace(/[^a-zA-Z\s]/g, '').trim() || 'Uso Tópico'}</div>
         {[
-          { label: 'Tópico 1 (pomada)', value: top1Nome, onChange: setTop1Nome },
-          { label: 'Tópico 2 (coto umbilical)', value: top2Nome, onChange: setTop2Nome },
-          { label: 'Tópico 3 (nariz)', value: top3Nome, onChange: setTop3Nome },
-          { label: 'Tópico 4 (banho)', value: top4Nome, onChange: setTop4Nome },
+          { label: lang === 'en' ? 'Topic 1 (ointment)' : 'Tópico 1 (pomada)', value: top1Nome, onChange: setTop1Nome },
+          { label: lang === 'en' ? 'Topic 2 (umbilical stump)' : 'Tópico 2 (coto umbilical)', value: top2Nome, onChange: setTop2Nome },
+          { label: lang === 'en' ? 'Topic 3 (nose)' : 'Tópico 3 (nariz)', value: top3Nome, onChange: setTop3Nome },
+          { label: lang === 'en' ? 'Topic 4 (bath)' : 'Tópico 4 (banho)', value: top4Nome, onChange: setTop4Nome },
         ].map(({ label, value, onChange }) => (
           <FieldRow key={label} label={label}>
             <input value={value} onChange={e => onChange(e.target.value)} style={{ width: '100%', border: 'none', borderBottom: '1px solid #ccc', outline: 'none', fontSize: '12px', fontFamily: 'Montserrat,sans-serif', color: solidColor, background: 'transparent', padding: '2px 0' }} />
           </FieldRow>
         ))}
 
-        <FieldRow label="Data da próxima consulta">
+        <FieldRow label={dictionary?.receita_alta?.data_consulta_label || "Data da próxima consulta"}>
           <input value={consulta} onChange={e => setConsulta(e.target.value)} placeholder="dd/mm/aaaa" style={{ width: '140px', border: 'none', borderBottom: '1px solid #ccc', outline: 'none', fontSize: '12px', fontFamily: 'Montserrat,sans-serif', color: solidColor, background: 'transparent', padding: '2px 0' }} />
         </FieldRow>
-        <FieldRow label="Observações extras (opcional)">
-          <input value={obsExtra} onChange={e => setObsExtra(e.target.value)} placeholder="texto livre…" style={{ width: '100%', border: 'none', borderBottom: '1px solid #ccc', outline: 'none', fontSize: '12px', fontFamily: 'Montserrat,sans-serif', color: solidColor, background: 'transparent', padding: '2px 0' }} />
+        <FieldRow label={dictionary?.receita_alta?.obs_extra_label || "Observações extras (opcional)"}>
+          <input value={obsExtra} onChange={e => setObsExtra(e.target.value)} placeholder={dictionary?.receita_alta?.texto_livre || "texto livre…"} style={{ width: '100%', border: 'none', borderBottom: '1px solid #ccc', outline: 'none', fontSize: '12px', fontFamily: 'Montserrat,sans-serif', color: solidColor, background: 'transparent', padding: '2px 0' }} />
         </FieldRow>
       </div>}
       </div>
@@ -223,11 +232,38 @@ export default function ReceitaAltaPreview({ accentColor, paletteColors = [], ed
   );
 }
 
-export function buildReceitaAltaHTML({ logoHtml, solidColor, paletteColors = [], clinicaNome, cartaoContacts, crmLine, marca, fields = {}, comBorda, patternSrc, patternScale }) {
+export function buildReceitaAltaHTML({ logoHtml, solidColor, paletteColors = [], clinicaNome, cartaoContacts, crmLine, marca, fields = {}, comBorda, patternSrc, patternScale, dictionary, lang }) {
   const c0 = ensureLegibleColor(paletteColors[0] || solidColor);
   const c1 = ensureLegibleColor(paletteColors[1] || c0);
   const BORDER_P = 12; // Sempre tem borda (Estampa ou Sólida)
-  const { med1Nome='Vitamina D 200UI/gota', med1Qty='1 vidro', med1Dose='2', med2Nome='Colidis', med2Qty='1 vidro', med2Dose='5 gotas 1 vez ao dia', med3Nome='Tylenol baby 140mg/ml', med3Qty='1 frasco', med3Dose='___', med4Nome='Mylicon / Simeticona', med4Qty='1 frasco', med4Dose='3', top1Nome='Bepantol baby', top2Nome='Álcool 70%', top3Nome='Rinossoro infantil', top4Nome='Sabonete Johnsons / Cetrilan', consulta='', obsExtra='' } = fields;
+  const isEn = lang === 'en';
+
+  const tValP = (saved, ptDef, enDef) => {
+    if (!saved) return isEn ? enDef : ptDef;
+    if (isEn && saved === ptDef) return enDef;
+    if (!isEn && saved === enDef) return ptDef;
+    return saved;
+  };
+
+  const med1Nome = tValP(fields.med1Nome, 'Vitamina D 200UI/gota', 'Vitamin D 200UI/drop');
+  const med1Qty = tValP(fields.med1Qty, '1 vidro', '1 bottle');
+  const med1Dose = fields.med1Dose ?? '2';
+  const med2Nome = tValP(fields.med2Nome, 'Colidis', 'Colidis / Probiotics');
+  const med2Qty = tValP(fields.med2Qty, '1 vidro', '1 bottle');
+  const med2Dose = tValP(fields.med2Dose, '5 gotas 1 vez ao dia', '5 drops once a day');
+  const med3Nome = tValP(fields.med3Nome, 'Tylenol baby 140mg/ml', 'Infant Tylenol / Acetaminophen');
+  const med3Qty = tValP(fields.med3Qty, '1 frasco', '1 bottle');
+  const med3Dose = fields.med3Dose ?? '___';
+  const med4Nome = tValP(fields.med4Nome, 'Mylicon / Simeticona', 'Infant Gas Relief / Simethicone');
+  const med4Qty = tValP(fields.med4Qty, '1 frasco', '1 bottle');
+  const med4Dose = fields.med4Dose ?? '3';
+  const top1Nome = tValP(fields.top1Nome, 'Bepantol baby', 'Desitin / Triple Paste');
+  const top2Nome = tValP(fields.top2Nome, 'Álcool 70%', 'Rubbing Alcohol 70%');
+  const top3Nome = tValP(fields.top3Nome, 'Rinossoro infantil', 'Saline nose drops');
+  const top4Nome = tValP(fields.top4Nome, 'Sabonete Johnsons / Cetrilan', "Johnson's Baby Wash / Cetrilan");
+  const consulta = fields.consulta ?? '';
+  const obsExtra = fields.obsExtra ?? '';
+
   const { whatsapp, telefone, site, instagram } = cartaoContacts || {};
   const mainPhone = whatsapp || telefone || '';
   const contactLine = [mainPhone, site, instagram ? `@${instagram}` : ''].filter(Boolean).join('  ·  ');
@@ -259,34 +295,34 @@ export function buildReceitaAltaHTML({ logoHtml, solidColor, paletteColors = [],
   <div style="background:${solidColor};padding:6mm 8mm 4mm;display:flex;flex-direction:column;align-items:center;position:relative;overflow:hidden;flex-shrink:0;">
     <div style="position:absolute;bottom:-15mm;left:50%;transform:translateX(-50%);width:220%;height:30mm;border-radius:50%;background:rgba(255,255,255,0.08);"></div>
     <div style="width:100mm; height:32mm; display:flex; align-items:center; justify-content:center; margin-bottom:2mm; overflow:hidden;">${logoHtml}</div>
-    <div style="font-size:4.2mm;font-weight:900;color:#fff;font-family:Montserrat,sans-serif;text-transform:uppercase;letter-spacing:0.4mm;">Receita de Alta do Bebê</div>
+    <div style="font-size:4.2mm;font-weight:900;color:#fff;font-family:Montserrat,sans-serif;text-transform:uppercase;letter-spacing:0.4mm;">${dictionary?.receita_alta?.titulo || 'Receita de Alta do Bebê'}</div>
   </div>
   <div style="flex:1;padding:4mm 10mm 2mm;overflow:hidden;">
-    ${secTitle('📋 Uso Oral:', c0)}
-    ${medLine(med1Nome, med1Qty, `Dar ${med1Dose} gotas por dia`, c0)}
+    ${secTitle(dictionary?.receita_alta?.uso_oral || '📋 Uso Oral:', c0)}
+    ${medLine(med1Nome, med1Qty, (dictionary?.receita_alta?.gotas_dia || 'Dar {gotas} gotas por dia').replace('{gotas}', med1Dose), c0)}
     ${medLine(med2Nome, med2Qty, med2Dose, c0)}
-    ${medLine(med3Nome, med3Qty, `Dar ${med3Dose} gotas de 6/6h se dor ou febre`, c0)}
-    ${medLine(med4Nome, med4Qty, `Dar ${med4Dose} gotas de 8/8h se cólica`, c0)}
-    ${secTitle('🧴 Uso Tópico:', c1)}
-    ${medLine(top1Nome, '1 tubo', 'Aplicar a cada troca de fraldas', c1)}
-    ${medLine(top2Nome, '1 frasco', 'Aplicar no coto umbilical a cada troca de fralda', c1)}
-    ${medLine(top3Nome, '1 frasco', 'Aplicar 3 jatos em cada narina se obstrução nasal', c1)}
-    ${medLine(top4Nome, '1 frasco', 'Dar banho diariamente', c1)}
+    ${medLine(med3Nome, med3Qty, (dictionary?.receita_alta?.gotas_dor_febre || 'Dar {gotas} gotas de 6/6h se dor ou febre').replace('{gotas}', med3Dose), c0)}
+    ${medLine(med4Nome, med4Qty, (dictionary?.receita_alta?.gotas_colica || 'Dar {gotas} gotas de 8/8h se cólica').replace('{gotas}', med4Dose), c0)}
+    ${secTitle(dictionary?.receita_alta?.uso_topico || '🧴 Uso Tópico:', c1)}
+    ${medLine(top1Nome, isEn ? '1 tube' : '1 tubo', dictionary?.receita_alta?.troca_fraldas || 'Aplicar a cada troca de fraldas', c1)}
+    ${medLine(top2Nome, isEn ? '1 bottle' : '1 frasco', dictionary?.receita_alta?.coto_umbilical || 'Aplicar no coto umbilical a cada troca de frada', c1)}
+    ${medLine(top3Nome, isEn ? '1 bottle' : '1 frasco', dictionary?.receita_alta?.obstrucao_nasal || 'Aplicar 3 jatos em cada narina se obstrução nasal', c1)}
+    ${medLine(top4Nome, isEn ? '1 bottle' : '1 frasco', dictionary?.receita_alta?.banho_diario || 'Dar banho diariamente', c1)}
     ${obsExtra ? `<div style="margin-top:3mm;padding:2mm 4mm;background:${c0}12;border-radius:1.5mm;border:0.25mm solid ${c0}35;"><div style="font-size:2.6mm;font-family:Montserrat,sans-serif;color:#555;line-height:1.4;">${obsExtra}</div></div>` : ''}
   </div>
   <div style="border-top:0.3mm solid ${c0}25;padding:4mm 10mm 4mm;flex-shrink:0;background:${c0}06;">
     <div style="display:flex;align-items:baseline;font-size:2.8mm;font-family:Montserrat,sans-serif;color:#555;margin-bottom:4mm;">
-      <span style="font-weight:700;color:${c0};white-space:nowrap;">Próxima consulta em:</span>
+      <span style="font-weight:700;color:${c0};white-space:nowrap;">${dictionary?.receita_alta?.consulta_medica || 'Próxima consulta em:'}</span>
       <span style="flex:1;border-bottom:0.3mm dashed #ccc;margin:0 3mm;"></span>
       <span style="color:#888;">${consulta || '___/___/______'}</span>
     </div>
     <div style="border:0.3mm dashed ${c0}40;border-radius:1.5mm;height:22mm;margin-bottom:4mm;display:flex;align-items:center;justify-content:center;">
-      <span style="font-size:2.2mm;color:#ccc;font-family:Montserrat,sans-serif;letter-spacing:0.4mm;text-transform:uppercase;">Carimbo</span>
+      <span style="font-size:2.2mm;color:#ccc;font-family:Montserrat,sans-serif;letter-spacing:0.4mm;text-transform:uppercase;">${dictionary?.receita_alta?.carimbo || 'Carimbo'}</span>
     </div>
     <div style="display:flex;justify-content:flex-end;margin-bottom:2mm;">
       <div style="display:flex;flex-direction:column;align-items:center;gap:1mm;min-width:55mm;">
         <div style="width:55mm;border-bottom:0.3mm solid #999;margin-bottom:0.8mm;"></div>
-        <div style="font-size:2.6mm;font-family:Montserrat,sans-serif;color:#777;text-align:center;">${clinicaNome || marca || 'Médico(a) Responsável'}</div>
+        <div style="font-size:2.6mm;font-family:Montserrat,sans-serif;color:#777;text-align:center;">${clinicaNome || marca || (dictionary?.receita_alta?.medico_responsavel || 'Médico(a) Responsável')}</div>
         ${crmLine ? `<div style="font-size:2.3mm;font-family:Montserrat,sans-serif;color:#aaa;">${crmLine}</div>` : ''}
       </div>
     </div>

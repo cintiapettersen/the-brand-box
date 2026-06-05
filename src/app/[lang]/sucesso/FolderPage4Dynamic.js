@@ -1,5 +1,6 @@
 'use client';
 import React from 'react';
+import { useTranslation } from '../../LanguageContext';
 
 const isDarkColor = (hex) => {
   if (!hex) return false;
@@ -15,21 +16,30 @@ const isDarkColor = (hex) => {
 export default function FolderPage4Dynamic({
   accentColor = '#D8AD3A',
   palette = [],
-  horarios = [
+  horarios: propsHorarios,
+  introducao: propsIntroducao
+}) {
+  const { dictionary } = useTranslation();
+  const gTranslation = dictionary?.guia_alimentar;
+
+  const defaultHorarios = gTranslation?.horarios || [
     { label: 'CAFÉ DA MANHÃ', val: 'Leite materno ou fórmula infantil' },
     { label: 'LANCHE DA MANHÃ', val: 'Fruta / leite materno ou fórmula' },
     { label: 'ALMOÇO', val: 'Cereal ou tubérculo + proteína animal + leguminosa + hortaliças (verduras +legumes) + fruta' },
     { label: 'LANCHE DA TARDE', val: 'Fruta /leite materno ou fórmula' },
     { label: 'JANTAR', val: 'Igual almoço' },
     { label: 'LANCHE DA NOITE', val: 'Leite materno ou fórmula infantil' }
-  ],
-  introducao = [
+  ];
+  const defaultIntroducao = gTranslation?.introducao || [
     { idade: 'A partir de 6 meses', text: 'Alimentos amassados', qty: 'Iniciar com 2 a 3 colheres de sopa e aumentar a quantidade conforme aceitação' },
     { idade: 'A partir dos 7 meses', text: 'Alimentos amassados', qty: '2/3 de uma xícara ou tigela de 250 ml' },
     { idade: '9 a 11 meses', text: 'Alimentos cortados ou levemente amassados', qty: '3/4 de uma xícara ou tigela de 250 ml' },
     { idade: '12 a 24 meses', text: 'Alimentos cortados', qty: 'Uma xícara ou tigela de 250 ml' }
-  ]
-}) {
+  ];
+
+  const horarios = propsHorarios || defaultHorarios;
+  const introducao = propsIntroducao || defaultIntroducao;
+
   const c1 = palette[0] || accentColor;
   const c2 = palette[1] || c1;
   const c3 = palette[2] || c2;
@@ -42,10 +52,6 @@ export default function FolderPage4Dynamic({
   const col1TextCol = isDarkColor(c3) ? '#FFFFFF' : '#231F20';
   const col2TextCol = isDarkColor(c4) ? '#FFFFFF' : '#231F20';
   const col3TextCol = isDarkColor(c5) ? '#FFFFFF' : '#231F20';
-
-  // Table 1: top=11.6%, height=30.3%, 6 rows × 16.6%
-  // Divider strip: 41.9%–53.8% (c5, where "Introdução" title sits at 47.6%)
-  // Table 2: top=53.8%, 4 rows × 8.7% = 34.8% → bottom=~94%
 
   return (
     <div style={{ width: '148px', height: '210px', position: 'absolute', top: 0, left: 0, overflow: 'hidden', pointerEvents: 'none' }}>
@@ -86,7 +92,9 @@ export default function FolderPage4Dynamic({
       <div style={{ position: 'absolute', inset: 0, fontFamily: 'sans-serif' }}>
 
         {/* TÍTULO TABELA 1 */}
-        <div style={{ position: 'absolute', top: '5%', left: '7%', fontSize: '4px', fontWeight: 900, color: '#999', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Cardápio</div>
+        <div style={{ position: 'absolute', top: '5%', left: '7%', fontSize: '4px', fontWeight: 900, color: '#999', textTransform: 'uppercase', letterSpacing: '0.5px' }}>
+          {gTranslation?.cardapio || 'Cardápio'}
+        </div>
 
         {/* TABELA 1: HORÁRIOS — top=11.6%, height=30.3%, 6 linhas=16.6% cada, col1=33.3% */}
         <div style={{ position: 'absolute', top: '11.6%', left: '7%', width: '84.9%', height: '30.3%' }}>
@@ -100,14 +108,20 @@ export default function FolderPage4Dynamic({
 
         {/* TÍTULO SEÇÃO B */}
         <div style={{ position: 'absolute', top: '47.6%', left: '7%', fontSize: '4.5px', fontStyle: 'italic', fontWeight: 900, color: '#999', textTransform: 'uppercase' }}>
-          Introdução Alimentar Clássica
+          {gTranslation?.introducao_classica || 'Introdução Alimentar Clássica'}
         </div>
 
         {/* TABELA 2: Header — largura total */}
         <div style={{ position: 'absolute', top: '53.8%', left: '7%', width: '86%', height: '4.7%', display: 'flex', alignItems: 'center' }}>
-          <div style={{ width: '27%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '3.2px', fontWeight: 900, color: col1TextCol, textTransform: 'uppercase', letterSpacing: '0.3px' }}>IDADE</div>
-          <div style={{ width: '27%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '3.2px', fontWeight: 900, color: col2TextCol, textTransform: 'uppercase', letterSpacing: '0.3px' }}>TEXTURA</div>
-          <div style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '3.2px', fontWeight: 900, color: col3TextCol, textTransform: 'uppercase', letterSpacing: '0.3px' }}>QUANTIDADE</div>
+          <div style={{ width: '27%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '3.2px', fontWeight: 900, color: col1TextCol, textTransform: 'uppercase', letterSpacing: '0.3px' }}>
+            {gTranslation?.idade_col || 'IDADE'}
+          </div>
+          <div style={{ width: '27%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '3.2px', fontWeight: 900, color: col2TextCol, textTransform: 'uppercase', letterSpacing: '0.3px' }}>
+            {gTranslation?.textura_col || 'TEXTURA'}
+          </div>
+          <div style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '3.2px', fontWeight: 900, color: col3TextCol, textTransform: 'uppercase', letterSpacing: '0.3px' }}>
+            {gTranslation?.quantidade_col || 'QUANTIDADE'}
+          </div>
         </div>
         {/* TABELA 2: Dados */}
         {introducao.map((item, i) => (

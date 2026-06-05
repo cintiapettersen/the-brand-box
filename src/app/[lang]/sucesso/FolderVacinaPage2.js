@@ -1,9 +1,31 @@
+'use client';
 import React from 'react';
+import { useTranslation } from '../../LanguageContext';
 
 export default function FolderVacinaPage2({ accentColor, palette = [] }) {
+  const { lang } = useTranslation();
   const mainColor = palette[0] || accentColor;
   
-  const vaccines = [
+  const vaccines = lang === 'en' ? [
+    { name: "BCG ID", doses: "Single dose at birth" },
+    { name: "Hepatitis B", doses: "3 doses * at birth + 2m + 6m" },
+    { name: "Triple bacterial (DTPw or DTPa)", doses: "3 doses (2, 4 and 6m) + Booster (15 to 18m) + Booster (4 to 5 years)" },
+    { name: "Haemophilus influenzae b", doses: "3 doses (2, 4 and 6m) + Booster (15 to 18m)" },
+    { name: "Poliomyelitis (inactivated virus)", doses: "3 doses (2, 4 and 6m) + Booster (15 to 18m) + Booster (4 to 5 years)" },
+    { name: "Rotavirus", doses: "Two or three doses, depending on the vaccine used ( 2 to 8 m )" },
+    { name: "Pneumococcal conjugate", doses: "Two or three doses, depending on the vaccine used ( 2 to 8 m ) + Booster ( 12 to 15m )" },
+    { name: "Meningococcal conjugate ACWY/C", doses: "2 doses ( 3 and 5m ) + Booster ( 12 to 15m ) + Booster ( 5 to 6 years )" },
+    { name: "Meningococcal B", doses: "2 doses ( 3 and 5m ) + Booster ( 12 to 15m )" },
+    { name: "Influenza (flu)", doses: "Annual dose. Two doses in primary vaccination from 6m to 9 years of age." },
+    { name: "Oral poliomyelitis (live attenuated)", doses: "NATIONAL VACCINATION DAYS 12m to 4 years" },
+    { name: "Yellow fever", doses: "1 dose ( 9m ) + Booster ( 4 years )" },
+    { name: "Hepatitis A", doses: "2 doses ( 12m and 18m )" },
+    { name: "MMR (measles, mumps and rubella)", doses: "2 doses ( 12m and 15 to 24m )" },
+    { name: "Varicella (chickenpox)", doses: "2 doses ( 12m and 15 to 24 m )" },
+    { name: "HPV", doses: "2 doses ( 9 to 10 years )" },
+    { name: "Adult acellular triple bacterial (dTpa)", doses: "Booster ( 9 to 10 years )" },
+    { name: "Dengue", doses: "*Three doses for seropositives" },
+  ] : [
     { name: "BCG ID", doses: "Dose única ao nascer" },
     { name: "Hepatite B", doses: "3 doses * ao nascer + 2m + 6m" },
     { name: "Tríplice bacteriana (DTPw ou DTPa)", doses: "3 doses (2, 4 e 6m) + REF. (15 à 18m) + REF. (4 à 5 anos)" },
@@ -42,8 +64,12 @@ export default function FolderVacinaPage2({ accentColor, palette = [] }) {
         borderRadius: '2px 2px 0 0',
         marginBottom: '1px'
       }}>
-        <div style={{ flex: 1.2, color: '#fff', fontSize: '4.5px', fontWeight: 800, letterSpacing: '0.5px' }}>VACINAS</div>
-        <div style={{ flex: 2, color: '#fff', fontSize: '4.5px', fontWeight: 800, letterSpacing: '0.5px' }}>DOSES E REFORÇOS</div>
+        <div style={{ flex: 1.2, color: '#fff', fontSize: '4.5px', fontWeight: 800, letterSpacing: '0.5px' }}>
+          {lang === 'en' ? "VACCINES" : "VACINAS"}
+        </div>
+        <div style={{ flex: 2, color: '#fff', fontSize: '4.5px', fontWeight: 800, letterSpacing: '0.5px' }}>
+          {lang === 'en' ? "DOSES AND BOOSTERS" : "DOSES E REFORÇOS"}
+        </div>
       </div>
 
       <div style={{ display: 'flex', flexDirection: 'column', gap: '0' }}>

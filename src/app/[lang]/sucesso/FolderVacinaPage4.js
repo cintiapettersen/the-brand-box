@@ -1,11 +1,29 @@
+'use client';
 import React from 'react';
+import { useTranslation } from '../../LanguageContext';
 
 export default function FolderVacinaPage4({ accentColor, palette = [] }) {
+  const { lang } = useTranslation();
   const mainColor = palette[0] || accentColor;
   
   const otherVaccines = Array.from({ length: 6 }); // Reduced from 11
 
-  const availability = [
+  const availability = lang === 'en' ? [
+    { label: "BCG / Hepatitis B", ubs: "YES", private: "YES" },
+    { label: "Hexavalent / Pentavalent", ubs: "Pentavalent", private: "Hexavalent (Fewer side effects)" },
+    { label: "VIP / VOP (Polio)", ubs: "YES", private: "YES (Inactivated)" },
+    { label: "Rotavirus", ubs: "Monovalent", private: "Pentavalent (5 types)" },
+    { label: "Pneumococcal", ubs: "PCV10", private: "PCV13 or PCV15" },
+    { label: "Meningococcal ACWY / C", ubs: "MenC & ACWY (11-14y)", private: "MenACWY (From 3 months)" },
+    { label: "Meningococcal B", ubs: "NO", private: "YES" },
+    { label: "Influenza (Flu)", ubs: "Trivalent", private: "Quadrivalent" },
+    { label: "MMR / Varicella", ubs: "YES", private: "YES" },
+    { label: "Hepatitis A / HPV", ubs: "YES", private: "YES" },
+    { label: "Yellow Fever", ubs: "YES", private: "YES" },
+    { label: "Dengue (Qdenga)", ubs: "YES (Target public)", private: "YES" },
+    { label: "COVID-19", ubs: "YES", private: "YES" },
+    { label: "Nirsevimab (RSV)", ubs: "YES (Specific groups)", private: "YES" },
+  ] : [
     { label: "BCG / Hepatite B", ubs: "SIM", private: "SIM" },
     { label: "Hexavalente / Pentavalente", ubs: "Pentavalente", private: "Hexavalente (Menos reações)" },
     { label: "VIP / VOP (Pólio)", ubs: "SIM", private: "SIM (Inativada)" },
@@ -44,12 +62,18 @@ export default function FolderVacinaPage4({ accentColor, palette = [] }) {
           marginBottom: '2px',
           alignSelf: 'center'
         }}>
-          <div style={{ color: '#fff', fontSize: '5px', fontWeight: 800, letterSpacing: '0.6px' }}>outras vacinas</div>
+          <div style={{ color: '#fff', fontSize: '5px', fontWeight: 800, letterSpacing: '0.6px', textTransform: 'uppercase' }}>
+            {lang === 'en' ? "other vaccines" : "outras vacinas"}
+          </div>
         </div>
         
         <div style={{ display: 'flex', borderBottom: '0.4px solid #72A9D1', background: '#F8F8F8' }}>
-          <div style={{ flex: 1, padding: '1.2px 3px', fontSize: '3.2px', fontWeight: 800, color: '#444' }}>VACINA</div>
-          <div style={{ width: '30px', padding: '1.2px 3px', fontSize: '3.2px', fontWeight: 800, color: '#444', textAlign: 'center' }}>DATA</div>
+          <div style={{ flex: 1, padding: '1.2px 3px', fontSize: '3.2px', fontWeight: 800, color: '#444' }}>
+            {lang === 'en' ? "VACCINE" : "VACINA"}
+          </div>
+          <div style={{ width: '30px', padding: '1.2px 3px', fontSize: '3.2px', fontWeight: 800, color: '#444', textAlign: 'center' }}>
+            {lang === 'en' ? "DATE" : "DATA"}
+          </div>
         </div>
         
         {otherVaccines.map((_, i) => (
@@ -70,13 +94,21 @@ export default function FolderVacinaPage4({ accentColor, palette = [] }) {
           marginBottom: '2px',
           alignSelf: 'center'
         }}>
-          <div style={{ color: '#fff', fontSize: '5px', fontWeight: 800, letterSpacing: '0.6px' }}>Disponibilização das Vacinas</div>
+          <div style={{ color: '#fff', fontSize: '5px', fontWeight: 800, letterSpacing: '0.6px' }}>
+            {lang === 'en' ? "Vaccine Availability" : "Disponibilização das Vacinas"}
+          </div>
         </div>
 
         <div style={{ display: 'flex', background: '#E6C673', marginBottom: '0.5px' }}>
-          <div style={{ flex: 1, padding: '1.2px', fontSize: '2.8px', fontWeight: 800, color: '#fff', textAlign: 'center', borderRight: '0.15px solid #fff' }}>VACINA</div>
-          <div style={{ flex: 1, padding: '1.2px', fontSize: '2.8px', fontWeight: 800, color: '#fff', textAlign: 'center', borderRight: '0.15px solid #fff' }}>Gratuitas nas UBS*</div>
-          <div style={{ flex: 1, padding: '1.2px', fontSize: '2.8px', fontWeight: 800, color: '#fff', textAlign: 'center' }}>Clínicas privadas</div>
+          <div style={{ flex: 1, padding: '1.2px', fontSize: '2.8px', fontWeight: 800, color: '#fff', textAlign: 'center', borderRight: '0.15px solid #fff' }}>
+            {lang === 'en' ? "VACCINE" : "VACINA"}
+          </div>
+          <div style={{ flex: 1, padding: '1.2px', fontSize: '2.8px', fontWeight: 800, color: '#fff', textAlign: 'center', borderRight: '0.15px solid #fff' }}>
+            {lang === 'en' ? "Free at UBS*" : "Gratuitas nas UBS*"}
+          </div>
+          <div style={{ flex: 1, padding: '1.2px', fontSize: '2.8px', fontWeight: 800, color: '#fff', textAlign: 'center' }}>
+            {lang === 'en' ? "Private clinics" : "Clínicas privadas"}
+          </div>
         </div>
 
         <div style={{ display: 'flex', flexDirection: 'column', gap: '0' }}>

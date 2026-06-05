@@ -1,5 +1,6 @@
 import React from 'react';
 import BrandTemplateSVG from './BrandTemplateSVG';
+import { useTranslation } from '../app/LanguageContext';
 
 // Dicionário de cores afetivas: [R, G, B, NomeBonito]
 const COLOR_PALETTE = [
@@ -85,6 +86,9 @@ const SectionHeader = ({ title }) => (
 );
 
 const BrandBoard = ({ data, palette, color, seloColor, seloTextColor, patternImage, iconPath, customLogoSrc, logoElement }) => {
+  const { dictionary } = useTranslation();
+  const t = dictionary?.placa || {};
+
   const { marca, tagline } = data;
   const activeColor = color || '#d22f5a';
 
@@ -126,7 +130,7 @@ const BrandBoard = ({ data, palette, color, seloColor, seloTextColor, patternIma
       <div style={{ position: 'absolute', top: '15px', left: '15px', right: '15px', bottom: '15px', border: '1px solid #efefef', pointerEvents: 'none' }}></div>
 
       {/* LOGO PRINCIPAL */}
-      <SectionHeader title="Logomarca Principal" />
+      <SectionHeader title={t.logomarca_principal || "Logomarca Principal"} />
       {logoElement ? (
         <div style={{ minHeight: '160px', width: '450px', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '20px 0 30px 0' }}>
           {logoElement}
@@ -235,7 +239,7 @@ const BrandBoard = ({ data, palette, color, seloColor, seloTextColor, patternIma
       })()}
 
       {/* PALETA DE CORES */}
-      <SectionHeader title="Paleta de Cores" />
+      <SectionHeader title={t.paleta_de_cores || "Paleta de Cores"} />
       <div style={{ display: 'flex', width: '100%', gap: '5px', height: '100px' }}>
          {(palette && palette.length > 0 ? palette : ['#eee','#ddd','#ccc','#bbb','#aaa']).map((hex, i) => (
             <div key={i} style={{ flex: 1, display: 'flex', flexDirection: 'column' }}>
@@ -248,7 +252,7 @@ const BrandBoard = ({ data, palette, color, seloColor, seloTextColor, patternIma
       </div>
 
       {/* TIPOGRAFIA */}
-      <SectionHeader title="Tipografia" />
+      <SectionHeader title={t.tipografia || "Tipografia"} />
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '30px', width: '100%', marginTop: '10px' }}>
          <div style={{ display: 'flex', flexDirection: 'column', justifyContent: 'center', textAlign: 'center', borderRight: '1px solid #eee' }}>
             <h5 style={{ fontFamily: `'${data.fontFamily || 'Playfair Display'}', serif`, fontSize: `${(1.4 * (data.fontSizeBoost || 1)).toFixed(1)}rem`, marginBottom: '10px', fontWeight: data.fontWeight || 400 }}>{data.fontFamily || 'Playfair Display'}</h5>
@@ -267,7 +271,7 @@ const BrandBoard = ({ data, palette, color, seloColor, seloTextColor, patternIma
       {/* SUBMARCA E ESTAMPA */}
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px', width: '100%', flex: 1, marginTop: '20px' }}>
          <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-            <SectionHeader title="Submarca" />
+            <SectionHeader title={t.submarca || "Submarca"} />
             <div style={{ width: '130px', height: '130px' }}>
                <BrandTemplateSVG
                  data={data.fontStyle === 'script' ? { ...data, fontFamily: 'Montserrat', fontWeight: 700, fontStyle: 'display' } : data}
@@ -280,14 +284,14 @@ const BrandBoard = ({ data, palette, color, seloColor, seloTextColor, patternIma
             </div>
          </div>
          <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-            <SectionHeader title="Estampa" />
+            <SectionHeader title={t.estampa || "Estampa"} />
             {patternImage ? (
               <div style={{ width: '130px', height: '130px', borderRadius: '8px', overflow: 'hidden', border: '1px solid #eee' }}>
                 <img src={patternImage} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
               </div>
             ) : (
               <div style={{ width: '130px', height: '130px', background: '#f9f9f9', borderRadius: '8px', border: '1px dashed #ddd', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                <span style={{ fontSize: '0.5rem', color: '#999', textAlign: 'center', padding: '10px' }}>ESTAMPA EXCLUSIVA</span>
+                <span style={{ fontSize: '0.5rem', color: '#999', textAlign: 'center', padding: '10px' }}>{t.estampa_exclusiva || "ESTAMPA EXCLUSIVA"}</span>
               </div>
             )}
          </div>

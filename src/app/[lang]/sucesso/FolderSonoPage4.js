@@ -1,13 +1,22 @@
+'use client';
 import React from 'react';
+import { useTranslation } from '../../LanguageContext';
 
 export default function FolderSonoPage4({ accentColor, palette = [] }) {
+  const { lang } = useTranslation();
   const c0 = palette[0] || accentColor;
   const c1 = palette[1] || accentColor;
   const c2 = palette[2] || c0;
   const c3 = palette[3] || c1;
   const c4 = palette[4] || c0;
 
-  const fase0a1 = [
+  const fase0a1 = lang === 'en' ? [
+    { icon: '🤱', text: 'Babies get used to holding and nursing — this is normal!' },
+    { icon: '🔄', text: 'Sleep alternates between quiet and active (45–50 min cycles)' },
+    { icon: '⏰', text: 'Sleep an average of 16–22 hours a day, in multiple stretches' },
+    { icon: '🌙', text: 'Does not differentiate day from night yet — patience!' },
+    { icon: '👶', text: 'Neurological immaturity is the cause of night waking' },
+  ] : [
     { icon: '🤱', text: 'Bebês se acostumam ao colo e ao peito — é normal!' },
     { icon: '🔄', text: 'Sono alterna entre tranquilo e agitado (ciclos de 45–50 min)' },
     { icon: '⏰', text: 'Dormem em média 16–22h por dia, em vários períodos' },
@@ -15,7 +24,13 @@ export default function FolderSonoPage4({ accentColor, palette = [] }) {
     { icon: '👶', text: 'Imaturidade neurológica é a causa dos despertares noturnos' },
   ];
 
-  const estrategias = [
+  const estrategias = lang === 'en' ? [
+    { icon: '🌯', title: 'Swaddle', desc: 'Mimics the womb; reduces the Moro reflex.', color: c0 },
+    { icon: '🔊', title: 'Shushing (shhh)', desc: 'Continuous sound at a moderate volume.', color: c1 },
+    { icon: '🌊', title: 'White noise', desc: 'Rain, fan or specific app.', color: c2 },
+    { icon: '🤗', title: 'Gentle rocking', desc: 'Rhythmic movement for a few minutes.', color: c3 },
+    { icon: '🟡', title: 'Amber light at night', desc: 'Does not inhibit melatonin like blue light.', color: c4 },
+  ] : [
     { icon: '🌯', title: 'Envolva com swaddle', desc: 'Imita o útero; reduz reflexo de moro.', color: c0 },
     { icon: '🔊', title: 'Shushing (shhh)', desc: 'Som contínuo em volume moderado.', color: c1 },
     { icon: '🌊', title: 'Ruído branco', desc: 'Chuva, ventoinha ou app específico.', color: c2 },
@@ -23,7 +38,11 @@ export default function FolderSonoPage4({ accentColor, palette = [] }) {
     { icon: '🟡', title: 'Luz âmbar à noite', desc: 'Não inibe melatonina como a luz azul.', color: c4 },
   ];
 
-  const hormonios = [
+  const hormonios = lang === 'en' ? [
+    { nome: 'Melatonin', color: c0, desc: 'Sleep hormone. Mature production ~3–6 months. Secreted at night with low light.' },
+    { nome: 'Cortisol',   color: c1, desc: 'Stress hormone. Rises when the baby does not sleep enough.' },
+    { nome: 'GH',         color: c2, desc: 'Growth hormone. Secreted mainly during sleep.' },
+  ] : [
     { nome: 'Melatonina', color: c0, desc: 'Hormônio do sono. Produção madura ~3–6 meses. À noite com luz baixa.' },
     { nome: 'Cortisol',   color: c1, desc: 'Hormônio do estresse. Sobe quando o bebê não dorme o suficiente.' },
     { nome: 'GH',         color: c2, desc: 'Hormônio do crescimento. Secretado principalmente durante o sono.' },
@@ -51,7 +70,7 @@ export default function FolderSonoPage4({ accentColor, palette = [] }) {
         }}>
           <span style={{ fontSize: '6px' }}>🌙</span>
           <div style={{ fontSize: '4.5px', fontWeight: 900, color: '#fff', textTransform: 'uppercase', letterSpacing: '0.3px' }}>
-            O Sono de 0 a 1 Mês
+            {lang === 'en' ? "Sleep from 0 to 1 Month" : "O Sono de 0 a 1 Mês"}
           </div>
         </div>
         <div style={{ display: 'flex', flexDirection: 'column', gap: '1px' }}>
@@ -70,7 +89,7 @@ export default function FolderSonoPage4({ accentColor, palette = [] }) {
       {/* SEÇÃO: Estratégias — cards em grid */}
       <div style={{ flex: '0 0 auto' }}>
         <div style={{ fontSize: '4.5px', fontWeight: 900, color: c1, textTransform: 'uppercase', letterSpacing: '0.3px', marginBottom: '2px' }}>
-          💡 Como Acalmar Bebês Menores de 30 dias
+          {lang === 'en' ? "💡 How to Calm Babies Under 30 Days" : "💡 Como Acalmar Bebês Menores de 30 dias"}
         </div>
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1.5px' }}>
           {estrategias.map((e, i) => (
@@ -99,7 +118,7 @@ export default function FolderSonoPage4({ accentColor, palette = [] }) {
       {/* SEÇÃO: Hormônios */}
       <div style={{ flex: 1, minHeight: 0, overflow: 'hidden' }}>
         <div style={{ fontSize: '4.5px', fontWeight: 900, color: c2, textTransform: 'uppercase', letterSpacing: '0.3px', marginBottom: '1.5px' }}>
-          ⚗️ Hormônios do Sono
+          {lang === 'en' ? "⚗️ Sleep Hormones" : "⚗️ Hormônios do Sono"}
         </div>
         <div style={{ display: 'flex', flexDirection: 'column', gap: '1.2px' }}>
           {hormonios.map((h, i) => (

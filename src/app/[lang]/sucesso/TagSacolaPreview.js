@@ -2,6 +2,7 @@
 import React, { useState } from 'react';
 import { LogoPreviewHTML, BordaToggle } from './page';
 import { useScaleToFit } from './useScaleToFit';
+import { useTranslation } from '../../LanguageContext';
 
 const SIZES = [
   { label: '4,8 × 4,8 cm', w: 4.8, h: 4.8, shape: 'square', scale: 36 },
@@ -89,6 +90,7 @@ export default function TagSacolaPreview({
   patternSrc, patternScale, setPatternScale, borderColor, setBorderColor,
   sizeIdx: sizeIdxProp, setSizeIdx: setSizeIdxProp,
 }) {
+  const { dictionary, lang } = useTranslation();
   const [sizeIdxLocal, setSizeIdxLocal] = useState(0);
   const sizeIdx = sizeIdxProp ?? sizeIdxLocal;
   const setSizeIdx = setSizeIdxProp ?? setSizeIdxLocal;
@@ -123,11 +125,11 @@ export default function TagSacolaPreview({
         <div style={scaleCards.innerStyle}>
           <div style={{ display: 'flex', gap: '40px', alignItems: 'flex-start', justifyContent: 'center' }}>
             <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '8px' }}>
-              <span style={{ fontSize: '10px', fontWeight: 800, color: '#999', textTransform: 'uppercase' }}>Frente</span>
+              <span style={{ fontSize: '10px', fontWeight: 800, color: '#999', textTransform: 'uppercase' }}>{dictionary?.geral?.frente || 'Frente'}</span>
               <TagCard size={size} solidColor={solidColor} c0={c0} c1={c1} paletteColors={paletteColors} effectiveSrc={effectiveSrc} patternScale={patternScale} editData={editData} logoColor={logoColor} logoLayout={logoLayout} clinicaNome={clinicaNome} cartaoContacts={cartaoContacts} crmLine={crmLine} side="frente" />
             </div>
             <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '8px' }}>
-              <span style={{ fontSize: '10px', fontWeight: 800, color: '#999', textTransform: 'uppercase' }}>Verso</span>
+              <span style={{ fontSize: '10px', fontWeight: 800, color: '#999', textTransform: 'uppercase' }}>{dictionary?.geral?.verso || 'Verso'}</span>
               <TagCard size={size} solidColor={solidColor} c0={c0} c1={c1} paletteColors={paletteColors} effectiveSrc={effectiveSrc} patternScale={patternScale} editData={editData} logoColor={logoColor} logoLayout={logoLayout} clinicaNome={clinicaNome} cartaoContacts={cartaoContacts} crmLine={crmLine} side="verso" />
             </div>
           </div>
@@ -135,7 +137,7 @@ export default function TagSacolaPreview({
       </div>
 
       <div style={{ fontSize: '11px', color: '#999', fontFamily: 'Montserrat,sans-serif', fontWeight: 600 }}>
-        {size.label} · {size.shape === 'circle' ? 'Redondo' : size.shape === 'square' ? 'Quadrado' : 'Retangular'}
+        {size.label} · {lang === 'en' ? (size.shape === 'circle' ? 'Round' : size.shape === 'square' ? 'Square' : 'Rectangular') : (size.shape === 'circle' ? 'Redondo' : size.shape === 'square' ? 'Quadrado' : 'Retangular')}
       </div>
     </div>
   );

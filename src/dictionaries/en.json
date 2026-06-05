@@ -15,5 +15,1049 @@
     "ajuda_aparecer": "Let AI and creative direction guide your path. Build a professional and unique visual identity for your business in just a few minutes, hassle-free.",
     "experiencia_guiada": "",
     "criar_marca": "CREATE MY BRAND NOW"
-  }
+  },
+  "nav": {
+    "marca": "The Brand",
+    "digital": "The Digital",
+    "papelaria": "Stationery",
+    "ajuda": "Help ✨",
+    "placa": "Brand Board",
+    "manifesto": "Manifesto",
+    "tomdevoz": "Tone of Voice",
+    "fonte": "Font",
+    "logo": "Logo",
+    "slogan": "Tagline",
+    "submarca": "Seal",
+    "cores": "Colors",
+    "paleta": "Palette",
+    "estampa": "Pattern",
+    "guia": "Guide",
+    "cartao": "Digital Card",
+    "pack_instagram": "Instagram Pack",
+    "assinatura_email": "Email Signature",
+    "ajuda_inspiracao": "Help & Inspiration",
+    "upsell": "Go Beyond? ✨"
+  },
+  "papelaria_itens": {
+    "cartao_visita": "Business Card",
+    "papel_timbrado": "Letterhead",
+    "papel_presente": "Wrapping Paper",
+    "tag_sacola": "Bag Tag",
+    "etiqueta_correios": "Shipping Label",
+    "envelope_oficio": "Envelope Letter",
+    "envelope_saco": "Large Envelope",
+    "recibo": "Receipt",
+    "pasta_a4": "A4 Folder",
+    "caneca": "Mug",
+    "cartao_retorno": "Return Card",
+    "cartao_agradecimento": "Thank You Card",
+    "caderno": "Notebook Cover",
+    "receituario_padrao": "Standard Prescription",
+    "atestado_medico": "Medical Certificate",
+    "receituario_controle": "Special Control",
+    "prontuario_medico": "Medical Record",
+    "receita_alta": "Discharge Summary",
+    "ficha_cadastro": "Registration Form",
+    "guia_alimentar": "Dietary Guide",
+    "guia_cuidados": "Care Guide",
+    "guia_desenvolvimento": "Development Guide",
+    "guia_vacina": "Vaccination Guide",
+    "cartao_prenatal": "Prenatal Card",
+    "grafico_crescimento": "Growth Chart",
+    "checklist_maternidade": "Maternity Checklist",
+    "guia_sono": "Sleep Guide",
+    "orientacoes_rn": "Newborn Guidelines",
+    "certificado_coragem": "Certificate of Courage",
+    "diario_xixi": "Pee Diary",
+    "meu_pratinho": "My Plate",
+    "guia_amamentacao": "Breastfeeding Guide",
+    "caderneta_saude": "Health Booklet"
+  },
+  "meu_pratinho": {
+    "passo_a_passo": "step by step",
+    "alimentacao": "COMPLEMENTARY",
+    "complementar": "FEEDING",
+    "nome": "NAME",
+    "data_nascimento": "DATE OF BIRTH",
+    "menino": "BOY",
+    "menina": "GIRL",
+    "responsavel": "GUARDIAN'S NAME",
+    "idade_titulo": "Age",
+    "idade_desc": "6 months, with signs of readiness present.",
+    "consistencia_titulo": "Consistency",
+    "consistencia_desc": "No mixer, blender, strainer or mesh feeder. What you don't mash, offer in pieces to stimulate chewing and orofacial development.",
+    "colher_titulo": "Choose spoon size",
+    "colher_desc": "Size suitable for the diameter of the child's mouth. Prefer silicone or plastic.",
+    "montar_titulo": "Assembling the plate",
+    "montar_desc": "Follow the proportion in the image, giving preference to rich, fresh and varied foods.",
+    "hortalicas_label": "Vegetables (50%)",
+    "carbo_label": "Carbs (25%)",
+    "proteina_label": "Protein (12.5%)",
+    "graos_label": "Grains (12.5%)",
+    "guia_alimentar_label": "DIETARY GUIDE: MY PLATE",
+    "guia_alimentar_verso_label": "DIETARY GUIDE: MY PLATE (BACK)",
+    "como_montar_subtitulo": "How to assemble a balanced plate for children",
+    "legumes_verduras_titulo": "Vegetables",
+    "legumes_verduras_desc": "Rich in vitamins, minerals, fiber, and non-heme iron. Focus on variety — the more colorful, the better! Beets, chayote, zucchini, carrots, lettuce, broccoli, cauliflower, spinach, chard, arugula, watercress. Should occupy half of the plate.",
+    "proteinas_titulo": "Proteins",
+    "proteinas_desc": "Source of protein, fat, iron, zinc, and vitamin B12. Includes meat, egg, fish, and chicken. Opt for lean meats and poultry. Choose 1 option per meal and vary throughout the week.",
+    "agua_titulo": "Water",
+    "agua_desc": "Always offer after each meal and snack. Hydrate constantly! Water is essential for the proper functioning of the body. Avoid sugary drinks, juices, and teas.",
+    "leguminosas_titulo": "Legumes",
+    "leguminosas_desc": "Proteins, fiber, iron, zinc, and B vitamins. Beans, chickpeas, peas, lentils, soy. Choose 1 option per meal and vary plant protein throughout the week.",
+    "frutas_titulo": "Fruits",
+    "frutas_desc": "Source of vitamins, minerals, fiber, and energy. Great for dessert and snacks. Avocado, pineapple, acerola, banana, persimmon, guava, kiwi, orange, apple, papaya, watermelon, strawberry, pear, grape, and more.",
+    "cereais_titulo": "Cereals, Roots and Tubers",
+    "cereais_desc": "Sources of vitamins, minerals, and energy. Rice, pasta, potatoes, cassava, yams. Vary throughout the week and prefer whole grains for more fiber and nutrients.",
+    "oleos_titulo": "Oils and Fats",
+    "oleos_desc": "Important for healthy baby development and absorption of fat-soluble vitamins. Use small amounts of olive oil or canola oil. Avoid saturated fats, trans fats, margarine, and fried foods.",
+    "leite_titulo": "Dairy",
+    "leite_desc": "Source of protein, fat, calcium, and vitamin A. Milk, curd, unsweetened natural yogurt, and cheeses. Great to include in breakfast and snacks. Prefer whole versions with no added sugar.",
+    "oleaginosas_titulo": "Nuts and Seeds",
+    "oleaginosas_desc": "Sources of vitamins, fiber, healthy fats, and antioxidants. Almonds, peanuts, hazelnuts, cashew nuts, Brazil nuts, pecans, and pistachios. Great options for snacks."
+  },
+  "recibo": {
+    "titulo": "RECEIPT",
+    "recebi_de": "Received from",
+    "quantia_de": "The amount of",
+    "referente_a": "For",
+    "data": "DATE",
+    "descricao": "DESCRIPTION OF SERVICES",
+    "total": "TOTAL"
+  },
+  "ui": {
+    "escala_logo": "Logo scale",
+    "preview_aviso": "Illustrative preview.",
+    "preview_aviso_desc": "Proportions and sizes may vary. Check the actual dimensions in the PDF before sending to the print shop.",
+    "editar_dados": "Edit details",
+    "slogan": "Slogan",
+    "empresa": "Company",
+    "adicionar_rqe": "+ Add RQE",
+    "baixar_pdf": "⬇ Download Print-Ready PDF",
+    "baixar_png": "⬇ Download PNG / JPG",
+    "baixar_assinatura": "⬇ Download Signature",
+    "upsell_titulo": "+ Add more items — $30 each (Premium item: $180)",
+    "upsell_caderneta": "Health Notebook (Premium)",
+    "upsell_item_count_singular": "item",
+    "upsell_item_count_plural": "items",
+    "adicionar": "Add →",
+    "aguarde": "Please wait...",
+    "cancelar": "Cancel",
+    "entendi_baixar": "Got it, download PDF →",
+    "modal_titulo": "How to save a print-ready PDF",
+    "modal_passo1_titulo": "Margins → None",
+    "modal_passo1_desc": "In the print dialog, set margins to None to preserve the bleed.",
+    "modal_passo2_titulo": "Background graphics enabled",
+    "modal_passo2_desc": "Enable \"Background graphics\" so colors and patterns appear.",
+    "modal_passo3_titulo": "Destination → Save as PDF",
+    "modal_passo3_desc": "Select Save as PDF — do not send to a printer.",
+    "modal_specs_titulo": "Print shop specifications",
+    "modal_grafica_sugestao": "Suggested print shop:",
+    "modal_grafica_enviar": "Select \"Submit my final artwork\" and upload the generated PDF.",
+    "modal_cupom": "5% off coupon:",
+    "modal_cupom_primeira": "(first purchase)",
+    "spec_categoria": "Category:",
+    "spec_tamanho": "Size:",
+    "spec_papel": "Paper:",
+    "spec_acabamento": "Finish:",
+    "spec_preco": "Avg. price:",
+    "label_telefone": "Phone",
+    "label_telefone2": "Phone 2",
+    "label_endereco": "Address"
+  },
+  "controle_especial": {
+    "titulo": "SPECIAL CONTROL PRESCRIPTION",
+    "emitente": "Issuer Identification",
+    "vias": "1st COPY PHARMACY\n2nd COPY PATIENT",
+    "paciente": "PATIENT:",
+    "endereco": "ADDRESS:",
+    "prescricao": "PRESCRIPTION:",
+    "data": "Date",
+    "assinatura": "Physician's Signature",
+    "comprador": "BUYER IDENTIFICATION",
+    "farmaceutico": "PHARMACIST'S SIGNATURE"
+  },
+  "ficha_cadastro": {
+    "titulo": "PATIENT REGISTRATION",
+    "data": "DATE:",
+    "crianca": "Child",
+    "adulto": "Adult",
+    "crianca_nome": "CHILD'S FULL NAME:",
+    "data_nasc": "DATE OF BIRTH:",
+    "idade": "AGE:",
+    "mae_nome": "MOTHER'S NAME:",
+    "profissao": "OCCUPATION:",
+    "cpf": "CPF/ID:",
+    "pai_nome": "FATHER'S NAME:",
+    "completo_nome": "FULL NAME:",
+    "rg": "ID:",
+    "estado_civil": "MARITAL STATUS:",
+    "responsavel_nome": "GUARDIAN'S NAME (if minor):",
+    "grau_parentesco": "RELATIONSHIP:",
+    "responsavel_acompanhante": "ACCOMPANYING GUARDIAN'S NAME:",
+    "endereco": "ADDRESS:",
+    "complemento": "COMPLEMENT / UNIT:",
+    "bairro": "NEIGHBORHOOD:",
+    "cidade": "CITY:",
+    "estado": "STATE:",
+    "telefones": "PHONES:",
+    "celular": "CELL PHONE:",
+    "residencial": "HOME PHONE:",
+    "mae": "MOTHER:",
+    "pai": "FATHER:",
+    "responsavel": "GUARDIAN:",
+    "outros_telefones": "OTHER PHONES:",
+    "residencial_comercial": "HOME ( ) WORK ( )",
+    "emails": "EMAIL ADDRESSES:",
+    "como_conheceu": "HOW DID YOU HEAR ABOUT US:"
+  },
+  "cartao": {
+    "como_entrar_contato": "How do you prefer to contact?",
+    "baixar": "⬇ Download Digital Card"
+  },
+  "cartao_agradecimento": {
+    "msg1": "Thank you for your trust! ✨",
+    "msg2": "It was a pleasure serving you 🌸",
+    "msg3": "So good to have you here! 💛"
+  },
+  "placa": {
+    "logomarca_principal": "MAIN LOGO",
+    "paleta_de_cores": "COLOR PALETTE",
+    "tipografia": "TYPOGRAPHY",
+    "submarca": "SUBMARK",
+    "estampa": "PATTERN",
+    "estampa_exclusiva": "EXCLUSIVE PATTERN",
+    "baixar": "⬇ Download Brand Board"
+  },
+  "geral": {
+    "baixar_gabarito": "Export Printing Template (PDF)",
+    "baixar_pdf": "Download PDF",
+    "visualizar": "View",
+    "reordenar_cores": "Color Priority Order",
+    "salvar_ordem": "Save Color Order →",
+    "tom_especial": "Special Tone",
+    "cor_especial": "Special Color",
+    "como_contato": "How do you prefer to contact?",
+    "reenviar_email": "📧 Resend email",
+    "enviando": "Sending...",
+    "email_enviado": "✓ Email sent!",
+    "erro_conexao": "❌ Connection error",
+    "escala_logo": "Logo scale",
+    "solida": "Solid",
+    "estampa": "Pattern",
+    "tamanho": "SIZE:",
+    "recorte_reto": "⬜️ Straight Cut ACTIVE",
+    "recorte_casinha": "🏠 House Cut ACTIVE",
+    "preview_ilustrativo_titulo": "Illustrative preview.",
+    "preview_ilustrativo_desc": "Proportions and sizes may vary. Check actual dimensions in the PDF before sending to the printer.",
+    "baixar_instagram": "⬇ Download PNG / JPG",
+    "baixar_assinatura": "⬇ Download Signature",
+    "baixar_papelaria": "⬇ Download Print PDF",
+    "voltar": "Back",
+    "ir_digital": "Go to Digital",
+    "ir_papelaria": "Go to Stationery",
+    "proxima_etapa": "Next step",
+    "editar_dados": "Edit data",
+    "slogan_placeholder": "Tagline / Specialty",
+    "empresa": "Company",
+    "empresa_placeholder": "Complementary name (optional)",
+    "adicionar_rqe": "+ Add RQE",
+    "telefone": "Phone",
+    "telefone_2": "Phone 2",
+    "whatsapp": "WhatsApp",
+    "instagram": "Instagram",
+    "email": "Email",
+    "site": "Website",
+    "endereco": "Address",
+    "cancelar": "Cancel",
+    "entendi_baixar": "I understand, download PDF →",
+    "compartilhar": "↑ Share",
+    "enviar_whats": "Send on Whats",
+    "baixar_html": "⬇ Download HTML",
+    "especialidade": "Specialty",
+    "contatos": "Contacts",
+    "baixar_paleta": "⬇ Download Color Palette",
+    "baixar_guia_pdf": "⬇ Download Guide PDF",
+    "guia_pdf_instrucoes": "A new tab will open — use \"Save as PDF\" in the print menu.",
+    "guia_pdf_popup_aviso": "(If it doesn't open, check if your browser blocked Pop-ups)",
+    "baixar_png": "⬇ Download PNG",
+    "copiar": "📋 Copy",
+    "copiado_ok": "✓ Copied!",
+    "editar": "✏️ Edit",
+    "feito": "✓ Done",
+    "refazer_restante": "🔄 Redo ({restante}x remaining)",
+    "refazer_limite": "🔄 Redo (Limit reached)",
+    "proxima": "Next",
+    "criando_manifesto": "✨ Creating manifesto...",
+    "gerar_manifesto": "✨ Generate Manifesto",
+    "criando_tom": "✨ Creating tone of voice...",
+    "gerar_tom": "✨ Generate Tone of Voice",
+    "preview_gerado": "Preview generated when exporting the PDF",
+    "premium": "Premium",
+    "frente": "Front",
+    "verso": "Back",
+    "paisagem": "Landscape",
+    "retrato": "Portrait",
+    "data": "Date",
+    "horario": "Time",
+    "retorno_consultas": "RETURN OF CONSULTATIONS",
+    "lado_externo": "OUTSIDE (FACE 1)",
+    "lado_interno": "INSIDE (FACE 2)",
+    "pag": "PAGE",
+    "capa": "(COVER)",
+    "quadrado": "Square"
+  },
+  "checklist": {
+    "titulo": "MATERNITY CHECKLIST",
+    "secao_bebe": {
+      "titulo": "baby check list",
+      "itens": [
+        "4 changes of clothes",
+        "1 coming-home outfit",
+        "4 pairs of socks",
+        "Burp cloths",
+        "2 blankets",
+        "1 pack of disposable diapers (NB/S size)",
+        "1 hooded towel",
+        "Glycerin liquid soap",
+        "Cotton pads",
+        "Bottle of rubbing alcohol",
+        "Diaper rash cream",
+        "1 laundry bag for dirty clothes",
+        "Hair comb",
+        "Nursing pillow",
+        "1 swaddle wrap",
+        "Car seat"
+      ]
+    },
+    "secao_mamae": {
+      "titulo": "mother's check list",
+      "itens": [
+        "2 or more nightgowns/pajamas with front opening",
+        "5 comfortable panties",
+        "Comfortable flip-flops",
+        "Nursing bra",
+        "Maternity sanitary pads",
+        "Personal hygiene products (toothbrush, toothpaste, unscented soap/deodorant, hair brush)",
+        "1 outfit for leaving the hospital",
+        "Hair tie",
+        "Beauty products (e.g. lipstick)",
+        "1 laundry bag for dirty clothes",
+        "Personal pillow",
+        "Bath towel"
+      ]
+    },
+    "secao_documentos": {
+      "titulo": "documents check list",
+      "itens": [
+        "Parents' ID cards or passports",
+        "Health insurance card",
+        "Prenatal care card/record",
+        "Latest medical test results",
+        "If married: marriage certificate"
+      ]
+    },
+    "secao_acompanhante": {
+      "titulo": "partner's check list",
+      "itens": [
+        "2 changes of clothes",
+        "Personal hygiene products",
+        "Slippers/flip-flops",
+        "Phone charger",
+        "Snacks"
+      ]
+    }
+  },
+  "upsell": {
+    "tag": "✨ Premium Closing & Custom Artwork",
+    "titulo": "Want an extra touch of exclusivity?",
+    "desc": "If you love that feeling of a unique brand, with original drawings and illustrations that connect your entire identity, we create custom closing.",
+    "opc1_titulo": "Exclusive Illustrated Logo",
+    "opc1_sub": "Custom Original Art",
+    "opc1_desc": "Our automatic plans create beautiful typographic logos. With this premium service, our art director will design an <strong>exclusive symbol or original illustration</strong> to be integrated into your brand.",
+    "opc1_tags": [
+      "100% original",
+      "Editable vector file",
+      "Fine adjustments with designer"
+    ],
+    "opc2_titulo": "Unifying Illustrative Elements",
+    "opc2_sub": "Premium Stationery Connection",
+    "opc2_desc": "Creation of <strong>exclusive drawings for footers and details of your printed materials</strong>. Ideal to create a charming experience and a welcoming visual pattern in all stationery pieces.",
+    "opc2_tags": [
+      "Exclusive footers",
+      "Original unified style",
+      "Ready to print"
+    ],
+    "nota": "💡 <strong>How it works:</strong> By hiring this custom service, you brief directly with our creative team and we develop the personalized arts and insert them directly into your The Brand Box templates.",
+    "wpp_btn": "💬 Talk to the Art Director on WhatsApp",
+    "wpp_desc": "Immediate service availability",
+    "wpp_msg": "Hello! I finished my project on The Brand Box and I loved it! I would like to know more about the Footer Drawings and Illustrated Logo service for my brand "
+  },
+  "modal_impressao": {
+    "titulo_modal": "How to save the print-ready PDF",
+    "passo_1_titulo": "Margins → None",
+    "passo_1_desc": "In the print window, set margins to None to preserve the bleed area.",
+    "passo_2_titulo": "Background graphics enabled",
+    "passo_2_desc": "Enable \"Background graphics\" for colors and patterns to appear.",
+    "passo_3_titulo": "Destination → Save as PDF",
+    "passo_3_desc": "Select Save as PDF — do not send to a printer.",
+    "specs_grafica": "Specifications for the printer",
+    "categoria": "Category",
+    "tamanho": "Size",
+    "papel": "Paper",
+    "acabamento": "Finish",
+    "preco_medio": "Average price",
+    "sugestao_grafica": "Printer suggestion",
+    "sugestao_desc": "Select \"Upload my final artwork\" and upload the generated PDF.",
+    "cupom": "5% off coupon",
+    "primeira_compra": "first purchase"
+  },
+  "prontuario": {
+    "paciente": "PATIENT:",
+    "data_nasc": "DATE OF BIRTH:",
+    "mae": "MOTHER'S NAME:",
+    "cpf": "CPF/ID:",
+    "telefone": "PHONE:",
+    "email": "EMAIL:",
+    "endereco": "ADDRESS:",
+    "cidade": "CITY:",
+    "convenio": "INSURANCE:",
+    "carteirinha": "MEMBER ID:"
+  },
+  "certificado": {
+    "pediatrico_de": "Pediatric Certificate of",
+    "coragem": "Courage",
+    "certifico_fins": "I certify for all playful and due purposes that __________________",
+    "idade_comportou": "age _____ behaved wonderfully in today's consultation,",
+    "sendo_educado": "being polite and showing great courage and bravery."
+  },
+  "orientacoes_rn": {
+    "umbigo": "70% rubbing alcohol",
+    "soro": "Saline nasal spray",
+    "med1": "Infant Gas Relief / Simethicone",
+    "med2": "Infant Tylenol / Acetaminophen",
+    "int1": "every 8 hours",
+    "int2": "every 6 hours",
+    "pomada": "Desitin or Triple Paste",
+    "vitDMed": "Infant Vitamin D3 Drops",
+    "vitDDose": "1 drop",
+    "titulo": "THE FIRST DAYS\nWITH MY BABY",
+    "bebe": "Baby:",
+    "nasc": "Born:",
+    "peso": "Weight:",
+    "alt": "Height:",
+    "alimentacao_label": "Feeding:",
+    "alimentacao_text": "On-demand breastfeeding (whenever baby wants).",
+    "umbigo_label": "Umbilical Cord:",
+    "umbigo_text_pre": "Clean with ",
+    "umbigo_text_pos": " at every diaper change and after bathing.",
+    "ictericia_label": "Jaundice:",
+    "ictericia_text": "Yellowish skin? Contact your pediatrician immediately.",
+    "febre_label": "Fever:",
+    "febre_text": "Under 3 months: ER visit. Over 3 months: follow medical guidelines.",
+    "higiene_label": "Hygiene:",
+    "higiene_text": "1 bath/day with mild soap. No baby powder or perfume. Clean with warm water & cotton.",
+    "nariz_label": "Nose:",
+    "nariz_text_pre": "Saline nasal spray 0.9% (",
+    "nariz_text_pos": ") before each feeding.",
+    "colicas_label": "Colic:",
+    "colicas_text_pre": "Warm compress. If needed: ",
+    "colicas_text_mid": " drops if colic every ",
+    "colicas_text_mid2": " drops if colic every ",
+    "colicas_text_pos": "",
+    "assaduras_label": "Diaper Rash:",
+    "assaduras_text_pre": "Dry thoroughly before applying (",
+    "assaduras_text_pos": ").",
+    "vitD_label": "Vitamin D:",
+    "vitD_text_pre": "",
+    "vitD_text_pos": " — ",
+    "vitD_text_pos2": " drop/day from birth.",
+    "vacinas_maternidade": "Newborn Vaccines",
+    "bcg": "BCG:",
+    "hepB": "Hep B:",
+    "proxima_consulta": "📅 Next Appointment",
+    "as": "at",
+    "observacoes": "Notes:",
+    "obs_1": "Visit pediatrician between 7 and 14 days of life.",
+    "obs_2": "Go to health clinic for scheduled vaccines.",
+    "obs_3": "Newborn screening between 3rd & 7th day.",
+    "obs_4": "Newborn hearing screening as soon as possible.",
+    "obs_5": "Always place baby to sleep on their back.",
+    "obs_6": "No pillows or heavy blankets in the crib.",
+    "obs_7": "Dress baby in light, comfortable layers.",
+    "obs_8": "Introduce solids only after 6 months with guidance.",
+    "urgencias": "Emergencies:"
+  },
+  "receita_alta": {
+    "titulo": "Baby Discharge Prescription",
+    "uso_oral": "📋 Oral Use:",
+    "gotas_dia": "Give {gotas} drops daily",
+    "gotas_dor_febre": "Give {gotas} drops every 6 hours if pain or fever",
+    "gotas_colica": "Give {gotas} drops every 8 hours if colic",
+    "uso_topico": "🧴 Topical Use:",
+    "troca_fraldas": "Apply at every diaper change",
+    "coto_umbilical": "Apply to the umbilical stump at every diaper change",
+    "obstrucao_nasal": "Apply 3 sprays in each nostril if nasal congestion",
+    "banho_diario": "Give daily bath",
+    "consulta_medica": "Medical appointment on:",
+    "carimbo": "STAMP/SEAL",
+    "medico_responsavel": "Attending Physician",
+    "personalizar": "Customize Prescription",
+    "data_consulta_label": "Next appointment date",
+    "obs_extra_label": "Extra observations (optional)",
+    "texto_livre": "free text…"
+  },
+  "guia_alimentar": {
+    "horarios": [
+      {
+        "label": "BREAKFAST",
+        "val": "Breast milk or infant formula"
+      },
+      {
+        "label": "MORNING SNACK",
+        "val": "Fruit / breast milk or formula"
+      },
+      {
+        "label": "LUNCH",
+        "val": "Cereal or root vegetable + animal protein + legume + vegetables + fruit"
+      },
+      {
+        "label": "AFTERNOON SNACK",
+        "val": "Fruit / breast milk or formula"
+      },
+      {
+        "label": "DINNER",
+        "val": "Same as lunch"
+      },
+      {
+        "label": "NIGHT SNACK",
+        "val": "Breast milk or infant formula"
+      }
+    ],
+    "introducao": [
+      {
+        "idade": "From 6 months",
+        "text": "Mashed foods",
+        "qty": "Start with 2 to 3 tablespoons and increase amount based on acceptance"
+      },
+      {
+        "idade": "From 7 months",
+        "text": "Mashed foods",
+        "qty": "2/3 of a 250 ml cup or bowl"
+      },
+      {
+        "idade": "9 to 11 months",
+        "text": "Chopped or lightly mashed foods",
+        "qty": "3/4 of a 250 ml cup or bowl"
+      },
+      {
+        "idade": "12 to 24 months",
+        "text": "Chopped foods",
+        "qty": "One 250 ml cup or bowl"
+      }
+    ],
+    "titulo_lado_externo": "OUTSIDE (PAGE 1)",
+    "titulo_lado_interno": "INSIDE (PAGE 2)",
+    "guia_de": "GUIDE TO",
+    "titulo_capa": "COMPLEMENTARY FEEDING",
+    "tagline": "NUTRITION THAT TRANSFORMS",
+    "quote_text": "\"Play, talk and explore!\"",
+    "quote_desc": "Playtime is more than just fun. It helps your baby learn, develop new skills, and feel safe and loved.",
+    "quote_desc_pdf": "Playtime is more than just fun. It helps your baby learn, develop new skills, and feel safe and loved. Ask questions, sing, play peek-a-boo and watch how much your baby grows every day.",
+    "recorte_casinha": "🏠 House Cutout ACTIVE",
+    "recorte_reto": "⬜️ Straight Cutout ACTIVE",
+    "personalizar_titulo": "Customize Dietary Guide Content",
+    "tabela_horarios": "Schedule Table",
+    "tabela_introducao": "Classical Introduction Table",
+    "textura_recomendada": "Recommended Texture",
+    "quantidade_recomendada": "Recommended Quantity",
+    "fase_label": "Phase: ",
+    "pag_label": "PAGE",
+    "capa_label": "(COVER)",
+    "cardapio": "Menu",
+    "introducao_classica": "Classical Food Introduction",
+    "idade_col": "AGE",
+    "textura_col": "TEXTURE",
+    "quantidade_col": "QUANTITY"
+  },
+  "diario_xixi": {
+    "titulo": "PEE DIARY (URINARY HABIT)",
+    "subtitulo": "Wetting and Enuresis Control (Bedwetting)",
+    "nome": "Name:",
+    "legenda": "Legend:",
+    "seco": "Woke Up Dry",
+    "gotas": "Drips/Dampness",
+    "molhou_roupa": "Wet Clothes/Diaper",
+    "abundante": "Abundant (Wet Bed)",
+    "marque_0_3": "Rate 0 to 3",
+    "semana": "Week",
+    "dias": [
+      "Monday",
+      "Tuesday",
+      "Wednesday",
+      "Thursday",
+      "Friday",
+      "Saturday",
+      "Sunday"
+    ]
+  },
+  "checklist_maternidade": {
+    "titulo_vertical": "MATERNITY CHECKLIST",
+    "secoes": [
+      {
+        "titulo": "baby checklist",
+        "itens": [
+          "4 changes of clothes",
+          "1 going-home outfit",
+          "4 pairs of socks",
+          "Muslin / burp cloths",
+          "2 swaddle blankets",
+          "1 pack of diapers (newborn/size 1)",
+          "1 hooded baby towel",
+          "Gentle liquid baby soap",
+          "Cotton balls",
+          "Rubbing alcohol",
+          "Diaper rash cream",
+          "1 bag for dirty clothes",
+          "Baby comb / brush",
+          "Nursing pillow",
+          "1 swaddle wrap",
+          "Infant car seat"
+        ]
+      },
+      {
+        "titulo": "mom checklist",
+        "itens": [
+          "2+ nursing gowns/pajamas with front opening",
+          "5 comfortable underwear",
+          "Comfortable flip-flops",
+          "Nursing bra",
+          "Maternity pads",
+          "Personal hygiene items (toothbrush, toothpaste, soap, fragrance-free deodorant, comb, overnight pads)",
+          "1 outfit for going home after delivery",
+          "Hair ties",
+          "Beauty products (lip balm to lift spirits)",
+          "1 bag for dirty clothes",
+          "Personal pillow",
+          "Bath towel"
+        ]
+      },
+      {
+        "titulo": "documents checklist",
+        "itens": [
+          "Parents' photo ID",
+          "Health insurance card",
+          "Prenatal card!!!",
+          "Latest exam results",
+          "If married: marriage certificate"
+        ]
+      },
+      {
+        "titulo": "companion checklist",
+        "itens": [
+          "2 changes of clothes",
+          "Personal hygiene items",
+          "Flip-flops",
+          "Phone charger",
+          "Snacks"
+        ]
+      }
+    ]
+  },
+  "etiqueta_correios": {
+    "adesivo": "Sticker",
+    "frases": [
+      "Yay, it's here!",
+      "With much love and care",
+      "Made especially for you",
+      "Your package has arrived!"
+    ]
+  },
+  "graficos_crescimento": {
+    "titulo": "Growth Chart",
+    "dados_consulta": "✎ Consultation Data",
+    "paciente": "Patient",
+    "idade": "Age",
+    "data": "Date",
+    "peso": "Weight",
+    "altura": "Height",
+    "pc": "HC",
+    "imc": "BMI",
+    "percentil": "Percentile",
+    "fonte": "Source: WHO — WHO Child Growth Standards 2006",
+    "menina": "Girl",
+    "menino": "Boy",
+    "imc_por_idade": "BMI for Age",
+    "perimetro_cefalico": "Head Circumference",
+    "peso_por_idade": "Weight for Age",
+    "altura_por_idade": "Height for Age",
+    "yearLabels": [
+      "Birth",
+      "1 year",
+      "2 years",
+      "3 years",
+      "4 years",
+      "5 years"
+    ],
+    "imc_label": "BMI",
+    "pc_label": "HC (cm)",
+    "peso_label": "Weight (kg)",
+    "altura_label": "Height (cm)",
+    "face_frente_btn": "BMI + HC",
+    "face_verso_btn": "Weight + Height",
+    "face_frente_lbl": "BMI · Head Circumference",
+    "face_verso_lbl": "Weight · Height"
+  },
+  "pasta_a4": {
+    "preview": "A4 Folder Preview (Front and Back)",
+    "detalhamento": "Details",
+    "detalhamento_desc": "The label has been refined and the elements (Logo, Clinic, and License) are now harmoniously centralized. The final PDF reflects this high-fidelity update."
+  },
+  "help": {
+    "busca_titulo": "🤖 Smart Search",
+    "busca_desc": "Type your technical question below for instant guidance about the platform.",
+    "busca_placeholder": "Ex: How to print? How to export as PNG?",
+    "busca_btn": "Ask",
+    "busca_resposta": "🔍 ANSWER FOR:",
+    "busca_fallback_topico": "DIGITAL ASSISTANT",
+    "busca_fallback_texto": "Sorry, I couldn't find an exact answer for your question. Try searching for words like 'printing', 'export', 'colors', 'stationery' or check the frequently asked questions below!",
+    "faq_titulo": "📋 Frequently Asked Questions",
+    "concierge_titulo": "Want to go beyond the guided experience?",
+    "concierge_desc": "We also offer custom adjustments, manual refinements, and exclusive creative direction for brands looking for closer support.",
+    "sugestoes_titulo": "💡 Suggestions & Improvements",
+    "sugestoes_desc": "Did you miss a specific stationery item? Have ideas to improve the platform? Send us a message! We read all suggestions to make The Brand Box even better.",
+    "sugestoes_email": "brandbox@sonhodepapel.co",
+    "kb": {
+      "impressao": "To print your stationery with maximum quality, we recommend using the High-Resolution Vector PDF files available in the 'Stationery' tab. If you're using a professional printer, select the option 'Submit my final artwork'. If printing at home, use high-weight coated or offset paper (minimum 180g). Remember: complex folds and special formats require a professional printing service!",
+      "exportacao": "You can export your Logo and Seal in PNG format with a transparent background (perfect for Instagram posts, watermarks, or signatures) or with a colored background directly in the 'Logo' tab. The stationery and guides are exported in standard printing PDF, with high-definition colors and ready to print!",
+      "cores": "Your palette colors are carefully generated based on your brand's essence. In the 'Colors' tab, you can change the priority order of the colors (by dragging and dropping the blocks) to highlight which color should be more dominant in your artwork, signatures, and promotional materials!",
+      "tamanhos": "The templates generated in the 'Stationery' tab follow official market formats. However, to adjust the logo scale (since different fonts have distinct widths and behaviors on the pieces), we provide a 'Logo Scale' slider in the 'Stationery' tab. This adjustment helps you perfectly balance the logo in the reserved space, and yes, the generated PDF updates in real-time with the chosen size!",
+      "uso da marca": "Your Brand Guide (available for download in the 'Guide' tab) precisely describes the golden rules for the correct use of your new visual identity: how to combine fonts, which color palette to use on light and dark backgrounds, and the correct application of the logo and seal on different surfaces!",
+      "papelaria": "The 'Stationery' tab is your complete production hub! It generates perfect templates for bags, discharge summaries, thank you cards, bag tags, shipping labels, and growth charts. All files are dynamically generated in ultra-high-definition vector PDF!",
+      "limites do sistema": "To ensure technical balance and stability of your Brand Box, pattern generations have a standard limit of 3 attempts in the gallery. In addition, brand name changes are limited to 1 change per license, which prevents abuse and ensures the consistency of your new visual identity!"
+    },
+    "faqs": [
+      {
+        "category": "🎨 Customization",
+        "items": [
+          {
+            "q": "Can I change my colors?",
+            "a": "Colors are generated based on your diagnosis. In the 'Colors' tab, you can rearrange the priority of the colors (dragging and dropping blocks) to highlight your favorite colors in the design."
+          },
+          {
+            "q": "How many patterns can I generate?",
+            "a": "Each project allows up to 3 new pattern generations in your gallery to ensure you have exclusive and perfect options."
+          },
+          {
+            "q": "Can I move my logo?",
+            "a": "To maintain visual balance and identity consistency, element positions follow a fixed professional structure, but you can choose between different layouts in the 'Logo' tab."
+          },
+          {
+            "q": "How can I make my logo more balanced?",
+            "a": "Use the 'Logo Height' control to adjust the spacing between the brand and the tagline, and select horizontal, vertical, or stacked layouts that best match your name!"
+          },
+          {
+            "q": "How do I choose the best size?",
+            "a": "The PDF templates generated in the 'Stationery' tab are already perfectly sized in standard market formats (they are official ready-to-use templates). However, to adjust the logo scale on the pieces, we provide a 'Logo Scale' slider in the 'Stationery' tab. This adjustment helps you perfectly balance the logo, and the generated PDF is updated in real-time!"
+          },
+          {
+            "q": "Can I have more font options?",
+            "a": "Our intelligent algorithm has selected an exclusive group of 6 premium fonts that have perfect affinity with the essence and style identified for your brand. To maintain the coherence and harmony of your visual identity, the selection is limited to these 6 curated options per project."
+          },
+          {
+            "q": "Can I upload my own logo?",
+            "a": "Yes! If you already have a logo image or your own symbol, you can upload it directly at the top of the 'Logo' tab. The system will apply your custom logo to all printed materials, digital cards, and posts automatically."
+          }
+        ]
+      },
+      {
+        "category": "🖨️ Printing",
+        "items": [
+          {
+            "q": "Can I print at home?",
+            "a": "You can print common flat items in A4 format (such as prescriptions, order sheets, or letterheads) directly on your home printer. However, items with folds or more complex formats (such as bags, pouches, giant tissue paper, or special format tags) require finishes that home printers cannot handle. For these, the absolute recommendation is to send them to a professional printing shop."
+          },
+          {
+            "q": "What should I do when printing at home?",
+            "a": "Crucial setting: always set your printer to 'Actual Size / 100% Scale'. Never select 'Fit to page' or 'Shrink to fit', as this will misalign the templates and crop marks! And remember to set the print quality to 'High' on the appropriate paper to remove imperfections and ensure color fidelity."
+          },
+          {
+            "q": "How to send to a print shop?",
+            "a": "Download the high-resolution PDF from the 'Stationery' tab and send it directly to your preferred print shop. The files are already closed in the professional printing standard. Important tip: the on-screen preview is just an approximate visual simulation. The downloaded PDF file is the official 100% accurate high-definition document for printing. Always open and review the downloaded PDF file on your computer before sending it to the print shop to ensure everything is perfect!"
+          },
+          {
+            "q": "Which format should I use?",
+            "a": "For digital viewing and social media, export in PNG (transparent background). For professional printing of bags and printed materials, always use the PDF available in the corresponding tab."
+          },
+          {
+            "q": "How do I know which paper to use for printing?",
+            "a": "You can consult your preferred print shop or check the recommended details directly on the platform! By clicking the button to download the PDF of any item in the 'Stationery' tab, the system displays a complete technical sheet with the exact size of the piece, the recommended paper weight and type, and even the estimated average cost of producing this item in the market."
+          },
+          {
+            "q": "How to avoid cuts in the pattern?",
+            "a": "If the repetition of your pattern shows visible marks on the edges or hard cuts, go to the 'Pattern' tab and click the magic button 'Smooth cuts'. Our algorithm will blend the seams automatically to make the pattern 100% continuous! If necessary, your partner print shop professional can also help by adjusting the repetition scale to perfectly fit paper rolls or bags."
+          }
+        ]
+      },
+      {
+        "category": "💾 Project",
+        "items": [
+          {
+            "q": "How to access my link again?",
+            "a": "The access link to your Brand Box was sent to your registered email right after payment confirmation. You can also save it in your browser bookmarks."
+          },
+          {
+            "q": "Can I change the project name?",
+            "a": "Yes! To prevent system abuse, we allow 1 brand name change in the 'Logo' tab (completing a total of 2 valid names: the original and the correction)."
+          },
+          {
+            "q": "Does my link expire?",
+            "a": "No! Your project and all your downloads are available for access whenever you need them, with no expiration date."
+          },
+          {
+            "q": "Can I access it from my phone?",
+            "a": "Yes! The Brand Box is fully responsive. You can view your identity, download the logos directly to your camera roll, and review your brand guide from your smartphone."
+          }
+        ]
+      },
+      {
+        "category": "✨ Experience",
+        "items": [
+          {
+            "q": "How to find the best style for my brand?",
+            "a": "The ideal style is the one that connects the essence of your business to your customer's heart. Our intelligent algorithm crossed your survey answers to find the perfect match among the 6 premium aesthetic directions."
+          },
+          {
+            "q": "What is the brand manifesto?",
+            "a": "It's the conceptual voice of your brand written in poetic and inspirational prose. It serves to align your purpose and touch your customer in your official communication."
+          },
+          {
+            "q": "How to define my tone of voice?",
+            "a": "The tone of voice ('Tone of Voice' tab) defines the writing guidelines: the words to use, what to avoid, and your brand's attitude when talking to the audience on a daily basis."
+          }
+        ]
+      }
+    ],
+    "suporte_gratuito_titulo": "Free Support",
+    "suporte_gratuito_itens": [
+      "Usage questions",
+      "Access problems",
+      "Printing support",
+      "Export assistance"
+    ],
+    "concierge_subtitulo": "Creative Concierge",
+    "concierge_itens": [
+      "Color refinements",
+      "Special modifications",
+      "Manual logo adjustments",
+      "Custom applications"
+    ],
+    "concierge_btn": "Request personalized help →",
+    "concierge_wpp_msg": "Hello! I would like to know more about the creative concierge service and premium extra adjustments for my brand on the Brand Box."
+  },
+  "manifesto": {
+    "desc_title": "The Manifesto is the soul of your brand in words.",
+    "desc_text": "Answer 5 questions and the AI will create a unique text for ",
+    "btn_create": "✨ Create Manifesto with AI",
+    "btn_creating": "✨ Creating manifesto...",
+    "btn_generate": "✨ Generate Manifesto",
+    "label": "Manifesto",
+    "btn_download": "⬇ Download PNG",
+    "btn_copy": "📋 Copy",
+    "btn_copied": "✓ Copied!",
+    "btn_edit": "✏️ Edit",
+    "btn_done": "✓ Done",
+    "btn_redo": "🔄 Redo",
+    "restante": "left",
+    "limite_atingido": "Generation limit reached"
+  },
+  "tom_de_voz": {
+    "desc_title": "Tone of Voice dictates how your brand talks to the world.",
+    "desc_text": "Answer 4 questions and the AI will define your brand's style.",
+    "btn_create": "✨ Create Tone of Voice with AI",
+    "btn_creating": "✨ Creating tone of voice...",
+    "btn_generate": "✨ Generate Tone of Voice",
+    "label": "Tone of Voice",
+    "palavras_chave": "Keywords",
+    "orientacoes": "Communication Guidelines"
+  },
+  "quiz": {
+    "de": "of",
+    "voltar": "← Back",
+    "proxima": "Next →",
+    "erro_gerar": "We couldn't generate it right now. Try again.",
+    "erro_conexao": "Connection error. Try again."
+  },
+  "quiz_perguntas_geral": [
+    {
+      "id": "origem",
+      "pergunta": "How would you describe the origin of your brand?",
+      "opcoes": [
+        "It was born from a personal dream and passion",
+        "From a need I felt myself",
+        "I wanted to change something in my market",
+        "It evolved naturally from my life"
+      ]
+    },
+    {
+      "id": "cliente",
+      "pergunta": "Who do you create for?",
+      "opcoes": [
+        "Women seeking care and welcoming",
+        "People who value quality and exclusivity",
+        "Those who want to feel special every day",
+        "Women in transformation and self-discovery"
+      ]
+    },
+    {
+      "id": "promessa",
+      "pergunta": "What do you deliver besides the product/service?",
+      "opcoes": [
+        "An experience of lightness and beauty",
+        "Confidence and security",
+        "Connection and belonging",
+        "Transformation and empowerment"
+      ]
+    },
+    {
+      "id": "essencia",
+      "pergunta": "If your brand were a sensation, it would be…",
+      "opcoes": [
+        "That warm hug",
+        "The lightness of a sunny morning",
+        "The elegance of something handmade with love",
+        "The emotion of a discovery"
+      ]
+    },
+    {
+      "id": "diferencial",
+      "pergunta": "What makes your brand unique?",
+      "opcoes": [
+        "The care in every detail",
+        "The authenticity and real story behind it",
+        "The combination of aesthetics and purpose",
+        "The human and personalized touch"
+      ]
+    }
+  ],
+  "quiz_perguntas_saude": [
+    {
+      "id": "origem",
+      "pergunta": "What led you to choose this area of healthcare?",
+      "opcoes": [
+        "A calling that always existed within me",
+        "The desire to make a difference in people's lives",
+        "A personal experience that transformed me",
+        "The desire to unite science and welcoming care"
+      ]
+    },
+    {
+      "id": "publico",
+      "pergunta": "Who do you primarily serve?",
+      "opcoes": [
+        "Children and their families",
+        "Women in different phases of life",
+        "Adults in general",
+        "People seeking mental and emotional balance"
+      ]
+    },
+    {
+      "id": "paciente",
+      "pergunta": "How do you want your patients to feel when they seek you?",
+      "opcoes": [
+        "Welcomed and safe from the first contact",
+        "Confident that they are in good hands",
+        "Heard and respected in every detail",
+        "At peace — as if they finally found the right person"
+      ]
+    },
+    {
+      "id": "promessa",
+      "pergunta": "What do you deliver beyond technical care?",
+      "opcoes": [
+        "Humanization and true listening",
+        "Clarity and confidence for the patient and family",
+        "A safe space to speak openly",
+        "Care that goes beyond the appointment"
+      ]
+    },
+    {
+      "id": "essencia",
+      "pergunta": "If your clinic were a sensation, it would be…",
+      "opcoes": [
+        "That motherly hug that calms everything",
+        "The lightness of leaving with answers and peace of mind",
+        "The security of being in competent and gentle hands",
+        "The clarity of finally understanding what is happening"
+      ]
+    },
+    {
+      "id": "diferencial",
+      "pergunta": "What makes your practice unique?",
+      "opcoes": [
+        "The human gaze and true presence",
+        "The combination of technical rigor and gentle care",
+        "The way I explain and involve the family in the process",
+        "The bond I build with each patient over time"
+      ]
+    }
+  ],
+  "tomdevoz_perguntas": [
+    {
+      "id": "estilo",
+      "pergunta": "How do you write for your audience?",
+      "opcoes": [
+        "In a close and informal way, like a friend",
+        "With lightness but care — neither formal nor too intimate",
+        "In a professional and clear way",
+        "With inspiration — texts that touch and move"
+      ]
+    },
+    {
+      "id": "tratamento",
+      "pergunta": "How do you address your client in messages?",
+      "opcoes": [
+        "You (close and direct)",
+        "You + first name sometimes",
+        "Dear [Name] (more formal)",
+        "Friend, love, darling (very intimate)"
+      ]
+    },
+    {
+      "id": "nunca",
+      "pergunta": "What kind of communication would you NEVER do?",
+      "opcoes": [
+        "Cold and corporate language",
+        "Long and difficult to read text",
+        "Something exaggerated or appealing",
+        "Technical content without humanization"
+      ]
+    },
+    {
+      "id": "ritmo",
+      "pergunta": "What is the rhythm of your messages?",
+      "opcoes": [
+        "Short, direct, and objective",
+        "Narrative — I like to tell stories",
+        "Poetic and full of metaphors",
+        "Informative and educational"
+      ]
+    }
+  ],
+  "font": {
+    "active_font": "Active font",
+    "suggested": "Suggested",
+    "applied": "✓ Applied",
+    "try_another": "I want to try another →",
+    "cursiva": "Cursive",
+    "delicada": "Delicate",
+    "elegante": "Elegant",
+    "classica": "Classic",
+    "moderna": "Modern",
+    "ludica": "Playful",
+    "divertida": "Fun",
+    "custom_logo_msg": "You uploaded your own logo, so the font is already part of your image!",
+    "custom_logo_sub": "To test other fonts or use the options on this tab, go back to the \"Your Logo\" tab and select the \"Suggested logo\"."
+  },
+  "reiniciar_teste": "restart test"
 }
