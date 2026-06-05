@@ -1121,5 +1121,17 @@
     "download_pdf": "⬇ Download Full Guide in PDF",
     "new_tab": "A new tab will open — use \"Save as PDF\" in the print menu.",
     "popups": "(If it does not open, check if your browser blocked Pop-ups)"
+  },
+  "logo_tab": {
+    "saved_styles": "🎨 Saved Styles",
+    "save_current": "+ Save current",
+    "style_name_placeholder": "Style name...",
+    "no_variations": "No variations saved yet.",
+    "layout": "📐 Arrangement / Layout",
+    "one_line": "⟵→ One line",
+    "two_lines": "⊟ Two lines",
+    "stacked": "≡ Stacked",
+    "line_spacing": "↔️ Height / Line Spacing",
+    "brand_name": "✏️ Brand Name"
   }
 }

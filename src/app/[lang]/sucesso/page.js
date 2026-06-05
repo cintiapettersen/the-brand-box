@@ -456,6 +456,7 @@ function formatPaletaNome(nome) {
 }
 
 function CoresSalvarButton({ colorOrder, accentColor }) {
+  const { dictionary } = useTranslation();
   const [saved, setSaved] = React.useState(false);
   const handleSave = () => {
     setSaved(true);
@@ -469,6 +470,7 @@ function CoresSalvarButton({ colorOrder, accentColor }) {
 }
 
 function CoresPrioridadeStep({ paletteColors, colorOrder, setColorOrder, accentColor }) {
+  const { dictionary } = useTranslation();
   const ordered = React.useMemo(() => {
     if (!colorOrder) return paletteColors.map((c, i) => ({ color: c, idx: i }));
     return colorOrder.map(i => ({ color: paletteColors[i], idx: i })).filter(x => x.color);
@@ -539,6 +541,7 @@ function CoresPrioridadeStep({ paletteColors, colorOrder, setColorOrder, accentC
 }
 
 function CoresStep({ paletteColors, accentColor, paletaNome, coresRef }) {
+  const { dictionary } = useTranslation();
   const tints = [0.25, 0.50, 0.72, 0.88];
   const roleLabels = [dictionary?.palette_tab?.main || 'Principal', dictionary?.palette_tab?.secondary || 'Secundária', dictionary?.palette_tab?.tertiary || 'Terciária', dictionary?.palette_tab?.complementary || 'Complementar', dictionary?.palette_tab?.support || 'Apoio'];
 
@@ -887,6 +890,7 @@ function CartaoStep({ brand, accentColor, paletteColors, marca, estampaPatterns,
 }
 
 function EstampaStep({ brand, accentColor, marca, patterns, setPatterns, genCount, setGenCount, selectedIdx, setSelectedIdx, paletteColors, patternScale, setPatternScale, estampasRef, originalPattern, setOriginalPattern }) {
+  const { dictionary } = useTranslation();
   const [generating, setGenerating] = useState(false);
   const [fixingSeams, setFixingSeams] = useState(false);
   // originalPattern vem do pai para sobreviver a re-renders
@@ -2800,6 +2804,7 @@ function FonteStep({ brand, accentColor, logoColor, marca, tagline, editData, lo
 }
 
 function GuiaStep({ brand, accentColor, paletteColors, marca, tagline, estampaPatterns, estampaSelectedIdx, editData }) {
+  const { dictionary } = useTranslation();
   const currentIdx = estampaSelectedIdx || 0;
   const patternSrc = estampaPatterns?.[currentIdx]
     ? (estampaPatterns[currentIdx].url || `data:${estampaPatterns[currentIdx].mimeType};base64,${estampaPatterns[currentIdx].base64}`)
@@ -9091,6 +9096,7 @@ ${fontImports2}
 
 function EntregaContent({ brand, plano, setBrand }) {
   const { dictionary } = useTranslation();
+  const tLogo = dictionary?.logo_tab || {};
   const [step, setStepState] = useState('placa');
   const setStep = (s) => { setStepState(s); try { localStorage.setItem(`brandbox_step_${brand.id}`, s); } catch {} };
 

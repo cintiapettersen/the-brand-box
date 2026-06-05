@@ -1121,5 +1121,17 @@
     "download_pdf": "⬇ Baixar Guia em PDF",
     "new_tab": "Uma nova aba abrirá — use \"Salvar como PDF\" no menu de impressão.",
     "popups": "(Se não abrir, verifique se seu navegador bloqueou Pop-ups)"
+  },
+  "logo_tab": {
+    "saved_styles": "🎨 Estilos Salvos",
+    "save_current": "+ Salvar atual",
+    "style_name_placeholder": "Nome do estilo...",
+    "no_variations": "Nenhuma variação salva ainda.",
+    "layout": "📐 Disposição / Layout",
+    "one_line": "⟵→ Uma linha",
+    "two_lines": "⊟ Duas linhas",
+    "stacked": "≡ Empilhada",
+    "line_spacing": "↔️ Altura / Espaço entre Linhas",
+    "brand_name": "✏️ Nome da Marca"
   }
 }
