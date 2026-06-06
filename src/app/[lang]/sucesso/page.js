@@ -6279,9 +6279,9 @@ body { width: 485.775mm; height: 385.233mm; position: relative; overflow: hidden
       });
 
       const MESSAGES_A = [
-        'Obrigada pela sua confiança! ✨',
-        'Foi um prazer te atender 🌸',
-        'Que bom ter você aqui! 💛',
+        dictionary?.cartao_agradecimento?.msg1 || 'Obrigada pela sua confiança! ✨',
+        dictionary?.cartao_agradecimento?.msg2 || 'Foi um prazer te atender 🌸',
+        dictionary?.cartao_agradecimento?.msg3 || 'Que bom ter você aqui! 💛',
       ];
       const selectedMessageText = MESSAGES_A[agradecimentoMsgIdx] || MESSAGES_A[0];
 
