@@ -7394,7 +7394,7 @@ body { background:#fff; }
         {label:'15×10cm', w:150, h:100, previewScale:2.2},
         {label:'10×15cm', w:100, h:150, previewScale:2.0},
       ];
-      const FRASES_ET = ['Oba, chegou!','Com muito amor e cuidado','Feito especialmente pra você','Sua encomenda chegou!'];
+      const FRASES_ET = dictionary?.etiqueta_correios?.frases || ['Oba, chegou!','Com muito amor e cuidado','Feito especialmente pra você','Sua encomenda chegou!'];
       const selSize = SIZES_ET[etiquetaSizeIdx] || SIZES_ET[0];
       const selFrase = FRASES_ET[etiquetaFraseIdx] || FRASES_ET[0];
       const BLEED_ET = 3;
