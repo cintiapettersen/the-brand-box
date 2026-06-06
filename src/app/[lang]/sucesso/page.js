@@ -2913,6 +2913,7 @@ function GuiaStep({ brand, accentColor, paletteColors, marca, tagline, estampaPa
 }
 
 function CartaoRetornoPreview({ accentColor, patternSrc, cartaoContacts, crmLine, editData, logoColor, comBorda, setComBorda, clinicaNome, setClinicaNome, logoLayout, paletteColors, borderColor, setBorderColor, patternScale, setPatternScale }) {
+  const { dictionary } = useTranslation();
   const brandFont = `'${editData?.fontFamily || 'Playfair Display'}', serif`;
   const { endereco, whatsapp, telefone, telefone2, instagram, site } = cartaoContacts || {};
   const mainPhone = whatsapp || telefone || '';
@@ -2944,15 +2945,13 @@ function CartaoRetornoPreview({ accentColor, patternSrc, cartaoContacts, crmLine
               </div>
               {crmLine && <div style={{ fontFamily: "'Montserrat',sans-serif", fontSize: '3.3px', color: '#999', letterSpacing: '0.8px', textTransform: 'uppercase', textAlign: 'center', marginBottom: '10px', marginTop: '-6px', whiteSpace: 'nowrap' }}>{crmLine}</div>}
               
-              <div style={{ background: accentColor, color: '#fff', width: '100%', padding: '4px 0', fontSize: '6.5px', fontWeight: 800, textAlign: 'center', letterSpacing: '1px', borderRadius: '2px', marginBottom: '8px', fontFamily: 'Montserrat, sans-serif' }}>
-                RETORNO DE CONSULTAS
-              </div>
+              <div style={{ background: accentColor, color: '#fff', width: '100%', padding: '4px 0', fontSize: '6.5px', fontWeight: 800, textAlign: 'center', letterSpacing: '1px', borderRadius: '2px', marginBottom: '8px', fontFamily: 'Montserrat, sans-serif' }}>{dictionary?.retorno_consultas?.titulo || 'RETORNO DE CONSULTAS'}</div>
 
               {/* Tabela Pequena */}
               <div style={{ width: '100%', border: '1px solid #efefef', borderRadius: '4px', overflow: 'hidden' }}>
                 <div style={{ display: 'flex', background: `${accentColor}15`, borderBottom: '1px solid #efefef' }}>
-                  <div style={{ flex: 1, fontSize: '5px', fontWeight: 800, textAlign: 'center', padding: '3px 0', borderRight: '1px solid #efefef', color: accentColor, fontFamily: 'Montserrat, sans-serif' }}>Data</div>
-                  <div style={{ flex: 1, fontSize: '5px', fontWeight: 800, textAlign: 'center', padding: '3px 0', color: accentColor, fontFamily: 'Montserrat, sans-serif' }}>Horário</div>
+                  <div style={{ flex: 1, fontSize: '5px', fontWeight: 800, textAlign: 'center', padding: '3px 0', borderRight: '1px solid #efefef', color: accentColor, fontFamily: 'Montserrat, sans-serif' }}>{dictionary?.retorno_consultas?.data || 'Data'}</div>
+                  <div style={{ flex: 1, fontSize: '5px', fontWeight: 800, textAlign: 'center', padding: '3px 0', color: accentColor, fontFamily: 'Montserrat, sans-serif' }}>{dictionary?.retorno_consultas?.horario || 'Horário'}</div>
                 </div>
                 {rows(8, '22px')}
               </div>
@@ -2972,8 +2971,8 @@ function CartaoRetornoPreview({ accentColor, patternSrc, cartaoContacts, crmLine
               {/* Tabela Grande */}
               <div style={{ width: '100%', border: '1px solid #efefef', borderRadius: '4px', overflow: 'hidden', marginBottom: '8px' }}>
                 <div style={{ display: 'flex', background: `${accentColor}15`, borderBottom: '1px solid #efefef' }}>
-                  <div style={{ flex: 1, fontSize: '5px', fontWeight: 800, textAlign: 'center', padding: '3px 0', borderRight: '1px solid #efefef', color: accentColor, fontFamily: 'Montserrat, sans-serif' }}>Data</div>
-                  <div style={{ flex: 1, fontSize: '5px', fontWeight: 800, textAlign: 'center', padding: '3px 0', color: accentColor, fontFamily: 'Montserrat, sans-serif' }}>Horário</div>
+                  <div style={{ flex: 1, fontSize: '5px', fontWeight: 800, textAlign: 'center', padding: '3px 0', borderRight: '1px solid #efefef', color: accentColor, fontFamily: 'Montserrat, sans-serif' }}>{dictionary?.retorno_consultas?.data || 'Data'}</div>
+                  <div style={{ flex: 1, fontSize: '5px', fontWeight: 800, textAlign: 'center', padding: '3px 0', color: accentColor, fontFamily: 'Montserrat, sans-serif' }}>{dictionary?.retorno_consultas?.horario || 'Horário'}</div>
                 </div>
                 {rows(12, '18px')}
               </div>
@@ -3005,6 +3004,7 @@ function CartaoRetornoPreview({ accentColor, patternSrc, cartaoContacts, crmLine
 }
 
 function CartaoDeVisitaPreview({ accentColor, patternSrc, cartaoContacts, crmLine, editData, logoColor, comBorda, setComBorda, clinicaNome, setClinicaNome, logoLayout, paletteColors, borderColor, setBorderColor, patternScale, setPatternScale, hideTagline, retrato: retratoExterno, setRetrato: setRetratoExterno }) {
+  const { dictionary } = useTranslation();
   const [retratoLocal, setRetratoLocal] = React.useState(false);
   const retrato = retratoExterno !== undefined ? retratoExterno : retratoLocal;
   const setRetrato = setRetratoExterno || setRetratoLocal;
@@ -3150,6 +3150,7 @@ export function BordaToggle({ comBorda, setComBorda, accentColor, paletteColors,
 
 // Preview do Certificado de Coragem (A4 Horizontal, casinha branca e borda estampada)
 function CertificadoCoragemPreview({ accentColor, patternSrc, editData, logoColor, logoLayout, cartaoContacts, crmLine, clinicaNome, comBorda, setComBorda, paletteColors, borderColor, setBorderColor, patternScale, setPatternScale, hideTagline }) {
+  const { dictionary } = useTranslation();
   const effectiveSrc = comBorda ? patternSrc : null;
   const solidColor = borderColor || accentColor;
   const scriptFont = "'Great Vibes', cursive";
@@ -3182,20 +3183,16 @@ function CertificadoCoragemPreview({ accentColor, patternSrc, editData, logoColo
             <LogoPreviewHTML item="Certificado de Coragem" editData={editData} color={logoColor} layout={logoLayout} scaleFactor={editData?.customLogoSrc ? 1.6 : 0.65} withBackground={false} maxWidth="100%" maxHeight="100%" />
           </div>
 
-          <div style={{ fontFamily: "'Montserrat', sans-serif", fontSize: '0.5rem', fontWeight: 600, color: '#7a7a7a', letterSpacing: '1px', marginBottom: '0px' }}>
-            Certificado Pediátrico de
-          </div>
+          <div style={{ fontFamily: "'Montserrat', sans-serif", fontSize: '0.5rem', fontWeight: 600, color: '#7a7a7a', letterSpacing: '1px', marginBottom: '0px' }}>{dictionary?.certificado_coragem?.pediatrico_de || 'Certificado Pediátrico de'}</div>
           <h2 style={{
             fontFamily: "'Playfair Display', serif",
             fontSize: '1.8rem', fontWeight: 700, color: solidColor, margin: '0 0 8px', letterSpacing: '1px'
-          }}>
-            Coragem
-          </h2>
+          }}>{dictionary?.certificado_coragem?.coragem || 'Coragem'}</h2>
 
           <div style={{ fontFamily: "'Montserrat', sans-serif", fontSize: '0.52rem', fontWeight: 400, color: '#5a5a5a', textAlign: 'center', lineHeight: 1.6, marginTop: '4px', width: '90%' }}>
-            <div style={{ margin: 0 }}>Certifico para os devidos e lúdicos fins, que __________________</div>
-            <div style={{ margin: 0 }}>idade _____ comportou-se corretamente na consulta de hoje,</div>
-            <div style={{ margin: 0 }}>sendo educado e demonstrando muita coragem e valentia.</div>
+            <div style={{ margin: 0 }}>{dictionary?.certificado_coragem?.certifico_que || 'Certifico para os devidos e lúdicos fins, que'} __________________</div>
+            <div style={{ margin: 0 }}> {dictionary?.certificado_coragem?.idade || 'idade'} _____ {dictionary?.certificado_coragem?.comportou_se || 'comportou-se corretamente na consulta de hoje,'} </div>
+            <div style={{ margin: 0 }}> {dictionary?.certificado_coragem?.sendo_educado || 'sendo educado e demonstrando muita coragem e valentia.'}</div>
           </div>
         </div>
       </div>
@@ -3336,6 +3333,7 @@ function ProntuarioPreview({ accentColor, patternSrc, editData, logoColor, logoL
   );
 }
 function DiarioXixiPreview({ accentColor, patternSrc, editData, logoColor, logoLayout, cartaoContacts, crmLine, clinicaNome, comBorda, setComBorda, paletteColors, borderColor, setBorderColor, patternScale, setPatternScale, hideTagline }) {
+  const { dictionary } = useTranslation();
   const scaleXixi = useScaleToFit(453, 320 + 12);
   const BORDER = 10;
   const effectiveSrc = comBorda ? patternSrc : null;
@@ -3384,7 +3382,7 @@ function DiarioXixiPreview({ accentColor, patternSrc, editData, logoColor, logoL
           </div>
           <div style={{ display: 'flex', flexDirection: 'column', gap: '4px', marginBottom: '8px' }}>
             <div style={{ background: '#f5f5f5', padding: '4px 12px', borderRadius: '4px', border: '0.4px solid #ddd', alignSelf: 'flex-start', maxWidth: '270px' }}>
-              <span style={{ fontSize: '10px', fontWeight: 800, color: '#333', letterSpacing: '0.5px', whiteSpace: 'nowrap' }}>DIÁRIO DO XIXI (HÁBITO MICCIONAL)</span>
+              <span style={{ fontSize: '10px', fontWeight: 800, color: '#333', letterSpacing: '0.5px', whiteSpace: 'nowrap' }}>{dictionary?.diario_xixi?.titulo || 'DIÁRIO DO XIXI (HÁBITO MICCIONAL)'}</span>
             </div>
             <div style={{ fontSize: '7px', color: accentColor, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.5px' }}>Controle de Escapes e Enurese (Xixi na Cama)</div>
             <div style={{ display: 'flex', gap: '6px', alignItems: 'flex-end', marginTop: '2px' }}>
@@ -3514,11 +3512,11 @@ function FichaCadastroPreview({ accentColor, patternSrc, editData, logoColor, lo
              </div>
              <div style={{ display: 'flex', gap: '6px' }}>
                <div style={{ flex: 0.6, display: 'flex', gap: '4px', alignItems: 'center' }}>
-                 <span style={{ fontSize: '7px', fontFamily: "'Montserrat', sans-serif", fontWeight: 700, whiteSpace: 'nowrap' }}>GRAU DE PARENTESCO:</span>
+                 <span style={{ fontSize: '7px', fontFamily: "'Montserrat', sans-serif", fontWeight: 700, whiteSpace: 'nowrap' }}>{dictionary?.ficha_cadastro?.grau_parentesco || 'GRAU DE PARENTESCO:'}</span>
                  <div style={{ flex: 1, height: '12px', background: '#d0dbe9', borderRadius: '1px' }} />
                </div>
                <div style={{ flex: 0.4, display: 'flex', gap: '4px', alignItems: 'center' }}>
-                 <span style={{ fontSize: '7px', fontFamily: "'Montserrat', sans-serif", fontWeight: 700, whiteSpace: 'nowrap' }}>CPF:</span>
+                 <span style={{ fontSize: '7px', fontFamily: "'Montserrat', sans-serif", fontWeight: 700, whiteSpace: 'nowrap' }}>{dictionary?.ficha_cadastro?.cpf || 'CPF:'}</span>
                  <div style={{ flex: 1, height: '12px', background: '#d0dbe9', borderRadius: '1px' }} />
                </div>
              </div>
@@ -3751,6 +3749,7 @@ function ControleEspecialPreview({ accentColor, patternSrc, editData, logoColor,
 }
 
 function ChecklistMaternidadePreview({ accentColor, patternSrc, editData, logoColor, logoLayout, cartaoContacts, crmLine, clinicaNome, comBorda, setComBorda, paletteColors, borderColor, setBorderColor, patternScale, setPatternScale }) {
+  const { dictionary } = useTranslation();
   const BORDER = 10;
   const solidColor = borderColor || accentColor;
   const { whatsapp, telefone, telefone2, instagram, site, endereco } = cartaoContacts || {};
@@ -3789,9 +3788,7 @@ function ChecklistMaternidadePreview({ accentColor, patternSrc, editData, logoCo
         <div style={{ position: 'absolute', top: BORDER, left: BORDER, right: BORDER, bottom: BORDER, background: '#fff', display: 'flex', overflow: 'hidden' }}>
           {/* Título vertical */}
           <div style={{ width: '18px', flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', background: `${accentColor}10` }}>
-            <div style={{ transform: 'rotate(-90deg)', whiteSpace: 'nowrap', fontSize: '5.5px', fontWeight: 900, color: accentColor, letterSpacing: '2px', textTransform: 'uppercase' }}>
-              CHECKLIST MATERNIDADE
-            </div>
+            <div style={{ transform: 'rotate(-90deg)', whiteSpace: 'nowrap', fontSize: '5.5px', fontWeight: 900, color: accentColor, letterSpacing: '2px', textTransform: 'uppercase' }}>{dictionary?.checklist_maternidade?.titulo || 'CHECKLIST MATERNIDADE'}</div>
           </div>
           {/* Conteúdo */}
           <div style={{ flex: 1, display: 'flex', flexDirection: 'column', padding: '12px 5px 3px 5px', gap: '3px', overflow: 'hidden' }}>
@@ -4010,6 +4007,7 @@ function OrientacoesRNPreview({ accentColor, patternSrc, editData, logoColor, lo
 }
 
 function GuiaCuidadosPreview({ brand, logoColor, logoLayout, comBorda, setComBorda, patternSrc, patternScale, setPatternScale, accentColor, borderColor, setBorderColor, paletteColors, cartaoContacts, crmLine, clinicaNome, editData, localSlogan }) {
+  const { dictionary } = useTranslation();
   const [svgContent, setSvgContent] = React.useState('');
   const color1 = paletteColors[0] || accentColor;
   const color1b = paletteColors[1] || paletteColors[0] || accentColor;
@@ -4079,8 +4077,8 @@ function GuiaCuidadosPreview({ brand, logoColor, logoLayout, comBorda, setComBor
         </div>
         <div style={{ width:'13px', height:'0.7px', background:accentColor, marginBottom:'8px', borderRadius:'10px' }} />
         <div style={{ display:'flex', flexDirection:'column', alignItems:'center', gap:'0px' }}>
-          <div style={{ fontSize:'3px', fontWeight:800, color:`${accentColor}cc`, textTransform:'uppercase', letterSpacing:'0.6px', fontStyle:'italic' }}>GUIA DE</div>
-          <div style={{ fontSize:'5.9px', fontWeight:800, color:'#333', textTransform:'uppercase', letterSpacing:'0.8px', lineHeight:1.2 }}>CUIDADOS COM O BEBÊ</div>
+          <div style={{ fontSize:'3px', fontWeight:800, color:`${accentColor}cc`, textTransform:'uppercase', letterSpacing:'0.6px', fontStyle:'italic' }}>{dictionary?.guia_cuidados?.guia_de || 'GUIA DE'}</div>
+          <div style={{ fontSize:'5.9px', fontWeight:800, color:'#333', textTransform:'uppercase', letterSpacing:'0.8px', lineHeight:1.2 }}>{dictionary?.guia_cuidados?.titulo || 'CUIDADOS COM O BEBÊ'}</div>
         </div>
         <div style={{ marginTop:'3px', padding:'0.6px 3px', background:`${accentColor}15`, borderRadius:'20px', border:`0.4px solid ${accentColor}30` }}>
           <div style={{ fontSize:'2.8px', fontWeight:800, color:accentColor, letterSpacing:'0.2px', textTransform:'uppercase' }}>Saúde e Bem-Estar Pediátrico</div>
@@ -4591,6 +4589,7 @@ function AtestadoPreview({ accentColor, patternSrc, editData, logoColor, logoLay
 }
 
 function GenericItemPreview({ item, marca, accentColor, patternSrc, editData, logoColor, logoLayout, comBorda, setComBorda, paletteColors, borderColor, setBorderColor, patternScale, setPatternScale, hideTagline, localSlogan }) {
+  const { dictionary } = useTranslation();
   const effectiveSrc = comBorda ? patternSrc : null;
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', alignItems: 'center' }}>
@@ -4911,6 +4910,7 @@ function AssinaturaEmailPreview({ brand, editData, accentColor, logoColor, logoL
 }
 
 function EnvelopeSacoPreview({ brand, editData, accentColor, patternSrc, logoColor, logoLayout, comBorda, setComBorda, paletteColors, borderColor, setBorderColor, patternScale, setPatternScale, cartaoContacts, crmLine, localSlogan, clinicaNome }) {
+  const { dictionary } = useTranslation();
   const { endereco, instagram, site, whatsapp, telefone, email } = cartaoContacts || {};
   const mainPhone = whatsapp || telefone || '';
   const effectiveSrc = comBorda ? patternSrc : null;
@@ -4965,6 +4965,7 @@ function EnvelopeSacoPreview({ brand, editData, accentColor, patternSrc, logoCol
 }
 
 function EnvelopeOficioPreview({ brand, editData, accentColor, patternSrc, logoColor, logoLayout, comBorda, setComBorda, paletteColors, borderColor, setBorderColor, patternScale, setPatternScale, cartaoContacts, crmLine, localSlogan, clinicaNome }) {
+  const { dictionary } = useTranslation();
   const BORDER = 15;
   const { endereco, instagram, site, whatsapp, telefone, email } = cartaoContacts || {};
   const mainPhone = whatsapp || telefone || '';
@@ -5024,6 +5025,7 @@ function EnvelopeOficioPreview({ brand, editData, accentColor, patternSrc, logoC
 }
 
 function CadernoPreview({ editData, accentColor, solidColor, logoColor, logoLayout, comBorda, setComBorda, patternSrc, paletteColors, borderColor, setBorderColor, patternScale, setPatternScale, hideTagline, paperSize, setPaperSize }) {
+  const { dictionary } = useTranslation();
   const scaleCaderno = useScaleToFit(480, 310 + 36);
 
   return (
@@ -6326,8 +6328,8 @@ body { width: 485.775mm; height: 385.233mm; position: relative; overflow: hidden
       const genTable = (count, rowH = '6mm') => `
         <div style="width:100%;border:0.3pt solid #eee;border-radius:1mm;overflow:hidden;margin-bottom:2mm;">
           <div style="display:flex;background:${accentColor}20;border-bottom:0.3pt solid #eee;font-family:'Montserrat',sans-serif;">
-            <div style="flex:1;font-size:6pt;font-weight:800;text-align:center;padding:1mm 0;border-right:0.3pt solid #eee;color:${accentColor};text-transform:uppercase;letter-spacing:0.5pt;">Data</div>
-            <div style="flex:1;font-size:6pt;font-weight:800;text-align:center;padding:1mm 0;color:${accentColor};text-transform:uppercase;letter-spacing:0.5pt;">Horário</div>
+            <div style="flex:1;font-size:6pt;font-weight:800;text-align:center;padding:1mm 0;border-right:0.3pt solid #eee;color:${accentColor};text-transform:uppercase;letter-spacing:0.5pt;">{dictionary?.retorno_consultas?.data || 'Data'}</div>
+            <div style="flex:1;font-size:6pt;font-weight:800;text-align:center;padding:1mm 0;color:${accentColor};text-transform:uppercase;letter-spacing:0.5pt;">{dictionary?.retorno_consultas?.horario || 'Horário'}</div>
           </div>
           ${Array.from({ length: count }).map(() => `<div style="display:flex;border-bottom:0.3pt solid #eee;height:${rowH};"><div style="flex:1;border-right:0.3pt solid #eee;"></div><div style="flex:1;"></div></div>`).join('')}
         </div>`;
@@ -6339,7 +6341,7 @@ body { width: 485.775mm; height: 385.233mm; position: relative; overflow: hidden
           ${genBg(4)}
           <div style="position:absolute;top:${BLEED + 4}mm;left:${BLEED + 4}mm;right:${BLEED + 4}mm;bottom:${BLEED + 4}mm;display:flex;flex-direction:column;align-items:center;padding:4mm 3mm;">
             <div style="margin-bottom:4mm;display:flex;flex-direction:column;align-items:center;width:100%">${logoHtmlR}</div>
-            <div style="background:${accentColor};color:#fff;width:100%;padding:1mm 0;font-size:6.5pt;font-weight:800;text-align:center;letter-spacing:1pt;border-radius:0.5mm;margin-bottom:4mm;font-family:'Montserrat',sans-serif;">RETORNO DE CONSULTAS</div>
+            <div style="background:${accentColor};color:#fff;width:100%;padding:1mm 0;font-size:6.5pt;font-weight:800;text-align:center;letter-spacing:1pt;border-radius:0.5mm;margin-bottom:4mm;font-family:'Montserrat',sans-serif;">{dictionary?.retorno_consultas?.titulo || 'RETORNO DE CONSULTAS'}</div>
             ${genTable(8, '5.5mm')}
           </div>
           <div class="cm cm-tl"></div><div class="cm cm-tr"></div><div class="cm cm-bl"></div><div class="cm cm-br"></div>
@@ -6973,7 +6975,7 @@ body { width: 220mm; height: 307mm; background: #fff; }
         <div style="position:absolute;bottom:0;left:${BLEED}mm;width:0.2mm;height:${BLEED-0.5}mm;background:#000;z-index:100;"></div>
         <div style="position:absolute;bottom:${BLEED}mm;right:0;width:${BLEED-0.5}mm;height:0.2mm;background:#000;z-index:100;"></div>
         <div style="position:absolute;bottom:0;right:${BLEED}mm;width:0.2mm;height:${BLEED-0.5}mm;background:#000;z-index:100;"></div>`;
-      const htmlCk = `<!DOCTYPE html><html><head><meta charset="UTF-8"><link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;700;900&display=swap" rel="stylesheet">${_fiCk}<style>*{margin:0;padding:0;box-sizing:border-box;}body{width:220mm;height:307mm;}@media print{body{margin:0;}@page{size:220mm 307mm;margin:0;}}</style></head><body><div style="position:relative;width:220mm;height:307mm;${_patCk}">${_cmCk}<div style="position:absolute;top:${BLEED + 8}mm;left:${BLEED + 8}mm;right:${BLEED + 8}mm;bottom:${BLEED + 8}mm;background:#fff;display:flex;overflow:hidden;"><div style="width:16mm;flex-shrink:0;display:flex;align-items:center;justify-content:center;background:${accentColor}15;"><div style="transform:rotate(-90deg);white-space:nowrap;font-family:'Montserrat',sans-serif;font-size:15pt;font-weight:900;color:${accentColor};letter-spacing:4pt;text-transform:uppercase;">CHECKLIST MATERNIDADE</div></div><div style="flex:1;display:flex;flex-direction:column;padding:12mm 8mm 10mm 8mm;gap:4mm;overflow:hidden;"><div style="display:flex;justify-content:center;padding-bottom:5mm;border-bottom:0.2mm solid ${accentColor}25;">${_logoCk}</div><div style="flex:1;display:grid;grid-template-columns:1fr 1fr;gap:4mm;">${SECOES_CK.map((s, idx) => secaoHtmlCk(s, idx)).join('')}</div>${footerHtml}</div></div></div></body></html>`;
+      const htmlCk = `<!DOCTYPE html><html><head><meta charset="UTF-8"><link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;700;900&display=swap" rel="stylesheet">${_fiCk}<style>*{margin:0;padding:0;box-sizing:border-box;}body{width:220mm;height:307mm;}@media print{body{margin:0;}@page{size:220mm 307mm;margin:0;}}</style></head><body><div style="position:relative;width:220mm;height:307mm;${_patCk}">${_cmCk}<div style="position:absolute;top:${BLEED + 8}mm;left:${BLEED + 8}mm;right:${BLEED + 8}mm;bottom:${BLEED + 8}mm;background:#fff;display:flex;overflow:hidden;"><div style="width:16mm;flex-shrink:0;display:flex;align-items:center;justify-content:center;background:${accentColor}15;"><div style="transform:rotate(-90deg);white-space:nowrap;font-family:'Montserrat',sans-serif;font-size:15pt;font-weight:900;color:${accentColor};letter-spacing:4pt;text-transform:uppercase;">{dictionary?.checklist_maternidade?.titulo || 'CHECKLIST MATERNIDADE'}</div></div><div style="flex:1;display:flex;flex-direction:column;padding:12mm 8mm 10mm 8mm;gap:4mm;overflow:hidden;"><div style="display:flex;justify-content:center;padding-bottom:5mm;border-bottom:0.2mm solid ${accentColor}25;">${_logoCk}</div><div style="flex:1;display:grid;grid-template-columns:1fr 1fr;gap:4mm;">${SECOES_CK.map((s, idx) => secaoHtmlCk(s, idx)).join('')}</div>${footerHtml}</div></div></div></body></html>`;
       const exCk = document.getElementById('_gabarito_iframe'); if (exCk) exCk.remove();
       const blobCk = new Blob([htmlCk], { type: 'text/html;charset=utf-8' });
       const blobUrlCk = URL.createObjectURL(blobCk);
@@ -7128,7 +7130,7 @@ body { width: 303mm; height: 216mm; position: relative; overflow: hidden; backgr
         </div>
         <div style="display:flex;flex-direction:column;gap:6mm;margin-bottom:8mm;padding-right:105mm;">
             <div style="background:#f5f5f5;padding:4mm 10mm;border-radius:1.5mm;border:0.4mm solid #ddd;display:inline-block;align-self:flex-start;">
-                <span style="font-family:'Montserrat',sans-serif;font-size:16pt;font-weight:800;color:#333;letter-spacing:2pt;text-transform:uppercase;">DIÁRIO DO XIXI (HÁBITO MICCIONAL)</span>
+                <span style="font-family:'Montserrat',sans-serif;font-size:16pt;font-weight:800;color:#333;letter-spacing:2pt;text-transform:uppercase;">{dictionary?.diario_xixi?.titulo || 'DIÁRIO DO XIXI (HÁBITO MICCIONAL)'}</span>
             </div>
             <div style="font-family:'Montserrat',sans-serif;font-size:10pt;color:${accentColor};font-weight:700;text-transform:uppercase;letter-spacing:1pt;margin-top:2mm;">Controle de Escapes e Enurese (Xixi na Cama)</div>
             <div style="display:flex;gap:5mm;align-items:flex-end;margin-top:2mm;">
@@ -8540,17 +8542,13 @@ body { width:${W + BLEED*2}mm; height:${H + BLEED*2}mm; position:relative; overf
             ${logoHtmlCe}
         </div>
 
-        <div style="font-family:'Montserrat',sans-serif;font-size:10pt;font-weight:600;color:#7a7a7a;letter-spacing:0.8pt;margin-bottom:0;">
-            Certificado Pediátrico de
-        </div>
-        <h2 style="font-family:'Playfair Display',serif;font-size:48pt;font-weight:700;color:${solidColor};margin:0 0 16mm;letter-spacing:1pt;">
-            Coragem
-        </h2>
+        <div style="font-family:'Montserrat',sans-serif;font-size:10pt;font-weight:600;color:#7a7a7a;letter-spacing:0.8pt;margin-bottom:0;">{dictionary?.certificado_coragem?.pediatrico_de || 'Certificado Pediátrico de'}</div>
+        <h2 style="font-family:'Playfair Display',serif;font-size:48pt;font-weight:700;color:${solidColor};margin:0 0 16mm;letter-spacing:1pt;">{dictionary?.certificado_coragem?.coragem || 'Coragem'}</h2>
 
         <div style="font-family:'Montserrat',sans-serif;font-size:14pt;font-weight:400;color:#5a5a5a;text-align:center;line-height:2.0;width:90%;margin-top:0;">
-            <div style="margin:0;">Certifico para os devidos e lúdicos fins, que __________________</div>
-            <div style="margin:0;">idade _____ comportou-se corretamente na consulta de hoje,</div>
-            <div style="margin:0;">sendo educado e demonstrando muita coragem e valentia.</div>
+            <div style="margin:0;">{dictionary?.certificado_coragem?.certifico_que || 'Certifico para os devidos e lúdicos fins, que'} __________________</div>
+            <div style="margin:0;"> {dictionary?.certificado_coragem?.idade || 'idade'} _____ {dictionary?.certificado_coragem?.comportou_se || 'comportou-se corretamente na consulta de hoje,'} </div>
+            <div style="margin:0;"> {dictionary?.certificado_coragem?.sendo_educado || 'sendo educado e demonstrando muita coragem e valentia.'}</div>
         </div>
     </div>
     
@@ -11562,8 +11560,8 @@ export function FolderAmamentacaoPage1({ accentColor, borderColor, palette = [],
 
       <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '20px', width: '100%', marginBottom: '15px' }}>
         <div style={{ textAlign: 'center' }}>
-          <div style={{ fontSize: '5.5px', fontWeight: 400, color: '#888', letterSpacing: '2.5px', textTransform: 'uppercase' }}>GUIA DE</div>
-          <div style={{ fontSize: '9px', fontWeight: 900, color: '#333', letterSpacing: '0.6px', textTransform: 'uppercase', lineHeight: 1.1 }}>AMAMENTAÇÃO</div>
+          <div style={{ fontSize: '5.5px', fontWeight: 400, color: '#888', letterSpacing: '2.5px', textTransform: 'uppercase' }}>{dictionary?.guia_cuidados?.guia_de || 'GUIA DE'}</div>
+          <div style={{ fontSize: '9px', fontWeight: 900, color: '#333', letterSpacing: '0.6px', textTransform: 'uppercase', lineHeight: 1.1 }}>{dictionary?.orientacoes_rn?.amamentacao || 'AMAMENTAÇÃO'}</div>
         </div>
         
         <div style={{ 
@@ -11574,17 +11572,17 @@ export function FolderAmamentacaoPage1({ accentColor, borderColor, palette = [],
           maxWidth: '90%',
           textAlign: 'center'
         }}>
-           <div style={{ fontSize: '5px', fontWeight: 800, color: mainColor, textTransform: 'uppercase', letterSpacing: '0.8px' }}>ALEITAMENTO MATERNO EXCLUSIVO</div>
+           <div style={{ fontSize: '5px', fontWeight: 800, color: mainColor, textTransform: 'uppercase', letterSpacing: '0.8px' }}>{dictionary?.orientacoes_rn?.aleitamento || 'ALEITAMENTO MATERNO EXCLUSIVO'}</div>
         </div>
       </div>
 
       <div style={{ width: '100%', marginTop: '6px', display: 'flex', flexDirection: 'column', gap: '6px', padding: '0 5px', marginBottom: '10px' }}>
         <div style={{ display: 'flex', alignItems: 'flex-end', gap: '4px' }}>
-           <span style={{ fontSize: '5px', fontWeight: 700, color: mainColor }}>NOME:</span>
+           <span style={{ fontSize: '5px', fontWeight: 700, color: mainColor }}>{dictionary?.ficha_cadastro?.nome || 'NOME:'}</span>
            <div style={{ flex: 1, borderBottom: `0.3px solid ${mainColor}40`, height: '7px' }} />
         </div>
         <div style={{ display: 'flex', alignItems: 'flex-end', gap: '4px' }}>
-           <span style={{ fontSize: '5px', fontWeight: 700, color: mainColor }}>NASCIMENTO:</span>
+           <span style={{ fontSize: '5px', fontWeight: 700, color: mainColor }}>{dictionary?.ficha_cadastro?.nascimento || 'NASCIMENTO:'}</span>
            <div style={{ width: '10mm', borderBottom: `0.3px solid ${mainColor}40`, height: '7px' }} />
            <span style={{ fontSize: '5px', color: mainColor }}>/</span>
            <div style={{ width: '10mm', borderBottom: `0.3px solid ${mainColor}40`, height: '8px' }} />
@@ -11601,9 +11599,7 @@ export function FolderAmamentacaoPage2({ accentColor, borderColor, palette = [] 
   const mainColor = borderColor || palette[0] || accentColor;
   return (
     <div style={{ width: '100%', padding: '10px 8px', boxSizing: 'border-box', background: '#fff', fontSize: '4.2px', display: 'flex', flexDirection: 'column' }}>
-      <div style={{ background: mainColor, color: '#fff', padding: '4px 8px', fontWeight: 800, marginBottom: '8px', borderRadius: '1px', textAlign: 'center' }}>
-        ALIMENTAÇÃO DA MÃE
-      </div>
+      <div style={{ background: mainColor, color: '#fff', padding: '4px 8px', fontWeight: 800, marginBottom: '8px', borderRadius: '1px', textAlign: 'center' }}>{dictionary?.orientacoes_rn?.alimentacao_mae || 'ALIMENTAÇÃO DA MÃE'}</div>
       <p style={{ color: '#555', lineHeight: 1.45, marginBottom: '10px' }}>
         Recomenda-se uma alimentação balanceada, rica em proteínas, fibras e vitaminas. Coma diversas vezes ao dia em pequenas porções para manter a energia.
       </p>
@@ -11612,7 +11608,7 @@ export function FolderAmamentacaoPage2({ accentColor, borderColor, palette = [] 
       </p>
       
       <div style={{ marginTop: '20px', border: `0.3px solid ${mainColor}40`, padding: '8px', borderRadius: '5px', background: `${mainColor}05` }}>
-        <div style={{ fontWeight: 800, color: mainColor, marginBottom: '8px', textAlign: 'center', fontSize: '5.2px', letterSpacing: '0.5px' }}>COMPOSIÇÃO DO LEITE MATERNO</div>
+        <div style={{ fontWeight: 800, color: mainColor, marginBottom: '8px', textAlign: 'center', fontSize: '5.2px', letterSpacing: '0.5px' }}>{dictionary?.orientacoes_rn?.composicao_leite || 'COMPOSIÇÃO DO LEITE MATERNO'}</div>
         <div style={{ display: 'flex', flexDirection: 'column', gap: '2.5px' }}>
           {[
             { label: 'Agentes de proteção', w: '100%', c: mainColor },
@@ -11638,9 +11634,7 @@ export function FolderAmamentacaoPage3({ accentColor, borderColor, palette = [] 
   const mainColor = borderColor || palette[0] || accentColor;
   return (
     <div style={{ width: '100%', padding: '10px 8px', boxSizing: 'border-box', background: '#fff', fontSize: '4.2px', display: 'flex', flexDirection: 'column' }}>
-      <div style={{ background: mainColor, color: '#fff', padding: '4px 8px', fontWeight: 800, marginBottom: '12px', borderRadius: '1px', textAlign: 'center' }}>
-        PROBLEMAS COMUNS
-      </div>
+      <div style={{ background: mainColor, color: '#fff', padding: '4px 8px', fontWeight: 800, marginBottom: '12px', borderRadius: '1px', textAlign: 'center' }}>{dictionary?.orientacoes_rn?.problemas_comuns || 'PROBLEMAS COMUNS'}</div>
       <div style={{ display: 'flex', flexDirection: 'column', gap: '15px' }}>
         <section>
           <div style={{ fontWeight: 800, color: mainColor, borderBottom: `0.3px solid ${mainColor}20`, marginBottom: '4px', fontSize: '4.6px' }}>Fissuras nos Mamilos</div>
@@ -11672,9 +11666,7 @@ export function FolderAmamentacaoPage4({ accentColor, borderColor, palette = [],
   const mainColor = borderColor || palette[0] || accentColor;
   return (
     <div style={{ width: '100%', padding: '10px 8px', boxSizing: 'border-box', background: '#fff', fontSize: '4.2px', display: 'flex', flexDirection: 'column' }}>
-      <div style={{ background: mainColor, color: '#fff', padding: '4px 8px', fontWeight: 800, marginBottom: '12px', borderRadius: '1px', textAlign: 'center' }}>
-        APOIO EMOCIONAL
-      </div>
+      <div style={{ background: mainColor, color: '#fff', padding: '4px 8px', fontWeight: 800, marginBottom: '12px', borderRadius: '1px', textAlign: 'center' }}>{dictionary?.orientacoes_rn?.apoio_emocional || 'APOIO EMOCIONAL'}</div>
       <p style={{ fontWeight: 700, marginBottom: '8px', fontSize: '4.6px' }}>O apoio da família é fundamental:</p>
       <ul style={{ paddingLeft: '10px', marginBottom: '10px', lineHeight: 1.5 }}>
         <li>Ambiente calmo favorece a amamentação.</li>
