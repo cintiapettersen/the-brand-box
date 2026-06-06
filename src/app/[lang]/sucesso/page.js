@@ -3803,7 +3803,7 @@ function ChecklistMaternidadePreview({ accentColor, patternSrc, editData, logoCo
   const { whatsapp, telefone, telefone2, instagram, site, endereco } = cartaoContacts || {};
   const mainPhone = [whatsapp || telefone, telefone2].filter(Boolean).join(' / ');
 
-  const SECOES = [
+  const SECOES = dictionary?.checklist_maternidade?.secoes || [
     { titulo: 'check list bebê', itens: ['4 mudas para troca de roupas','1 saída de maternidade','4 pares de meia','Fraldinhas de boca','2 mantas','1 pacote de fralda descartável (RN P dependendo do tamanho do bebê)','1 toalha fralda','Sabonete líquido de glicerina','Algodão','Frasco de álcool','Pomada para prevenção de assadura','1 sacolinha para roupas sujas','Pente para cabelo','Almofada de amamentação','1 Coeiro','Cadeirinha ou bebê conforto para o carro'] },
     { titulo: 'check list mamãe', itens: ['2 ou mais camisolas/pijamas com abertura frontal','5 calcinhas confortáveis','Chinelo de dedo confortável','Sutiã de amamentação','Absorvente íntimo','Produtos de higiene pessoal ex: (escova de dente, pasta de dente, sabonete, desodorante sem cheiro por causa do bebê, pente de cabelo, absorvente noturno)','1 muda de roupa para saída pós parto','Prendedor de cabelo','Produtos de beleza (batom pra animar a puérpera)','1 sacola para roupas sujas','Travesseiro de uso pessoal','Toalha de banho'] },
     { titulo: 'check list documentos', itens: ['RG dos pais ou documento com foto','Carteirinha do plano de saúde','Cartão do pré natal!!!','Últimos exames feitos','Se pais casados: certidão de casamento'] },
@@ -6971,7 +6971,7 @@ body { width: 220mm; height: 307mm; background: #fff; }
       const _patCk = (comBorda && patternSrc)
         ? `background-image:url(${patternSrc});background-size:${((patternScale || 150) * 0.35).toFixed(1)}mm;background-repeat:repeat;`
         : `background:${_bc};`;
-      const SECOES_CK = [
+      const SECOES_CK = dictionary?.checklist_maternidade?.secoes || [
         { titulo: 'check list bebê', itens: ['4 mudas para troca de roupas','1 saída de maternidade','4 pares de meia','Fraldinhas de boca','2 mantas','1 pacote de fralda descartável (RN P dependendo do tamanho do bebê)','1 toalha fralda','Sabonete líquido de glicerina','Algodão','Frasco de álcool','Pomada para prevenção de assadura','1 sacolinha para roupas sujas','Pente para cabelo','Almofada de amamentação','1 Coeiro','Cadeirinha ou bebê conforto para o carro'] },
         { titulo: 'check list mamãe', itens: ['2 ou mais camisolas/pijamas com abertura frontal','5 calcinhas confortáveis','Chinelo de dedo confortável','Sutiã de amamentação','Absorvente íntimo','Produtos de higiene pessoal ex: (escova de dente, pasta de dente, sabonete, desodorante sem cheiro por causa do bebê, pente de cabelo, absorvente noturno)','1 muda de roupa para saída pós parto','Prendedor de cabelo','Produtos de beleza (batom pra animar a puérpera)','1 sacola para roupas sujas','Travesseiro de uso pessoal','Toalha de banho'] },
         { titulo: 'check list documentos', itens: ['RG dos pais ou documento com foto','Carteirinha do plano de saúde','Cartão do pré natal!!!','Últimos exames feitos','Se pais casados: certidão de casamento'] },
