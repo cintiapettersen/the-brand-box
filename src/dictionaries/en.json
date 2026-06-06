@@ -1309,7 +1309,12 @@
     "layout_stacked": "Stacked",
     "qr_active": "✓ QR Code active",
     "add_qr": "+ QR Code",
-    "qr_placeholder": "Link for QR Code (website, WhatsApp...)"
+    "qr_placeholder": "Link for QR Code (website, WhatsApp...)",
+    "how_to_install": "How to install in your E-mail?",
+    "install_step_1": "Click on the <b>Copy HTML</b> button (we have already formatted everything for you).",
+    "install_step_2": "Open the settings of your Gmail, Outlook or Apple Mail.",
+    "install_step_3": "Look for the <b>Signature</b> section and create a new one.",
+    "install_step_4": "Click on the blank text box and <b>Paste (Ctrl+V or Cmd+V)</b>. Done, the art will magically appear inside! ✨"
   },
   "insta_pack": {
     "tiraduvidas_title": "Q&A",

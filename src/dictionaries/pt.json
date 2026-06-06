@@ -1229,7 +1229,12 @@
     "layout_stacked": "Empilhada",
     "qr_active": "✓ QR Code ativo",
     "add_qr": "+ QR Code",
-    "qr_placeholder": "Link para o QR Code (site, WhatsApp...)"
+    "qr_placeholder": "Link para o QR Code (site, WhatsApp...)",
+    "how_to_install": "Como instalar no seu E-mail?",
+    "install_step_1": "Clique no botão <b>Copiar HTML</b> (nós já formatamos tudo para você).",
+    "install_step_2": "Abra as configurações do seu Gmail, Outlook ou Apple Mail.",
+    "install_step_3": "Procure pela seção de <b>Assinatura</b> e crie uma nova.",
+    "install_step_4": "Clique na caixa de texto em branco e <b>Cole (Ctrl+V ou Cmd+V)</b>. Pronto, a arte vai aparecer lá dentro magicamente! ✨"
   },
   "insta_pack": {
     "tiraduvidas_title": "Tira-Dúvidas",
