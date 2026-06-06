@@ -18,8 +18,12 @@ export default function LanguageSwitcher({ style }) {
 
   return (
     <div style={{
-      display: 'flex',
-      gap: '8px',
+      display: 'inline-flex',
+      alignItems: 'center',
+      gap: '4px',
+      background: 'rgba(0, 0, 0, 0.04)',
+      padding: '4px',
+      borderRadius: '30px',
       zIndex: 1000,
       ...style
     }}>
@@ -27,12 +31,15 @@ export default function LanguageSwitcher({ style }) {
         onClick={() => handleLanguageChange('pt-BR')}
         style={{
           border: 'none',
-          background: 'none',
-          fontSize: '20px',
+          background: lang === 'pt-BR' ? '#fff' : 'transparent',
+          boxShadow: lang === 'pt-BR' ? '0 2px 8px rgba(0,0,0,0.08)' : 'none',
+          fontSize: '18px',
           cursor: 'pointer',
-          opacity: lang === 'pt-BR' ? 1 : 0.4,
+          padding: '6px 12px',
+          borderRadius: '24px',
+          opacity: lang === 'pt-BR' ? 1 : 0.6,
           filter: lang === 'pt-BR' ? 'none' : 'grayscale(100%)',
-          transition: 'all 0.2s'
+          transition: 'all 0.3s ease'
         }}
         title="Português"
       >
@@ -42,12 +49,15 @@ export default function LanguageSwitcher({ style }) {
         onClick={() => handleLanguageChange('en')}
         style={{
           border: 'none',
-          background: 'none',
-          fontSize: '20px',
+          background: lang === 'en' ? '#fff' : 'transparent',
+          boxShadow: lang === 'en' ? '0 2px 8px rgba(0,0,0,0.08)' : 'none',
+          fontSize: '18px',
           cursor: 'pointer',
-          opacity: lang === 'en' ? 1 : 0.4,
+          padding: '6px 12px',
+          borderRadius: '24px',
+          opacity: lang === 'en' ? 1 : 0.6,
           filter: lang === 'en' ? 'none' : 'grayscale(100%)',
-          transition: 'all 0.2s'
+          transition: 'all 0.3s ease'
         }}
         title="English"
       >
