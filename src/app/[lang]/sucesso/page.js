@@ -3301,10 +3301,10 @@ function ProntuarioPreview({ accentColor, patternSrc, editData, logoColor, logoL
               <LogoPreviewHTML item="Prontuário Médico" editData={editData} color={logoColor} layout={logoLayout} scaleFactor={0.6} crm={crmLine} hideTagline={hideTagline} withBackground={false} maxWidth="100%" maxHeight="100%" />
             </div>
             <div style={{ border: '0.4px solid #eee', borderRadius: '2px', padding: '6px 7px', display: 'flex', flexDirection: 'column', gap: '3.5px', marginTop: '2px' }}>
-              {formRow(dictionary?.prontuario?.paciente || 'PACIENTE:', dictionary?.prontuario?.data_nasc || 'DATA DE NASCIMENTO:')}
-              {formRow(dictionary?.prontuario?.mae || 'NOME DA MÃE:', dictionary?.prontuario?.cpf || 'CPF:')}
+              {formRow(dictionary?.prontuario?.paciente || 'PACIENTE:', dictionary?.prontuario?.data_nasc || dictionary?.ficha_cadastro?.data_nasc || 'DATA DE NASCIMENTO:')}
+              {formRow(dictionary?.prontuario?.mae || 'NOME DA MÃE:', dictionary?.prontuario?.cpf || dictionary?.ficha_cadastro?.cpf || 'CPF:')}
               {formRow(dictionary?.prontuario?.telefone || 'TELEFONE:', dictionary?.prontuario?.email || 'EMAIL:')}
-              {formRow(dictionary?.prontuario?.endereco || 'ENDEREÇO:', dictionary?.prontuario?.cidade || 'CIDADE:')}
+              {formRow(dictionary?.prontuario?.endereco || dictionary?.ficha_cadastro?.endereco || 'ENDEREÇO:', dictionary?.prontuario?.cidade || dictionary?.ficha_cadastro?.cidade || 'CIDADE:')}
               {formRow(dictionary?.prontuario?.convenio || 'CONVÊNIO:', dictionary?.prontuario?.carteirinha || 'Nº CARTEIRINHA:')}
             </div>
             <div style={{ marginTop: '10px', display: 'flex', flexDirection: 'column', gap: '8.5px' }}>
@@ -3447,20 +3447,20 @@ function FichaCadastroPreview({ accentColor, patternSrc, editData, logoColor, lo
   const solidColor = borderColor || accentColor;
 
   const rowsCrianca = [
-    [{ w: 1, label: 'NOME COMPLETO DA CRIANÇA :' }],
-    [{ w: 0.45, label: 'DATA DE NASCIMENTO:' }, { w: 0.55, label: 'IDADE:' }],
-    [{ w: 1, label: 'NOME DA MÃE :' }],
-    [{ w: 0.65, label: 'PROFISSÃO:' }, { w: 0.35, label: 'CPF:' }],
-    [{ w: 1, label: 'NOME DO PAI :' }],
-    [{ w: 0.65, label: 'PROFISSÃO:' }, { w: 0.35, label: 'CPF:' }],
+    [{ w: 1, label: dictionary?.ficha_cadastro?.crianca_nome || 'NOME COMPLETO DA CRIANÇA :' }],
+    [{ w: 0.45, label: dictionary?.ficha_cadastro?.data_nasc || 'DATA DE NASCIMENTO:' }, { w: 0.55, label: dictionary?.ficha_cadastro?.idade || 'IDADE:' }],
+    [{ w: 1, label: dictionary?.ficha_cadastro?.mae_nome || 'NOME DA MÃE :' }],
+    [{ w: 0.65, label: dictionary?.ficha_cadastro?.profissao || 'PROFISSÃO:' }, { w: 0.35, label: dictionary?.ficha_cadastro?.cpf || 'CPF:' }],
+    [{ w: 1, label: dictionary?.ficha_cadastro?.pai_nome || 'NOME DO PAI :' }],
+    [{ w: 0.65, label: dictionary?.ficha_cadastro?.profissao || 'PROFISSÃO:' }, { w: 0.35, label: dictionary?.ficha_cadastro?.cpf || 'CPF:' }],
   ];
 
   const rowsAdulto = [
-    [{ w: 1, label: 'NOME COMPLETO :' }],
-    [{ w: 0.45, label: 'DATA DE NASCIMENTO:' }, { w: 0.35, label: 'CPF:' }, { w: 0.20, label: 'RG:' }],
-    [{ w: 0.55, label: 'ESTADO CIVIL:' }, { w: 0.45, label: 'PROFISSÃO:' }],
-    [{ w: 1, label: 'NOME DO RESPONSÁVEL (se menor):' }],
-    [{ w: 0.6, label: 'GRAU DE PARENTESCO:' }, { w: 0.4, label: 'CPF:' }],
+    [{ w: 1, label: dictionary?.ficha_cadastro?.completo_nome || 'NOME COMPLETO :' }],
+    [{ w: 0.45, label: dictionary?.ficha_cadastro?.data_nasc || 'DATA DE NASCIMENTO:' }, { w: 0.35, label: dictionary?.ficha_cadastro?.cpf || 'CPF:' }, { w: 0.20, label: dictionary?.ficha_cadastro?.rg || 'RG:' }],
+    [{ w: 0.55, label: dictionary?.ficha_cadastro?.estado_civil || 'ESTADO CIVIL:' }, { w: 0.45, label: dictionary?.ficha_cadastro?.profissao || 'PROFISSÃO:' }],
+    [{ w: 1, label: dictionary?.ficha_cadastro?.responsavel_nome || 'NOME DO RESPONSÁVEL (se menor):' }],
+    [{ w: 0.6, label: dictionary?.ficha_cadastro?.grau_parentesco || 'GRAU DE PARENTESCO:' }, { w: 0.4, label: dictionary?.ficha_cadastro?.cpf || 'CPF:' }],
   ];
 
   const rows = fichaAdulto ? rowsAdulto : rowsCrianca;
@@ -3468,7 +3468,7 @@ function FichaCadastroPreview({ accentColor, patternSrc, editData, logoColor, lo
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', alignItems: 'center' }}>
       <div style={{ display: 'flex', gap: '4px', background: '#f0f0f0', borderRadius: '20px', padding: '4px' }}>
-        {['Criança', 'Adulto'].map((label, i) => {
+        {[dictionary?.ficha_cadastro?.crianca || 'Criança', dictionary?.ficha_cadastro?.adulto || 'Adulto'].map((label, i) => {
           const active = fichaAdulto === (i === 1);
           return <button key={label} onClick={() => setFichaAdulto(i === 1)} style={{ padding: '6px 18px', borderRadius: '16px', border: 'none', cursor: 'pointer', fontFamily: 'Montserrat,sans-serif', fontSize: '11px', fontWeight: 700, background: active ? solidColor : 'transparent', color: active ? '#fff' : '#888', transition: 'all 0.2s' }}>{label}</button>;
         })}
@@ -3483,11 +3483,9 @@ function FichaCadastroPreview({ accentColor, patternSrc, editData, logoColor, lo
 
         <div style={{ position: 'absolute', top: BORDER + 15, left: BORDER + 15, right: BORDER + 15, display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
           <div>
-            <div style={{ fontFamily: "'Montserrat', sans-serif", fontSize: '12px', fontWeight: 800, color: '#111', letterSpacing: '0.5px' }}>
-              CADASTRO DE PACIENTES
-            </div>
+            <div style={{ fontFamily: "'Montserrat', sans-serif", fontSize: '12px', fontWeight: 800, color: '#111', letterSpacing: '0.5px' }}>{dictionary?.ficha_cadastro?.titulo || 'CADASTRO DE PACIENTES'}</div>
             <div style={{ marginTop: '8px', display: 'flex', gap: '4px', alignItems: 'center' }}>
-              <span style={{ fontSize: '8px', fontFamily: "'Montserrat', sans-serif" }}>DATA :</span>
+              <span style={{ fontSize: '8px', fontFamily: "'Montserrat', sans-serif" }}>{dictionary?.ficha_cadastro?.data || 'DATA :'}</span>
               <div style={{ width: '80px', height: '10px', background: '#e6e3df', borderRadius: '1px' }} />
             </div>
           </div>
@@ -3510,7 +3508,7 @@ function FichaCadastroPreview({ accentColor, patternSrc, editData, logoColor, lo
 
           {!fichaAdulto && <div style={{ border: '0.5px solid #d0dbe9', borderRadius: '4px', padding: '6px', display: 'flex', flexDirection: 'column', gap: '6px', background: '#f8fafc' }}>
              <div style={{ display: 'flex', gap: '4px', alignItems: 'center' }}>
-               <span style={{ fontSize: '7px', fontFamily: "'Montserrat', sans-serif", fontWeight: 700, whiteSpace: 'nowrap' }}>NOME DO (A) RESPONSÁVEL ACOMPANHANTE:</span>
+               <span style={{ fontSize: '7px', fontFamily: "'Montserrat', sans-serif", fontWeight: 700, whiteSpace: 'nowrap' }}>{dictionary?.ficha_cadastro?.responsavel_acompanhante || 'NOME DO (A) RESPONSÁVEL ACOMPANHANTE:'}</span>
                <div style={{ flex: 1, height: '12px', background: '#d0dbe9', borderRadius: '1px' }} />
              </div>
              <div style={{ display: 'flex', gap: '6px' }}>
@@ -3526,9 +3524,9 @@ function FichaCadastroPreview({ accentColor, patternSrc, editData, logoColor, lo
           </div>}
 
           {[
-            [{ w: 1, label: 'ENDEREÇO:' }],
-            [{ w: 0.55, label: 'COMPLEMENTO:' }, { w: 0.45, label: 'BAIRRO:' }],
-            [{ w: 0.55, label: 'CIDADE:' }, { w: 0.45, label: 'ESTADO:' }],
+            [{ w: 1, label: dictionary?.ficha_cadastro?.endereco || 'ENDEREÇO:' }],
+            [{ w: 0.55, label: dictionary?.ficha_cadastro?.complemento || 'COMPLEMENTO:' }, { w: 0.45, label: dictionary?.ficha_cadastro?.bairro || 'BAIRRO:' }],
+            [{ w: 0.55, label: dictionary?.ficha_cadastro?.cidade || 'CIDADE:' }, { w: 0.45, label: dictionary?.ficha_cadastro?.estado || 'ESTADO:' }],
           ].map((row, i) => (
             <div key={`end-${i}`} style={{ display: 'flex', gap: '6px', width: '100%' }}>
               {row.map((col, j) => (
@@ -3540,21 +3538,21 @@ function FichaCadastroPreview({ accentColor, patternSrc, editData, logoColor, lo
             </div>
           ))}
           
-          <div style={{ fontSize: '7px', fontFamily: "'Montserrat', sans-serif", fontWeight: 700, marginTop: '2px' }}>TELEFONES :</div>
+          <div style={{ fontSize: '7px', fontFamily: "'Montserrat', sans-serif", fontWeight: 700, marginTop: '2px' }}>{dictionary?.ficha_cadastro?.telefones || 'TELEFONES :'}</div>
           <div style={{ display: 'flex', gap: '6px', width: '100%', marginTop: '-2px' }}>
             {fichaAdulto ? <>
-              <span style={{ fontSize: '7px', fontFamily: "'Montserrat', sans-serif", fontWeight: 700 }}>CELULAR:</span><div style={{ flex: 1, height: '12px', background: '#d0dbe9' }} />
-              <span style={{ fontSize: '7px', fontFamily: "'Montserrat', sans-serif", fontWeight: 700 }}>RESIDENCIAL:</span><div style={{ flex: 1, height: '12px', background: '#d0dbe9' }} />
+              <span style={{ fontSize: '7px', fontFamily: "'Montserrat', sans-serif", fontWeight: 700 }}>{dictionary?.ficha_cadastro?.celular || 'CELULAR:'}</span><div style={{ flex: 1, height: '12px', background: '#d0dbe9' }} />
+              <span style={{ fontSize: '7px', fontFamily: "'Montserrat', sans-serif", fontWeight: 700 }}>{dictionary?.ficha_cadastro?.residencial || 'RESIDENCIAL:'}</span><div style={{ flex: 1, height: '12px', background: '#d0dbe9' }} />
             </> : <>
-              <span style={{ fontSize: '7px', fontFamily: "'Montserrat', sans-serif", fontWeight: 700 }}>MÃE :</span><div style={{ flex: 1, height: '12px', background: '#d0dbe9' }} />
-              <span style={{ fontSize: '7px', fontFamily: "'Montserrat', sans-serif", fontWeight: 700 }}>PAI :</span><div style={{ flex: 1, height: '12px', background: '#d0dbe9' }} />
-              <span style={{ fontSize: '7px', fontFamily: "'Montserrat', sans-serif", fontWeight: 700 }}>RESPONSÁVEL:</span><div style={{ flex: 1, height: '12px', background: '#d0dbe9' }} />
+              <span style={{ fontSize: '7px', fontFamily: "'Montserrat', sans-serif", fontWeight: 700 }}>{dictionary?.ficha_cadastro?.mae || 'MÃE :'}</span><div style={{ flex: 1, height: '12px', background: '#d0dbe9' }} />
+              <span style={{ fontSize: '7px', fontFamily: "'Montserrat', sans-serif", fontWeight: 700 }}>{dictionary?.ficha_cadastro?.pai || 'PAI :'}</span><div style={{ flex: 1, height: '12px', background: '#d0dbe9' }} />
+              <span style={{ fontSize: '7px', fontFamily: "'Montserrat', sans-serif", fontWeight: 700 }}>{dictionary?.ficha_cadastro?.responsavel || 'RESPONSÁVEL:'}</span><div style={{ flex: 1, height: '12px', background: '#d0dbe9' }} />
             </>}
           </div>
 
           {[
-            [{ w: 0.55, label: 'OUTROS TELEFONES :' }, { w: 0.45, label: 'RESIDENCIAL ( ) COMERCIAL ( )', input: false }],
-            [{ w: 0.55, label: 'OUTROS TELEFONES :' }, { w: 0.45, label: 'RESIDENCIAL ( ) COMERCIAL ( )', input: false }],
+            [{ w: 0.55, label: dictionary?.ficha_cadastro?.outros_telefones || 'OUTROS TELEFONES :' }, { w: 0.45, label: dictionary?.ficha_cadastro?.residencial_comercial || 'RESIDENCIAL ( ) COMERCIAL ( )', input: false }],
+            [{ w: 0.55, label: dictionary?.ficha_cadastro?.outros_telefones || 'OUTROS TELEFONES :' }, { w: 0.45, label: dictionary?.ficha_cadastro?.residencial_comercial || 'RESIDENCIAL ( ) COMERCIAL ( )', input: false }],
           ].map((row, i) => (
             <div key={i} style={{ display: 'flex', gap: '6px', width: '100%' }}>
               {row.map((col, j) => (
@@ -3567,12 +3565,12 @@ function FichaCadastroPreview({ accentColor, patternSrc, editData, logoColor, lo
           ))}
 
           <div style={{ display: 'flex', gap: '6px', width: '100%' }}>
-            <span style={{ fontSize: '7px', fontFamily: "'Montserrat', sans-serif", fontWeight: 700, whiteSpace: 'nowrap' }}>E-MAILS:</span>
+            <span style={{ fontSize: '7px', fontFamily: "'Montserrat', sans-serif", fontWeight: 700, whiteSpace: 'nowrap' }}>{dictionary?.ficha_cadastro?.emails || 'E-MAILS:'}</span>
             <div style={{ flex: 1, height: '12px', background: '#d0dbe9', borderRadius: '1px' }} />
           </div>
 
           <div style={{ display: 'flex', gap: '6px', width: '100%' }}>
-            <span style={{ fontSize: '7px', fontFamily: "'Montserrat', sans-serif", fontWeight: 700, whiteSpace: 'nowrap' }}>COMO CONHECEU A CLÍNICA:</span>
+            <span style={{ fontSize: '7px', fontFamily: "'Montserrat', sans-serif", fontWeight: 700, whiteSpace: 'nowrap' }}>{dictionary?.ficha_cadastro?.como_conheceu || 'COMO CONHECEU A CLÍNICA:'}</span>
             <div style={{ flex: 1, height: '12px', background: '#d0dbe9', borderRadius: '1px' }} />
           </div>
 
@@ -3711,7 +3709,7 @@ function ControleEspecialPreview({ accentColor, patternSrc, editData, logoColor,
               <span style={{ fontSize: '4px', fontWeight: 700, color: '#333' }}>{dictionary?.controle_especial?.paciente || 'PACIENTE:'}</span>
             </div>
             <div style={{ borderBottom: '0.1mm solid #eee', paddingBottom: '1px', display: 'flex', gap: '4px' }}>
-              <span style={{ fontSize: '4px', fontWeight: 700, color: '#333' }}>{dictionary?.controle_especial?.endereco || 'ENDEREÇO:'}</span>
+              <span style={{ fontSize: '4px', fontWeight: 700, color: '#333' }}>{dictionary?.controle_especial?.endereco || dictionary?.ficha_cadastro?.endereco || 'ENDEREÇO:'}</span>
             </div>
             <div style={{ marginTop: '2px' }}>
               <span style={{ fontSize: '4px', fontWeight: 700, color: '#333' }}>{dictionary?.controle_especial?.prescricao || 'PRESCRIÇÃO:'}</span>
@@ -6705,9 +6703,9 @@ body { width:${totalW}mm; height:${totalH}mm; position:relative; overflow:hidden
             
             <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:10mm;">
               <div style="padding-top:2mm;">
-                <h1 style="font-family:'Montserrat',sans-serif;font-size:18pt;font-weight:800;letter-spacing:1px;color:#111;margin:0;">CADASTRO DE PACIENTES</h1>
+                <h1 style="font-family:'Montserrat',sans-serif;font-size:18pt;font-weight:800;letter-spacing:1px;color:#111;margin:0;">{dictionary?.ficha_cadastro?.titulo || 'CADASTRO DE PACIENTES'}</h1>
                 <div style="display:flex;align-items:center;gap:3mm;margin-top:5mm;">
-                  <span style="font-size:10pt;font-weight:400;color:#222;">DATA :</span>
+                  <span style="font-size:10pt;font-weight:400;color:#222;">{dictionary?.ficha_cadastro?.data || 'DATA :'}</span>
                   <div style="width:40mm;height:6mm;background:#e2ddd7;border-radius:1px;"></div>
                 </div>
               </div>
@@ -6718,77 +6716,77 @@ body { width:${totalW}mm; height:${totalH}mm; position:relative; overflow:hidden
 
             <div style="display:flex;flex-direction:column;gap:7mm;font-family:'Montserrat',sans-serif;width:100%;flex:1;justify-content:space-between;">
               ${fichaAdulto ? `
-              ${formRow('NOME COMPLETO :', 1)}
+              ${formRow(dictionary?.ficha_cadastro?.completo_nome || 'NOME COMPLETO :', 1)}
               <div style="display:flex;gap:5mm;">
-                ${formRow('DATA DE NASCIMENTO:', 0.4)}
-                ${formRow('CPF:', 0.35)}
-                ${formRow('RG:', 0.25)}
+                ${formRow(dictionary?.ficha_cadastro?.data_nasc || 'DATA DE NASCIMENTO:', 0.4)}
+                ${formRow(dictionary?.ficha_cadastro?.cpf || 'CPF:', 0.35)}
+                ${formRow(dictionary?.ficha_cadastro?.rg || 'RG:', 0.25)}
               </div>
               <div style="display:flex;gap:5mm;">
-                ${formRow('ESTADO CIVIL:', 0.5)}
-                ${formRow('PROFISSÃO:', 0.5)}
+                ${formRow(dictionary?.ficha_cadastro?.estado_civil || 'ESTADO CIVIL:', 0.5)}
+                ${formRow(dictionary?.ficha_cadastro?.profissao || 'PROFISSÃO:', 0.5)}
               </div>
               <div style="border:0.5mm solid #cfd9e5;border-radius:2mm;padding:4mm;background:#f8fafc;display:flex;flex-direction:column;gap:3.5mm;">
-                ${formRow('RESPONSÁVEL (se menor):', 1)}
+                ${formRow(dictionary?.ficha_cadastro?.responsavel_nome || 'RESPONSÁVEL (se menor):', 1)}
                 <div style="display:flex;gap:5mm;">
-                  ${formRow('GRAU DE PARENTESCO:', 0.6)}
-                  ${formRow('CPF:', 0.4)}
+                  ${formRow(dictionary?.ficha_cadastro?.grau_parentesco || 'GRAU DE PARENTESCO:', 0.6)}
+                  ${formRow(dictionary?.ficha_cadastro?.cpf || 'CPF:', 0.4)}
                 </div>
               </div>
               ` : `
-              ${formRow('NOME COMPLETO DA CRIANÇA :', 1)}
+              ${formRow(dictionary?.ficha_cadastro?.crianca_nome || 'NOME COMPLETO DA CRIANÇA :', 1)}
               <div style="display:flex;gap:5mm;">
-                ${formRow('DATA DE NASCIMENTO:', 0.45)}
-                ${formRow('IDADE:', 0.55)}
+                ${formRow(dictionary?.ficha_cadastro?.data_nasc || 'DATA DE NASCIMENTO:', 0.45)}
+                ${formRow(dictionary?.ficha_cadastro?.idade || 'IDADE:', 0.55)}
               </div>
-              ${formRow('NOME DA MÃE :', 1)}
+              ${formRow(dictionary?.ficha_cadastro?.mae_nome || 'NOME DA MÃE :', 1)}
               <div style="display:flex;gap:5mm;">
-                ${formRow('PROFISSÃO:', 0.65)}
-                ${formRow('CPF:', 0.35)}
+                ${formRow(dictionary?.ficha_cadastro?.profissao || 'PROFISSÃO:', 0.65)}
+                ${formRow(dictionary?.ficha_cadastro?.cpf || 'CPF:', 0.35)}
               </div>
-              ${formRow('NOME DO PAI :', 1)}
+              ${formRow(dictionary?.ficha_cadastro?.pai_nome || 'NOME DO PAI :', 1)}
               <div style="display:flex;gap:5mm;">
-                ${formRow('PROFISSÃO:', 0.65)}
-                ${formRow('CPF:', 0.35)}
+                ${formRow(dictionary?.ficha_cadastro?.profissao || 'PROFISSÃO:', 0.65)}
+                ${formRow(dictionary?.ficha_cadastro?.cpf || 'CPF:', 0.35)}
               </div>
               <div style="border:0.5mm solid #cfd9e5;border-radius:2mm;padding:4mm;background:#f8fafc;display:flex;flex-direction:column;gap:3.5mm;">
-                ${formRow('NOME DO (A) RESPONSÁVEL ACOMPANHANTE:', 1)}
+                ${formRow(dictionary?.ficha_cadastro?.responsavel_acompanhante || 'NOME DO (A) RESPONSÁVEL ACOMPANHANTE:', 1)}
                 <div style="display:flex;gap:5mm;">
-                  ${formRow('GRAU DE PARENTESCO:', 0.6)}
-                  ${formRow('CPF:', 0.4)}
+                  ${formRow(dictionary?.ficha_cadastro?.grau_parentesco || 'GRAU DE PARENTESCO:', 0.6)}
+                  ${formRow(dictionary?.ficha_cadastro?.cpf || 'CPF:', 0.4)}
                 </div>
               </div>
               `}
-              ${formRow('ENDEREÇO:', 1)}
+              ${formRow(dictionary?.ficha_cadastro?.endereco || 'ENDEREÇO:', 1)}
               <div style="display:flex;gap:5mm;">
-                ${formRow('COMPLEMENTO:', 0.55)}
-                ${formRow('BAIRRO:', 0.45)}
+                ${formRow(dictionary?.ficha_cadastro?.complemento || 'COMPLEMENTO:', 0.55)}
+                ${formRow(dictionary?.ficha_cadastro?.bairro || 'BAIRRO:', 0.45)}
               </div>
               <div style="display:flex;gap:5mm;">
-                ${formRow('CIDADE:', 0.55)}
-                ${formRow('ESTADO:', 0.45)}
+                ${formRow(dictionary?.ficha_cadastro?.cidade || 'CIDADE:', 0.55)}
+                ${formRow(dictionary?.ficha_cadastro?.estado || 'ESTADO:', 0.45)}
               </div>
               
               <div style="margin-top:1mm;">
-                <span style="font-size:8.5pt;font-weight:700;color:#222;">TELEFONES :</span>
+                <span style="font-size:8.5pt;font-weight:700;color:#222;">{dictionary?.ficha_cadastro?.telefones || 'TELEFONES :'}</span>
               </div>
               ${fichaAdulto ? `
               <div style="display:flex;gap:5mm;">
-                ${formRow('CELULAR:', 1)}
-                ${formRow('RESIDENCIAL:', 1)}
+                ${formRow(dictionary?.ficha_cadastro?.celular || 'CELULAR:', 1)}
+                ${formRow(dictionary?.ficha_cadastro?.residencial || 'RESIDENCIAL:', 1)}
               </div>` : `
               <div style="display:flex;gap:5mm;">
-                ${formRow('MÃE :', 1)}
-                ${formRow('PAI :', 1)}
-                ${formRow('RESPONSÁVEL:', 1)}
+                ${formRow(dictionary?.ficha_cadastro?.mae || 'MÃE :', 1)}
+                ${formRow(dictionary?.ficha_cadastro?.pai || 'PAI :', 1)}
+                ${formRow(dictionary?.ficha_cadastro?.responsavel || 'RESPONSÁVEL:', 1)}
               </div>
               <div style="display:flex;gap:5mm;align-items:center;">
-                ${formRow('OUTROS TELEFONES :', 0.55)}
-                ${formText('RESIDENCIAL ( &nbsp; &nbsp;) &nbsp; COMERCIAL ( &nbsp; &nbsp;)', 0.45)}
+                ${formRow(dictionary?.ficha_cadastro?.outros_telefones || 'OUTROS TELEFONES :', 0.55)}
+                ${formText(dictionary?.ficha_cadastro?.residencial_comercial || 'RESIDENCIAL ( &nbsp; &nbsp;) &nbsp; COMERCIAL ( &nbsp; &nbsp;)', 0.45)}
               </div>`}
 
-              ${formRow('E-MAILS:', 1)}
-              ${formRow('COMO CONHECEU A CLÍNICA:', 1)}
+              ${formRow(dictionary?.ficha_cadastro?.emails || 'E-MAILS:', 1)}
+              ${formRow(dictionary?.ficha_cadastro?.como_conheceu || 'COMO CONHECEU A CLÍNICA:', 1)}
 
             </div>
 
@@ -6859,9 +6857,9 @@ body { width: 220mm; height: 307mm; position: relative; overflow: hidden; backgr
             </div>
             <div style="display:flex;flex-direction:column;gap:4mm;font-family:'Montserrat',sans-serif;width:100%;margin-top:1mm;border:0.25mm solid #eee;border-radius:1mm;padding:5mm 6mm;">
               ${formRow(dictionary?.prontuario?.paciente || 'PACIENTE:', dictionary?.prontuario?.data_nasc || 'NASC:', 0.6)}
-              ${formRow(dictionary?.prontuario?.mae || 'NOME DA MÃE:', dictionary?.prontuario?.cpf || 'CPF:', 0.45)}
+              ${formRow(dictionary?.prontuario?.mae || 'NOME DA MÃE:', dictionary?.prontuario?.cpf || dictionary?.ficha_cadastro?.cpf || 'CPF:', 0.45)}
               ${formRow(dictionary?.prontuario?.telefone || 'TELEFONE:', dictionary?.prontuario?.email || 'EMAIL:', 0.45)}
-              ${formRow(dictionary?.prontuario?.endereco || 'ENDEREÇO:', dictionary?.prontuario?.cidade || 'CIDADE:', 0.45)}
+              ${formRow(dictionary?.prontuario?.endereco || dictionary?.ficha_cadastro?.endereco || 'ENDEREÇO:', dictionary?.prontuario?.cidade || dictionary?.ficha_cadastro?.cidade || 'CIDADE:', 0.45)}
               ${formRow(dictionary?.prontuario?.convenio || 'CONVÊNIO:', dictionary?.prontuario?.carteirinha || 'Nº CARTEIRINHA:', 0.7)}
             </div>
             <div style="flex:1;width:100%;margin-top:10mm;">
@@ -7771,7 +7769,7 @@ body { width:${W + BLEED*2}mm; height:${H + BLEED*2}mm; position:relative; overf
 
         <div style="display:flex;flex-direction:column;gap:2.5mm;">
             <div style="border-bottom:0.15mm solid #eee;padding-bottom:1.5mm;display:flex;gap:3mm;"><span style="font-size:8pt;font-weight:700;color:#333;text-transform:uppercase;">${dictionary?.controle_especial?.paciente || 'PACIENTE:'}</span></div>
-            <div style="border-bottom:0.15mm solid #eee;padding-bottom:1.5mm;display:flex;gap:3mm;"><span style="font-size:8pt;font-weight:700;color:#333;text-transform:uppercase;">${dictionary?.controle_especial?.endereco || 'ENDEREÇO:'}</span></div>
+            <div style="border-bottom:0.15mm solid #eee;padding-bottom:1.5mm;display:flex;gap:3mm;"><span style="font-size:8pt;font-weight:700;color:#333;text-transform:uppercase;">${dictionary?.controle_especial?.endereco || dictionary?.ficha_cadastro?.endereco || 'ENDEREÇO:'}</span></div>
             <div style="margin-top:1mm;">
                <div style="font-size:8pt;font-weight:700;color:#333;margin-bottom:1mm;">${dictionary?.controle_especial?.prescricao || 'PRESCRIÇÃO:'}</div>
                ${Array.from({length: 8}).map(() => `<div style="border-bottom:0.1mm solid #f2f2f2;height:7mm;"></div>`).join('')}
