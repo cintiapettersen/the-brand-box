@@ -1808,11 +1808,15 @@ const TONE_MAP = {
   'Infantil': ['Lúdico','Carinhoso','Colorido','Imaginativo','Seguro'],
 };
 
-function deriveTone(estiloNome) {
+function deriveTone(estiloNome, dictionary) {
+  let matchedWords = ['Autêntico','Único','Memorável','Confiável','Acolhedor'];
   for (const [key, words] of Object.entries(TONE_MAP)) {
-    if (estiloNome?.toLowerCase().includes(key.toLowerCase())) return words;
+    if (estiloNome?.toLowerCase().includes(key.toLowerCase())) {
+      matchedWords = words;
+      break;
+    }
   }
-  return ['Autêntico','Único','Memorável','Confiável','Acolhedor'];
+  return matchedWords.map(w => dictionary?.tone_words?.[w] || w);
 }
 
 const LOCAL_FONT_FACES = {
@@ -1837,7 +1841,7 @@ function buildGuiaHTML({ marca, tagline, accentColor, paletteColors, fontFamily,
     : `https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;600;700;800&family=${fontEnc}:ital,wght@0,400;0,700;1,400&display=swap`;
   const localFontStyle = isLocal ? `<style>${LOCAL_FONT_FACES[fontFamily]}</style>` : '';
   const roleLabels = ['Principal','Secundária','Terciária','Complementar','Apoio'];
-  const toneWords = deriveTone(estiloNome);
+  const toneWords = deriveTone(estiloNome, dictionary);
 
   const colorsHtml = paletteColors.map((hex, i) => {
     const [r,g,b] = [parseInt(hex.slice(1,3),16), parseInt(hex.slice(3,5),16), parseInt(hex.slice(5,7),16)];
@@ -2823,7 +2827,7 @@ function GuiaStep({ brand, accentColor, paletteColors, marca, tagline, estampaPa
   const fontFamily = editData.fontFamily || 'Playfair Display';
   const fontWeight = editData.fontWeight || 700;
   const isScript = editData.fontStyle === 'script';
-  const toneWords = deriveTone(estiloNome);
+  const toneWords = deriveTone(estiloNome, dictionary);
 
   const getPapelariaItems = () => {
     // Liberação total de todos os itens para revisão completa
