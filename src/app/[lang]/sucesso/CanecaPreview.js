@@ -28,13 +28,13 @@ function BordaToggle({ comBorda, setComBorda, accentColor, paletteColors = [], b
   return (
     <div style={{ display: 'flex', gap: '12px', alignItems: 'center', flexWrap: 'wrap', justifyContent: 'center', padding: '10px', background: '#fcfcfc', borderRadius: '30px', border: '1px solid #f0f0f0' }}>
       <div style={{ display: 'flex', gap: '4px' }}>
-        <button style={btn(comBorda)} onClick={() => setComBorda(true)}>{dictionary?.borda?.estampa || 'Estampa'}</button>
-        <button style={btn(!comBorda)} onClick={() => setComBorda(false)}>{dictionary?.borda?.solida || 'Sólida'}</button>
+        <button style={btn(comBorda)} onClick={() => setComBorda(true)}>{dictionary?.geral?.estampa || 'Estampa'}</button>
+        <button style={btn(!comBorda)} onClick={() => setComBorda(false)}>{dictionary?.geral?.solida || 'Sólida'}</button>
       </div>
 
       {comBorda && setPatternScale && (
         <div style={{ display: 'flex', alignItems: 'center', gap: '8px', borderLeft: '1px solid #eee', paddingLeft: '12px', marginLeft: '4px' }}>
-          <span style={{ fontSize: '0.62rem', color: '#999', textTransform: 'uppercase', letterSpacing: '1px', fontWeight: 600 }}>{dictionary?.borda?.tamanho || 'Tamanho:'}</span>
+          <span style={{ fontSize: '0.62rem', color: '#999', textTransform: 'uppercase', letterSpacing: '1px', fontWeight: 600 }}>{dictionary?.geral?.tamanho || 'Tamanho:'}</span>
           <input 
             type="range" min="50" max="600" step="10"
             value={patternScale || 120} 
