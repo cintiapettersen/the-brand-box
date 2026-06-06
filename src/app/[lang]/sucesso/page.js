@@ -4874,25 +4874,25 @@ function AssinaturaEmailPreview({ brand, editData, accentColor, logoColor, logoL
                   value={localSlogan}
                   onChange={e => setLocalSlogan(e.target.value.slice(0, 45))}
                   maxLength={45}
-                  placeholder="Tagline / Especialidade"
+                  placeholder={dictionary?.ui?.tagline_placeholder || "Tagline / Especialidade"}
                   style={{ flex: 1, padding: '6px 10px', fontSize: '0.8rem', border: '1px solid #e0e0e0', borderRadius: '8px', outline: 'none', fontFamily: 'Montserrat, sans-serif' }}
                 />
               </div>
               <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '4px', paddingBottom: '8px', borderBottom: '1px solid #eee' }}>
-                <span style={{ fontSize: '0.72rem', color: '#888', width: '74px', flexShrink: 0 }}>Empresa</span>
+                <span style={{ fontSize: '0.72rem', color: '#888', width: '74px', flexShrink: 0 }}>{dictionary?.ui?.company || 'Empresa'}</span>
                 <input
                   value={clinicaNome}
                   onChange={e => setClinicaNome(e.target.value)}
-                  placeholder="Nome complementar (opcional)"
+                  placeholder={dictionary?.ui?.company_placeholder || "Nome complementar (opcional)"}
                   style={{ flex: 1, padding: '6px 10px', fontSize: '0.8rem', border: '1px solid #e0e0e0', borderRadius: '8px', outline: 'none', fontFamily: 'Montserrat, sans-serif' }}
                 />
               </div>
               {[
-                { key: 'telefone', label: 'Telefone' },
+                { key: 'telefone', label: dictionary?.ui?.phone || 'Telefone' },
                 { key: 'whatsapp', label: 'WhatsApp' },
                 { key: 'instagram', label: 'Instagram' },
                 { key: 'email', label: 'E-mail' },
-                { key: 'site', label: 'Site' },
+                { key: 'site', label: dictionary?.ui?.website || 'Site' },
               ].map(({ key, label }) => (
                 <div key={key} style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
                   <span style={{ fontSize: '0.72rem', color: '#888', width: '74px', flexShrink: 0 }}>{label}</span>
@@ -8880,21 +8880,21 @@ ${fontImports2}
           {contactOpen && (
             <div style={{ padding: '0 14px 14px', display: 'flex', flexDirection: 'column', gap: '8px' }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '8px', paddingBottom: '8px', borderBottom: '1px solid #eee' }}>
-                <span style={{ fontSize: '0.72rem', color: '#888', width: '74px', flexShrink: 0 }}>Slogan</span>
+                <span style={{ fontSize: '0.72rem', color: '#888', width: '74px', flexShrink: 0 }}>{dictionary?.ui?.slogan || 'Slogan'}</span>
                 <input
                   value={localSlogan}
                   onChange={e => setLocalSlogan(e.target.value)}
-                  placeholder="Slogan / Especialidade"
+                  placeholder={dictionary?.ui?.tagline_placeholder || "Slogan / Especialidade"}
                   style={{ flex: 1, padding: '6px 10px', fontSize: '0.8rem', border: '1px solid #e0e0e0', borderRadius: '8px', outline: 'none' }}
                 />
               </div>
 
               <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '4px', paddingBottom: '8px', borderBottom: '1px solid #eee' }}>
-                <span style={{ fontSize: '0.72rem', color: '#888', width: '74px', flexShrink: 0 }}>Empresa</span>
+                <span style={{ fontSize: '0.72rem', color: '#888', width: '74px', flexShrink: 0 }}>{dictionary?.ui?.company || 'Empresa'}</span>
                 <input
                   value={clinicaNome}
                   onChange={e => setClinicaNome(e.target.value)}
-                  placeholder="Nome complementar (opcional)"
+                  placeholder={dictionary?.ui?.company_placeholder || "Nome complementar (opcional)"}
                   style={{ flex: 1, padding: '6px 10px', fontSize: '0.8rem', border: '1px solid #e0e0e0', borderRadius: '8px', outline: 'none' }}
                 />
               </div>
@@ -8904,30 +8904,30 @@ ${fontImports2}
                     <span style={{ fontSize: '0.72rem', color: '#888', width: '74px', flexShrink: 0 }}>CRM /</span>
                     <input value={crmData.uf} onChange={e => setCrmData(d => ({ ...d, uf: e.target.value.toUpperCase().slice(0, 2) }))} placeholder="UF"
                       style={{ width: '44px', padding: '6px', fontSize: '0.8rem', border: '1px solid #e0e0e0', borderRadius: '8px', textAlign: 'center', outline: 'none' }} />
-                    <input value={crmData.crm} onChange={e => setCrmData(d => ({ ...d, crm: e.target.value }))} placeholder="Número"
+                    <input value={crmData.crm} onChange={e => setCrmData(d => ({ ...d, crm: e.target.value }))} placeholder={dictionary?.ui?.number || "Número"}
                       style={{ flex: 1, padding: '6px', fontSize: '0.8rem', border: '1px solid #e0e0e0', borderRadius: '8px', outline: 'none' }} />
                   </div>
                   {crmData.rqe.map((r, i) => (
                     <div key={i} style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
                       <span style={{ fontSize: '0.72rem', color: '#888', width: '74px', flexShrink: 0 }}>RQE</span>
-                      <input value={r} onChange={e => setCrmData(d => { const rqe = [...d.rqe]; rqe[i] = e.target.value; return { ...d, rqe }; })} placeholder="Número"
+                      <input value={r} onChange={e => setCrmData(d => { const rqe = [...d.rqe]; rqe[i] = e.target.value; return { ...d, rqe }; })} placeholder={dictionary?.ui?.number || "Número"}
                         style={{ flex: 1, padding: '6px', fontSize: '0.8rem', border: '1px solid #e0e0e0', borderRadius: '8px', outline: 'none' }} />
                       <button onClick={() => setCrmData(d => ({ ...d, rqe: d.rqe.filter((_, j) => j !== i) }))} style={{ background: 'none', border: 'none', color: '#c00', fontSize: '1rem', cursor: 'pointer' }}>×</button>
                     </div>
                   ))}
                   <button onClick={() => setCrmData(d => ({ ...d, rqe: [...d.rqe, ''] }))} style={{ background: 'none', border: '1px dashed #ddd', color: '#888', borderRadius: '8px', padding: '4px 10px', fontSize: '0.72rem', cursor: 'pointer', alignSelf: 'flex-start' }}>
-                    + Adicionar RQE
+                    {dictionary?.ui?.add_rqe || '+ Adicionar RQE'}
                   </button>
                 </div>
               )}
               {[
-                { key: 'telefone', label: 'Telefone' },
-                { key: 'telefone2', label: 'Telefone 2' },
+                { key: 'telefone', label: dictionary?.ui?.phone || 'Telefone' },
+                { key: 'telefone2', label: dictionary?.ui?.phone2 || 'Telefone 2' },
                 { key: 'whatsapp', label: 'WhatsApp' },
                 { key: 'instagram', label: 'Instagram' },
                 { key: 'email', label: 'E-mail' },
-                { key: 'site', label: 'Site' },
-                { key: 'endereco', label: 'Endereço' },
+                { key: 'site', label: dictionary?.ui?.website || 'Site' },
+                { key: 'endereco', label: dictionary?.ui?.address || 'Endereço' },
               ].map(({ key, label }) => (
                 <div key={key} style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
                   <span style={{ fontSize: '0.72rem', color: '#888', width: '74px', flexShrink: 0 }}>{label}</span>

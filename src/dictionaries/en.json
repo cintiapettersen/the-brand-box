@@ -166,7 +166,16 @@
     "label_endereco": "Address",
     "copiar_html": "Copy HTML →",
     "copiado": "Copied!",
-    "copiar_assinatura_html": "Copy HTML Signature"
+    "copiar_assinatura_html": "Copy HTML Signature",
+    "company": "Company",
+    "company_placeholder": "Complementary name (optional)",
+    "tagline_placeholder": "Tagline / Specialty",
+    "phone": "Phone",
+    "phone2": "Phone 2",
+    "website": "Website",
+    "address": "Address",
+    "add_rqe": "+ Add RQE",
+    "number": "Number"
   },
   "controle_especial": {
     "titulo": "SPECIAL CONTROL PRESCRIPTION",

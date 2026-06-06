@@ -166,7 +166,16 @@
     "label_endereco": "Endereço",
     "copiar_html": "Copiar HTML →",
     "copiado": "Copiado!",
-    "copiar_assinatura_html": "Copiar Assinatura HTML"
+    "copiar_assinatura_html": "Copiar Assinatura HTML",
+    "company": "Empresa",
+    "company_placeholder": "Nome complementar (opcional)",
+    "tagline_placeholder": "Tagline / Especialidade",
+    "phone": "Telefone",
+    "phone2": "Telefone 2",
+    "website": "Site",
+    "address": "Endereço",
+    "add_rqe": "+ Adicionar RQE",
+    "number": "Número"
   },
   "controle_especial": {
     "titulo": "RECEITUÁRIO DE CONTROLE ESPECIAL",
