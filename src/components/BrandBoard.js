@@ -57,19 +57,19 @@ const COLOR_PALETTE = [
   [210, 105, 30,  'Canela'],
 ];
 
-const getColorName = (hex) => {
-  if (!hex || hex.length < 7) return 'Cor Especial';
+const getColorName = (hex, dictionary) => {
+  if (!hex || hex.length < 7) return dictionary?.color_names?.['Cor Especial'] || 'Cor Especial';
   const r = parseInt(hex.slice(1, 3), 16);
   const g = parseInt(hex.slice(3, 5), 16);
   const b = parseInt(hex.slice(5, 7), 16);
 
   let minDist = Infinity;
-  let bestName = 'Tom Especial';
+  let bestName = dictionary?.color_names?.['Tom Especial'] || 'Tom Especial';
   for (const [cr, cg, cb, name] of COLOR_PALETTE) {
     const dist = Math.sqrt((r - cr) ** 2 + (g - cg) ** 2 + (b - cb) ** 2);
     if (dist < minDist) {
       minDist = dist;
-      bestName = name;
+      bestName = dictionary?.color_names?.[name] || name;
     }
   }
   return bestName;
@@ -246,7 +246,7 @@ const BrandBoard = ({ data, palette, color, seloColor, seloTextColor, patternIma
                <div style={{ backgroundColor: hex, flex: 1, borderRadius: '4px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                   <span style={{ fontSize: '0.55rem', fontWeight: 'bold', color: '#fff', textShadow: '0 1px 2px rgba(0,0,0,0.2)' }}>{hex}</span>
                </div>
-               <p style={{ fontSize: '0.5rem', textAlign: 'center', marginTop: '5px', fontWeight: 600 }}>{getColorName(hex)}</p>
+               <p style={{ fontSize: '0.5rem', textAlign: 'center', marginTop: '5px', fontWeight: 600 }}>{getColorName(hex, dictionary)}</p>
             </div>
          ))}
       </div>

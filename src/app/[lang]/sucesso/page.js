@@ -421,13 +421,13 @@ const COLOR_PALETTE_AFETIVA = [
   [255,87,51,'Coral Vivo'],[255,160,122,'Salmão'],[210,105,30,'Canela'],
 ];
 
-function colorNamePT(hex) {
-  if (!hex || hex.length < 7) return 'Cor Especial';
+function colorNamePT(hex, dictionary) {
+  if (!hex || hex.length < 7) return dictionary?.color_names?.['Cor Especial'] || 'Cor Especial';
   const [r,g,b] = hexToRgb(hex);
-  let minDist = Infinity, bestName = 'Tom Especial';
+  let minDist = Infinity, bestName = dictionary?.color_names?.['Tom Especial'] || 'Tom Especial';
   for (const [cr,cg,cb,name] of COLOR_PALETTE_AFETIVA) {
     const dist = Math.sqrt((r-cr)**2+(g-cg)**2+(b-cb)**2);
-    if (dist < minDist) { minDist = dist; bestName = name; }
+    if (dist < minDist) { minDist = dist; bestName = dictionary?.color_names?.[name] || name; }
   }
   return bestName;
 }
@@ -447,12 +447,16 @@ function CopyHex({ hex, accent }) {
   );
 }
 
-function formatPaletaNome(nome) {
+function formatPaletaNome(nome, dictionary) {
   if (!nome) return '';
-  return nome.split('-')
+  const phrase = nome.split(/[-_\s]+/)
     .filter(w => w && !/^\d+$/.test(w) && w.toLowerCase() !== 'paleta')
-    .map(w => w.charAt(0).toUpperCase() + w.slice(1).toLowerCase())
+    .map(w => {
+      const wCap = w.charAt(0).toUpperCase() + w.slice(1).toLowerCase();
+      return dictionary?.palette_words?.[wCap] || wCap;
+    })
     .join(' ');
+  return `${dictionary?.palette_words?.Paleta?.toUpperCase() || 'PALETA'} ${phrase.toUpperCase()}`;
 }
 
 function CoresSalvarButton({ colorOrder, accentColor }) {
@@ -549,7 +553,7 @@ function CoresStep({ paletteColors, accentColor, paletaNome, coresRef }) {
     <div ref={coresRef} style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
       {paletaNome && (
         <p style={{ margin: 0, fontSize: '0.72rem', color: '#aaa', textTransform: 'uppercase', letterSpacing: '2px', fontWeight: 700 }}>
-          {formatPaletaNome(paletaNome)}
+          {formatPaletaNome(paletaNome, dictionary)}
         </p>
       )}
       {paletteColors.map((hex, ci) => (
@@ -560,7 +564,7 @@ function CoresStep({ paletteColors, accentColor, paletaNome, coresRef }) {
               {roleLabels[ci] || dictionary?.palette_tab?.color || 'Cor'}
             </p>
             <p style={{ margin: 0, fontSize: '1rem', fontWeight: 700, color: '#fff', textShadow: '0 1px 4px rgba(0,0,0,0.2)' }}>
-              {colorNamePT(hex)}
+              {colorNamePT(hex, dictionary)}
             </p>
           </div>
           {/* Hex principal */}
@@ -1921,7 +1925,7 @@ ${manifesto ? `<div class="page" style="display:flex;flex-direction:column;justi
     ${colorsHtml}
   </div>
   <div class="divider"></div>
-  <p style="font-size:0.75rem;color:#888;line-height:1.7;">Use a cor <strong style="color:#444;">${colorNamePT(paletteColors[0] || accentColor)}</strong> como principal — ela deve predominar em todas as comunicações. As demais cores funcionam como apoio e devem ser utilizadas com equilíbrio.</p>
+  <p style="font-size:0.75rem;color:#888;line-height:1.7;">Use a cor <strong style="color:#444;">${colorNamePT(paletteColors[0] || accentColor, dictionary)}</strong> como principal — ela deve predominar em todas as comunicações. As demais cores funcionam como apoio e devem ser utilizadas com equilíbrio.</p>
 </div>
 
 <!-- TIPOGRAFIA -->
