@@ -1086,7 +1086,12 @@
     "circular": "⭕ Circular",
     "minimal": "⚡ Minimal",
     "seal_desc": "As submarcas (ou selos) são variações compactas do seu logo,",
-    "seal_desc_2": "perfeitas para usar como foto de perfil, carimbos ou adesivos."
+    "seal_desc_2": "perfeitas para usar como foto de perfil, carimbos ou adesivos.",
+    "seal_color": "🏷️ Cor do Selo",
+    "seal_text": "✍️ Texto do Selo",
+    "brand_name": "Nome da Marca",
+    "brand_tagline": "Tagline da Marca",
+    "icon": "🌸 Ícone"
   },
   "color_tab": {
     "priority_order": "Ordem de Prioridade das Cores",

@@ -10654,7 +10654,7 @@ function EntregaContent({ brand, plano, setBrand }) {
               marginBottom: '4px'
             }}>
               <span style={{ fontSize: '0.78rem', fontWeight: 800, fontFamily: 'Montserrat, sans-serif', color: '#333', letterSpacing: '0.3px', display: 'flex', alignItems: 'center', gap: '6px' }}>
-                🏷️ Cor do Selo
+                {dictionary?.seal_tab?.seal_color || '🏷️ Cor do Selo'}
               </span>
               <div style={{ display: 'flex', gap: '10px', alignItems: 'center', flexWrap: 'wrap', marginTop: '4px' }}>
                 {['#000000', '#ffffff'].map(hex => (
@@ -10682,7 +10682,7 @@ function EntregaContent({ brand, plano, setBrand }) {
               marginBottom: '4px'
             }}>
               <span style={{ fontSize: '0.78rem', fontWeight: 800, fontFamily: 'Montserrat, sans-serif', color: '#333', letterSpacing: '0.3px', display: 'flex', alignItems: 'center', gap: '6px' }}>
-                ✍️ Texto do Selo
+                {dictionary?.seal_tab?.seal_text || '✍️ Texto do Selo'}
               </span>
               <div style={{ display: 'flex', gap: '8px', marginTop: '4px' }}>
                 <button
@@ -10758,7 +10758,7 @@ function EntregaContent({ brand, plano, setBrand }) {
               marginBottom: '4px'
             }}>
               <span style={{ fontSize: '0.78rem', fontWeight: 800, fontFamily: 'Montserrat, sans-serif', color: '#333', letterSpacing: '0.3px', display: 'flex', alignItems: 'center', gap: '6px' }}>
-                🌸 Ícone
+                {dictionary?.seal_tab?.icon || '🌸 Ícone'}
               </span>
               <div style={{ display: 'flex', gap: '10px', alignItems: 'center', flexWrap: 'wrap', marginTop: '4px' }}>
                 <div

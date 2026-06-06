@@ -1086,7 +1086,12 @@
     "circular": "⭕ Circular",
     "minimal": "⚡ Minimal",
     "seal_desc": "Seals (or submarks) are compact variations of your logo,",
-    "seal_desc_2": "perfect to use as profile pictures, stamps, or stickers."
+    "seal_desc_2": "perfect to use as profile pictures, stamps, or stickers.",
+    "seal_color": "🏷️ Seal Color",
+    "seal_text": "✍️ Seal Text",
+    "brand_name": "Brand Name",
+    "brand_tagline": "Brand Tagline",
+    "icon": "🌸 Icon"
   },
   "color_tab": {
     "priority_order": "Color Priority Order",
