@@ -134,7 +134,7 @@
     "empresa": "Company",
     "adicionar_rqe": "+ Add RQE",
     "baixar_pdf": "⬇ Download Print-Ready PDF",
-    "baixar_png": "⬇ Download PNG / JPG",
+    "baixar_png": "⬇ Download PNG",
     "baixar_assinatura": "⬇ Download Signature",
     "upsell_titulo": "+ Add more items — $30 each (Premium item: $180)",
     "upsell_caderneta": "Health Notebook (Premium)",
@@ -163,7 +163,9 @@
     "spec_preco": "Avg. price:",
     "label_telefone": "Phone",
     "label_telefone2": "Phone 2",
-    "label_endereco": "Address"
+    "label_endereco": "Address",
+    "copiar_html": "Copy HTML →",
+    "copiado": "Copied!"
   },
   "controle_especial": {
     "titulo": "SPECIAL CONTROL PRESCRIPTION",
@@ -1307,5 +1309,24 @@
     "qr_active": "✓ QR Code active",
     "add_qr": "+ QR Code",
     "qr_placeholder": "Link for QR Code (website, WhatsApp...)"
+  },
+  "insta_pack": {
+    "tiraduvidas_title": "Q&A",
+    "tiraduvidas_subtitle": "Send me your question!",
+    "enquete_title": "Tell me!",
+    "enquete_subtitle": "What is your doubt?",
+    "mito_title": "Fact or Myth?",
+    "mito_subtitle": "What have you heard?",
+    "dica_title": "Tip of the Day",
+    "dica_subtitle": "Swipe to see the content",
+    "indica_title": "Recommendations!",
+    "indica_subtitle": "What product do you want to see?",
+    "novidades_title": "News",
+    "novidades_subtitle": "Good things are coming!",
+    "sabiaque_title": "Did You Know?",
+    "sabiaque_subtitle": "A fact that will surprise you",
+    "livre_title": "Talk to Me!",
+    "livre_subtitle": "Send your message",
+    "question_box_placeholder": "SPACE FOR THE QUESTION BOX"
   }
 }

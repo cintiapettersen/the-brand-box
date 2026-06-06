@@ -4655,15 +4655,15 @@ function PapelTimbradoPreview({ brand, editData, accentColor, patternSrc, logoCo
   );
 }
 
-const STORY_TEMPLATES = [
-  { id: 'tiraduvidas', titulo: 'Tira-Dúvidas',       subtitulo: 'Me manda sua pergunta!',      caixinha: 'caixinha de perguntas' },
-  { id: 'enquete',     titulo: 'Me conta!',           subtitulo: 'Qual é a sua dúvida?',        caixinha: 'enquete ou caixinha' },
-  { id: 'mito',        titulo: 'Verdade ou Mito?',    subtitulo: 'O que você já ouviu por aí?', caixinha: 'caixinha de perguntas' },
-  { id: 'dica',        titulo: 'Dica do Dia',         subtitulo: 'Arrasta pra ver o conteúdo',  caixinha: 'área de conteúdo' },
-  { id: 'indica',      titulo: 'Me Indica!',          subtitulo: 'Qual produto você quer ver?', caixinha: 'caixinha de respostas' },
-  { id: 'novidades',   titulo: 'Novidades',           subtitulo: 'Tem coisa boa chegando!',     caixinha: 'área de conteúdo' },
-  { id: 'sabiaque',    titulo: 'Você Sabia?',         subtitulo: 'Um fato que vai te surpreender', caixinha: 'área de conteúdo' },
-  { id: 'livre',       titulo: 'Fala Comigo!',        subtitulo: 'Manda sua mensagem',          caixinha: 'caixinha de perguntas' },
+const getStoryTemplates = (dictionary) => [
+  { id: 'tiraduvidas', titulo: dictionary?.insta_pack?.tiraduvidas_title || 'Tira-Dúvidas',       subtitulo: dictionary?.insta_pack?.tiraduvidas_subtitle || 'Me manda sua pergunta!' },
+  { id: 'enquete',     titulo: dictionary?.insta_pack?.enquete_title || 'Me conta!',           subtitulo: dictionary?.insta_pack?.enquete_subtitle || 'Qual é a sua dúvida?' },
+  { id: 'mito',        titulo: dictionary?.insta_pack?.mito_title || 'Verdade ou Mito?',    subtitulo: dictionary?.insta_pack?.mito_subtitle || 'O que você já ouviu por aí?' },
+  { id: 'dica',        titulo: dictionary?.insta_pack?.dica_title || 'Dica do Dia',         subtitulo: dictionary?.insta_pack?.dica_subtitle || 'Arrasta pra ver o conteúdo' },
+  { id: 'indica',      titulo: dictionary?.insta_pack?.indica_title || 'Me Indica!',          subtitulo: dictionary?.insta_pack?.indica_subtitle || 'Qual produto você quer ver?' },
+  { id: 'novidades',   titulo: dictionary?.insta_pack?.novidades_title || 'Novidades',           subtitulo: dictionary?.insta_pack?.novidades_subtitle || 'Tem coisa boa chegando!' },
+  { id: 'sabiaque',    titulo: dictionary?.insta_pack?.sabiaque_title || 'Você Sabia?',         subtitulo: dictionary?.insta_pack?.sabiaque_subtitle || 'Um fato que vai te surpreender' },
+  { id: 'livre',       titulo: dictionary?.insta_pack?.livre_title || 'Fala Comigo!',        subtitulo: dictionary?.insta_pack?.livre_subtitle || 'Manda sua mensagem' },
 ];
 
 const INSTA_FORMATS = [
@@ -4672,11 +4672,13 @@ const INSTA_FORMATS = [
 ];
 
 function FundoInstaPreview({ brand, editData, accentColor, patternSrc, logoColor, logoLayout, comBorda, setComBorda, paletteColors, borderColor, setBorderColor, patternScale, setPatternScale, cartaoContacts, crmLine, localSlogan, clinicaNome, storyTemplateIdx, setStoryTemplateIdx, storyFormatIdx, setStoryFormatIdx }) {
+  const { dictionary } = useTranslation();
   const effectiveSrc = comBorda ? patternSrc : null;
   const solidColor = borderColor || paletteColors?.[0] || accentColor;
   const instagram = cartaoContacts?.instagram || '';
+  const storyTemplates = getStoryTemplates(dictionary);
   const tmplIdx = storyTemplateIdx ?? 0;
-  const tmpl = STORY_TEMPLATES[tmplIdx] || STORY_TEMPLATES[0];
+  const tmpl = storyTemplates[tmplIdx] || storyTemplates[0];
   const fmtIdx = storyFormatIdx ?? 0;
   const fmt = INSTA_FORMATS[fmtIdx];
 
@@ -4695,7 +4697,7 @@ function FundoInstaPreview({ brand, editData, accentColor, patternSrc, logoColor
 
       {/* Seletor de template */}
       <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap', justifyContent: 'center', maxWidth: '380px' }}>
-        {STORY_TEMPLATES.map((t, i) => (
+        {storyTemplates.map((t, i) => (
           <button key={t.id} onClick={() => setStoryTemplateIdx && setStoryTemplateIdx(i)} style={{ padding: '4px 10px', borderRadius: '12px', border: `1px solid ${tmplIdx === i ? solidColor : '#ddd'}`, cursor: 'pointer', fontFamily: 'Montserrat,sans-serif', fontSize: '10px', fontWeight: 600, background: tmplIdx === i ? solidColor + '15' : 'transparent', color: tmplIdx === i ? solidColor : '#999', transition: 'all 0.2s' }}>
             {t.titulo}
           </button>
@@ -4715,7 +4717,7 @@ function FundoInstaPreview({ brand, editData, accentColor, patternSrc, logoColor
            <div style={{ fontFamily: "'Montserrat', sans-serif", fontSize: fmt.subSize, fontWeight: 500, color: '#000000', opacity: 0.7, marginTop: '2px' }}>{tmpl.subtitulo}</div>
         </div>
         <div style={{ position: 'absolute', top: fmt.boxTop, left: '20px', right: '20px', height: fmt.boxH, border: '1.5px dashed rgba(0,0,0,0.22)', borderRadius: '15px', display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'rgba(255,255,255,0.92)', backdropFilter: 'blur(6px)', zIndex: 2 }}>
-           <div data-html2canvas-ignore style={{ fontSize: '7px', color: 'rgba(0,0,0,0.4)', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '1px' }}>Espaço para a {tmpl.caixinha}</div>
+           <div data-html2canvas-ignore style={{ fontSize: '7px', color: 'rgba(0,0,0,0.4)', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '1px' }}>{dictionary?.insta_pack?.question_box_placeholder || 'ESPAÇO PARA A CAIXINHA DE PERGUNTAS'}</div>
         </div>
         <div style={{ position: 'absolute', bottom: fmt.footerBottom, left: 0, right: 0, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '2px', zIndex: 3 }}>
            {instagram && (
@@ -8404,7 +8406,7 @@ body { background:#eee; }
         const effectiveSrc = comBorda ? patternSrc : null;
         const solidColor = borderColor || paletteColors?.[0] || accentColor;
         const instagram = cartaoContacts?.instagram || '';
-        const _STORY_TMPLS = [{id:'tiraduvidas',titulo:'Tira-Dúvidas',subtitulo:'Me manda sua pergunta!'},{id:'enquete',titulo:'Me conta!',subtitulo:'Qual é a sua dúvida?'},{id:'mito',titulo:'Verdade ou Mito?',subtitulo:'O que você já ouviu por aí?'},{id:'dica',titulo:'Dica do Dia',subtitulo:'Arrasta pra ver o conteúdo'},{id:'indica',titulo:'Me Indica!',subtitulo:'Qual produto você quer ver?'},{id:'novidades',titulo:'Novidades',subtitulo:'Tem coisa boa chegando!'},{id:'sabiaque',titulo:'Você Sabia?',subtitulo:'Um fato que vai te surpreender'},{id:'livre',titulo:'Fala Comigo!',subtitulo:'Manda sua mensagem'}];
+        const _STORY_TMPLS = getStoryTemplates(dictionary);
         const _storyTmpl = _STORY_TMPLS[storyTemplateIdx] || _STORY_TMPLS[0];
 
         const RW = _fmt.rw, RH = _fmt.rh;
@@ -10992,7 +10994,7 @@ function EntregaContent({ brand, plano, setBrand }) {
               link.href = canvas.toDataURL('image/png');
               link.click();
             }} style={{ width: '100%', padding: '14px', background: '#fff', color: '#C03B66', border: '1.5px solid #C03B66', borderRadius: '30px', fontWeight: 700, fontSize: '0.95rem', cursor: 'pointer' }}>
-              ⬇ Baixar PNG
+              {dictionary?.ui?.baixar_png || '⬇ Baixar PNG'}
             </button>
           )}
 
@@ -11019,7 +11021,7 @@ function EntregaContent({ brand, plano, setBrand }) {
                   transition: 'all 0.3s ease'
                 }}
               >
-                {copiedAssinatura ? 'Copiado!' : 'Copiar HTML →'}
+                {copiedAssinatura ? (dictionary?.ui?.copiado || 'Copiado!') : (dictionary?.ui?.copiar_html || 'Copiar HTML →')}
               </button>
               <button onClick={async () => {
                 const el = document.querySelector('[data-assinatura-preview]');
@@ -11030,7 +11032,7 @@ function EntregaContent({ brand, plano, setBrand }) {
                 link.href = canvas.toDataURL('image/png');
                 link.click();
               }} style={{ flex: 1, padding: '14px 8px', background: '#fff', color: '#C03B66', border: '1.5px solid #C03B66', borderRadius: '30px', fontWeight: 700, fontSize: '0.85rem', cursor: 'pointer' }}>
-                ⬇ Baixar PNG
+                {dictionary?.ui?.baixar_png || '⬇ Baixar PNG'}
               </button>
             </div>
           )}

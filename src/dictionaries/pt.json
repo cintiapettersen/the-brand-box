@@ -134,7 +134,7 @@
     "empresa": "Empresa",
     "adicionar_rqe": "+ Adicionar RQE",
     "baixar_pdf": "⬇ Baixar PDF Padrão Gráfica",
-    "baixar_png": "⬇ Baixar PNG / JPG",
+    "baixar_png": "⬇ Baixar PNG",
     "baixar_assinatura": "⬇ Baixar Assinatura",
     "upsell_titulo": "+ Adicionar mais itens — R$ 30 cada (Item Premium: R$ 180)",
     "upsell_caderneta": "Caderneta de Saúde (Premium)",
@@ -163,7 +163,9 @@
     "spec_preco": "Preço médio:",
     "label_telefone": "Telefone",
     "label_telefone2": "Telefone 2",
-    "label_endereco": "Endereço"
+    "label_endereco": "Endereço",
+    "copiar_html": "Copiar HTML →",
+    "copiado": "Copiado!"
   },
   "controle_especial": {
     "titulo": "RECEITUÁRIO DE CONTROLE ESPECIAL",
@@ -1227,5 +1229,24 @@
     "qr_active": "✓ QR Code ativo",
     "add_qr": "+ QR Code",
     "qr_placeholder": "Link para o QR Code (site, WhatsApp...)"
+  },
+  "insta_pack": {
+    "tiraduvidas_title": "Tira-Dúvidas",
+    "tiraduvidas_subtitle": "Me manda sua pergunta!",
+    "enquete_title": "Me conta!",
+    "enquete_subtitle": "Qual é a sua dúvida?",
+    "mito_title": "Verdade ou Mito?",
+    "mito_subtitle": "O que você já ouviu por aí?",
+    "dica_title": "Dica do Dia",
+    "dica_subtitle": "Arrasta pra ver o conteúdo",
+    "indica_title": "Me Indica!",
+    "indica_subtitle": "Qual produto você quer ver?",
+    "novidades_title": "Novidades",
+    "novidades_subtitle": "Tem coisa boa chegando!",
+    "sabiaque_title": "Você Sabia?",
+    "sabiaque_subtitle": "Um fato que vai te surpreender",
+    "livre_title": "Fala Comigo!",
+    "livre_subtitle": "Manda sua mensagem",
+    "question_box_placeholder": "ESPAÇO PARA A CAIXINHA DE PERGUNTAS"
   }
 }
