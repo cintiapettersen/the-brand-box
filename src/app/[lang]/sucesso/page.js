@@ -2163,7 +2163,7 @@ function ManifestoQuiz({ accentColor, marca, tagline, estiloNome, isSaude, onMan
       <div style={{ display: 'flex', gap: '8px' }}>
         {atual > 0 && (
           <button onClick={() => setAtual(a => a - 1)} style={{ padding: '12px 20px', borderRadius: '20px', border: '1.5px solid #eee', background: 'transparent', color: '#aaa', fontWeight: 700, fontSize: '0.75rem', cursor: 'pointer', fontFamily: 'Montserrat, sans-serif' }}>
-            {tQuiz.voltar || '← Voltar'}
+            {tQuiz.voltar || dictionary?.geral?.voltar || '← Voltar'}
           </button>
         )}
         {atual < QUIZ_PERGUNTAS.length - 1 ? (
@@ -2509,7 +2509,7 @@ function TomDeVozQuiz({ accentColor, marca, tagline, estiloNome, onTomDeVozGerad
       <div style={{ display: 'flex', gap: '8px' }}>
         {atual > 0 && (
           <button onClick={() => setAtual(a => a - 1)} style={{ padding: '12px 20px', borderRadius: '20px', border: '1.5px solid #eee', background: 'transparent', color: '#aaa', fontWeight: 700, fontSize: '0.75rem', cursor: 'pointer', fontFamily: 'Montserrat, sans-serif' }}>
-            {tQuiz.voltar || '← Voltar'}
+            {tQuiz.voltar || dictionary?.geral?.voltar || '← Voltar'}
           </button>
         )}
         {atual < PERGUNTAS.length - 1 ? (
@@ -10137,11 +10137,11 @@ function EntregaContent({ brand, plano, setBrand }) {
 
               {/* Origem da Logo */}
               <div style={{ padding: '12px 14px', background: '#fcfcfc', borderRadius: '14px', border: '1.5px solid #eaeaea' }}>
-                <span style={{ fontSize: '0.72rem', fontWeight: 800, fontFamily: 'Montserrat, sans-serif', color: '#555', display: 'block', marginBottom: '8px' }}>📂 Origem da Logo</span>
+                <span style={{ fontSize: '0.72rem', fontWeight: 800, fontFamily: 'Montserrat, sans-serif', color: '#555', display: 'block', marginBottom: '8px' }}>{dictionary?.logo_tab?.origin || '📂 Origem da Logo'}</span>
                 <div style={{ display: 'flex', gap: '6px' }}>
-                  <button onClick={() => { setCustomLogoSrc(null); setCustomLogoWarn(null); }} style={{ flex: 1, padding: '8px 6px', border: `1.5px solid ${!customLogoSrc ? accentColor : '#e0e0e0'}`, borderRadius: '10px', cursor: 'pointer', fontSize: '0.72rem', fontWeight: 700, fontFamily: 'Montserrat,sans-serif', background: !customLogoSrc ? `${accentColor}12` : '#fff', color: !customLogoSrc ? accentColor : '#aaa' }}>✨ Logo sugerida</button>
+                  <button onClick={() => { setCustomLogoSrc(null); setCustomLogoWarn(null); }} style={{ flex: 1, padding: '8px 6px', border: `1.5px solid ${!customLogoSrc ? accentColor : '#e0e0e0'}`, borderRadius: '10px', cursor: 'pointer', fontSize: '0.72rem', fontWeight: 700, fontFamily: 'Montserrat,sans-serif', background: !customLogoSrc ? `${accentColor}12` : '#fff', color: !customLogoSrc ? accentColor : '#aaa' }}>{dictionary?.logo_tab?.suggested_logo || '✨ Logo sugerida'}</button>
                   <label style={{ flex: 1, padding: '8px 6px', border: `1.5px solid ${customLogoSrc ? accentColor : '#e0e0e0'}`, borderRadius: '10px', cursor: 'pointer', fontSize: '0.72rem', fontWeight: 700, fontFamily: 'Montserrat,sans-serif', background: customLogoSrc ? `${accentColor}12` : '#fff', color: customLogoSrc ? accentColor : '#aaa', textAlign: 'center', display: 'block' }}>
-                    {customLogoSrc ? '✓ Minha logo' : '📤 Enviar minha logo'}
+                    {customLogoSrc ? '✓ Minha logo' : (dictionary?.logo_tab?.upload_logo || '📤 Enviar minha logo')}
                     <input type="file" accept="image/png" style={{ display: 'none' }} onClick={e => { e.target.value = null; }} onChange={e => {
                       const file = e.target.files[0];
                       if (!file) return;
@@ -10208,14 +10208,14 @@ function EntregaContent({ brand, plano, setBrand }) {
               <div style={{ padding: '12px 14px', background: '#fcfcfc', borderRadius: '14px', border: '1.5px solid #eaeaea' }}>
                 <div style={{ display: 'flex', gap: '12px' }}>
                   <div style={{ flex: 1 }}>
-                    <span style={{ fontSize: '0.72rem', fontWeight: 800, fontFamily: 'Montserrat, sans-serif', color: '#555', display: 'block', marginBottom: '8px' }}>🖼️ Cor de Fundo</span>
+                    <span style={{ fontSize: '0.72rem', fontWeight: 800, fontFamily: 'Montserrat, sans-serif', color: '#555', display: 'block', marginBottom: '8px' }}>{dictionary?.logo_tab?.bg_color || '🖼️ Cor de Fundo'}</span>
                     <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap' }}>
                       {BG_OPTIONS.map(opt => <ColorDot key={opt.label} color={opt.color} selected={bgColor === opt.color} onClick={() => setBgColor(opt.color)} />)}
                     </div>
                   </div>
                   <div style={{ width: '1px', background: '#eaeaea', alignSelf: 'stretch' }} />
                   <div style={{ flex: 1 }}>
-                    <span style={{ fontSize: '0.72rem', fontWeight: 800, fontFamily: 'Montserrat, sans-serif', color: '#555', display: 'block', marginBottom: '8px' }}>🎨 Cor da Logo</span>
+                    <span style={{ fontSize: '0.72rem', fontWeight: 800, fontFamily: 'Montserrat, sans-serif', color: '#555', display: 'block', marginBottom: '8px' }}>{dictionary?.logo_tab?.logo_color || '🎨 Cor da Logo'}</span>
                     <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap' }}>
                       {['#000000', '#ffffff'].map(hex => <ColorDot key={hex} color={hex} selected={logoColor === hex} onClick={() => setLogoColor(hex)} outlined={hex === '#ffffff'} />)}
                       {paletteColors.map((hex, i) => <ColorDot key={i} color={hex} selected={logoColor === hex} onClick={() => setLogoColor(hex)} />)}
@@ -10248,13 +10248,13 @@ function EntregaContent({ brand, plano, setBrand }) {
         {/* Download card — aba logo */}
         {step === 'logo' && (
           <div style={{ marginTop: '1rem', display: 'flex', flexDirection: 'column', gap: '10px', padding: '16px', background: '#fcfcfc', borderRadius: '16px', border: '1.5px solid #eaeaea', boxShadow: '0 4px 12px rgba(0,0,0,0.02)', marginBottom: '14px' }}>
-            <span style={{ fontSize: '0.78rem', fontWeight: 800, fontFamily: 'Montserrat, sans-serif', color: '#333', letterSpacing: '0.3px', display: 'flex', alignItems: 'center', gap: '6px' }}>💾 Baixar Arquivos da Logo</span>
+            <span style={{ fontSize: '0.78rem', fontWeight: 800, fontFamily: 'Montserrat, sans-serif', color: '#333', letterSpacing: '0.3px', display: 'flex', alignItems: 'center', gap: '6px' }}>{dictionary?.logo_tab?.download_files || '💾 Baixar Arquivos da Logo'}</span>
             <div style={{ display: 'flex', gap: '8px', marginTop: '4px' }}>
               <button onClick={downloadTransparent} disabled={!!downloading} style={{ flex: 1, padding: '10px 8px', background: '#fff', color: accentColor, border: `1.5px solid ${accentColor}`, borderRadius: '30px', fontWeight: 700, fontSize: '0.78rem', cursor: 'pointer', opacity: downloading === 'png' ? 0.6 : 1 }}>
-                {downloading === 'png' ? '...' : 'PNG Transparente'}
+                {downloading === 'png' ? '...' : (dictionary?.logo_tab?.png_transparent || 'PNG Transparente')}
               </button>
               <button onClick={downloadComFundo} disabled={!!downloading} style={{ flex: 1, padding: '10px 8px', background: '#fff', color: accentColor, border: `1.5px solid ${accentColor}`, borderRadius: '30px', fontWeight: 700, fontSize: '0.78rem', cursor: 'pointer', opacity: downloading === 'fundo' ? 0.6 : 1 }}>
-                {downloading === 'fundo' ? '...' : 'Logo com Fundo'}
+                {downloading === 'fundo' ? '...' : (dictionary?.logo_tab?.logo_bg || 'Logo com Fundo')}
               </button>
             </div>
           </div>
@@ -10440,17 +10440,17 @@ function EntregaContent({ brand, plano, setBrand }) {
               marginBottom: '4px'
             }}>
               <span style={{ fontSize: '0.78rem', fontWeight: 800, fontFamily: 'Montserrat, sans-serif', color: '#333', letterSpacing: '0.3px', display: 'flex', alignItems: 'center', gap: '6px' }}>
-                📂 Origem da Logo
+                {dictionary?.logo_tab?.origin || '📂 Origem da Logo'}
               </span>
               <div style={{ display: 'flex', gap: '6px', marginTop: '4px' }}>
                 <button
                   onClick={() => { setCustomLogoSrc(null); setCustomLogoWarn(null); }}
                   style={{ flex: 1, padding: '10px 8px', border: `1.5px solid ${!customLogoSrc ? accentColor : '#e0e0e0'}`, borderRadius: '12px', cursor: 'pointer', textAlign: 'center', fontSize: '0.75rem', fontWeight: 700, fontFamily: 'Montserrat,sans-serif', background: !customLogoSrc ? `${accentColor}12` : '#fff', color: !customLogoSrc ? accentColor : '#aaa', transition: 'all 0.15s' }}
                 >
-                  ✨ Logo sugerida
+                  {dictionary?.logo_tab?.suggested_logo || '✨ Logo sugerida'}
                 </button>
                 <label style={{ flex: 1, padding: '10px 8px', border: `1.5px solid ${customLogoSrc ? accentColor : '#e0e0e0'}`, borderRadius: '12px', cursor: 'pointer', textAlign: 'center', fontSize: '0.75rem', fontWeight: 700, fontFamily: 'Montserrat,sans-serif', background: customLogoSrc ? `${accentColor}12` : '#fff', color: customLogoSrc ? accentColor : '#aaa', transition: 'all 0.15s' }}>
-                  {customLogoSrc ? '✓ Minha logo' : '📤 Enviar minha logo'}
+                  {customLogoSrc ? '✓ Minha logo' : (dictionary?.logo_tab?.upload_logo || '📤 Enviar minha logo')}
                   <input type="file" accept="image/png" style={{ display: 'none' }} onClick={e => { e.target.value = null; }} onChange={e => {
                     const file = e.target.files[0];
                     if (!file) return;
@@ -10728,7 +10728,7 @@ function EntregaContent({ brand, plano, setBrand }) {
               marginBottom: '4px'
             }}>
               <span style={{ fontSize: '0.78rem', fontWeight: 800, fontFamily: 'Montserrat, sans-serif', color: '#333', letterSpacing: '0.3px', display: 'flex', alignItems: 'center', gap: '6px' }}>
-                🖼️ Cor de Fundo
+                {dictionary?.logo_tab?.bg_color || '🖼️ Cor de Fundo'}
               </span>
               <div style={{ display: 'flex', gap: '10px', alignItems: 'center', marginTop: '4px' }}>
                 {BG_OPTIONS.map(opt => (
@@ -10811,7 +10811,7 @@ function EntregaContent({ brand, plano, setBrand }) {
               marginBottom: '4px'
             }}>
               <span style={{ fontSize: '0.78rem', fontWeight: 800, fontFamily: 'Montserrat, sans-serif', color: '#333', letterSpacing: '0.3px', display: 'flex', alignItems: 'center', gap: '6px' }}>
-                🎨 Cor da Logo
+                {dictionary?.logo_tab?.logo_color || '🎨 Cor da Logo'}
               </span>
               <div style={{ display: 'flex', gap: '10px', alignItems: 'center', flexWrap: 'wrap', marginTop: '4px' }}>
                 {/* Opções fixas: preto e branco */}
@@ -10937,7 +10937,7 @@ function EntregaContent({ brand, plano, setBrand }) {
               marginBottom: '14px' // Espaçamento generoso do botão de ir para a próxima etapa
             }}>
               <span style={{ fontSize: '0.78rem', fontWeight: 800, fontFamily: 'Montserrat, sans-serif', color: '#333', letterSpacing: '0.3px', display: 'flex', alignItems: 'center', gap: '6px' }}>
-                💾 Baixar Arquivos da Logo
+                {dictionary?.logo_tab?.download_files || '💾 Baixar Arquivos da Logo'}
               </span>
               <div style={{ display: 'flex', gap: '8px', marginTop: '4px' }}>
                 <button
@@ -10945,14 +10945,14 @@ function EntregaContent({ brand, plano, setBrand }) {
                   disabled={!!downloading}
                   style={{ flex: 1, padding: '10px 8px', background: '#fff', color: '#C03B66', border: '1.5px solid #C03B66', borderRadius: '30px', fontWeight: 700, fontSize: '0.78rem', cursor: 'pointer', opacity: downloading === 'png' ? 0.6 : 1 }}
                 >
-                  {downloading === 'png' ? '...' : 'PNG Transparente'}
+                  {downloading === 'png' ? '...' : (dictionary?.logo_tab?.png_transparent || 'PNG Transparente')}
                 </button>
                 <button
                   onClick={downloadComFundo}
                   disabled={!!downloading}
                   style={{ flex: 1, padding: '10px 8px', background: '#fff', color: '#C03B66', border: '1.5px solid #C03B66', borderRadius: '30px', fontWeight: 700, fontSize: '0.78rem', cursor: 'pointer', opacity: downloading === 'fundo' ? 0.6 : 1 }}
                 >
-                  {downloading === 'fundo' ? '...' : 'Logo com Fundo'}
+                  {downloading === 'fundo' ? '...' : (dictionary?.logo_tab?.logo_bg || 'Logo com Fundo')}
                 </button>
               </div>
             </div>

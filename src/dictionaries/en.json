@@ -253,7 +253,7 @@
     "baixar_instagram": "⬇ Download PNG / JPG",
     "baixar_assinatura": "⬇ Download Signature",
     "baixar_papelaria": "⬇ Download Print PDF",
-    "voltar": "Back",
+    "voltar": "← Back",
     "ir_digital": "Go to Digital",
     "ir_papelaria": "Go to Stationery",
     "proxima_etapa": "Next step",
@@ -1132,6 +1132,14 @@
     "two_lines": "⊟ Two lines",
     "stacked": "≡ Stacked",
     "line_spacing": "↔️ Height / Line Spacing",
-    "brand_name": "✏️ Brand Name"
+    "brand_name": "✏️ Brand Name",
+    "origin": "📂 Logo Origin",
+    "suggested_logo": "✨ Suggested logo",
+    "upload_logo": "📤 Upload my logo",
+    "bg_color": "🖼️ Background Color",
+    "logo_color": "🎨 Logo Color",
+    "download_files": "💾 Download Logo Files",
+    "png_transparent": "Transparent PNG",
+    "logo_bg": "Logo with Background"
   }
 }

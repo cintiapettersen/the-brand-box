@@ -253,7 +253,7 @@
     "baixar_instagram": "⬇ Baixar PNG / JPG",
     "baixar_assinatura": "⬇ Baixar Assinatura",
     "baixar_papelaria": "⬇ Baixar PDF Padrão Gráfica",
-    "voltar": "Voltar",
+    "voltar": "← Voltar",
     "ir_digital": "Ir para o Digital",
     "ir_papelaria": "Ir para Papelaria",
     "proxima_etapa": "Próxima etapa",
@@ -1132,6 +1132,14 @@
     "two_lines": "⊟ Duas linhas",
     "stacked": "≡ Empilhada",
     "line_spacing": "↔️ Altura / Espaço entre Linhas",
-    "brand_name": "✏️ Nome da Marca"
+    "brand_name": "✏️ Nome da Marca",
+    "origin": "📂 Origem da Logo",
+    "suggested_logo": "✨ Logo sugerida",
+    "upload_logo": "📤 Enviar minha logo",
+    "bg_color": "🖼️ Cor de Fundo",
+    "logo_color": "🎨 Cor da Logo",
+    "download_files": "💾 Baixar Arquivos da Logo",
+    "png_transparent": "PNG Transparente",
+    "logo_bg": "Logo com Fundo"
   }
 }
