@@ -1123,6 +1123,11 @@ function EstampaStep({ brand, accentColor, marca, patterns, setPatterns, genCoun
               'Repetida': 'repetida',
               'No consultório': 'no_consultorio'
             };
+            const labelMap = {
+              'Ampliada': dictionary?.pattern_tab?.mode_ampliada || 'Ampliada',
+              'Repetida': dictionary?.pattern_tab?.mode_repetida || 'Repetida',
+              'No consultório': dictionary?.pattern_tab?.mode_mockup || 'No consultório'
+            };
             const modeKey = modeMap[mode];
             const active = viewMode === modeKey;
             return (
@@ -1132,7 +1137,7 @@ function EstampaStep({ brand, accentColor, marca, patterns, setPatterns, genCoun
                   color: active ? '#1a1a1a' : '#aaa',
                   boxShadow: active ? '0 1px 4px rgba(0,0,0,0.10)' : 'none',
                   transition: 'all 0.15s ease' }}>
-                {mode}
+                {labelMap[mode]}
               </button>
             );
           })}
@@ -1241,7 +1246,7 @@ function EstampaStep({ brand, accentColor, marca, patterns, setPatterns, genCoun
                 disabled={fixingSeams}
                 style={{ padding: '7px 18px', borderRadius: '20px', border: `1.5px solid ${accentColor}44`, background: fixingSeams ? `${accentColor}10` : '#fff', color: fixingSeams ? accentColor : '#666', fontSize: '0.72rem', fontWeight: 700, cursor: fixingSeams ? 'wait' : 'pointer', fontFamily: 'Montserrat, sans-serif', display: 'flex', alignItems: 'center', gap: '6px', transition: 'all 0.2s' }}
               >
-                {fixingSeams ? '⏳ Suavizando...' : '🪄 Suavizar cortes'}
+                {fixingSeams ? (dictionary?.pattern_tab?.smoothing || '⏳ Suavizando...') : (dictionary?.pattern_tab?.smooth_seams || '🪄 Suavizar cortes')}
               </button>
               {originalPattern && (
                 <button
@@ -1362,13 +1367,13 @@ function EstampaStep({ brand, accentColor, marca, patterns, setPatterns, genCoun
 
       {patternSrc && (
         <p style={{ textAlign: 'center', fontSize: '0.68rem', color: '#999', margin: '-5px 0 5px' }}>
-          💡 As estampas geradas ficam salvas na galeria acima.<br/>Clique nas miniaturas para alternar entre as versões.
+          <span dangerouslySetInnerHTML={{ __html: dictionary?.pattern_tab?.gallery_hint || '💡 As estampas geradas ficam salvas na galeria acima.<br/>Clique nas miniaturas para alternar entre as versões.' }} />
         </p>
       )}
 
       {patternSrc && setPatternScale && (
         <div style={{ display: 'flex', alignItems: 'center', gap: '10px', padding: '8px 14px', background: '#f7f7f5', borderRadius: '12px' }}>
-          <span style={{ fontSize: '0.68rem', color: '#999', textTransform: 'uppercase', letterSpacing: '1px', fontWeight: 600, whiteSpace: 'nowrap' }}>Tamanho</span>
+          <span style={{ fontSize: '0.68rem', color: '#999', textTransform: 'uppercase', letterSpacing: '1px', fontWeight: 600, whiteSpace: 'nowrap' }}>{dictionary?.pattern_tab?.size || 'TAMANHO'}</span>
           <input type="range" min="50" max="600" step="10"
             value={patternScale || 120}
             onChange={e => setPatternScale(parseInt(e.target.value))}

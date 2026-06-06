@@ -1118,14 +1118,20 @@
     "generate_new": "✨ Gerar Nova Estampa",
     "left": "Restam",
     "limit_reached": "Restam 0",
-    "smooth_seams": "Suavizar emendas",
+    "smooth_seams": "🪄 Suavizar cortes",
     "zoom": "Zoom",
     "qr_link": "Link para o QR Code (site, WhatsApp...)",
     "limit_reached_desc": "Limite de gerações atingido. O plano Pro permite...",
     "change_reference": "Mudar referência",
     "confirm": "Confirmar",
     "cancel": "Cancelar",
-    "select_base": "Selecione a estampa de referência base:"
+    "select_base": "Selecione a estampa de referência base:",
+    "mode_ampliada": "Ampliada",
+    "mode_repetida": "Repetida",
+    "mode_mockup": "No consultório",
+    "smoothing": "⏳ Suavizando...",
+    "gallery_hint": "💡 As estampas geradas ficam salvas na galeria acima.<br/>Clique nas miniaturas para alternar entre as versões.",
+    "size": "TAMANHO"
   },
   "guide_tab": {
     "brand_guidelines": "Guia de Identidade Visual",

@@ -1118,14 +1118,20 @@
     "generate_new": "✨ Generate New Pattern",
     "left": "left",
     "limit_reached": "Limit reached",
-    "smooth_seams": "Smooth seams",
+    "smooth_seams": "🪄 Smooth seams",
     "zoom": "Zoom",
     "qr_link": "Link for QR Code (website, WhatsApp...)",
     "limit_reached_desc": "Generation limit reached. Pro plan allows...",
     "change_reference": "Change reference",
     "confirm": "Confirm",
     "cancel": "Cancel",
-    "select_base": "Select the base reference pattern:"
+    "select_base": "Select the base reference pattern:",
+    "mode_ampliada": "Scaled Up",
+    "mode_repetida": "Pattern",
+    "mode_mockup": "In Context",
+    "smoothing": "⏳ Smoothing...",
+    "gallery_hint": "💡 Generated patterns are saved in the gallery above.<br/>Click the thumbnails to switch between versions.",
+    "size": "SIZE"
   },
   "guide_tab": {
     "brand_guidelines": "Brand Guidelines",
