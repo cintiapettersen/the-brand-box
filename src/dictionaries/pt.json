@@ -1071,7 +1071,13 @@
     "choose_focused": "Escolha uma tagline focada em",
     "examples": "Exemplos:",
     "font_style": "Aa Estilo da Fonte",
-    "spacing": "↔ Espaçamento"
+    "spacing": "↔ Espaçamento",
+    "one_line": "1 Linha",
+    "two_lines": "2 Linhas",
+    "scale": "Escala Tagline",
+    "distance": "Distância",
+    "distance_tagline": "Distância Tagline",
+    "spacing_slider": "Espaçamento"
   },
   "seal_tab": {
     "custom_logo_msg": "Você enviou sua própria logo, então a submarca (selo) foi gerada a partir dela!",

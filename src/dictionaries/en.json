@@ -1071,7 +1071,13 @@
     "choose_focused": "Choose a tagline focused on",
     "examples": "Examples:",
     "font_style": "Aa Font Style",
-    "spacing": "↔ Spacing"
+    "spacing": "↔ Spacing",
+    "one_line": "1 Line",
+    "two_lines": "2 Lines",
+    "scale": "Tagline Scale",
+    "distance": "Distance",
+    "distance_tagline": "Tagline Distance",
+    "spacing_slider": "Spacing"
   },
   "seal_tab": {
     "custom_logo_msg": "You uploaded your own logo, so the seal was generated from it!",
