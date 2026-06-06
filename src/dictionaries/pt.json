@@ -1131,7 +1131,13 @@
     "mode_mockup": "No consultório",
     "smoothing": "⏳ Suavizando...",
     "gallery_hint": "💡 As estampas geradas ficam salvas na galeria acima.<br/>Clique nas miniaturas para alternar entre as versões.",
-    "size": "TAMANHO"
+    "size": "TAMANHO",
+    "download_pattern": "⬇ Baixar Estampa",
+    "generate_new_options": "✨ Gerar novas opções",
+    "generate_pattern": "✨ Gerar estampa",
+    "generating_wait": "✨ Tecendo suas estampas... (isso leva uns 15s)",
+    "remaining": "{n} {n_word}",
+    "limit_reached_text": "Limite de gerações atingido"
   },
   "guide_tab": {
     "brand_guidelines": "Guia de Identidade Visual",
@@ -1141,7 +1147,8 @@
     "tone_of_voice": "Tom de Voz",
     "download_pdf": "⬇ Baixar Guia em PDF",
     "new_tab": "Uma nova aba abrirá — use \"Salvar como PDF\" no menu de impressão.",
-    "popups": "(Se não abrir, verifique se seu navegador bloqueou Pop-ups)"
+    "popups": "(Se não abrir, verifique se seu navegador bloqueou Pop-ups)",
+    "download_palette": "⬇ Baixar Paleta de Cores"
   },
   "logo_tab": {
     "saved_styles": "🎨 Estilos Salvos",

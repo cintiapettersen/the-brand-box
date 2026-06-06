@@ -1131,7 +1131,13 @@
     "mode_mockup": "In Context",
     "smoothing": "⏳ Smoothing...",
     "gallery_hint": "💡 Generated patterns are saved in the gallery above.<br/>Click the thumbnails to switch between versions.",
-    "size": "SIZE"
+    "size": "SIZE",
+    "download_pattern": "⬇ Download Pattern",
+    "generate_new_options": "✨ Generate new options",
+    "generate_pattern": "✨ Generate pattern",
+    "generating_wait": "✨ Weaving your patterns... (this takes ~15s)",
+    "remaining": "{n} generations remaining",
+    "limit_reached_text": "Generation limit reached"
   },
   "guide_tab": {
     "brand_guidelines": "Brand Guidelines",
@@ -1141,7 +1147,8 @@
     "tone_of_voice": "Tone of Voice",
     "download_pdf": "⬇ Download Full Guide in PDF",
     "new_tab": "A new tab will open — use \"Save as PDF\" in the print menu.",
-    "popups": "(If it does not open, check if your browser blocked Pop-ups)"
+    "popups": "(If it does not open, check if your browser blocked Pop-ups)",
+    "download_palette": "⬇ Download Color Palette"
   },
   "logo_tab": {
     "saved_styles": "🎨 Saved Styles",

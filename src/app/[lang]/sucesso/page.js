@@ -361,7 +361,7 @@ function SectionLabel({ children }) {
   );
 }
 
-const MAX_GENERATIONS = 15;
+const MAX_GENERATIONS = 5;
 
 function hexToRgb(hex) {
   const h = hex.replace('#', '');
@@ -1386,7 +1386,7 @@ function EstampaStep({ brand, accentColor, marca, patterns, setPatterns, genCoun
       <div style={{ display: 'flex', gap: '8px' }}>
         {patternSrc && (
           <button onClick={download} style={{ flex: 1, padding: '13px 8px', background: '#fff', color: '#C03B66', border: '1.5px solid #C03B66', borderRadius: '30px', fontWeight: 700, fontSize: '0.82rem', cursor: 'pointer' }}>
-            ⬇ Baixar Estampa
+            {dictionary?.pattern_tab?.download_pattern || '⬇ Baixar Estampa'}
           </button>
         )}
         {remaining > 0 && (
@@ -1395,12 +1395,12 @@ function EstampaStep({ brand, accentColor, marca, patterns, setPatterns, genCoun
             disabled={generating}
             style={{ flex: 1, padding: '13px 8px', background: 'none', color: '#C03B66', border: '1.5px solid #C03B66', borderRadius: '30px', fontWeight: 700, fontSize: '0.82rem', cursor: 'pointer', opacity: generating ? 0.6 : 1 }}
           >
-            {generating ? '✨ Tecendo suas estampas... (isso leva uns 15s)' : `✨ ${patternSrc ? 'Gerar novas opções' : 'Gerar estampa'}`}
+            {generating ? (dictionary?.pattern_tab?.generating_wait || '✨ Tecendo suas estampas... (isso leva uns 15s)') : (patternSrc ? (dictionary?.pattern_tab?.generate_new_options || '✨ Gerar novas opções') : (dictionary?.pattern_tab?.generate_pattern || '✨ Gerar estampa'))}
           </button>
         )}
       </div>
       <p style={{ textAlign: 'center', fontSize: '0.72rem', color: '#bbb' }}>
-        {remaining > 0 ? `${remaining} ${remaining > 1 ? 'gerações restantes' : 'geração restante'}` : 'Limite de gerações atingido'}
+        {remaining > 0 ? (dictionary?.pattern_tab?.remaining?.replace('{n}', remaining)?.replace('{n_word}', remaining > 1 ? 'gerações restantes' : 'geração restante') || `${remaining} ${remaining > 1 ? 'gerações restantes' : 'geração restante'}`) : (dictionary?.pattern_tab?.limit_reached_text || 'Limite de gerações atingido')}
       </p>
     </div>
   );
@@ -11032,7 +11032,7 @@ function EntregaContent({ brand, plano, setBrand }) {
 
           {step === 'paleta' && (
             <button onClick={downloadCoresPNG} disabled={downloadingCores} style={{ width: '100%', padding: '14px', background: '#fff', color: '#C03B66', border: '1.5px solid #C03B66', borderRadius: '30px', fontWeight: 700, fontSize: '0.95rem', cursor: 'pointer', opacity: downloadingCores ? 0.6 : 1 }}>
-              {downloadingCores ? '...' : `⬇ Baixar ${dictionary?.guide_tab?.color_palette || 'Paleta de Cores'}`}
+              {downloadingCores ? '...' : (dictionary?.guide_tab?.download_palette || '⬇ Baixar Paleta de Cores')}
             </button>
           )}
 
