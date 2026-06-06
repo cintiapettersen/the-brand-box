@@ -55,6 +55,54 @@ import CadernetaPreview from './CadernetaPreview';
 import { useScaleToFit } from './useScaleToFit';
 import { createClient } from '@supabase/supabase-js';
 
+const ITEM_KEYS_MAP = {
+  'Cartão de Visita': 'cartao_visita',
+  'Papel Timbrado': 'papel_timbrado',
+  'Papel de Presente': 'papel_presente',
+  'Tag para Sacola': 'tag_sacola',
+  'Etiqueta para Correios': 'etiqueta_correios',
+  'Envelope Ofício (23x11,5cm)': 'envelope_oficio',
+  'Envelope Saco (24x34cm)': 'envelope_saco',
+  'Recibo': 'recibo',
+  'Pasta A4': 'pasta_a4',
+  'Pasta': 'pasta_a4',
+  'Caneca': 'caneca',
+  'Cartão de Retorno': 'cartao_retorno',
+  'Cartão de Agradecimento (10x15cm)': 'cartao_agradecimento',
+  'Cartão de Agradecimento': 'cartao_agradecimento',
+  'Caderno (Capa e Contra-capa)': 'caderno',
+  'Caderno': 'caderno',
+  'Receituário Padrão (A4 e A5)': 'receituario_padrao',
+  'Receituário Padrão': 'receituario_padrao',
+  'Atestado Médico (A4 e A5)': 'atestado_medico',
+  'Atestado Médico': 'atestado_medico',
+  'Receituário de Controle Especial': 'receituario_controle',
+  'Checklist Maternidade': 'checklist_maternidade',
+  'Orientações p/ Recém Nascidos': 'orientacoes_rn',
+  'Guia de Cuidados': 'guia_cuidados',
+  'Guia Alimentar': 'guia_alimentar',
+  'Guia de Desenvolvimento': 'guia_desenvolvimento',
+  'Cartão de Vacina': 'cartao_vacina',
+  'Guia Pré-natal': 'guia_prenatal',
+  'Guia do Sono': 'guia_sono',
+  'Caderneta de Saúde': 'caderneta_saude',
+  'Livro de Atividades': 'livro_atividades',
+  'Certificado de Coragem': 'certificado_coragem',
+  'Prontuário Médico': 'prontuario_medico',
+  'Diário do Xixi': 'diario_xixi',
+  'Meu Pratinho': 'meu_pratinho',
+  'Ficha de Cadastro': 'ficha_cadastro',
+  'Assinatura de E-mail': 'assinatura_email',
+  'Fundo para Stories': 'fundo_stories',
+  'Pack Digital para Instagram': 'pack_instagram'
+};
+
+const tItem = (itemName, dict) => {
+  if (!dict || !dict.papelaria_itens) return itemName;
+  const key = ITEM_KEYS_MAP[itemName];
+  return key && dict.papelaria_itens[key] ? dict.papelaria_itens[key] : itemName;
+};
+
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL,
   (process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY ? process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY.replace(/['"]/g, '') : undefined)
