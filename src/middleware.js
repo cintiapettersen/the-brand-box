@@ -6,6 +6,11 @@ let locales = ['pt-BR', 'en']
 let defaultLocale = 'pt-BR'
 
 function getLocale(request) {
+  const cookieLocale = request.cookies.get('NEXT_LOCALE')?.value
+  if (cookieLocale && locales.includes(cookieLocale)) {
+    return cookieLocale
+  }
+
   const headers = { 'accept-language': request.headers.get('accept-language') || '' }
   let languages = new Negotiator({ headers }).languages()
   return match(languages, locales, defaultLocale)
