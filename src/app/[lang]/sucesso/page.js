@@ -1587,7 +1587,7 @@ function AjudaStep({ brand, accentColor }) {
             </div>
             <ul style={{ margin: 0, padding: 0, listStyle: 'none', fontSize: '0.74rem', color: '#555', display: 'flex', flexDirection: 'column', gap: '4px' }}>
               {(t.suporte_gratuito_itens || ['Dúvidas de uso', 'Problemas de acesso', 'Suporte à impressão', 'Auxílio na exportação']).map((item, idx) => (
-                <li key={idx}>✨ {item}</li>
+                <li key={idx}>✨ {tItem(item, dictionary)}</li>
               ))}
             </ul>
           </div>
@@ -1597,7 +1597,7 @@ function AjudaStep({ brand, accentColor }) {
             </div>
             <ul style={{ margin: 0, padding: 0, listStyle: 'none', fontSize: '0.74rem', color: '#555', display: 'flex', flexDirection: 'column', gap: '4px' }}>
               {(t.concierge_itens || ['Refinamentos de cores', 'Alterações especiais', 'Ajustes manuais de logo', 'Aplicações personalizadas']).map((item, idx) => (
-                <li key={idx}>✨ {item}</li>
+                <li key={idx}>✨ {tItem(item, dictionary)}</li>
               ))}
             </ul>
           </div>
@@ -3769,7 +3769,7 @@ function ChecklistMaternidadePreview({ accentColor, patternSrc, editData, logoCo
         {itens.map((item, i) => (
           <div key={i} style={{ display: 'flex', alignItems: 'flex-start', gap: '2px', fontSize: '3.2px', color: '#333', lineHeight: 1.2, fontWeight: 500, borderBottom: i === itens.length - 1 ? 'none' : '0.2px solid #00000008', paddingBottom: '1.2px', marginBottom: '1px' }}>
             <div style={{ width: '4px', height: '4px', border: `0.5px solid ${ensureLegibleColor(color)}`, borderRadius: '1px', flexShrink: 0, marginTop: '0.4px', background: '#fff' }} />
-            <span style={{ flex: 1 }}>{item}</span>
+            <span style={{ flex: 1 }}>{tItem(item, dictionary)}</span>
           </div>
         ))}
       </div>
@@ -4600,7 +4600,7 @@ function GenericItemPreview({ item, marca, accentColor, patternSrc, editData, lo
         <LogoPreviewHTML editData={{ ...editData, tagline: localSlogan }} color={logoColor} layout={logoLayout} hideTagline={hideTagline} maxWidth="60px" maxHeight="60px" />
       </div>
       <div style={{ position: 'relative', zIndex: 1, textAlign: 'center' }}>
-        <div style={{ fontFamily: "'Montserrat',sans-serif", fontSize: '11px', color: accentColor, fontWeight: 700, letterSpacing: '1px', textTransform: 'uppercase' }}>{item}</div>
+        <div style={{ fontFamily: "'Montserrat',sans-serif", fontSize: '11px', color: accentColor, fontWeight: 700, letterSpacing: '1px', textTransform: 'uppercase' }}>{tItem(item, dictionary)}</div>
         <div style={{ fontFamily: "'Montserrat',sans-serif", fontSize: '9px', color: '#bbb', marginTop: '6px' }}>Preview gerado ao exportar o PDF</div>
       </div>
     </div>
@@ -5045,7 +5045,7 @@ function CadernoPreview({ editData, accentColor, solidColor, logoColor, logoLayo
         </div>
       )}
 
-      <p style={{ fontSize: '0.7rem', color: '#aaa', letterSpacing: '2px', textTransform: 'uppercase' }}>Capa e Contra-capa</p>
+      <p style={{ fontSize: '0.7rem', color: '#aaa', letterSpacing: '2px', textTransform: 'uppercase' }}>{dictionary?.papelaria_itens?.capa_contra_capa || 'Capa e Contra-capa'}</p>
       
       <div ref={scaleCaderno.wrapperRef} style={scaleCaderno.wrapperStyle}>
         <div style={scaleCaderno.innerStyle}>
@@ -5564,7 +5564,7 @@ function PapelariaStep({ brand, accentColor, paletteColors, estampaPatterns, est
                       {sel && <svg viewBox="0 0 12 12" width="10" height="10"><polyline points="2,6 5,9 10,3" fill="none" stroke="#fff" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/></svg>}
                     </div>
                     <span style={{ fontSize: '0.8rem', fontWeight: sel ? 700 : 500, color: sel ? '#333' : '#666', fontFamily: 'Montserrat,sans-serif', flex: 1 }}>
-                      {item} {isCaderneta && <span style={{ fontSize: '0.75rem', color: '#b5891b', fontWeight: 700, marginLeft: '4px' }}>— 👑 Premium (124 págs)</span>}
+                      {tItem(item, dictionary)} {isCaderneta && <span style={{ fontSize: '0.75rem', color: '#b5891b', fontWeight: 700, marginLeft: '4px' }}>— 👑 Premium (124 págs)</span>}
                     </span>
                     <span style={{ fontSize: '0.72rem', color: isCaderneta ? '#b5891b' : '#aaa', fontWeight: isCaderneta ? 700 : 500, fontFamily: 'Montserrat,sans-serif' }}>
                       {isCaderneta ? 'R$ 180' : 'R$ 30'}
@@ -9084,7 +9084,7 @@ ${fontImports2}
                   }} style={btnStyle}>
                     {isCaderneta
                       ? `${upsellSelecionados.includes(item) ? '✓ ' : '+ '}👑 Caderneta de Saúde (Premium - R$ 180)`
-                      : `${upsellSelecionados.includes(item) ? '✓ ' : '+ '}${item}`}
+                      : `${upsellSelecionados.includes(item) ? '✓ ' : '+ '}${tItem(item, dictionary)}`}
                   </button>
                 );
               })}
