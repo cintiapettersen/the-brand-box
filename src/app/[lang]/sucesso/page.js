@@ -3442,6 +3442,7 @@ function DiarioXixiPreview({ accentColor, patternSrc, editData, logoColor, logoL
 
 
 function FichaCadastroPreview({ accentColor, patternSrc, editData, logoColor, logoLayout, cartaoContacts, crmLine, clinicaNome, comBorda, setComBorda, paletteColors, borderColor, setBorderColor, patternScale, setPatternScale, hideTagline, fichaAdulto, setFichaAdulto }) {
+  const { dictionary } = useTranslation();
   const BORDER = 10;
   const effectiveSrc = comBorda ? patternSrc : null;
   const solidColor = borderColor || accentColor;
@@ -6703,9 +6704,9 @@ body { width:${totalW}mm; height:${totalH}mm; position:relative; overflow:hidden
             
             <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:10mm;">
               <div style="padding-top:2mm;">
-                <h1 style="font-family:'Montserrat',sans-serif;font-size:18pt;font-weight:800;letter-spacing:1px;color:#111;margin:0;">{dictionary?.ficha_cadastro?.titulo || 'CADASTRO DE PACIENTES'}</h1>
+                <h1 style="font-family:'Montserrat',sans-serif;font-size:18pt;font-weight:800;letter-spacing:1px;color:#111;margin:0;">${dictionary?.ficha_cadastro?.titulo || 'CADASTRO DE PACIENTES'}</h1>
                 <div style="display:flex;align-items:center;gap:3mm;margin-top:5mm;">
-                  <span style="font-size:10pt;font-weight:400;color:#222;">{dictionary?.ficha_cadastro?.data || 'DATA :'}</span>
+                  <span style="font-size:10pt;font-weight:400;color:#222;">${dictionary?.ficha_cadastro?.data || 'DATA :'}</span>
                   <div style="width:40mm;height:6mm;background:#e2ddd7;border-radius:1px;"></div>
                 </div>
               </div>
@@ -6768,7 +6769,7 @@ body { width:${totalW}mm; height:${totalH}mm; position:relative; overflow:hidden
               </div>
               
               <div style="margin-top:1mm;">
-                <span style="font-size:8.5pt;font-weight:700;color:#222;">{dictionary?.ficha_cadastro?.telefones || 'TELEFONES :'}</span>
+                <span style="font-size:8.5pt;font-weight:700;color:#222;">${dictionary?.ficha_cadastro?.telefones || 'TELEFONES :'}</span>
               </div>
               ${fichaAdulto ? `
               <div style="display:flex;gap:5mm;">
