@@ -1210,5 +1210,22 @@
     "Seguro": "Seguro",
     "Único": "Único",
     "Memorável": "Memorável"
+  },
+  "digital_tab": {
+    "horizontal_card": "Horizontal (Cartão)",
+    "portrait_screen": "Retrato (Full Screen)",
+    "contact_preference": "Como prefere entrar em contato?",
+    "fill_contacts": "Preencha os contatos abaixo",
+    "share": "↑ Compartilhar",
+    "send_whatsapp": "Enviar no Whats",
+    "download_html": "⬇ Baixar HTML",
+    "tagline_specialty": "Tagline / Especialidade",
+    "contacts": "Contatos",
+    "layout_horizontal": "Horizontal",
+    "layout_2_lines": "2 Linhas",
+    "layout_stacked": "Empilhada",
+    "qr_active": "✓ QR Code ativo",
+    "add_qr": "+ QR Code",
+    "qr_placeholder": "Link para o QR Code (site, WhatsApp...)"
   }
 }

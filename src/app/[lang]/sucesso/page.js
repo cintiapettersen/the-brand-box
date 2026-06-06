@@ -636,6 +636,7 @@ function buildLink(key, value) {
 }
 
 function CartaoStep({ brand, accentColor, paletteColors, marca, estampaPatterns, estampaSelectedIdx, contacts, setContacts, qrLink, setQrLink, showQR, setShowQR, logoLayout, editData, logoColor, setLayout }) {
+  const { dictionary } = useTranslation();
   const [localSlogan, setLocalSlogan] = useState(editData?.tagline || '');
   const [orientation, setOrientation] = useState('landscape'); // 'landscape' or 'portrait'
   const setContact = (key, val) => setContacts(prev => ({ ...prev, [key]: val }));
@@ -756,7 +757,7 @@ function CartaoStep({ brand, accentColor, paletteColors, marca, estampaPatterns,
       <div style={{ display: 'flex', justifyContent: 'center', gap: '8px', marginBottom: '-0.5rem' }}>
         {['landscape', 'portrait'].map(o => (
           <button key={o} onClick={() => setOrientation(o)} style={{ padding: '6px 16px', borderRadius: '20px', fontSize: '0.75rem', fontWeight: 700, border: '1px solid', borderColor: orientation === o ? '#C03B66' : '#eee', background: orientation === o ? 'rgba(192, 59, 102, 0.1)' : '#fff', color: orientation === o ? '#C03B66' : '#888', cursor: 'pointer', fontFamily: 'Montserrat, sans-serif' }}>
-            {o === 'landscape' ? 'Horizontal (Cartão)' : 'Retrato (Full Screen)'}
+            {o === 'landscape' ? (dictionary?.digital_tab?.horizontal_card || 'Horizontal (Cartão)') : (dictionary?.digital_tab?.portrait_screen || 'Retrato (Full Screen)')}
           </button>
         ))}
       </div>
@@ -791,7 +792,7 @@ function CartaoStep({ brand, accentColor, paletteColors, marca, estampaPatterns,
 
           <div style={{ width: '50%', height: '1px', background: '#eee' }} />
           <p style={{ margin: 0, textAlign: 'center', fontSize: '0.72rem', color: '#aaa', fontFamily: 'Montserrat, sans-serif', letterSpacing: '0.5px' }}>
-            Como prefere entrar em contato?
+            {dictionary?.digital_tab?.contact_preference || 'Como prefere entrar em contato?'}
           </p>
           {activeContacts.length > 0 && (
             <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px', justifyContent: orientation === 'portrait' ? 'center' : 'flex-start', width: '100%', marginTop: '4px' }}>
@@ -811,7 +812,7 @@ function CartaoStep({ brand, accentColor, paletteColors, marca, estampaPatterns,
             </div>
           )}
           {activeContacts.length === 0 && (
-            <p style={{ color: '#ccc', fontSize: '0.8rem', textAlign: 'center' }}>Preencha os contatos abaixo</p>
+            <p style={{ color: '#ccc', fontSize: '0.8rem', textAlign: 'center' }}>{dictionary?.digital_tab?.fill_contacts || 'Preencha os contatos abaixo'}</p>
           )}
         </div>
       </div>
@@ -831,7 +832,7 @@ function CartaoStep({ brand, accentColor, paletteColors, marca, estampaPatterns,
                 transition: 'all 0.2s'
               }}
             >
-              {l === 'horizontal' ? 'Horizontal' : l === 'balanced' ? '2 Linhas' : 'Empilhada'}
+              {l === 'horizontal' ? (dictionary?.digital_tab?.layout_horizontal || 'Horizontal') : l === 'balanced' ? (dictionary?.digital_tab?.layout_2_lines || '2 Linhas') : (dictionary?.digital_tab?.layout_stacked || 'Empilhada')}
             </button>
           ))}
         </div>
@@ -847,7 +848,7 @@ function CartaoStep({ brand, accentColor, paletteColors, marca, estampaPatterns,
           }
           downloadHTML();
         }} style={{ flex: 1, minWidth: '100px', padding: '13px 8px', background: '#C03B66', color: '#fff', border: 'none', borderRadius: '30px', fontWeight: 700, fontSize: '0.78rem', cursor: 'pointer', fontFamily: 'Montserrat, sans-serif', whiteSpace: 'nowrap' }}>
-          ↑ Compartilhar
+          {dictionary?.digital_tab?.share || '↑ Compartilhar'}
         </button>
         <a 
           href={`https://api.whatsapp.com/send?text=${encodeURIComponent('Olá! Segue meu Cartão de Visitas Digital Interativo. Salve o arquivo HTML em anexo no seu celular para acessar todos os meus contatos com apenas um clique! 📲✨')}`}
@@ -866,27 +867,27 @@ function CartaoStep({ brand, accentColor, paletteColors, marca, estampaPatterns,
           <svg viewBox="0 0 24 24" width="15" height="15" fill="white" style={{ display: 'block' }}>
             <path d="M.057 24l1.687-6.163c-1.041-1.804-1.588-3.849-1.587-5.946C.003 5.27 5.28.005 11.792.005c3.16.001 6.129 1.233 8.359 3.468s3.461 5.197 3.461 8.353c-.004 6.523-5.28 11.785-11.793 11.785-1.996-.002-3.957-.5-5.744-1.44L0 24zm5.824-2.871l.328.193c1.674.993 3.593 1.517 5.637 1.518 5.728 0 10.387-4.647 10.39-10.354.002-2.766-1.077-5.366-3.038-7.329s-4.564-3.04-7.33-3.04c-5.73 0-10.39 4.65-10.393 10.358 0 2.11.55 4.17 1.59 5.973l.21.36-1.002 3.658 3.73-.978zm13.125-7.794c-.315-.158-1.86-.918-2.175-1.033-.315-.115-.545-.172-.773.172-.228.345-.885 1.114-1.085 1.343-.2.228-.4.258-.715.1-.315-.158-1.33-.49-2.532-1.562-.936-.83-1.568-1.856-1.75-2.172-.182-.315-.02-.485.138-.642.142-.142.315-.368.473-.553.158-.185.21-.315.315-.525.105-.21.053-.394-.026-.552-.079-.158-.773-1.86-1.06-2.553-.28-.673-.562-.58-.773-.59-.2-.01-.428-.01-.657-.01-.228 0-.6.085-.914.428-.315.345-1.202 1.176-1.202 2.87 0 1.693 1.233 3.325 1.405 3.555.172.228 2.428 3.708 5.882 5.197.82.353 1.46.564 1.96.723.824.263 1.575.225 2.167.137.66-.098 1.86-.76 2.124-1.458.263-.697.263-1.3.185-1.428-.079-.128-.288-.208-.604-.366z"/>
           </svg>
-          Enviar no Whats
+          {dictionary?.digital_tab?.send_whatsapp || 'Enviar no Whats'}
         </a>
         <button onClick={downloadHTML} style={{ flex: 1, minWidth: '100px', padding: '13px 8px', background: 'none', color: '#C03B66', border: '1.5px solid #C03B66', borderRadius: '30px', fontWeight: 700, fontSize: '0.78rem', cursor: 'pointer', fontFamily: 'Montserrat, sans-serif', whiteSpace: 'nowrap' }}>
-          ⬇ Baixar HTML
+          {dictionary?.digital_tab?.download_html || '⬇ Baixar HTML'}
         </button>
       </div>
 
       {/* Campos editáveis */}
       <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
-        <SectionLabel>Tagline / Especialidade</SectionLabel>
+        <SectionLabel>{dictionary?.digital_tab?.tagline_specialty || 'Tagline / Especialidade'}</SectionLabel>
         <input value={localSlogan} onChange={e => setLocalSlogan(e.target.value.slice(0, 45))} maxLength={45} placeholder="Ex: Ginecologia e Obstetrícia" style={inputStyle} />
         
-        <SectionLabel>Contatos</SectionLabel>
+        <SectionLabel>{dictionary?.digital_tab?.contacts || 'Contatos'}</SectionLabel>
         {CONTACT_FIELDS.map(f => (
           <input key={f.key} value={contacts[f.key]} onChange={e => setContact(f.key, e.target.value)} placeholder={f.label} style={inputStyle} />
         ))}
         <button onClick={() => setShowQR(v => !v)} style={{ padding: '10px', background: showQR ? '#C03B66' : 'none', color: showQR ? '#fff' : '#C03B66', border: '1.5px solid #C03B66', borderRadius: '30px', fontWeight: 700, fontSize: '0.8rem', fontFamily: 'Montserrat, sans-serif', cursor: 'pointer' }}>
-          {showQR ? '✓ QR Code ativo' : '+ QR Code'}
+          {showQR ? (dictionary?.digital_tab?.qr_active || '✓ QR Code ativo') : (dictionary?.digital_tab?.add_qr || '+ QR Code')}
         </button>
         {showQR && (
-          <input value={qrLink} onChange={e => setQrLink(e.target.value)} placeholder="{dictionary?.pattern_tab?.qr_link || 'Link para o QR Code (site, WhatsApp...)'}" style={inputStyle} />
+          <input value={qrLink} onChange={e => setQrLink(e.target.value)} placeholder={dictionary?.digital_tab?.qr_placeholder || 'Link para o QR Code (site, WhatsApp...)'} style={inputStyle} />
         )}
       </div>
     </div>

@@ -1290,5 +1290,22 @@
     "Seguro": "Safe",
     "Único": "Unique",
     "Memorável": "Memorable"
+  },
+  "digital_tab": {
+    "horizontal_card": "Horizontal (Card)",
+    "portrait_screen": "Portrait (Full Screen)",
+    "contact_preference": "How would you like to be contacted?",
+    "fill_contacts": "Fill in your contacts below",
+    "share": "↑ Share",
+    "send_whatsapp": "Send on WhatsApp",
+    "download_html": "⬇ Download HTML",
+    "tagline_specialty": "Tagline / Specialty",
+    "contacts": "Contacts",
+    "layout_horizontal": "Horizontal",
+    "layout_2_lines": "2 Lines",
+    "layout_stacked": "Stacked",
+    "qr_active": "✓ QR Code active",
+    "add_qr": "+ QR Code",
+    "qr_placeholder": "Link for QR Code (website, WhatsApp...)"
   }
 }
