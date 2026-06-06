@@ -1,6 +1,6 @@
 'use client';
 import { useSearchParams } from 'next/navigation';
-import { useTranslation } from '../../LanguageContext';
+import { useTranslation, LanguageOverrideProvider } from '../../LanguageContext';
 import BrandBoxNav from './BrandBoxNav';
 import LanguageSwitcher from '../../../components/LanguageSwitcher';
 import React, { Suspense, useState, useEffect, useRef } from 'react';
@@ -8067,10 +8067,10 @@ ${renderSide([4, 5, 6, 7])}
           const themeTaglinePrenatal = item.includes('Pré-Natal') ? 'CUIDANDO DESDE O INÍCIO..' : 'Saúde e Bem-Estar Pediátrico';
           const finalTaglinePrenatal = (item.includes('Pré-Natal')) ? themeTaglinePrenatal : (brand.editData?.tagline || themeTaglinePrenatal);
 
-          const p1 = ReactDOMServer.renderToString(<PrenatalPage1 accentColor={accentColor} palette={paletteColors} logoComponent={<div dangerouslySetInnerHTML={{ __html: logoHtmlPrenatal }} />} folderRoof={folderRoof} tagline={finalTaglinePrenatal} comBorda={comBorda} patternSrc={null} patternScale={patternScale} borderColor={borderColor} />);
-          const p2 = ReactDOMServer.renderToString(<PrenatalPage2 accentColor={accentColor} palette={paletteColors} />);
-          const p3 = ReactDOMServer.renderToString(<PrenatalPage3 accentColor={accentColor} palette={paletteColors} />);
-          const p4 = ReactDOMServer.renderToString(<PrenatalPage4 accentColor={accentColor} palette={paletteColors} comBorda={comBorda} patternSrc={null} patternScale={patternScale} borderColor={borderColor} />);
+          const p1 = ReactDOMServer.renderToString(<LanguageOverrideProvider lang={lang} dictionary={dictionary}><PrenatalPage1 accentColor={accentColor} palette={paletteColors} logoComponent={<div dangerouslySetInnerHTML={{ __html: logoHtmlPrenatal }} />} folderRoof={folderRoof} tagline={finalTaglinePrenatal} comBorda={comBorda} patternSrc={null} patternScale={patternScale} borderColor={borderColor} /></LanguageOverrideProvider>);
+          const p2 = ReactDOMServer.renderToString(<LanguageOverrideProvider lang={lang} dictionary={dictionary}><PrenatalPage2 accentColor={accentColor} palette={paletteColors} /></LanguageOverrideProvider>);
+          const p3 = ReactDOMServer.renderToString(<LanguageOverrideProvider lang={lang} dictionary={dictionary}><PrenatalPage3 accentColor={accentColor} palette={paletteColors} /></LanguageOverrideProvider>);
+          const p4 = ReactDOMServer.renderToString(<LanguageOverrideProvider lang={lang} dictionary={dictionary}><PrenatalPage4 accentColor={accentColor} palette={paletteColors} comBorda={comBorda} patternSrc={null} patternScale={patternScale} borderColor={borderColor} /></LanguageOverrideProvider>);
 
           // Escala exata 1px=1mm; fundo das páginas 1 e 4 estendido para cobrir a sangria
           const PX = 3.7795;
