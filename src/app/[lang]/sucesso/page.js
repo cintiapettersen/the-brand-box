@@ -6376,8 +6376,8 @@ body { width: 485.775mm; height: 385.233mm; position: relative; overflow: hidden
       const genTable = (count, rowH = '6mm') => `
         <div style="width:100%;border:0.3pt solid #eee;border-radius:1mm;overflow:hidden;margin-bottom:2mm;">
           <div style="display:flex;background:${accentColor}20;border-bottom:0.3pt solid #eee;font-family:'Montserrat',sans-serif;">
-            <div style="flex:1;font-size:6pt;font-weight:800;text-align:center;padding:1mm 0;border-right:0.3pt solid #eee;color:${accentColor};text-transform:uppercase;letter-spacing:0.5pt;">{dictionary?.retorno_consultas?.data || 'Data'}</div>
-            <div style="flex:1;font-size:6pt;font-weight:800;text-align:center;padding:1mm 0;color:${accentColor};text-transform:uppercase;letter-spacing:0.5pt;">{dictionary?.retorno_consultas?.horario || 'Horário'}</div>
+            <div style="flex:1;font-size:6pt;font-weight:800;text-align:center;padding:1mm 0;border-right:0.3pt solid #eee;color:${accentColor};text-transform:uppercase;letter-spacing:0.5pt;">${dictionary?.retorno_consultas?.data || 'Data'}</div>
+            <div style="flex:1;font-size:6pt;font-weight:800;text-align:center;padding:1mm 0;color:${accentColor};text-transform:uppercase;letter-spacing:0.5pt;">${dictionary?.retorno_consultas?.horario || 'Horário'}</div>
           </div>
           ${Array.from({ length: count }).map(() => `<div style="display:flex;border-bottom:0.3pt solid #eee;height:${rowH};"><div style="flex:1;border-right:0.3pt solid #eee;"></div><div style="flex:1;"></div></div>`).join('')}
         </div>`;
