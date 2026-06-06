@@ -10695,7 +10695,7 @@ function EntregaContent({ brand, plano, setBrand }) {
                     cursor: 'pointer', transition: 'all 0.2s ease'
                   }}
                 >
-                  Nome da Marca
+                  {dictionary?.seal_tab?.brand_name || 'Nome da Marca'}
                 </button>
                 <button
                   onClick={() => setSubmarcaTextType('slogan')}
@@ -10707,7 +10707,7 @@ function EntregaContent({ brand, plano, setBrand }) {
                     cursor: 'pointer', transition: 'all 0.2s ease'
                   }}
                 >
-                  Tagline da Marca
+                  {dictionary?.seal_tab?.brand_tagline || 'Tagline da Marca'}
                 </button>
               </div>
             </div>
@@ -10907,7 +10907,7 @@ function EntregaContent({ brand, plano, setBrand }) {
               marginBottom: '4px'
             }}>
               <span style={{ fontSize: '0.78rem', fontWeight: 800, fontFamily: 'Montserrat, sans-serif', color: '#333', letterSpacing: '0.3px', display: 'flex', alignItems: 'center', gap: '6px' }}>
-                ✍️ Cor do Texto
+                {dictionary?.seal_tab?.text_color || '✍️ Cor do Texto'}
               </span>
               <div style={{ display: 'flex', gap: '10px', alignItems: 'center', flexWrap: 'wrap', marginTop: '4px' }}>
                 {/* Opções fixas: preto e branco */}
@@ -10937,7 +10937,7 @@ function EntregaContent({ brand, plano, setBrand }) {
               marginBottom: '14px' // Espaçamento generoso do botão de ir para a próxima etapa
             }}>
               <span style={{ fontSize: '0.78rem', fontWeight: 800, fontFamily: 'Montserrat, sans-serif', color: '#333', letterSpacing: '0.3px', display: 'flex', alignItems: 'center', gap: '6px' }}>
-                {dictionary?.logo_tab?.download_files || '💾 Baixar Arquivos da Logo'}
+                {dictionary?.seal_tab?.download_files || '💾 Baixar Arquivos do Selo'}
               </span>
               <div style={{ display: 'flex', gap: '8px', marginTop: '4px' }}>
                 <button
@@ -10945,14 +10945,14 @@ function EntregaContent({ brand, plano, setBrand }) {
                   disabled={!!downloading}
                   style={{ flex: 1, padding: '10px 8px', background: '#fff', color: '#C03B66', border: '1.5px solid #C03B66', borderRadius: '30px', fontWeight: 700, fontSize: '0.78rem', cursor: 'pointer', opacity: downloading === 'png' ? 0.6 : 1 }}
                 >
-                  {downloading === 'png' ? '...' : (dictionary?.logo_tab?.png_transparent || 'PNG Transparente')}
+                  {downloading === 'png' ? '...' : (dictionary?.seal_tab?.png_transparent || 'PNG Transparente')}
                 </button>
                 <button
                   onClick={downloadComFundo}
                   disabled={!!downloading}
                   style={{ flex: 1, padding: '10px 8px', background: '#fff', color: '#C03B66', border: '1.5px solid #C03B66', borderRadius: '30px', fontWeight: 700, fontSize: '0.78rem', cursor: 'pointer', opacity: downloading === 'fundo' ? 0.6 : 1 }}
                 >
-                  {downloading === 'fundo' ? '...' : (dictionary?.logo_tab?.logo_bg || 'Logo com Fundo')}
+                  {downloading === 'fundo' ? '...' : (dictionary?.seal_tab?.seal_bg || 'Selo com Fundo')}
                 </button>
               </div>
             </div>

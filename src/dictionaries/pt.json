@@ -1091,7 +1091,11 @@
     "seal_text": "✍️ Texto do Selo",
     "brand_name": "Nome da Marca",
     "brand_tagline": "Tagline da Marca",
-    "icon": "🌸 Ícone"
+    "icon": "🌸 Ícone",
+    "text_color": "✍️ Cor do Texto",
+    "download_files": "💾 Baixar Arquivos do Selo",
+    "png_transparent": "PNG Transparente",
+    "seal_bg": "Selo com Fundo"
   },
   "color_tab": {
     "priority_order": "Ordem de Prioridade das Cores",

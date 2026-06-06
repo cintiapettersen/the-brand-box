@@ -1091,7 +1091,11 @@
     "seal_text": "✍️ Seal Text",
     "brand_name": "Brand Name",
     "brand_tagline": "Brand Tagline",
-    "icon": "🌸 Icon"
+    "icon": "🌸 Icon",
+    "text_color": "✍️ Text Color",
+    "download_files": "💾 Download Seal Files",
+    "png_transparent": "Transparent PNG",
+    "seal_bg": "Seal with Background"
   },
   "color_tab": {
     "priority_order": "Color Priority Order",
