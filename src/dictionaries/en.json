@@ -165,7 +165,8 @@
     "label_telefone2": "Phone 2",
     "label_endereco": "Address",
     "copiar_html": "Copy HTML →",
-    "copiado": "Copied!"
+    "copiado": "Copied!",
+    "copiar_assinatura_html": "Copy HTML Signature"
   },
   "controle_especial": {
     "titulo": "SPECIAL CONTROL PRESCRIPTION",

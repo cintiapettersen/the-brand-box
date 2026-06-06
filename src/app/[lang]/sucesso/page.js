@@ -4848,16 +4848,16 @@ function AssinaturaEmailPreview({ brand, editData, accentColor, logoColor, logoL
         <svg viewBox="0 0 24 24" width="14" height="14" fill="currentColor">
           <path d={copied ? "M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41L9 16.17z" : "M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"}/>
         </svg>
-        {copied ? 'Copiado!' : 'Copiar Assinatura HTML'}
+        {copied ? (dictionary?.ui?.copiado || 'Copiado!') : (dictionary?.ui?.copiar_assinatura_html || 'Copiar Assinatura HTML')}
       </button>
       
       <div style={{ fontSize: '0.75rem', color: '#666', textAlign: 'left', background: '#f8f9fa', padding: '12px 16px', borderRadius: '12px', marginTop: '12px', border: '1px solid #eee' }}>
-        <div style={{ fontWeight: 700, marginBottom: '8px', color: '#333', fontSize: '0.8rem' }}>Como instalar no seu E-mail?</div>
+        <div style={{ fontWeight: 700, marginBottom: '8px', color: '#333', fontSize: '0.8rem' }}>{dictionary?.digital_tab?.how_to_install || 'Como instalar no seu E-mail?'}</div>
         <ol style={{ margin: 0, paddingLeft: '18px', display: 'flex', flexDirection: 'column', gap: '6px' }}>
-          <li>Clique no botão <b>Copiar HTML</b> (nós já formatamos tudo para você).</li>
-          <li>Abra as configurações do seu Gmail, Outlook ou Apple Mail.</li>
-          <li>Procure pela seção de <b>Assinatura</b> e crie uma nova.</li>
-          <li>Clique na caixa de texto em branco e <b>Cole (Ctrl+V ou Cmd+V)</b>. Pronto, a arte vai aparecer lá dentro magicamente! ✨</li>
+          <li dangerouslySetInnerHTML={{ __html: dictionary?.digital_tab?.install_step_1 || 'Clique no botão <b>Copiar HTML</b> (nós já formatamos tudo para você).' }}></li>
+          <li dangerouslySetInnerHTML={{ __html: dictionary?.digital_tab?.install_step_2 || 'Abra as configurações do seu Gmail, Outlook ou Apple Mail.' }}></li>
+          <li dangerouslySetInnerHTML={{ __html: dictionary?.digital_tab?.install_step_3 || 'Procure pela seção de <b>Assinatura</b> e crie uma nova.' }}></li>
+          <li dangerouslySetInnerHTML={{ __html: dictionary?.digital_tab?.install_step_4 || 'Clique na caixa de texto em branco e <b>Cole (Ctrl+V ou Cmd+V)</b>. Pronto, a arte vai aparecer lá dentro magicamente! ✨' }}></li>
         </ol>
       </div>
       {(setCartaoContacts && setClinicaNome && setLocalSlogan) && (

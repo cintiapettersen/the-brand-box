@@ -165,7 +165,8 @@
     "label_telefone2": "Telefone 2",
     "label_endereco": "Endereço",
     "copiar_html": "Copiar HTML →",
-    "copiado": "Copiado!"
+    "copiado": "Copiado!",
+    "copiar_assinatura_html": "Copiar Assinatura HTML"
   },
   "controle_especial": {
     "titulo": "RECEITUÁRIO DE CONTROLE ESPECIAL",
