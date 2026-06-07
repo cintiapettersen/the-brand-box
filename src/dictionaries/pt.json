@@ -313,7 +313,11 @@
     "retrato": "Retrato",
     "data": "Data",
     "horario": "Horário",
-    "retorno_consultas": "RETORNO DE CONSULTAS",
+    "retorno_consultas": {
+      "titulo": "RETORNO DE CONSULTAS",
+      "data": "Data",
+      "horario": "Horário"
+    },
     "lado_externo": "LADO EXTERNO (FACE 1)",
     "lado_interno": "LADO INTERNO (FACE 2)",
     "pag": "PÁG",

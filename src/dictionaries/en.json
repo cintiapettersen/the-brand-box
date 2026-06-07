@@ -313,7 +313,11 @@
     "retrato": "Portrait",
     "data": "Date",
     "horario": "Time",
-    "retorno_consultas": "RETURN OF CONSULTATIONS",
+    "retorno_consultas": {
+      "titulo": "RETURN OF CONSULTATIONS",
+      "data": "Date",
+      "horario": "Time"
+    },
     "lado_externo": "OUTSIDE (FACE 1)",
     "lado_interno": "INSIDE (FACE 2)",
     "pag": "PAGE",
