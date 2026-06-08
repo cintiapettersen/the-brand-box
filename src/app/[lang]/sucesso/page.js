@@ -9469,6 +9469,8 @@ function EntregaContent({ brand, plano, setBrand }) {
   // editData enriquecido com logo customizada — flui automaticamente para LogoPreviewHTML via editData
   const editDataWithLogo = React.useMemo(() => ({
     ...brand.editData,
+    // Avulso sem marca digitada: mostra placeholder no preview
+    marca: (brand.editData?.marca) || (plano === 'avulso' ? 'SUA LOGO' : brand.editData?.marca),
     tagline: sloganEnabled ? tagline : '',
     ...(fontOverride ? { fontFamily: fontOverride.fontFamily, fontWeight: fontOverride.weight || 700, fontStyle: fontOverride.style || 'serif', fontSizeBoost: fontOverride.sizeBoost || 1, fontLetterSpacing: fontOverride.letterSpacing || null } : {}),
     ...(customLogoSrc ? { customLogoSrc, customLogoScale } : {}),
@@ -9909,14 +9911,27 @@ function EntregaContent({ brand, plano, setBrand }) {
           </button>
         </div>
 
+        {/* Banner de upsell para steps exclusivos do pacote de identidade */}
+        {plano === 'avulso' && ['estampa', 'manifesto', 'tomdevoz', 'paleta', 'guia'].includes(step) && (
+          <div style={{ background: '#fff8f0', border: '1.5px solid #fde8c8', borderRadius: '16px', padding: '20px 22px', marginBottom: '16px', textAlign: 'center' }}>
+            <div style={{ fontSize: '1.5rem', marginBottom: '8px' }}>✨</div>
+            <div style={{ fontSize: '0.85rem', fontWeight: 700, color: '#c87000', fontFamily: 'Montserrat,sans-serif', marginBottom: '6px' }}>
+              Recurso exclusivo do pacote completo
+            </div>
+            <div style={{ fontSize: '0.78rem', color: '#999', fontFamily: 'Montserrat,sans-serif', lineHeight: 1.6 }}>
+              Para personalizar suas cores, estampas, manifesto e tom de voz da marca, adquira o <strong style={{ color: '#c87000' }}>Pacote Completo de Identidade Visual</strong>.
+            </div>
+          </div>
+        )}
+
         {/* Área da estampa */}
-        {step === 'estampa' && <EstampaStep brand={brand} accentColor={accentColor} marca={marca} patterns={estampaPatterns} setPatterns={setEstampaPatterns} genCount={estampaGenCount} setGenCount={setEstampaGenCount} selectedIdx={estampaSelectedIdx} setSelectedIdx={setEstampaSelectedIdx} paletteColors={paletteColors} patternScale={patternScale} setPatternScale={setPatternScale} estampasRef={estampasRef} originalPattern={estampaOriginalPattern} setOriginalPattern={setEstampaOriginalPattern} />}
+        {step === 'estampa' && plano !== 'avulso' && <EstampaStep brand={brand} accentColor={accentColor} marca={marca} patterns={estampaPatterns} setPatterns={setEstampaPatterns} genCount={estampaGenCount} setGenCount={setEstampaGenCount} selectedIdx={estampaSelectedIdx} setSelectedIdx={setEstampaSelectedIdx} paletteColors={paletteColors} patternScale={patternScale} setPatternScale={setPatternScale} estampasRef={estampasRef} originalPattern={estampaOriginalPattern} setOriginalPattern={setEstampaOriginalPattern} />}
 
         {/* Cores — prioridade/ordem */}
         {step === 'cores' && <CoresPrioridadeStep paletteColors={paletteColors} colorOrder={colorOrder} setColorOrder={setColorOrder} accentColor={accentColor} />}
 
         {/* Paleta — visualização completa */}
-        {step === 'paleta' && <CoresStep paletteColors={paletteColors} accentColor={accentColor} paletaNome={paletas?.find(p => p.id === brand.selectedPaleta)?.nome_variacao} coresRef={coresRef} />}
+        {step === 'paleta' && plano !== 'avulso' && <CoresStep paletteColors={paletteColors} accentColor={accentColor} paletaNome={paletas?.find(p => p.id === brand.selectedPaleta)?.nome_variacao} coresRef={coresRef} />}
 
         {/* Cartão digital */}
         {step === 'cartao' && <CartaoStep brand={brand} accentColor={accentColor} paletteColors={paletteColors} marca={marca} estampaPatterns={estampaPatterns} estampaSelectedIdx={estampaSelectedIdx} contacts={cartaoContacts} setContacts={setCartaoContacts} qrLink={cartaoQrLink} setQrLink={setCartaoQrLink} showQR={cartaoShowQR} setShowQR={setCartaoShowQR} logoLayout={logoLayout} editData={editDataWithLogo} logoColor={logoColor} setLayout={setLayout} />}
@@ -9927,10 +9942,10 @@ function EntregaContent({ brand, plano, setBrand }) {
         {step === 'placa' && <PlacaStep brand={brand} accentColor={accentColor} paletteColors={orderedPaletteColors} estampaPatterns={estampaPatterns} estampaSelectedIdx={estampaSelectedIdx} editData={editDataWithLogo} logoColor={logoColor} logoLayout={logoLayout} iconPath={currentIconPath} submarcaColor={submarcaColor} submarcaTextColor={submarcaTextColor} />}
 
         {/* Manifesto */}
-        {step === 'manifesto' && <ManifestoStep accentColor={accentColor} marca={marca} tagline={tagline} brand={brand} isSaude={isSaude} editData={editDataWithLogo} />}
+        {step === 'manifesto' && plano !== 'avulso' && <ManifestoStep accentColor={accentColor} marca={marca} tagline={tagline} brand={brand} isSaude={isSaude} editData={editDataWithLogo} />}
 
         {/* Tom de Voz */}
-        {step === 'tomdevoz' && <TomDeVozStep accentColor={accentColor} marca={marca} tagline={tagline} brand={brand} editData={editDataWithLogo} />}
+        {step === 'tomdevoz' && plano !== 'avulso' && <TomDeVozStep accentColor={accentColor} marca={marca} tagline={tagline} brand={brand} editData={editDataWithLogo} />}
 
         {step === 'fonte' && <FonteStep brand={brand} accentColor={accentColor} logoColor={logoColor} marca={marca} tagline={tagline} editData={editDataWithLogo} onFontChange={(f) => setFontOverride(f)} />}
 
@@ -10004,7 +10019,7 @@ function EntregaContent({ brand, plano, setBrand }) {
         )}
 
         {/* Guia da marca */}
-        {step === 'guia' && <GuiaStep brand={brand} accentColor={accentColor} paletteColors={paletteColors} marca={marca} tagline={tagline} estampaPatterns={estampaPatterns} estampaSelectedIdx={estampaSelectedIdx} editData={editDataWithLogo} />}
+        {step === 'guia' && plano !== 'avulso' && <GuiaStep brand={brand} accentColor={accentColor} paletteColors={paletteColors} marca={marca} tagline={tagline} estampaPatterns={estampaPatterns} estampaSelectedIdx={estampaSelectedIdx} editData={editDataWithLogo} />}
 
         {/* Papelaria / Gabaritos */}
         {step === 'papelaria' && <PapelariaStep brand={brand} accentColor={accentColor} paletteColors={orderedPaletteColors} estampaPatterns={estampaPatterns} estampaSelectedIdx={estampaSelectedIdx} cartaoContacts={cartaoContacts} setCartaoContacts={setCartaoContacts} plano={plano} isSaude={isSaude} crmData={crmData} setCrmData={setCrmData} marca={marca} editData={editDataWithLogo} logoColor={logoColor} logoLayout={logoLayout} setLayout={setLayout} clinicaNome={clinicaNome} setClinicaNome={setClinicaNome} onNavSync={setPapelariaNavItens} navIdx={papelariaNavIdx} setNavIdx={setPapelariaNavIdx} customLogoSrc={customLogoSrc} getCustomLogoScale={getCustomLogoScale} setCustomLogoScale={setCustomLogoScale} getCustomLogoScaleMax={getCustomLogoScaleMax} customLogoScaleMap={customLogoScaleMap} submarcaColor={submarcaColor} submarcaTextColor={submarcaTextColor} iconPath={currentIconPath} />}
@@ -11134,13 +11149,16 @@ function SucessoContent() {
         // Podem ser adicionados outros mapeamentos no futuro
 
         const AVULSO_VERSION = 2;
+        // Paleta padrão BrandBox para clientes avulso
+        const AVULSO_PALETTE = ['#8B7355', '#C4A882', '#D4C5B0', '#6B8CAE', '#333333'];
         const defaultAvulsoBrand = {
           _v: AVULSO_VERSION,
           plano: 'avulso',
           papelariaSelecionada: [itemName],
           formData: { nome: '', especialidade: '', cr: '', atuacao: 'Pediatria / Saúde infantil' },
-          editData: { marca: '', fontStyle: 'serif', colors: ['#8B7355', '#C4A882', '#D4C5B0', '#6B8CAE', '#4A7B6F'] },
+          editData: { marca: '', fontStyle: 'serif', colors: AVULSO_PALETTE },
           activeColor: '#8B7355',
+          currentPaletteColors: AVULSO_PALETTE,
         };
 
         const savedAvulso = localStorage.getItem('brandbox_avulso_' + avulsoParam);
