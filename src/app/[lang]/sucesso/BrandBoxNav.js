@@ -33,6 +33,7 @@ function SubMenu({ items, activeId, onSelect, color, renderLabel }) {
       <div ref={scrollRef} style={{ padding: '6px 10px', display: 'flex', gap: '4px', overflowX: 'auto', scrollbarWidth: 'none', paddingRight: showArrow ? '28px' : '10px' }}>
         {items.map((item, i) => {
           const active = (item.id !== undefined ? item.id === activeId : i === activeId);
+          const locked = item.locked;
           const label = renderLabel ? renderLabel(item) : item.label ?? item;
           return (
             <button
@@ -42,15 +43,16 @@ function SubMenu({ items, activeId, onSelect, color, renderLabel }) {
               style={{
                 whiteSpace: 'nowrap', padding: active ? '6px 16px' : '5px 12px',
                 borderRadius: '20px', fontSize: active ? '0.7rem' : '0.66rem',
-                fontWeight: 700, borderWidth: '1.5px', borderStyle: 'solid', borderColor: active ? color : 'transparent',
+                fontWeight: 700, borderWidth: '1.5px', borderStyle: 'solid',
+                borderColor: active ? color : locked ? '#e0dbd5' : 'transparent',
                 cursor: 'pointer', transition: 'all 0.15s',
-                background: active ? color : 'transparent',
-                color: active ? '#fff' : '#555',
+                background: active ? color : locked ? '#f5f3f0' : 'transparent',
+                color: active ? '#fff' : locked ? '#bbb' : '#555',
                 boxShadow: active ? `0 2px 8px ${color}55` : 'none',
                 transform: active ? 'scale(1.05)' : 'scale(1)',
               }}
             >
-              {label}
+              {locked ? `🔒 ${label}` : label}
             </button>
           );
         })}
@@ -141,17 +143,18 @@ export default function BrandBoxNav({ step, setStep, plano, papelariaItens = [],
 
   const marcaItems = [
     { id: 'placa', label: dictionary?.nav?.placa || 'Placa' },
-    { id: 'manifesto', label: dictionary?.nav?.manifesto || 'Manifesto', notAvulso: true },
-    { id: 'tomdevoz', label: dictionary?.nav?.tomdevoz || 'Tom de Voz', notAvulso: true },
+    { id: 'manifesto', label: dictionary?.nav?.manifesto || 'Manifesto', lockedOnAvulso: true },
+    { id: 'tomdevoz', label: dictionary?.nav?.tomdevoz || 'Tom de Voz', lockedOnAvulso: true },
     { id: 'fonte', label: dictionary?.nav?.fonte || 'Fonte' },
     { id: 'logo', label: dictionary?.nav?.logo || 'Logo' },
     { id: 'slogan', label: dictionary?.nav?.slogan || 'Tagline' },
     { id: 'submarca', label: dictionary?.nav?.submarca || 'Selo', planOnly: 'pro' },
     { id: 'cores', label: dictionary?.nav?.cores || 'Cores' },
-    { id: 'paleta', label: dictionary?.nav?.paleta || 'Paleta', notAvulso: true },
-    { id: 'estampa', label: dictionary?.nav?.estampa || 'Estampa', notAvulso: true },
-    { id: 'guia', label: dictionary?.nav?.guia || 'Guia', notAvulso: true },
-  ].filter(i => (!i.planOnly || plano === i.planOnly) && (!i.notAvulso || plano !== 'avulso'));
+    { id: 'paleta', label: dictionary?.nav?.paleta || 'Paleta', lockedOnAvulso: true },
+    { id: 'estampa', label: dictionary?.nav?.estampa || 'Estampa', lockedOnAvulso: true },
+    { id: 'guia', label: dictionary?.nav?.guia || 'Guia', lockedOnAvulso: true },
+  ].filter(i => !i.planOnly || plano === i.planOnly)
+   .map(i => ({ ...i, locked: i.lockedOnAvulso && plano === 'avulso' }));
 
   const digitalItems = [
     { id: 'cartao', label: dictionary?.nav?.cartao || 'Cartão Digital' },

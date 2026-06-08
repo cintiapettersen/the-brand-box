@@ -11148,7 +11148,7 @@ function SucessoContent() {
         if (avulsoParam === 'grafico') itemName = 'Gráfico de Crescimento';
         // Podem ser adicionados outros mapeamentos no futuro
 
-        const AVULSO_VERSION = 2;
+        const AVULSO_VERSION = 3;
         // Paleta padrão BrandBox para clientes avulso
         const AVULSO_PALETTE = ['#8B7355', '#C4A882', '#D4C5B0', '#6B8CAE', '#333333'];
         const defaultAvulsoBrand = {
@@ -11170,11 +11170,13 @@ function SucessoContent() {
               ...defaultAvulsoBrand,
               editData: {
                 ...defaultAvulsoBrand.editData,
-                // Mantém a marca se o cliente já digitou algo diferente do placeholder antigo
-                marca: (saved.editData?.marca && saved.editData.marca !== 'SUA MARCA') ? saved.editData.marca : '',
+                // Mantém a marca se o cliente já digitou algo diferente dos placeholders antigos
+                marca: (saved.editData?.marca && !['SUA MARCA', 'SUA LOGO', ''].includes(saved.editData.marca)) ? saved.editData.marca : '',
               },
               // Mantém a cor só se o cliente já tinha escolhido algo diferente do pink padrão
               activeColor: (saved.activeColor && saved.activeColor !== '#dc3495') ? saved.activeColor : defaultAvulsoBrand.activeColor,
+              // Sempre atualiza a paleta para os novos defaults
+              currentPaletteColors: defaultAvulsoBrand.currentPaletteColors,
             };
             setBrand(merged);
             localStorage.setItem('brandbox_avulso_' + avulsoParam, JSON.stringify(merged));
