@@ -7180,30 +7180,30 @@ body { width: 303mm; height: 216mm; position: relative; overflow: hidden; backgr
             <div style="background:#f5f5f5;padding:4mm 10mm;border-radius:1.5mm;border:0.4mm solid #ddd;display:inline-block;align-self:flex-start;">
                 <span style="font-family:'Montserrat',sans-serif;font-size:16pt;font-weight:800;color:#333;letter-spacing:2pt;text-transform:uppercase;">${dictionary?.diario_xixi?.titulo || 'DIÁRIO DO XIXI (HÁBITO MICCIONAL)'}</span>
             </div>
-            <div style="font-family:'Montserrat',sans-serif;font-size:10pt;color:${accentColor};font-weight:700;text-transform:uppercase;letter-spacing:1pt;margin-top:2mm;">Controle de Escapes e Enurese (Xixi na Cama)</div>
+            <div style="font-family:'Montserrat',sans-serif;font-size:10pt;color:${accentColor};font-weight:700;text-transform:uppercase;letter-spacing:1pt;margin-top:2mm;">${dictionary?.diario_xixi?.subtitulo || 'Controle de Escapes e Enurese (Xixi na Cama)'}</div>
             <div style="display:flex;gap:5mm;align-items:flex-end;margin-top:2mm;">
-                <span style="font-family:'Montserrat',sans-serif;font-size:18pt;color:${accentColor};font-weight:300;font-style:italic;">Nome:</span>
+                <span style="font-family:'Montserrat',sans-serif;font-size:18pt;color:${accentColor};font-weight:300;font-style:italic;">${dictionary?.diario_xixi?.nome || 'Nome:'}</span>
                 <div style="flex:1;border-bottom:0.5mm dashed #ccc;min-width:80mm;margin-bottom:2mm;"></div>
             </div>
         </div>
 
         <div style="display:flex;gap:15mm;align-items:center;margin-bottom:8mm;font-family:'Montserrat',sans-serif;">
             <div style="display:flex;gap:6mm;align-items:center;">
-                <span style="font-size:11pt;text-transform:uppercase;color:#666;font-weight:800;letter-spacing:1pt;">Legenda:</span>
-                <span style="font-size:11pt;color:#888;"><strong>0:</strong> Acordou Seco(a) / Sem Escapes</span>
-                <span style="font-size:11pt;color:#888;"><strong>1:</strong> Gotas / Escape Leve</span>
-                <span style="font-size:11pt;color:#888;"><strong>2:</strong> Molhou a Roupa ou Fralda</span>
-                <span style="font-size:11pt;color:#888;"><strong>3:</strong> Abundante / Molhou a Cama</span>
+                <span style="font-size:11pt;text-transform:uppercase;color:#666;font-weight:800;letter-spacing:1pt;">${dictionary?.diario_xixi?.legenda || 'Legenda:'}</span>
+                <span style="font-size:11pt;color:#888;"><strong>0:</strong> ${dictionary?.diario_xixi?.seco || 'Acordou Seco(a) / Sem Escapes'}</span>
+                <span style="font-size:11pt;color:#888;"><strong>1:</strong> ${dictionary?.diario_xixi?.gotas || 'Gotas / Escape Leve'}</span>
+                <span style="font-size:11pt;color:#888;"><strong>2:</strong> ${dictionary?.diario_xixi?.molhou_roupa || 'Molhou a Roupa ou Fralda'}</span>
+                <span style="font-size:11pt;color:#888;"><strong>3:</strong> ${dictionary?.diario_xixi?.abundante || 'Abundante / Molhou a Cama'}</span>
             </div>
         </div>
 
         <div style="display:grid;grid-template-columns:45mm repeat(4, 1fr);gap:0.3mm;background:#eee;border:0.3mm solid #eee;flex:1;">
             <div style="background:#fff;display:flex;align-items:center;padding-left:6mm;">
-                <span style="font-family:'Montserrat',sans-serif;font-size:9pt;font-weight:800;color:#bbb;text-transform:uppercase;">Marque 0 a 3</span>
+                <span style="font-family:'Montserrat',sans-serif;font-size:9pt;font-weight:800;color:#bbb;text-transform:uppercase;">${dictionary?.diario_xixi?.marque_0_3 || 'Marque 0 a 3'}</span>
             </div>
             ${weeks.map(w => `
               <div style="background:#fff;text-align:center;padding:4mm 0;display:flex;flex-direction:column;justify-content:center;align-items:center;">
-                <div style="font-family:'Montserrat',sans-serif;font-size:11pt;font-weight:800;color:${accentColor};text-transform:uppercase;">Semana ${w}</div>
+                <div style="font-family:'Montserrat',sans-serif;font-size:11pt;font-weight:800;color:${accentColor};text-transform:uppercase;">${dictionary?.diario_xixi?.semana || 'Semana'} ${w}</div>
                 <div style="width:15mm;height:0.6mm;background:${accentColor};margin-top:2mm;"></div>
               </div>
             `).join('')}
