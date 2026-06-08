@@ -3410,7 +3410,7 @@ function DiarioXixiPreview({ accentColor, patternSrc, editData, logoColor, logoL
     </svg>
   );
 
-  const days = ['Segunda', 'Terça', 'Quarta', 'Quinta', 'Sexta', 'Sábado', 'Domingo'];
+  const days = dictionary?.diario_xixi?.dias || ['Segunda', 'Terça', 'Quarta', 'Quinta', 'Sexta', 'Sábado', 'Domingo'];
   const weeks = [1, 2, 3, 4];
 
   return (
@@ -7152,7 +7152,7 @@ body { margin:0; } @media print { @page { size: ${_pw}mm ${_ph}mm; margin:0; } }
       const SunIcon = `<svg width="12mm" height="12mm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2"/><path d="M12 20v2"/><path d="M4.93 4.93l1.41 1.41"/><path d="M17.66 17.66l1.41 1.41"/><path d="M2 12h2"/><path d="M20 12h2"/><path d="M6.34 17.66l-1.41 1.41"/><path d="M19.07 4.93l-1.41 1.41"/></svg>`;
       const CloudIcon = `<svg width="12mm" height="12mm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17.5 19c2.5 0 4.5-2 4.5-4.5 0-2.4-1.9-4.3-4.3-4.5-.6-3.1-3.3-5.5-6.7-5.5-3.1 0-5.8 2.1-6.5 5.1C2.1 10.3 0 12.5 0 15.5c0 3 2.4 5.5 5.5 5.5"/><path d="M8 20v2"/><path d="M12 20v2"/><path d="M16 20v2"/></svg>`;
 
-      const days = ['Segunda', 'Terça', 'Quarta', 'Quinta', 'Sexta', 'Sábado', 'Domingo'];
+      const days = dictionary?.diario_xixi?.dias || ['Segunda', 'Terça', 'Quarta', 'Quinta', 'Sexta', 'Sábado', 'Domingo'];
       const weeks = [1, 2, 3, 4];
 
       const html = `<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Diário do Xixi - ${marca}</title>${fiD}
