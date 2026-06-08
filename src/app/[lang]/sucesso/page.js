@@ -9469,8 +9469,8 @@ function EntregaContent({ brand, plano, setBrand }) {
   // editData enriquecido com logo customizada — flui automaticamente para LogoPreviewHTML via editData
   const editDataWithLogo = React.useMemo(() => ({
     ...brand.editData,
-    // Avulso sem marca digitada: mostra placeholder no preview
-    marca: (brand.editData?.marca) || (plano === 'avulso' ? 'SUA LOGO' : brand.editData?.marca),
+    // Avulso sem marca digitada: placeholder com 13 chars para bucket de fonte médio
+    marca: (brand.editData?.marca) || (plano === 'avulso' ? 'NOME DA MARCA' : brand.editData?.marca),
     tagline: sloganEnabled ? tagline : '',
     ...(fontOverride ? { fontFamily: fontOverride.fontFamily, fontWeight: fontOverride.weight || 700, fontStyle: fontOverride.style || 'serif', fontSizeBoost: fontOverride.sizeBoost || 1, fontLetterSpacing: fontOverride.letterSpacing || null } : {}),
     ...(customLogoSrc ? { customLogoSrc, customLogoScale } : {}),
@@ -9928,6 +9928,12 @@ function EntregaContent({ brand, plano, setBrand }) {
         {step === 'estampa' && plano !== 'avulso' && <EstampaStep brand={brand} accentColor={accentColor} marca={marca} patterns={estampaPatterns} setPatterns={setEstampaPatterns} genCount={estampaGenCount} setGenCount={setEstampaGenCount} selectedIdx={estampaSelectedIdx} setSelectedIdx={setEstampaSelectedIdx} paletteColors={paletteColors} patternScale={patternScale} setPatternScale={setPatternScale} estampasRef={estampasRef} originalPattern={estampaOriginalPattern} setOriginalPattern={setEstampaOriginalPattern} />}
 
         {/* Cores — prioridade/ordem */}
+        {step === 'cores' && plano === 'avulso' && (
+          <div style={{ background: '#f5f3f0', border: '1px solid #e8e3dc', borderRadius: '12px', padding: '12px 16px', marginBottom: '14px', fontSize: '0.74rem', color: '#888', fontFamily: 'Montserrat,sans-serif', lineHeight: 1.6, textAlign: 'center' }}>
+            🎨 Esta é a paleta padrão da coleção <strong style={{ color: '#8B7355' }}>The Brand Box</strong>.<br />
+            Para personalizar suas cores, adquira o <strong style={{ color: '#c87000' }}>Pacote Completo de Identidade Visual</strong>.
+          </div>
+        )}
         {step === 'cores' && <CoresPrioridadeStep paletteColors={paletteColors} colorOrder={colorOrder} setColorOrder={setColorOrder} accentColor={accentColor} />}
 
         {/* Paleta — visualização completa */}
