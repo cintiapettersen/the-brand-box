@@ -11133,7 +11133,9 @@ function SucessoContent() {
         if (avulsoParam === 'grafico') itemName = 'Gráfico de Crescimento';
         // Podem ser adicionados outros mapeamentos no futuro
 
+        const AVULSO_VERSION = 2;
         const defaultAvulsoBrand = {
+          _v: AVULSO_VERSION,
           plano: 'avulso',
           papelariaSelecionada: [itemName],
           formData: { nome: '', especialidade: '', cr: '', atuacao: 'Pediatria / Saúde infantil' },
@@ -11143,7 +11145,24 @@ function SucessoContent() {
 
         const savedAvulso = localStorage.getItem('brandbox_avulso_' + avulsoParam);
         if (savedAvulso) {
-           setBrand(JSON.parse(savedAvulso));
+          const saved = JSON.parse(savedAvulso);
+          if ((saved._v || 1) < AVULSO_VERSION) {
+            // Versão antiga: atualiza defaults mas preserva o que o cliente já personalizou
+            const merged = {
+              ...defaultAvulsoBrand,
+              editData: {
+                ...defaultAvulsoBrand.editData,
+                // Mantém a marca se o cliente já digitou algo diferente do placeholder antigo
+                marca: (saved.editData?.marca && saved.editData.marca !== 'SUA MARCA') ? saved.editData.marca : '',
+              },
+              // Mantém a cor só se o cliente já tinha escolhido algo diferente do pink padrão
+              activeColor: (saved.activeColor && saved.activeColor !== '#dc3495') ? saved.activeColor : defaultAvulsoBrand.activeColor,
+            };
+            setBrand(merged);
+            localStorage.setItem('brandbox_avulso_' + avulsoParam, JSON.stringify(merged));
+          } else {
+            setBrand(saved);
+          }
         } else {
            setBrand(defaultAvulsoBrand);
            localStorage.setItem('brandbox_avulso_' + avulsoParam, JSON.stringify(defaultAvulsoBrand));
