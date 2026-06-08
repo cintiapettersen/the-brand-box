@@ -221,16 +221,27 @@ export function LogoPreviewHTML({ item = null, editData, color, layout = 'stacke
       _setFitState(prev => {
         const nw = natW * scale;
         const nh = natH * scale;
-        if (prev.ready && Math.abs(prev.scale - scale) < 0.001 && Math.abs(prev.w - nw) < 0.5 && Math.abs(prev.h - nh) < 0.5) {
-          return prev;
+        
+        if (prev.ready) {
+          // If the natural width/height only fluctuated by a few pixels, it's sub-pixel rendering oscillation. Ignore it.
+          const prevNatW = prev.w / prev.scale;
+          const prevNatH = prev.h / prev.scale;
+          if (Math.abs(prevNatW - natW) < 5 && Math.abs(prevNatH - natH) < 5) {
+            return prev;
+          }
+          // Fallback check with higher tolerance
+          if (Math.abs(prev.scale - scale) < 0.01 && Math.abs(prev.w - nw) < 1.5 && Math.abs(prev.h - nh) < 1.5) {
+            return prev;
+          }
         }
+        
         return { scale, w: nw, h: nh, ready: true };
       });
     });
     observer.observe(el);
     // NÃO observar o pai — evita feedback loop quando wrapper muda de tamanho
     return () => observer.disconnect();
-  }, [editData, effectiveScaleFactor, targetMaxW, targetMaxH, layout, crm, hideTagline, autoFit, maxWidth, maxHeight, withBackground, forceTrigger, customLogoSrc]);
+  }, [editData, effectiveScaleFactor, targetMaxW, targetMaxH, layout, crm, hideTagline, autoFit, maxWidth, maxHeight, withBackground, forceTrigger, customLogoSrc, customLogoScale]);
 
   if (customLogoSrc) {
     // BASE_SCALES não amplifica logo imagem — só texto pequeno precisa do boost
@@ -5324,10 +5335,10 @@ function PapelariaStep({ brand, accentColor, paletteColors, estampaPatterns, est
   const papelariaNorm = papelariaSelecionada.map(n => LEGACY_NAMES[n] || n);
   // Para médicos: PAPELARIA_GERAL sempre inclusa + itens comprados. Para não-médicos: só o que comprou.
   const _autoInclusos = isSaude ? PAPELARIA_GERAL : [];
-  const unsortedItens = papelariaNorm.length > 0
+  const ownedItems = papelariaNorm.length > 0
     ? TODOS_DISPONIVEIS.filter(i => papelariaNorm.includes(i) || _autoInclusos.includes(i))
-    : TODOS_DISPONIVEIS;
-  const itens = [...unsortedItens].sort((a, b) => a.localeCompare(b, 'pt-BR'));
+    : _autoInclusos.length > 0 ? TODOS_DISPONIVEIS.filter(i => _autoInclusos.includes(i)) : [];
+  const itens = [...TODOS_DISPONIVEIS].sort((a, b) => a.localeCompare(b, 'pt-BR'));
   // eslint-disable-next-line react-hooks/exhaustive-deps
   React.useEffect(() => { if (onNavSync) onNavSync(itens); }, [itens.join(',')]);
    const [idxLocal, setIdxLocal] = useState(0);
@@ -5398,7 +5409,7 @@ function PapelariaStep({ brand, accentColor, paletteColors, estampaPatterns, est
   const [agradecimentoMsgIdx, setAgradecimentoMsgIdx] = useState(0);
 
   // Estado editável do Guia Alimentar
-  const [guiaHorarios, setGuiaHorarios] = useState([
+  const [guiaHorarios, setGuiaHorarios] = useState(dictionary?.guia_alimentar?.horarios || [
     { label: 'CAFÉ DA MANHÃ', val: 'Leite materno ou fórmula infantil' },
     { label: 'LANCHE DA MANHÃ', val: 'Fruta / leite materno ou fórmula' },
     { label: 'ALMOÇO', val: 'Cereal ou tubérculo + proteína animal + leguminosa + hortaliças (verduras +legumes) + fruta' },
@@ -5406,12 +5417,21 @@ function PapelariaStep({ brand, accentColor, paletteColors, estampaPatterns, est
     { label: 'JANTAR', val: 'Igual almoço' },
     { label: 'LANCHE DA NOITE', val: 'Leite materno ou fórmula infantil' }
   ]);
-  const [guiaIntroducao, setGuiaIntroducao] = useState([
+  const [guiaIntroducao, setGuiaIntroducao] = useState(dictionary?.guia_alimentar?.introducao || [
     { idade: 'A partir de 6 meses', text: 'Alimentos amassados', qty: 'Iniciar com 2 a 3 colheres de sopa e aumentar a quantidade conforme aceitação' },
     { idade: 'A partir dos 7 meses', text: 'Alimentos amassados', qty: '2/3 de uma xícara ou tigela de 250 ml' },
     { idade: '9 a 11 meses', text: 'Alimentos cortados ou levemente amassados', qty: '3/4 de uma xícara ou tigela de 250 ml' },
     { idade: '12 a 24 meses', text: 'Alimentos cortados', qty: 'Uma xícara ou tigela de 250 ml' }
   ]);
+
+  useEffect(() => {
+    if (dictionary?.guia_alimentar?.horarios) {
+      setGuiaHorarios(dictionary.guia_alimentar.horarios);
+    }
+    if (dictionary?.guia_alimentar?.introducao) {
+      setGuiaIntroducao(dictionary.guia_alimentar.introducao);
+    }
+  }, [dictionary]);
 
   const [etiquetaFraseIdx, setEtiquetaFraseIdx] = useState(0);
   const [receitaFields, setReceitaFields] = useState({
@@ -5436,8 +5456,38 @@ function PapelariaStep({ brand, accentColor, paletteColors, estampaPatterns, est
   const [upsellSelecionados, setUpsellSelecionados] = React.useState([]);
   const [upsellLoading, setUpsellLoading] = React.useState(false);
   const [upsellErro, setUpsellErro] = React.useState('');
+  const [showUpsell, setShowUpsell] = React.useState(false);
 
   const isProPlan = plano === 'pro' || plano === 'complete';
+
+  const handleAvulsoCheckout = async (itemName) => {
+      setUpsellLoading(true);
+      try {
+        const delivery = JSON.parse(localStorage.getItem('brandbox_delivery') || '{}');
+        const res = await fetch('/api/checkout', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            plano: 'avulso',
+            marca: delivery.formData?.marca || delivery.editData?.marca || brand?.editData?.marca || '',
+            email: delivery.formData?.email || brand?.formData?.email || '',
+            sessionId: '',
+            itensSelecionados: [itemName],
+          }),
+        });
+        const data = await res.json();
+        if (data.url) {
+          window.location.href = data.url;
+        } else {
+          alert('Erro ao iniciar pagamento. Tente novamente.');
+        }
+      } catch (e) {
+        console.error(e);
+        alert('Erro de conexão. Tente novamente.');
+      } finally {
+        setUpsellLoading(false);
+      }
+  };
 
   const handleUpsellCheckout = async () => {
       if (upsellSelecionados.length === 0) return;
@@ -5451,8 +5501,17 @@ function PapelariaStep({ brand, accentColor, paletteColors, estampaPatterns, est
         const merged = [...new Set([...existentes, ...upsellSelecionados])];
         delivery.papelariaSelecionada = merged;
         localStorage.setItem('brandbox_delivery', JSON.stringify(delivery));
-        localStorage.setItem('brandbox_plano', 'pro');
+        // Se for avulso, não muda pra pro ainda, espera o Stripe retornar
+        if (plano !== 'avulso') {
+           localStorage.setItem('brandbox_plano', 'pro');
+        }
         localStorage.setItem('brandbox_pending_upsell', JSON.stringify(upsellSelecionados));
+        
+        // Se estiver no plano avulso, o checkout do upsell deve cobrar o item principal TAMBÉM
+        const itensParaCobrar = plano === 'avulso' 
+           ? [...new Set([...upsellSelecionados, ...brand.papelariaSelecionada])]
+           : upsellSelecionados;
+
         const res = await fetch('/api/checkout', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
@@ -5461,7 +5520,7 @@ function PapelariaStep({ brand, accentColor, paletteColors, estampaPatterns, est
             marca: delivery.formData?.marca || delivery.editData?.marca || brand?.editData?.marca || '',
             email: delivery.formData?.email || brand?.formData?.email || '',
             sessionId,
-            itensSelecionados: upsellSelecionados,
+            itensSelecionados: itensParaCobrar,
           }),
         });
         const data = await res.json();
@@ -5478,176 +5537,7 @@ function PapelariaStep({ brand, accentColor, paletteColors, estampaPatterns, est
       }
   };
 
-  if (!isProPlan || itens.length === 0) {
-    return (
-      <div style={{ display: 'flex', flexDirection: 'column', gap: '20px', padding: '8px 0' }}>
-        <div style={{ background: '#fff8f0', border: '1px solid #fde8c8', borderRadius: '16px', padding: '18px 20px' }}>
-          <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: '12px' }}>
-            <div>
-              <div style={{ fontSize: '0.82rem', fontWeight: 700, color: '#c87000', fontFamily: 'Montserrat,sans-serif', marginBottom: '4px' }}>📂 Impressos não inclusos no seu plano</div>
-              <div style={{ fontSize: '0.75rem', color: '#999', fontFamily: 'Montserrat,sans-serif', lineHeight: 1.5 }}>
-                Selecione os itens que deseja adicionar. Cada item custa <strong style={{ color: '#c87000' }}>R$ 30,00</strong>.
-              </div>
-            </div>
-            <button onClick={() => {
-              const todos = isSaude ? [...PAPELARIA_GERAL, ...PAPELARIA_MEDICA, ...DIGITAIS_MEDICOS] : PAPELARIA_GERAL;
-              const tudo = upsellSelecionados.length === todos.length;
-              setUpsellSelecionados(tudo ? [] : [...todos]);
-            }} style={{ flexShrink: 0, padding: '6px 14px', borderRadius: '20px', border: `1.5px solid #c87000`, background: 'transparent', color: '#c87000', fontSize: '0.72rem', fontWeight: 700, fontFamily: 'Montserrat,sans-serif', cursor: 'pointer', whiteSpace: 'nowrap' }}>
-              {upsellSelecionados.length === (isSaude ? PAPELARIA_GERAL.length + PAPELARIA_MEDICA.length + DIGITAIS_MEDICOS.length : PAPELARIA_GERAL.length) ? 'Desmarcar todos' : 'Marcar todos'}
-            </button>
-          </div>
-        </div>
 
-        {/* Grupo: Papelaria Geral */}
-        <div>
-          <div style={{ fontSize: '0.65rem', fontWeight: 800, color: '#bbb', textTransform: 'uppercase', letterSpacing: '1px', fontFamily: 'Montserrat,sans-serif', marginBottom: '8px' }}>
-            📄 Impressos
-          </div>
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
-            {PAPELARIA_GERAL.filter(item => !_autoInclusos.includes(item) && !papelariaNorm.includes(item)).map(item => {
-              const sel = upsellSelecionados.includes(item);
-              return (
-                <label key={item} onClick={() => setUpsellSelecionados(sel ? upsellSelecionados.filter(i => i !== item) : [...upsellSelecionados, item])}
-                  style={{ display: 'flex', alignItems: 'center', gap: '12px', padding: '10px 14px', borderRadius: '12px', border: `1.5px solid ${sel ? accentColor : '#eee'}`, background: sel ? `${accentColor}08` : '#fff', cursor: 'pointer', transition: 'all 0.15s' }}>
-                  <div style={{ width: 18, height: 18, borderRadius: '5px', border: `2px solid ${sel ? accentColor : '#ddd'}`, background: sel ? accentColor : '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, transition: 'all 0.15s' }}>
-                    {sel && <svg viewBox="0 0 12 12" width="10" height="10"><polyline points="2,6 5,9 10,3" fill="none" stroke="#fff" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/></svg>}
-                  </div>
-                  <span style={{ fontSize: '0.8rem', fontWeight: sel ? 700 : 500, color: sel ? '#333' : '#666', fontFamily: 'Montserrat,sans-serif', flex: 1 }}>
-                    {(() => {
-                      const keyMap = {
-                        'Cartão de Visita': 'cartao_visita', 'Papel Timbrado': 'papel_timbrado', 'Papel de Presente': 'papel_presente',
-                        'Tag para Sacola': 'tag_sacola', 'Etiqueta para Correios': 'etiqueta_correios', 'Envelope Ofício (23x11,5cm)': 'envelope_oficio',
-                        'Envelope Ofício': 'envelope_oficio', 'Envelope Saco (24x34cm)': 'envelope_saco', 'Envelope Saco': 'envelope_saco',
-                        'Recibo': 'recibo', 'Pasta A4': 'pasta_a4', 'Pasta': 'pasta_a4', 'Caneca': 'caneca', 'Arte para Caneca': 'arte_caneca',
-                        'Cartão de Retorno': 'cartao_retorno', 'Cartão de Agradecimento (10x15cm)': 'cartao_agradecimento', 'Cartão de Agradecimento': 'cartao_agradecimento',
-                        'Caderno (Capa e Contra-capa)': 'caderno', 'Caderno': 'caderno', 'Receituário Padrão (A4 e A5)': 'receituario_padrao',
-                        'Receituário Padrão': 'receituario_padrao', 'Receituário': 'receituario_padrao', 'Atestado Médico (A4 e A5)': 'atestado_medico',
-                        'Atestado Médico': 'atestado_medico', 'Receituário de Controle Especial': 'receituario_controle', 'Controle Especial (A4 e A5)': 'receituario_controle',
-                        'Controle Especial': 'receituario_controle', 'Prontuário Médico': 'prontuario_medico', 'Receita de Alta': 'receita_alta',
-                        'Ficha de Cadastro': 'ficha_cadastro', 'Guia Alimentar': 'guia_alimentar', 'Guia de Cuidados': 'guia_cuidados',
-                        'Guia de Desenvolvimento': 'guia_desenvolvimento', 'Guia de Vacina c/ Calendário': 'guia_vacina', 'Guia de Vacina': 'guia_vacina',
-                        'Cartão de Vacina': 'cartao_vacina', 'Cartão de Exame Pré-Natal': 'cartao_prenatal', 'Cartão Pré-Natal': 'cartao_prenatal',
-                        'Gráfico de Crescimento': 'grafico_crescimento', 'Checklist Maternidade': 'checklist_maternidade', 'Guia do Sono': 'guia_sono',
-                        'Orientações p/ Recém Nascidos': 'orientacoes_rn', 'Certificado de Coragem': 'certificado_coragem', 'Diário do Xixi': 'diario_xixi',
-                        'Meu Pratinho': 'meu_pratinho', 'Guia de Amamentação': 'guia_amamentacao', 'Caderneta de Saúde': 'caderneta_saude',
-                        'Pack Digital para Instagram': 'pack_instagram', 'Assinatura de E-mail': 'assinatura_email'
-                      };
-                      const key = keyMap[item];
-                      if (key && dictionary?.papelaria_itens?.[key]) return dictionary.papelaria_itens[key];
-                      
-                      const baseName = item.split('(')[0].split(' c/ ')[0].split(' p/ ')[0].trim();
-                      let fKey = baseName.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase().replace(/ /g, '_').replace(/-/g, '_');
-                      if (fKey === 'guia_de_vacina' || fKey === 'cartao_de_vacina') fKey = 'guia_vacina';
-                      if (fKey === 'orientacoes') return dictionary?.papelaria_itens?.orientacoes_rn || item;
-                      if (fKey === 'diario_do_xixi') fKey = 'diario_xixi';
-                      if (fKey === 'guia_de_amamentacao') fKey = 'guia_amamentacao';
-                      if (fKey === 'guia_de_cuidados') fKey = 'guia_cuidados';
-                      if (fKey === 'guia_de_desenvolvimento') fKey = 'guia_desenvolvimento';
-                      if (fKey === 'guia_do_sono') fKey = 'guia_sono';
-                      if (fKey === 'controle_especial' || fKey === 'receituario_de_controle_especial') fKey = 'receituario_controle';
-                      if (fKey === 'pasta') fKey = 'pasta_a4';
-                      const t = dictionary?.papelaria_itens?.[fKey];
-                      if (!t) return item;
-                      if (item.includes('(A4 e A5)')) return `${t} ${lang === 'en' ? '(A4 & A5)' : '(A4 e A5)'}`;
-                      if (item.includes('c/ Calendário')) return `${t} ${lang === 'en' ? 'w/ Calendar' : 'c/ Calendário'}`;
-                      return t;
-                    })()}
-                  </span>
-                  <span style={{ fontSize: '0.72rem', color: '#aaa', fontFamily: 'Montserrat,sans-serif' }}>R$ 30</span>
-                </label>
-              );
-            })}
-          </div>
-        </div>
-
-        {/* Grupo: Papelaria Médica — só se isSaude */}
-        {isSaude && (
-          <div>
-            <div style={{ fontSize: '0.65rem', fontWeight: 800, color: '#bbb', textTransform: 'uppercase', letterSpacing: '1px', fontFamily: 'Montserrat,sans-serif', marginBottom: '8px' }}>
-              🩺 Impressos Clínicos
-            </div>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
-              {PAPELARIA_MEDICA.map(item => {
-                const sel = upsellSelecionados.includes(item);
-                return (
-                  <label key={item} onClick={() => setUpsellSelecionados(sel ? upsellSelecionados.filter(i => i !== item) : [...upsellSelecionados, item])}
-                    style={{ display: 'flex', alignItems: 'center', gap: '12px', padding: '10px 14px', borderRadius: '12px', border: `1.5px solid ${sel ? accentColor : '#eee'}`, background: sel ? `${accentColor}08` : '#fff', cursor: 'pointer', transition: 'all 0.15s' }}>
-                    <div style={{ width: 18, height: 18, borderRadius: '5px', border: `2px solid ${sel ? accentColor : '#ddd'}`, background: sel ? accentColor : '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, transition: 'all 0.15s' }}>
-                      {sel && <svg viewBox="0 0 12 12" width="10" height="10"><polyline points="2,6 5,9 10,3" fill="none" stroke="#fff" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/></svg>}
-                    </div>
-                    <span style={{ fontSize: '0.8rem', fontWeight: sel ? 700 : 500, color: sel ? '#333' : '#666', fontFamily: 'Montserrat,sans-serif', flex: 1 }}>{item}</span>
-                    <span style={{ fontSize: '0.72rem', color: '#aaa', fontFamily: 'Montserrat,sans-serif' }}>R$ 30</span>
-                  </label>
-                );
-              })}
-            </div>
-          </div>
-        )}
-
-        {/* Grupo: Guias e Digitais Clínicos — só se isSaude */}
-        {isSaude && (
-          <div>
-            <div style={{ fontSize: '0.65rem', fontWeight: 800, color: '#bbb', textTransform: 'uppercase', letterSpacing: '1px', fontFamily: 'Montserrat,sans-serif', marginBottom: '8px' }}>
-              📋 Guias e Impressos Pediátricos
-            </div>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
-              {DIGITAIS_MEDICOS.map(item => {
-                const sel = upsellSelecionados.includes(item);
-                const isCaderneta = item === 'Caderneta de Saúde';
-                return (
-                  <label key={item} onClick={() => setUpsellSelecionados(sel ? upsellSelecionados.filter(i => i !== item) : [...upsellSelecionados, item])}
-                    style={{ 
-                      display: 'flex', 
-                      alignItems: 'center', 
-                      gap: '12px', 
-                      padding: '10px 14px', 
-                      borderRadius: '12px', 
-                      border: `1.5px solid ${sel ? (isCaderneta ? '#e6af2e' : accentColor) : (isCaderneta ? '#f0d38d' : '#eee')}`, 
-                      background: sel ? (isCaderneta ? '#fffcf0' : `${accentColor}08`) : '#fff', 
-                      cursor: 'pointer', 
-                      transition: 'all 0.15s' 
-                    }}>
-                    <div style={{ width: 18, height: 18, borderRadius: '5px', border: `2px solid ${sel ? (isCaderneta ? '#e6af2e' : accentColor) : '#ddd'}`, background: sel ? (isCaderneta ? '#e6af2e' : accentColor) : '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, transition: 'all 0.15s' }}>
-                      {sel && <svg viewBox="0 0 12 12" width="10" height="10"><polyline points="2,6 5,9 10,3" fill="none" stroke="#fff" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/></svg>}
-                    </div>
-                    <span style={{ fontSize: '0.8rem', fontWeight: sel ? 700 : 500, color: sel ? '#333' : '#666', fontFamily: 'Montserrat,sans-serif', flex: 1 }}>
-                      {tItem(item, dictionary)} {isCaderneta && <span style={{ fontSize: '0.75rem', color: '#b5891b', fontWeight: 700, marginLeft: '4px' }}>— 👑 Premium (124 págs)</span>}
-                    </span>
-                    <span style={{ fontSize: '0.72rem', color: isCaderneta ? '#b5891b' : '#aaa', fontWeight: isCaderneta ? 700 : 500, fontFamily: 'Montserrat,sans-serif' }}>
-                      {isCaderneta ? 'R$ 180' : 'R$ 30'}
-                    </span>
-                  </label>
-                );
-              })}
-            </div>
-          </div>
-        )}
-
-        {(() => {
-          const temCaderneta = upsellSelecionados.includes("Caderneta de Saúde");
-          const itensNormais = upsellSelecionados.filter(i => i !== "Caderneta de Saúde");
-          const total = (itensNormais.length * 30) + (temCaderneta ? 180 : 0);
-
-          return upsellSelecionados.length > 0 && (
-            <div style={{ position: 'sticky', bottom: '16px', background: '#fff', borderRadius: '16px', boxShadow: '0 4px 24px rgba(0,0,0,0.12)', padding: '16px 20px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '12px' }}>
-              <div>
-                <div style={{ fontSize: '0.72rem', color: '#999', fontFamily: 'Montserrat,sans-serif' }}>{upsellSelecionados.length} iten{upsellSelecionados.length > 1 ? 's' : ''} selecionado{upsellSelecionados.length > 1 ? 's' : ''}</div>
-                <div style={{ fontSize: '1.1rem', fontWeight: 800, color: '#333', fontFamily: 'Montserrat,sans-serif' }}>R$ {total.toFixed(2).replace('.', ',')}</div>
-              </div>
-              <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: '4px' }}>
-                {upsellErro && <div style={{ fontSize: '0.7rem', color: '#e55', fontFamily: 'Montserrat,sans-serif' }}>{upsellErro}</div>}
-                <button onClick={handleUpsellCheckout} disabled={upsellLoading}
-                  style={{ padding: '12px 24px', background: '#C03B66', color: '#fff', border: 'none', borderRadius: '30px', fontWeight: 700, fontSize: '0.85rem', fontFamily: 'Montserrat,sans-serif', cursor: upsellLoading ? 'wait' : 'pointer', opacity: upsellLoading ? 0.7 : 1 }}>
-                  {upsellLoading ? 'Aguarde...' : 'Ir para pagamento →'}
-                </button>
-              </div>
-            </div>
-          );
-        })()}
-      </div>
-    );
-  }
 
   const currentIdx = estampaSelectedIdx || 0;
   const currentItem = itens[Math.min(idx, itens.length - 1)];
@@ -7976,14 +7866,14 @@ td { padding: 4mm 3mm; border: 0.2mm solid #eee; font-size: 10pt; color: #555; }
           const illustSrc = "/breastfeeding-guide.png";
 
           const pages = [
-            ReactDOMServer.renderToString(<FolderAmamentacaoPage1 accentColor={accentColor} borderColor={borderColor} palette={paletteColors} logoComponent={<div dangerouslySetInnerHTML={{ __html: logoHtmlAmam }} />} folderRoof={folderRoof} />),
-            ReactDOMServer.renderToString(<FolderAmamentacaoPage2 accentColor={accentColor} borderColor={borderColor} palette={paletteColors} />),
-            ReactDOMServer.renderToString(<FolderAmamentacaoPage3 accentColor={accentColor} borderColor={borderColor} palette={paletteColors} />),
-            ReactDOMServer.renderToString(<FolderAmamentacaoPage4 accentColor={accentColor} borderColor={borderColor} palette={paletteColors} clinicaNome={clinicaNome} endereco={endereco} allPhones={allPhones} brand={brand} />),
-            ReactDOMServer.renderToString(<FolderAmamentacaoPage5 accentColor={accentColor} borderColor={borderColor} palette={paletteColors} illustrationsSrc={illustSrc} />),
-            ReactDOMServer.renderToString(<FolderAmamentacaoPage6 accentColor={accentColor} borderColor={borderColor} palette={paletteColors} illustrationsSrc={illustSrc} />),
-            ReactDOMServer.renderToString(<FolderAmamentacaoPage7 accentColor={accentColor} borderColor={borderColor} palette={paletteColors} illustrationsSrc={illustSrc} />),
-            ReactDOMServer.renderToString(<FolderAmamentacaoPage8 accentColor={accentColor} borderColor={borderColor} palette={paletteColors} illustrationsSrc={illustSrc} />),
+            ReactDOMServer.renderToString(<LanguageOverrideProvider lang={lang} dictionary={dictionary}><FolderAmamentacaoPage1 accentColor={accentColor} borderColor={borderColor} palette={paletteColors} logoComponent={<div dangerouslySetInnerHTML={{ __html: logoHtmlAmam }} />} folderRoof={folderRoof} /></LanguageOverrideProvider>),
+            ReactDOMServer.renderToString(<LanguageOverrideProvider lang={lang} dictionary={dictionary}><FolderAmamentacaoPage2 accentColor={accentColor} borderColor={borderColor} palette={paletteColors} /></LanguageOverrideProvider>),
+            ReactDOMServer.renderToString(<LanguageOverrideProvider lang={lang} dictionary={dictionary}><FolderAmamentacaoPage3 accentColor={accentColor} borderColor={borderColor} palette={paletteColors} /></LanguageOverrideProvider>),
+            ReactDOMServer.renderToString(<LanguageOverrideProvider lang={lang} dictionary={dictionary}><FolderAmamentacaoPage4 accentColor={accentColor} borderColor={borderColor} palette={paletteColors} clinicaNome={clinicaNome} endereco={endereco} allPhones={allPhones} brand={brand} /></LanguageOverrideProvider>),
+            ReactDOMServer.renderToString(<LanguageOverrideProvider lang={lang} dictionary={dictionary}><FolderAmamentacaoPage5 accentColor={accentColor} borderColor={borderColor} palette={paletteColors} illustrationsSrc={illustSrc} /></LanguageOverrideProvider>),
+            ReactDOMServer.renderToString(<LanguageOverrideProvider lang={lang} dictionary={dictionary}><FolderAmamentacaoPage6 accentColor={accentColor} borderColor={borderColor} palette={paletteColors} illustrationsSrc={illustSrc} /></LanguageOverrideProvider>),
+            ReactDOMServer.renderToString(<LanguageOverrideProvider lang={lang} dictionary={dictionary}><FolderAmamentacaoPage7 accentColor={accentColor} borderColor={borderColor} palette={paletteColors} illustrationsSrc={illustSrc} /></LanguageOverrideProvider>),
+            ReactDOMServer.renderToString(<LanguageOverrideProvider lang={lang} dictionary={dictionary}><FolderAmamentacaoPage8 accentColor={accentColor} borderColor={borderColor} palette={paletteColors} illustrationsSrc={illustSrc} /></LanguageOverrideProvider>),
           ];
 
           const _amamBg = comBorda && patternSrc
@@ -8202,7 +8092,7 @@ body { font-family:'Montserrat',sans-serif; }
         };
 
         // Conteúdo da Pág 5 (Aba Interna)
-        const p5Content = `<div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;overflow:hidden;"><div style="width:146px;height:210px;transform:scale(3.60);transform-origin:center center;flex-shrink:0;">${ReactDOMServer.renderToString(React.createElement(Art5, { accentColor, palette: paletteColors }))}</div></div>`;
+        const p5Content = `<div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;overflow:hidden;"><div style="width:146px;height:210px;transform:scale(3.60);transform-origin:center center;flex-shrink:0;">${ReactDOMServer.renderToString(<LanguageOverrideProvider lang={lang} dictionary={dictionary}>{React.createElement(Art5, { accentColor, palette: paletteColors })}</LanguageOverrideProvider>)}</div></div>`;
 
         // Conteúdo da Pág 6 (Contra Capa)
         const p6Content = `
@@ -8334,9 +8224,9 @@ body { font-family:'Montserrat',sans-serif; }
         // scale 3.60 (vs 3.78) dá ~3.5mm de margem em cada lado no painel
         const sInner = 3.60;
         const page2 = renderTrifoldFace([
-          { num: 2, w: W3, content: `<div style="position:absolute;top:3.5mm;left:3.5mm;width:148px;height:210px;transform:scale(${sInner});transform-origin:top left;">${ReactDOMServer.renderToString(React.createElement(Art2, { accentColor, palette: paletteColors }))}</div>` },
-          { num: 3, w: W2, content: `<div style="position:absolute;top:3.5mm;left:3.5mm;width:148px;height:210px;transform:scale(${sInner});transform-origin:top left;">${ReactDOMServer.renderToString(React.createElement(Art3, { accentColor, palette: paletteColors }))}</div>` },
-          { num: 4, w: W1, content: `<div style="position:absolute;top:3.5mm;left:3.5mm;width:146px;height:210px;transform:scale(${sInner});transform-origin:top left;">${ReactDOMServer.renderToString(React.createElement(Art4, { accentColor, palette: paletteColors, ...(item === 'Guia Alimentar' ? { horarios: guiaHorarios, introducao: guiaIntroducao } : {}) }))}</div>` }
+          { num: 2, w: W3, content: `<div style="position:absolute;top:3.5mm;left:3.5mm;width:148px;height:210px;transform:scale(${sInner});transform-origin:top left;">${ReactDOMServer.renderToString(<LanguageOverrideProvider lang={lang} dictionary={dictionary}>{React.createElement(Art2, { accentColor, palette: paletteColors })}</LanguageOverrideProvider>)}</div>` },
+          { num: 3, w: W2, content: `<div style="position:absolute;top:3.5mm;left:3.5mm;width:148px;height:210px;transform:scale(${sInner});transform-origin:top left;">${ReactDOMServer.renderToString(<LanguageOverrideProvider lang={lang} dictionary={dictionary}>{React.createElement(Art3, { accentColor, palette: paletteColors })}</LanguageOverrideProvider>)}</div>` },
+          { num: 4, w: W1, content: `<div style="position:absolute;top:3.5mm;left:3.5mm;width:146px;height:210px;transform:scale(${sInner});transform-origin:top left;">${ReactDOMServer.renderToString(<LanguageOverrideProvider lang={lang} dictionary={dictionary}>{React.createElement(Art4, { accentColor, palette: paletteColors, ...(item === 'Guia Alimentar' ? { horarios: guiaHorarios, introducao: guiaIntroducao } : {}) })}</LanguageOverrideProvider>)}</div>` }
         ], false);
 
         const html = `<!DOCTYPE html><html><head><meta charset="UTF-8"><title>${item} - ${marca}</title>${fiTri}
@@ -9087,67 +8977,99 @@ ${fontImports2}
         );
       })()}
 
-      {/* Botão download */}
-      <button
-        onClick={() => { if (currentItem === 'Pack Digital para Instagram' || currentItem === 'Assinatura de E-mail') { openGabarito(currentItem); } else { setPendingItem(currentItem); setShowPrintModal(true); } }}
-        style={{ width: '100%', padding: '10px', background: '#fff', color: '#C03B66', border: '1.5px solid #C03B66', borderRadius: '30px', fontWeight: 700, fontSize: '0.8rem', cursor: 'pointer', marginBottom: '8px' }}
-      >
-        {currentItem === 'Pack Digital para Instagram' ? (dictionary?.ui?.baixar_png || '⬇ Baixar PNG / JPG') : currentItem === 'Assinatura de E-mail' ? (dictionary?.ui?.baixar_assinatura || '⬇ Baixar Assinatura') : (dictionary?.ui?.baixar_pdf || '⬇ Baixar PDF Padrão Gráfica')}
-      </button>
-
-      {/* Upsell: só no último item */}
+      {/* Botão download ou comprar */}
       {(() => {
-        const isLastItem = idx === itens.length - 1;
-        const todosDisponiveis = [...PAPELARIA_GERAL, ...(isSaude ? PAPELARIA_MEDICA : []), ...(isSaude ? DIGITAIS_MEDICOS : [])];
-        const faltando = todosDisponiveis.filter(i => !itens.includes(i));
-        if (!isLastItem || faltando.length === 0) return null;
+        const isItemOwned = isProPlan || ownedItems.includes(currentItem);
+        if (!isItemOwned) {
+          return (
+            <button
+              onClick={() => handleAvulsoCheckout(currentItem)}
+              disabled={upsellLoading}
+              style={{ width: '100%', padding: '10px', background: '#C03B66', color: '#fff', border: '1.5px solid #C03B66', borderRadius: '30px', fontWeight: 700, fontSize: '0.8rem', cursor: upsellLoading ? 'wait' : 'pointer', marginBottom: '8px', opacity: upsellLoading ? 0.7 : 1, transition: 'all 0.2s' }}
+            >
+              {upsellLoading ? 'Aguarde...' : `🔒 Comprar Arquivo - R$ ${currentItem === 'Caderneta de Saúde' ? '180,00' : '30,00'}`}
+            </button>
+          );
+        } else {
+          return (
+            <button
+              onClick={() => { if (currentItem === 'Pack Digital para Instagram' || currentItem === 'Assinatura de E-mail') { openGabarito(currentItem); } else { setPendingItem(currentItem); setShowPrintModal(true); } }}
+              style={{ width: '100%', padding: '10px', background: '#fff', color: '#C03B66', border: '1.5px solid #C03B66', borderRadius: '30px', fontWeight: 700, fontSize: '0.8rem', cursor: 'pointer', marginBottom: '8px', transition: 'all 0.2s' }}
+            >
+              {currentItem === 'Pack Digital para Instagram' ? (dictionary?.ui?.baixar_png || '⬇ Baixar PNG / JPG') : currentItem === 'Assinatura de E-mail' ? (dictionary?.ui?.baixar_assinatura || '⬇ Baixar Assinatura') : (dictionary?.ui?.baixar_pdf || '⬇ Baixar PDF Padrão Gráfica')}
+            </button>
+          );
+        }
+      })()}
 
+      {/* Upsell: opções extras ocultas */}
+      {(() => {
+        if (isProPlan) return null; // Se for PRO, não tem upsell
+
+        const todosDisponiveis = [...PAPELARIA_GERAL, ...(isSaude ? PAPELARIA_MEDICA : []), ...(isSaude ? DIGITAIS_MEDICOS : [])];
+        const faltando = todosDisponiveis.filter(i => !ownedItems.includes(i));
+        if (faltando.length === 0) return null;
+
+        const isAvulsoMode = plano === 'avulso';
+        
+        // Recalcular total se houver selecionados
         const temCadernetaSelecionada = upsellSelecionados.includes("Caderneta de Saúde");
         const itensNormaisSelecionados = upsellSelecionados.filter(i => i !== "Caderneta de Saúde");
+        const extraNormalItems = (isAvulsoMode && !temCadernetaSelecionada) ? 1 : 0; // Wait, we don't force them to buy the current item if they are buying via the bulk menu, but the handleUpsellCheckout adds it!
+        // Actually, handleUpsellCheckout forces adding brand.papelariaSelecionada if avulsoMode. Let's make it clearer.
         const totalCalculado = (itensNormaisSelecionados.length * 30) + (temCadernetaSelecionada ? 180 : 0);
+        const numItemsText = upsellSelecionados.length;
 
         return (
-          <div style={{ marginTop: '8px', padding: '16px 18px', background: '#f9f9f9', border: '1px solid #eee', borderRadius: '16px' }}>
-            <div style={{ fontSize: '0.72rem', fontWeight: 800, color: '#bbb', textTransform: 'uppercase', letterSpacing: '1px', fontFamily: 'Montserrat,sans-serif', marginBottom: '10px' }}>
-              + Adicionar mais itens — R$ 30 cada (Item Premium: R$ 180)
-            </div>
-            <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px' }}>
-              {faltando.map(item => {
-                const isCaderneta = item === "Caderneta de Saúde";
-                const btnStyle = {
-                  padding: '5px 12px',
-                  borderRadius: '20px',
-                  border: `1.5px solid ${upsellSelecionados.includes(item) ? (isCaderneta ? '#e6af2e' : accentColor) : (isCaderneta ? '#f0d38d' : '#ddd')}`,
-                  background: upsellSelecionados.includes(item) ? (isCaderneta ? '#fffcf0' : `${accentColor}12`) : '#fff',
-                  fontSize: '0.72rem',
-                  fontWeight: 600,
-                  color: upsellSelecionados.includes(item) ? (isCaderneta ? '#b5891b' : accentColor) : (isCaderneta ? '#b5891b' : '#888'),
-                  fontFamily: 'Montserrat,sans-serif',
-                  cursor: 'pointer',
-                  transition: 'all 0.15s'
-                };
-                return (
-                  <button key={item} onClick={() => {
-                    setUpsellSelecionados(prev => prev.includes(item) ? prev.filter(i => i !== item) : [...prev, item]);
-                  }} style={btnStyle}>
-                    {isCaderneta
-                      ? `${upsellSelecionados.includes(item) ? '✓ ' : '+ '}👑 Caderneta de Saúde (Premium - R$ 180)`
-                      : `${upsellSelecionados.includes(item) ? '✓ ' : '+ '}${tItem(item, dictionary)}`}
-                  </button>
-                );
-              })}
-            </div>
-            {upsellSelecionados.length > 0 && (
-              <div style={{ marginTop: '12px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                <div style={{ fontSize: '0.8rem', fontWeight: 700, color: '#333', fontFamily: 'Montserrat,sans-serif' }}>
-                  {upsellSelecionados.length} item{upsellSelecionados.length > 1 ? 's' : ''} · <strong>R$ {totalCalculado.toFixed(2).replace('.', ',')}</strong>
+          <div style={{ marginTop: '16px' }}>
+            <button onClick={() => setShowUpsell(!showUpsell)} style={{ background: 'transparent', border: 'none', color: '#c87000', fontSize: '0.75rem', fontWeight: 700, fontFamily: 'Montserrat,sans-serif', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '6px', padding: 0, width: '100%', justifyContent: 'center' }}>
+              {showUpsell ? 'Ocultar outros itens' : 'Ver outros itens que você pode ter deixado de fora'} {showUpsell ? '▲' : '▼'}
+            </button>
+            {showUpsell && (
+              <div style={{ marginTop: '12px', padding: '16px 18px', background: '#f9f9f9', border: '1px solid #eee', borderRadius: '16px' }}>
+                <div style={{ fontSize: '0.72rem', fontWeight: 800, color: '#bbb', textTransform: 'uppercase', letterSpacing: '1px', fontFamily: 'Montserrat,sans-serif', marginBottom: '10px' }}>
+                  + Adicionar mais itens — R$ 30 cada
                 </div>
-                <button onClick={handleUpsellCheckout} disabled={upsellLoading} style={{ padding: '8px 20px', background: accentColor, color: '#fff', border: 'none', borderRadius: '20px', fontWeight: 700, fontSize: '0.78rem', fontFamily: 'Montserrat,sans-serif', cursor: upsellLoading ? 'wait' : 'pointer', opacity: upsellLoading ? 0.7 : 1 }}>
-                  {upsellLoading ? 'Aguarde...' : 'Adicionar →'}
-                </button>
+                <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px' }}>
+                  {faltando.map(item => {
+                    const isCaderneta = item === "Caderneta de Saúde";
+                    const sel = upsellSelecionados.includes(item);
+                    const btnStyle = {
+                      padding: '5px 12px',
+                      borderRadius: '20px',
+                      border: `1.5px solid ${sel ? (isCaderneta ? '#e6af2e' : accentColor) : (isCaderneta ? '#f0d38d' : '#ddd')}`,
+                      background: sel ? (isCaderneta ? '#fffcf0' : `${accentColor}12`) : '#fff',
+                      fontSize: '0.72rem',
+                      fontWeight: 600,
+                      color: sel ? (isCaderneta ? '#b5891b' : accentColor) : (isCaderneta ? '#b5891b' : '#888'),
+                      fontFamily: 'Montserrat,sans-serif',
+                      cursor: 'pointer',
+                      transition: 'all 0.15s'
+                    };
+                    return (
+                      <button key={item} onClick={() => {
+                        setUpsellSelecionados(prev => prev.includes(item) ? prev.filter(i => i !== item) : [...prev, item]);
+                      }} style={btnStyle}>
+                        {isCaderneta
+                          ? `${sel ? '✓ ' : '+ '}👑 Caderneta de Saúde (Premium - R$ 180)`
+                          : `${sel ? '✓ ' : '+ '}${tItem(item, dictionary)}`}
+                      </button>
+                    );
+                  })}
+                </div>
+                {upsellSelecionados.length > 0 && (
+                  <div style={{ marginTop: '12px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                    <div style={{ fontSize: '0.8rem', fontWeight: 700, color: '#333', fontFamily: 'Montserrat,sans-serif' }}>
+                      {numItemsText} item{numItemsText > 1 ? 's' : ''} · <strong>R$ {totalCalculado.toFixed(2).replace('.', ',')}</strong>
+                    </div>
+                    <button onClick={handleUpsellCheckout} disabled={upsellLoading} style={{ padding: '8px 20px', background: accentColor, color: '#fff', border: 'none', borderRadius: '20px', fontWeight: 700, fontSize: '0.78rem', fontFamily: 'Montserrat,sans-serif', cursor: upsellLoading ? 'wait' : 'pointer', opacity: upsellLoading ? 0.7 : 1 }}>
+                      {upsellLoading ? 'Aguarde...' : 'Comprar →'}
+                    </button>
+                  </div>
+                )}
+                {upsellErro && <div style={{ marginTop: '6px', fontSize: '0.7rem', color: '#e55', fontFamily: 'Montserrat,sans-serif' }}>{upsellErro}</div>}
               </div>
             )}
-            {upsellErro && <div style={{ marginTop: '6px', fontSize: '0.7rem', color: '#e55', fontFamily: 'Montserrat,sans-serif' }}>{upsellErro}</div>}
           </div>
         );
       })()}
@@ -11163,6 +11085,7 @@ function SucessoContent() {
   const sessionParam = params.get('session');
   const planoParam = params.get('plano');
   const devMode = params.get('dev') === '1';
+  const avulsoParam = params.get('avulso');
 
   useEffect(() => {
     if (params.get('reset') === '1') {
@@ -11195,6 +11118,32 @@ function SucessoContent() {
     localStorage.removeItem('brandbox_step');
 
     const loadData = async () => {
+      if (avulsoParam && !sessionParam) {
+        let itemName = avulsoParam;
+        if (avulsoParam === 'grafico') itemName = 'Gráfico de Crescimento';
+        // Podem ser adicionados outros mapeamentos no futuro
+
+        const defaultAvulsoBrand = {
+          plano: 'avulso',
+          papelariaSelecionada: [itemName],
+          formData: { nome: '', especialidade: '', cr: '', atuacao: 'Pediatria / Saúde infantil' },
+          editData: { marca: 'SUA MARCA', fontStyle: 'serif', colors: ['#4A90E2', '#50E3C2', '#B8E986', '#F5A623', '#D0021B'] }
+        };
+
+        const savedAvulso = localStorage.getItem('brandbox_avulso_' + avulsoParam);
+        if (savedAvulso) {
+           setBrand(JSON.parse(savedAvulso));
+        } else {
+           setBrand(defaultAvulsoBrand);
+           localStorage.setItem('brandbox_avulso_' + avulsoParam, JSON.stringify(defaultAvulsoBrand));
+           // Sobrescreve o brandbox_delivery para que as edições locais funcionem na mesma estrutura
+           localStorage.setItem('brandbox_delivery', JSON.stringify(defaultAvulsoBrand));
+        }
+        setPlano('avulso');
+        setLoading(false);
+        return;
+      }
+
       // 1. Prioridade: API Route server-side (usa service role, bypassa RLS)
       if (sessionParam) {
         localStorage.setItem('brandbox_session', sessionParam);
@@ -11290,7 +11239,13 @@ function SucessoContent() {
         if (saved) {
           const parsed = JSON.parse(saved);
           setBrand(parsed);
-          const savedPlano = localStorage.getItem('brandbox_plano') || (parsed.plano === 'complete' ? 'pro' : (parsed.plano || 'starter'));
+          const urlPlano = planoParam === 'pro' ? 'pro' : null;
+          const savedPlano = urlPlano || localStorage.getItem('brandbox_plano') || (parsed.plano === 'complete' ? 'pro' : (parsed.plano || 'starter'));
+          if (urlPlano) {
+             localStorage.setItem('brandbox_plano', urlPlano);
+             const updatedDelivery = { ...parsed, plano: urlPlano };
+             localStorage.setItem('brandbox_delivery', JSON.stringify(updatedDelivery));
+          }
           setPlano(savedPlano);
           if (planoParam) setShowWelcome(true);
         }
@@ -11587,6 +11542,8 @@ const Illustration = ({ quadrant, src }) => {
 };
 
 export function FolderAmamentacaoPage1({ accentColor, borderColor, palette = [], logoComponent, folderRoof = true }) {
+  const { dictionary } = useTranslation();
+  const d = dictionary?.guia_amamentacao_folder;
   const mainColor = borderColor || palette[0] || accentColor;
   return (
     <div style={{ 
@@ -11608,8 +11565,8 @@ export function FolderAmamentacaoPage1({ accentColor, borderColor, palette = [],
 
       <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '20px', width: '100%', marginBottom: '15px' }}>
         <div style={{ textAlign: 'center' }}>
-          <div style={{ fontSize: '5.5px', fontWeight: 400, color: '#888', letterSpacing: '2.5px', textTransform: 'uppercase' }}>{dictionary?.guia_cuidados?.guia_de || 'GUIA DE'}</div>
-          <div style={{ fontSize: '9px', fontWeight: 900, color: '#333', letterSpacing: '0.6px', textTransform: 'uppercase', lineHeight: 1.1 }}>{dictionary?.orientacoes_rn?.amamentacao || 'AMAMENTAÇÃO'}</div>
+          <div style={{ fontSize: '5.5px', fontWeight: 400, color: '#888', letterSpacing: '2.5px', textTransform: 'uppercase' }}>{d?.guia_de || 'GUIA DE'}</div>
+          <div style={{ fontSize: '9px', fontWeight: 900, color: '#333', letterSpacing: '0.6px', textTransform: 'uppercase', lineHeight: 1.1 }}>{d?.amamentacao_titulo || 'AMAMENTAÇÃO'}</div>
         </div>
         
         <div style={{ 
@@ -11620,17 +11577,17 @@ export function FolderAmamentacaoPage1({ accentColor, borderColor, palette = [],
           maxWidth: '90%',
           textAlign: 'center'
         }}>
-           <div style={{ fontSize: '5px', fontWeight: 800, color: mainColor, textTransform: 'uppercase', letterSpacing: '0.8px' }}>{dictionary?.orientacoes_rn?.aleitamento || 'ALEITAMENTO MATERNO EXCLUSIVO'}</div>
+           <div style={{ fontSize: '5px', fontWeight: 800, color: mainColor, textTransform: 'uppercase', letterSpacing: '0.8px' }}>{d?.aleitamento || 'ALEITAMENTO MATERNO EXCLUSIVO'}</div>
         </div>
       </div>
 
       <div style={{ width: '100%', marginTop: '6px', display: 'flex', flexDirection: 'column', gap: '6px', padding: '0 5px', marginBottom: '10px' }}>
         <div style={{ display: 'flex', alignItems: 'flex-end', gap: '4px' }}>
-           <span style={{ fontSize: '5px', fontWeight: 700, color: mainColor }}>{dictionary?.ficha_cadastro?.nome || 'NOME:'}</span>
+           <span style={{ fontSize: '5px', fontWeight: 700, color: mainColor }}>{d?.nome_label || 'NOME:'}</span>
            <div style={{ flex: 1, borderBottom: `0.3px solid ${mainColor}40`, height: '7px' }} />
         </div>
         <div style={{ display: 'flex', alignItems: 'flex-end', gap: '4px' }}>
-           <span style={{ fontSize: '5px', fontWeight: 700, color: mainColor }}>{dictionary?.ficha_cadastro?.nascimento || 'NASCIMENTO:'}</span>
+           <span style={{ fontSize: '5px', fontWeight: 700, color: mainColor }}>{d?.nascimento_label || 'NASCIMENTO:'}</span>
            <div style={{ width: '10mm', borderBottom: `0.3px solid ${mainColor}40`, height: '7px' }} />
            <span style={{ fontSize: '5px', color: mainColor }}>/</span>
            <div style={{ width: '10mm', borderBottom: `0.3px solid ${mainColor}40`, height: '8px' }} />
@@ -11644,26 +11601,28 @@ export function FolderAmamentacaoPage1({ accentColor, borderColor, palette = [],
 
 
 export function FolderAmamentacaoPage2({ accentColor, borderColor, palette = [] }) {
+  const { dictionary } = useTranslation();
+  const d = dictionary?.guia_amamentacao_folder;
   const mainColor = borderColor || palette[0] || accentColor;
   return (
     <div style={{ width: '100%', padding: '10px 8px', boxSizing: 'border-box', background: '#fff', fontSize: '4.2px', display: 'flex', flexDirection: 'column' }}>
-      <div style={{ background: mainColor, color: '#fff', padding: '4px 8px', fontWeight: 800, marginBottom: '8px', borderRadius: '1px', textAlign: 'center' }}>{dictionary?.orientacoes_rn?.alimentacao_mae || 'ALIMENTAÇÃO DA MÃE'}</div>
+      <div style={{ background: mainColor, color: '#fff', padding: '4px 8px', fontWeight: 800, marginBottom: '8px', borderRadius: '1px', textAlign: 'center' }}>{d?.alimentacao_mae || 'ALIMENTAÇÃO DA MÃE'}</div>
       <p style={{ color: '#555', lineHeight: 1.45, marginBottom: '10px' }}>
-        Recomenda-se uma alimentação balanceada, rica em proteínas, fibras e vitaminas. Coma diversas vezes ao dia em pequenas porções para manter a energia.
+        {d?.alimentacao_texto_1 || 'Recomenda-se uma alimentação balanceada, rica em proteínas, fibras e vitaminas. Coma diversas vezes ao dia em pequenas porções para manter a energia.'}
       </p>
       <p style={{ color: '#555', lineHeight: 1.45, marginBottom: '15px' }}>
-        <strong>Água:</strong> consuma ao menos dois litros por dia. Mantenha copos d'água nos cômodos onde você mais amamenta.
+        <strong>{d?.agua_titulo || 'Água'}:</strong> {d?.agua_texto || 'consuma ao menos dois litros por dia. Mantenha copos d\'água nos cômodos onde você mais amamenta.'}
       </p>
       
       <div style={{ marginTop: '20px', border: `0.3px solid ${mainColor}40`, padding: '8px', borderRadius: '5px', background: `${mainColor}05` }}>
-        <div style={{ fontWeight: 800, color: mainColor, marginBottom: '8px', textAlign: 'center', fontSize: '5.2px', letterSpacing: '0.5px' }}>{dictionary?.orientacoes_rn?.composicao_leite || 'COMPOSIÇÃO DO LEITE MATERNO'}</div>
+        <div style={{ fontWeight: 800, color: mainColor, marginBottom: '8px', textAlign: 'center', fontSize: '5.2px', letterSpacing: '0.5px' }}>{d?.composicao_leite || 'COMPOSIÇÃO DO LEITE MATERNO'}</div>
         <div style={{ display: 'flex', flexDirection: 'column', gap: '2.5px' }}>
           {[
-            { label: 'Agentes de proteção', w: '100%', c: mainColor },
-            { label: 'Crescimento', w: '90%', c: palette[1] || mainColor },
-            { label: 'Microbiota', w: '80%', c: palette[2] || mainColor },
-            { label: 'Energia', w: '70%', c: palette[3] || mainColor },
-            { label: 'Cérebro', w: '60%', c: palette[4] || mainColor },
+            { label: d?.agentes_protecao || 'Agentes de proteção', w: '100%', c: mainColor },
+            { label: d?.crescimento || 'Crescimento', w: '90%', c: palette[1] || mainColor },
+            { label: d?.microbiota || 'Microbiota', w: '80%', c: palette[2] || mainColor },
+            { label: d?.energia || 'Energia', w: '70%', c: palette[3] || mainColor },
+            { label: d?.cerebro || 'Cérebro', w: '60%', c: palette[4] || mainColor },
           ].map((item, i) => (
             <div key={i} style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
               <div style={{ width: '38px', textAlign: 'right', fontSize: '3.4px', fontWeight: 600 }}>{item.label}</div>
@@ -11679,31 +11638,33 @@ export function FolderAmamentacaoPage2({ accentColor, borderColor, palette = [] 
 }
 
 export function FolderAmamentacaoPage3({ accentColor, borderColor, palette = [] }) {
+  const { dictionary } = useTranslation();
+  const d = dictionary?.guia_amamentacao_folder;
   const mainColor = borderColor || palette[0] || accentColor;
   return (
     <div style={{ width: '100%', padding: '10px 8px', boxSizing: 'border-box', background: '#fff', fontSize: '4.2px', display: 'flex', flexDirection: 'column' }}>
-      <div style={{ background: mainColor, color: '#fff', padding: '4px 8px', fontWeight: 800, marginBottom: '12px', borderRadius: '1px', textAlign: 'center' }}>{dictionary?.orientacoes_rn?.problemas_comuns || 'PROBLEMAS COMUNS'}</div>
+      <div style={{ background: mainColor, color: '#fff', padding: '4px 8px', fontWeight: 800, marginBottom: '12px', borderRadius: '1px', textAlign: 'center' }}>{d?.problemas_comuns || 'PROBLEMAS COMUNS'}</div>
       <div style={{ display: 'flex', flexDirection: 'column', gap: '15px' }}>
         <section>
-          <div style={{ fontWeight: 800, color: mainColor, borderBottom: `0.3px solid ${mainColor}20`, marginBottom: '4px', fontSize: '4.6px' }}>Fissuras nos Mamilos</div>
-          <p style={{ lineHeight: 1.4 }}><strong>Causa:</strong> Má posição do bebê ou técnica incorreta.</p>
-          <p style={{ lineHeight: 1.4 }}><strong>Tratamento:</strong> Corrija a técnica, aplique leite materno após as mamadas.</p>
+          <div style={{ fontWeight: 800, color: mainColor, borderBottom: `0.3px solid ${mainColor}20`, marginBottom: '4px', fontSize: '4.6px' }}>{d?.fissuras_mamilos || 'Fissuras nos Mamilos'}</div>
+          <p style={{ lineHeight: 1.4 }}><strong>Causa:</strong> {d?.fissuras_causa || 'Má posição do bebê ou técnica incorreta.'}</p>
+          <p style={{ lineHeight: 1.4 }}><strong>Tratamento:</strong> {d?.fissuras_tratamento || 'Corrija a técnica, aplique leite materno após as mamadas.'}</p>
         </section>
         <section>
-          <div style={{ fontWeight: 800, color: mainColor, borderBottom: `0.3px solid ${mainColor}20`, marginBottom: '4px', fontSize: '4.6px' }}>Ingurgitamento Mamário</div>
-          <p style={{ lineHeight: 1.4 }}><strong>Causa:</strong> Desequilíbrio na produção e drenagem.</p>
-          <p style={{ lineHeight: 1.4 }}><strong>Alívio:</strong> Esvazie manualmente, faça massagens suaves na mama.</p>
+          <div style={{ fontWeight: 800, color: mainColor, borderBottom: `0.3px solid ${mainColor}20`, marginBottom: '4px', fontSize: '4.6px' }}>{d?.ingurgitamento || 'Ingurgitamento Mamário'}</div>
+          <p style={{ lineHeight: 1.4 }}><strong>Causa:</strong> {d?.ingurgitamento_causa || 'Desequilíbrio na produção e drenagem.'}</p>
+          <p style={{ lineHeight: 1.4 }}><strong>Alívio:</strong> {d?.ingurgitamento_alivio || 'Esvazie manualmente, faça massagens suaves na mama.'}</p>
         </section>
       </div>
       
       <div style={{ marginTop: '20px', display: 'flex', gap: '8px', marginBottom: '10px' }}>
         <div style={{ flex: 1, background: '#f8f8f8', padding: '8px 5px', borderRadius: '5px', border: '0.2px solid #eee' }}>
-          <div style={{ fontWeight: 800, color: '#333', marginBottom: '5px', textAlign: 'center' }}>Antes do retorno:</div>
-          <div style={{ fontSize: '3.8px', lineHeight: 1.3 }}>• Aleitamento exclusivo;<br/>• Retirada no local.</div>
+          <div style={{ fontWeight: 800, color: '#333', marginBottom: '5px', textAlign: 'center' }}>{d?.antes_retorno || 'Antes do retorno:'}</div>
+          <div style={{ fontSize: '3.8px', lineHeight: 1.3 }} dangerouslySetInnerHTML={{ __html: `${d?.antes_retorno_itens_1 || '• Aleitamento exclusivo'}<br/>${d?.antes_retorno_itens_2 || '• Retirada no local'}` }} />
         </div>
         <div style={{ flex: 1, background: '#f8f8f8', padding: '8px 5px', borderRadius: '5px', border: '0.2px solid #eee' }}>
-          <div style={{ fontWeight: 800, color: '#333', marginBottom: '5px', textAlign: 'center' }}>Após o retorno:</div>
-          <div style={{ fontSize: '3.8px', lineHeight: 1.3 }}>• Amamentar em casa;<br/>• Ordenha no trabalho.</div>
+          <div style={{ fontWeight: 800, color: '#333', marginBottom: '5px', textAlign: 'center' }}>{d?.apos_retorno || 'Após o retorno:'}</div>
+          <div style={{ fontSize: '3.8px', lineHeight: 1.3 }} dangerouslySetInnerHTML={{ __html: `${d?.apos_retorno_itens_1 || '• Amamentar em casa'}<br/>${d?.apos_retorno_itens_2 || '• Ordenha no trabalho'}` }} />
         </div>
       </div>
     </div>
@@ -11711,20 +11672,22 @@ export function FolderAmamentacaoPage3({ accentColor, borderColor, palette = [] 
 }
 
 export function FolderAmamentacaoPage4({ accentColor, borderColor, palette = [], clinicaNome, endereco, allPhones, brand }) {
+  const { dictionary } = useTranslation();
+  const d = dictionary?.guia_amamentacao_folder;
   const mainColor = borderColor || palette[0] || accentColor;
   return (
     <div style={{ width: '100%', padding: '10px 8px', boxSizing: 'border-box', background: '#fff', fontSize: '4.2px', display: 'flex', flexDirection: 'column' }}>
-      <div style={{ background: mainColor, color: '#fff', padding: '4px 8px', fontWeight: 800, marginBottom: '12px', borderRadius: '1px', textAlign: 'center' }}>{dictionary?.orientacoes_rn?.apoio_emocional || 'APOIO EMOCIONAL'}</div>
-      <p style={{ fontWeight: 700, marginBottom: '8px', fontSize: '4.6px' }}>O apoio da família é fundamental:</p>
+      <div style={{ background: mainColor, color: '#fff', padding: '4px 8px', fontWeight: 800, marginBottom: '12px', borderRadius: '1px', textAlign: 'center' }}>{d?.apoio_emocional || 'APOIO EMOCIONAL'}</div>
+      <p style={{ fontWeight: 700, marginBottom: '8px', fontSize: '4.6px' }}>{d?.apoio_familia || 'O apoio da família é fundamental:'}</p>
       <ul style={{ paddingLeft: '10px', marginBottom: '10px', lineHeight: 1.5 }}>
-        <li>Ambiente calmo favorece a amamentação.</li>
-        <li>A mãe precisa de apoio em sua decisão.</li>
-        <li>Dividir as tarefas de casa é essencial.</li>
+        <li>{d?.apoio_item_1 || 'Ambiente calmo favorece a amamentação.'}</li>
+        <li>{d?.apoio_item_2 || 'A mãe precisa de apoio em sua decisão.'}</li>
+        <li>{d?.apoio_item_3 || 'Dividir as tarefas de casa é essencial.'}</li>
       </ul>
       <div style={{ background: '#f9f9f9', padding: '8px', borderRadius: '5px', border: `0.3px solid ${mainColor}30` }}>
-        <div style={{ fontWeight: 800, color: mainColor, marginBottom: '6px', fontSize: '4.8px' }}>Como Ajudar?</div>
+        <div style={{ fontWeight: 800, color: mainColor, marginBottom: '6px', fontSize: '4.8px' }}>{d?.como_ajudar || 'Como Ajudar?'}</div>
         <div style={{ display: 'flex', flexDirection: 'column', gap: '3px' }}>
-          {['Buscar ajuda profissional se necessário', 'Ambiente organizado e confortável', 'Auxiliar nas tarefas domésticas'].map((text, i) => (
+          {[d?.ajuda_item_1 || 'Buscar ajuda profissional se necessário', d?.ajuda_item_2 || 'Ambiente organizado e confortável', d?.ajuda_item_3 || 'Auxiliar nas tarefas domésticas'].map((text, i) => (
             <div key={i} style={{ display: 'flex', gap: '4px', alignItems: 'center' }}>
               <div style={{ width: '5px', height: '5px', border: `0.3px solid ${mainColor}`, borderRadius: '1px' }} />
               <span style={{ fontSize: '4px' }}>{text}</span>
@@ -11743,24 +11706,26 @@ export function FolderAmamentacaoPage4({ accentColor, borderColor, palette = [],
 }
 
 export function FolderAmamentacaoPage5({ accentColor, borderColor, palette = [] }) {
+  const { dictionary } = useTranslation();
+  const d = dictionary?.guia_amamentacao_folder;
   const mainColor = borderColor || palette[0] || accentColor;
   return (
     <div style={{ width: '100%', padding: '10px 8px', boxSizing: 'border-box', background: '#fff', fontSize: '4.2px', display: 'flex', flexDirection: 'column' }}>
       <p style={{ lineHeight: 1.5, marginBottom: '15px', fontSize: '4.6px' }}>
-        <strong>Amamentar é muito mais que nutrir.</strong> É interação, imunidade e desenvolvimento emocional para o bebê.
+        <strong>{d?.muito_mais_que_nutrir_1 || 'Amamentar é muito mais que nutrir.'}</strong> {d?.muito_mais_que_nutrir_2 || 'É interação, imunidade e desenvolvimento emocional para o bebê.'}
       </p>
       <div style={{ background: `${mainColor}10`, padding: '10px', borderRadius: '5px', border: `0.2px solid ${mainColor}20`, marginBottom: '15px' }}>
         <p style={{ margin: 0, lineHeight: 1.4, textAlign: 'center' }}>
-          A OMS recomenda aleitamento materno exclusivo nos primeiros seis meses de vida.
+          {d?.oms_recomenda || 'A OMS recomenda aleitamento materno exclusivo nos primeiros seis meses de vida.'}
         </p>
       </div>
       
-      <div style={{ fontWeight: 800, color: mainColor, marginBottom: '10px', textTransform: 'uppercase', fontSize: '5.2px', letterSpacing: '0.5px', textAlign: 'center' }}>BENEFÍCIOS DO ALEITAMENTO</div>
+      <div style={{ fontWeight: 800, color: mainColor, marginBottom: '10px', textTransform: 'uppercase', fontSize: '5.2px', letterSpacing: '0.5px', textAlign: 'center' }}>{d?.beneficios || 'BENEFÍCIOS DO ALEITAMENTO'}</div>
       <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
         {[
-          { t: 'Para o Bebê:', c: 'Melhor digestão, imunidade e redução de alergias.' },
-          { t: 'Para a Mamãe:', c: 'Auxilia na perda de peso e na saúde uterina.' },
-          { t: 'Para a Família:', c: 'Fortalece os vínculos e é prático no dia a dia.' },
+          { t: d?.para_bebe || 'Para o Bebê:', c: d?.para_bebe_desc || 'Melhor digestão, imunidade e redução de alergias.' },
+          { t: d?.para_mamae || 'Para a Mamãe:', c: d?.para_mamae_desc || 'Auxilia na perda de peso e na saúde uterina.' },
+          { t: d?.para_familia || 'Para a Família:', c: d?.para_familia_desc || 'Fortalece os vínculos e é prático no dia a dia.' },
         ].map((box, i) => (
           <div key={i} style={{ borderLeft: `2.5px solid ${mainColor}`, paddingLeft: '10px', background: `${mainColor}05`, padding: '6px 10px', borderRadius: '0 4px 4px 0' }}>
             <div style={{ fontWeight: 800, color: mainColor, marginBottom: '2px' }}>{box.t}</div>
@@ -11773,14 +11738,16 @@ export function FolderAmamentacaoPage5({ accentColor, borderColor, palette = [] 
 }
 
 export function FolderAmamentacaoPage6({ accentColor, borderColor, palette = [] }) {
+  const { dictionary } = useTranslation();
+  const d = dictionary?.guia_amamentacao_folder;
   const mainColor = borderColor || palette[0] || accentColor;
   return (
     <div style={{ width: '100%', padding: '10px 8px', boxSizing: 'border-box', background: '#fff', fontSize: '4.2px', display: 'flex', flexDirection: 'column' }}>
       <div style={{ background: mainColor, color: '#fff', padding: '4px 8px', fontWeight: 800, marginBottom: '10px', borderRadius: '1px', textAlign: 'center' }}>
-        A PEGA CORRETA
+        {d?.pega_correta || 'A PEGA CORRETA'}
       </div>
       <p style={{ lineHeight: 1.4, marginBottom: '12px', textAlign: 'center' }}>
-        Uma pega inadequada pode levar a mamilos doloridos e baixo ganho de peso do bebê.
+        {d?.pega_inadequada || 'Uma pega inadequada pode levar a mamilos doloridos e baixo ganho de peso do bebê.'}
       </p>
       
       <div style={{ position: 'relative', width: '68px', margin: '0 auto', border: '0.4px solid #eee', borderRadius: '5px', overflow: 'hidden' }}>
@@ -11789,12 +11756,12 @@ export function FolderAmamentacaoPage6({ accentColor, borderColor, palette = [] 
       
       <div style={{ marginTop: '15px', display: 'flex', gap: '8px', marginBottom: '10px' }}>
         <div style={{ flex: 1, background: `${mainColor}10`, padding: '8px 5px', borderRadius: '5px', border: `0.3px solid ${mainColor}20` }}>
-          <div style={{ fontWeight: 800, color: mainColor, marginBottom: '4px', textAlign: 'center', fontSize: '4.8px' }}>Certo:</div>
-          <div style={{ fontSize: '3.6px', lineHeight: 1.25 }}>Boca bem aberta, lábios para fora, queixo na mama.</div>
+          <div style={{ fontWeight: 800, color: mainColor, marginBottom: '4px', textAlign: 'center', fontSize: '4.8px' }}>{d?.certo || 'Certo:'}</div>
+          <div style={{ fontSize: '3.6px', lineHeight: 1.25 }}>{d?.certo_desc || 'Boca bem aberta, lábios para fora, queixo na mama.'}</div>
         </div>
         <div style={{ flex: 1, background: '#fff5f5', padding: '8px 5px', borderRadius: '5px', border: '0.3px solid #feb2b2' }}>
-          <div style={{ fontWeight: 800, color: '#c53030', marginBottom: '4px', textAlign: 'center', fontSize: '4.8px' }}>Errado:</div>
-          <div style={{ fontSize: '3.6px', lineHeight: 1.25 }}>Boca pouco aberta, bochechas encovadas, dor.</div>
+          <div style={{ fontWeight: 800, color: '#c53030', marginBottom: '4px', textAlign: 'center', fontSize: '4.8px' }}>{d?.errado || 'Errado:'}</div>
+          <div style={{ fontSize: '3.6px', lineHeight: 1.25 }}>{d?.errado_desc || 'Boca pouco aberta, bochechas encovadas, dor.'}</div>
         </div>
       </div>
     </div>
@@ -11802,18 +11769,20 @@ export function FolderAmamentacaoPage6({ accentColor, borderColor, palette = [] 
 }
 
 export function FolderAmamentacaoPage7({ accentColor, borderColor, palette = [] }) {
+  const { dictionary } = useTranslation();
+  const d = dictionary?.guia_amamentacao_folder;
   const mainColor = borderColor || palette[0] || accentColor;
   return (
     <div style={{ width: '100%', padding: '10px 8px', boxSizing: 'border-box', background: '#fff', fontSize: '4.2px', display: 'flex', flexDirection: 'column' }}>
       <div style={{ background: mainColor, color: '#fff', padding: '4px 8px', fontWeight: 800, marginBottom: '15px', borderRadius: '1px', textAlign: 'center' }}>
-        ORDENHA MANUAL
+        {d?.ordenha_manual || 'ORDENHA MANUAL'}
       </div>
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 60px', gap: '10px', alignItems: 'center', marginBottom: '20px' }}>
         <div style={{ fontSize: '4px', lineHeight: 1.45 }}>
-          <p><strong>1.</strong> Lave bem mãos e antebraços.</p>
-          <p><strong>2.</strong> Massageie a mama suavemente.</p>
-          <p><strong>3.</strong> Polegar acima da aréola, dedos abaixo.</p>
-          <p><strong>4.</strong> Pressione para trás e solte.</p>
+          <p><strong>1.</strong> {d?.ordenha_1 || 'Lave bem mãos e antebraços.'}</p>
+          <p><strong>2.</strong> {d?.ordenha_2 || 'Massageie a mama suavemente.'}</p>
+          <p><strong>3.</strong> {d?.ordenha_3 || 'Polegar acima da aréola, dedos abaixo.'}</p>
+          <p><strong>4.</strong> {d?.ordenha_4 || 'Pressione para trás e solte.'}</p>
         </div>
         <div style={{ width: '100%', border: '0.4px solid #eee', borderRadius: '5px', overflow: 'hidden' }}>
           <img src="/ordenha.png" style={{ width: '100%', display: 'block' }} />
@@ -11821,7 +11790,7 @@ export function FolderAmamentacaoPage7({ accentColor, borderColor, palette = [] 
       </div>
       <div style={{ marginTop: '20px', background: '#fdfdfd', padding: '10px', borderRadius: '5px', border: '0.2px dashed #ddd', textAlign: 'center' }}>
         <p style={{ fontSize: '3.8px', fontStyle: 'italic', margin: 0, color: '#666' }}>
-          Dica: Use sempre um frasco de vidro esterilizado com tampa plástica para armazenar.
+          {d?.dica_armazenar || 'Dica: Use sempre um frasco de vidro esterilizado com tampa plástica para armazenar.'}
         </p>
       </div>
     </div>
@@ -11829,37 +11798,39 @@ export function FolderAmamentacaoPage7({ accentColor, borderColor, palette = [] 
 }
 
 export function FolderAmamentacaoPage8({ accentColor, borderColor, palette = [] }) {
+  const { dictionary } = useTranslation();
+  const d = dictionary?.guia_amamentacao_folder;
   const mainColor = borderColor || palette[0] || accentColor;
   return (
     <div style={{ width: '100%', padding: '10px 8px', boxSizing: 'border-box', background: '#fff', fontSize: '4.2px' }}>
       <div style={{ background: mainColor, color: '#fff', padding: '4px 8px', fontWeight: 800, marginBottom: '10px', borderRadius: '1px', textAlign: 'center' }}>
-        ARMAZENAMENTO E USO
+        {d?.armazenamento_uso || 'ARMAZENAMENTO E USO'}
       </div>
       
       <div style={{ marginBottom: '6px' }}>
         <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '4px' }}>
           <thead>
             <tr style={{ borderBottom: `1px solid ${mainColor}40` }}>
-              <th style={{ textAlign: 'left', padding: '4px' }}>Local</th>
-              <th style={{ textAlign: 'right', padding: '4px' }}>Tempo</th>
+              <th style={{ textAlign: 'left', padding: '4px' }}>{d?.local || 'Local'}</th>
+              <th style={{ textAlign: 'right', padding: '4px' }}>{d?.tempo || 'Tempo'}</th>
             </tr>
           </thead>
           <tbody>
-            <tr style={{ borderBottom: '0.1px solid #eee' }}><td style={{ padding: '5px 4px' }}>Geladeira</td><td style={{ textAlign: 'right' }}>Até 12 horas</td></tr>
-            <tr style={{ borderBottom: '0.1px solid #eee' }}><td style={{ padding: '5px 4px' }}>Congelador</td><td style={{ textAlign: 'right' }}>Até 15 dias</td></tr>
+            <tr style={{ borderBottom: '0.1px solid #eee' }}><td style={{ padding: '5px 4px' }}>{d?.geladeira || 'Geladeira'}</td><td style={{ textAlign: 'right' }}>{d?.geladeira_tempo || 'Até 12 horas'}</td></tr>
+            <tr style={{ borderBottom: '0.1px solid #eee' }}><td style={{ padding: '5px 4px' }}>{d?.congelador || 'Congelador'}</td><td style={{ textAlign: 'right' }}>{d?.congelador_tempo || 'Até 15 dias'}</td></tr>
           </tbody>
         </table>
       </div>
       
       <div style={{ marginBottom: '10px', background: `${mainColor}05`, padding: '8px', borderRadius: '6px', border: `0.3px solid ${mainColor}15` }}>
-        <div style={{ fontWeight: 800, color: mainColor, marginBottom: '3px', fontSize: '4.6px' }}>Como Aquecer:</div>
-        <p style={{ lineHeight: 1.3, margin: '0 0 8px 0' }}>Banho-maria (fogo desligado). Nunca use o micro-ondas, para não perder as propriedades.</p>
+        <div style={{ fontWeight: 800, color: mainColor, marginBottom: '3px', fontSize: '4.6px' }}>{d?.como_aquecer || 'Como Aquecer:'}</div>
+        <p style={{ lineHeight: 1.3, margin: '0 0 8px 0' }}>{d?.aquecer_desc || 'Banho-maria (fogo desligado). Nunca use o micro-ondas, para não perder as propriedades.'}</p>
         
         <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '6px' }}>
           <div style={{ width: '35px', height: '35px', position: 'relative', borderRadius: '50%', overflow: 'hidden', border: `0.5px solid ${mainColor}20`, background: '#fff' }}>
             <img src="/banho_maria_circular_neutro_1777906864151.png" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
           </div>
-          <p style={{ fontSize: '3.4px', color: '#777', margin: 0, fontStyle: 'italic', fontWeight: 600, textAlign: 'center' }}>"O leite materno é o melhor alimento para o seu bebê."</p>
+          <p style={{ fontSize: '3.4px', color: '#777', margin: 0, fontStyle: 'italic', fontWeight: 600, textAlign: 'center' }}>{d?.frase_final || '"O leite materno é o melhor alimento para o seu bebê."'}</p>
         </div>
       </div>
     </div>
