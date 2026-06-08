@@ -3432,32 +3432,32 @@ function DiarioXixiPreview({ accentColor, patternSrc, editData, logoColor, logoL
             <div style={{ background: '#f5f5f5', padding: '4px 12px', borderRadius: '4px', border: '0.4px solid #ddd', alignSelf: 'flex-start', maxWidth: '270px' }}>
               <span style={{ fontSize: '10px', fontWeight: 800, color: '#333', letterSpacing: '0.5px', whiteSpace: 'nowrap' }}>{dictionary?.diario_xixi?.titulo || 'DIÁRIO DO XIXI (HÁBITO MICCIONAL)'}</span>
             </div>
-            <div style={{ fontSize: '7px', color: accentColor, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.5px' }}>Controle de Escapes e Enurese (Xixi na Cama)</div>
+            <div style={{ fontSize: '7px', color: accentColor, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.5px' }}>{dictionary?.diario_xixi?.subtitulo || 'Controle de Escapes e Enurese (Xixi na Cama)'}</div>
             <div style={{ display: 'flex', gap: '6px', alignItems: 'flex-end', marginTop: '2px' }}>
-              <span style={{ fontSize: '11px', fontFamily: "'Montserrat', sans-serif", color: accentColor, fontWeight: 300, fontStyle: 'italic' }}>Nome:</span>
+              <span style={{ fontSize: '11px', fontFamily: "'Montserrat', sans-serif", color: accentColor, fontWeight: 300, fontStyle: 'italic' }}>{dictionary?.diario_xixi?.nome || 'Nome:'}</span>
               <div style={{ flex: 1, borderBottom: '1px dashed #ccc', width: '230px', marginBottom: '2px' }} />
             </div>
           </div>
 
           <div style={{ display: 'flex', gap: '18px', alignItems: 'center', marginBottom: '10px' }}>
             <div style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
-              <span style={{ fontSize: '7.5px', textTransform: 'uppercase', color: '#666', fontWeight: 800, letterSpacing: '0.8px' }}>Legenda:</span>
+              <span style={{ fontSize: '7.5px', textTransform: 'uppercase', color: '#666', fontWeight: 800, letterSpacing: '0.8px' }}>{dictionary?.diario_xixi?.legenda || 'Legenda:'}</span>
               <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
-                <span style={{ fontSize: '7px', color: '#888' }}><strong>0:</strong> Acordou Seco(a)</span>
-                <span style={{ fontSize: '7px', color: '#888' }}><strong>1:</strong> Gotas/Umidade</span>
-                <span style={{ fontSize: '7px', color: '#888' }}><strong>2:</strong> Molhou a Roupa/Fralda</span>
-                <span style={{ fontSize: '7px', color: '#888' }}><strong>3:</strong> Abundante (Molhou Cama)</span>
+                <span style={{ fontSize: '7px', color: '#888' }}><strong>0:</strong> {dictionary?.diario_xixi?.seco || 'Acordou Seco(a)'}</span>
+                <span style={{ fontSize: '7px', color: '#888' }}><strong>1:</strong> {dictionary?.diario_xixi?.gotas || 'Gotas/Umidade'}</span>
+                <span style={{ fontSize: '7px', color: '#888' }}><strong>2:</strong> {dictionary?.diario_xixi?.molhou_roupa || 'Molhou a Roupa/Fralda'}</span>
+                <span style={{ fontSize: '7px', color: '#888' }}><strong>3:</strong> {dictionary?.diario_xixi?.abundante || 'Abundante (Molhou Cama)'}</span>
               </div>
             </div>
           </div>
 
           <div style={{ display: 'grid', gridTemplateColumns: '70px repeat(4, 1fr)', gap: '1px', background: '#eee', border: '1px solid #eee', flex: 1 }}>
             <div style={{ background: '#fff', display: 'flex', alignItems: 'center', padding: '0 10px' }}>
-              <span style={{ fontSize: '7px', fontWeight: 800, color: '#bbb', textTransform: 'uppercase' }}>Marque 0 a 3</span>
+              <span style={{ fontSize: '7px', fontWeight: 800, color: '#bbb', textTransform: 'uppercase' }}>{dictionary?.diario_xixi?.marque_0_3 || 'Marque 0 a 3'}</span>
             </div>
             {weeks.map(w => (
               <div key={w} style={{ background: '#fff', textAlign: 'center', padding: '5px 0' }}>
-                <div style={{ fontSize: '8.5px', fontWeight: 700, color: accentColor, textTransform: 'uppercase' }}>Semana {w}</div>
+                <div style={{ fontSize: '8.5px', fontWeight: 700, color: accentColor, textTransform: 'uppercase' }}>{dictionary?.diario_xixi?.semana || 'Semana'} {w}</div>
                 <div style={{ width: '24px', height: '1px', background: accentColor, margin: '2px auto' }} />
               </div>
             ))}
