@@ -10225,7 +10225,7 @@ function EntregaContent({ brand, plano, setBrand }) {
                       {['#000000', '#ffffff'].map(hex => <ColorDot key={hex} color={hex} selected={logoColor === hex} onClick={() => setLogoColor(hex)} outlined={hex === '#ffffff'} />)}
                       {paletteColors.length > 0
                         ? paletteColors.map((hex, i) => <ColorDot key={i} color={hex} selected={logoColor === hex} onClick={() => setLogoColor(hex)} />)
-                        : ['#8B7355', '#C4A882', '#6B8CAE', '#4A7B6F', '#7A6B8A', '#C47A5A'].map(hex => <ColorDot key={hex} color={hex} selected={logoColor === hex} onClick={() => setLogoColor(hex)} />)
+                        : ['#D4C5B0', '#D4A0B0', '#C4A882', '#6B8CAE', '#333333'].map(hex => <ColorDot key={hex} color={hex} selected={logoColor === hex} onClick={() => setLogoColor(hex)} />)
                       }
                     </div>
                   </div>
@@ -11148,16 +11148,16 @@ function SucessoContent() {
         if (avulsoParam === 'grafico') itemName = 'Gráfico de Crescimento';
         // Podem ser adicionados outros mapeamentos no futuro
 
-        const AVULSO_VERSION = 3;
+        const AVULSO_VERSION = 4;
         // Paleta padrão BrandBox para clientes avulso
-        const AVULSO_PALETTE = ['#8B7355', '#C4A882', '#D4C5B0', '#6B8CAE', '#333333'];
+        const AVULSO_PALETTE = ['#D4C5B0', '#D4A0B0', '#C4A882', '#6B8CAE', '#333333'];
         const defaultAvulsoBrand = {
           _v: AVULSO_VERSION,
           plano: 'avulso',
           papelariaSelecionada: [itemName],
           formData: { nome: '', especialidade: '', cr: '', atuacao: 'Pediatria / Saúde infantil' },
           editData: { marca: '', fontStyle: 'serif', colors: AVULSO_PALETTE },
-          activeColor: '#8B7355',
+          activeColor: '#D4C5B0',
           currentPaletteColors: AVULSO_PALETTE,
         };
 
