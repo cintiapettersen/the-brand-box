@@ -3231,16 +3231,16 @@ function CertificadoCoragemPreview({ accentColor, patternSrc, editData, logoColo
             <LogoPreviewHTML item="Certificado de Coragem" editData={editData} color={logoColor} layout={logoLayout} scaleFactor={editData?.customLogoSrc ? 1.6 : 0.65} withBackground={false} maxWidth="100%" maxHeight="100%" />
           </div>
 
-          <div style={{ fontFamily: "'Montserrat', sans-serif", fontSize: '0.5rem', fontWeight: 600, color: '#7a7a7a', letterSpacing: '1px', marginBottom: '0px' }}>{dictionary?.certificado_coragem?.pediatrico_de || 'Certificado Pediátrico de'}</div>
+          <div style={{ fontFamily: "'Montserrat', sans-serif", fontSize: '0.5rem', fontWeight: 600, color: '#7a7a7a', letterSpacing: '1px', marginBottom: '0px' }}>{dictionary?.certificado?.pediatrico_de || 'Certificado Pediátrico de'}</div>
           <h2 style={{
             fontFamily: "'Playfair Display', serif",
             fontSize: '1.8rem', fontWeight: 700, color: solidColor, margin: '0 0 8px', letterSpacing: '1px'
-          }}>{dictionary?.certificado_coragem?.coragem || 'Coragem'}</h2>
+          }}>{dictionary?.certificado?.coragem || 'Coragem'}</h2>
 
           <div style={{ fontFamily: "'Montserrat', sans-serif", fontSize: '0.52rem', fontWeight: 400, color: '#5a5a5a', textAlign: 'center', lineHeight: 1.6, marginTop: '4px', width: '90%' }}>
-            <div style={{ margin: 0 }}>{dictionary?.certificado_coragem?.certifico_que || 'Certifico para os devidos e lúdicos fins, que'} __________________</div>
-            <div style={{ margin: 0 }}> {dictionary?.certificado_coragem?.idade || 'idade'} _____ {dictionary?.certificado_coragem?.comportou_se || 'comportou-se corretamente na consulta de hoje,'} </div>
-            <div style={{ margin: 0 }}> {dictionary?.certificado_coragem?.sendo_educado || 'sendo educado e demonstrando muita coragem e valentia.'}</div>
+            <div style={{ margin: 0 }}>{dictionary?.certificado?.certifico_que || 'Certifico para os devidos e lúdicos fins, que'} __________________</div>
+            <div style={{ margin: 0 }}> {dictionary?.certificado?.idade || 'idade'} _____ {dictionary?.certificado?.comportou_se || 'comportou-se corretamente na consulta de hoje,'} </div>
+            <div style={{ margin: 0 }}> {dictionary?.certificado?.sendo_educado || 'sendo educado e demonstrando muita coragem e valentia.'}</div>
           </div>
         </div>
       </div>
@@ -8590,13 +8590,13 @@ body { width:${W + BLEED*2}mm; height:${H + BLEED*2}mm; position:relative; overf
             ${logoHtmlCe}
         </div>
 
-        <div style="font-family:'Montserrat',sans-serif;font-size:10pt;font-weight:600;color:#7a7a7a;letter-spacing:0.8pt;margin-bottom:0;">${dictionary?.certificado_coragem?.pediatrico_de || 'Certificado Pediátrico de'}</div>
-        <h2 style="font-family:'Playfair Display',serif;font-size:48pt;font-weight:700;color:${solidColor};margin:0 0 16mm;letter-spacing:1pt;">${dictionary?.certificado_coragem?.coragem || 'Coragem'}</h2>
+        <div style="font-family:'Montserrat',sans-serif;font-size:10pt;font-weight:600;color:#7a7a7a;letter-spacing:0.8pt;margin-bottom:0;">${dictionary?.certificado?.pediatrico_de || 'Certificado Pediátrico de'}</div>
+        <h2 style="font-family:'Playfair Display',serif;font-size:48pt;font-weight:700;color:${solidColor};margin:0 0 16mm;letter-spacing:1pt;">${dictionary?.certificado?.coragem || 'Coragem'}</h2>
 
         <div style="font-family:'Montserrat',sans-serif;font-size:14pt;font-weight:400;color:#5a5a5a;text-align:center;line-height:2.0;width:90%;margin-top:0;">
-            <div style="margin:0;">${dictionary?.certificado_coragem?.certifico_que || 'Certifico para os devidos e lúdicos fins, que'} __________________</div>
-            <div style="margin:0;"> {dictionary?.certificado_coragem?.idade || 'idade'} _____ {dictionary?.certificado_coragem?.comportou_se || 'comportou-se corretamente na consulta de hoje,'} </div>
-            <div style="margin:0;"> {dictionary?.certificado_coragem?.sendo_educado || 'sendo educado e demonstrando muita coragem e valentia.'}</div>
+            <div style="margin:0;">${dictionary?.certificado?.certifico_que || 'Certifico para os devidos e lúdicos fins, que'} __________________</div>
+            <div style="margin:0;"> {dictionary?.certificado?.idade || 'idade'} _____ {dictionary?.certificado?.comportou_se || 'comportou-se corretamente na consulta de hoje,'} </div>
+            <div style="margin:0;"> {dictionary?.certificado?.sendo_educado || 'sendo educado e demonstrando muita coragem e valentia.'}</div>
         </div>
     </div>
     
