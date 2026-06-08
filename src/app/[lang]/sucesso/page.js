@@ -2993,13 +2993,13 @@ function CartaoRetornoPreview({ accentColor, patternSrc, cartaoContacts, crmLine
               </div>
               {crmLine && <div style={{ fontFamily: "'Montserrat',sans-serif", fontSize: '3.3px', color: '#999', letterSpacing: '0.8px', textTransform: 'uppercase', textAlign: 'center', marginBottom: '10px', marginTop: '-6px', whiteSpace: 'nowrap' }}>{crmLine}</div>}
               
-              <div style={{ background: accentColor, color: '#fff', width: '100%', padding: '4px 0', fontSize: '6.5px', fontWeight: 800, textAlign: 'center', letterSpacing: '1px', borderRadius: '2px', marginBottom: '8px', fontFamily: 'Montserrat, sans-serif' }}>{dictionary?.retorno_consultas?.titulo || 'RETORNO DE CONSULTAS'}</div>
+              <div style={{ background: accentColor, color: '#fff', width: '100%', padding: '4px 0', fontSize: '6.5px', fontWeight: 800, textAlign: 'center', letterSpacing: '1px', borderRadius: '2px', marginBottom: '8px', fontFamily: 'Montserrat, sans-serif' }}>{dictionary?.geral?.retorno_consultas?.titulo || 'RETORNO DE CONSULTAS'}</div>
 
               {/* Tabela Pequena */}
               <div style={{ width: '100%', border: '1px solid #efefef', borderRadius: '4px', overflow: 'hidden' }}>
                 <div style={{ display: 'flex', background: `${accentColor}15`, borderBottom: '1px solid #efefef' }}>
-                  <div style={{ flex: 1, fontSize: '5px', fontWeight: 800, textAlign: 'center', padding: '3px 0', borderRight: '1px solid #efefef', color: accentColor, fontFamily: 'Montserrat, sans-serif' }}>{dictionary?.retorno_consultas?.data || 'Data'}</div>
-                  <div style={{ flex: 1, fontSize: '5px', fontWeight: 800, textAlign: 'center', padding: '3px 0', color: accentColor, fontFamily: 'Montserrat, sans-serif' }}>{dictionary?.retorno_consultas?.horario || 'Horário'}</div>
+                  <div style={{ flex: 1, fontSize: '5px', fontWeight: 800, textAlign: 'center', padding: '3px 0', borderRight: '1px solid #efefef', color: accentColor, fontFamily: 'Montserrat, sans-serif' }}>{dictionary?.geral?.retorno_consultas?.data || 'Data'}</div>
+                  <div style={{ flex: 1, fontSize: '5px', fontWeight: 800, textAlign: 'center', padding: '3px 0', color: accentColor, fontFamily: 'Montserrat, sans-serif' }}>{dictionary?.geral?.retorno_consultas?.horario || 'Horário'}</div>
                 </div>
                 {rows(8, '22px')}
               </div>
@@ -3019,8 +3019,8 @@ function CartaoRetornoPreview({ accentColor, patternSrc, cartaoContacts, crmLine
               {/* Tabela Grande */}
               <div style={{ width: '100%', border: '1px solid #efefef', borderRadius: '4px', overflow: 'hidden', marginBottom: '8px' }}>
                 <div style={{ display: 'flex', background: `${accentColor}15`, borderBottom: '1px solid #efefef' }}>
-                  <div style={{ flex: 1, fontSize: '5px', fontWeight: 800, textAlign: 'center', padding: '3px 0', borderRight: '1px solid #efefef', color: accentColor, fontFamily: 'Montserrat, sans-serif' }}>{dictionary?.retorno_consultas?.data || 'Data'}</div>
-                  <div style={{ flex: 1, fontSize: '5px', fontWeight: 800, textAlign: 'center', padding: '3px 0', color: accentColor, fontFamily: 'Montserrat, sans-serif' }}>{dictionary?.retorno_consultas?.horario || 'Horário'}</div>
+                  <div style={{ flex: 1, fontSize: '5px', fontWeight: 800, textAlign: 'center', padding: '3px 0', borderRight: '1px solid #efefef', color: accentColor, fontFamily: 'Montserrat, sans-serif' }}>{dictionary?.geral?.retorno_consultas?.data || 'Data'}</div>
+                  <div style={{ flex: 1, fontSize: '5px', fontWeight: 800, textAlign: 'center', padding: '3px 0', color: accentColor, fontFamily: 'Montserrat, sans-serif' }}>{dictionary?.geral?.retorno_consultas?.horario || 'Horário'}</div>
                 </div>
                 {rows(12, '18px')}
               </div>
@@ -6376,8 +6376,8 @@ body { width: 485.775mm; height: 385.233mm; position: relative; overflow: hidden
       const genTable = (count, rowH = '6mm') => `
         <div style="width:100%;border:0.3pt solid #eee;border-radius:1mm;overflow:hidden;margin-bottom:2mm;">
           <div style="display:flex;background:${accentColor}20;border-bottom:0.3pt solid #eee;font-family:'Montserrat',sans-serif;">
-            <div style="flex:1;font-size:6pt;font-weight:800;text-align:center;padding:1mm 0;border-right:0.3pt solid #eee;color:${accentColor};text-transform:uppercase;letter-spacing:0.5pt;">${dictionary?.retorno_consultas?.data || 'Data'}</div>
-            <div style="flex:1;font-size:6pt;font-weight:800;text-align:center;padding:1mm 0;color:${accentColor};text-transform:uppercase;letter-spacing:0.5pt;">${dictionary?.retorno_consultas?.horario || 'Horário'}</div>
+            <div style="flex:1;font-size:6pt;font-weight:800;text-align:center;padding:1mm 0;border-right:0.3pt solid #eee;color:${accentColor};text-transform:uppercase;letter-spacing:0.5pt;">${dictionary?.geral?.retorno_consultas?.data || 'Data'}</div>
+            <div style="flex:1;font-size:6pt;font-weight:800;text-align:center;padding:1mm 0;color:${accentColor};text-transform:uppercase;letter-spacing:0.5pt;">${dictionary?.geral?.retorno_consultas?.horario || 'Horário'}</div>
           </div>
           ${Array.from({ length: count }).map(() => `<div style="display:flex;border-bottom:0.3pt solid #eee;height:${rowH};"><div style="flex:1;border-right:0.3pt solid #eee;"></div><div style="flex:1;"></div></div>`).join('')}
         </div>`;
@@ -6389,7 +6389,7 @@ body { width: 485.775mm; height: 385.233mm; position: relative; overflow: hidden
           ${genBg(4)}
           <div style="position:absolute;top:${BLEED + 4}mm;left:${BLEED + 4}mm;right:${BLEED + 4}mm;bottom:${BLEED + 4}mm;display:flex;flex-direction:column;align-items:center;padding:4mm 3mm;">
             <div style="margin-bottom:4mm;display:flex;flex-direction:column;align-items:center;width:100%">${logoHtmlR}</div>
-            <div style="background:${accentColor};color:#fff;width:100%;padding:1mm 0;font-size:6.5pt;font-weight:800;text-align:center;letter-spacing:1pt;border-radius:0.5mm;margin-bottom:4mm;font-family:'Montserrat',sans-serif;">${dictionary?.retorno_consultas?.titulo || 'RETORNO DE CONSULTAS'}</div>
+            <div style="background:${accentColor};color:#fff;width:100%;padding:1mm 0;font-size:6.5pt;font-weight:800;text-align:center;letter-spacing:1pt;border-radius:0.5mm;margin-bottom:4mm;font-family:'Montserrat',sans-serif;">${dictionary?.geral?.retorno_consultas?.titulo || 'RETORNO DE CONSULTAS'}</div>
             ${genTable(8, '5.5mm')}
           </div>
           <div class="cm cm-tl"></div><div class="cm cm-tr"></div><div class="cm cm-bl"></div><div class="cm cm-br"></div>
