@@ -141,17 +141,17 @@ export default function BrandBoxNav({ step, setStep, plano, papelariaItens = [],
 
   const marcaItems = [
     { id: 'placa', label: dictionary?.nav?.placa || 'Placa' },
-    { id: 'manifesto', label: dictionary?.nav?.manifesto || 'Manifesto' },
-    { id: 'tomdevoz', label: dictionary?.nav?.tomdevoz || 'Tom de Voz' },
+    { id: 'manifesto', label: dictionary?.nav?.manifesto || 'Manifesto', notAvulso: true },
+    { id: 'tomdevoz', label: dictionary?.nav?.tomdevoz || 'Tom de Voz', notAvulso: true },
     { id: 'fonte', label: dictionary?.nav?.fonte || 'Fonte' },
     { id: 'logo', label: dictionary?.nav?.logo || 'Logo' },
     { id: 'slogan', label: dictionary?.nav?.slogan || 'Tagline' },
     { id: 'submarca', label: dictionary?.nav?.submarca || 'Selo', planOnly: 'pro' },
     { id: 'cores', label: dictionary?.nav?.cores || 'Cores' },
-    { id: 'paleta', label: dictionary?.nav?.paleta || 'Paleta' },
-    { id: 'estampa', label: dictionary?.nav?.estampa || 'Estampa' },
-    { id: 'guia', label: dictionary?.nav?.guia || 'Guia' },
-  ].filter(i => !i.planOnly || plano === i.planOnly);
+    { id: 'paleta', label: dictionary?.nav?.paleta || 'Paleta', notAvulso: true },
+    { id: 'estampa', label: dictionary?.nav?.estampa || 'Estampa', notAvulso: true },
+    { id: 'guia', label: dictionary?.nav?.guia || 'Guia', notAvulso: true },
+  ].filter(i => (!i.planOnly || plano === i.planOnly) && (!i.notAvulso || plano !== 'avulso'));
 
   const digitalItems = [
     { id: 'cartao', label: dictionary?.nav?.cartao || 'Cartão Digital' },

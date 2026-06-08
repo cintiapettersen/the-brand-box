@@ -9111,6 +9111,13 @@ function EntregaContent({ brand, plano, setBrand }) {
       return;
     }
 
+    // Avulso: cliente está configurando sua própria marca, sem restrição de trocas
+    if (plano === 'avulso') {
+      setMarcaState(cleaned);
+      setTempMarca(cleaned);
+      return;
+    }
+
     const originalName = (brand.formData?.marca || brand.name || brand.editData?.marca || '').trim();
     if (!originalName) {
       setMarcaState(cleaned);
@@ -10201,7 +10208,10 @@ function EntregaContent({ brand, plano, setBrand }) {
                     <span style={{ fontSize: '0.72rem', fontWeight: 800, fontFamily: 'Montserrat, sans-serif', color: '#555', display: 'block', marginBottom: '8px' }}>{dictionary?.logo_tab?.logo_color || '🎨 Cor da Logo'}</span>
                     <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap' }}>
                       {['#000000', '#ffffff'].map(hex => <ColorDot key={hex} color={hex} selected={logoColor === hex} onClick={() => setLogoColor(hex)} outlined={hex === '#ffffff'} />)}
-                      {paletteColors.map((hex, i) => <ColorDot key={i} color={hex} selected={logoColor === hex} onClick={() => setLogoColor(hex)} />)}
+                      {paletteColors.length > 0
+                        ? paletteColors.map((hex, i) => <ColorDot key={i} color={hex} selected={logoColor === hex} onClick={() => setLogoColor(hex)} />)
+                        : ['#8B7355', '#C4A882', '#6B8CAE', '#4A7B6F', '#7A6B8A', '#C47A5A'].map(hex => <ColorDot key={hex} color={hex} selected={logoColor === hex} onClick={() => setLogoColor(hex)} />)
+                      }
                     </div>
                   </div>
                 </div>
@@ -11127,7 +11137,8 @@ function SucessoContent() {
           plano: 'avulso',
           papelariaSelecionada: [itemName],
           formData: { nome: '', especialidade: '', cr: '', atuacao: 'Pediatria / Saúde infantil' },
-          editData: { marca: 'SUA MARCA', fontStyle: 'serif', colors: ['#4A90E2', '#50E3C2', '#B8E986', '#F5A623', '#D0021B'] }
+          editData: { marca: '', fontStyle: 'serif', colors: ['#8B7355', '#C4A882', '#D4C5B0', '#6B8CAE', '#4A7B6F'] },
+          activeColor: '#8B7355',
         };
 
         const savedAvulso = localStorage.getItem('brandbox_avulso_' + avulsoParam);
