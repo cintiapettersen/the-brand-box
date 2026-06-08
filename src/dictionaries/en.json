@@ -708,6 +708,11 @@
     "perimetro_cefalico": "Head Circumference",
     "peso_por_idade": "Weight for Age",
     "altura_por_idade": "Height for Age",
+    "nasc": "Birth",
+    "ano": "year",
+    "anos": "years",
+    "peso_por_idade": "Weight for Age",
+    "altura_por_idade": "Height for Age",
     "yearLabels": [
       "Birth",
       "1 year",

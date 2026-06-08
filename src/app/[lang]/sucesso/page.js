@@ -5813,7 +5813,7 @@ function PapelariaStep({ brand, accentColor, paletteColors, estampaPatterns, est
         const toX = m => PAD.left + (m / xMax) * CW;
         const toY = v => PAD.top + CH - ((v - yMin) / (yMax - yMin)) * CH;
         const years = [0, 12, 24, 36, 48, 60];
-        const yearLabels = ['Nasc.', '1 ano', '2 anos', '3 anos', '4 anos', '5 anos'];
+        const yearLabels = dictionary?.graficos_crescimento?.yearLabels || ['Nasc.', '1 ano', '2 anos', '3 anos', '4 anos', '5 anos'];
         const minorX = Array.from({ length: 31 }, (_, i) => i * 2);
         const yTicks = [];
         for (let v = yMin; v <= yMax; v += yStep) yTicks.push(v);
@@ -5860,15 +5860,15 @@ function PapelariaStep({ brand, accentColor, paletteColors, estampaPatterns, est
       const renderPage = (gender, face) => {
         const d = WHO[gender];
         const gColor = gender === 'menina' ? '#c8699a' : '#4a8bb5';
-        const gLabel = gender === 'menina' ? 'MENINA' : 'MENINO';
-        const faceLabel = face === 'frente' ? 'IMC · Perímetro Cefálico' : 'Peso · Altura';
+        const gLabel = gender === 'menina' ? (dictionary?.graficos_crescimento?.menina?.toUpperCase() || 'MENINA') : (dictionary?.graficos_crescimento?.menino?.toUpperCase() || 'MENINO');
+        const faceLabel = face === 'frente' ? `${dictionary?.graficos_crescimento?.imc || 'IMC'} · ${dictionary?.graficos_crescimento?.perimetro_cefalico || 'Perímetro Cefálico'}` : `${dictionary?.graficos_crescimento?.peso || 'Peso'} · ${dictionary?.graficos_crescimento?.altura || 'Altura'}`;
         const fieldLine = (lbl, w='40mm') => `<div style="display:flex;align-items:flex-end;gap:2mm;"><span style="font-size:7pt;font-weight:700;color:rgba(255,255,255,0.75);font-family:'Montserrat',sans-serif;text-transform:uppercase;letter-spacing:0.3pt;white-space:nowrap;">${lbl}:</span><div style="border-bottom:0.3mm solid rgba(255,255,255,0.5);width:${w};height:4.5mm;"></div></div>`;
         const chart1 = face === 'frente'
-          ? renderChartSVG(d.imc, MONTHS, 10, 22, 1, 'IMC', 'IMC por Idade', gColor)
-          : renderChartSVG(d.peso, MONTHS, 0, 30, 2, 'Peso (kg)', 'Peso por Idade', gColor);
+          ? renderChartSVG(d.imc, MONTHS, 10, 22, 1, dictionary?.graficos_crescimento?.imc_label || 'IMC', dictionary?.graficos_crescimento?.imc_por_idade || 'IMC por Idade', gColor)
+          : renderChartSVG(d.peso, MONTHS, 0, 30, 2, dictionary?.graficos_crescimento?.peso_label || 'Peso (kg)', dictionary?.graficos_crescimento?.peso_por_idade || 'Peso por Idade', gColor);
         const chart2 = face === 'frente'
-          ? renderChartSVG(d.pc, PC_MONTHS, 30, 58, 2, 'PC (cm)', 'Perímetro Cefálico', gColor)
-          : renderChartSVG(d.altura, MONTHS, 40, 130, 5, 'Altura (cm)', 'Altura por Idade', gColor);
+          ? renderChartSVG(d.pc, PC_MONTHS, 30, 58, 2, dictionary?.graficos_crescimento?.pc_label || 'PC (cm)', dictionary?.graficos_crescimento?.perimetro_cefalico || 'Perímetro Cefálico', gColor)
+          : renderChartSVG(d.altura, MONTHS, 40, 130, 5, dictionary?.graficos_crescimento?.altura_label || 'Altura (cm)', dictionary?.graficos_crescimento?.altura_por_idade || 'Altura por Idade', gColor);
 
         const borderBg = comBorda && patternSrc
           ? `background-image:url(${patternSrc});background-size:${(patternScale*0.83).toFixed(1)}mm;background-repeat:repeat;`
@@ -5895,9 +5895,9 @@ function PapelariaStep({ brand, accentColor, paletteColors, estampaPatterns, est
           <div style="background:${gColor};padding:5mm 7mm 4mm;display:flex;flex-direction:column;">
             <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:4mm;">
               <div>
-                <div style="font-size:8pt;font-weight:600;color:rgba(255,255,255,0.8);font-family:'Montserrat',sans-serif;text-transform:uppercase;letter-spacing:0.5pt;margin-bottom:1.5mm;">Gráfico de Crescimento — ${faceLabel}</div>
+                <div style="font-size:8pt;font-weight:600;color:rgba(255,255,255,0.8);font-family:'Montserrat',sans-serif;text-transform:uppercase;letter-spacing:0.5pt;margin-bottom:1.5mm;">${dictionary?.graficos_crescimento?.titulo || 'Gráfico de Crescimento'} — ${faceLabel}</div>
                 <div style="font-size:26pt;font-weight:900;color:#fff;font-family:'Montserrat',sans-serif;letter-spacing:2pt;line-height:1;">${gLabel}</div>
-                <div style="font-size:6pt;color:rgba(255,255,255,0.6);font-family:'Montserrat',sans-serif;margin-top:1.5mm;">Fonte: OMS — WHO Child Growth Standards 2006 · SBP</div>
+                <div style="font-size:6pt;color:rgba(255,255,255,0.6);font-family:'Montserrat',sans-serif;margin-top:1.5mm;">${dictionary?.graficos_crescimento?.fonte || 'Fonte: OMS — WHO Child Growth Standards 2006 · SBP'}</div>
               </div>
               <div style="text-align:right;">
                 <div style="font-size:11pt;font-weight:900;color:#fff;font-family:'Montserrat',sans-serif;line-height:1.2;">${clinicaNome || marca}</div>
@@ -5907,18 +5907,18 @@ function PapelariaStep({ brand, accentColor, paletteColors, estampaPatterns, est
             </div>
             <!-- Linha de dobra + campos -->
             <div style="border-top:0.4mm dashed rgba(255,255,255,0.4);padding-top:4mm;">
-              <div style="font-size:7pt;font-weight:700;color:rgba(255,255,255,0.65);font-family:'Montserrat',sans-serif;text-transform:uppercase;letter-spacing:0.5pt;margin-bottom:3mm;">✎ Dados da consulta</div>
+              <div style="font-size:7pt;font-weight:700;color:rgba(255,255,255,0.65);font-family:'Montserrat',sans-serif;text-transform:uppercase;letter-spacing:0.5pt;margin-bottom:3mm;">${dictionary?.graficos_crescimento?.dados_consulta || '✎ Dados da consulta'}</div>
               <div style="display:flex;gap:6mm;flex-wrap:wrap;margin-bottom:3mm;">
-                ${fieldLine('Paciente', '60mm')}
-                ${fieldLine('Idade', '22mm')}
-                ${fieldLine('Data', '30mm')}
+                ${fieldLine(dictionary?.graficos_crescimento?.paciente || 'Paciente', '60mm')}
+                ${fieldLine(dictionary?.graficos_crescimento?.idade || 'Idade', '22mm')}
+                ${fieldLine(dictionary?.graficos_crescimento?.data || 'Data', '30mm')}
               </div>
               <div style="display:flex;gap:6mm;flex-wrap:wrap;">
-                ${fieldLine('Peso', '20mm')}
-                ${fieldLine('Altura', '20mm')}
-                ${fieldLine('PC', '20mm')}
-                ${fieldLine('IMC', '20mm')}
-                ${fieldLine('Percentil', '28mm')}
+                ${fieldLine(dictionary?.graficos_crescimento?.peso || 'Peso', '20mm')}
+                ${fieldLine(dictionary?.graficos_crescimento?.altura || 'Altura', '20mm')}
+                ${fieldLine(dictionary?.graficos_crescimento?.pc || 'PC', '20mm')}
+                ${fieldLine(dictionary?.graficos_crescimento?.imc || 'IMC', '20mm')}
+                ${fieldLine(dictionary?.graficos_crescimento?.percentil || 'Percentil', '28mm')}
               </div>
             </div>
           </div>

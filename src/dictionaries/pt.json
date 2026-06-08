@@ -708,6 +708,11 @@
     "perimetro_cefalico": "Perímetro Cefálico",
     "peso_por_idade": "Peso por Idade",
     "altura_por_idade": "Altura por Idade",
+    "nasc": "Nasc.",
+    "ano": "ano",
+    "anos": "anos",
+    "peso_por_idade": "Peso por Idade",
+    "altura_por_idade": "Altura por Idade",
     "yearLabels": [
       "Nasc.",
       "1 ano",
