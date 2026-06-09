@@ -9483,7 +9483,7 @@ function EntregaContent({ brand, plano, setBrand }) {
   // editData enriquecido com logo customizada — flui automaticamente para LogoPreviewHTML via editData
   const editDataWithLogo = React.useMemo(() => ({
     ...brand.editData,
-    marca: brand.editData?.marca || '',
+    marca: marca || brand.editData?.marca || '',  // usa state `marca` que atualiza ao digitar
     tagline: sloganEnabled ? tagline : '',
     ...(fontOverride ? { fontFamily: fontOverride.fontFamily, fontWeight: fontOverride.weight || 700, fontStyle: fontOverride.style || 'serif', fontSizeBoost: fontOverride.sizeBoost || 1, fontLetterSpacing: fontOverride.letterSpacing || null } : {}),
     ...(customLogoSrc ? { customLogoSrc, customLogoScale } : {}),
@@ -9492,7 +9492,7 @@ function EntregaContent({ brand, plano, setBrand }) {
     fontLineHeight,
     taglineSizeBoost,
     taglineLetterSpacing,
-  }), [brand.editData, tagline, customLogoSrc, customLogoScale, fontOverride, taglineGap, taglineWrap, fontLineHeight, taglineSizeBoost, taglineLetterSpacing]);
+  }), [marca, brand.editData, tagline, customLogoSrc, customLogoScale, fontOverride, taglineGap, taglineWrap, fontLineHeight, taglineSizeBoost, taglineLetterSpacing]);
   
   const currentIdx = estampaSelectedIdx || 0;
   const patternSrc = estampaPatterns?.[currentIdx]
@@ -10127,7 +10127,7 @@ function EntregaContent({ brand, plano, setBrand }) {
               </div>
 
               {/* {tLogo.layout || '📐 Disposição / Layout'} & Altura das Linhas */}
-              {!customLogoSrc && (
+              {!customLogoSrc && plano !== 'avulso' && (
                 <div style={{ padding: '12px 14px', background: '#fcfcfc', borderRadius: '14px', border: '1.5px solid #eaeaea', display: 'flex', flexDirection: 'column', gap: '10px' }}>
                   {marca.split(' ').length > 1 && (
                     <div>
@@ -10158,19 +10158,37 @@ function EntregaContent({ brand, plano, setBrand }) {
               {/* Nome da Marca */}
               {!customLogoSrc && (
                 <div style={{ padding: '12px 14px', background: '#fcfcfc', borderRadius: '14px', border: '1.5px solid #eaeaea' }}>
-                  <button onClick={() => setShowEdit(v => !v)} style={{ background: 'none', border: 'none', padding: 0, width: '100%', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                    <span style={{ fontSize: '0.72rem', fontWeight: 800, fontFamily: 'Montserrat, sans-serif', color: '#555', display: 'flex', alignItems: 'center', gap: '6px' }}>{tLogo.brand_name || '✏️ Nome da Marca'}</span>
-                    <span style={{ fontSize: '0.8rem', color: '#888' }}>{showEdit ? '▲' : '▼'}</span>
-                  </button>
-                  {showEdit && (
-                    <input
-                      value={tempMarca}
-                      onChange={e => setTempMarca(e.target.value)}
-                      onBlur={() => commitMarcaChange(tempMarca)}
-                      onKeyDown={e => { if (e.key === 'Enter') commitMarcaChange(tempMarca); }}
-                      placeholder="Nome da marca"
-                      style={{ width: '100%', padding: '10px 14px', borderRadius: '10px', border: '1px solid #e0e0e0', fontSize: '0.9rem', fontFamily: 'Montserrat, sans-serif', boxSizing: 'border-box', marginTop: '8px' }}
-                    />
+                  {plano === 'avulso' ? (
+                    /* Avulso: campo aberto direto, sem toggle */
+                    <>
+                      <span style={{ fontSize: '0.72rem', fontWeight: 800, fontFamily: 'Montserrat, sans-serif', color: '#555', display: 'block', marginBottom: '8px' }}>{tLogo.brand_name || '✏️ Nome da Marca'}</span>
+                      <input
+                        value={tempMarca}
+                        onChange={e => setTempMarca(e.target.value)}
+                        onBlur={() => commitMarcaChange(tempMarca)}
+                        onKeyDown={e => { if (e.key === 'Enter') { commitMarcaChange(tempMarca); e.target.blur(); } }}
+                        placeholder="Digite o nome da sua marca"
+                        style={{ width: '100%', padding: '10px 14px', borderRadius: '10px', border: '1px solid #e0e0e0', fontSize: '0.9rem', fontFamily: 'Montserrat, sans-serif', boxSizing: 'border-box' }}
+                      />
+                    </>
+                  ) : (
+                    /* Outros planos: toggle */
+                    <>
+                      <button onClick={() => setShowEdit(v => !v)} style={{ background: 'none', border: 'none', padding: 0, width: '100%', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                        <span style={{ fontSize: '0.72rem', fontWeight: 800, fontFamily: 'Montserrat, sans-serif', color: '#555', display: 'flex', alignItems: 'center', gap: '6px' }}>{tLogo.brand_name || '✏️ Nome da Marca'}</span>
+                        <span style={{ fontSize: '0.8rem', color: '#888' }}>{showEdit ? '▲' : '▼'}</span>
+                      </button>
+                      {showEdit && (
+                        <input
+                          value={tempMarca}
+                          onChange={e => setTempMarca(e.target.value)}
+                          onBlur={() => commitMarcaChange(tempMarca)}
+                          onKeyDown={e => { if (e.key === 'Enter') commitMarcaChange(tempMarca); }}
+                          placeholder="Nome da marca"
+                          style={{ width: '100%', padding: '10px 14px', borderRadius: '10px', border: '1px solid #e0e0e0', fontSize: '0.9rem', fontFamily: 'Montserrat, sans-serif', boxSizing: 'border-box', marginTop: '8px' }}
+                        />
+                      )}
+                    </>
                   )}
                 </div>
               )}
@@ -10179,7 +10197,7 @@ function EntregaContent({ brand, plano, setBrand }) {
               <div style={{ padding: '12px 14px', background: '#fcfcfc', borderRadius: '14px', border: '1.5px solid #eaeaea' }}>
                 <span style={{ fontSize: '0.72rem', fontWeight: 800, fontFamily: 'Montserrat, sans-serif', color: '#555', display: 'block', marginBottom: '8px' }}>{dictionary?.logo_tab?.origin || '📂 Origem da Logo'}</span>
                 <div style={{ display: 'flex', gap: '6px' }}>
-                  <button onClick={() => { setCustomLogoSrc(null); setCustomLogoWarn(null); }} style={{ flex: 1, padding: '8px 6px', border: `1.5px solid ${!customLogoSrc ? accentColor : '#e0e0e0'}`, borderRadius: '10px', cursor: 'pointer', fontSize: '0.72rem', fontWeight: 700, fontFamily: 'Montserrat,sans-serif', background: !customLogoSrc ? `${accentColor}12` : '#fff', color: !customLogoSrc ? accentColor : '#aaa' }}>{dictionary?.logo_tab?.suggested_logo || '✨ Logo sugerida'}</button>
+                  {plano !== 'avulso' && <button onClick={() => { setCustomLogoSrc(null); setCustomLogoWarn(null); }} style={{ flex: 1, padding: '8px 6px', border: `1.5px solid ${!customLogoSrc ? accentColor : '#e0e0e0'}`, borderRadius: '10px', cursor: 'pointer', fontSize: '0.72rem', fontWeight: 700, fontFamily: 'Montserrat,sans-serif', background: !customLogoSrc ? `${accentColor}12` : '#fff', color: !customLogoSrc ? accentColor : '#aaa' }}>{dictionary?.logo_tab?.suggested_logo || '✨ Logo sugerida'}</button>}
                   <label style={{ flex: 1, padding: '8px 6px', border: `1.5px solid ${customLogoSrc ? accentColor : '#e0e0e0'}`, borderRadius: '10px', cursor: 'pointer', fontSize: '0.72rem', fontWeight: 700, fontFamily: 'Montserrat,sans-serif', background: customLogoSrc ? `${accentColor}12` : '#fff', color: customLogoSrc ? accentColor : '#aaa', textAlign: 'center', display: 'block' }}>
                     {customLogoSrc ? '✓ Minha logo' : (dictionary?.logo_tab?.upload_logo || '📤 Enviar minha logo')}
                     <input type="file" accept="image/png" style={{ display: 'none' }} onClick={e => { e.target.value = null; }} onChange={e => {
