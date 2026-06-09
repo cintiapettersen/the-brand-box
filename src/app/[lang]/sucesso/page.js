@@ -9094,6 +9094,8 @@ function EntregaContent({ brand, plano, setBrand }) {
   const tLogo = dictionary?.logo_tab || {};
   const [step, setStepState] = useState('placa');
   const setStep = (s) => { setStepState(s); try { localStorage.setItem(`brandbox_step_${brand.id}`, s); } catch {} };
+  // Avulso começa nos impressos, não no brand board
+  React.useEffect(() => { if (brand.plano === 'avulso') setStepState('papelaria'); }, []);
 
   const [bgColor, setBgColor] = useState('#ffffff');
   const [submarcaBg, setSubmarcaBg] = useState(null); // null = usa accentColor como padrão
@@ -11223,7 +11225,6 @@ function SucessoContent() {
            localStorage.setItem('brandbox_delivery', JSON.stringify(defaultAvulsoBrand));
         }
         setPlano('avulso');
-        setStep('papelaria'); // avulso começa nos impressos, não no brand board
         setLoading(false);
         return;
       }
