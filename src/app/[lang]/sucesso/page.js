@@ -11198,10 +11198,13 @@ function SucessoContent() {
   const [showAvulsoWelcome, setShowAvulsoWelcome] = useState(() => {
     try {
       const _ap = typeof window !== 'undefined' ? new URLSearchParams(window.location.search).get('avulso') : null;
-      if (!_ap) return false;
+      if (!_ap || _ap === 'inicio') return false;
       return localStorage.getItem('brandbox_avulso_welcome_' + _ap) !== 'seen';
     } catch { return false; }
   });
+  const [avulsoEmail, setAvulsoEmail] = useState('');
+  const [avulsoEmailSending, setAvulsoEmailSending] = useState(false);
+  const [avulsoEmailSent, setAvulsoEmailSent] = useState(false);
   const [welcomeSeen, setWelcomeSeen] = useState(() => {
     try {
       return typeof window !== 'undefined' && localStorage.getItem('brandbox_welcome_seen') === 'true';
@@ -11489,15 +11492,54 @@ function SucessoContent() {
               </div>
             ))}
           </div>
+          {/* Campo de email */}
+          <div style={{ width: '100%', display: 'flex', flexDirection: 'column', gap: '8px' }}>
+            <p style={{ margin: 0, fontSize: '0.78rem', fontWeight: 700, color: '#444' }}>
+              📧 Para onde enviamos seu link de acesso?
+            </p>
+            <p style={{ margin: 0, fontSize: '0.72rem', color: '#999', lineHeight: 1.5 }}>
+              Guarde o link para acessar seus arquivos quando quiser.
+            </p>
+            <input
+              type="email"
+              placeholder="seu@email.com"
+              value={avulsoEmail}
+              onChange={e => setAvulsoEmail(e.target.value)}
+              style={{ width: '100%', padding: '12px 16px', borderRadius: '12px', border: '1.5px solid #e0dbd5', fontSize: '0.9rem', fontFamily: 'Montserrat, sans-serif', outline: 'none', boxSizing: 'border-box', color: '#333' }}
+            />
+            {avulsoEmailSent && (
+              <p style={{ margin: 0, fontSize: '0.72rem', color: '#1a7a6e', fontWeight: 700 }}>✓ E-mail enviado! Confira sua caixa de entrada.</p>
+            )}
+          </div>
+
           <button
-            onClick={() => {
+            disabled={avulsoEmailSending}
+            onClick={async () => {
+              // Dispara email em background se tiver email
+              if (avulsoEmail && avulsoEmail.includes('@') && !avulsoEmailSent) {
+                setAvulsoEmailSending(true);
+                const origin = window.location.origin;
+                const link = `${origin}/pt-BR/sucesso?avulso=${avulsoParam}`;
+                try {
+                  await fetch('/api/send-email', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email: avulsoEmail, marca: brand?.editData?.marca || '', sessionId: null, plano: 'avulso', avulsoLink: link }),
+                  });
+                  setAvulsoEmailSent(true);
+                } catch {}
+                setAvulsoEmailSending(false);
+              }
               try { localStorage.setItem('brandbox_avulso_welcome_' + avulsoParam, 'seen'); } catch {}
               setShowAvulsoWelcome(false);
             }}
-            style={{ background: `linear-gradient(135deg, ${accentAvulso}, ${accentAvulso}cc)`, color: '#fff', border: 'none', borderRadius: '50px', padding: '1rem 2.5rem', fontSize: '1rem', fontWeight: 700, cursor: 'pointer', boxShadow: `0 10px 30px ${accentAvulso}55`, width: '100%' }}
+            style={{ background: `linear-gradient(135deg, ${accentAvulso}, ${accentAvulso}cc)`, color: '#fff', border: 'none', borderRadius: '50px', padding: '1rem 2.5rem', fontSize: '1rem', fontWeight: 700, cursor: avulsoEmailSending ? 'wait' : 'pointer', boxShadow: `0 10px 30px ${accentAvulso}55`, width: '100%', opacity: avulsoEmailSending ? 0.7 : 1 }}
           >
-            Começar →
+            {avulsoEmailSending ? 'Enviando...' : 'Começar →'}
           </button>
+          <p style={{ margin: 0, fontSize: '0.68rem', color: '#bbb' }}>
+            Prefere pular? O link fica na aba Ajuda ✨
+          </p>
         </div>
       </div>
     );

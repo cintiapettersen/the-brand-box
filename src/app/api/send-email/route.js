@@ -2,10 +2,10 @@ import nodemailer from 'nodemailer'; // deployment verified clean
 
 export async function POST(request) {
   try {
-    const { email, marca, sessionId, plano } = await request.json();
+    const { email, marca, sessionId, plano, avulsoLink } = await request.json();
 
-    if (!email || !sessionId) {
-      return Response.json({ error: 'email e sessionId são obrigatórios.' }, { status: 400 });
+    if (!email || (!sessionId && !avulsoLink)) {
+      return Response.json({ error: 'email e sessionId (ou avulsoLink) são obrigatórios.' }, { status: 400 });
     }
 
     const smtpEmail = process.env.SMTP_EMAIL;
@@ -17,9 +17,10 @@ export async function POST(request) {
     }
 
     const origin = process.env.NEXT_PUBLIC_APP_URL || 'https://thebrandbox.sonhodepapel.com';
-    const link = `${origin}/sucesso?session=${sessionId}`;
+    const link = avulsoLink || `${origin}/sucesso?session=${sessionId}`;
     const marcaDisplay = marca || 'sua marca';
     const isComplete = plano === 'complete' || plano === 'pro';
+    const isAvulso = plano === 'avulso';
 
     const htmlBody = `
 <!DOCTYPE html>
@@ -40,7 +41,7 @@ export async function POST(request) {
             <td style="background:#4EB0B5;padding:40px;border-radius:16px 16px 0 0;text-align:center;">
               <p style="color:rgba(255,255,255,0.8);font-size:11px;letter-spacing:4px;text-transform:uppercase;margin:0 0 12px;font-weight:700;">The Brand Box</p>
               <h1 style="color:#ffffff;font-size:28px;font-weight:700;margin:0;line-height:1.2;">
-                🎉 Sua identidade visual já começou a ganhar vida!
+                ${isAvulso ? '🎨 Seu link de acesso aos impressos!' : '🎉 Sua identidade visual já começou a ganhar vida!'}
               </h1>
             </td>
           </tr>
@@ -128,9 +129,11 @@ export async function POST(request) {
     await transporter.sendMail({
       from: `"The Brand Box" <${smtpEmail}>`,
       to: email,
-      subject: isComplete
-        ? `Sua marca ${marcaDisplay} está sendo preparada!`
-        : `Acesso aos arquivos da marca ${marcaDisplay}`,
+      subject: isAvulso
+        ? `Seu link de acesso — The Brand Box`
+        : isComplete
+          ? `Sua marca ${marcaDisplay} está sendo preparada!`
+          : `Acesso aos arquivos da marca ${marcaDisplay}`,
       html: htmlBody,
     });
 
