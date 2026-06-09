@@ -98,11 +98,17 @@ export default function CartaoAgradecimentoPreview({
                   <div style={{ width: W * 0.12, height: 1, background: `${c0}45` }} />
                 </>
               )}
-              <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: size.scale * 0.18 }}>
-                {cartaoContacts?.telefone && <div style={{ fontSize: size.scale * 0.44, color: '#999', fontFamily: 'Montserrat,sans-serif', fontWeight: 300 }}>{cartaoContacts.telefone}</div>}
-                {cartaoContacts?.instagram && <div style={{ fontSize: size.scale * 0.44, color: c0, fontFamily: 'Montserrat,sans-serif', fontWeight: 400 }}>@{cartaoContacts.instagram.replace('@','')}</div>}
-                {cartaoContacts?.site && <div style={{ fontSize: size.scale * 0.4, color: '#bbb', fontFamily: 'Montserrat,sans-serif', fontWeight: 300 }}>{cartaoContacts.site}</div>}
-              </div>
+              {(() => {
+                const { whatsapp, telefone, telefone2, email, instagram, site, endereco } = cartaoContacts || {};
+                const phones = [whatsapp, telefone, telefone2].filter(Boolean).join('  ·  ');
+                const line2 = [instagram ? `@${instagram.replace('@', '')}` : '', email, site, endereco].filter(Boolean).join('  ·  ');
+                return (
+                  <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: size.scale * 0.18 }}>
+                    {phones && <div style={{ fontSize: size.scale * 0.44, color: '#999', fontFamily: 'Montserrat,sans-serif', fontWeight: 300, textAlign: 'center' }}>{phones}</div>}
+                    {line2 && <div style={{ fontSize: size.scale * 0.4, color: '#bbb', fontFamily: 'Montserrat,sans-serif', fontWeight: 300, textAlign: 'center' }}>{line2}</div>}
+                  </div>
+                );
+              })()}
             </div>
           </>
         )}

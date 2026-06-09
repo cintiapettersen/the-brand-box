@@ -145,7 +145,7 @@ export default function BrandBoxNav({ step, setStep, plano, papelariaItens = [],
     { id: 'placa', label: dictionary?.nav?.placa || 'Placa', lockedOnAvulso: true },
     { id: 'manifesto', label: dictionary?.nav?.manifesto || 'Manifesto', lockedOnAvulso: true },
     { id: 'tomdevoz', label: dictionary?.nav?.tomdevoz || 'Tom de Voz', lockedOnAvulso: true },
-    { id: 'fonte', label: dictionary?.nav?.fonte || 'Fonte' },
+    { id: 'fonte', label: dictionary?.nav?.fonte || 'Fonte', lockedOnAvulso: true },
     { id: 'logo', label: dictionary?.nav?.logo || 'Logo' },
     { id: 'slogan', label: dictionary?.nav?.slogan || 'Tagline' },
     { id: 'submarca', label: dictionary?.nav?.submarca || 'Selo', planOnly: 'pro' },
@@ -180,22 +180,24 @@ export default function BrandBoxNav({ step, setStep, plano, papelariaItens = [],
           { id: 'ajuda', label: dictionary?.nav?.ajuda || 'Ajuda ✨', color: BB_AJUDA, radius: '0 12px 0 0', action: () => { if (!isAjuda) setStep('ajuda'); } },
         ].map(tab => {
           const active = activeCat === tab.id;
+          const locked = tab.lockedOnAvulso && plano === 'avulso';
           return (
             <button
               key={tab.id}
-              onClick={tab.action}
+              onClick={locked ? undefined : tab.action}
               style={{
-                flex: 1, padding: active ? '13px 4px' : '11px 4px', border: 'none', cursor: 'pointer',
+                flex: 1, padding: active ? '13px 4px' : '11px 4px', border: 'none',
+                cursor: locked ? 'default' : 'pointer',
                 fontSize: active ? '0.76rem' : '0.7rem', fontWeight: 800, textTransform: 'uppercase',
                 letterSpacing: '0.8px', fontFamily: 'Montserrat,sans-serif',
-                background: active ? tab.color : '#ece9e4',
-                color: active ? '#fff' : '#555',
+                background: active ? tab.color : locked ? '#f0ede8' : '#ece9e4',
+                color: active ? '#fff' : locked ? '#ccc' : '#555',
                 borderRadius: tab.radius,
                 boxShadow: active ? `0 3px 12px ${tab.color}55` : 'none',
                 transition: 'all 0.2s',
               }}
             >
-              {tab.label}
+              {locked ? `🔒 ${tab.label}` : tab.label}
             </button>
           );
         })}

@@ -17,16 +17,57 @@ const PLANOS = {
 
 export async function POST(request) {
   try {
-    const { plano, marca, email, extrasCount = 0, sessionId, itensSelecionados } = await request.json();
+    const { plano, marca, email, extrasCount = 0, sessionId, avulsoParam, itensSelecionados } = await request.json();
     const stripe = new Stripe((process.env.STRIPE_SECRET_KEY ? process.env.STRIPE_SECRET_KEY.replace(/['"]/g, '') : undefined) || 'dummy_key_for_build');
 
     const origin = request.headers.get('origin') || 'http://localhost:3000';
 
     // Fluxo de itens avulsos (upsell da página de sucesso)
     if (plano === 'avulso' && itensSelecionados?.length > 0) {
-      const successUrl = sessionId
-        ? `${origin}/sucesso?session=${sessionId}&plano=pro&upsell=1`
-        : `${origin}/sucesso?plano=pro&upsell=1`;
+      const ITEM_AVULSO_PARAM = {
+        'Gráfico de Crescimento': 'grafico',
+        'Cartão de Visita': 'cartao-visita',
+        'Cartão de Retorno': 'cartao-retorno',
+        'Cartão de Agradecimento (10x15cm)': 'agradecimento',
+        'Papel Timbrado': 'papel-timbrado',
+        'Papel de Presente': 'papel-presente',
+        'Tag para Sacola': 'tag-sacola',
+        'Etiqueta para Correios': 'etiqueta',
+        'Envelope Ofício (23x11,5cm)': 'envelope-oficio',
+        'Envelope Saco (24x34cm)': 'envelope-saco',
+        'Recibo': 'recibo',
+        'Pasta A4': 'pasta',
+        'Caneca': 'caneca',
+        'Caderno (Capa e Contra-capa)': 'caderno',
+        'Receituário Padrão (A4 e A5)': 'receituario',
+        'Atestado Médico (A4 e A5)': 'atestado',
+        'Receituário de Controle Especial': 'controle-especial',
+        'Prontuário Médico': 'prontuario',
+        'Receita de Alta': 'receita-alta',
+        'Ficha de Cadastro': 'ficha',
+        'Guia Alimentar': 'guia-alimentar',
+        'Guia de Cuidados': 'guia-cuidados',
+        'Guia de Desenvolvimento': 'guia-desenvolvimento',
+        'Guia de Vacina c/ Calendário': 'guia-vacina',
+        'Cartão de Exame Pré-Natal': 'prenatal',
+        'Checklist Maternidade': 'checklist',
+        'Guia do Sono': 'guia-sono',
+        'Orientações p/ Recém Nascidos': 'orientacoes-rn',
+        'Certificado de Coragem': 'certificado',
+        'Diário do Xixi': 'diario-xixi',
+        'Meu Pratinho': 'pratinho',
+        'Guia de Amamentação': 'amamentacao',
+      };
+      // Compra de item único (avulso puro): redireciona para ?avulso=[param] para desbloquear só esse item
+      // Compra de múltiplos (upsell de sessão existente): redireciona de volta para a sessão como pro
+      const itemParam = !sessionId && itensSelecionados.length === 1
+        ? (ITEM_AVULSO_PARAM[itensSelecionados[0]] || encodeURIComponent(itensSelecionados[0]))
+        : null;
+      const successUrl = itemParam
+        ? `${origin}/sucesso?avulso=${itemParam}`
+        : sessionId
+          ? `${origin}/sucesso?session=${sessionId}&plano=pro&upsell=1`
+          : `${origin}/sucesso?plano=pro&upsell=1`;
 
       const line_items = [];
       const temCaderneta = itensSelecionados.includes("Caderneta de Saúde");
@@ -67,7 +108,9 @@ export async function POST(request) {
         customer_email: email || undefined,
         metadata: { plano: 'avulso', marca: (marca || '').slice(0, 100), sessionId: sessionId || '', qtd_itens: String(itensSelecionados.length), tem_caderneta: String(temCaderneta) },
         success_url: successUrl,
-        cancel_url: `${origin}/sucesso?session=${sessionId || ''}&cancelado=1`,
+        cancel_url: avulsoParam
+          ? `${origin}/sucesso?avulso=${avulsoParam}&cancelado=1`
+          : `${origin}/sucesso?session=${sessionId || ''}&cancelado=1`,
       });
       return Response.json({ url: session.url });
     }

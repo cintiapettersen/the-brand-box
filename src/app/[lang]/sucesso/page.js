@@ -218,8 +218,7 @@ export function LogoPreviewHTML({ item = null, editData, color, layout = 'stacke
       const sx = tMaxW / natW;
       const sy = tMaxH / natH;
       const fillScale = Math.min(sx, sy);
-      // Para texto: slider (customLogoScale) não escala o autoFit — só imagens usam o slider
-      const scale = customLogoSrc ? fillScale * (customLogoScale / 100) : fillScale;
+      const scale = fillScale * (customLogoScale / 100);
       _setFitState(prev => {
         const nw = natW * scale;
         const nh = natH * scale;
@@ -1475,7 +1474,25 @@ function EstampaStep({ brand, accentColor, marca, patterns, setPatterns, genCoun
   );
 }
 
-function AjudaStep({ brand, accentColor }) {
+function AvulsoUpgradeCard({ accentColor, titulo, desc }) {
+  return (
+    <div style={{ background: '#fff', border: `1.5px solid ${accentColor}33`, borderRadius: '16px', padding: '28px 24px', textAlign: 'center', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '14px', margin: '8px 0' }}>
+      <div style={{ fontSize: '2rem' }}>🔒</div>
+      <h3 style={{ margin: 0, fontSize: '1rem', fontWeight: 800, color: '#1a1a1a', fontFamily: 'Montserrat,sans-serif' }}>{titulo}</h3>
+      <p style={{ margin: 0, fontSize: '0.82rem', color: '#777', lineHeight: 1.7, maxWidth: '320px', fontFamily: 'Montserrat,sans-serif' }}>{desc}</p>
+      <a
+        href="https://thebrandbox.sonhodepapel.com/"
+        target="_blank"
+        rel="noopener noreferrer"
+        style={{ display: 'inline-block', background: `linear-gradient(135deg, #C03B66, #a12d52)`, color: '#fff', borderRadius: '50px', padding: '12px 28px', fontSize: '0.85rem', fontWeight: 700, fontFamily: 'Montserrat,sans-serif', textDecoration: 'none', boxShadow: '0 6px 20px rgba(192,59,102,0.3)' }}
+      >
+        Conhecer o Plano Completo →
+      </a>
+    </div>
+  );
+}
+
+function AjudaStep({ brand, accentColor, onResendEmail, resendingEmail, resendStatus }) {
   const { dictionary } = useTranslation();
   const t = dictionary?.help || {};
 
@@ -1690,6 +1707,19 @@ function AjudaStep({ brand, accentColor }) {
           {t.concierge_btn || 'Solicitar ajuda personalizada →'}
         </a>
       </div>
+
+      {onResendEmail && (
+        <div style={{ marginTop: '24px', textAlign: 'center' }}>
+          <p style={{ fontSize: '0.72rem', color: '#aaa', marginBottom: '8px' }}>Precisa acessar seus arquivos novamente?</p>
+          <button
+            onClick={onResendEmail}
+            disabled={resendingEmail}
+            style={{ padding: '8px 20px', background: resendStatus?.includes('✓') ? '#e8f7f5' : '#fff', color: resendStatus?.includes('✓') ? '#1a7a6e' : '#888', border: '1px solid #e0e0e0', borderRadius: '20px', fontSize: '0.72rem', fontWeight: 700, cursor: resendingEmail ? 'wait' : 'pointer', transition: 'all 0.2s' }}
+          >
+            {resendingEmail ? 'Enviando...' : resendStatus || '📧 Reenviar e-mail com o link'}
+          </button>
+        </div>
+      )}
 
     </div>
   );
@@ -3275,8 +3305,8 @@ function CertificadoCoragemPreview({ accentColor, patternSrc, editData, logoColo
 function A5ItemPreview({ item, accentColor, patternSrc, editData, logoColor, logoLayout, cartaoContacts, crmLine, clinicaNome, comBorda, setComBorda, paletteColors, borderColor, setBorderColor, patternScale, setPatternScale, hideTagline, folderRoof, setFolderRoof, paperSize, setPaperSize }) {
   const { dictionary } = useTranslation();
   const BORDER = 14;
-  const { whatsapp, telefone, instagram, site, endereco } = cartaoContacts || {};
-  const mainPhone = whatsapp || telefone || '';
+  const { whatsapp, telefone, telefone2, email, instagram, site, endereco } = cartaoContacts || {};
+  const phones = [whatsapp, telefone, telefone2].filter(Boolean).join('  ·  ');
   const effectiveSrc = comBorda ? patternSrc : null;
   const solidColor = borderColor || accentColor;
   const hasCustomLogo = !!editData?.customLogoSrc;
@@ -3311,19 +3341,19 @@ function A5ItemPreview({ item, accentColor, patternSrc, editData, logoColor, log
       {/* Área branca com recorte casinha (funciona em ambos os modos) */}
       <div style={{ position: 'absolute', top: BORDER, left: BORDER, right: BORDER, bottom: BORDER, background: '#fff', clipPath: roofClip }} />
       {/* Logo no topo */}
-      <div style={{ position: 'absolute', top: BORDER + 18, left: '50%', transform: 'translateX(-50%)', width: '180px', height: '60px', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
-        <LogoPreviewHTML item={item} editData={editData} color={logoColor} layout={logoLayout} scaleFactor={0.65} crm={crmLine} hideTagline={hideTagline} withBackground={false} maxWidth="180px" maxHeight="60px" />
+      <div style={{ position: 'absolute', top: BORDER + 18, left: '50%', transform: 'translateX(-50%)', width: '140px', height: '44px', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
+        <LogoPreviewHTML item={item} editData={editData} color={logoColor} layout={logoLayout} scaleFactor={0.65} crm={crmLine} hideTagline={hideTagline} withBackground={false} maxWidth="140px" maxHeight="44px" />
       </div>
-      {/* Rodapé — linha 1: clínica · telefone  /  linha 2: @ig · site · endereço */}
+      {/* Rodapé — linha 1: clínica · telefones  /  linha 2: @ig · email · site · endereço */}
       <div style={{ position: 'absolute', bottom: BORDER + 3, left: BORDER + 4, right: BORDER + 4, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '2px' }}>
-        {(clinicaNome || mainPhone) && (
+        {(clinicaNome || phones) && (
           <div style={{ fontFamily: "'Montserrat',sans-serif", fontSize: '4.5px', color: '#555', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', maxWidth: '100%', textAlign: 'center' }}>
-            {[clinicaNome, mainPhone].filter(Boolean).join('  ·  ')}
+            {[clinicaNome, phones].filter(Boolean).join('  ·  ')}
           </div>
         )}
-        {(instagram || site || endereco) && (
+        {(instagram || email || site || endereco) && (
           <div style={{ fontFamily: "'Montserrat',sans-serif", fontSize: '4.5px', color: '#888', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', maxWidth: '100%', textAlign: 'center' }}>
-            {[instagram ? `@${instagram}` : '', site, endereco].filter(Boolean).join('  ·  ')}
+            {[instagram ? `@${instagram}` : '', email, site, endereco].filter(Boolean).join('  ·  ')}
           </div>
         )}
       </div>
@@ -4575,10 +4605,9 @@ function FolderA5Preview({ brand, editData, logoColor, logoLayout, comBorda, set
 function AtestadoPreview({ accentColor, patternSrc, editData, logoColor, logoLayout, crmLine, clinicaNome, marca, cartaoContacts, comBorda, setComBorda, paletteColors, borderColor, setBorderColor, patternScale, setPatternScale, hideTagline, folderRoof, setFolderRoof, paperSize, setPaperSize }) {
   const { dictionary } = useTranslation();
   const BORDER = 14;
-  const { whatsapp, telefone, instagram, site, endereco } = cartaoContacts || {};
-  const mainPhone = whatsapp || telefone || '';
-  const footerLine1 = [clinicaNome, mainPhone].filter(Boolean).join('  ·  ');
-  const footerLine2 = [instagram ? `@${instagram}` : '', site, endereco].filter(Boolean).join('  ·  ');
+  const { whatsapp, telefone, telefone2, email, instagram, site, endereco } = cartaoContacts || {};
+  const footerLine1 = [clinicaNome, whatsapp, telefone, telefone2].filter(Boolean).join('  ·  ');
+  const footerLine2 = [instagram ? `@${instagram}` : '', email, site, endereco].filter(Boolean).join('  ·  ');
   const B = ({ w }) => (
     <span style={{ display: 'inline-block', borderBottom: '0.6px solid #555', width: w, verticalAlign: 'bottom' }}>&nbsp;</span>
   );
@@ -5095,7 +5124,7 @@ function EnvelopeOficioPreview({ brand, editData, accentColor, patternSrc, logoC
   );
 }
 
-function CadernoPreview({ editData, accentColor, solidColor, logoColor, logoLayout, comBorda, setComBorda, patternSrc, paletteColors, borderColor, setBorderColor, patternScale, setPatternScale, hideTagline, paperSize, setPaperSize }) {
+function CadernoPreview({ editData, accentColor, solidColor, logoColor, logoLayout, comBorda, setComBorda, patternSrc, paletteColors, borderColor, setBorderColor, patternScale, setPatternScale, hideTagline, paperSize, setPaperSize, cartaoContacts, clinicaNome }) {
   const { dictionary } = useTranslation();
   const scaleCaderno = useScaleToFit(480, 310 + 36);
 
@@ -5143,8 +5172,21 @@ function CadernoPreview({ editData, accentColor, solidColor, logoColor, logoLayo
               ))}
             </div>
 
-            {/* VERSO (Direita) - Sem logo, apenas mantém o fundo visível */}
-            <div style={{ position: 'absolute', top: 0, left: '240px', width: '240px', height: '310px' }} />
+            {/* VERSO (Direita) - Dados de contato */}
+            <div style={{ position: 'absolute', top: 0, left: '240px', width: '240px', height: '310px', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'flex-end', paddingBottom: '18px', gap: '3px' }}>
+              {(() => {
+                const { whatsapp, telefone, telefone2, email, instagram, site, endereco } = cartaoContacts || {};
+                const phones = [whatsapp, telefone, telefone2].filter(Boolean).join('  ·  ');
+                const line2 = [instagram ? `@${instagram}` : '', email, site, endereco].filter(Boolean).join('  ·  ');
+                const textStyle = { fontFamily: "'Montserrat',sans-serif", fontSize: '5px', color: logoColor || '#fff', textAlign: 'center', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', maxWidth: '200px', opacity: 0.85 };
+                return (
+                  <>
+                    {(clinicaNome || phones) && <div style={textStyle}>{[clinicaNome, phones].filter(Boolean).join('  ·  ')}</div>}
+                    {line2 && <div style={{ ...textStyle, opacity: 0.65 }}>{line2}</div>}
+                  </>
+                );
+              })()}
+            </div>
             
           </div>
         </div>
@@ -5301,13 +5343,13 @@ const getPreviewTargetWidth = (item) => {
   return 595; // Default para folders A4, receituários, diários, Meu Pratinho, etc.
 };
 
-function PapelariaStep({ brand, accentColor, paletteColors, estampaPatterns, estampaSelectedIdx, cartaoContacts, setCartaoContacts, plano, isSaude, crmData, setCrmData, marca, editData, logoColor, logoLayout, setLayout, clinicaNome, setClinicaNome, onNavSync, navIdx, setNavIdx, customLogoSrc, getCustomLogoScale, setCustomLogoScale, getCustomLogoScaleMax, customLogoScaleMap, submarcaColor, submarcaTextColor, iconPath }) {
+function PapelariaStep({ brand, accentColor, paletteColors, estampaPatterns, estampaSelectedIdx, cartaoContacts, setCartaoContacts, plano, isSaude, crmData, setCrmData, marca, editData, logoColor, logoLayout, setLayout, clinicaNome, setClinicaNome, onNavSync, navIdx, setNavIdx, customLogoSrc, getCustomLogoScale, setCustomLogoScale, getCustomLogoScaleMax, customLogoScaleMap, submarcaColor, submarcaTextColor, iconPath, avulsoParam }) {
   const { dictionary, lang } = useTranslation();
   // Digitais: sempre inclusos no plano PRO
   const ITENS_DIGITAIS = []; // Pack Instagram e Assinatura ficam na aba Digital, não na Papelaria
   // Papelaria disponível para não-médicos
   const PAPELARIA_GERAL = [
-    "Cartão de Visita", "Papel Timbrado", "Papel de Presente", "Tag para Sacola",
+    "Cartão de Visita", "Papel Timbrado", "Tag para Sacola",
     "Etiqueta para Correios", "Envelope Ofício (23x11,5cm)", "Envelope Saco (24x34cm)", "Recibo",
     "Pasta A4", "Caneca", "Cartão de Retorno", "Cartão de Agradecimento (10x15cm)", "Caderno (Capa e Contra-capa)"
   ];
@@ -5323,7 +5365,7 @@ function PapelariaStep({ brand, accentColor, paletteColors, estampaPatterns, est
     "Guia de Vacina c/ Calendário", "Cartão de Exame Pré-Natal",
     "Gráfico de Crescimento", "Checklist Maternidade", "Guia do Sono",
     "Orientações p/ Recém Nascidos", "Certificado de Coragem",
-    "Diário do Xixi", "Meu Pratinho", "Guia de Amamentação", "Caderneta de Saúde",
+    "Diário do Xixi", "Meu Pratinho", "Guia de Amamentação",
   ];
   // Monta lista final: papelaria selecionada no checkout + digitais automáticos
   const papelariaSelecionada = brand?.papelariaSelecionada || [];
@@ -5346,7 +5388,7 @@ function PapelariaStep({ brand, accentColor, paletteColors, estampaPatterns, est
   };
   const papelariaNorm = papelariaSelecionada.map(n => LEGACY_NAMES[n] || n);
   // Para médicos: PAPELARIA_GERAL sempre inclusa + itens comprados. Para não-médicos: só o que comprou.
-  const _autoInclusos = isSaude ? PAPELARIA_GERAL : [];
+  const _autoInclusos = (isSaude && plano !== 'avulso') ? PAPELARIA_GERAL : [];
   const ownedItems = papelariaNorm.length > 0
     ? TODOS_DISPONIVEIS.filter(i => papelariaNorm.includes(i) || _autoInclusos.includes(i))
     : _autoInclusos.length > 0 ? TODOS_DISPONIVEIS.filter(i => _autoInclusos.includes(i)) : [];
@@ -5475,7 +5517,8 @@ function PapelariaStep({ brand, accentColor, paletteColors, estampaPatterns, est
   const handleAvulsoCheckout = async (itemName) => {
       setUpsellLoading(true);
       try {
-        const delivery = JSON.parse(localStorage.getItem('brandbox_delivery') || '{}');
+        let delivery = {};
+        try { delivery = JSON.parse(localStorage.getItem('brandbox_delivery') || '{}'); } catch {}
         const res = await fetch('/api/checkout', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
@@ -5484,18 +5527,20 @@ function PapelariaStep({ brand, accentColor, paletteColors, estampaPatterns, est
             marca: delivery.formData?.marca || delivery.editData?.marca || brand?.editData?.marca || '',
             email: delivery.formData?.email || brand?.formData?.email || '',
             sessionId: '',
+            avulsoParam,
             itensSelecionados: [itemName],
           }),
         });
-        const data = await res.json();
+        let data;
+        try { data = await res.json(); } catch { data = {}; }
         if (data.url) {
           window.location.href = data.url;
         } else {
-          alert('Erro ao iniciar pagamento. Tente novamente.');
+          alert('Erro ao iniciar pagamento: ' + (data.error || `status ${res.status}`));
         }
       } catch (e) {
-        console.error(e);
-        alert('Erro de conexão. Tente novamente.');
+        console.error('handleAvulsoCheckout error:', e);
+        alert('Erro de conexão: ' + (e?.message || e));
       } finally {
         setUpsellLoading(false);
       }
@@ -5532,6 +5577,7 @@ function PapelariaStep({ brand, accentColor, paletteColors, estampaPatterns, est
             marca: delivery.formData?.marca || delivery.editData?.marca || brand?.editData?.marca || '',
             email: delivery.formData?.email || brand?.formData?.email || '',
             sessionId,
+            avulsoParam,
             itensSelecionados: itensParaCobrar,
           }),
         });
@@ -5557,7 +5603,9 @@ function PapelariaStep({ brand, accentColor, paletteColors, estampaPatterns, est
   // Inclui customLogoScale só se o usuário mudou o valor (diferente do default)
   const _rawScale = customLogoScaleMap?.[currentItem]; // undefined se nunca tocou
   const itemEditData = (_rawScale !== undefined && getCustomLogoScale)
-    ? { ...editData, customLogoScale: getCustomLogoScale(currentItem) * (ITEM_CUSTOM_BASE_SCALES[currentItem] || 1) }
+    ? { ...editData, customLogoScale: customLogoSrc
+        ? getCustomLogoScale(currentItem) * (ITEM_CUSTOM_BASE_SCALES[currentItem] || 1)
+        : getCustomLogoScale(currentItem) }
     : editData;
   const patternSrc = estampaPatterns?.[currentIdx]
     ? (estampaPatterns[currentIdx].url || `data:${estampaPatterns[currentIdx].mimeType};base64,${estampaPatterns[currentIdx].base64}`)
@@ -8717,17 +8765,19 @@ ${fontImports2}
         })()}
       </div>
 
-      {/* Escala da logo — acima do preview para ajuste em tempo real */}
-      <div style={{ display: 'flex', alignItems: 'center', gap: '10px', padding: '4px 0' }}>
-        <span style={{ fontSize: '0.68rem', color: '#999', fontWeight: 600, fontFamily: 'Montserrat,sans-serif', whiteSpace: 'nowrap' }}>{dictionary?.ui?.escala_logo || 'Escala da logo'}</span>
-        <input type="range" min="10"
-          max={currentItem.includes('Cartão de Visita') && cartaoRetrato ? 105 : getCustomLogoScaleMax(currentItem)}
-          step="5"
-          value={Math.min(getCustomLogoScale(currentItem), currentItem.includes('Cartão de Visita') && cartaoRetrato ? 105 : getCustomLogoScaleMax(currentItem))}
-          onChange={e => setCustomLogoScale(currentItem, parseInt(e.target.value))}
-          style={{ flex: 1, accentColor }} />
-        <span style={{ fontSize: '0.68rem', color: '#aaa', width: '32px' }}>{getCustomLogoScale(currentItem)}%</span>
-      </div>
+      {/* Escala da logo — só para logo de imagem; logo de texto usa autoFit */}
+      {customLogoSrc && (
+        <div style={{ display: 'flex', alignItems: 'center', gap: '10px', padding: '4px 0' }}>
+          <span style={{ fontSize: '0.68rem', color: '#999', fontWeight: 600, fontFamily: 'Montserrat,sans-serif', whiteSpace: 'nowrap' }}>{dictionary?.ui?.escala_logo || 'Escala da logo'}</span>
+          <input type="range" min="10"
+            max={currentItem.includes('Cartão de Visita') && cartaoRetrato ? 105 : getCustomLogoScaleMax(currentItem)}
+            step="5"
+            value={Math.min(getCustomLogoScale(currentItem), currentItem.includes('Cartão de Visita') && cartaoRetrato ? 105 : getCustomLogoScaleMax(currentItem))}
+            onChange={e => setCustomLogoScale(currentItem, parseInt(e.target.value))}
+            style={{ flex: 1, accentColor }} />
+          <span style={{ fontSize: '0.68rem', color: '#aaa', width: '32px' }}>{getCustomLogoScale(currentItem)}%</span>
+        </div>
+      )}
 
       {/* Preview inline */}
       <div style={{ display: 'flex', justifyContent: 'center', paddingTop: '4px', paddingBottom: '8px', width: '100%' }}>
@@ -8803,7 +8853,7 @@ ${fontImports2}
             : currentItem.includes('Certificado')
               ? <CertificadoCoragemPreview accentColor={accentColor} patternSrc={patternSrc} editData={{ ...itemEditData, tagline: localSlogan }} logoColor={logoColor} logoLayout={logoLayout} cartaoContacts={cartaoContacts} crmLine={crmLine} clinicaNome={clinicaNome} comBorda={comBorda} setComBorda={setComBorda} paletteColors={paletteColors} borderColor={borderColor} setBorderColor={setBorderColor} patternScale={patternScale} setPatternScale={setPatternScale} />
             : currentItem.includes('Caderno')
-              ? <CadernoPreview editData={{ ...itemEditData, tagline: localSlogan }} accentColor={accentColor} solidColor={paletteColors[0]} logoColor={logoColor} logoLayout={logoLayout} comBorda={comBorda} setComBorda={setComBorda} patternSrc={patternSrc} paletteColors={paletteColors} borderColor={borderColor} setBorderColor={setBorderColor} patternScale={patternScale} setPatternScale={setPatternScale} paperSize={paperSize} setPaperSize={setPaperSize} />
+              ? <CadernoPreview editData={{ ...itemEditData, tagline: localSlogan }} accentColor={accentColor} solidColor={paletteColors[0]} logoColor={logoColor} logoLayout={logoLayout} comBorda={comBorda} setComBorda={setComBorda} patternSrc={patternSrc} paletteColors={paletteColors} borderColor={borderColor} setBorderColor={setBorderColor} patternScale={patternScale} setPatternScale={setPatternScale} paperSize={paperSize} setPaperSize={setPaperSize} cartaoContacts={cartaoContacts} clinicaNome={clinicaNome} />
             : ['Receituário','Timbrado','Cartão','Guia','Calendário','Atestado','Dicas','Ficha','Orientação','Checklist','Prontuário','Receita','Quadro','Gráfico','Diário','Card','Pratinho','Fundo','Arte','Etiqueta','Assinatura','Tag'].some(n => currentItem.includes(n))
               ? <A5ItemPreview item={currentItem} accentColor={accentColor} patternSrc={patternSrc} editData={{ ...itemEditData, tagline: localSlogan }} logoColor={logoColor} logoLayout={logoLayout} cartaoContacts={cartaoContacts} crmLine={crmLine} clinicaNome={clinicaNome} comBorda={comBorda} setComBorda={setComBorda} paletteColors={paletteColors} borderColor={borderColor} setBorderColor={setBorderColor} patternScale={patternScale} setPatternScale={setPatternScale} folderRoof={folderRoof} setFolderRoof={['Receituário','Atestado','Recibo','Ficha','Prontuário','Certificado','Checklist'].some(n => currentItem.includes(n)) ? setFolderRoof : undefined} paperSize={['Receituário','Recibo','Ficha','Prontuário','Certificado','Checklist'].some(n => currentItem.includes(n)) ? paperSize : undefined} setPaperSize={['Receituário','Recibo','Ficha','Prontuário','Certificado','Checklist'].some(n => currentItem.includes(n)) ? setPaperSize : undefined} />
             : <GenericItemPreview item={currentItem} marca={marca} accentColor={accentColor} patternSrc={patternSrc} editData={{ ...itemEditData, tagline: localSlogan }} logoColor={logoColor} logoLayout={logoLayout} comBorda={comBorda} setComBorda={setComBorda} paletteColors={paletteColors} borderColor={borderColor} setBorderColor={setBorderColor} patternScale={patternScale} setPatternScale={setPatternScale} />
@@ -8826,16 +8876,6 @@ ${fontImports2}
           </button>
           {contactOpen && (
             <div style={{ padding: '0 14px 14px', display: 'flex', flexDirection: 'column', gap: '8px' }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '8px', paddingBottom: '8px', borderBottom: '1px solid #eee' }}>
-                <span style={{ fontSize: '0.72rem', color: '#888', width: '74px', flexShrink: 0 }}>{dictionary?.ui?.slogan || 'Slogan'}</span>
-                <input
-                  value={localSlogan}
-                  onChange={e => setLocalSlogan(e.target.value)}
-                  placeholder={dictionary?.ui?.tagline_placeholder || "Slogan / Especialidade"}
-                  style={{ flex: 1, padding: '6px 10px', fontSize: '0.8rem', border: '1px solid #e0e0e0', borderRadius: '8px', outline: 'none' }}
-                />
-              </div>
-
               <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '4px', paddingBottom: '8px', borderBottom: '1px solid #eee' }}>
                 <span style={{ fontSize: '0.72rem', color: '#888', width: '74px', flexShrink: 0 }}>{dictionary?.ui?.company || 'Empresa'}</span>
                 <input
@@ -9453,8 +9493,8 @@ function EntregaContent({ brand, plano, setBrand }) {
   });
   
   const LOGO_SCALE_DEFAULTS = {
-    'Cartão de Visita': 135,
-    'Cartão de Retorno': 200,
+    'Cartão de Visita': 100,
+    'Cartão de Retorno': 100,
     'Arte para Caneca': 180,
     'Caneca': 180,
     'Recibo': 100,
@@ -9930,13 +9970,7 @@ function EntregaContent({ brand, plano, setBrand }) {
               {step === 'placa' ? (dictionary?.nav?.placa || 'Placa da Marca') : step === 'manifesto' ? (dictionary?.nav?.manifesto || 'Manifesto da Marca') : step === 'tomdevoz' ? (dictionary?.nav?.tomdevoz || 'Tom de Voz') : step === 'fonte' ? (dictionary?.nav?.fonte || 'Fonte da Marca') : step === 'slogan' ? (dictionary?.nav?.slogan || 'Tagline da Marca') : step === 'logo' ? (dictionary?.nav?.logo || 'Sua Logo') : step === 'submarca' ? (dictionary?.nav?.submarca || 'Sua Submarca') : step === 'estampa' ? (dictionary?.nav?.estampa || 'Sua Estampa') : step === 'cores' ? (dictionary?.nav?.cores || 'Suas Cores') : step === 'paleta' ? (dictionary?.nav?.paleta || 'Sua Paleta') : step === 'cartao' ? (dictionary?.nav?.cartao || 'Cartão Digital') : step === 'pack-instagram' ? (dictionary?.nav?.pack_instagram || 'Pack Digital para Instagram') : step === 'assinatura-email' ? (dictionary?.nav?.assinatura_email || 'Assinatura de E-mail') : step === 'guia' ? (dictionary?.nav?.guia || 'Guia da Marca') : step === 'ajuda' ? (dictionary?.nav?.ajuda_inspiracao || 'Ajuda & Inspiração ✨') : step === 'upsell' ? (dictionary?.nav?.upsell || 'Quer ir além? ✨') : (dictionary?.nav?.papelaria || 'Sua Papelaria')}
             </h1>
           </div>
-          <button 
-            onClick={handleResendEmail} 
-            disabled={resendingEmail}
-            style={{ padding: '6px 12px', background: resendStatus?.includes('✓') ? '#e8f7f5' : '#fff', color: resendStatus?.includes('✓') ? '#1a7a6e' : '#888', border: '1px solid #e0e0e0', borderRadius: '20px', fontSize: '0.65rem', fontWeight: 700, cursor: resendingEmail ? 'wait' : 'pointer', transition: 'all 0.2s', display: 'flex', alignItems: 'center', gap: '4px' }}
-          >
-            {resendingEmail ? (dictionary?.geral?.enviando || 'Enviando...') : resendStatus || `📧 ${dictionary?.geral?.reenviar_email || 'Reenviar e-mail'}`}
-          </button>
+          <div />
         </div>
 
         {/* Banner de upsell para steps exclusivos do pacote de identidade */}
@@ -9958,8 +9992,8 @@ function EntregaContent({ brand, plano, setBrand }) {
         {/* Cores — prioridade/ordem */}
         {step === 'cores' && plano === 'avulso' && (
           <div style={{ background: '#f5f3f0', border: '1px solid #e8e3dc', borderRadius: '12px', padding: '12px 16px', marginBottom: '14px', fontSize: '0.74rem', color: '#888', fontFamily: 'Montserrat,sans-serif', lineHeight: 1.6, textAlign: 'center' }}>
-            🎨 Esta é a paleta padrão da coleção <strong style={{ color: '#8B7355' }}>The Brand Box</strong>.<br />
-            Para personalizar suas cores, adquira o <strong style={{ color: '#c87000' }}>Pacote Completo de Identidade Visual</strong>.
+            🎨 Esta é a paleta da coleção <strong style={{ color: '#8B7355' }}>The Brand Box</strong>.<br />
+            Para personalizar suas cores, clique no ícone de edição no círculo.
           </div>
         )}
         {step === 'cores' && <CoresPrioridadeStep paletteColors={paletteColors} colorOrder={colorOrder} setColorOrder={setColorOrder} accentColor={accentColor}
@@ -9976,9 +10010,9 @@ function EntregaContent({ brand, plano, setBrand }) {
         {step === 'paleta' && plano !== 'avulso' && <CoresStep paletteColors={paletteColors} accentColor={accentColor} paletaNome={paletas?.find(p => p.id === brand.selectedPaleta)?.nome_variacao} coresRef={coresRef} />}
 
         {/* Cartão digital */}
-        {step === 'cartao' && <CartaoStep brand={brand} accentColor={accentColor} paletteColors={paletteColors} marca={marca} estampaPatterns={estampaPatterns} estampaSelectedIdx={estampaSelectedIdx} contacts={cartaoContacts} setContacts={setCartaoContacts} qrLink={cartaoQrLink} setQrLink={setCartaoQrLink} showQR={cartaoShowQR} setShowQR={setCartaoShowQR} logoLayout={logoLayout} editData={editDataWithLogo} logoColor={logoColor} setLayout={setLayout} />}
-        {step === 'pack-instagram' && <FundoInstaPreview brand={brand} editData={editDataWithLogo} accentColor={accentColor} patternSrc={patternSrc} logoColor={logoColor} logoLayout={logoLayout} comBorda={comBorda} setComBorda={setComBorda} paletteColors={paletteColors} borderColor={borderColor} setBorderColor={setBorderColor} patternScale={patternScale} setPatternScale={setPatternScale} cartaoContacts={cartaoContacts} crmLine={crmLine} localSlogan={localSlogan} clinicaNome={clinicaNome} storyTemplateIdx={storyTemplateIdx} setStoryTemplateIdx={setStoryTemplateIdx} storyFormatIdx={storyFormatIdx} setStoryFormatIdx={setStoryFormatIdx} />}
-        {step === 'assinatura-email' && <AssinaturaEmailPreview brand={brand} editData={editDataWithLogo} accentColor={accentColor} logoColor={logoColor} logoLayout={logoLayout} cartaoContacts={cartaoContacts} crmLine={crmLine} localSlogan={localSlogan} clinicaNome={clinicaNome} storyTemplateIdx={storyTemplateIdx} setStoryTemplateIdx={setStoryTemplateIdx} storyFormatIdx={storyFormatIdx} setStoryFormatIdx={setStoryFormatIdx} setCartaoContacts={setCartaoContacts} setClinicaNome={setClinicaNome} setLocalSlogan={setLocalSlogan} />}
+        {step === 'cartao' && (plano === 'avulso' ? <AvulsoUpgradeCard accentColor={accentColor} titulo="Cartão Digital" desc="Crie seu cartão digital interativo com QR code, link para redes sociais e muito mais. Disponível no Plano Completo." /> : <CartaoStep brand={brand} accentColor={accentColor} paletteColors={paletteColors} marca={marca} estampaPatterns={estampaPatterns} estampaSelectedIdx={estampaSelectedIdx} contacts={cartaoContacts} setContacts={setCartaoContacts} qrLink={cartaoQrLink} setQrLink={setCartaoQrLink} showQR={cartaoShowQR} setShowQR={setCartaoShowQR} logoLayout={logoLayout} editData={editDataWithLogo} logoColor={logoColor} setLayout={setLayout} />)}
+        {step === 'pack-instagram' && (plano === 'avulso' ? <AvulsoUpgradeCard accentColor={accentColor} titulo="Pack Digital para Instagram" desc="Templates prontos para Stories e Feed com a sua identidade visual aplicada. Disponível no Plano Completo." /> : <FundoInstaPreview brand={brand} editData={editDataWithLogo} accentColor={accentColor} patternSrc={patternSrc} logoColor={logoColor} logoLayout={logoLayout} comBorda={comBorda} setComBorda={setComBorda} paletteColors={paletteColors} borderColor={borderColor} setBorderColor={setBorderColor} patternScale={patternScale} setPatternScale={setPatternScale} cartaoContacts={cartaoContacts} crmLine={crmLine} localSlogan={localSlogan} clinicaNome={clinicaNome} storyTemplateIdx={storyTemplateIdx} setStoryTemplateIdx={setStoryTemplateIdx} storyFormatIdx={storyFormatIdx} setStoryFormatIdx={setStoryFormatIdx} />)}
+        {step === 'assinatura-email' && (plano === 'avulso' ? <AvulsoUpgradeCard accentColor={accentColor} titulo="Assinatura de E-mail" desc="Assinatura profissional com sua logo, dados de contato e links para usar no Gmail ou Outlook. Disponível no Plano Completo." /> : <AssinaturaEmailPreview brand={brand} editData={editDataWithLogo} accentColor={accentColor} logoColor={logoColor} logoLayout={logoLayout} cartaoContacts={cartaoContacts} crmLine={crmLine} localSlogan={localSlogan} clinicaNome={clinicaNome} storyTemplateIdx={storyTemplateIdx} setStoryTemplateIdx={setStoryTemplateIdx} storyFormatIdx={storyFormatIdx} setStoryFormatIdx={setStoryFormatIdx} setCartaoContacts={setCartaoContacts} setClinicaNome={setClinicaNome} setLocalSlogan={setLocalSlogan} />)}
 
         {/* Placa da marca */}
         {step === 'placa' && plano !== 'avulso' && <PlacaStep brand={brand} accentColor={accentColor} paletteColors={orderedPaletteColors} estampaPatterns={estampaPatterns} estampaSelectedIdx={estampaSelectedIdx} editData={editDataWithLogo} logoColor={logoColor} logoLayout={logoLayout} iconPath={currentIconPath} submarcaColor={submarcaColor} submarcaTextColor={submarcaTextColor} />}
@@ -10064,10 +10098,15 @@ function EntregaContent({ brand, plano, setBrand }) {
         {step === 'guia' && plano !== 'avulso' && <GuiaStep brand={brand} accentColor={accentColor} paletteColors={paletteColors} marca={marca} tagline={tagline} estampaPatterns={estampaPatterns} estampaSelectedIdx={estampaSelectedIdx} editData={editDataWithLogo} />}
 
         {/* Papelaria / Gabaritos */}
-        {step === 'papelaria' && <PapelariaStep brand={brand} accentColor={accentColor} paletteColors={orderedPaletteColors} estampaPatterns={estampaPatterns} estampaSelectedIdx={estampaSelectedIdx} cartaoContacts={cartaoContacts} setCartaoContacts={setCartaoContacts} plano={plano} isSaude={isSaude} crmData={crmData} setCrmData={setCrmData} marca={marca} editData={editDataWithLogo} logoColor={logoColor} logoLayout={logoLayout} setLayout={setLayout} clinicaNome={clinicaNome} setClinicaNome={setClinicaNome} onNavSync={setPapelariaNavItens} navIdx={papelariaNavIdx} setNavIdx={setPapelariaNavIdx} customLogoSrc={customLogoSrc} getCustomLogoScale={getCustomLogoScale} setCustomLogoScale={setCustomLogoScale} getCustomLogoScaleMax={getCustomLogoScaleMax} customLogoScaleMap={customLogoScaleMap} submarcaColor={submarcaColor} submarcaTextColor={submarcaTextColor} iconPath={currentIconPath} />}
+        {step === 'papelaria' && <PapelariaStep brand={brand} accentColor={accentColor} paletteColors={orderedPaletteColors} estampaPatterns={estampaPatterns} estampaSelectedIdx={estampaSelectedIdx} cartaoContacts={cartaoContacts} setCartaoContacts={setCartaoContacts} plano={plano} isSaude={isSaude} crmData={crmData} setCrmData={setCrmData} marca={marca} editData={editDataWithLogo} logoColor={logoColor} logoLayout={logoLayout} setLayout={setLayout} clinicaNome={clinicaNome} setClinicaNome={setClinicaNome} onNavSync={setPapelariaNavItens} navIdx={papelariaNavIdx} setNavIdx={setPapelariaNavIdx} customLogoSrc={customLogoSrc} getCustomLogoScale={getCustomLogoScale} setCustomLogoScale={setCustomLogoScale} getCustomLogoScaleMax={getCustomLogoScaleMax} customLogoScaleMap={customLogoScaleMap} submarcaColor={submarcaColor} submarcaTextColor={submarcaTextColor} iconPath={currentIconPath} avulsoParam={avulsoParam} />}
 
         {/* Ajuda & Inspiração */}
-        {step === 'ajuda' && <AjudaStep brand={brand} accentColor={accentColor} />}
+        {step === 'ajuda' && (
+          <>
+            <AjudaStep brand={brand} accentColor={accentColor} onResendEmail={handleResendEmail} resendingEmail={resendingEmail} resendStatus={resendStatus} />
+            {plano === 'avulso' && <AvulsoUpgradeCard accentColor={accentColor} titulo="Quer uma identidade visual completa?" desc="Com o Plano Completo você tem logo, paleta de cores, estampa, guia da marca, pack para Instagram, assinatura de e-mail e todos os impressos personalizados com a sua marca." />}
+          </>
+        )}
 
         {/* Upsell — página de fechamento com serviços extras */}
         {step === 'upsell' && (
@@ -10293,7 +10332,7 @@ function EntregaContent({ brand, plano, setBrand }) {
                       {['#000000', '#ffffff'].map(hex => <ColorDot key={hex} color={hex} selected={logoColor === hex} onClick={() => setLogoColor(hex)} outlined={hex === '#ffffff'} />)}
                       {paletteColors.length > 0
                         ? paletteColors.map((hex, i) => <ColorDot key={i} color={hex} selected={logoColor === hex} onClick={() => setLogoColor(hex)} />)
-                        : ['#D4C5B0', '#D4A0B0', '#C4A882', '#6B8CAE', '#333333'].map(hex => <ColorDot key={hex} color={hex} selected={logoColor === hex} onClick={() => setLogoColor(hex)} />)
+                        : ['#D4C5B0', '#D4A0B0', '#C4A882', '#6B8CAE', '#E2894D'].map(hex => <ColorDot key={hex} color={hex} selected={logoColor === hex} onClick={() => setLogoColor(hex)} />)
                       }
                     </div>
                   </div>
@@ -11156,6 +11195,13 @@ function SucessoContent() {
   const [loading, setLoading] = useState(true);
   const [showWelcome, setShowWelcome] = useState(false);
   const [welcomeStep, setWelcomeStep] = useState(0); // 0 = Welcome screen, 1 = Instructions screen
+  const [showAvulsoWelcome, setShowAvulsoWelcome] = useState(() => {
+    try {
+      const _ap = typeof window !== 'undefined' ? new URLSearchParams(window.location.search).get('avulso') : null;
+      if (!_ap) return false;
+      return localStorage.getItem('brandbox_avulso_welcome_' + _ap) !== 'seen';
+    } catch { return false; }
+  });
   const [welcomeSeen, setWelcomeSeen] = useState(() => {
     try {
       return typeof window !== 'undefined' && localStorage.getItem('brandbox_welcome_seen') === 'true';
@@ -11212,17 +11258,49 @@ function SucessoContent() {
 
     const loadData = async () => {
       if (avulsoParam && !sessionParam) {
-        let itemName = avulsoParam;
-        if (avulsoParam === 'grafico') itemName = 'Gráfico de Crescimento';
-        // Podem ser adicionados outros mapeamentos no futuro
+        const AVULSO_PARAM_MAP = {
+          'grafico': 'Gráfico de Crescimento',
+          'cartao-visita': 'Cartão de Visita',
+          'cartao-retorno': 'Cartão de Retorno',
+          'agradecimento': 'Cartão de Agradecimento (10x15cm)',
+          'papel-timbrado': 'Papel Timbrado',
+          'papel-presente': 'Papel de Presente',
+          'tag-sacola': 'Tag para Sacola',
+          'etiqueta': 'Etiqueta para Correios',
+          'envelope-oficio': 'Envelope Ofício (23x11,5cm)',
+          'envelope-saco': 'Envelope Saco (24x34cm)',
+          'recibo': 'Recibo',
+          'pasta': 'Pasta A4',
+          'caneca': 'Caneca',
+          'caderno': 'Caderno (Capa e Contra-capa)',
+          'receituario': 'Receituário Padrão (A4 e A5)',
+          'atestado': 'Atestado Médico (A4 e A5)',
+          'controle-especial': 'Receituário de Controle Especial',
+          'prontuario': 'Prontuário Médico',
+          'receita-alta': 'Receita de Alta',
+          'ficha': 'Ficha de Cadastro',
+          'guia-alimentar': 'Guia Alimentar',
+          'guia-cuidados': 'Guia de Cuidados',
+          'guia-desenvolvimento': 'Guia de Desenvolvimento',
+          'guia-vacina': 'Guia de Vacina c/ Calendário',
+          'prenatal': 'Cartão de Exame Pré-Natal',
+          'checklist': 'Checklist Maternidade',
+          'guia-sono': 'Guia do Sono',
+          'orientacoes-rn': 'Orientações p/ Recém Nascidos',
+          'certificado': 'Certificado de Coragem',
+          'diario-xixi': 'Diário do Xixi',
+          'pratinho': 'Meu Pratinho',
+          'amamentacao': 'Guia de Amamentação',
+        };
+        const itemName = AVULSO_PARAM_MAP[avulsoParam] || null;
 
         const AVULSO_VERSION = 7;
         // Paleta padrão BrandBox para clientes avulso
-        const AVULSO_PALETTE = ['#D4C5B0', '#D4A0B0', '#C4A882', '#6B8CAE', '#333333'];
+        const AVULSO_PALETTE = ['#D4C5B0', '#D4A0B0', '#C4A882', '#6B8CAE', '#E2894D'];
         const defaultAvulsoBrand = {
           _v: AVULSO_VERSION,
           plano: 'avulso',
-          papelariaSelecionada: [itemName],
+          papelariaSelecionada: itemName ? [itemName] : [],
           formData: { nome: '', especialidade: '', cr: '', atuacao: 'Pediatria / Saúde infantil' },
           editData: { marca: '', fontStyle: 'serif', colors: AVULSO_PALETTE, fontSizeBoost: 0.65 },
           activeColor: '#D4C5B0',
@@ -11380,6 +11458,50 @@ function SucessoContent() {
 
 
   if (loading) return null;
+
+  if (showAvulsoWelcome && brand?.plano === 'avulso') {
+    const accentAvulso = brand?.activeColor || '#D4C5B0';
+    return (
+      <div style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', background: 'linear-gradient(160deg, #fdf9f5 0%, #f5f0eb 100%)', padding: '2rem', textAlign: 'center', fontFamily: 'Montserrat, sans-serif' }}>
+        <div style={{ maxWidth: '460px', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '1.6rem' }}>
+          <div style={{ fontSize: '3rem', lineHeight: 1 }}>🎨</div>
+          <div>
+            <p style={{ fontSize: '0.65rem', letterSpacing: '3px', textTransform: 'uppercase', color: accentAvulso, fontWeight: 700, margin: '0 0 0.6rem' }}>THE BRAND BOX</p>
+            <h1 style={{ fontSize: '1.8rem', fontWeight: 800, color: '#1a1a1a', lineHeight: 1.3, margin: 0 }}>
+              Bem-vinda à sua área criativa!
+            </h1>
+          </div>
+          <p style={{ fontSize: '0.95rem', color: '#666', lineHeight: 1.8, margin: 0 }}>
+            Aqui você personaliza e baixa os seus impressos. Siga os passos abaixo para começar:
+          </p>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '12px', width: '100%', textAlign: 'left' }}>
+            {[
+              { num: '1', icon: '✍️', titulo: 'Escreva o nome da sua marca', desc: 'Vá na aba A Marca → Logo e digite o nome que vai aparecer nos seus materiais.' },
+              { num: '2', icon: '🎨', titulo: 'Escolha suas cores', desc: 'Na aba A Marca → Cores, clique no círculo para personalizar cada cor da paleta.' },
+              { num: '3', icon: '📄', titulo: 'Acesse seus impressos', desc: 'Clique em Os Impressos para visualizar, personalizar e baixar seus arquivos PDF.' },
+            ].map(({ num, icon, titulo, desc }) => (
+              <div key={num} style={{ display: 'flex', gap: '14px', background: '#fff', borderRadius: '14px', padding: '14px 16px', boxShadow: '0 2px 10px rgba(0,0,0,0.06)', alignItems: 'flex-start' }}>
+                <div style={{ width: '32px', height: '32px', borderRadius: '50%', background: accentAvulso + '22', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, fontSize: '1rem' }}>{icon}</div>
+                <div>
+                  <p style={{ margin: '0 0 2px', fontWeight: 700, fontSize: '0.82rem', color: '#1a1a1a' }}>{titulo}</p>
+                  <p style={{ margin: 0, fontSize: '0.75rem', color: '#777', lineHeight: 1.6 }}>{desc}</p>
+                </div>
+              </div>
+            ))}
+          </div>
+          <button
+            onClick={() => {
+              try { localStorage.setItem('brandbox_avulso_welcome_' + avulsoParam, 'seen'); } catch {}
+              setShowAvulsoWelcome(false);
+            }}
+            style={{ background: `linear-gradient(135deg, ${accentAvulso}, ${accentAvulso}cc)`, color: '#fff', border: 'none', borderRadius: '50px', padding: '1rem 2.5rem', fontSize: '1rem', fontWeight: 700, cursor: 'pointer', boxShadow: `0 10px 30px ${accentAvulso}55`, width: '100%' }}
+          >
+            Começar →
+          </button>
+        </div>
+      </div>
+    );
+  }
 
   if (showWelcome) {
     const rawNome = brand?.formData?.nome || brand?.editData?.marca || '';
