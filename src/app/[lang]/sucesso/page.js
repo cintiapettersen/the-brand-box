@@ -532,7 +532,7 @@ function CoresSalvarButton({ colorOrder, accentColor }) {
   );
 }
 
-function CoresPrioridadeStep({ paletteColors, colorOrder, setColorOrder, accentColor }) {
+function CoresPrioridadeStep({ paletteColors, colorOrder, setColorOrder, accentColor, onColorChange }) {
   const { dictionary } = useTranslation();
   const ordered = React.useMemo(() => {
     if (!colorOrder) return paletteColors.map((c, i) => ({ color: c, idx: i }));
@@ -584,7 +584,16 @@ function CoresPrioridadeStep({ paletteColors, colorOrder, setColorOrder, accentC
               userSelect: 'none',
             }}
           >
-            <div style={{ width: `${sizes[i] || 40}px`, height: `${sizes[i] || 40}px`, borderRadius: '50%', background: item.color, flexShrink: 0, boxShadow: '0 2px 8px rgba(0,0,0,0.15)' }} />
+            <div style={{ position: 'relative', width: `${sizes[i] || 40}px`, height: `${sizes[i] || 40}px`, flexShrink: 0 }}>
+              <div style={{ width: '100%', height: '100%', borderRadius: '50%', background: item.color, boxShadow: '0 2px 8px rgba(0,0,0,0.15)', cursor: onColorChange ? 'pointer' : 'default' }}
+                onClick={() => onColorChange && document.getElementById(`avulso-color-${i}`)?.click()} />
+              {onColorChange && (
+                <input id={`avulso-color-${i}`} type="color" value={item.color || '#ffffff'}
+                  onChange={e => onColorChange(item.idx, e.target.value)}
+                  style={{ position: 'absolute', opacity: 0, width: 0, height: 0, pointerEvents: 'none' }} />
+              )}
+              {onColorChange && <div style={{ position: 'absolute', bottom: 0, right: 0, background: '#fff', borderRadius: '50%', width: '16px', height: '16px', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 1px 3px rgba(0,0,0,0.2)', fontSize: '9px', pointerEvents: 'none' }}>✏️</div>}
+            </div>
             <div style={{ flex: 1 }}>
               <div style={{ fontSize: '0.75rem', fontWeight: 700, color: '#333', fontFamily: 'Montserrat,sans-serif' }}>{labels[i] || `${i+1}ª cor`}</div>
               <div style={{ fontSize: '0.65rem', color: '#aaa', fontFamily: 'Montserrat,sans-serif', marginTop: '2px' }}>{item.color?.toUpperCase()}</div>
@@ -3186,8 +3195,9 @@ export function BordaToggle({ comBorda, setComBorda, accentColor, paletteColors,
 
       {!comBorda && paletteColors?.length > 0 && (
         <div style={{ display: 'flex', gap: '5px', alignItems: 'center', marginLeft: '4px', borderLeft: '1px solid #eee', paddingLeft: '12px' }}>
-          {paletteColors.map((hex, i) => {
+          {[...paletteColors, '#ffffff'].map((hex, i) => {
             const isSelected = (borderColor || accentColor) === hex;
+            const isWhite = hex === '#ffffff';
             return (
               <div
                 key={i}
@@ -3196,7 +3206,9 @@ export function BordaToggle({ comBorda, setComBorda, accentColor, paletteColors,
                   width: '14px', height: '14px', borderRadius: '50%', background: hex,
                   cursor: 'pointer', flexShrink: 0, transition: 'transform 0.15s',
                   transform: isSelected ? 'scale(1.25)' : 'scale(1)',
-                  boxShadow: isSelected ? `0 0 0 2px #fff, 0 0 0 3.5px ${hex}` : '0 0 0 1px rgba(0,0,0,0.1)',
+                  boxShadow: isSelected
+                    ? `0 0 0 2px #fff, 0 0 0 3.5px ${isWhite ? '#ccc' : hex}`
+                    : isWhite ? '0 0 0 1px #ddd' : '0 0 0 1px rgba(0,0,0,0.1)',
                 }}
               />
             );
@@ -9933,7 +9945,15 @@ function EntregaContent({ brand, plano, setBrand }) {
             Para personalizar suas cores, adquira o <strong style={{ color: '#c87000' }}>Pacote Completo de Identidade Visual</strong>.
           </div>
         )}
-        {step === 'cores' && <CoresPrioridadeStep paletteColors={paletteColors} colorOrder={colorOrder} setColorOrder={setColorOrder} accentColor={accentColor} />}
+        {step === 'cores' && <CoresPrioridadeStep paletteColors={paletteColors} colorOrder={colorOrder} setColorOrder={setColorOrder} accentColor={accentColor}
+          onColorChange={plano === 'avulso' ? (idx, hex) => {
+            const updated = [...paletteColors];
+            updated[idx] = hex;
+            const newBrand = { ...brand, currentPaletteColors: updated, activeColor: updated[0] };
+            setBrand(newBrand);
+            try { localStorage.setItem('brandbox_avulso_' + avulsoParam, JSON.stringify(newBrand)); } catch {}
+          } : undefined}
+        />}
 
         {/* Paleta — visualização completa */}
         {step === 'paleta' && plano !== 'avulso' && <CoresStep paletteColors={paletteColors} accentColor={accentColor} paletaNome={paletas?.find(p => p.id === brand.selectedPaleta)?.nome_variacao} coresRef={coresRef} />}
