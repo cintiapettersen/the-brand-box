@@ -11513,33 +11513,36 @@ function SucessoContent() {
           </div>
 
           <button
-            disabled={avulsoEmailSending}
+            disabled={avulsoEmailSending || !avulsoEmail.includes('@')}
             onClick={async () => {
-              // Dispara email em background se tiver email
-              if (avulsoEmail && avulsoEmail.includes('@') && !avulsoEmailSent) {
-                setAvulsoEmailSending(true);
-                const origin = window.location.origin;
-                const link = `${origin}/pt-BR/sucesso?avulso=${avulsoParam}`;
-                try {
-                  await fetch('/api/send-email', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ email: avulsoEmail, marca: brand?.editData?.marca || '', sessionId: null, plano: 'avulso', avulsoLink: link }),
-                  });
-                  setAvulsoEmailSent(true);
-                } catch {}
-                setAvulsoEmailSending(false);
-              }
+              setAvulsoEmailSending(true);
+              const origin = window.location.origin;
+              const link = `${origin}/pt-BR/sucesso?avulso=${avulsoParam}`;
+              try {
+                await fetch('/api/send-email', {
+                  method: 'POST',
+                  headers: { 'Content-Type': 'application/json' },
+                  body: JSON.stringify({ email: avulsoEmail, marca: brand?.editData?.marca || '', sessionId: null, plano: 'avulso', avulsoLink: link }),
+                });
+                setAvulsoEmailSent(true);
+              } catch {}
+              setAvulsoEmailSending(false);
               try { localStorage.setItem('brandbox_avulso_welcome_' + avulsoParam, 'seen'); } catch {}
               setShowAvulsoWelcome(false);
             }}
-            style={{ background: `linear-gradient(135deg, ${accentAvulso}, ${accentAvulso}cc)`, color: '#fff', border: 'none', borderRadius: '50px', padding: '1rem 2.5rem', fontSize: '1rem', fontWeight: 700, cursor: avulsoEmailSending ? 'wait' : 'pointer', boxShadow: `0 10px 30px ${accentAvulso}55`, width: '100%', opacity: avulsoEmailSending ? 0.7 : 1 }}
+            style={{ background: `linear-gradient(135deg, ${accentAvulso}, ${accentAvulso}cc)`, color: '#fff', border: 'none', borderRadius: '50px', padding: '1rem 2.5rem', fontSize: '1rem', fontWeight: 700, cursor: (avulsoEmailSending || !avulsoEmail.includes('@')) ? 'default' : 'pointer', boxShadow: `0 10px 30px ${accentAvulso}55`, width: '100%', opacity: (avulsoEmailSending || !avulsoEmail.includes('@')) ? 0.5 : 1, transition: 'opacity 0.2s' }}
           >
-            {avulsoEmailSending ? 'Enviando...' : 'Começar →'}
+            {avulsoEmailSending ? 'Enviando...' : 'Enviar link e começar →'}
           </button>
-          <p style={{ margin: 0, fontSize: '0.68rem', color: '#bbb' }}>
-            Prefere pular? O link fica na aba Ajuda ✨
-          </p>
+          <button
+            onClick={() => {
+              try { localStorage.setItem('brandbox_avulso_welcome_' + avulsoParam, 'seen'); } catch {}
+              setShowAvulsoWelcome(false);
+            }}
+            style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: '0.72rem', color: '#bbb', textDecoration: 'underline', padding: '4px' }}
+          >
+            Pular e acessar sem salvar o link
+          </button>
         </div>
       </div>
     );
