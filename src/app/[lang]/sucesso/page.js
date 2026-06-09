@@ -116,7 +116,7 @@ export const ITEM_CUSTOM_BASE_SCALES = {
   'Receituário Padrão': 2.0, 
   'Receituário de Controle Especial': 2.0,
   'Atestado Médico (A4 e A5)': 2.0,
-  'Atestado Médico': 2.0, 'Recibo': 2.0, 'Cartão de Retorno': 2.0,
+  'Atestado Médico': 2.0, 'Recibo': 2.0,
   'Ficha de Cadastro': 2.0, 'Prontuário Médico': 2.0,
   'Certificado de Coragem': 2.0,
   // Folders and other standardized items
@@ -129,7 +129,7 @@ export const ITEM_CUSTOM_BASE_SCALES = {
   'Guia de Vacina c/ Calendário': 2.0,
   'Cartão de Vacina': 2.0,
   'Diário do Xixi': 2.0,
-  'Cartão de Visita': 2.0,
+  'Cartão de Visita': 1.0,
   'Tag para Sacola': 2.0,
   'Etiqueta para Correios': 2.0,
   'Checklist Maternidade': 2.0,
@@ -187,59 +187,59 @@ export function LogoPreviewHTML({ item = null, editData, color, layout = 'stacke
   const targetMaxW = explicitMaxW || Math.round(400 * effectiveScaleFactor);
   const targetMaxH = explicitMaxH || Math.round(180 * effectiveScaleFactor);
 
-  React.useLayoutEffect(() => {
+  React.useEffect(() => {
     if (customLogoSrc) return;
     const el = _fitRef.current;
     if (!autoFit || !el) {
       if (!_fitState.ready) _setFitState({ scale: 1, w: 'auto', h: 'auto', ready: true });
       return;
     }
-    // Snapshot do container UMA vez — evita feedback loop quando _fitState muda o tamanho do wrapper
-    const realParent = _rootRef.current ? _rootRef.current.parentNode : null;
-    let tMaxW = targetMaxW;
-    let tMaxH = targetMaxH;
-    if (maxWidth && String(maxWidth).includes('%') && realParent && realParent.clientWidth > 0) {
-      tMaxW = Math.min(targetMaxW, realParent.clientWidth * (parseFloat(maxWidth) / 100));
-    }
-    if (maxHeight && String(maxHeight).includes('%') && realParent && realParent.clientHeight > 0) {
-      tMaxH = Math.min(targetMaxH, realParent.clientHeight * (parseFloat(maxHeight) / 100));
-    }
-    const paddingW = withBackground ? 28 : 12;
-    const paddingH = withBackground ? 32 : 10;
-    tMaxW = Math.max(10, tMaxW - paddingW);
-    tMaxH = Math.max(10, tMaxH - paddingH);
 
-    const observer = new ResizeObserver(() => {
+    const measure = () => {
+      if (!el || !_rootRef.current) return;
+      const realParent = _rootRef.current.parentNode;
+      let tMaxW = targetMaxW;
+      let tMaxH = targetMaxH;
+      if (maxWidth && String(maxWidth).includes('%') && realParent && realParent.clientWidth > 0) {
+        const pct = realParent.clientWidth * (parseFloat(maxWidth) / 100);
+        tMaxW = targetMaxW != null ? Math.min(targetMaxW, pct) : pct;
+      }
+      if (maxHeight && String(maxHeight).includes('%') && realParent && realParent.clientHeight > 0) {
+        const pct = realParent.clientHeight * (parseFloat(maxHeight) / 100);
+        tMaxH = targetMaxH != null ? Math.min(targetMaxH, pct) : pct;
+      }
+      const paddingW = withBackground ? 28 : 12;
+      const paddingH = withBackground ? 32 : 10;
+      tMaxW = Math.max(10, tMaxW - paddingW);
+      tMaxH = Math.max(10, tMaxH - paddingH);
       const natW = el.offsetWidth;
       const natH = el.offsetHeight;
       if (!natW || !natH) return;
       const sx = tMaxW / natW;
       const sy = tMaxH / natH;
-      // fillScale = escala para preencher o container; slider aplica % sobre esse fill
       const fillScale = Math.min(sx, sy);
-      const scale = fillScale * (customLogoScale / 100);
+      // Para texto: slider (customLogoScale) não escala o autoFit — só imagens usam o slider
+      const scale = customLogoSrc ? fillScale * (customLogoScale / 100) : fillScale;
       _setFitState(prev => {
         const nw = natW * scale;
         const nh = natH * scale;
-        
         if (prev.ready) {
-          // If the natural width/height only fluctuated by a few pixels, it's sub-pixel rendering oscillation. Ignore it.
           const prevNatW = prev.w / prev.scale;
           const prevNatH = prev.h / prev.scale;
-          if (Math.abs(prevNatW - natW) < 5 && Math.abs(prevNatH - natH) < 5) {
-            return prev;
-          }
-          // Fallback check with higher tolerance
-          if (Math.abs(prev.scale - scale) < 0.01 && Math.abs(prev.w - nw) < 1.5 && Math.abs(prev.h - nh) < 1.5) {
-            return prev;
-          }
+          if (Math.abs(prevNatW - natW) < 5 && Math.abs(prevNatH - natH) < 5) return prev;
+          if (Math.abs(prev.scale - scale) < 0.01 && Math.abs(prev.w - nw) < 1.5 && Math.abs(prev.h - nh) < 1.5) return prev;
         }
-        
         return { scale, w: nw, h: nh, ready: true };
       });
-    });
+    };
+
+    measure();
+    // Re-mede quando fontes carregam (evita escala errada com fonte fallback)
+    if (typeof document !== 'undefined' && document.fonts?.ready) {
+      document.fonts.ready.then(measure);
+    }
+    const observer = new ResizeObserver(measure);
     observer.observe(el);
-    // NÃO observar o pai — evita feedback loop quando wrapper muda de tamanho
     return () => observer.disconnect();
   }, [editData, effectiveScaleFactor, targetMaxW, targetMaxH, layout, crm, hideTagline, autoFit, maxWidth, maxHeight, withBackground, forceTrigger, customLogoSrc, customLogoScale]);
 
@@ -3009,7 +3009,7 @@ function CartaoRetornoPreview({ accentColor, patternSrc, cartaoContacts, crmLine
             
             <div style={{ position: 'absolute', top: '14px', left: '14px', right: '14px', bottom: '14px', background: '#fff', zIndex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', padding: '12px 10px' }}>
               <div style={{ width: '100%', height: '70px', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', marginBottom: '12px', overflow: 'hidden' }}>
-                <LogoPreviewHTML item="Cartão de Retorno" editData={editData} color={logoColor} layout={logoLayout} scaleFactor={0.85} withBackground={false} hideTagline={true} maxWidth="100%" maxHeight="100%" />
+                <LogoPreviewHTML item="Cartão de Retorno" editData={editData} color={logoColor} layout={logoLayout} scaleFactor={0.85} withBackground={false} hideTagline={true} maxWidth="130px" maxHeight="65px" />
               </div>
               {crmLine && <div style={{ fontFamily: "'Montserrat',sans-serif", fontSize: '3.3px', color: '#999', letterSpacing: '0.8px', textTransform: 'uppercase', textAlign: 'center', marginBottom: '10px', marginTop: '-6px', whiteSpace: 'nowrap' }}>{crmLine}</div>}
               
@@ -3122,7 +3122,7 @@ function CartaoDeVisitaPreview({ accentColor, patternSrc, cartaoContacts, crmLin
               </div>
             ) : (
               <div style={{ display: 'flex', width: isHorizontal ? `${Math.round(CW*0.80)}px` : `${Math.round(CW*0.62)}px`, height: retrato ? `${Math.round(CH*0.40)}px` : `${Math.round(CH*0.52)}px`, overflow: 'hidden', alignItems: 'center', justifyContent: 'center' }}>
-                <LogoPreviewHTML item="Cartão de Visita" editData={editData} color={logoColor} layout={logoLayout} crm={crmLine} hideTagline={hideTagline} scaleFactor={0.85} withBackground={false} maxWidth="100%" maxHeight="100%" />
+                <LogoPreviewHTML item="Cartão de Visita" editData={editData} color={logoColor} layout={logoLayout} crm={crmLine} hideTagline={hideTagline} scaleFactor={0.85} withBackground={false} maxWidth={`${isHorizontal ? Math.round(CW*0.78) : Math.round(CW*0.60)}px`} maxHeight={`${(retrato ? Math.round(CH*0.38) : Math.round(CH*0.50))}px`} />
               </div>
             )}
           </div>
@@ -9092,6 +9092,8 @@ ${fontImports2}
 function EntregaContent({ brand, plano, setBrand }) {
   const { dictionary } = useTranslation();
   const tLogo = dictionary?.logo_tab || {};
+  const _params = useSearchParams();
+  const avulsoParam = _params.get('avulso');
   const [step, setStepState] = useState('placa');
   const setStep = (s) => { setStepState(s); try { localStorage.setItem(`brandbox_step_${brand.id}`, s); } catch {} };
   // Avulso começa nos impressos, não no brand board
@@ -9117,6 +9119,15 @@ function EntregaContent({ brand, plano, setBrand }) {
   const [showEdit, setShowEdit] = useState(false);
   const [marca, setMarcaState] = useState(brand.editData?.marca || '');
   const [tempMarca, setTempMarca] = useState(brand.editData?.marca || '');
+
+  // Sincroniza marca state quando brand carrega do localStorage (brand começa null)
+  React.useEffect(() => {
+    const saved = brand?.editData?.marca;
+    if (saved && !marca) {
+      setMarcaState(saved);
+      setTempMarca(saved);
+    }
+  }, [brand?.editData?.marca]);
 
   const commitMarcaChange = (newName) => {
     const cleaned = newName.trim();
@@ -11205,7 +11216,7 @@ function SucessoContent() {
         if (avulsoParam === 'grafico') itemName = 'Gráfico de Crescimento';
         // Podem ser adicionados outros mapeamentos no futuro
 
-        const AVULSO_VERSION = 5;
+        const AVULSO_VERSION = 7;
         // Paleta padrão BrandBox para clientes avulso
         const AVULSO_PALETTE = ['#D4C5B0', '#D4A0B0', '#C4A882', '#6B8CAE', '#333333'];
         const defaultAvulsoBrand = {
@@ -11230,11 +11241,13 @@ function SucessoContent() {
                 // Mantém a marca se o cliente já digitou algo diferente dos placeholders antigos
                 marca: (saved.editData?.marca && !['SUA MARCA', 'SUA LOGO', ''].includes(saved.editData.marca)) ? saved.editData.marca : '',
                 fontSizeBoost: defaultAvulsoBrand.editData.fontSizeBoost,
+                // Preserva cores personalizadas se o usuário já editou
+                colors: saved.editData?.colors || defaultAvulsoBrand.editData.colors,
               },
               // Mantém a cor só se o cliente já tinha escolhido algo diferente do pink padrão
               activeColor: (saved.activeColor && saved.activeColor !== '#dc3495') ? saved.activeColor : defaultAvulsoBrand.activeColor,
-              // Sempre atualiza a paleta para os novos defaults
-              currentPaletteColors: defaultAvulsoBrand.currentPaletteColors,
+              // Preserva paleta personalizada se o usuário já editou
+              currentPaletteColors: saved.currentPaletteColors || defaultAvulsoBrand.currentPaletteColors,
             };
             setBrand(merged);
             localStorage.setItem('brandbox_avulso_' + avulsoParam, JSON.stringify(merged));
