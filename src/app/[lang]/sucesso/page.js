@@ -9129,6 +9129,10 @@ function EntregaContent({ brand, plano, setBrand }) {
     if (plano === 'avulso') {
       setMarcaState(cleaned);
       setTempMarca(cleaned);
+      // Persiste no brand e no localStorage para sobreviver ao reload
+      const updatedBrand = { ...brand, editData: { ...brand.editData, marca: cleaned } };
+      setBrand(updatedBrand);
+      try { localStorage.setItem('brandbox_avulso_' + avulsoParam, JSON.stringify(updatedBrand)); } catch {}
       return;
     }
 
