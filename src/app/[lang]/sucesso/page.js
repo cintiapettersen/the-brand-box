@@ -11201,7 +11201,7 @@ function SucessoContent() {
         if (avulsoParam === 'grafico') itemName = 'Gráfico de Crescimento';
         // Podem ser adicionados outros mapeamentos no futuro
 
-        const AVULSO_VERSION = 4;
+        const AVULSO_VERSION = 5;
         // Paleta padrão BrandBox para clientes avulso
         const AVULSO_PALETTE = ['#D4C5B0', '#D4A0B0', '#C4A882', '#6B8CAE', '#333333'];
         const defaultAvulsoBrand = {
@@ -11209,7 +11209,7 @@ function SucessoContent() {
           plano: 'avulso',
           papelariaSelecionada: [itemName],
           formData: { nome: '', especialidade: '', cr: '', atuacao: 'Pediatria / Saúde infantil' },
-          editData: { marca: '', fontStyle: 'serif', colors: AVULSO_PALETTE },
+          editData: { marca: '', fontStyle: 'serif', colors: AVULSO_PALETTE, fontSizeBoost: 0.65 },
           activeColor: '#D4C5B0',
           currentPaletteColors: AVULSO_PALETTE,
         };
@@ -11225,6 +11225,7 @@ function SucessoContent() {
                 ...defaultAvulsoBrand.editData,
                 // Mantém a marca se o cliente já digitou algo diferente dos placeholders antigos
                 marca: (saved.editData?.marca && !['SUA MARCA', 'SUA LOGO', ''].includes(saved.editData.marca)) ? saved.editData.marca : '',
+                fontSizeBoost: defaultAvulsoBrand.editData.fontSizeBoost,
               },
               // Mantém a cor só se o cliente já tinha escolhido algo diferente do pink padrão
               activeColor: (saved.activeColor && saved.activeColor !== '#dc3495') ? saved.activeColor : defaultAvulsoBrand.activeColor,
