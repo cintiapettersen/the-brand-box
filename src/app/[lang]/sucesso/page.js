@@ -11223,7 +11223,7 @@ function SucessoContent() {
            localStorage.setItem('brandbox_delivery', JSON.stringify(defaultAvulsoBrand));
         }
         setPlano('avulso');
-        setStepState('papelaria'); // avulso começa nos impressos, não no brand board
+        setStep('papelaria'); // avulso começa nos impressos, não no brand board
         setLoading(false);
         return;
       }
