@@ -142,7 +142,7 @@ export default function BrandBoxNav({ step, setStep, plano, papelariaItens = [],
   };
 
   const marcaItems = [
-    { id: 'placa', label: dictionary?.nav?.placa || 'Placa' },
+    { id: 'placa', label: dictionary?.nav?.placa || 'Placa', lockedOnAvulso: true },
     { id: 'manifesto', label: dictionary?.nav?.manifesto || 'Manifesto', lockedOnAvulso: true },
     { id: 'tomdevoz', label: dictionary?.nav?.tomdevoz || 'Tom de Voz', lockedOnAvulso: true },
     { id: 'fonte', label: dictionary?.nav?.fonte || 'Fonte' },

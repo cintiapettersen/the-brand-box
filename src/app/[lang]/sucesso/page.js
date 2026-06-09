@@ -9923,7 +9923,7 @@ function EntregaContent({ brand, plano, setBrand }) {
         </div>
 
         {/* Banner de upsell para steps exclusivos do pacote de identidade */}
-        {plano === 'avulso' && ['estampa', 'manifesto', 'tomdevoz', 'paleta', 'guia'].includes(step) && (
+        {plano === 'avulso' && ['placa', 'estampa', 'manifesto', 'tomdevoz', 'paleta', 'guia'].includes(step) && (
           <div style={{ background: '#fff8f0', border: '1.5px solid #fde8c8', borderRadius: '16px', padding: '20px 22px', marginBottom: '16px', textAlign: 'center' }}>
             <div style={{ fontSize: '1.5rem', marginBottom: '8px' }}>✨</div>
             <div style={{ fontSize: '0.85rem', fontWeight: 700, color: '#c87000', fontFamily: 'Montserrat,sans-serif', marginBottom: '6px' }}>
@@ -9964,7 +9964,7 @@ function EntregaContent({ brand, plano, setBrand }) {
         {step === 'assinatura-email' && <AssinaturaEmailPreview brand={brand} editData={editDataWithLogo} accentColor={accentColor} logoColor={logoColor} logoLayout={logoLayout} cartaoContacts={cartaoContacts} crmLine={crmLine} localSlogan={localSlogan} clinicaNome={clinicaNome} storyTemplateIdx={storyTemplateIdx} setStoryTemplateIdx={setStoryTemplateIdx} storyFormatIdx={storyFormatIdx} setStoryFormatIdx={setStoryFormatIdx} setCartaoContacts={setCartaoContacts} setClinicaNome={setClinicaNome} setLocalSlogan={setLocalSlogan} />}
 
         {/* Placa da marca */}
-        {step === 'placa' && <PlacaStep brand={brand} accentColor={accentColor} paletteColors={orderedPaletteColors} estampaPatterns={estampaPatterns} estampaSelectedIdx={estampaSelectedIdx} editData={editDataWithLogo} logoColor={logoColor} logoLayout={logoLayout} iconPath={currentIconPath} submarcaColor={submarcaColor} submarcaTextColor={submarcaTextColor} />}
+        {step === 'placa' && plano !== 'avulso' && <PlacaStep brand={brand} accentColor={accentColor} paletteColors={orderedPaletteColors} estampaPatterns={estampaPatterns} estampaSelectedIdx={estampaSelectedIdx} editData={editDataWithLogo} logoColor={logoColor} logoLayout={logoLayout} iconPath={currentIconPath} submarcaColor={submarcaColor} submarcaTextColor={submarcaTextColor} />}
 
         {/* Manifesto */}
         {step === 'manifesto' && plano !== 'avulso' && <ManifestoStep accentColor={accentColor} marca={marca} tagline={tagline} brand={brand} isSaude={isSaude} editData={editDataWithLogo} />}
@@ -11223,6 +11223,7 @@ function SucessoContent() {
            localStorage.setItem('brandbox_delivery', JSON.stringify(defaultAvulsoBrand));
         }
         setPlano('avulso');
+        setStepState('papelaria'); // avulso começa nos impressos, não no brand board
         setLoading(false);
         return;
       }
