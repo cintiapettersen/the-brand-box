@@ -9469,8 +9469,7 @@ function EntregaContent({ brand, plano, setBrand }) {
   // editData enriquecido com logo customizada — flui automaticamente para LogoPreviewHTML via editData
   const editDataWithLogo = React.useMemo(() => ({
     ...brand.editData,
-    // Avulso sem marca digitada: placeholder com 13 chars para bucket de fonte médio
-    marca: (brand.editData?.marca) || (plano === 'avulso' ? 'NOME DA MARCA' : brand.editData?.marca),
+    marca: brand.editData?.marca || '',
     tagline: sloganEnabled ? tagline : '',
     ...(fontOverride ? { fontFamily: fontOverride.fontFamily, fontWeight: fontOverride.weight || 700, fontStyle: fontOverride.style || 'serif', fontSizeBoost: fontOverride.sizeBoost || 1, fontLetterSpacing: fontOverride.letterSpacing || null } : {}),
     ...(customLogoSrc ? { customLogoSrc, customLogoScale } : {}),
@@ -10093,7 +10092,15 @@ function EntregaContent({ brand, plano, setBrand }) {
                 }}
               >
                 <div style={{ width: '85%', height: '58%', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                  <LogoPreviewHTML editData={{ ...editDataWithLogo, tagline: '' }} color={logoColor} layout={logoLayout} scaleFactor={1.1} maxWidth="100%" maxHeight="100%" />
+                  {plano === 'avulso' && !marca && !customLogoSrc ? (
+                    <div style={{ textAlign: 'center', color: '#ccc', fontFamily: 'Montserrat, sans-serif' }}>
+                      <div style={{ fontSize: '2rem', marginBottom: '10px' }}>🖼️</div>
+                      <div style={{ fontSize: '0.78rem', fontWeight: 700, color: '#bbb', marginBottom: '4px' }}>Envie sua logo acima</div>
+                      <div style={{ fontSize: '0.68rem', color: '#ccc' }}>ou digite o nome da marca abaixo</div>
+                    </div>
+                  ) : (
+                    <LogoPreviewHTML editData={{ ...editDataWithLogo, tagline: '' }} color={logoColor} layout={logoLayout} scaleFactor={1.1} maxWidth="100%" maxHeight="100%" />
+                  )}
                 </div>
               </div>
 
