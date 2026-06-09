@@ -10127,7 +10127,7 @@ function EntregaContent({ brand, plano, setBrand }) {
               </div>
 
               {/* {tLogo.layout || '📐 Disposição / Layout'} & Altura das Linhas */}
-              {!customLogoSrc && plano !== 'avulso' && (
+              {!customLogoSrc && (
                 <div style={{ padding: '12px 14px', background: '#fcfcfc', borderRadius: '14px', border: '1.5px solid #eaeaea', display: 'flex', flexDirection: 'column', gap: '10px' }}>
                   {marca.split(' ').length > 1 && (
                     <div>
