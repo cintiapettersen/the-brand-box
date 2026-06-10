@@ -4656,7 +4656,7 @@ function AtestadoPreview({ accentColor, patternSrc, editData, logoColor, logoLay
       {/* Título */}
       <div style={{ position: 'absolute', top: '110px', left: 0, right: 0, fontFamily: "'Montserrat',sans-serif", fontWeight: 800, fontSize: '7.5px', letterSpacing: '1.2px', textAlign: 'center', color: '#1a1a2e' }}>{dictionary?.atestado?.titulo?.toUpperCase() || 'ATESTADO MÉDICO'}</div>
 
-      {atestadoModelo === 1 ? (
+      {atestadoModelo === 2 ? (
       <>
       {/* Texto: padding horizontal de 9mm → ~25px */}
       <div style={{ position: 'absolute', top: '135px', left: '25px', right: '22px', fontFamily: "'Montserrat',sans-serif", fontSize: '5.5px', color: '#333', display: 'flex', flexDirection: 'column', gap: '8px', lineHeight: 1.2 }}>
@@ -5496,7 +5496,7 @@ function PapelariaStep({ brand, accentColor, paletteColors, estampaPatterns, est
   const [localSlogan, setLocalSlogan] = useState(editData?.tagline || '');
   const [folderRoof, setFolderRoof] = useState(() => brand?.niche?.toLowerCase()?.includes('pedi'));
   const [paperSize, setPaperSize] = useState('a5'); // 'a5' | 'a4'
-  const [atestadoModelo, setAtestadoModelo] = useState(2); // 1 | 2
+  const [atestadoModelo, setAtestadoModelo] = useState(1); // 1 | 2
   const persistPapelaria = (updates) => { try { const cur = JSON.parse(localStorage.getItem('brandbox_papelaria') || '{}'); localStorage.setItem('brandbox_papelaria', JSON.stringify({ ...cur, ...updates })); } catch {} };
   const setComBorda = (v) => { setComBordaState(v); persistPapelaria({ comBorda: v }); };
   const setPatternScale = (v) => { setPatternScaleState(v); persistPapelaria({ patternScale: v }); };
@@ -7107,7 +7107,7 @@ body { margin:0; } @media print { @page { size: ${_pw}mm ${_ph}mm; margin:0; } }
 
     <div style="position:absolute;top:${_isA4 ? 76 : 52}mm;left:0;right:0;text-align:center;font-size:${_isA4 ? 18 : 14}pt;font-weight:800;letter-spacing:2.5pt;color:#1a1a2e;">${dictionary?.atestado?.titulo?.toUpperCase() || 'ATESTADO MÉDICO'}</div>
 
-    ${atestadoModelo === 1 ? `
+    ${atestadoModelo === 2 ? `
     <div style="position:absolute;top:${_isA4 ? 96 : 66}mm;left:9mm;right:9mm;font-size:${_isA4 ? 13 : 10}pt;color:#222;display:flex;flex-direction:column;gap:${_isA4 ? 8 : 5}mm;line-height:1.3;">
       <div style="display:flex;align-items:flex-end;gap:1mm;">
         <span style="white-space:nowrap;">${dictionary?.atestado?.declaracao || 'Declaro para os devidos fins, que'}</span>
