@@ -9219,7 +9219,7 @@ ${fontImports2}
                     <div style={{ fontSize: '0.8rem', fontWeight: 700, color: '#333', fontFamily: 'Montserrat,sans-serif' }}>
                       {numItemsText} item{numItemsText > 1 ? 's' : ''} · <strong>R$ {totalCalculado.toFixed(2).replace('.', ',')}</strong>
                     </div>
-                    <button onClick={handleUpsellCheckout} disabled={upsellLoading} style={{ padding: '8px 20px', background: accentColor, color: '#fff', border: 'none', borderRadius: '20px', fontWeight: 700, fontSize: '0.78rem', fontFamily: 'Montserrat,sans-serif', cursor: upsellLoading ? 'wait' : 'pointer', opacity: upsellLoading ? 0.7 : 1 }}>
+                    <button onClick={handleUpsellCheckout} disabled={upsellLoading} style={{ padding: '8px 20px', background: '#3CB371', color: '#fff', border: 'none', borderRadius: '20px', fontWeight: 700, fontSize: '0.78rem', fontFamily: 'Montserrat,sans-serif', cursor: upsellLoading ? 'wait' : 'pointer', opacity: upsellLoading ? 0.7 : 1 }}>
                       {upsellLoading ? 'Aguarde...' : 'Comprar →'}
                     </button>
                   </div>
