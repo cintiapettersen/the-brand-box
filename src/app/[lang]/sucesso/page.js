@@ -3358,7 +3358,7 @@ function A5ItemPreview({ item, accentColor, patternSrc, editData, logoColor, log
         )}
       </div>
       {/* Linha separadora rodapé */}
-      <div style={{ position: 'absolute', bottom: BORDER + (clinicaNome || mainPhone ? 12 : 6) + (instagram || site || endereco ? 8 : 0), left: BORDER + 8, right: BORDER + 8, height: '0.5px', background: '#e0e0e0' }} />
+      <div style={{ position: 'absolute', bottom: BORDER + (clinicaNome || phones ? 12 : 6) + (instagram || site || endereco ? 8 : 0), left: BORDER + 8, right: BORDER + 8, height: '0.5px', background: '#e0e0e0' }} />
     </div>
     </div>
   );
