@@ -7184,7 +7184,6 @@ body { margin:0; } @media print { @page { size: ${_pw}mm ${_ph}mm; margin:0; } }
     <div style="position:absolute;top:${_isA4 ? 200 : 128}mm;left:9mm;right:9mm;display:flex;align-items:flex-end;gap:2mm;font-size:${_isA4 ? 13 : 10}pt;color:#222;">
       <span style="white-space:nowrap;">${dictionary?.atestado?.cid_label || 'CID:'}</span>
       <span class="blank" style="width:${_isA4 ? 50 : 36}mm;">&nbsp;</span>
-      <span style="white-space:nowrap;font-size:${_isA4 ? 9 : 7}pt;color:#999;">(${dictionary?.atestado?.cid_caption || 'preenchimento com autorização do paciente'})</span>
     </div>
 
     <div style="position:absolute;top:${_isA4 ? 235 : 152}mm;left:9mm;right:9mm;border-bottom:0.7px solid #555;"></div>
