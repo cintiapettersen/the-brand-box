@@ -58,16 +58,17 @@ export async function POST(request) {
         'Meu Pratinho': 'pratinho',
         'Guia de Amamentação': 'amamentacao',
       };
-      // Compra de item único (avulso puro): redireciona para ?avulso=[param] para desbloquear só esse item
+      // Compra avulso (sem sessionId, mesmo com múltiplos itens): redireciona para ?avulso=[param]
+      // do item principal (avulsoParam, se houver, ou o primeiro selecionado) para continuar no fluxo avulso
       // Compra de múltiplos (upsell de sessão existente): redireciona de volta para a sessão como pro
-      const itemParam = !sessionId && itensSelecionados.length === 1
-        ? (ITEM_AVULSO_PARAM[itensSelecionados[0]] || encodeURIComponent(itensSelecionados[0]))
+      const itemParam = !sessionId
+        ? (avulsoParam || ITEM_AVULSO_PARAM[itensSelecionados[0]] || encodeURIComponent(itensSelecionados[0]))
         : null;
-      const successUrl = itemParam
-        ? `${origin}/sucesso?avulso=${itemParam}`
-        : sessionId
-          ? `${origin}/sucesso?session=${sessionId}&plano=pro&upsell=1`
-          : `${origin}/sucesso?plano=pro&upsell=1`;
+      const successUrl = sessionId
+        ? `${origin}/sucesso?session=${sessionId}&plano=avulso&avulso=${avulsoParam || 'inicio'}&upsell=1`
+        : itemParam
+          ? `${origin}/sucesso?avulso=${itemParam}`
+          : `${origin}/sucesso?plano=avulso&upsell=1`;
 
       const line_items = [];
       const temCaderneta = itensSelecionados.includes("Caderneta de Saúde");
@@ -109,7 +110,7 @@ export async function POST(request) {
         metadata: { plano: 'avulso', marca: (marca || '').slice(0, 100), sessionId: sessionId || '', qtd_itens: String(itensSelecionados.length), tem_caderneta: String(temCaderneta) },
         success_url: successUrl,
         cancel_url: avulsoParam
-          ? `${origin}/sucesso?avulso=${avulsoParam}&cancelado=1`
+          ? (sessionId ? `${origin}/sucesso?session=${sessionId}&avulso=${avulsoParam}&cancelado=1` : `${origin}/sucesso?avulso=${avulsoParam}&cancelado=1`)
           : `${origin}/sucesso?session=${sessionId || ''}&cancelado=1`,
       });
       return Response.json({ url: session.url });
