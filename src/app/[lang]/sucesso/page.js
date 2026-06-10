@@ -4733,14 +4733,14 @@ function AtestadoPreview({ accentColor, patternSrc, editData, logoColor, logoLay
       </div>
 
       {/* Local e Data */}
-      <div style={{ position: 'absolute', top: '232px', left: '22px', width: '90px', borderBottom: '0.6px solid #555' }} />
-      <div style={{ position: 'absolute', top: '234px', left: '22px', width: '90px', textAlign: 'center', fontFamily: "'Montserrat',sans-serif", fontSize: '4px', color: '#555' }}>
+      <div style={{ position: 'absolute', top: '232px', left: '22px', right: '22px', borderBottom: '0.6px solid #555' }} />
+      <div style={{ position: 'absolute', top: '234px', left: '22px', right: '22px', textAlign: 'center', fontFamily: "'Montserrat',sans-serif", fontSize: '4px', color: '#555' }}>
         {dictionary?.atestado?.local_data || 'Local e Data'}
       </div>
 
       {/* Assinatura do Médico */}
-      <div style={{ position: 'absolute', top: '232px', right: '22px', width: '90px', borderBottom: '0.6px solid #555' }} />
-      <div style={{ position: 'absolute', top: '234px', right: '22px', width: '90px', textAlign: 'center', fontFamily: "'Montserrat',sans-serif", fontSize: '4px', color: '#555' }}>
+      <div style={{ position: 'absolute', top: '256px', left: '60px', right: '60px', borderBottom: '0.6px solid #555' }} />
+      <div style={{ position: 'absolute', top: '258px', left: '60px', right: '60px', textAlign: 'center', fontFamily: "'Montserrat',sans-serif", fontSize: '4px', color: '#555' }}>
         {dictionary?.atestado?.assinatura_medico || 'Assinatura do Médico'}
       </div>
       </>
@@ -5496,7 +5496,7 @@ function PapelariaStep({ brand, accentColor, paletteColors, estampaPatterns, est
   const [localSlogan, setLocalSlogan] = useState(editData?.tagline || '');
   const [folderRoof, setFolderRoof] = useState(() => brand?.niche?.toLowerCase()?.includes('pedi'));
   const [paperSize, setPaperSize] = useState('a5'); // 'a5' | 'a4'
-  const [atestadoModelo, setAtestadoModelo] = useState(1); // 1 | 2
+  const [atestadoModelo, setAtestadoModelo] = useState(2); // 1 | 2
   const persistPapelaria = (updates) => { try { const cur = JSON.parse(localStorage.getItem('brandbox_papelaria') || '{}'); localStorage.setItem('brandbox_papelaria', JSON.stringify({ ...cur, ...updates })); } catch {} };
   const setComBorda = (v) => { setComBordaState(v); persistPapelaria({ comBorda: v }); };
   const setPatternScale = (v) => { setPatternScaleState(v); persistPapelaria({ patternScale: v }); };
@@ -7103,7 +7103,7 @@ body { margin:0; } @media print { @page { size: ${_pw}mm ${_ph}mm; margin:0; } }
   ${_atFooterHtml}
   <div style="position:absolute;top:${BLEED + 8}mm;left:${BLEED + 8}mm;right:${BLEED + 8}mm;bottom:${BLEED + _footerH + 10}mm;font-family:'Montserrat',sans-serif;">
 
-    <div style="position:absolute;top:${_isA4 ? 12 : 11}mm;left:50%;transform:translateX(-50%);width:${Math.round((_pw - 2 * BLEED) * 0.90)}mm;display:flex;align-items:center;justify-content:center;">${genPDFLogoHtml({ brand, editDataOverride: editData, color: logoColor, layout: logoLayout, localSlogan, crmLine, fontPt: (parseFloat(_fontPt) * 2.2).toFixed(1), lineH: _lineH, letterSp: _letterSp, customLogoSrc, customLogoScale: customLogoSrc ? getCustomLogoScale(item) * (ITEM_CUSTOM_BASE_SCALES[item] || 1) : 100, maxWidth: '110mm', maxHeight: '60mm', withBackground: false, hideSlogan: false })}</div>
+    <div style="position:absolute;top:${_isA4 ? 12 : 11}mm;left:50%;transform:translateX(-50%);width:${Math.round((_pw - 2 * BLEED) * 0.90)}mm;display:flex;align-items:center;justify-content:center;">${genPDFLogoHtml({ brand, editDataOverride: editData, color: logoColor, layout: logoLayout, localSlogan, crmLine, fontPt: (parseFloat(_fontPt) * 2.2).toFixed(1), lineH: _lineH, letterSp: _letterSp, customLogoSrc, customLogoScale: customLogoSrc ? getCustomLogoScale(item) * (ITEM_CUSTOM_BASE_SCALES[item] || 1) * 2.2 : 100, maxWidth: '110mm', maxHeight: '60mm', withBackground: false, hideSlogan: false })}</div>
 
     <div style="position:absolute;top:${_isA4 ? 76 : 52}mm;left:0;right:0;text-align:center;font-size:${_isA4 ? 18 : 14}pt;font-weight:800;letter-spacing:2.5pt;color:#1a1a2e;">${dictionary?.atestado?.titulo?.toUpperCase() || 'ATESTADO MÉDICO'}</div>
 
@@ -7187,11 +7187,11 @@ body { margin:0; } @media print { @page { size: ${_pw}mm ${_ph}mm; margin:0; } }
       <span style="white-space:nowrap;font-size:${_isA4 ? 9 : 7}pt;color:#999;">(${dictionary?.atestado?.cid_caption || 'preenchimento com autorização do paciente'})</span>
     </div>
 
-    <div style="position:absolute;top:${_isA4 ? 235 : 152}mm;left:9mm;width:${_isA4 ? 80 : 56}mm;border-bottom:0.7px solid #555;"></div>
-    <div style="position:absolute;top:${_isA4 ? 238 : 154}mm;left:9mm;width:${_isA4 ? 80 : 56}mm;text-align:center;font-size:${_isA4 ? 9 : 7}pt;color:#555;">${dictionary?.atestado?.local_data || 'Local e Data'}</div>
+    <div style="position:absolute;top:${_isA4 ? 235 : 152}mm;left:9mm;right:9mm;border-bottom:0.7px solid #555;"></div>
+    <div style="position:absolute;top:${_isA4 ? 238 : 154}mm;left:9mm;right:9mm;text-align:center;font-size:${_isA4 ? 9 : 7}pt;color:#555;">${dictionary?.atestado?.local_data || 'Local e Data'}</div>
 
-    <div style="position:absolute;top:${_isA4 ? 235 : 152}mm;right:9mm;width:${_isA4 ? 80 : 56}mm;border-bottom:0.7px solid #555;"></div>
-    <div style="position:absolute;top:${_isA4 ? 238 : 154}mm;right:9mm;width:${_isA4 ? 80 : 56}mm;text-align:center;font-size:${_isA4 ? 9 : 7}pt;color:#555;">${dictionary?.atestado?.assinatura_medico || 'Assinatura do Médico'}</div>
+    <div style="position:absolute;top:${_isA4 ? 260 : 172}mm;left:20%;right:20%;border-bottom:0.7px solid #555;"></div>
+    <div style="position:absolute;top:${_isA4 ? 263 : 174}mm;left:20%;right:20%;text-align:center;font-size:${_isA4 ? 9 : 7}pt;color:#555;">${dictionary?.atestado?.assinatura_medico || 'Assinatura do Médico'}</div>
     `}
 
   </div>
