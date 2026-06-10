@@ -68,7 +68,7 @@ export default function CartaoAgradecimentoPreview({
                     editData={editData}
                     color={logoColorToUse}
                     layout={logoLayout}
-                    scaleFactor={size.w * (editData?.customLogoSrc ? 0.14 : 0.055)}
+                    scaleFactor={size.w * (editData?.customLogoSrc ? 0.18 : 0.07)}
                     hideTagline={false}
                     withBackground={logoWithBg}
                     maxWidth="100%"
