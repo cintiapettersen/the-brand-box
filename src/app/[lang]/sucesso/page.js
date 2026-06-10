@@ -9133,7 +9133,7 @@ function EntregaContent({ brand, plano, setBrand }) {
   const { dictionary } = useTranslation();
   const tLogo = dictionary?.logo_tab || {};
   const _params = useSearchParams();
-  const avulsoParam = _params.get('avulso');
+  const avulsoParam = _params.has('avulso') ? (_params.get('avulso') || 'inicio') : null;
   const [step, setStepState] = useState('placa');
   const setStep = (s) => { setStepState(s); try { localStorage.setItem(`brandbox_step_${brand.id}`, s); } catch {} };
   // Avulso começa nos impressos, não no brand board
@@ -11227,7 +11227,7 @@ function SucessoContent() {
   const sessionParam = params.get('session');
   const planoParam = params.get('plano');
   const devMode = params.get('dev') === '1';
-  const avulsoParam = params.get('avulso');
+  const avulsoParam = params.has('avulso') ? (params.get('avulso') || 'inicio') : null;
 
   useEffect(() => {
     if (params.get('reset') === '1') {
