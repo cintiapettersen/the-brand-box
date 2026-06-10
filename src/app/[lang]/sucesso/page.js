@@ -5792,7 +5792,7 @@ function PapelariaStep({ brand, accentColor, paletteColors, estampaPatterns, est
     const _isA4Global = _psLower.includes('a4') || ['Receita de Alta', 'Timbrado', 'Diário', 'Ficha', 'Cadastro', 'Prontuário', 'Checklist', 'Orientação'].some(n => item.includes(n));
     const _isReceituario = item.includes('Receituário');
     const _globalBoost = (['Receituário', 'Recibo', 'Ficha', 'Prontuário', 'Certificado', 'Atestado'].some(n => item.includes(n)) || _isA4Global) ? 1.0 : 1.0;
-    const _logoWidthMmGlobal = _isReceituario ? 110 : 100; // padronizado: A4 e A5 usam mesma caixa de logo
+    const _logoWidthMmGlobal = _isReceituario ? (_isA4Global ? 150 : 110) : 100; // padronizado: A4 e A5 usam mesma caixa de logo
 
     const logoHtmlWithCrm = genPDFLogoHtml({
       brand,
@@ -5801,13 +5801,13 @@ function PapelariaStep({ brand, accentColor, paletteColors, estampaPatterns, est
       layout: logoLayout,
       localSlogan,
       crmLine,
-      fontPt: (parseFloat(_fontPt) * (_isReceituario ? 2.2 : _globalBoost)).toFixed(1),
+      fontPt: (parseFloat(_fontPt) * (_isReceituario ? (_isA4Global ? 3.0 : 2.2) : _globalBoost)).toFixed(1),
       lineH: _lineH,
       letterSp: _letterSp,
       customLogoSrc,
       customLogoScale: customLogoSrc ? getCustomLogoScale(item) * (ITEM_CUSTOM_BASE_SCALES[item] || 1) : 100,
       maxWidth: `${_logoWidthMmGlobal}mm`,
-      maxHeight: _isReceituario ? '60mm' : '36mm'
+      maxHeight: _isReceituario ? (_isA4Global ? '80mm' : '60mm') : '36mm'
     });
     const logoHtml = logoHtmlWithCrm;
 
