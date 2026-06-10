@@ -4602,7 +4602,7 @@ function FolderA5Preview({ brand, editData, logoColor, logoLayout, comBorda, set
   );
 }
 
-function AtestadoPreview({ accentColor, patternSrc, editData, logoColor, logoLayout, crmLine, clinicaNome, marca, cartaoContacts, comBorda, setComBorda, paletteColors, borderColor, setBorderColor, patternScale, setPatternScale, hideTagline, folderRoof, setFolderRoof, paperSize, setPaperSize }) {
+function AtestadoPreview({ accentColor, patternSrc, editData, logoColor, logoLayout, crmLine, clinicaNome, marca, cartaoContacts, comBorda, setComBorda, paletteColors, borderColor, setBorderColor, patternScale, setPatternScale, hideTagline, folderRoof, setFolderRoof, paperSize, setPaperSize, atestadoModelo = 1, setAtestadoModelo }) {
   const { dictionary } = useTranslation();
   const BORDER = 14;
   const { whatsapp, telefone, telefone2, email, instagram, site, endereco } = cartaoContacts || {};
@@ -4617,6 +4617,15 @@ function AtestadoPreview({ accentColor, patternSrc, editData, logoColor, logoLay
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', alignItems: 'center' }}>
       <BordaToggle comBorda={comBorda} setComBorda={setComBorda} accentColor={accentColor} paletteColors={paletteColors} borderColor={borderColor} setBorderColor={setBorderColor} patternScale={patternScale} setPatternScale={setPatternScale} />
+      {setAtestadoModelo && (
+        <div style={{ display: 'flex', background: '#f0f0f0', borderRadius: '20px', padding: '3px' }}>
+          {[1, 2].map(m => (
+            <button key={m} onClick={() => setAtestadoModelo(m)} style={{ padding: '3px 14px', borderRadius: '16px', border: 'none', cursor: 'pointer', fontSize: '0.68rem', fontWeight: 700, fontFamily: 'Montserrat,sans-serif', background: atestadoModelo === m ? accentColor : 'transparent', color: atestadoModelo === m ? '#fff' : '#888', transition: 'all 0.15s' }}>
+              Modelo {m}
+            </button>
+          ))}
+        </div>
+      )}
       <div style={{ display: 'flex', gap: '6px', alignItems: 'center', flexWrap: 'wrap', justifyContent: 'center' }}>
         {setFolderRoof && (
           <button onClick={() => setFolderRoof(v => !v)} style={{ fontSize: '0.7rem', padding: '4px 12px', borderRadius: '20px', border: `1px solid ${folderRoof ? accentColor : '#eee'}`, background: folderRoof ? `${accentColor}10` : '#fff', color: folderRoof ? accentColor : '#aaa', cursor: 'pointer', fontFamily: 'Montserrat,sans-serif', fontWeight: folderRoof ? 700 : 400 }}>
@@ -4647,6 +4656,8 @@ function AtestadoPreview({ accentColor, patternSrc, editData, logoColor, logoLay
       {/* Título */}
       <div style={{ position: 'absolute', top: '110px', left: 0, right: 0, fontFamily: "'Montserrat',sans-serif", fontWeight: 800, fontSize: '7.5px', letterSpacing: '1.2px', textAlign: 'center', color: '#1a1a2e' }}>{dictionary?.atestado?.titulo?.toUpperCase() || 'ATESTADO MÉDICO'}</div>
 
+      {atestadoModelo === 1 ? (
+      <>
       {/* Texto: padding horizontal de 9mm → ~25px */}
       <div style={{ position: 'absolute', top: '135px', left: '25px', right: '22px', fontFamily: "'Montserrat',sans-serif", fontSize: '5.5px', color: '#333', display: 'flex', flexDirection: 'column', gap: '8px', lineHeight: 1.2 }}>
         {[
@@ -4674,6 +4685,65 @@ function AtestadoPreview({ accentColor, patternSrc, editData, logoColor, logoLay
 
       {/* Assinatura: SVG y=251.6 → 244px */}
       <div style={{ position: 'absolute', top: '244px', left: '20%', right: '20%', borderTop: '0.5px solid #555' }} />
+      </>
+      ) : (
+      <>
+      {/* Modelo 2: declaração curta + checkboxes + CID + Local/Data + Assinatura */}
+      <div style={{ position: 'absolute', top: '128px', left: '25px', right: '22px', fontFamily: "'Montserrat',sans-serif", fontSize: '5.5px', color: '#333', display: 'flex', flexDirection: 'column', gap: '5px', lineHeight: 1.2 }}>
+        <div style={{ display: 'flex', alignItems: 'flex-end', gap: '1px' }}>
+          <span style={{ whiteSpace: 'nowrap' }}>{dictionary?.atestado?.atesto_que || 'Atesto que o(a) Sr.(a)'}</span>
+          <span style={{ flex: 1, borderBottom: '0.6px solid #555' }}>&nbsp;</span>
+        </div>
+        <div style={{ display: 'flex', alignItems: 'flex-end', gap: '1px' }}>
+          <span style={{ whiteSpace: 'nowrap' }}>{dictionary?.atestado?.foi_atendido || 'foi atendido na Clínica Médica das'}</span>
+          <span style={{ width: '10px', borderBottom: '0.6px solid #555', display: 'inline-block' }}>&nbsp;</span>
+          <span style={{ whiteSpace: 'nowrap' }}>{dictionary?.atestado?.as || 'às'}</span>
+          <span style={{ width: '10px', borderBottom: '0.6px solid #555', display: 'inline-block' }}>&nbsp;</span>
+          <span style={{ whiteSpace: 'nowrap' }}>.</span>
+        </div>
+
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '4px', marginTop: '4px' }}>
+          {[
+            dictionary?.atestado?.check_retornar || 'Foi orientado a retornar ao trabalho.',
+            dictionary?.atestado?.check_repouso_hoje || 'Foi orientado a permanecer em repouso hoje.',
+          ].map((txt, i) => (
+            <div key={i} style={{ display: 'flex', alignItems: 'center', gap: '3px' }}>
+              <span style={{ width: '5px', height: '5px', border: '0.6px solid #555', display: 'inline-block', flexShrink: 0 }} />
+              <span style={{ whiteSpace: 'nowrap' }}>{txt}</span>
+            </div>
+          ))}
+          <div style={{ display: 'flex', alignItems: 'center', gap: '3px' }}>
+            <span style={{ width: '5px', height: '5px', border: '0.6px solid #555', display: 'inline-block', flexShrink: 0 }} />
+            <span style={{ whiteSpace: 'nowrap' }}>{dictionary?.atestado?.check_repouso_dias_pre || 'Deverá permanecer em repouso ('}</span>
+            <span style={{ width: '8px', borderBottom: '0.6px solid #555', display: 'inline-block' }}>&nbsp;</span>
+            <span style={{ whiteSpace: 'nowrap' }}>{dictionary?.atestado?.check_repouso_dias_pos || ') dia (s) a partir desta data'}</span>
+          </div>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '3px' }}>
+            <span style={{ width: '5px', height: '5px', border: '0.6px solid #555', display: 'inline-block', flexShrink: 0 }} />
+            <span style={{ whiteSpace: 'nowrap' }}>{dictionary?.atestado?.check_apto_esportes || 'Está apto a exercer práticas desportivas.'}</span>
+          </div>
+        </div>
+      </div>
+
+      {/* CID */}
+      <div style={{ position: 'absolute', top: '208px', left: '22px', right: '22px', borderBottom: '0.6px solid #555' }} />
+      <div style={{ position: 'absolute', top: '210px', left: 0, right: 0, textAlign: 'center', fontFamily: "'Montserrat',sans-serif", fontSize: '4px', color: '#555' }}>
+        {dictionary?.atestado?.cid_caption || 'CID - Preenchimento com autorização do paciente'}
+      </div>
+
+      {/* Local e Data */}
+      <div style={{ position: 'absolute', top: '232px', left: '22px', width: '90px', borderBottom: '0.6px solid #555' }} />
+      <div style={{ position: 'absolute', top: '234px', left: '22px', width: '90px', textAlign: 'center', fontFamily: "'Montserrat',sans-serif", fontSize: '4px', color: '#555' }}>
+        {dictionary?.atestado?.local_data || 'Local e Data'}
+      </div>
+
+      {/* Assinatura do Médico */}
+      <div style={{ position: 'absolute', top: '232px', right: '22px', width: '90px', borderBottom: '0.6px solid #555' }} />
+      <div style={{ position: 'absolute', top: '234px', right: '22px', width: '90px', textAlign: 'center', fontFamily: "'Montserrat',sans-serif", fontSize: '4px', color: '#555' }}>
+        {dictionary?.atestado?.assinatura_medico || 'Assinatura do Médico'}
+      </div>
+      </>
+      )}
 
       {/* Rodapé: SVG y=309 → bottom */}
       {(footerLine1 || footerLine2) && <>
@@ -5425,6 +5495,7 @@ function PapelariaStep({ brand, accentColor, paletteColors, estampaPatterns, est
   const [localSlogan, setLocalSlogan] = useState(editData?.tagline || '');
   const [folderRoof, setFolderRoof] = useState(() => brand?.niche?.toLowerCase()?.includes('pedi'));
   const [paperSize, setPaperSize] = useState('a5'); // 'a5' | 'a4'
+  const [atestadoModelo, setAtestadoModelo] = useState(1); // 1 | 2
   const persistPapelaria = (updates) => { try { const cur = JSON.parse(localStorage.getItem('brandbox_papelaria') || '{}'); localStorage.setItem('brandbox_papelaria', JSON.stringify({ ...cur, ...updates })); } catch {} };
   const setComBorda = (v) => { setComBordaState(v); persistPapelaria({ comBorda: v }); };
   const setPatternScale = (v) => { setPatternScaleState(v); persistPapelaria({ patternScale: v }); };
@@ -7034,6 +7105,7 @@ body { margin:0; } @media print { @page { size: ${_pw}mm ${_ph}mm; margin:0; } }
 
     <div style="position:absolute;top:${_isA4 ? 76 : 52}mm;left:0;right:0;text-align:center;font-size:${_isA4 ? 18 : 14}pt;font-weight:800;letter-spacing:2.5pt;color:#1a1a2e;">${dictionary?.atestado?.titulo?.toUpperCase() || 'ATESTADO MÉDICO'}</div>
 
+    ${atestadoModelo === 1 ? `
     <div style="position:absolute;top:${_isA4 ? 96 : 66}mm;left:9mm;right:9mm;font-size:${_isA4 ? 13 : 10}pt;color:#222;display:flex;flex-direction:column;gap:${_isA4 ? 14 : 6}mm;line-height:1.3;">
       <div style="display:flex;align-items:flex-end;gap:1mm;">
         <span style="white-space:nowrap;">${dictionary?.atestado?.declaracao || 'Declaro para os devidos fins, que'}</span>
@@ -7070,6 +7142,50 @@ body { margin:0; } @media print { @page { size: ${_pw}mm ${_ph}mm; margin:0; } }
     </div>
 
     <div style="position:absolute;top:${_isA4 ? 235 : 152}mm;left:20%;right:20%;border-top:0.7px solid #555;"></div>
+    ` : `
+    <div style="position:absolute;top:${_isA4 ? 96 : 66}mm;left:9mm;right:9mm;font-size:${_isA4 ? 13 : 10}pt;color:#222;display:flex;flex-direction:column;gap:${_isA4 ? 8 : 5}mm;line-height:1.3;">
+      <div style="display:flex;align-items:flex-end;gap:1mm;">
+        <span style="white-space:nowrap;">${dictionary?.atestado?.atesto_que || 'Atesto que o(a) Sr.(a)'}</span>
+        <span class="blank" style="flex:1;">&nbsp;</span>
+      </div>
+      <div style="display:flex;align-items:flex-end;gap:1mm;">
+        <span style="white-space:nowrap;">${dictionary?.atestado?.foi_atendido || 'foi atendido na Clínica Médica das'}</span>
+        <span class="blank" style="width:${_isA4 ? 22 : 16}mm;">&nbsp;</span>
+        <span style="white-space:nowrap;">${dictionary?.atestado?.as || 'às'}</span>
+        <span class="blank" style="width:${_isA4 ? 22 : 16}mm;">&nbsp;</span>
+        <span style="white-space:nowrap;">.</span>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:${_isA4 ? 6 : 4}mm;margin-top:${_isA4 ? 6 : 4}mm;">
+        <div style="display:flex;align-items:center;gap:3mm;">
+          <span style="width:${_isA4 ? 5 : 4}mm;height:${_isA4 ? 5 : 4}mm;border:0.8px solid #555;display:inline-block;flex-shrink:0;"></span>
+          <span style="white-space:nowrap;">${dictionary?.atestado?.check_retornar || 'Foi orientado a retornar ao trabalho.'}</span>
+        </div>
+        <div style="display:flex;align-items:center;gap:3mm;">
+          <span style="width:${_isA4 ? 5 : 4}mm;height:${_isA4 ? 5 : 4}mm;border:0.8px solid #555;display:inline-block;flex-shrink:0;"></span>
+          <span style="white-space:nowrap;">${dictionary?.atestado?.check_repouso_hoje || 'Foi orientado a permanecer em repouso hoje.'}</span>
+        </div>
+        <div style="display:flex;align-items:center;gap:3mm;">
+          <span style="width:${_isA4 ? 5 : 4}mm;height:${_isA4 ? 5 : 4}mm;border:0.8px solid #555;display:inline-block;flex-shrink:0;"></span>
+          <span style="white-space:nowrap;">${dictionary?.atestado?.check_repouso_dias_pre || 'Deverá permanecer em repouso ('}</span>
+          <span class="blank" style="width:${_isA4 ? 14 : 10}mm;">&nbsp;</span>
+          <span style="white-space:nowrap;">${dictionary?.atestado?.check_repouso_dias_pos || ') dia (s) a partir desta data'}</span>
+        </div>
+        <div style="display:flex;align-items:center;gap:3mm;">
+          <span style="width:${_isA4 ? 5 : 4}mm;height:${_isA4 ? 5 : 4}mm;border:0.8px solid #555;display:inline-block;flex-shrink:0;"></span>
+          <span style="white-space:nowrap;">${dictionary?.atestado?.check_apto_esportes || 'Está apto a exercer práticas desportivas.'}</span>
+        </div>
+      </div>
+    </div>
+
+    <div style="position:absolute;top:${_isA4 ? 200 : 128}mm;left:9mm;right:9mm;border-bottom:0.7px solid #555;"></div>
+    <div style="position:absolute;top:${_isA4 ? 203 : 130}mm;left:0;right:0;text-align:center;font-size:${_isA4 ? 9 : 7}pt;color:#555;">${dictionary?.atestado?.cid_caption || 'CID - Preenchimento com autorização do paciente'}</div>
+
+    <div style="position:absolute;top:${_isA4 ? 235 : 152}mm;left:9mm;width:${_isA4 ? 80 : 56}mm;border-bottom:0.7px solid #555;"></div>
+    <div style="position:absolute;top:${_isA4 ? 238 : 154}mm;left:9mm;width:${_isA4 ? 80 : 56}mm;text-align:center;font-size:${_isA4 ? 9 : 7}pt;color:#555;">${dictionary?.atestado?.local_data || 'Local e Data'}</div>
+
+    <div style="position:absolute;top:${_isA4 ? 235 : 152}mm;right:9mm;width:${_isA4 ? 80 : 56}mm;border-bottom:0.7px solid #555;"></div>
+    <div style="position:absolute;top:${_isA4 ? 238 : 154}mm;right:9mm;width:${_isA4 ? 80 : 56}mm;text-align:center;font-size:${_isA4 ? 9 : 7}pt;color:#555;">${dictionary?.atestado?.assinatura_medico || 'Assinatura do Médico'}</div>
+    `}
 
   </div>
 </div></body></html>`;
@@ -8841,7 +8957,7 @@ ${fontImports2}
             : ['Guia de Desenvolvimento', 'Guia de Vacina c/ Calendário', 'Cartão de Vacina', 'Guia do Sono'].some(n => currentItem === n)
               ? <FolderTrifoldPreview brand={brand} editData={itemEditData} logoColor={logoColor} logoLayout={logoLayout} comBorda={comBorda} setComBorda={setComBorda} patternSrc={patternSrc} patternScale={patternScale} setPatternScale={setPatternScale} accentColor={accentColor} borderColor={borderColor} setBorderColor={setBorderColor} paletteColors={paletteColors} title={currentItem} cartaoContacts={cartaoContacts} folderRoof={folderRoof} setFolderRoof={setFolderRoof} crmLine={crmLine} />
             : currentItem.includes('Atestado Médico')
-              ? <AtestadoPreview accentColor={accentColor} patternSrc={patternSrc} editData={{ ...itemEditData, tagline: localSlogan }} logoColor={logoColor} logoLayout={logoLayout} crmLine={crmLine} clinicaNome={clinicaNome} marca={marca} cartaoContacts={cartaoContacts} comBorda={comBorda} setComBorda={setComBorda} paletteColors={paletteColors} borderColor={borderColor} setBorderColor={setBorderColor} patternScale={patternScale} setPatternScale={setPatternScale} folderRoof={folderRoof} setFolderRoof={setFolderRoof} paperSize={paperSize} setPaperSize={setPaperSize} />
+              ? <AtestadoPreview accentColor={accentColor} patternSrc={patternSrc} editData={{ ...itemEditData, tagline: localSlogan }} logoColor={logoColor} logoLayout={logoLayout} crmLine={crmLine} clinicaNome={clinicaNome} marca={marca} cartaoContacts={cartaoContacts} comBorda={comBorda} setComBorda={setComBorda} paletteColors={paletteColors} borderColor={borderColor} setBorderColor={setBorderColor} patternScale={patternScale} setPatternScale={setPatternScale} folderRoof={folderRoof} setFolderRoof={setFolderRoof} paperSize={paperSize} setPaperSize={setPaperSize} atestadoModelo={atestadoModelo} setAtestadoModelo={setAtestadoModelo} />
             : currentItem.includes('Pasta')
               ? <PastaPreview brand={brand} editData={{ ...itemEditData, tagline: localSlogan }} accentColor={accentColor} solidColor={paletteColors[0]} logoColor={logoColor} logoLayout={logoLayout} isSaude={isSaude} crmLine={crmLine} clinicaNome={clinicaNome} cartaoContacts={cartaoContacts} comBorda={comBorda} setComBorda={setComBorda} patternSrc={patternSrc} paletteColors={paletteColors} borderColor={borderColor} setBorderColor={setBorderColor} patternScale={patternScale} setPatternScale={setPatternScale} folderRoof={folderRoof} setFolderRoof={setFolderRoof} />
             : currentItem === 'Papel Timbrado'
