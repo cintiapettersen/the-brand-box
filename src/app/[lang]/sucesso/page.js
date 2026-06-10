@@ -4726,9 +4726,10 @@ function AtestadoPreview({ accentColor, patternSrc, editData, logoColor, logoLay
       </div>
 
       {/* CID */}
-      <div style={{ position: 'absolute', top: '208px', left: '22px', right: '22px', borderBottom: '0.6px solid #555' }} />
-      <div style={{ position: 'absolute', top: '210px', left: 0, right: 0, textAlign: 'center', fontFamily: "'Montserrat',sans-serif", fontSize: '4px', color: '#555' }}>
-        {dictionary?.atestado?.cid_caption || 'CID - Preenchimento com autorização do paciente'}
+      <div style={{ position: 'absolute', top: '208px', left: '22px', right: '22px', display: 'flex', alignItems: 'flex-end', gap: '3px', fontFamily: "'Montserrat',sans-serif", fontSize: '5.5px', color: '#333' }}>
+        <span style={{ whiteSpace: 'nowrap' }}>{dictionary?.atestado?.cid_label || 'CID:'}</span>
+        <span style={{ width: '40px', borderBottom: '0.6px solid #555', display: 'inline-block' }}>&nbsp;</span>
+        <span style={{ whiteSpace: 'nowrap', fontSize: '4px', color: '#999' }}>({dictionary?.atestado?.cid_caption || 'preenchimento com autorização do paciente'})</span>
       </div>
 
       {/* Local e Data */}
@@ -7177,8 +7178,11 @@ body { margin:0; } @media print { @page { size: ${_pw}mm ${_ph}mm; margin:0; } }
       </div>
     </div>
 
-    <div style="position:absolute;top:${_isA4 ? 200 : 128}mm;left:9mm;right:9mm;border-bottom:0.7px solid #555;"></div>
-    <div style="position:absolute;top:${_isA4 ? 203 : 130}mm;left:0;right:0;text-align:center;font-size:${_isA4 ? 9 : 7}pt;color:#555;">${dictionary?.atestado?.cid_caption || 'CID - Preenchimento com autorização do paciente'}</div>
+    <div style="position:absolute;top:${_isA4 ? 200 : 128}mm;left:9mm;right:9mm;display:flex;align-items:flex-end;gap:2mm;font-size:${_isA4 ? 13 : 10}pt;color:#222;">
+      <span style="white-space:nowrap;">${dictionary?.atestado?.cid_label || 'CID:'}</span>
+      <span class="blank" style="width:${_isA4 ? 50 : 36}mm;">&nbsp;</span>
+      <span style="white-space:nowrap;font-size:${_isA4 ? 9 : 7}pt;color:#999;">(${dictionary?.atestado?.cid_caption || 'preenchimento com autorização do paciente'})</span>
+    </div>
 
     <div style="position:absolute;top:${_isA4 ? 235 : 152}mm;left:9mm;width:${_isA4 ? 80 : 56}mm;border-bottom:0.7px solid #555;"></div>
     <div style="position:absolute;top:${_isA4 ? 238 : 154}mm;left:9mm;width:${_isA4 ? 80 : 56}mm;text-align:center;font-size:${_isA4 ? 9 : 7}pt;color:#555;">${dictionary?.atestado?.local_data || 'Local e Data'}</div>
