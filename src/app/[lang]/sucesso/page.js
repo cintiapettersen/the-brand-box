@@ -9190,14 +9190,15 @@ ${fontImports2}
                         </div>
                       );
                     }
+                    const isCurrent = item === currentItem;
                     const btnStyle = {
                       padding: '5px 12px',
                       borderRadius: '20px',
-                      border: `1.5px solid ${sel ? (isCaderneta ? '#e6af2e' : accentColor) : (isCaderneta ? '#f0d38d' : '#ddd')}`,
-                      background: sel ? (isCaderneta ? '#fffcf0' : `${accentColor}12`) : '#fff',
+                      border: `1.5px solid ${isCurrent ? '#C03B66' : sel ? (isCaderneta ? '#e6af2e' : accentColor) : (isCaderneta ? '#f0d38d' : '#ddd')}`,
+                      background: isCurrent ? '#C03B66' : sel ? (isCaderneta ? '#fffcf0' : `${accentColor}12`) : '#fff',
                       fontSize: '0.72rem',
                       fontWeight: 600,
-                      color: sel ? (isCaderneta ? '#b5891b' : accentColor) : (isCaderneta ? '#b5891b' : '#888'),
+                      color: isCurrent ? '#fff' : sel ? (isCaderneta ? '#b5891b' : accentColor) : (isCaderneta ? '#b5891b' : '#888'),
                       fontFamily: 'Montserrat,sans-serif',
                       cursor: 'pointer',
                       transition: 'all 0.15s'
@@ -9206,7 +9207,9 @@ ${fontImports2}
                       <button key={item} onClick={() => {
                         setUpsellSelecionados(prev => prev.includes(item) ? prev.filter(i => i !== item) : [...prev, item]);
                       }} style={btnStyle}>
-                        {isCaderneta
+                        {isCurrent
+                          ? `✓ ${tItem(item, dictionary)} (este)`
+                          : isCaderneta
                           ? `${sel ? '✓ ' : '+ '}👑 Caderneta de Saúde (Premium - R$ 180)`
                           : `${sel ? '✓ ' : '+ '}${tItem(item, dictionary)}`}
                       </button>
