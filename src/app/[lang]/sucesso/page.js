@@ -4650,7 +4650,7 @@ function AtestadoPreview({ accentColor, patternSrc, editData, logoColor, logoLay
 
       {/* Logo no topo */}
       <div style={{ position: 'absolute', top: `${BORDER + 18}px`, left: '50%', transform: 'translateX(-50%)', width: '180px', height: '60px', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
-        <LogoPreviewHTML item="Atestado Médico" editData={editData} color={logoColor} layout={logoLayout} scaleFactor={0.65} crm={crmLine} hideTagline={hideTagline} withBackground={false} maxWidth="180px" maxHeight="60px" />
+        <LogoPreviewHTML item="Atestado Médico" editData={editData} color={logoColor} layout={logoLayout} scaleFactor={1.1} crm={crmLine} hideTagline={hideTagline} withBackground={false} maxWidth="180px" maxHeight="60px" />
       </div>
 
       {/* Título */}
