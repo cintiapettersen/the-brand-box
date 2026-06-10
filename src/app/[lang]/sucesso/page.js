@@ -7107,7 +7107,7 @@ body { margin:0; } @media print { @page { size: ${_pw}mm ${_ph}mm; margin:0; } }
     <div style="position:absolute;top:${_isA4 ? 76 : 52}mm;left:0;right:0;text-align:center;font-size:${_isA4 ? 18 : 14}pt;font-weight:800;letter-spacing:2.5pt;color:#1a1a2e;">${dictionary?.atestado?.titulo?.toUpperCase() || 'ATESTADO MÉDICO'}</div>
 
     ${atestadoModelo === 1 ? `
-    <div style="position:absolute;top:${_isA4 ? 96 : 66}mm;left:9mm;right:9mm;font-size:${_isA4 ? 13 : 10}pt;color:#222;display:flex;flex-direction:column;gap:${_isA4 ? 14 : 6}mm;line-height:1.3;">
+    <div style="position:absolute;top:${_isA4 ? 96 : 66}mm;left:9mm;right:9mm;font-size:${_isA4 ? 16 : 13}pt;color:#222;display:flex;flex-direction:column;gap:${_isA4 ? 16 : 9}mm;line-height:1.3;">
       <div style="display:flex;align-items:flex-end;gap:1mm;">
         <span style="white-space:nowrap;">${dictionary?.atestado?.declaracao || 'Declaro para os devidos fins, que'}</span>
         <span class="blank" style="flex:1;">&nbsp;</span>
@@ -7137,12 +7137,12 @@ body { margin:0; } @media print { @page { size: ${_pw}mm ${_ph}mm; margin:0; } }
       </div>
     </div>
 
-    <div style="position:absolute;top:${_isA4 ? 210 : 133}mm;left:0;right:0;text-align:center;font-size:${_isA4 ? 11 : 9}pt;color:#555;">
+    <div style="position:absolute;top:${_isA4 ? 210 : 145}mm;left:0;right:0;text-align:center;font-size:${_isA4 ? 11 : 10}pt;color:#555;">
       <span class="blank" style="width:${_isA4 ? 52 : 38}mm;">&nbsp;</span>, <span class="blank" style="width:${_isA4 ? 14 : 10}mm;">&nbsp;</span>
       de <span class="blank" style="width:${_isA4 ? 30 : 22}mm;">&nbsp;</span> de <span class="blank" style="width:${_isA4 ? 16 : 12}mm;">&nbsp;</span>
     </div>
 
-    <div style="position:absolute;top:${_isA4 ? 235 : 152}mm;left:20%;right:20%;border-top:0.7px solid #555;"></div>
+    <div style="position:absolute;top:${_isA4 ? 235 : 162}mm;left:20%;right:20%;border-top:0.7px solid #555;"></div>
     ` : `
     <div style="position:absolute;top:${_isA4 ? 96 : 66}mm;left:9mm;right:9mm;font-size:${_isA4 ? 13 : 10}pt;color:#222;display:flex;flex-direction:column;gap:${_isA4 ? 8 : 5}mm;line-height:1.3;">
       <div style="display:flex;align-items:flex-end;gap:1mm;">
