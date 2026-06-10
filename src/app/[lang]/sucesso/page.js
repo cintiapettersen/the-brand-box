@@ -5604,10 +5604,8 @@ function PapelariaStep({ brand, accentColor, paletteColors, estampaPatterns, est
         }
         localStorage.setItem('brandbox_pending_upsell', JSON.stringify(upsellSelecionados));
         
-        // Se estiver no plano avulso, o checkout do upsell deve cobrar o item principal TAMBÉM
-        const itensParaCobrar = plano === 'avulso' 
-           ? [...new Set([...upsellSelecionados, ...brand.papelariaSelecionada])]
-           : upsellSelecionados;
+        // O item principal já vem incluso em upsellSelecionados (pré-selecionado ao clicar em "Comprar")
+        const itensParaCobrar = upsellSelecionados;
 
         const res = await fetch('/api/checkout', {
           method: 'POST',
