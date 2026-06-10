@@ -5586,38 +5586,6 @@ function PapelariaStep({ brand, accentColor, paletteColors, estampaPatterns, est
 
   const isProPlan = plano === 'pro' || plano === 'complete';
 
-  const handleAvulsoCheckout = async (itemName) => {
-      setUpsellLoading(true);
-      try {
-        let delivery = {};
-        try { delivery = JSON.parse(localStorage.getItem('brandbox_delivery') || '{}'); } catch {}
-        const res = await fetch('/api/checkout', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            plano: 'avulso',
-            marca: delivery.formData?.marca || delivery.editData?.marca || brand?.editData?.marca || '',
-            email: delivery.formData?.email || brand?.formData?.email || '',
-            sessionId: '',
-            avulsoParam,
-            itensSelecionados: [itemName],
-          }),
-        });
-        let data;
-        try { data = await res.json(); } catch { data = {}; }
-        if (data.url) {
-          window.location.href = data.url;
-        } else {
-          alert('Erro ao iniciar pagamento: ' + (data.error || `status ${res.status}`));
-        }
-      } catch (e) {
-        console.error('handleAvulsoCheckout error:', e);
-        alert('Erro de conexão: ' + (e?.message || e));
-      } finally {
-        setUpsellLoading(false);
-      }
-  };
-
   const handleUpsellCheckout = async () => {
       if (upsellSelecionados.length === 0) return;
       setUpsellLoading(true);
@@ -9160,7 +9128,10 @@ ${fontImports2}
         if (!isItemOwned) {
           return (
             <button
-              onClick={() => handleAvulsoCheckout(currentItem)}
+              onClick={() => {
+                setUpsellSelecionados(prev => prev.includes(currentItem) ? prev : [...prev, currentItem]);
+                setShowUpsell(true);
+              }}
               disabled={upsellLoading}
               style={{ width: '100%', padding: '10px', background: '#C03B66', color: '#fff', border: '1.5px solid #C03B66', borderRadius: '30px', fontWeight: 700, fontSize: '0.8rem', cursor: upsellLoading ? 'wait' : 'pointer', marginBottom: '8px', opacity: upsellLoading ? 0.7 : 1, transition: 'all 0.2s' }}
             >
@@ -9208,9 +9179,17 @@ ${fontImports2}
                   + Adicionar mais itens — R$ 30 cada
                 </div>
                 <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px' }}>
-                  {faltando.map(item => {
+                  {todosDisponiveis.map(item => {
+                    const owned = ownedItems.includes(item);
                     const isCaderneta = item === "Caderneta de Saúde";
                     const sel = upsellSelecionados.includes(item);
+                    if (owned) {
+                      return (
+                        <div key={item} style={{ padding: '5px 12px', borderRadius: '20px', border: '1.5px solid #eee', background: '#f4f4f4', fontSize: '0.72rem', fontWeight: 600, color: '#bbb', fontFamily: 'Montserrat,sans-serif', textDecoration: 'line-through' }}>
+                          ✓ {isCaderneta ? '👑 Caderneta de Saúde' : tItem(item, dictionary)}
+                        </div>
+                      );
+                    }
                     const btnStyle = {
                       padding: '5px 12px',
                       borderRadius: '20px',
