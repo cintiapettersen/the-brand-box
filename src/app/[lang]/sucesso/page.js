@@ -11408,6 +11408,11 @@ function SucessoContent() {
         // sob sua própria chave brandbox_avulso_<param>), para que o cliente continue tendo
         // acesso a tudo que já comprou ao acessar um novo item.
         const _allPurchasedItems = new Set(itemName ? [itemName] : []);
+        // Itens recém-comprados, retornados pelo Stripe na URL (podem ser diferentes do item principal)
+        try {
+          const _itensComprados = JSON.parse(decodeURIComponent(params.get('itens') || '[]'));
+          _itensComprados.forEach(it => _allPurchasedItems.add(it));
+        } catch {}
         try {
           for (let i = 0; i < localStorage.length; i++) {
             const k = localStorage.key(i);

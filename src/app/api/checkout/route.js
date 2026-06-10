@@ -64,15 +64,18 @@ export async function POST(request) {
       const itemParam = !sessionId
         ? (avulsoParam || ITEM_AVULSO_PARAM[itensSelecionados[0]] || encodeURIComponent(itensSelecionados[0]))
         : null;
-      const successUrl = sessionId
-        ? `${origin}/sucesso?session=${sessionId}&plano=avulso&avulso=${avulsoParam || 'inicio'}&upsell=1`
-        : itemParam
-          ? `${origin}/sucesso?avulso=${itemParam}`
-          : `${origin}/sucesso?plano=avulso&upsell=1`;
-
       const line_items = [];
       const temCaderneta = itensSelecionados.includes("Caderneta de Saúde");
       const itensNormais = itensSelecionados.filter(item => item !== "Caderneta de Saúde");
+
+      // Itens efetivamente pagos nesta sessão — vão na URL de retorno para que o app
+      // libere todos eles, mesmo que o item principal (avulsoParam) seja outro.
+      const itensComprados = encodeURIComponent(JSON.stringify(itensNormais));
+      const successUrl = sessionId
+        ? `${origin}/sucesso?session=${sessionId}&plano=avulso&avulso=${avulsoParam || 'inicio'}&upsell=1`
+        : itemParam
+          ? `${origin}/sucesso?avulso=${itemParam}&itens=${itensComprados}`
+          : `${origin}/sucesso?plano=avulso&upsell=1`;
 
       if (temCaderneta) {
         line_items.push({
