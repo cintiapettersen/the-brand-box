@@ -11197,8 +11197,9 @@ function SucessoContent() {
   const [welcomeStep, setWelcomeStep] = useState(0); // 0 = Welcome screen, 1 = Instructions screen
   const [showAvulsoWelcome, setShowAvulsoWelcome] = useState(() => {
     try {
-      const _ap = typeof window !== 'undefined' ? new URLSearchParams(window.location.search).get('avulso') : null;
-      if (!_ap || _ap === 'inicio') return false;
+      const _params = typeof window !== 'undefined' ? new URLSearchParams(window.location.search) : null;
+      if (!_params || !_params.has('avulso')) return false;
+      const _ap = _params.get('avulso') || 'inicio';
       return localStorage.getItem('brandbox_avulso_welcome_' + _ap) !== 'seen';
     } catch { return false; }
   });
@@ -11471,18 +11472,24 @@ function SucessoContent() {
           <div>
             <p style={{ fontSize: '0.65rem', letterSpacing: '3px', textTransform: 'uppercase', color: accentAvulso, fontWeight: 700, margin: '0 0 0.6rem' }}>THE BRAND BOX</p>
             <h1 style={{ fontSize: '1.8rem', fontWeight: 800, color: '#1a1a1a', lineHeight: 1.3, margin: 0 }}>
-              Bem-vinda à sua área criativa!
+              {avulsoParam === 'inicio' ? 'Bem-vinda à The Brand Box!' : 'Bem-vinda à sua área criativa!'}
             </h1>
           </div>
           <p style={{ fontSize: '0.95rem', color: '#666', lineHeight: 1.8, margin: 0 }}>
-            Aqui você personaliza e baixa os seus impressos. Siga os passos abaixo para começar:
+            {avulsoParam === 'inicio'
+              ? 'Aqui você escolhe, personaliza e compra impressos avulsos com a sua marca. Veja como funciona:'
+              : 'Aqui você personaliza e baixa os seus impressos. Siga os passos abaixo para começar:'}
           </p>
           <div style={{ display: 'flex', flexDirection: 'column', gap: '12px', width: '100%', textAlign: 'left' }}>
-            {[
+            {(avulsoParam === 'inicio' ? [
+              { num: '1', icon: '🔍', titulo: 'Escolha um item', desc: 'Navegue pela aba Os Impressos e veja o preview de cada peça com a sua marca.' },
+              { num: '2', icon: '🎨', titulo: 'Personalize', desc: 'Edite o nome da marca, cores e dados de contato em A Marca → Logo / Cores.' },
+              { num: '3', icon: '🛒', titulo: 'Compre o arquivo', desc: 'Clique em "Comprar Arquivo" no item desejado e finalize o pagamento com segurança.' },
+            ] : [
               { num: '1', icon: '✍️', titulo: 'Escreva o nome da sua marca', desc: 'Vá na aba A Marca → Logo e digite o nome que vai aparecer nos seus materiais.' },
               { num: '2', icon: '🎨', titulo: 'Escolha suas cores', desc: 'Na aba A Marca → Cores, clique no círculo para personalizar cada cor da paleta.' },
               { num: '3', icon: '📄', titulo: 'Acesse seus impressos', desc: 'Clique em Os Impressos para visualizar, personalizar e baixar seus arquivos PDF.' },
-            ].map(({ num, icon, titulo, desc }) => (
+            ]).map(({ num, icon, titulo, desc }) => (
               <div key={num} style={{ display: 'flex', gap: '14px', background: '#fff', borderRadius: '14px', padding: '14px 16px', boxShadow: '0 2px 10px rgba(0,0,0,0.06)', alignItems: 'flex-start' }}>
                 <div style={{ width: '32px', height: '32px', borderRadius: '50%', background: accentAvulso + '22', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, fontSize: '1rem' }}>{icon}</div>
                 <div>
@@ -11492,57 +11499,72 @@ function SucessoContent() {
               </div>
             ))}
           </div>
-          {/* Campo de email */}
-          <div style={{ width: '100%', display: 'flex', flexDirection: 'column', gap: '8px' }}>
-            <p style={{ margin: 0, fontSize: '0.78rem', fontWeight: 700, color: '#444' }}>
-              📧 Para onde enviamos seu link de acesso?
-            </p>
-            <p style={{ margin: 0, fontSize: '0.72rem', color: '#999', lineHeight: 1.5 }}>
-              Guarde o link para acessar seus arquivos quando quiser.
-            </p>
-            <input
-              type="email"
-              placeholder="seu@email.com"
-              value={avulsoEmail}
-              onChange={e => setAvulsoEmail(e.target.value)}
-              style={{ width: '100%', padding: '12px 16px', borderRadius: '12px', border: '1.5px solid #e0dbd5', fontSize: '0.9rem', fontFamily: 'Montserrat, sans-serif', outline: 'none', boxSizing: 'border-box', color: '#333' }}
-            />
-            {avulsoEmailSent && (
-              <p style={{ margin: 0, fontSize: '0.72rem', color: '#1a7a6e', fontWeight: 700 }}>✓ E-mail enviado! Confira sua caixa de entrada.</p>
-            )}
-          </div>
 
-          <button
-            disabled={avulsoEmailSending || !avulsoEmail.includes('@')}
-            onClick={async () => {
-              setAvulsoEmailSending(true);
-              const origin = window.location.origin;
-              const link = `${origin}/pt-BR/sucesso?avulso=${avulsoParam}`;
-              try {
-                await fetch('/api/send-email', {
-                  method: 'POST',
-                  headers: { 'Content-Type': 'application/json' },
-                  body: JSON.stringify({ email: avulsoEmail, marca: brand?.editData?.marca || '', sessionId: null, plano: 'avulso', avulsoLink: link }),
-                });
-                setAvulsoEmailSent(true);
-              } catch {}
-              setAvulsoEmailSending(false);
-              try { localStorage.setItem('brandbox_avulso_welcome_' + avulsoParam, 'seen'); } catch {}
-              setShowAvulsoWelcome(false);
-            }}
-            style={{ background: `linear-gradient(135deg, ${accentAvulso}, ${accentAvulso}cc)`, color: '#fff', border: 'none', borderRadius: '50px', padding: '1rem 2.5rem', fontSize: '1rem', fontWeight: 700, cursor: (avulsoEmailSending || !avulsoEmail.includes('@')) ? 'default' : 'pointer', boxShadow: `0 10px 30px ${accentAvulso}55`, width: '100%', opacity: (avulsoEmailSending || !avulsoEmail.includes('@')) ? 0.5 : 1, transition: 'opacity 0.2s' }}
-          >
-            {avulsoEmailSending ? 'Enviando...' : 'Enviar link e começar →'}
-          </button>
-          <button
-            onClick={() => {
-              try { localStorage.setItem('brandbox_avulso_welcome_' + avulsoParam, 'seen'); } catch {}
-              setShowAvulsoWelcome(false);
-            }}
-            style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: '0.72rem', color: '#bbb', textDecoration: 'underline', padding: '4px' }}
-          >
-            Pular e acessar sem salvar o link
-          </button>
+          {avulsoParam === 'inicio' ? (
+            <button
+              onClick={() => {
+                try { localStorage.setItem('brandbox_avulso_welcome_' + avulsoParam, 'seen'); } catch {}
+                setShowAvulsoWelcome(false);
+              }}
+              style={{ background: `linear-gradient(135deg, ${accentAvulso}, ${accentAvulso}cc)`, color: '#fff', border: 'none', borderRadius: '50px', padding: '1rem 2.5rem', fontSize: '1rem', fontWeight: 700, cursor: 'pointer', boxShadow: `0 10px 30px ${accentAvulso}55`, width: '100%' }}
+            >
+              Começar →
+            </button>
+          ) : (
+            <>
+              {/* Campo de email */}
+              <div style={{ width: '100%', display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                <p style={{ margin: 0, fontSize: '0.78rem', fontWeight: 700, color: '#444' }}>
+                  📧 Para onde enviamos seu link de acesso?
+                </p>
+                <p style={{ margin: 0, fontSize: '0.72rem', color: '#999', lineHeight: 1.5 }}>
+                  Guarde o link para acessar seus arquivos quando quiser.
+                </p>
+                <input
+                  type="email"
+                  placeholder="seu@email.com"
+                  value={avulsoEmail}
+                  onChange={e => setAvulsoEmail(e.target.value)}
+                  style={{ width: '100%', padding: '12px 16px', borderRadius: '12px', border: '1.5px solid #e0dbd5', fontSize: '0.9rem', fontFamily: 'Montserrat, sans-serif', outline: 'none', boxSizing: 'border-box', color: '#333' }}
+                />
+                {avulsoEmailSent && (
+                  <p style={{ margin: 0, fontSize: '0.72rem', color: '#1a7a6e', fontWeight: 700 }}>✓ E-mail enviado! Confira sua caixa de entrada.</p>
+                )}
+              </div>
+
+              <button
+                disabled={avulsoEmailSending || !avulsoEmail.includes('@')}
+                onClick={async () => {
+                  setAvulsoEmailSending(true);
+                  const origin = window.location.origin;
+                  const link = `${origin}/pt-BR/sucesso?avulso=${avulsoParam}`;
+                  try {
+                    await fetch('/api/send-email', {
+                      method: 'POST',
+                      headers: { 'Content-Type': 'application/json' },
+                      body: JSON.stringify({ email: avulsoEmail, marca: brand?.editData?.marca || '', sessionId: null, plano: 'avulso', avulsoLink: link }),
+                    });
+                    setAvulsoEmailSent(true);
+                  } catch {}
+                  setAvulsoEmailSending(false);
+                  try { localStorage.setItem('brandbox_avulso_welcome_' + avulsoParam, 'seen'); } catch {}
+                  setShowAvulsoWelcome(false);
+                }}
+                style={{ background: `linear-gradient(135deg, ${accentAvulso}, ${accentAvulso}cc)`, color: '#fff', border: 'none', borderRadius: '50px', padding: '1rem 2.5rem', fontSize: '1rem', fontWeight: 700, cursor: (avulsoEmailSending || !avulsoEmail.includes('@')) ? 'default' : 'pointer', boxShadow: `0 10px 30px ${accentAvulso}55`, width: '100%', opacity: (avulsoEmailSending || !avulsoEmail.includes('@')) ? 0.5 : 1, transition: 'opacity 0.2s' }}
+              >
+                {avulsoEmailSending ? 'Enviando...' : 'Enviar link e começar →'}
+              </button>
+              <button
+                onClick={() => {
+                  try { localStorage.setItem('brandbox_avulso_welcome_' + avulsoParam, 'seen'); } catch {}
+                  setShowAvulsoWelcome(false);
+                }}
+                style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: '0.72rem', color: '#bbb', textDecoration: 'underline', padding: '4px' }}
+              >
+                Pular e acessar sem salvar o link
+              </button>
+            </>
+          )}
         </div>
       </div>
     );
