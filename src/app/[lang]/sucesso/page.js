@@ -11325,6 +11325,7 @@ function SucessoContent() {
       const _params = typeof window !== 'undefined' ? new URLSearchParams(window.location.search) : null;
       if (!_params || !_params.has('avulso')) return false;
       const _ap = _params.get('avulso') || 'inicio';
+      if (localStorage.getItem('brandbox_avulso_welcome_global') === 'seen') return false;
       return localStorage.getItem('brandbox_avulso_welcome_' + _ap) !== 'seen';
     } catch { return false; }
   });
@@ -11628,7 +11629,7 @@ function SucessoContent() {
           {avulsoParam === 'inicio' ? (
             <button
               onClick={() => {
-                try { localStorage.setItem('brandbox_avulso_welcome_' + avulsoParam, 'seen'); } catch {}
+                try { localStorage.setItem('brandbox_avulso_welcome_' + avulsoParam, 'seen'); localStorage.setItem('brandbox_avulso_welcome_global', 'seen'); } catch {}
                 setShowAvulsoWelcome(false);
               }}
               style={{ background: `linear-gradient(135deg, ${accentAvulso}, ${accentAvulso}cc)`, color: '#fff', border: 'none', borderRadius: '50px', padding: '1rem 2.5rem', fontSize: '1rem', fontWeight: 700, cursor: 'pointer', boxShadow: `0 10px 30px ${accentAvulso}55`, width: '100%' }}
@@ -11672,7 +11673,7 @@ function SucessoContent() {
                     setAvulsoEmailSent(true);
                   } catch {}
                   setAvulsoEmailSending(false);
-                  try { localStorage.setItem('brandbox_avulso_welcome_' + avulsoParam, 'seen'); } catch {}
+                  try { localStorage.setItem('brandbox_avulso_welcome_' + avulsoParam, 'seen'); localStorage.setItem('brandbox_avulso_welcome_global', 'seen'); } catch {}
                   setShowAvulsoWelcome(false);
                 }}
                 style={{ background: `linear-gradient(135deg, ${accentAvulso}, ${accentAvulso}cc)`, color: '#fff', border: 'none', borderRadius: '50px', padding: '1rem 2.5rem', fontSize: '1rem', fontWeight: 700, cursor: (avulsoEmailSending || !avulsoEmail.includes('@')) ? 'default' : 'pointer', boxShadow: `0 10px 30px ${accentAvulso}55`, width: '100%', opacity: (avulsoEmailSending || !avulsoEmail.includes('@')) ? 0.5 : 1, transition: 'opacity 0.2s' }}
@@ -11681,7 +11682,7 @@ function SucessoContent() {
               </button>
               <button
                 onClick={() => {
-                  try { localStorage.setItem('brandbox_avulso_welcome_' + avulsoParam, 'seen'); } catch {}
+                  try { localStorage.setItem('brandbox_avulso_welcome_' + avulsoParam, 'seen'); localStorage.setItem('brandbox_avulso_welcome_global', 'seen'); } catch {}
                   setShowAvulsoWelcome(false);
                 }}
                 style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: '0.72rem', color: '#bbb', textDecoration: 'underline', padding: '4px' }}
