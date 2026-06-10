@@ -7601,16 +7601,24 @@ html, body { width:${totalW}mm; height:${totalH}mm; overflow:hidden; }
       const _lfC = LOCAL_FONT_FACES[_ffC];
       const fiC = `<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700;800;900&display=swap" rel="stylesheet">${_lfC ? `<style>${_lfC}</style>` : `<link href="https://fonts.googleapis.com/css2?family=${encodeURIComponent(_ffC)}:wght@400;700&display=swap" rel="stylesheet">`}`;
       const hasCustomLogoC = !!itemEditData?.customLogoSrc;
-      const effectiveLayoutC = (comBorda && patternSrc && !hasCustomLogoC) ? 'balanced' : (logoLayout || 'stacked');
-      const baseSFC = (comBorda && patternSrc) ? 0.8 : 1.2;
-      const _sfC = hasCustomLogoC ? baseSFC * 1.45 : baseSFC; 
-      const logoHtmlC = ReactDOMServer.renderToString(<LogoPreviewHTML editData={itemEditData} color="#ffffff" layout={effectiveLayoutC} scaleFactor={_sfC} crm={null} hideTagline={true} withBackground={hasCustomLogoC} />);
-      const circleD = 44;
-      const circleBgC = (comBorda && patternSrc) ? solidColor + 'd0' : 'rgba(255,255,255,0.22)';
+      const seloSizeC = 37; // mm — equivalente ao selo do mockup/preview
+      const seloDataC = itemEditData?.fontStyle === 'script'
+        ? { ...itemEditData, fontFamily: 'Montserrat', fontWeight: 700, fontStyle: 'display' }
+        : { ...itemEditData };
+      const logoHtmlC = hasCustomLogoC
+        ? ReactDOMServer.renderToString(
+            <div style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', background: 'rgba(255,255,255,0.92)', padding: '2mm 3mm', borderRadius: '4px' }}>
+              <img src={itemEditData.customLogoSrc} alt="logo" style={{ maxWidth: `${seloSizeC * 1.6}mm`, maxHeight: `${seloSizeC * 1.2}mm`, objectFit: 'contain' }} />
+            </div>
+          )
+        : ReactDOMServer.renderToString(
+            <div style={{ width: `${seloSizeC}mm`, height: `${seloSizeC}mm`, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+              <BrandTemplateSVG data={seloDataC} color={submarcaColor || solidColor} textColor={submarcaTextColor || '#ffffff'} side="verso" hideBackground={true} iconPath={iconPath || null} />
+            </div>
+          );
       const bgStyleC = comBorda && patternSrc
         ? `background-image:url(${patternSrc});background-size:${(patternScale*0.15).toFixed(1)}mm;background-repeat:repeat;`
         : `background:${solidColor};`;
-      const mkCircle = (leftPct) => `<div style="position:absolute;top:50%;left:${leftPct};transform:translate(-50%,-50%);width:${circleD}mm;height:${circleD}mm;border-radius:50%;background:${circleBgC};display:flex;align-items:center;justify-content:center;text-align:center;">${logoHtmlC}</div>`;
       const BC = 3; // bleed 3mm
       const TW = 200 + BC*2, TH = 80 + BC*2;
       const cmsC = `
@@ -7622,12 +7630,7 @@ html, body { width:${totalW}mm; height:${totalH}mm; overflow:hidden; }
         <div style="position:absolute;bottom:0;left:${BC}mm;width:0.2mm;height:${BC-0.5}mm;background:#000;"></div>
         <div style="position:absolute;bottom:${BC}mm;right:0;width:${BC-0.5}mm;height:0.2mm;background:#000;"></div>
         <div style="position:absolute;bottom:0;right:${BC}mm;width:0.2mm;height:${BC-0.5}mm;background:#000;"></div>`;
-      const hasPattern = comBorda && patternSrc;
-      // Círculo: só para logo de texto com estampa. Logo imagem já tem fundo branco próprio.
-      const useCircle = hasPattern && !hasCustomLogoC;
-      const logoPos = (leftPct) => useCircle
-        ? mkCircle(leftPct)
-        : `<div style="position:absolute;top:50%;left:${leftPct};transform:translate(-50%,-50%);display:flex;align-items:center;justify-content:center;">${logoHtmlC}</div>`;
+      const logoPos = (leftPct) => `<div style="position:absolute;top:50%;left:${leftPct};transform:translate(-50%,-50%);display:flex;align-items:center;justify-content:center;">${logoHtmlC}</div>`;
       const html = `<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Arte Caneca - ${marca}</title>${fiC}
 <style>* { box-sizing:border-box; margin:0; padding:0; print-color-adjust:exact !important; -webkit-print-color-adjust:exact !important; }
 html, body { width:${TW}mm; height:${TH}mm; overflow:hidden; }
