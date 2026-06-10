@@ -167,7 +167,7 @@ export function LogoPreviewHTML({ item = null, editData, color, layout = 'stacke
   const effectiveScaleFactor = customLogoSrc
     ? scaleFactor * (customLogoScale / 100) * effectiveBaseScale
     : scaleFactor * effectiveBaseScale;
-  const marca = editData?.marca || '';
+  const marca = (editData?.marca || '').trim() || 'Minha Marca';
   const words = marca.split(' ').map(w => isScript ? w.charAt(0).toUpperCase() + w.slice(1).toLowerCase() : w.toUpperCase());
 
   let lines, baseSize;
@@ -4305,8 +4305,9 @@ function FolderTrifoldPreview({ brand, editData, logoColor, logoLayout, comBorda
   const isVacina = (title || '').includes('Vacina');
   const isSono = (title || '').includes('Sono');
   const isCuidados = (title || '').includes('Cuidados');
+  const isAlimentar = (title || '').includes('Alimentar');
 
-  const finalTagline = (isPrenatal || isSono || isVacina || isDev || isCuidados || (title || '').includes('Alimentar')) ? themeTagline : (_brandData.tagline || themeTagline);
+  const finalTagline = (isPrenatal || isSono || isVacina || isDev || isCuidados || isAlimentar) ? themeTagline : (_brandData.tagline || themeTagline);
 
   const darkenHex = (hex, factor = 0.55) => {
     const h = hex.replace('#', '');
@@ -4377,7 +4378,9 @@ function FolderTrifoldPreview({ brand, editData, logoColor, logoLayout, comBorda
                            ? (lang === 'en' ? '"You don\'t need to be perfect — you need to be present."' : '"Você não precisa ser perfeita — precisa estar presente."')
                            : isVacina 
                              ? (lang === 'en' ? '"Protection that starts from day one."' : '"Proteção que começa desde o primeiro dia."') 
-                             : (lang === 'en' ? '"Play, talk and explore!"' : '"Brinque, converse e explore!"')}
+                             : isAlimentar 
+                               ? (lang === 'en' ? '"Nourishing is an act of love and patience."' : '"Nutrir é um gesto de amor e paciência."')
+                               : (lang === 'en' ? '"Play, talk and explore!"' : '"Brinque, converse e explore!"')}
                      </div>
                      <div style={{ fontSize: '3.5px', color: '#fff', fontWeight: 500, lineHeight: 1.5, fontFamily: 'Montserrat, sans-serif' }}>
                         {isSono 
@@ -4386,7 +4389,9 @@ function FolderTrifoldPreview({ brand, editData, logoColor, logoLayout, comBorda
                             ? (lang === 'en' ? 'Caring for a baby is learning along with them. Every doubt is normal, every achievement is yours too. You are doing an amazing job.' : 'Cuidar de um bebê é aprender junto com ele. Cada dúvida é normal, cada conquista é sua também. Você está fazendo um trabalho incrível.')
                             : isVacina 
                               ? (lang === 'en' ? 'Vaccination is the greatest act of love and care. It protects not only your baby, but the entire community around them.' : 'A vacinação é o maior gesto de amor e cuidado. Ela protege não apenas o seu bebê, mas toda a comunidade ao redor.')
-                              : (lang === 'en' ? 'Playtime is more than just fun. It helps your baby learn, develop new skills, and feel safe and loved.' : 'As brincadeiras são mais do que momentos de divertimento. Elas ajudam seu bebê a aprender, a desenvolver novas habilidades e a se sentir seguro e amado.')}
+                              : isAlimentar 
+                                ? (lang === 'en' ? 'Introducing solids is more than just offering food: it is the beginning of a healthy relationship with eating. Respect signs of fullness, encourage autonomy, and explore new textures with love.' : 'A introdução alimentar é mais do que oferecer comida: é o início de uma relação saudável com os alimentos. Respeite os sinais de saciedade, incentive a autonomia e explore texturas com amor.')
+                                : (lang === 'en' ? 'Playtime is more than just fun. It helps your baby learn, develop new skills, and feel safe and loved.' : 'As brincadeiras são mais do que momentos de divertimento. Elas ajudam seu bebê a aprender, a desenvolver novas habilidades e a se sentir seguro e amado.')}
                      </div>
                   </div>
                 </div>
@@ -4649,8 +4654,8 @@ function AtestadoPreview({ accentColor, patternSrc, editData, logoColor, logoLay
       <div style={{ position: 'absolute', top: BORDER, left: BORDER, right: BORDER, bottom: BORDER, background: '#fff', clipPath: roofClip }} />
 
       {/* Logo no topo */}
-      <div style={{ position: 'absolute', top: `${BORDER + 18}px`, left: '50%', transform: 'translateX(-50%)', width: '180px', height: '60px', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
-        <LogoPreviewHTML item="Atestado Médico" editData={editData} color={logoColor} layout={logoLayout} scaleFactor={1.1} crm={crmLine} hideTagline={hideTagline} withBackground={false} maxWidth="180px" maxHeight="60px" />
+      <div style={{ position: 'absolute', top: `${BORDER + 18}px`, left: '50%', transform: 'translateX(-50%)', width: '140px', height: '44px', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
+        <LogoPreviewHTML item="Atestado Médico" editData={editData} color={logoColor} layout={logoLayout} scaleFactor={0.65} crm={crmLine} hideTagline={hideTagline} withBackground={false} maxWidth="140px" maxHeight="44px" />
       </div>
 
       {/* Título */}
@@ -5708,7 +5713,8 @@ function PapelariaStep({ brand, accentColor, paletteColors, estampaPatterns, est
   const pdfTitle = (item) => {
     const sizeKey = Object.keys(ITEM_SIZES).find(k => item.includes(k));
     const size = sizeKey ? ITEM_SIZES[sizeKey] : null;
-    const slug = marca ? marca.replace(/\s+/g, '_') : 'marca';
+    const resolvedMarca = (marca || '').trim() || 'Minha Marca';
+    const slug = resolvedMarca.replace(/\s+/g, '_');
     return size ? `${item}_${size}_${slug}` : `${item}_${slug}`;
   };
 
@@ -5769,11 +5775,12 @@ function PapelariaStep({ brand, accentColor, paletteColors, estampaPatterns, est
 
     const _isScript = editData?.fontStyle === 'script';
     const _boost = editData?.fontSizeBoost || 1;
-    const _words = marca.split(' ').map(w => _isScript ? w.charAt(0).toUpperCase() + w.slice(1).toLowerCase() : w.toUpperCase());
+    const resolvedMarca = (marca || '').trim() || 'Minha Marca';
+    const _words = resolvedMarca.split(' ').map(w => _isScript ? w.charAt(0).toUpperCase() + w.slice(1).toLowerCase() : w.toUpperCase());
     let _lines, _basePt;
-    if (logoLayout === 'horizontal') { _lines = [_words.join(' ')]; _basePt = marca.length > 18 ? 10 : marca.length > 12 ? 14 : marca.length > 8 ? 18 : 22; }
-    else if (logoLayout === 'balanced' && _words.length >= 3) { const m = Math.ceil(_words.length / 2); _lines = [_words.slice(0, m).join(' '), _words.slice(m).join(' ')]; _basePt = marca.length > 15 ? 16 : 21; }
-    else { _lines = _words; _basePt = _words.length >= 3 ? (marca.length > 15 ? 14 : 17) : _words.length === 2 ? 22 : 29; }
+    if (logoLayout === 'horizontal') { _lines = [_words.join(' ')]; _basePt = resolvedMarca.length > 18 ? 10 : resolvedMarca.length > 12 ? 14 : resolvedMarca.length > 8 ? 18 : 22; }
+    else if (logoLayout === 'balanced' && _words.length >= 3) { const m = Math.ceil(_words.length / 2); _lines = [_words.slice(0, m).join(' '), _words.slice(m).join(' ')]; _basePt = resolvedMarca.length > 15 ? 16 : 21; }
+    else { _lines = _words; _basePt = _words.length >= 3 ? (resolvedMarca.length > 15 ? 14 : 17) : _words.length === 2 ? 22 : 29; }
     const _fontPt = (_basePt * _boost).toFixed(1);
     const _lineH = editData?.fontLineHeight || (_isScript ? 0.9 : 1.1);
     const _letterSp = editData?.fontLetterSpacing || (_isScript ? '0pt' : '1px');
@@ -5816,6 +5823,7 @@ function PapelariaStep({ brand, accentColor, paletteColors, estampaPatterns, est
     const isVacina = item.includes('Vacina');
     const isSono = item.includes('Sono');
     const isCuidados = item.includes('Cuidados');
+    const isAlimentar = item.includes('Alimentar');
     const Art2 = isVacina ? FolderVacinaPage2 : (isDev ? FolderDevPage2 : (isSono ? FolderSonoPage2 : (isCuidados ? FolderCuidadosPage2 : FolderPage2Art)));
     const Art3 = isVacina ? FolderVacinaPage3 : (isDev ? FolderDevPage3 : (isSono ? FolderSonoPage3 : (isCuidados ? FolderCuidadosPage3 : FolderPage3Art)));
     const Art4 = isVacina ? FolderVacinaPage4 : (isDev ? FolderDevPage4 : (isSono ? FolderSonoPage4 : (isCuidados ? FolderCuidadosPage4 : (item === 'Guia Alimentar' ? FolderPage4Dynamic : FolderPage4Art))));
@@ -7103,7 +7111,7 @@ body { margin:0; } @media print { @page { size: ${_pw}mm ${_ph}mm; margin:0; } }
   ${_atFooterHtml}
   <div style="position:absolute;top:${BLEED + 8}mm;left:${BLEED + 8}mm;right:${BLEED + 8}mm;bottom:${BLEED + _footerH + 10}mm;font-family:'Montserrat',sans-serif;">
 
-    <div style="position:absolute;top:${_isA4 ? 12 : 11}mm;left:50%;transform:translateX(-50%);width:${Math.round((_pw - 2 * BLEED) * 0.90)}mm;display:flex;align-items:center;justify-content:center;">${genPDFLogoHtml({ brand, editDataOverride: editData, color: logoColor, layout: logoLayout, localSlogan, crmLine, fontPt: (parseFloat(_fontPt) * 2.2).toFixed(1), lineH: _lineH, letterSp: _letterSp, customLogoSrc, customLogoScale: customLogoSrc ? getCustomLogoScale(item) * (ITEM_CUSTOM_BASE_SCALES[item] || 1) : 100, maxWidth: '110mm', maxHeight: '60mm', withBackground: false, hideSlogan: false })}</div>
+    <div style="position:absolute;top:${_isA4 ? 12 : 11}mm;left:50%;transform:translateX(-50%);width:${Math.round((_pw - 2 * BLEED) * 0.90)}mm;display:flex;align-items:center;justify-content:center;">${genPDFLogoHtml({ brand, editDataOverride: editData, color: logoColor, layout: logoLayout, localSlogan, crmLine, fontPt: (parseFloat(_fontPt) * (_isA4 ? 1.05 : 0.75)).toFixed(1), lineH: _lineH, letterSp: _letterSp, customLogoSrc, customLogoScale: customLogoSrc ? getCustomLogoScale(item) * (ITEM_CUSTOM_BASE_SCALES[item] || 1) : 100, maxWidth: _isA4 ? '68mm' : '48mm', maxHeight: _isA4 ? '25mm' : '18mm', withBackground: false, hideSlogan: false })}</div>
 
     <div style="position:absolute;top:${_isA4 ? 76 : 52}mm;left:0;right:0;text-align:center;font-size:${_isA4 ? 18 : 14}pt;font-weight:800;letter-spacing:2.5pt;color:#1a1a2e;">${dictionary?.atestado?.titulo?.toUpperCase() || 'ATESTADO MÉDICO'}</div>
 
@@ -7601,16 +7609,24 @@ html, body { width:${totalW}mm; height:${totalH}mm; overflow:hidden; }
       const _lfC = LOCAL_FONT_FACES[_ffC];
       const fiC = `<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700;800;900&display=swap" rel="stylesheet">${_lfC ? `<style>${_lfC}</style>` : `<link href="https://fonts.googleapis.com/css2?family=${encodeURIComponent(_ffC)}:wght@400;700&display=swap" rel="stylesheet">`}`;
       const hasCustomLogoC = !!itemEditData?.customLogoSrc;
-      const effectiveLayoutC = (comBorda && patternSrc && !hasCustomLogoC) ? 'balanced' : (logoLayout || 'stacked');
-      const baseSFC = (comBorda && patternSrc) ? 0.8 : 1.2;
-      const _sfC = hasCustomLogoC ? baseSFC * 1.45 : baseSFC; 
-      const logoHtmlC = ReactDOMServer.renderToString(<LogoPreviewHTML editData={itemEditData} color="#ffffff" layout={effectiveLayoutC} scaleFactor={_sfC} crm={null} hideTagline={true} withBackground={hasCustomLogoC} />);
-      const circleD = 44;
-      const circleBgC = (comBorda && patternSrc) ? solidColor + 'd0' : 'rgba(255,255,255,0.22)';
+      const seloSizeC = 37; // mm — equivalente ao selo do mockup/preview
+      const seloDataC = itemEditData?.fontStyle === 'script'
+        ? { ...itemEditData, fontFamily: 'Montserrat', fontWeight: 700, fontStyle: 'display' }
+        : { ...itemEditData };
+      const logoHtmlC = hasCustomLogoC
+        ? ReactDOMServer.renderToString(
+            <div style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', background: 'rgba(255,255,255,0.92)', padding: '2mm 3mm', borderRadius: '4px' }}>
+              <img src={itemEditData.customLogoSrc} alt="logo" style={{ maxWidth: `${seloSizeC * 1.6}mm`, maxHeight: `${seloSizeC * 1.2}mm`, objectFit: 'contain' }} />
+            </div>
+          )
+        : ReactDOMServer.renderToString(
+            <div style={{ width: `${seloSizeC}mm`, height: `${seloSizeC}mm`, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+              <BrandTemplateSVG data={seloDataC} color={submarcaColor || solidColor} textColor={submarcaTextColor || '#ffffff'} side="verso" hideBackground={true} iconPath={iconPath || null} />
+            </div>
+          );
       const bgStyleC = comBorda && patternSrc
         ? `background-image:url(${patternSrc});background-size:${(patternScale*0.15).toFixed(1)}mm;background-repeat:repeat;`
         : `background:${solidColor};`;
-      const mkCircle = (leftPct) => `<div style="position:absolute;top:50%;left:${leftPct};transform:translate(-50%,-50%);width:${circleD}mm;height:${circleD}mm;border-radius:50%;background:${circleBgC};display:flex;align-items:center;justify-content:center;text-align:center;">${logoHtmlC}</div>`;
       const BC = 3; // bleed 3mm
       const TW = 200 + BC*2, TH = 80 + BC*2;
       const cmsC = `
@@ -7622,12 +7638,7 @@ html, body { width:${totalW}mm; height:${totalH}mm; overflow:hidden; }
         <div style="position:absolute;bottom:0;left:${BC}mm;width:0.2mm;height:${BC-0.5}mm;background:#000;"></div>
         <div style="position:absolute;bottom:${BC}mm;right:0;width:${BC-0.5}mm;height:0.2mm;background:#000;"></div>
         <div style="position:absolute;bottom:0;right:${BC}mm;width:0.2mm;height:${BC-0.5}mm;background:#000;"></div>`;
-      const hasPattern = comBorda && patternSrc;
-      // Círculo: só para logo de texto com estampa. Logo imagem já tem fundo branco próprio.
-      const useCircle = hasPattern && !hasCustomLogoC;
-      const logoPos = (leftPct) => useCircle
-        ? mkCircle(leftPct)
-        : `<div style="position:absolute;top:50%;left:${leftPct};transform:translate(-50%,-50%);display:flex;align-items:center;justify-content:center;">${logoHtmlC}</div>`;
+      const logoPos = (leftPct) => `<div style="position:absolute;top:50%;left:${leftPct};transform:translate(-50%,-50%);display:flex;align-items:center;justify-content:center;">${logoHtmlC}</div>`;
       const html = `<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Arte Caneca - ${marca}</title>${fiC}
 <style>* { box-sizing:border-box; margin:0; padding:0; print-color-adjust:exact !important; -webkit-print-color-adjust:exact !important; }
 html, body { width:${TW}mm; height:${TH}mm; overflow:hidden; }
@@ -7733,7 +7744,7 @@ html, body { width:${totalW}mm; height:${totalH}mm; overflow:hidden; }
         letterSp: itemEditData?.fontLetterSpacing || (itemEditData?.fontStyle === 'script' ? '0pt' : '0.5pt'),
         layout: logoLayout || 'stacked',
         customLogoSrc: itemEditData?.customLogoSrc,
-        customLogoScale: _hasImgT ? Math.min(getCustomLogoScale(item) * (ITEM_CUSTOM_BASE_SCALES[item] || 1), 100) : 100,
+        customLogoScale: _hasImgT ? getCustomLogoScale(item) * (ITEM_CUSTOM_BASE_SCALES[item] || 1) : 100,
         maxWidth: `${_logoBoxW}mm`,
         maxHeight: `${_logoBoxH}mm`,
         withBackground: !!(comBorda && patternSrc),
@@ -8288,7 +8299,9 @@ body { font-family:'Montserrat',sans-serif; }
                        ? (isEn ? '"You don\'t need to be perfect — you need to be present."' : '"Você não precisa ser perfeita — precisa estar presente."')
                        : isVacina 
                          ? (isEn ? '"Protection that starts from day one."' : '"Proteção que começa desde o primeiro dia."') 
-                         : (isEn ? '"Play, talk and explore!"' : '"Brinque, converse e explore!"')}
+                         : isAlimentar 
+                           ? (isEn ? '"Nourishing is an act of love and patience."' : '"Nutrir é um gesto de amor e paciência."')
+                           : (isEn ? '"Play, talk and explore!"' : '"Brinque, converse e explore!"')}
                 </div>
                 <div style="font-family:'Montserrat',sans-serif;font-size:9pt;color:#fff !important;-webkit-text-fill-color:#fff;font-weight:500;line-height:1.5;">
                    ${isSono 
@@ -8303,9 +8316,13 @@ body { font-family:'Montserrat',sans-serif; }
                          ? (isEn 
                             ? 'Vaccination is the greatest act of love and care. It protects not only your baby, but the entire community around them. Keep the records up to date and count on us to accompany each step of this protection.' 
                             : 'A vacinação é o maior gesto de amor e cuidado. Ela protege não apenas o seu bebê, mas toda a comunidade ao redor. Mantenha a carteirinha sempre em dia e conte conosco para acompanhar cada etapa dessa proteção.')
-                         : (isEn 
-                            ? 'Playtime is more than just fun. It helps your baby learn, develop new skills, and feel safe and loved. Ask questions, sing, play peek-a-boo and watch how much your baby grows every day.' 
-                            : 'As brincadeiras são mais do que momentos de diversão. Elas ajudam seu bebê a aprender, a desenvolver novas habilidades e a se sentir seguro e amado. Pergunte, cante, brinque de esconde-esconde e observe o quanto seu bebê cresce a cada dia.')}
+                         : isAlimentar 
+                           ? (isEn 
+                              ? 'Introducing solids is more than just offering food: it is the beginning of a healthy relationship with eating. Respect signs of fullness, encourage autonomy, and explore new textures with love.' 
+                              : 'A introdução alimentar é mais do que oferecer comida: é o início de uma relação saudável com os alimentos. Respeite os sinais de saciedade, incentive a autonomia e explore texturas com amor.')
+                           : (isEn 
+                              ? 'Playtime is more than just fun. It helps your baby learn, develop new skills, and feel safe and loved. Ask questions, sing, play peek-a-boo and watch how much your baby grows every day.' 
+                              : 'As brincadeiras são mais do que momentos de diversão. Elas ajudam seu bebê a aprender, a desenvolver novas habilidades e a se sentir seguro e amado. Pergunte, cante, brinque de esconde-esconde e observe o quanto seu bebê cresce a cada dia.')}
                 </div>
             </div>
 
@@ -9262,31 +9279,109 @@ function EntregaContent({ brand, plano, setBrand }) {
   // Avulso começa nos impressos, não no brand board
   React.useEffect(() => { if (brand.plano === 'avulso') setStepState('papelaria'); }, []);
 
+  // Helpers para persistência no banco de dados (Supabase) via PATCH /api/get-entrega
+  const dbSyncTimeoutRef = React.useRef(null);
+  const queueDbSync = (updatedBrand) => {
+    if (dbSyncTimeoutRef.current) {
+      clearTimeout(dbSyncTimeoutRef.current);
+    }
+    dbSyncTimeoutRef.current = setTimeout(async () => {
+      const sessionId = updatedBrand.id || localStorage.getItem('brandbox_session') || '';
+      if (sessionId) {
+        try {
+          await fetch('/api/get-entrega', {
+            method: 'PATCH',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              sessionId,
+              brandState: updatedBrand,
+              marca: updatedBrand.editData?.marca || '',
+              email: updatedBrand.formData?.email || '',
+            }),
+          });
+        } catch (e) {
+          console.error('Failed to sync brand data with DB:', e);
+        }
+      }
+    }, 800);
+  };
+
+  const saveBrandData = (updatedBrand) => {
+    setBrand(updatedBrand);
+    if (brand.plano === 'avulso' || plano === 'avulso') {
+      try { localStorage.setItem('brandbox_avulso_' + avulsoParam, JSON.stringify(updatedBrand)); } catch {}
+      try { localStorage.setItem('brandbox_delivery', JSON.stringify(updatedBrand)); } catch {}
+    } else {
+      try { localStorage.setItem('brandbox_delivery', JSON.stringify(updatedBrand)); } catch {}
+    }
+    queueDbSync(updatedBrand);
+  };
+
+  const updateEditData = (key, value) => {
+    const updatedBrand = {
+      ...brand,
+      editData: {
+        ...brand.editData,
+        [key]: value
+      }
+    };
+    saveBrandData(updatedBrand);
+  };
+
   const [bgColor, setBgColor] = useState('#ffffff');
   const [submarcaBg, setSubmarcaBg] = useState(null); // null = usa accentColor como padrão
-  const [submarcaColor, setSubmarcaColorState] = useState(() => { try { return localStorage.getItem(`brandbox_submarca_color_${brand.id}`) || null; } catch { return null; } });
-  const setSubmarcaColor = (c) => { setSubmarcaColorState(c); try { localStorage.setItem(`brandbox_submarca_color_${brand.id}`, c); } catch {} };
-  const [submarcaTextColor, setSubmarcaTextColorState] = useState(() => { try { return localStorage.getItem(`brandbox_submarca_text_color_${brand.id}`) || '#ffffff'; } catch { return '#ffffff'; } });
-  const setSubmarcaTextColor = (c) => { setSubmarcaTextColorState(c); try { localStorage.setItem(`brandbox_submarca_text_color_${brand.id}`, c); } catch {} };
-  const [submarcaTextType, setSubmarcaTextTypeState] = useState(() => { try { return localStorage.getItem(`brandbox_submarca_text_type_${brand.id}`) || 'marca'; } catch { return 'marca'; } });
-  const setSubmarcaTextType = (t) => { setSubmarcaTextTypeState(t); try { localStorage.setItem(`brandbox_submarca_text_type_${brand.id}`, t); } catch {} };
-  const [logoColor, setLogoColorState] = useState(() => { try { return localStorage.getItem(`brandbox_logo_color_${brand.id}`) || brand.activeColor || '#dc3495'; } catch { return brand.activeColor || '#dc3495'; } });
-  const setLogoColor = (c) => { setLogoColorState(c); try { localStorage.setItem(`brandbox_logo_color_${brand.id}`, c); } catch {} };
+  const [submarcaColor, setSubmarcaColorState] = useState(() => {
+    try { return localStorage.getItem(`brandbox_submarca_color_${brand.id}`) || brand.editData?.submarcaColor || null; } catch { return brand.editData?.submarcaColor || null; }
+  });
+  const setSubmarcaColor = (c) => {
+    setSubmarcaColorState(c);
+    try { localStorage.setItem(`brandbox_submarca_color_${brand.id}`, c); } catch {}
+    updateEditData('submarcaColor', c);
+  };
+  const [submarcaTextColor, setSubmarcaTextColorState] = useState(() => {
+    try { return localStorage.getItem(`brandbox_submarca_text_color_${brand.id}`) || brand.editData?.submarcaTextColor || '#ffffff'; } catch { return brand.editData?.submarcaTextColor || '#ffffff'; }
+  });
+  const setSubmarcaTextColor = (c) => {
+    setSubmarcaTextColorState(c);
+    try { localStorage.setItem(`brandbox_submarca_text_color_${brand.id}`, c); } catch {}
+    updateEditData('submarcaTextColor', c);
+  };
+  const [submarcaTextType, setSubmarcaTextTypeState] = useState(() => {
+    try { return localStorage.getItem(`brandbox_submarca_text_type_${brand.id}`) || brand.editData?.submarcaTextType || 'marca'; } catch { return brand.editData?.submarcaTextType || 'marca'; }
+  });
+  const setSubmarcaTextType = (t) => {
+    setSubmarcaTextTypeState(t);
+    try { localStorage.setItem(`brandbox_submarca_text_type_${brand.id}`, t); } catch {}
+    updateEditData('submarcaTextType', t);
+  };
+  const [logoColor, setLogoColorState] = useState(() => {
+    try { return localStorage.getItem(`brandbox_logo_color_${brand.id}`) || brand.editData?.logoColor || brand.activeColor || '#dc3495'; } catch { return brand.editData?.logoColor || brand.activeColor || '#dc3495'; }
+  });
+  const setLogoColor = (c) => {
+    setLogoColorState(c);
+    try { localStorage.setItem(`brandbox_logo_color_${brand.id}`, c); } catch {}
+    updateEditData('logoColor', c);
+  };
   const [logoLayout, setLogoLayout] = useState(() => {
     const rawMarca = brand.editData?.marca || '';
     const defaultLayout = rawMarca.includes(',') ? 'balanced' : 'inline';
-    try { return localStorage.getItem(`brandbox_logo_layout_${brand.id}`) || defaultLayout; } catch { return defaultLayout; }
+    try { return localStorage.getItem(`brandbox_logo_layout_${brand.id}`) || brand.editData?.logoLayout || defaultLayout; } catch { return brand.editData?.logoLayout || defaultLayout; }
   });
-  const setLayout = (l) => { setLogoLayout(l); try { localStorage.setItem(`brandbox_logo_layout_${brand.id}`, l); } catch {} };
+  const setLayout = (l) => {
+    setLogoLayout(l);
+    try { localStorage.setItem(`brandbox_logo_layout_${brand.id}`, l); } catch {}
+    updateEditData('logoLayout', l);
+  };
   const [downloading, setDownloading] = useState(false);
   const [showEdit, setShowEdit] = useState(false);
-  const [marca, setMarcaState] = useState(brand.editData?.marca || '');
+  const [marcaState, setMarcaState] = useState(brand.editData?.marca || '');
+  const marca = marcaState.trim() || 'Minha Marca';
   const [tempMarca, setTempMarca] = useState(brand.editData?.marca || '');
 
   // Sincroniza marca state quando brand carrega do localStorage (brand começa null)
   React.useEffect(() => {
     const saved = brand?.editData?.marca;
-    if (saved && !marca) {
+    if (saved && !marcaState) {
       setMarcaState(saved);
       setTempMarca(saved);
     }
@@ -9366,25 +9461,107 @@ function EntregaContent({ brand, plano, setBrand }) {
     try {
       localStorage.setItem(`brandbox_tagline_${brand.id}`, v);
     } catch {}
+    updateEditData('tagline', v);
   };
-  const [taglineGap, setTaglineGapState] = useState(() => { try { return parseFloat(localStorage.getItem(`brandbox_tagline_gap_${brand.id}`)) || brand.editData?.taglineGap || 0.35; } catch { return 0.35; } });
-  const setTaglineGap = (v) => { setTaglineGapState(v); try { localStorage.setItem(`brandbox_tagline_gap_${brand.id}`, v); } catch {} };
-  const [taglineWrap, setTaglineWrapState] = useState(() => { try { return localStorage.getItem(`brandbox_tagline_wrap_${brand.id}`) === 'true'; } catch { return false; } });
-  const setTaglineWrap = (v) => { setTaglineWrapState(v); try { localStorage.setItem(`brandbox_tagline_wrap_${brand.id}`, v); } catch {} };
-  const [taglineSizeBoost, setTaglineSizeBoostState] = useState(() => { try { return parseFloat(localStorage.getItem(`brandbox_tagline_size_boost_${brand.id}`)) || 1.0; } catch { return 1.0; } });
-  const setTaglineSizeBoost = (v) => { setTaglineSizeBoostState(v); try { localStorage.setItem(`brandbox_tagline_size_boost_${brand.id}`, v); } catch {} };
-  const [sloganEnabled, setSloganEnabledState] = useState(() => { try { return localStorage.getItem(`brandbox_slogan_enabled_${brand.id}`) !== 'false'; } catch { return true; } });
-  const setSloganEnabled = (v) => { setSloganEnabledState(v); try { localStorage.setItem(`brandbox_slogan_enabled_${brand.id}`, v ? 'true' : 'false'); } catch {} };
-  const [fontLineHeight, setFontLineHeightState] = useState(() => { try { return parseFloat(localStorage.getItem(`brandbox_font_line_height_${brand.id}`)) || brand.editData?.fontLineHeight || (brand.editData?.fontStyle === 'script' ? 0.9 : 1.22); } catch { return 1.22; } });
-  const setFontLineHeight = (v) => { setFontLineHeightState(v); try { localStorage.setItem(`brandbox_font_line_height_${brand.id}`, v); } catch {} };
-  const [taglineLetterSpacing, setTaglineLetterSpacingState] = useState(() => { try { return parseFloat(localStorage.getItem(`brandbox_tagline_letter_spacing_${brand.id}`)) || 0.35; } catch { return 0.35; } });
-  const setTaglineLetterSpacing = (v) => { setTaglineLetterSpacingState(v); try { localStorage.setItem(`brandbox_tagline_letter_spacing_${brand.id}`, v); } catch {} };
+  const [taglineGap, setTaglineGapState] = useState(() => {
+    try {
+      return parseFloat(localStorage.getItem(`brandbox_tagline_gap_${brand.id}`)) || brand.editData?.taglineGap || 0.35;
+    } catch {
+      return brand.editData?.taglineGap || 0.35;
+    }
+  });
+  const setTaglineGap = (v) => {
+    setTaglineGapState(v);
+    try {
+      localStorage.setItem(`brandbox_tagline_gap_${brand.id}`, v);
+    } catch {}
+    updateEditData('taglineGap', v);
+  };
+  const [taglineWrap, setTaglineWrapState] = useState(() => {
+    try {
+      return localStorage.getItem(`brandbox_tagline_wrap_${brand.id}`) === 'true' || brand.editData?.taglineWrap === true;
+    } catch {
+      return brand.editData?.taglineWrap === true;
+    }
+  });
+  const setTaglineWrap = (v) => {
+    setTaglineWrapState(v);
+    try {
+      localStorage.setItem(`brandbox_tagline_wrap_${brand.id}`, v);
+    } catch {}
+    updateEditData('taglineWrap', v);
+  };
+  const [taglineSizeBoost, setTaglineSizeBoostState] = useState(() => {
+    try {
+      return parseFloat(localStorage.getItem(`brandbox_tagline_size_boost_${brand.id}`)) || brand.editData?.taglineSizeBoost || 1.0;
+    } catch {
+      return brand.editData?.taglineSizeBoost || 1.0;
+    }
+  });
+  const setTaglineSizeBoost = (v) => {
+    setTaglineSizeBoostState(v);
+    try {
+      localStorage.setItem(`brandbox_tagline_size_boost_${brand.id}`, v);
+    } catch {}
+    updateEditData('taglineSizeBoost', v);
+  };
+  const [sloganEnabled, setSloganEnabledState] = useState(() => {
+    try {
+      return localStorage.getItem(`brandbox_slogan_enabled_${brand.id}`) !== 'false' && brand.editData?.sloganEnabled !== false;
+    } catch {
+      return brand.editData?.sloganEnabled !== false;
+    }
+  });
+  const setSloganEnabled = (v) => {
+    setSloganEnabledState(v);
+    try {
+      localStorage.setItem(`brandbox_slogan_enabled_${brand.id}`, v ? 'true' : 'false');
+    } catch {}
+    updateEditData('sloganEnabled', v);
+  };
+  const [fontLineHeight, setFontLineHeightState] = useState(() => {
+    try {
+      return parseFloat(localStorage.getItem(`brandbox_font_line_height_${brand.id}`)) || brand.editData?.fontLineHeight || (brand.editData?.fontStyle === 'script' ? 0.9 : 1.22);
+    } catch {
+      return brand.editData?.fontLineHeight || (brand.editData?.fontStyle === 'script' ? 0.9 : 1.22);
+    }
+  });
+  const setFontLineHeight = (v) => {
+    setFontLineHeightState(v);
+    try {
+      localStorage.setItem(`brandbox_font_line_height_${brand.id}`, v);
+    } catch {}
+    updateEditData('fontLineHeight', v);
+  };
+  const [taglineLetterSpacing, setTaglineLetterSpacingState] = useState(() => {
+    try {
+      return parseFloat(localStorage.getItem(`brandbox_tagline_letter_spacing_${brand.id}`)) || brand.editData?.taglineLetterSpacing || 0.35;
+    } catch {
+      return brand.editData?.taglineLetterSpacing || 0.35;
+    }
+  });
+  const setTaglineLetterSpacing = (v) => {
+    setTaglineLetterSpacingState(v);
+    try {
+      localStorage.setItem(`brandbox_tagline_letter_spacing_${brand.id}`, v);
+    } catch {}
+    updateEditData('taglineLetterSpacing', v);
+  };
   const [fontOverride, setFontOverrideState] = useState(() => {
-    try { const s = localStorage.getItem(`brandbox_font_override_${brand.id}`); return s ? JSON.parse(s) : null; } catch { return null; }
+    try {
+      const s = localStorage.getItem(`brandbox_font_override_${brand.id}`);
+      return s ? JSON.parse(s) : (brand.editData?.fontOverride || null);
+    } catch {
+      return brand.editData?.fontOverride || null;
+    }
   });
   const setFontOverride = (v) => {
     setFontOverrideState(v);
-    try { if (v) localStorage.setItem(`brandbox_font_override_${brand.id}`, JSON.stringify(v)); else localStorage.removeItem(`brandbox_font_override_${brand.id}`); } catch {}
+    try {
+      if (v) localStorage.setItem(`brandbox_font_override_${brand.id}`, JSON.stringify(v));
+      else localStorage.removeItem(`brandbox_font_override_${brand.id}`);
+    } catch {}
+    updateEditData('fontOverride', v);
   };
   const [isInitialized, setIsInitialized] = useState(false);
   const [estampaPatterns, setEstampaPatterns] = useState(brand.pattern ? [brand.pattern] : []);
@@ -9607,8 +9784,8 @@ function EntregaContent({ brand, plano, setBrand }) {
   const [customLogoScaleMap, setCustomLogoScaleMapState] = useState(() => {
     try {
       const stored = JSON.parse(localStorage.getItem(`brandbox_custom_logo_scales_${brand.id}`) || '{}');
-      // Migração: Tag para Sacola tinha max=50 antes; reset se <= 50 para usar default 100
-      if (stored['Tag para Sacola'] != null && stored['Tag para Sacola'] <= 50) {
+      // Migração: Tag para Sacola tinha max=50 ou default=100 antes; reset se <= 100 para usar default 150
+      if (stored['Tag para Sacola'] != null && stored['Tag para Sacola'] <= 100) {
         delete stored['Tag para Sacola'];
       }
       return stored;
@@ -9638,7 +9815,7 @@ function EntregaContent({ brand, plano, setBrand }) {
     'Cartão de Exame Pré-Natal': 100,
     'Checklist Maternidade': 100,
     'Etiqueta para Correios': 100,
-    'Tag para Sacola': 100,
+    'Tag para Sacola': 150,
     'Pasta A4': 100,
     'Certificado de Coragem': 135,
     'Diário do Xixi': 115,
@@ -9676,18 +9853,55 @@ function EntregaContent({ brand, plano, setBrand }) {
   const patternSrc = estampaPatterns?.[currentIdx]
     ? (estampaPatterns[currentIdx].url || `data:${estampaPatterns[currentIdx].mimeType};base64,${estampaPatterns[currentIdx].base64}`)
     : null;
-  const [cartaoContacts, setCartaoContacts] = useState(() => { try { return JSON.parse(localStorage.getItem(`brandbox_cartao_${brand.id}`) || '{}').contacts || { telefone: '', whatsapp: '', email: '', site: '', instagram: '', endereco: '', telefone2: '' }; } catch { return { telefone: '', whatsapp: '', email: '', site: '', instagram: '', endereco: '', telefone2: '' }; } });
-  const [cartaoQrLink, setCartaoQrLink] = useState(() => { try { return JSON.parse(localStorage.getItem(`brandbox_cartao_${brand.id}`) || '{}').qrLink || ''; } catch { return ''; } });
-  const [cartaoShowQR, setCartaoShowQR] = useState(() => { try { return JSON.parse(localStorage.getItem(`brandbox_cartao_${brand.id}`) || '{}').showQR || false; } catch { return false; } });
+  const [cartaoContacts, setCartaoContacts] = useState(() => {
+    try {
+      const stored = localStorage.getItem(`brandbox_cartao_${brand.id}`);
+      return stored ? JSON.parse(stored).contacts : (brand.cartaoContacts || { telefone: '', whatsapp: '', email: '', site: '', instagram: '', endereco: '', telefone2: '' });
+    } catch {
+      return brand.cartaoContacts || { telefone: '', whatsapp: '', email: '', site: '', instagram: '', endereco: '', telefone2: '' };
+    }
+  });
+  const [cartaoQrLink, setCartaoQrLink] = useState(() => {
+    try {
+      const stored = localStorage.getItem(`brandbox_cartao_${brand.id}`);
+      return stored ? JSON.parse(stored).qrLink : (brand.cartaoQrLink || '');
+    } catch {
+      return brand.cartaoQrLink || '';
+    }
+  });
+  const [cartaoShowQR, setCartaoShowQR] = useState(() => {
+    try {
+      const stored = localStorage.getItem(`brandbox_cartao_${brand.id}`);
+      return stored ? JSON.parse(stored).showQR : (brand.cartaoShowQR || false);
+    } catch {
+      return brand.cartaoShowQR || false;
+    }
+  });
 
+  const [isContactsInitialized, setIsContactsInitialized] = useState(false);
   useEffect(() => {
-    try { localStorage.setItem(`brandbox_cartao_${brand.id}`, JSON.stringify({ contacts: cartaoContacts, qrLink: cartaoQrLink, showQR: cartaoShowQR })); } catch {}
+    try {
+      localStorage.setItem(`brandbox_cartao_${brand.id}`, JSON.stringify({ contacts: cartaoContacts, qrLink: cartaoQrLink, showQR: cartaoShowQR }));
+    } catch {}
+    if (isContactsInitialized) {
+      const updatedBrand = { ...brand, cartaoContacts, cartaoQrLink, cartaoShowQR };
+      saveBrandData(updatedBrand);
+    } else {
+      setIsContactsInitialized(true);
+    }
   }, [cartaoContacts, cartaoQrLink, cartaoShowQR]);
 
   const atuacoesSaude = ['Pediatria / Saúde infantil', 'Obstetrícia / Saúde da mulher', 'Clínica / Saúde geral adulta'];
   const isSaude = atuacoesSaude.includes(brand.formData?.atuacao);
 
-  const [clinicaNome, setClinicaNomeState] = useState(() => { try { return JSON.parse(localStorage.getItem(`brandbox_papelaria_${brand.id}`) || '{}').clinicaNome || ''; } catch { return ''; } });
+  const [clinicaNome, setClinicaNomeState] = useState(() => {
+    try {
+      const stored = localStorage.getItem(`brandbox_papelaria_${brand.id}`);
+      return stored ? JSON.parse(stored).clinicaNome : (brand.clinicaNome || '');
+    } catch {
+      return brand.clinicaNome || '';
+    }
+  });
   const [resendingEmail, setResendingEmail] = useState(false);
   const [resendStatus, setResendStatus] = useState(null);
 
@@ -9718,12 +9932,31 @@ function EntregaContent({ brand, plano, setBrand }) {
       setTimeout(() => setResendStatus(null), 3000);
     }
   };
-  const setClinicaNome = (v) => { setClinicaNomeState(v); try { const cur = JSON.parse(localStorage.getItem(`brandbox_papelaria_${brand.id}`) || '{}'); localStorage.setItem(`brandbox_papelaria_${brand.id}`, JSON.stringify({ ...cur, clinicaNome: v })); } catch {} };
-  const [crmData, setCrmDataState] = useState({ crm: '', uf: '', rqe: [] });
+  const setClinicaNome = (v) => {
+    setClinicaNomeState(v);
+    try {
+      const cur = JSON.parse(localStorage.getItem(`brandbox_papelaria_${brand.id}`) || '{}');
+      localStorage.setItem(`brandbox_papelaria_${brand.id}`, JSON.stringify({ ...cur, clinicaNome: v }));
+    } catch {}
+    const updatedBrand = { ...brand, clinicaNome: v };
+    saveBrandData(updatedBrand);
+  };
+  const [crmData, setCrmDataState] = useState(() => {
+    try {
+      const stored = localStorage.getItem(`brandbox_crm_${brand.id}`) || localStorage.getItem('brandbox_crm');
+      return stored ? JSON.parse(stored) : (brand.crmData || { crm: '', uf: '', rqe: [] });
+    } catch {
+      return brand.crmData || { crm: '', uf: '', rqe: [] };
+    }
+  });
   const setCrmData = (updater) => {
     setCrmDataState(prev => {
       const next = typeof updater === 'function' ? updater(prev) : updater;
-      try { localStorage.setItem(`brandbox_crm_${brand.id}`, JSON.stringify(next)); } catch {}
+      try {
+        localStorage.setItem(`brandbox_crm_${brand.id}`, JSON.stringify(next));
+      } catch {}
+      const updatedBrand = { ...brand, crmData: next };
+      saveBrandData(updatedBrand);
       return next;
     });
   };
@@ -11322,11 +11555,28 @@ function SucessoContent() {
     try {
       const _params = typeof window !== 'undefined' ? new URLSearchParams(window.location.search) : null;
       if (!_params || !_params.has('avulso')) return false;
+
+      // Se já viu o welcome globalmente (qualquer item avulso), não exibe de novo
+      if (localStorage.getItem('brandbox_avulso_welcome_global') === 'seen') {
+        return false;
+      }
+      
+      // Se já temos um e-mail salvo (significa que já digitou e enviou na primeira vez)
+      if (localStorage.getItem('brandbox_avulso_email')) {
+        return false;
+      }
+
       const _ap = _params.get('avulso') || 'inicio';
       return localStorage.getItem('brandbox_avulso_welcome_' + _ap) !== 'seen';
     } catch { return false; }
   });
-  const [avulsoEmail, setAvulsoEmail] = useState('');
+  const [avulsoEmail, setAvulsoEmail] = useState(() => {
+    try {
+      return localStorage.getItem('brandbox_avulso_email') || '';
+    } catch {
+      return '';
+    }
+  });
   const [avulsoEmailSending, setAvulsoEmailSending] = useState(false);
   const [avulsoEmailSent, setAvulsoEmailSent] = useState(false);
   const [welcomeSeen, setWelcomeSeen] = useState(() => {
@@ -11434,36 +11684,61 @@ function SucessoContent() {
           currentPaletteColors: AVULSO_PALETTE,
         };
 
-        const savedAvulso = localStorage.getItem('brandbox_avulso_' + avulsoParam);
-        if (savedAvulso) {
-          const saved = JSON.parse(savedAvulso);
-          if ((saved._v || 1) < AVULSO_VERSION) {
-            // Versão antiga: atualiza defaults mas preserva o que o cliente já personalizou
-            const merged = {
-              ...defaultAvulsoBrand,
-              editData: {
-                ...defaultAvulsoBrand.editData,
-                // Mantém a marca se o cliente já digitou algo diferente dos placeholders antigos
-                marca: (saved.editData?.marca && !['SUA MARCA', 'SUA LOGO', ''].includes(saved.editData.marca)) ? saved.editData.marca : '',
-                fontSizeBoost: defaultAvulsoBrand.editData.fontSizeBoost,
-                // Preserva cores personalizadas se o usuário já editou
-                colors: saved.editData?.colors || defaultAvulsoBrand.editData.colors,
-              },
-              // Mantém a cor só se o cliente já tinha escolhido algo diferente do pink padrão
-              activeColor: (saved.activeColor && saved.activeColor !== '#dc3495') ? saved.activeColor : defaultAvulsoBrand.activeColor,
-              // Preserva paleta personalizada se o usuário já editou
-              currentPaletteColors: saved.currentPaletteColors || defaultAvulsoBrand.currentPaletteColors,
-            };
-            setBrand(merged);
-            localStorage.setItem('brandbox_avulso_' + avulsoParam, JSON.stringify(merged));
-          } else {
-            setBrand(saved);
+        const savedDelivery = localStorage.getItem('brandbox_delivery');
+        let brandObj = null;
+
+        if (savedDelivery) {
+          try {
+            const parsed = JSON.parse(savedDelivery);
+            if (parsed && typeof parsed === 'object') {
+              brandObj = parsed;
+            }
+          } catch (e) {
+            console.error('Failed to parse brandbox_delivery', e);
           }
+        }
+
+        if (!brandObj) {
+          const savedAvulso = localStorage.getItem('brandbox_avulso_' + avulsoParam);
+          if (savedAvulso) {
+            try {
+              brandObj = JSON.parse(savedAvulso);
+            } catch (e) {}
+          }
+        }
+
+        if (brandObj) {
+          // Garante que o plano é avulso
+          brandObj.plano = 'avulso';
+          
+          // Garante que o item atual está na lista de papelariaSelecionada (unlocked!)
+          if (itemName) {
+            const curSelecionadas = brandObj.papelariaSelecionada || [];
+            if (!curSelecionadas.includes(itemName)) {
+              brandObj.papelariaSelecionada = [...curSelecionadas, itemName];
+            }
+          }
+
+          // Versão antiga: atualiza defaults mas preserva o que o cliente já personalizou
+          if ((brandObj._v || 1) < AVULSO_VERSION) {
+            brandObj._v = AVULSO_VERSION;
+            brandObj.editData = {
+              ...defaultAvulsoBrand.editData,
+              ...brandObj.editData,
+              marca: (brandObj.editData?.marca && !['SUA MARCA', 'SUA LOGO', ''].includes(brandObj.editData.marca)) ? brandObj.editData.marca : '',
+              colors: brandObj.editData?.colors || defaultAvulsoBrand.editData.colors,
+            };
+            brandObj.activeColor = (brandObj.activeColor && brandObj.activeColor !== '#dc3495') ? brandObj.activeColor : defaultAvulsoBrand.activeColor;
+            brandObj.currentPaletteColors = brandObj.currentPaletteColors || defaultAvulsoBrand.currentPaletteColors;
+          }
+
+          setBrand(brandObj);
+          localStorage.setItem('brandbox_delivery', JSON.stringify(brandObj));
+          localStorage.setItem('brandbox_avulso_' + avulsoParam, JSON.stringify(brandObj));
         } else {
-           setBrand(defaultAvulsoBrand);
-           localStorage.setItem('brandbox_avulso_' + avulsoParam, JSON.stringify(defaultAvulsoBrand));
-           // Sobrescreve o brandbox_delivery para que as edições locais funcionem na mesma estrutura
-           localStorage.setItem('brandbox_delivery', JSON.stringify(defaultAvulsoBrand));
+          setBrand(defaultAvulsoBrand);
+          localStorage.setItem('brandbox_avulso_' + avulsoParam, JSON.stringify(defaultAvulsoBrand));
+          localStorage.setItem('brandbox_delivery', JSON.stringify(defaultAvulsoBrand));
         }
         setPlano('avulso');
         setLoading(false);
@@ -11609,7 +11884,7 @@ function SucessoContent() {
               { num: '2', icon: '🎨', titulo: 'Personalize', desc: 'Edite o nome da marca, cores e dados de contato em A Marca → Logo / Cores.' },
               { num: '3', icon: '🛒', titulo: 'Compre o arquivo', desc: 'Clique em "Comprar Arquivo" no item desejado e finalize o pagamento com segurança.' },
             ] : [
-              { num: '1', icon: '✍️', titulo: 'Escreva o nome da sua marca', desc: 'Vá na aba A Marca → Logo e digite o nome que vai aparecer nos seus materiais.' },
+              { num: '1', icon: '✍️', titulo: 'Escreva o nome da sua marca ou envie sua logo', desc: 'Vá na aba A Marca → Logo e digite o nome que vai aparecer ou faça o upload da sua logo.' },
               { num: '2', icon: '🎨', titulo: 'Escolha suas cores', desc: 'Na aba A Marca → Cores, clique no círculo para personalizar cada cor da paleta.' },
               { num: '3', icon: '📄', titulo: 'Acesse seus impressos', desc: 'Clique em Os Impressos para visualizar, personalizar e baixar seus arquivos PDF.' },
             ]).map(({ num, icon, titulo, desc }) => (
@@ -11626,7 +11901,10 @@ function SucessoContent() {
           {avulsoParam === 'inicio' ? (
             <button
               onClick={() => {
-                try { localStorage.setItem('brandbox_avulso_welcome_' + avulsoParam, 'seen'); } catch {}
+                try {
+                  localStorage.setItem('brandbox_avulso_welcome_' + avulsoParam, 'seen');
+                  localStorage.setItem('brandbox_avulso_welcome_global', 'seen');
+                } catch {}
                 setShowAvulsoWelcome(false);
               }}
               style={{ background: `linear-gradient(135deg, ${accentAvulso}, ${accentAvulso}cc)`, color: '#fff', border: 'none', borderRadius: '50px', padding: '1rem 2.5rem', fontSize: '1rem', fontWeight: 700, cursor: 'pointer', boxShadow: `0 10px 30px ${accentAvulso}55`, width: '100%' }}
@@ -11641,7 +11919,7 @@ function SucessoContent() {
                   📧 Para onde enviamos seu link de acesso?
                 </p>
                 <p style={{ margin: 0, fontSize: '0.72rem', color: '#999', lineHeight: 1.5 }}>
-                  Guarde o link para acessar seus arquivos quando quiser.
+                  Garde o link para acessar seus arquivos quando quiser.
                 </p>
                 <input
                   type="email"
@@ -11670,7 +11948,32 @@ function SucessoContent() {
                     setAvulsoEmailSent(true);
                   } catch {}
                   setAvulsoEmailSending(false);
-                  try { localStorage.setItem('brandbox_avulso_welcome_' + avulsoParam, 'seen'); } catch {}
+                  try {
+                    localStorage.setItem('brandbox_avulso_welcome_' + avulsoParam, 'seen');
+                    localStorage.setItem('brandbox_avulso_welcome_global', 'seen');
+                    localStorage.setItem('brandbox_avulso_email', avulsoEmail);
+                  } catch {}
+                  if (brand) {
+                    const updatedBrand = { ...brand, formData: { ...brand.formData, email: avulsoEmail } };
+                    setBrand(updatedBrand);
+                    try {
+                      localStorage.setItem('brandbox_delivery', JSON.stringify(updatedBrand));
+                      localStorage.setItem('brandbox_avulso_' + avulsoParam, JSON.stringify(updatedBrand));
+                    } catch {}
+                    const sessionId = updatedBrand.id || localStorage.getItem('brandbox_session');
+                    if (sessionId) {
+                      fetch('/api/get-entrega', {
+                        method: 'PATCH',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                          sessionId,
+                          brandState: updatedBrand,
+                          marca: updatedBrand.editData?.marca || '',
+                          email: avulsoEmail,
+                        }),
+                      }).catch(() => {});
+                    }
+                  }
                   setShowAvulsoWelcome(false);
                 }}
                 style={{ background: `linear-gradient(135deg, ${accentAvulso}, ${accentAvulso}cc)`, color: '#fff', border: 'none', borderRadius: '50px', padding: '1rem 2.5rem', fontSize: '1rem', fontWeight: 700, cursor: (avulsoEmailSending || !avulsoEmail.includes('@')) ? 'default' : 'pointer', boxShadow: `0 10px 30px ${accentAvulso}55`, width: '100%', opacity: (avulsoEmailSending || !avulsoEmail.includes('@')) ? 0.5 : 1, transition: 'opacity 0.2s' }}
@@ -11679,7 +11982,10 @@ function SucessoContent() {
               </button>
               <button
                 onClick={() => {
-                  try { localStorage.setItem('brandbox_avulso_welcome_' + avulsoParam, 'seen'); } catch {}
+                  try {
+                    localStorage.setItem('brandbox_avulso_welcome_' + avulsoParam, 'seen');
+                    localStorage.setItem('brandbox_avulso_welcome_global', 'seen');
+                  } catch {}
                   setShowAvulsoWelcome(false);
                 }}
                 style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: '0.72rem', color: '#bbb', textDecoration: 'underline', padding: '4px' }}
