@@ -118,7 +118,7 @@ export const ITEM_CUSTOM_BASE_SCALES = {
   'Atestado Médico (A4 e A5)': 2.0,
   'Atestado Médico': 2.0, 'Recibo': 2.0,
   'Ficha de Cadastro': 2.0, 'Prontuário Médico': 2.0,
-  'Certificado de Coragem': 2.0,
+  'Certificado de Coragem': 1.0,
   // Folders and other standardized items
   'Guia Alimentar': 2.0,
   'Guia de Cuidados': 2.0,
@@ -3281,7 +3281,7 @@ function CertificadoCoragemPreview({ accentColor, patternSrc, editData, logoColo
         }}>
           {/* Logo Rectangle / Space */}
           <div style={{ width: '160px', height: '55px', display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: '6px' }}>
-            <LogoPreviewHTML item="Certificado de Coragem" editData={editData} color={logoColor} layout={logoLayout} scaleFactor={editData?.customLogoSrc ? 1.6 : 0.65} withBackground={false} maxWidth="100%" maxHeight="100%" />
+            <LogoPreviewHTML item="Certificado de Coragem" editData={editData} color={logoColor} layout={logoLayout} scaleFactor={editData?.customLogoSrc ? 1.0 : 0.65} withBackground={false} maxWidth="100%" maxHeight="100%" />
           </div>
 
           <div style={{ fontFamily: "'Montserrat', sans-serif", fontSize: '0.5rem', fontWeight: 600, color: '#7a7a7a', letterSpacing: '1px', marginBottom: '0px' }}>{dictionary?.certificado?.pediatrico_de || 'Certificado Pediátrico de'}</div>
@@ -8639,7 +8639,7 @@ body { background:#eee; }
         const effectiveSrc = comBorda ? patternSrc : null;
 
         const _lColor = logoColor || _accent;
-        const logoHtmlCe = genPDFLogoHtml({ brand, editDataOverride: editData, color: _lColor, layout: logoLayout, localSlogan, crmLine, fontPt: logoLayout === 'horizontal' ? (marca.length > 18 ? 16 : marca.length > 12 ? 20 : 24) : _fontPt, lineH: _lineH, letterSp: editData?.fontLetterSpacing || brand.editData?.fontLetterSpacing || _letterSp, customLogoSrc, customLogoScale: customLogoSrc ? getCustomLogoScale(item) * 2.5 : 100, maxWidth: '100mm', maxHeight: '28mm', withBackground: comBorda && patternSrc });
+        const logoHtmlCe = genPDFLogoHtml({ brand, editDataOverride: editData, color: _lColor, layout: logoLayout, localSlogan, crmLine, fontPt: logoLayout === 'horizontal' ? (marca.length > 18 ? 16 : marca.length > 12 ? 20 : 24) : _fontPt, lineH: _lineH, letterSp: editData?.fontLetterSpacing || brand.editData?.fontLetterSpacing || _letterSp, customLogoSrc, customLogoScale: customLogoSrc ? getCustomLogoScale(item) * 3.0 : 100, maxWidth: '70mm', maxHeight: '18mm', withBackground: comBorda && patternSrc });
 
         const html = `<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Certificado de Coragem - ${marca}</title>${fiCe}
 <style>* { box-sizing:border-box; margin:0; padding:0; print-color-adjust:exact !important; -webkit-print-color-adjust:exact !important; }
@@ -11424,13 +11424,27 @@ function SucessoContent() {
         };
         const itemName = AVULSO_PARAM_MAP[avulsoParam] || null;
 
+        // Une os itens comprados em todas as compras avulso anteriores (cada compra fica salva
+        // sob sua própria chave brandbox_avulso_<param>), para que o cliente continue tendo
+        // acesso a tudo que já comprou ao acessar um novo item.
+        const _allPurchasedItems = new Set(itemName ? [itemName] : []);
+        try {
+          for (let i = 0; i < localStorage.length; i++) {
+            const k = localStorage.key(i);
+            if (k && k.startsWith('brandbox_avulso_') && !k.includes('welcome')) {
+              const v = JSON.parse(localStorage.getItem(k));
+              (v?.papelariaSelecionada || []).forEach(it => _allPurchasedItems.add(it));
+            }
+          }
+        } catch {}
+
         const AVULSO_VERSION = 7;
         // Paleta padrão BrandBox para clientes avulso
         const AVULSO_PALETTE = ['#D4C5B0', '#D4A0B0', '#C4A882', '#6B8CAE', '#E2894D'];
         const defaultAvulsoBrand = {
           _v: AVULSO_VERSION,
           plano: 'avulso',
-          papelariaSelecionada: itemName ? [itemName] : [],
+          papelariaSelecionada: [..._allPurchasedItems],
           formData: { nome: '', especialidade: '', cr: '', atuacao: 'Pediatria / Saúde infantil' },
           editData: { marca: '', fontStyle: 'serif', colors: AVULSO_PALETTE, fontSizeBoost: 0.65 },
           activeColor: '#D4C5B0',
@@ -11460,7 +11474,10 @@ function SucessoContent() {
             setBrand(merged);
             localStorage.setItem('brandbox_avulso_' + avulsoParam, JSON.stringify(merged));
           } else {
-            setBrand(saved);
+            const _mergedItens = [...new Set([...(saved.papelariaSelecionada || []), ..._allPurchasedItems])];
+            const savedMerged = { ...saved, papelariaSelecionada: _mergedItens };
+            setBrand(savedMerged);
+            localStorage.setItem('brandbox_avulso_' + avulsoParam, JSON.stringify(savedMerged));
           }
         } else {
            setBrand(defaultAvulsoBrand);
