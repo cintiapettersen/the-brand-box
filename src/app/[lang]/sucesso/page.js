@@ -7927,11 +7927,11 @@ body { width:${W + BLEED*2}mm; height:${H + BLEED*2}mm; position:relative; overf
 .cm-tr { top:${BLEED}mm; right:${BLEED}mm; border-top:0.2mm solid; border-right:0.2mm solid; }
 .cm-bl { bottom:${BLEED}mm; left:${BLEED}mm; border-bottom:0.2mm solid; border-left:0.2mm solid; }
 .cm-br { bottom:${BLEED}mm; right:${BLEED}mm; border-bottom:0.2mm solid; border-right:0.2mm solid; }
-.field { border-bottom: 0.2mm solid #ddd; padding: 2mm 0; font-size: 10pt; color: #333; margin-top: 4mm; display:flex; gap: 4mm; align-items:flex-end; }
-.label { font-weight: 700; color: #1a1a1a; text-transform: uppercase; font-size: 8pt; flex-shrink: 0; margin-bottom: 0.5mm; }
-table { width: 100%; border-collapse: collapse; margin-top: 10mm; }
-th { background: #f5f5f5; color: #1a1a1a; font-size: 8pt; text-transform: uppercase; padding: 3mm; text-align: left; border: 0.2mm solid #eee; }
-td { padding: 4mm 3mm; border: 0.2mm solid #eee; font-size: 10pt; color: #555; }
+.field { border-bottom: 0.2mm solid #ddd; padding: 1.5mm 0; font-size: 8pt; color: #333; margin-top: 3mm; display:flex; gap: 4mm; align-items:flex-end; }
+.label { font-weight: 700; color: #1a1a1a; text-transform: uppercase; font-size: 6.5pt; flex-shrink: 0; margin-bottom: 0.5mm; }
+table { width: 100%; border-collapse: collapse; margin-top: 8mm; }
+th { background: #f5f5f5; color: #1a1a1a; font-size: 6.5pt; text-transform: uppercase; padding: 2.5mm; text-align: left; border: 0.2mm solid #eee; }
+td { padding: 3mm 2.5mm; border: 0.2mm solid #eee; font-size: 8pt; color: #555; }
 @media print { body { margin:0; } @page { size: ${W + BLEED*2}mm ${H + BLEED*2}mm; margin:0; } }
 </style></head><body>
 <div style="position:relative;width:${W + BLEED*2}mm;height:${H + BLEED*2}mm;overflow:hidden;">
