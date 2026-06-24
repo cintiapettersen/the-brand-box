@@ -38,6 +38,8 @@ export async function POST(req) {
     };
     const hint = styleHints[estiloNome] || 'elegant and delicate';
 
+    const colorRule = `COLOR OVERRIDE (CRITICAL & MANDATORY): You MUST ignore the colors of the reference image. The reference image is ONLY for shapes, forms, and drawing technique. You MUST color the pattern using ONLY the following Custom Colors: ${coresStr}. If you use the original colors of the reference image, the output will be rejected.`;
+
     // SEAMLESS BASE — regra técnica compacta e extremamente rigorosa
     const seamless = `SEAMLESS TILING RULES (CRITICAL & MANDATORY):
 - 70% STYLE DNA + 30% CREATIVE COMPOSITION: The reference image represents 70% of the style influence (use its exact drawing technique, textures, line quality, and element DNA). The remaining 30% MUST be creative freedom — distribute and arrange the elements in a completely NEW, UNIQUE, and highly distinct composition layout. Do NOT replicate the layout or placement coordinates of the reference image. Do NOT copy the exact same pattern layout.
@@ -51,7 +53,8 @@ export async function POST(req) {
     const variationPrompts = [
       // Variação 1 — Composição balanceada, espaçamento elegante e original
       `${brandContext}Look carefully at the reference image. This is your PRIMARY creative style brief — replicate its drawing technique, line quality, element types (flowers, leaves, shapes), illustration style, and level of detail as closely as possible (70% style DNA).
-Custom Colors: ${coresStr}. Keep the background white or very light.
+${colorRule}
+Keep the background white or very light.
 
 Create ONE TILE of a seamless repeating surface pattern using those same elements and drawing style, but in a COMPLETELY NEW, ORIGINAL, AND BALANCED composition (30% creative arrangement). Do NOT copy the reference layout.
 
@@ -60,7 +63,8 @@ Composition Style: Balanced and elegant, generous spacing between motifs. Densit
 
       // Variação 2 — Composição Minimalista e Extremamente Espaçada (Layout "Airy")
       `${brandContext}Study the reference image carefully. Replicate its exact illustration style, textures, and drawing technique faithfully (70% style DNA).
-Custom Colors: ${coresStr}. White background.
+${colorRule}
+Keep the background white or very light.
 
 Create ONE TILE of a seamless repeating surface pattern. Compared to the reference and typical layouts, make this version a MINIMALIST, HIGHLY AIRY composition (30% creative arrangement). Use FEWER elements per tile, with large open spaces of solid color between them. The motifs should be slightly larger and arranged with plenty of breathing room.
 
@@ -69,7 +73,8 @@ Composition Style: High negative space, minimalist, scattered and airy. Highly d
 
       // Variação 3 — Composição Dinâmica com Movimento Diagonal (Layout "Flow")
       `${brandContext}Use the reference image as your main creative direction — match its illustration style, element types, drawing technique, and proportions faithfully (70% style DNA).
-Custom Colors: ${coresStr}. White or cream background.
+${colorRule}
+Keep the background white or very light.
 
 Create ONE TILE of a seamless repeating surface pattern. Arrange the elements to create a DYNAMIC FLOWING MOVEMENT (like a soft diagonal breeze or organic waving paths) (30% creative arrangement). Rotate, tilt, and vary the orientations of the elements dynamically so they are NOT all standing upright.
 

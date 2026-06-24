@@ -34,16 +34,45 @@ export async function GET(request) {
 
 export async function PATCH(request) {
   try {
-    const { sessionId } = await request.json();
+    const { sessionId, emailEnviado, brandState, plano, email, marca } = await request.json();
     if (!sessionId) return Response.json({ error: 'Session ID ausente.' }, { status: 400 });
 
-    await supabase
+    const updates = {};
+    if (emailEnviado !== undefined) {
+      updates.email_enviado = emailEnviado;
+    }
+    if (brandState !== undefined) {
+      updates.brand_data = brandState;
+    }
+    if (plano !== undefined) {
+      updates.plano = plano;
+    }
+    if (email !== undefined) {
+      updates.email = email;
+    }
+    if (marca !== undefined) {
+      updates.marca = marca;
+    }
+
+    // Compatibilidade reversa: se nenhuma propriedade de atualização específica for passada,
+    // assume que é a chamada antiga de disparo de e-mail e atualiza email_enviado para true.
+    if (Object.keys(updates).length === 0) {
+      updates.email_enviado = true;
+    }
+
+    const { error } = await supabase
       .from('entregas')
-      .update({ email_enviado: true })
+      .update(updates)
       .eq('id', sessionId);
+
+    if (error) {
+      console.error('PATCH get-entrega Supabase error:', error);
+      return Response.json({ error: error.message }, { status: 500 });
+    }
 
     return Response.json({ ok: true });
   } catch (err) {
+    console.error('PATCH get-entrega unexpected error:', err);
     return Response.json({ error: err.message }, { status: 500 });
   }
 }

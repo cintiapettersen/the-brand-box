@@ -16,7 +16,7 @@ const PAPELARIA_CLINICA = [
   "Cartão de Visita", "Receituário Padrão (A4 e A5)", "Atestado Médico (A4 e A5)", "Cartão de Retorno", "Pasta A4 Exclusiva",
   "Envelope Ofício (23x11,5cm)", "Envelope Saco (24x34cm)", "Recibo", "Receituário de Controle Especial", 
   "Dicas de Introdução Alimentar", "Guia de Vacina c/ Calendário", "Guia de Desenvolvimento", "Orientação Pré-Natal",
-  "Cartão de Exames", "Checklist Maternidade", "Guia do Sono", "Orientações p/ Recém Nascidos",
+  "Cartão de Exame Pré-Natal", "Checklist Maternidade", "Guia do Sono", "Orientações p/ Recém Nascidos",
   "Prontuário Médico", "Receita de Alta", "Ficha de Cadastro",
   "Certificado de Coragem", "Quadro de Incentivo",
   "Arte para Caneca/Brindes", "Gráfico de Crescimento", "Diário do Xixi", "Card de Orientação de Sono",
@@ -1639,13 +1639,16 @@ export default function Home() {
                       )}
                     </span>
                     <ul style={{ fontSize: '0.85rem', margin: '0 0 12px 0', paddingLeft: '0', display: 'flex', flexDirection: 'column', gap: '5px', listStyle: 'none' }}>
-                      {['Tudo do Brand Box Starter', '5 Itens impressos à escolha', 'Pack completo para Instagram', 'Cartão Digital + Assinatura de E-mail'].map(i => {
-                        const isPapelaria = i === '5 Itens impressos à escolha';
+                      {['Tudo do Brand Box Starter', 'PAPELARIA', 'Pack completo para Instagram', 'Cartão Digital + Assinatura de E-mail'].map(i => {
+                        const isPapelaria = i === 'PAPELARIA';
+                        const text = isPapelaria 
+                          ? (papelariaSelecionada.length > 0 ? `${papelariaSelecionada.length} itens impressos marcados` : '5 Itens impressos à escolha')
+                          : i;
                         return (
                           <li key={i} style={{ display: 'flex', alignItems: 'flex-start', gap: '8px', color: '#4a1f3a' }}>
-                            {!i.startsWith('✨') && <span style={{ color: 'var(--accent-magenta)', fontWeight: 700, flexShrink: 0, marginTop: '2px' }}>✔</span>}
+                            {!text.startsWith('✨') && <span style={{ color: 'var(--accent-magenta)', fontWeight: 700, flexShrink: 0, marginTop: '2px' }}>✔</span>}
                             <div style={{ display: 'flex', flexWrap: 'wrap', alignItems: 'center', gap: '6px', flex: 1 }}>
-                              <span>{i}</span>
+                              <span>{text}</span>
                               {isPapelaria && (
                                 <button onClick={() => setShowPediatriaModal(true)} style={{ background: 'rgba(220,52,149,0.1)', color: 'var(--accent-magenta)', border: 'none', padding: '3px 8px', borderRadius: '10px', fontSize: '0.7rem', fontWeight: 700, cursor: 'pointer', marginLeft: 'auto' }}>
                                   👀 Selecionar itens
