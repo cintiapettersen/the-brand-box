@@ -31,19 +31,6 @@ export async function POST(request) {
       return Response.json({ error: error.message }, { status: 500 });
     }
 
-    // Disparo imediato do e-mail (background)
-    const host = request.headers.get('host');
-    const protocol = host.includes('localhost') ? 'http' : 'https';
-    const appUrl = `${protocol}://${host}`;
-
-    fetch(`${appUrl}/api/send-email`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ email, marca, sessionId: data.id, plano }),
-    }).then(async () => {
-      await supabase.from('entregas').update({ email_enviado: true }).eq('id', data.id);
-    }).catch(e => console.error('Immediate email dispatch failed:', e));
-
     return Response.json({ sessionId: data.id });
   } catch (err) {
     console.error('salvar-entrega error:', err);
