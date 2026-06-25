@@ -9256,7 +9256,7 @@ function EntregaContent({ brand, plano, setBrand }) {
   const setLogoColor = (c) => { setLogoColorState(c); try { localStorage.setItem(`brandbox_logo_color_${brand.id}`, c); } catch {} };
   const [logoLayout, setLogoLayout] = useState(() => {
     const rawMarca = brand.editData?.marca || '';
-    const defaultLayout = rawMarca.includes(',') ? 'balanced' : 'inline';
+    const defaultLayout = rawMarca.includes(',') ? 'balanced' : 'horizontal';
     try { return localStorage.getItem(`brandbox_logo_layout_${brand.id}`) || defaultLayout; } catch { return defaultLayout; }
   });
   const setLayout = (l) => { setLogoLayout(l); try { localStorage.setItem(`brandbox_logo_layout_${brand.id}`, l); } catch {} };
@@ -9717,8 +9717,8 @@ function EntregaContent({ brand, plano, setBrand }) {
     try {
       const s = localStorage.getItem(`brandbox_step_${brand.id}`); if (s) setStepState(s);
 
-      let allPatterns = JSON.parse(localStorage.getItem(`brandbox_patterns_all_${brand.id}`) || 'null');
-      const singlePattern = JSON.parse(localStorage.getItem(`brandbox_pattern_${brand.id}`) || 'null');
+      let allPatterns = JSON.parse(localStorage.getItem(`brandbox_patterns_all_${brand.id}`) || localStorage.getItem('brandbox_patterns_all') || 'null');
+      const singlePattern = JSON.parse(localStorage.getItem(`brandbox_pattern_${brand.id}`) || localStorage.getItem('brandbox_pattern') || 'null');
       if (allPatterns && allPatterns.length > 0) {
         if (allPatterns.length > 3) {
           allPatterns = allPatterns.slice(-3);
@@ -9777,7 +9777,7 @@ function EntregaContent({ brand, plano, setBrand }) {
 
     const patLocal = (() => {
       try {
-        const scoped = localStorage.getItem(`brandbox_pattern_${brand.id}`);
+        const scoped = localStorage.getItem(`brandbox_pattern_${brand.id}`) || localStorage.getItem('brandbox_pattern');
         return scoped ? JSON.parse(scoped) : null;
       } catch {
         return null;
@@ -9785,7 +9785,7 @@ function EntregaContent({ brand, plano, setBrand }) {
     })();
     const patAllLocal = (() => {
       try {
-        const scoped = localStorage.getItem(`brandbox_patterns_all_${brand.id}`);
+        const scoped = localStorage.getItem(`brandbox_patterns_all_${brand.id}`) || localStorage.getItem('brandbox_patterns_all');
         return scoped ? JSON.parse(scoped) : null;
       } catch {
         return null;
@@ -9961,6 +9961,7 @@ function EntregaContent({ brand, plano, setBrand }) {
   }, [editData?.fontFamily, editData?.fontWeight]);
 
   const paletteColors = (() => {
+    if (brand.editData?.colors?.length > 0) return brand.editData.colors;
     // 1. Prioridade total: cores salvas diretamente no objeto da marca
     if (brand.currentPaletteColors?.length > 0) return brand.currentPaletteColors;
 
