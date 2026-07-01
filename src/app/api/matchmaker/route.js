@@ -33,6 +33,7 @@ export async function POST(req) {
     REGRA DE OURO 1 (Médicos): Para "Saúde da Mulher" atendendo "Mulheres Adultas", prefira sempre Essência Atemporal (ID 5), a menos que o briefing peça explicitamente algo muito "Clean/Institucional".
     REGRA DE OURO 2 (Naturais): Se a área de atuação for "Cosméticos Naturais / Bem-estar Consciente" ou envolver termos como "Orgânico, Vegano, Natural, Sustentável, Handmade", o match MANDATÓRIO é o Raízes & Cuidado (ID 6). Ignore pedidos de minimalismo extremo se a alma da marca for natural/artesanal.
     REGRA DE OURO 3 (Energia Masculina): Se a Identidade / Energia da Marca for "Masculina", é ESTRITAMENTE PROIBIDO recomendar "Doce Encantamento" (ID 8) ou estilos muito florais/delicados. Para perfis masculinos, direcione a escolha para estilos mais sóbrios como "Escandinavo Acolhedor" (ID 3) ou "Estético Editorial" (ID 11), a menos que as respostas peçam algo radicalmente diferente.
+    REGRA DE OURO 4 (Jardim Encantado e Público Adulto): É ESTRITAMENTE PROIBIDO recomendar o "Jardim Encantado" (ID 2) se o "Público Alvo" for exclusivamente de adultos (ex: "Jovens e Adultos (18-60 anos)"). O Jardim Encantado SÓ PODE ser sugerido se o público alvo incluir crianças, bebês ou adolescentes até 18 anos.
 
     DADOS DA CLIENTE:
     Nome: ${body.nome}
