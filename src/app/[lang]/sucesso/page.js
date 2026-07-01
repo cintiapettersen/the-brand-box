@@ -1117,15 +1117,17 @@ function EstampaStep({ brand, accentColor, marca, patterns, setPatterns, genCoun
           srcCtx.drawImage(img, 0, 0);
           const srcData = srcCtx.getImageData(0, 0, W, H).data;
           const out = new Uint8ClampedArray(srcData);
-          const bW = Math.floor(W * 0.12);
-          const bH = Math.floor(H * 0.12);
+          const bW = Math.floor(W * 0.06);
+          const bH = Math.floor(H * 0.06);
           for (let y = 0; y < H; y++) {
             for (let x = 0; x < W; x++) {
               const i = (y * W + x) * 4;
               const ax = x < bW ? x / bW : x > W - 1 - bW ? (W - 1 - x) / bW : 1;
               const ay = y < bH ? y / bH : y > H - 1 - bH ? (H - 1 - y) / bH : 1;
-              const a = Math.min(ax, ay);
+              let a = Math.min(ax, ay);
               if (a < 1) {
+                // smoothstep para evitar o efeito leitoso e manter a transição focada na borda
+                a = a * a * (3 - 2 * a);
                 const mx = (x + Math.floor(W / 2)) % W;
                 const my = (y + Math.floor(H / 2)) % H;
                 const mi = (my * W + mx) * 4;
