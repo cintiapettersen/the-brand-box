@@ -1111,35 +1111,45 @@ function EstampaStep({ brand, accentColor, marca, patterns, setPatterns, genCoun
         const img = new Image();
         img.onload = () => {
           const W = img.width, H = img.height;
-          const srcCanvas = document.createElement('canvas');
-          srcCanvas.width = W; srcCanvas.height = H;
-          const srcCtx = srcCanvas.getContext('2d');
-          srcCtx.drawImage(img, 0, 0);
-          const srcData = srcCtx.getImageData(0, 0, W, H).data;
-          const out = new Uint8ClampedArray(srcData);
-          const bW = Math.floor(W * 0.06);
-          const bH = Math.floor(H * 0.06);
-          for (let y = 0; y < H; y++) {
-            for (let x = 0; x < W; x++) {
-              const i = (y * W + x) * 4;
-              const ax = x < bW ? x / bW : x > W - 1 - bW ? (W - 1 - x) / bW : 1;
-              const ay = y < bH ? y / bH : y > H - 1 - bH ? (H - 1 - y) / bH : 1;
-              let a = Math.min(ax, ay);
-              if (a < 1) {
-                // smoothstep para evitar o efeito leitoso e manter a transição focada na borda
-                a = a * a * (3 - 2 * a);
-                const mx = (x + Math.floor(W / 2)) % W;
-                const my = (y + Math.floor(H / 2)) % H;
-                const mi = (my * W + mx) * 4;
-                out[i]   = Math.round(srcData[i]   * a + srcData[mi]   * (1 - a));
-                out[i+1] = Math.round(srcData[i+1] * a + srcData[mi+1] * (1 - a));
-                out[i+2] = Math.round(srcData[i+2] * a + srcData[mi+2] * (1 - a));
-              }
-            }
-          }
           const outCanvas = document.createElement('canvas');
           outCanvas.width = W; outCanvas.height = H;
-          outCanvas.getContext('2d').putImageData(new ImageData(out, W, H), 0, 0);
+          const ctx = outCanvas.getContext('2d');
+          
+          // Foca nos 60% centrais da imagem gerada, cortando bordas vazias e garantindo densidade
+          const cropW = Math.floor(W * 0.6);
+          const cropH = Math.floor(H * 0.6);
+          const sx = Math.floor((W - cropW) / 2);
+          const sy = Math.floor((H - cropH) / 2);
+          
+          const qw = W / 2;
+          const qh = H / 2;
+          
+          // Aplica "Mirrored Repeat" (Repetição Espelhada) em 4 quadrantes para 100% de perfeição sem blur
+          
+          // Q1: Superior Esquerdo (Original)
+          ctx.drawImage(img, sx, sy, cropW, cropH, 0, 0, qw, qh);
+          
+          // Q2: Superior Direito (Espelhado Horizontal)
+          ctx.save();
+          ctx.translate(W, 0);
+          ctx.scale(-1, 1);
+          ctx.drawImage(img, sx, sy, cropW, cropH, 0, 0, qw, qh);
+          ctx.restore();
+          
+          // Q3: Inferior Esquerdo (Espelhado Vertical)
+          ctx.save();
+          ctx.translate(0, H);
+          ctx.scale(1, -1);
+          ctx.drawImage(img, sx, sy, cropW, cropH, 0, 0, qw, qh);
+          ctx.restore();
+          
+          // Q4: Inferior Direito (Espelhado Ambos)
+          ctx.save();
+          ctx.translate(W, H);
+          ctx.scale(-1, -1);
+          ctx.drawImage(img, sx, sy, cropW, cropH, 0, 0, qw, qh);
+          ctx.restore();
+          
           resolve(outCanvas.toDataURL('image/png').split(',')[1]);
         };
         img.src = `data:${pat.mimeType || 'image/png'};base64,${pat.base64}`;
