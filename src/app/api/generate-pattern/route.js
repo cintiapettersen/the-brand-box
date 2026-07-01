@@ -38,9 +38,18 @@ export async function POST(req) {
     };
     const hint = styleHints[estiloNome] || 'elegant and delicate';
 
-    const colorRule = `COLOR OVERRIDE (CRITICAL & MANDATORY): You MUST ignore the colors of the reference image. The reference image is ONLY for shapes, forms, and drawing technique. You MUST color the pattern using ONLY the following Custom Colors: ${coresStr}. If you use the original colors of the reference image, the output will be rejected.`;
+    const colorRule = `
+=========================================
+CRITICAL COLOR OVERRIDE (MANDATORY)
+=========================================
+You MUST completely IGNORE the colors of the reference image. The reference image is ONLY for shapes, layout, and drawing style. 
+You MUST strictly color ALL elements using ONLY the following exact hex colors:
+[ ${coresStr} ]
 
-    // SEAMLESS BASE — regra técnica compacta e extremamente rigorosa
+Do NOT use any colors from the reference image (like greens, browns, etc.) unless they are in the hex list above. 
+Keep the background pure white or very light cream.
+=========================================
+`;
     const seamless = `SEAMLESS TILING RULES (CRITICAL & MANDATORY):
 - 70% STYLE DNA + 30% CREATIVE COMPOSITION: The reference image represents 70% of the style influence (use its exact drawing technique, textures, line quality, and element DNA). The remaining 30% MUST be creative freedom — distribute and arrange the elements in a completely NEW, UNIQUE, and highly distinct composition layout. Do NOT replicate the layout or placement coordinates of the reference image. Do NOT copy the exact same pattern layout.
 - ZERO BORDERS / SEAMS / LINES: Absolutely NO vertical, horizontal, or diagonal borders, margins, padding, seam lines, white/grey gaps, or division lines separating the tiles. The background must be 100% flat, solid, and uniform right up to the absolute edges. Full bleed edge-to-edge. Do not create any vignette, gradient shadows, or framing around the edges of the image.
