@@ -1101,56 +1101,85 @@ function EstampaStep({ brand, accentColor, marca, patterns, setPatterns, genCoun
     setTimeout(() => URL.revokeObjectURL(url), 1000);
   };
 
-  const makeSeamless = async () => {
+  const makeSeamless = async (type = 'blur') => {
     const pat = patterns[selectedIdx];
     if (!pat?.base64) return;
     setOriginalPattern({ ...pat }); // salva backup antes de modificar
-    setFixingSeams(true);
+    setFixingSeams(type);
     try {
       const result = await new Promise(resolve => {
         const img = new Image();
         img.onload = () => {
           const W = img.width, H = img.height;
-          const outCanvas = document.createElement('canvas');
-          outCanvas.width = W; outCanvas.height = H;
-          const ctx = outCanvas.getContext('2d');
           
-          // Foca nos 60% centrais da imagem gerada, cortando bordas vazias e garantindo densidade
-          const cropW = Math.floor(W * 0.6);
-          const cropH = Math.floor(H * 0.6);
-          const sx = Math.floor((W - cropW) / 2);
-          const sy = Math.floor((H - cropH) / 2);
-          
-          const qw = W / 2;
-          const qh = H / 2;
-          
-          // Aplica "Mirrored Repeat" (Repetição Espelhada) em 4 quadrantes para 100% de perfeição sem blur
-          
-          // Q1: Superior Esquerdo (Original)
-          ctx.drawImage(img, sx, sy, cropW, cropH, 0, 0, qw, qh);
-          
-          // Q2: Superior Direito (Espelhado Horizontal)
-          ctx.save();
-          ctx.translate(W, 0);
-          ctx.scale(-1, 1);
-          ctx.drawImage(img, sx, sy, cropW, cropH, 0, 0, qw, qh);
-          ctx.restore();
-          
-          // Q3: Inferior Esquerdo (Espelhado Vertical)
-          ctx.save();
-          ctx.translate(0, H);
-          ctx.scale(1, -1);
-          ctx.drawImage(img, sx, sy, cropW, cropH, 0, 0, qw, qh);
-          ctx.restore();
-          
-          // Q4: Inferior Direito (Espelhado Ambos)
-          ctx.save();
-          ctx.translate(W, H);
-          ctx.scale(-1, -1);
-          ctx.drawImage(img, sx, sy, cropW, cropH, 0, 0, qw, qh);
-          ctx.restore();
-          
-          resolve(outCanvas.toDataURL('image/png').split(',')[1]);
+          if (type === 'mirror') {
+            const outCanvas = document.createElement('canvas');
+            outCanvas.width = W; outCanvas.height = H;
+            const ctx = outCanvas.getContext('2d');
+            
+            // Foca nos 60% centrais da imagem gerada, cortando bordas vazias e garantindo densidade
+            const cropW = Math.floor(W * 0.6);
+            const cropH = Math.floor(H * 0.6);
+            const sx = Math.floor((W - cropW) / 2);
+            const sy = Math.floor((H - cropH) / 2);
+            
+            const qw = W / 2;
+            const qh = H / 2;
+            
+            // Aplica "Mirrored Repeat" (Repetição Espelhada) em 4 quadrantes para 100% de perfeição sem blur
+            ctx.drawImage(img, sx, sy, cropW, cropH, 0, 0, qw, qh);
+            
+            ctx.save();
+            ctx.translate(W, 0);
+            ctx.scale(-1, 1);
+            ctx.drawImage(img, sx, sy, cropW, cropH, 0, 0, qw, qh);
+            ctx.restore();
+            
+            ctx.save();
+            ctx.translate(0, H);
+            ctx.scale(1, -1);
+            ctx.drawImage(img, sx, sy, cropW, cropH, 0, 0, qw, qh);
+            ctx.restore();
+            
+            ctx.save();
+            ctx.translate(W, H);
+            ctx.scale(-1, -1);
+            ctx.drawImage(img, sx, sy, cropW, cropH, 0, 0, qw, qh);
+            ctx.restore();
+            
+            resolve(outCanvas.toDataURL('image/png').split(',')[1]);
+          } else {
+            // Algoritmo Blur 6% Suave Original
+            const srcCanvas = document.createElement('canvas');
+            srcCanvas.width = W; srcCanvas.height = H;
+            const srcCtx = srcCanvas.getContext('2d');
+            srcCtx.drawImage(img, 0, 0);
+            const srcData = srcCtx.getImageData(0, 0, W, H).data;
+            const out = new Uint8ClampedArray(srcData);
+            const bW = Math.floor(W * 0.06);
+            const bH = Math.floor(H * 0.06);
+            for (let y = 0; y < H; y++) {
+              for (let x = 0; x < W; x++) {
+                const i = (y * W + x) * 4;
+                const ax = x < bW ? x / bW : x > W - 1 - bW ? (W - 1 - x) / bW : 1;
+                const ay = y < bH ? y / bH : y > H - 1 - bH ? (H - 1 - y) / bH : 1;
+                let a = Math.min(ax, ay);
+                if (a < 1) {
+                  a = a * a * (3 - 2 * a);
+                  const mx = (x + Math.floor(W / 2)) % W;
+                  const my = (y + Math.floor(H / 2)) % H;
+                  const mi = (my * W + mx) * 4;
+                  out[i]   = Math.round(srcData[i]   * a + srcData[mi]   * (1 - a));
+                  out[i+1] = Math.round(srcData[i+1] * a + srcData[mi+1] * (1 - a));
+                  out[i+2] = Math.round(srcData[i+2] * a + srcData[mi+2] * (1 - a));
+                }
+              }
+            }
+            const outCanvas = document.createElement('canvas');
+            outCanvas.width = W; outCanvas.height = H;
+            outCanvas.getContext('2d').putImageData(new ImageData(out, W, H), 0, 0);
+            resolve(outCanvas.toDataURL('image/png').split(',')[1]);
+          }
         };
         img.src = `data:${pat.mimeType || 'image/png'};base64,${pat.base64}`;
       });
@@ -1320,13 +1349,20 @@ function EstampaStep({ brand, accentColor, marca, patterns, setPatterns, genCoun
           )}
           {/* Botões: varinha mágica + reverter */}
           {patternSrc && !generating && (
-            <div style={{ display: 'flex', justifyContent: 'center', gap: '8px', marginTop: '6px' }}>
+            <div style={{ display: 'flex', justifyContent: 'center', gap: '8px', marginTop: '6px', flexWrap: 'wrap' }}>
               <button
-                onClick={makeSeamless}
+                onClick={() => makeSeamless('blur')}
                 disabled={fixingSeams}
-                style={{ padding: '7px 18px', borderRadius: '20px', border: `1.5px solid ${accentColor}44`, background: fixingSeams ? `${accentColor}10` : '#fff', color: fixingSeams ? accentColor : '#666', fontSize: '0.72rem', fontWeight: 700, cursor: fixingSeams ? 'wait' : 'pointer', fontFamily: 'Montserrat, sans-serif', display: 'flex', alignItems: 'center', gap: '6px', transition: 'all 0.2s' }}
+                style={{ padding: '7px 18px', borderRadius: '20px', border: `1.5px solid ${accentColor}44`, background: fixingSeams === 'blur' ? `${accentColor}10` : '#fff', color: fixingSeams === 'blur' ? accentColor : '#666', fontSize: '0.72rem', fontWeight: 700, cursor: fixingSeams ? 'wait' : 'pointer', fontFamily: 'Montserrat, sans-serif', display: 'flex', alignItems: 'center', gap: '6px', transition: 'all 0.2s' }}
               >
-                {fixingSeams ? (dictionary?.pattern_tab?.smoothing || '⏳ Suavizando...') : (dictionary?.pattern_tab?.smooth_seams || '🪄 Suavizar cortes')}
+                {fixingSeams === 'blur' ? (dictionary?.pattern_tab?.smoothing || '⏳ Suavizando...') : (dictionary?.pattern_tab?.smooth_seams || '🪄 Suavizar bordas')}
+              </button>
+              <button
+                onClick={() => makeSeamless('mirror')}
+                disabled={fixingSeams}
+                style={{ padding: '7px 18px', borderRadius: '20px', border: `1.5px solid ${accentColor}44`, background: fixingSeams === 'mirror' ? `${accentColor}10` : '#fff', color: fixingSeams === 'mirror' ? accentColor : '#666', fontSize: '0.72rem', fontWeight: 700, cursor: fixingSeams ? 'wait' : 'pointer', fontFamily: 'Montserrat, sans-serif', display: 'flex', alignItems: 'center', gap: '6px', transition: 'all 0.2s' }}
+              >
+                {fixingSeams === 'mirror' ? '⏳ Espelhando...' : '🪞 Espelhar padrão'}
               </button>
               {originalPattern && (
                 <button
