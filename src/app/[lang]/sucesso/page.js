@@ -419,7 +419,7 @@ function SectionLabel({ children }) {
   );
 }
 
-const MAX_GENERATIONS = 5;
+const MAX_GENERATIONS = 20;
 
 function hexToRgb(hex) {
   const h = hex.replace('#', '');
