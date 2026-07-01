@@ -33,6 +33,14 @@ const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
 const supabaseKey = (process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY ? process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY.replace(/['"]/g, '') : undefined);
 const supabase = createClient(supabaseUrl, supabaseKey);
 
+const PATTERN_PHRASES = [
+  <>A <strong>The Brand Box</strong> está criando<br/>padrões únicos com as cores da sua paleta 🎨</>,
+  <>Desenhando as formas que combinam<br/>com o seu estilo ✨</>,
+  <>Buscando as melhores proporções<br/>para a sua estampa 🌟</>,
+  <>Ajustando os contrastes para<br/>um resultado perfeito 🖌️</>,
+  <>Preparando a versão final<br/>em alta resolução 🎀</>
+];
+
 export default function Home() {
   const { dictionary } = useTranslation();
   const [devMode, setDevMode] = useState(false);
@@ -95,6 +103,7 @@ export default function Home() {
   const [generatedPatterns, setGeneratedPatterns] = useState([]);
   const [selectedPattern, setSelectedPattern] = useState(null);
   const [patternLoading, setPatternLoading] = useState(false);
+  const [patternPhraseIndex, setPatternPhraseIndex] = useState(0);
   const [loadingVariacoes, setLoadingVariacoes] = useState(false);
   
   const [selectedPaleta, setSelectedPaleta] = useState(null);
@@ -145,6 +154,17 @@ export default function Home() {
       console.error('❌ Erro ao ler progresso:', e);
     }
   }, []);
+
+  useEffect(() => {
+    if (!patternLoading) {
+      setPatternPhraseIndex(0);
+      return;
+    }
+    const interval = setInterval(() => {
+      setPatternPhraseIndex(prev => (prev + 1) % PATTERN_PHRASES.length);
+    }, 4500);
+    return () => clearInterval(interval);
+  }, [patternLoading]);
 
   const restoreProgress = async (parsed) => {
     if (parsed.step) setStep(parsed.step);
@@ -1257,8 +1277,8 @@ export default function Home() {
                   <div style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: '20px' }}>
                     <div style={{ width: '50px', height: '50px', border: '4px solid var(--border)', borderTop: '4px solid var(--accent-magenta)', borderRadius: '50%', animation: 'spin 1s linear infinite' }} />
                     <p style={{ fontSize: '1.1rem', color: 'var(--text-primary)', fontWeight: 600 }}>Desenhando com carinho...</p>
-                    <p style={{ fontSize: '0.8rem', color: 'var(--text-secondary)', textAlign: 'center', lineHeight: 1.5 }}>
-                      A <strong>The Brand Box</strong> está criando<br/>padrões únicos com as cores da sua paleta 🎨
+                    <p style={{ fontSize: '0.8rem', color: 'var(--text-secondary)', textAlign: 'center', lineHeight: 1.5, minHeight: '38px', transition: 'opacity 0.3s' }}>
+                      {PATTERN_PHRASES[patternPhraseIndex]}
                     </p>
                   </div>
                 )}
