@@ -109,9 +109,7 @@ Composition Style: Dynamic diagonal flow, varied rotations, fluid and active. Ex
         const contents = [];
 
         const refUrl = pickRef(i);
-        const basePmt = variationPrompts[(i + randomPromptOffset) % variationPrompts.length];
         const seed = Math.floor(Math.random() * 1000000);
-        const finalPrompt = `${basePmt}\n\n[System note: Creative Seed ${seed}. Ensure the arrangement and distribution of elements is entirely unique and distinct from previous generations.]`;
 
         if (refUrl) {
           const refImage = await loadImage(refUrl);
@@ -142,10 +140,10 @@ Composition Style: Dynamic diagonal flow, varied rotations, fluid and active. Ex
           "Create a soft, dreamy overlay of elements."
         ];
         const randomTweak = creativeTweaks[Math.floor(Math.random() * creativeTweaks.length)];
-        const finalPrompt = `${variationPrompts[promptIdx]}\nCreative touch for this variation: ${randomTweak}`;
+        const promptToUse = `${variationPrompts[promptIdx]}\nCreative touch for this variation: ${randomTweak}\n\n[System note: Creative Seed ${seed}. Ensure the arrangement and distribution of elements is entirely unique and distinct from previous generations.]`;
 
         console.log(`🎨 Geração ${i + 1} (Prompt Index: ${promptIdx}, Tweak: "${randomTweak}") usando ref: ${refUrl ? refUrl.substring(0, 70) + '…' : 'nenhuma'}`);
-        contents.push({ text: finalPrompt });
+        contents.push({ text: promptToUse });
 
         const response = await ai.models.generateContent({
           model: 'gemini-2.5-flash-image',
