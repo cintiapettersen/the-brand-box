@@ -970,6 +970,32 @@ function EstampaStep({ brand, accentColor, marca, patterns, setPatterns, genCoun
   const [showSlotModal, setShowSlotModal] = useState(false);
   const bxSpinStyle = `@keyframes bx-spin { 0%,100%{transform:scale(1);opacity:1} 50%{transform:scale(1.4);opacity:0.5} }`;
   const [loadingPhraseIdx, setLoadingPhraseIdx] = useState(0);
+  const [feedbackState, setFeedbackState] = useState({});
+
+  const handleFeedback = (status) => {
+    const current = patterns[selectedIdx];
+    const url = current?.url;
+    if (!url) return;
+
+    setFeedbackState(prev => ({ ...prev, [url]: status }));
+
+    const sessionId = typeof window !== 'undefined'
+      ? (new URLSearchParams(window.location.search).get('session') || localStorage.getItem('brandbox_session'))
+      : null;
+
+    if (sessionId) {
+      fetch('/api/salvar-feedback-estampa', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          sessionId,
+          imageUrl: url,
+          estilo: brand?.estilo_nome || '',
+          status
+        })
+      }).catch(err => console.warn('Erro ao salvar feedback', err));
+    }
+  };
 
   const loadingPhrases = [
     'Criando sua estampa exclusiva…',
@@ -1448,6 +1474,24 @@ function EstampaStep({ brand, accentColor, marca, patterns, setPatterns, genCoun
                 >
                   ↩ Reverter
                 </button>
+              )}
+              {patterns[selectedIdx]?.url && (
+                <div style={{ display: 'flex', gap: '4px', marginLeft: '4px' }}>
+                  <button
+                    onClick={() => handleFeedback('liked')}
+                    style={{ padding: '7px 14px', borderRadius: '20px', border: `1px solid ${feedbackState[patterns[selectedIdx].url] === 'liked' ? accentColor : '#eee'}`, background: feedbackState[patterns[selectedIdx].url] === 'liked' ? `${accentColor}15` : '#fff', color: feedbackState[patterns[selectedIdx].url] === 'liked' ? accentColor : '#aaa', fontSize: '0.8rem', cursor: 'pointer', transition: 'all 0.2s', display: 'flex', alignItems: 'center', gap: '4px' }}
+                    title="Amei essa estampa!"
+                  >
+                    {feedbackState[patterns[selectedIdx].url] === 'liked' ? '♥️ Amei' : '🤍 Amei'}
+                  </button>
+                  <button
+                    onClick={() => handleFeedback('disliked')}
+                    style={{ padding: '7px 14px', borderRadius: '20px', border: `1px solid ${feedbackState[patterns[selectedIdx].url] === 'disliked' ? '#ff4444' : '#eee'}`, background: feedbackState[patterns[selectedIdx].url] === 'disliked' ? '#ff444415' : '#fff', color: feedbackState[patterns[selectedIdx].url] === 'disliked' ? '#ff4444' : '#aaa', fontSize: '0.8rem', cursor: 'pointer', transition: 'all 0.2s', display: 'flex', alignItems: 'center', gap: '4px' }}
+                    title="Não combinou"
+                  >
+                    👎 Descartar
+                  </button>
+                </div>
               )}
             </div>
           )}
