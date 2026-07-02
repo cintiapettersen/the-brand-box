@@ -1143,34 +1143,31 @@ function EstampaStep({ brand, accentColor, marca, patterns, setPatterns, genCoun
             outCanvas.width = W; outCanvas.height = H;
             const ctx = outCanvas.getContext('2d');
             
-            // Foca nos 60% centrais da imagem gerada, cortando bordas vazias e garantindo densidade
-            const cropW = Math.floor(W * 0.6);
-            const cropH = Math.floor(H * 0.6);
-            const sx = Math.floor((W - cropW) / 2);
-            const sy = Math.floor((H - cropH) / 2);
-            
+            // Em vez de cortar e perder cores/elementos da imagem, pegamos a imagem INTEIRA 
+            // e reduzimos para 50% para caber em um quadrante. Assim não perdemos nenhuma cor!
             const qw = W / 2;
             const qh = H / 2;
             
-            // Aplica "Mirrored Repeat" (Repetição Espelhada) em 4 quadrantes para 100% de perfeição sem blur
-            ctx.drawImage(img, sx, sy, cropW, cropH, 0, 0, qw, qh);
+            // Aplica "Mirrored Repeat" (Repetição Espelhada) em 4 quadrantes para 100% de perfeição
+            // Desenha a imagem inteira no quadrante superior esquerdo
+            ctx.drawImage(img, 0, 0, W, H, 0, 0, qw, qh);
             
             ctx.save();
             ctx.translate(W, 0);
             ctx.scale(-1, 1);
-            ctx.drawImage(img, sx, sy, cropW, cropH, 0, 0, qw, qh);
+            ctx.drawImage(img, 0, 0, W, H, 0, 0, qw, qh);
             ctx.restore();
             
             ctx.save();
             ctx.translate(0, H);
             ctx.scale(1, -1);
-            ctx.drawImage(img, sx, sy, cropW, cropH, 0, 0, qw, qh);
+            ctx.drawImage(img, 0, 0, W, H, 0, 0, qw, qh);
             ctx.restore();
             
             ctx.save();
             ctx.translate(W, H);
             ctx.scale(-1, -1);
-            ctx.drawImage(img, sx, sy, cropW, cropH, 0, 0, qw, qh);
+            ctx.drawImage(img, 0, 0, W, H, 0, 0, qw, qh);
             ctx.restore();
             
             resolve(outCanvas.toDataURL('image/png').split(',')[1]);
