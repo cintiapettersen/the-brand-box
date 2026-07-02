@@ -56,7 +56,8 @@ Keep the background pure white or very light cream.
 - PAC-MAN EDGE WRAPPING: Elements that exit one edge must wrap around and re-enter from the exact opposite edge (Pac-Man style).
 - COMPOSITION INTEGRITY: Do NOT slice, cut, or crop main motifs/objects in half inside the tile, except for seamless wrap-around edge bleed at the absolute boundaries. Keep every motif in the middle fully formed, clear, and complete. Avoid chaotic overlaps or collision between different motifs.
 - FLAT TWO-DIMENSIONAL SURFACES ONLY: Ignore any mockups, wallpaper rolls, strips, columns, or panel divisions in the reference image. Generate ONLY a single, flat, continuous two-dimensional seamless tile.
-- NO FRAMES OR BORDERS: The generated image must be a full-bleed flat graphic going exactly to the absolute 4 corners. Absolutely no thin white margins, no grey border lines, no vignettes, and no visual framing of any kind.`;
+- NO FRAMES OR BORDERS: The generated image must be a full-bleed flat graphic going exactly to the absolute 4 corners. Absolutely no thin white margins, no grey border lines, no vignettes, and no visual framing of any kind.
+- MANDATORY SIGNATURE TEXTURE: You MUST apply a beautiful, highly visible premium watercolor paper or fine organic canvas texture across the ENTIRE image. This texture should be noticeable and rich, giving the illustration a luxurious, tactile, handcrafted feel that prevents the image from looking flat or digital, especially when scaled up.`;
 
     // 3 VARIAÇÕES ALTAMENTE DISTINTAS — composição completamente redesenhada
     const variationPrompts = [
