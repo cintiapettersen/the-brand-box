@@ -100,12 +100,19 @@ Composition Style: Dynamic diagonal flow, varied rotations, fluid and active. Ex
       if (refs.length === 0) return null;
       return refs[i % refs.length];
     };
+    
+    // Offset aleatório para garantir que não pegue sempre a mesma variação ao pedir apenas 1 estampa
+    const randomPromptOffset = Math.floor(Math.random() * variationPrompts.length);
 
     for (let i = 0; i < requestCount; i++) {
       try {
         const contents = [];
 
         const refUrl = pickRef(i);
+        const basePmt = variationPrompts[(i + randomPromptOffset) % variationPrompts.length];
+        const seed = Math.floor(Math.random() * 1000000);
+        const finalPrompt = `${basePmt}\n\n[System note: Creative Seed ${seed}. Ensure the arrangement and distribution of elements is entirely unique and distinct from previous generations.]`;
+
         if (refUrl) {
           const refImage = await loadImage(refUrl);
           if (refImage) {
@@ -174,11 +181,13 @@ Composition Style: Dynamic diagonal flow, varied rotations, fluid and active. Ex
       ];
       try {
         const remaining = requestCount - results.length;
+        const fallbackOffset = Math.floor(Math.random() * fallbackCompositions.length);
         for (let j = 0; j < remaining; j++) {
-          const compIdx = results.length + j;
+          const compIdx = results.length + j + fallbackOffset;
+          const seed = Math.floor(Math.random() * 1000000);
           const response = await ai.models.generateImages({
             model: 'imagen-4.0-generate-001',
-            prompt: `A single seamless repeating tile for a premium brand surface pattern. Style DNA: ${estiloNome} — ${hint}. SEAMLESS TILING: Must tile perfectly seamlessly. Elements exiting one edge wrap around and re-enter from the exact opposite edge. Absolutely NO vertical or horizontal seams, NO white borders, NO margins, NO vignettes, and NO grid lines. Background must be 100% solid, flat, and uniform right up to the absolute edges. COMPOSITION: Do not cut or crop main motifs in half inside the tile (except for seamless wrap-around edge bleed at the boundaries). Replicate the drawing technique and elements of style references (70% style influence) but create a completely new, unique and custom arrangement (30% creative composition). Composition layout style: ${fallbackCompositions[compIdx % 3]}. Colors ONLY: ${coresStr}. Absolutely NO GREEN unless in palette. Leaves/stems must use palette colors. White background. Flat illustration.`,
+            prompt: `A single seamless repeating tile for a premium brand surface pattern. Style DNA: ${estiloNome} — ${hint}. SEAMLESS TILING: Must tile perfectly seamlessly. Elements exiting one edge wrap around and re-enter from the exact opposite edge. Absolutely NO vertical or horizontal seams, NO white borders, NO margins, NO vignettes, and NO grid lines. Background must be 100% solid, flat, and uniform right up to the absolute edges. COMPOSITION: Do not cut or crop main motifs in half inside the tile (except for seamless wrap-around edge bleed at the boundaries). Replicate the drawing technique and elements of style references (70% style influence) but create a completely new, unique and custom arrangement (30% creative composition). Composition layout style: ${fallbackCompositions[compIdx % 3]}. Colors ONLY: ${coresStr}. Absolutely NO GREEN unless in palette. Leaves/stems must use palette colors. White background. Flat illustration. [Creative Seed: ${seed}]`,
             config: { numberOfImages: 1 },
           });
           for (const img of response.generatedImages) {
