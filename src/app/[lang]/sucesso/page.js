@@ -1073,8 +1073,14 @@ function EstampaStep({ brand, accentColor, marca, patterns, setPatterns, genCoun
           }
           const nextActiveIdx = replaceIdx !== null ? replaceIdx : next.length - 1;
           setSelectedIdx(nextActiveIdx);
-          try { localStorage.setItem('brandbox_pattern', JSON.stringify(next[nextActiveIdx])); } catch {}
-          try { localStorage.setItem('brandbox_patterns_all', JSON.stringify(next)); } catch {}
+          try { 
+            localStorage.setItem('brandbox_pattern', JSON.stringify(next[nextActiveIdx])); 
+            if (brand?.id) localStorage.setItem(`brandbox_pattern_${brand.id}`, JSON.stringify(next[nextActiveIdx]));
+          } catch {}
+          try { 
+            localStorage.setItem('brandbox_patterns_all', JSON.stringify(next)); 
+            if (brand?.id) localStorage.setItem(`brandbox_patterns_all_${brand.id}`, JSON.stringify(next));
+          } catch {}
           return next;
         });
         setGenCount(c => c + 1);
@@ -1114,7 +1120,10 @@ function EstampaStep({ brand, accentColor, marca, patterns, setPatterns, genCoun
                     }
                   }
                 }
-                try { localStorage.setItem('brandbox_patterns_all', JSON.stringify(next)); } catch {}
+                try { 
+                  localStorage.setItem('brandbox_patterns_all', JSON.stringify(next)); 
+                  if (brand?.id) localStorage.setItem(`brandbox_patterns_all_${brand.id}`, JSON.stringify(next));
+                } catch {}
                 return next;
               });
             } else {
