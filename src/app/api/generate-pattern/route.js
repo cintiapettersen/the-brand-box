@@ -47,6 +47,7 @@ You MUST strictly color ALL elements using ONLY the following exact hex colors:
 [ ${coresStr} ]
 
 Do NOT use any colors from the reference image (like greens, browns, etc.) unless they are in the hex list above. 
+CRITICAL: Even natural elements like leaves and stems MUST be colored using ONLY the provided palette colors. Absolutely NO GREEN is allowed unless it is explicitly in the palette list above.
 Keep the background pure white or very light cream.
 =========================================
 `;
@@ -177,7 +178,7 @@ Composition Style: Dynamic diagonal flow, varied rotations, fluid and active. Ex
           const compIdx = results.length + j;
           const response = await ai.models.generateImages({
             model: 'imagen-4.0-generate-001',
-            prompt: `A single seamless repeating tile for a premium brand surface pattern. Style DNA: ${estiloNome} — ${hint}. SEAMLESS TILING: Must tile perfectly seamlessly. Elements exiting one edge wrap around and re-enter from the exact opposite edge. Absolutely NO vertical or horizontal seams, NO white borders, NO margins, NO vignettes, and NO grid lines. Background must be 100% solid, flat, and uniform right up to the absolute edges. COMPOSITION: Do not cut or crop main motifs in half inside the tile (except for seamless wrap-around edge bleed at the boundaries). Replicate the drawing technique and elements of style references (70% style influence) but create a completely new, unique and custom arrangement (30% creative composition). Composition layout style: ${fallbackCompositions[compIdx % 3]}. Colors ONLY: ${coresStr}. White background. Flat illustration.`,
+            prompt: `A single seamless repeating tile for a premium brand surface pattern. Style DNA: ${estiloNome} — ${hint}. SEAMLESS TILING: Must tile perfectly seamlessly. Elements exiting one edge wrap around and re-enter from the exact opposite edge. Absolutely NO vertical or horizontal seams, NO white borders, NO margins, NO vignettes, and NO grid lines. Background must be 100% solid, flat, and uniform right up to the absolute edges. COMPOSITION: Do not cut or crop main motifs in half inside the tile (except for seamless wrap-around edge bleed at the boundaries). Replicate the drawing technique and elements of style references (70% style influence) but create a completely new, unique and custom arrangement (30% creative composition). Composition layout style: ${fallbackCompositions[compIdx % 3]}. Colors ONLY: ${coresStr}. Absolutely NO GREEN unless in palette. Leaves/stems must use palette colors. White background. Flat illustration.`,
             config: { numberOfImages: 1 },
           });
           for (const img of response.generatedImages) {
