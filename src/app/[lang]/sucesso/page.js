@@ -1373,7 +1373,10 @@ function EstampaStep({ brand, accentColor, marca, patterns, setPatterns, genCoun
                       setPatterns(prev => {
                         const next = prev.filter((_, idx) => idx !== i);
                         if (selectedIdx >= next.length) setSelectedIdx(Math.max(0, next.length - 1));
-                        try { localStorage.setItem('brandbox_patterns_all', JSON.stringify(next)); } catch {}
+                        try { 
+                          localStorage.setItem('brandbox_patterns_all', JSON.stringify(next)); 
+                          if (brand?.id) localStorage.setItem(`brandbox_patterns_all_${brand.id}`, JSON.stringify(next));
+                        } catch {}
                         return next;
                       });
 
@@ -1442,7 +1445,11 @@ function EstampaStep({ brand, accentColor, marca, patterns, setPatterns, genCoun
                         originalBase64: null,
                         originalUrl: null
                       };
-                      try { localStorage.setItem('brandbox_patterns_all', JSON.stringify(next.map(p => ({ ...p, base64: p.url ? null : p.base64, originalBase64: p.url ? null : p.originalBase64 })))); } catch {}
+                      try { 
+                        const toSave = JSON.stringify(next.map(p => ({ ...p, base64: p.url ? null : p.base64, originalBase64: p.url ? null : p.originalBase64 })));
+                        localStorage.setItem('brandbox_patterns_all', toSave); 
+                        if (brand?.id) localStorage.setItem(`brandbox_patterns_all_${brand.id}`, toSave);
+                      } catch {}
                       try { localStorage.setItem('brandbox_pattern', JSON.stringify({ ...next[selectedIdx], base64: null, originalBase64: null })); } catch {}
                       return next;
                     });
@@ -1462,7 +1469,11 @@ function EstampaStep({ brand, accentColor, marca, patterns, setPatterns, genCoun
                             const next = [...prev];
                             if (next[selectedIdx]) {
                               next[selectedIdx] = { ...next[selectedIdx], url: r.url };
-                              try { localStorage.setItem('brandbox_patterns_all', JSON.stringify(next.map(p => ({ ...p, base64: p.url ? null : p.base64, originalBase64: p.url ? null : p.originalBase64 })))); } catch {}
+                              try { 
+                                const toSave = JSON.stringify(next.map(p => ({ ...p, base64: p.url ? null : p.base64, originalBase64: p.url ? null : p.originalBase64 })));
+                                localStorage.setItem('brandbox_patterns_all', toSave); 
+                                if (brand?.id) localStorage.setItem(`brandbox_patterns_all_${brand.id}`, toSave);
+                              } catch {}
                             }
                             return next;
                           });
@@ -9955,7 +9966,10 @@ function EntregaContent({ brand, plano, setBrand }) {
     const patAllLocalCount = patAllLocal ? patAllLocal.length : 0;
     // Se o localStorage tem patterns com url:null (editados localmente, ex: Suavizar cortes), eles têm prioridade
     const hasLocalEdits = patAllLocal && patAllLocal.some(p => p.base64 && !p.url);
-    if (estampaUrls.length > 0 && (estampaUrls.length > patAllLocalCount || !patLocal || patAllLocalCount === 0) && !hasLocalEdits) {
+    const hasSynced = syncedBrandIdRef.current === brand.id;
+    
+    if (estampaUrls.length > 0 && !hasSynced && (estampaUrls.length > patAllLocalCount || !patLocal || patAllLocalCount === 0) && !hasLocalEdits) {
+      syncedBrandIdRef.current = brand.id;
       isAsync = true;
       // Initialize immediately with URL-only objects so they display instantly without causing blank layouts
       const initialPats = estampaUrls.map(url => {
@@ -10063,6 +10077,7 @@ function EntregaContent({ brand, plano, setBrand }) {
     }
   };
   const logoRef = useRef(null);
+  const syncedBrandIdRef = useRef(null);
 
   const { paletas } = brand;
   const estiloNome = brand.resultadoFinal?.estiloNome || '';
