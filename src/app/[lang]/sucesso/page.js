@@ -1104,7 +1104,10 @@ function EstampaStep({ brand, accentColor, marca, patterns, setPatterns, genCoun
   const makeSeamless = async (type = 'blur') => {
     const pat = patterns[selectedIdx];
     if (!pat?.base64) return;
-    setOriginalPattern({ ...pat }); // salva backup antes de modificar
+    
+    // Always use the original untouched base64 to apply the effect, so we never double-apply or blur a mirrored image.
+    const sourceBase64 = pat.originalBase64 || pat.base64;
+    
     setFixingSeams(type);
     try {
       const result = await new Promise(resolve => {
@@ -1181,12 +1184,18 @@ function EstampaStep({ brand, accentColor, marca, patterns, setPatterns, genCoun
             resolve(outCanvas.toDataURL('image/png').split(',')[1]);
           }
         };
-        img.src = `data:${pat.mimeType || 'image/png'};base64,${pat.base64}`;
+        img.src = `data:${pat.mimeType || 'image/png'};base64,${sourceBase64}`;
       });
       const oldUrl = pat.url || null;
       setPatterns(prev => {
         const next = [...prev];
-        next[selectedIdx] = { ...next[selectedIdx], base64: result, mimeType: 'image/png', url: null };
+        next[selectedIdx] = { 
+          ...next[selectedIdx], 
+          base64: result, 
+          mimeType: 'image/png', 
+          url: null,
+          originalBase64: sourceBase64 // Guarda a original pra sempre poder reverter!
+        };
         try { localStorage.setItem('brandbox_patterns_all', JSON.stringify(next)); } catch {}
         try { localStorage.setItem('brandbox_pattern', JSON.stringify(next[selectedIdx])); } catch {}
         return next;
@@ -1364,17 +1373,20 @@ function EstampaStep({ brand, accentColor, marca, patterns, setPatterns, genCoun
               >
                 {fixingSeams === 'mirror' ? '⏳ Espelhando...' : '🪞 Espelhar padrão'}
               </button>
-              {originalPattern && (
+              {patterns[selectedIdx]?.originalBase64 && (
                 <button
                   onClick={() => {
                     setPatterns(prev => {
                       const next = [...prev];
-                      next[selectedIdx] = originalPattern;
+                      next[selectedIdx] = {
+                        ...next[selectedIdx],
+                        base64: next[selectedIdx].originalBase64,
+                        originalBase64: null // Limpa o original pois voltou ao normal
+                      };
                       try { localStorage.setItem('brandbox_patterns_all', JSON.stringify(next)); } catch {}
-                      try { localStorage.setItem('brandbox_pattern', JSON.stringify(originalPattern)); } catch {}
+                      try { localStorage.setItem('brandbox_pattern', JSON.stringify(next[selectedIdx])); } catch {}
                       return next;
                     });
-                    setOriginalPattern(null);
                   }}
                   style={{ padding: '7px 18px', borderRadius: '20px', border: '1.5px solid #ddd', background: '#fff', color: '#888', fontSize: '0.72rem', fontWeight: 700, cursor: 'pointer', fontFamily: 'Montserrat, sans-serif', display: 'flex', alignItems: 'center', gap: '6px', transition: 'all 0.2s' }}
                 >
