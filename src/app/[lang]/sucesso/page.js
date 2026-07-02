@@ -1124,15 +1124,17 @@ function EstampaStep({ brand, accentColor, marca, patterns, setPatterns, genCoun
 
   const makeSeamless = async (type = 'blur') => {
     const pat = patterns[selectedIdx];
-    if (!pat?.base64) return;
+    if (!pat?.base64 && !pat?.url) return;
     
-    // Always use the original untouched base64 to apply the effect, so we never double-apply or blur a mirrored image.
+    // Use original se existir (base64 ou url) para não aplicar efeito sobre efeito
     const sourceBase64 = pat.originalBase64 || pat.base64;
+    const sourceUrl = pat.originalUrl || pat.url;
     
     setFixingSeams(type);
     try {
-      const result = await new Promise(resolve => {
+      const result = await new Promise((resolve, reject) => {
         const img = new Image();
+        img.crossOrigin = 'Anonymous';
         img.onload = () => {
           const W = img.width, H = img.height;
           
@@ -1205,7 +1207,15 @@ function EstampaStep({ brand, accentColor, marca, patterns, setPatterns, genCoun
             resolve(outCanvas.toDataURL('image/png').split(',')[1]);
           }
         };
-        img.src = `data:${pat.mimeType || 'image/png'};base64,${sourceBase64}`;
+        img.onerror = () => {
+          console.error("Erro ao carregar imagem para aplicar seamless");
+          reject(new Error("Erro ao carregar imagem"));
+        };
+        if (sourceBase64) {
+          img.src = `data:${pat.mimeType || 'image/png'};base64,${sourceBase64}`;
+        } else if (sourceUrl) {
+          img.src = sourceUrl;
+        }
       });
       const oldUrl = pat.url || null;
       setPatterns(prev => {
@@ -1215,13 +1225,14 @@ function EstampaStep({ brand, accentColor, marca, patterns, setPatterns, genCoun
           base64: result, 
           mimeType: 'image/png', 
           url: null,
-          originalBase64: sourceBase64 // Guarda a original pra sempre poder reverter!
+          originalBase64: sourceBase64, // Guarda a original pra sempre poder reverter!
+          originalUrl: pat.originalUrl || oldUrl 
         };
-        try { localStorage.setItem('brandbox_patterns_all', JSON.stringify(next)); } catch {}
-        try { localStorage.setItem('brandbox_pattern', JSON.stringify(next[selectedIdx])); } catch {}
+        try { localStorage.setItem('brandbox_patterns_all', JSON.stringify(next.map(p => ({ ...p, base64: p.url ? null : p.base64, originalBase64: p.url ? null : p.originalBase64 })))); } catch {}
+        try { localStorage.setItem('brandbox_pattern', JSON.stringify({ ...next[selectedIdx], base64: null, originalBase64: null })); } catch {}
         return next;
       });
-      // Sobe a versão suavizada pro Supabase, substituindo a original
+      // Sobe a versão suavizada pro Supabase, MAS NÃO substitui a original, para podermos reverter depois se recarregar a pág
       const sessionId = typeof window !== 'undefined'
         ? (new URLSearchParams(window.location.search).get('session') || localStorage.getItem('brandbox_session'))
         : null;
@@ -1229,7 +1240,7 @@ function EstampaStep({ brand, accentColor, marca, patterns, setPatterns, genCoun
         fetch('/api/salvar-estampa', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ base64: result, mimeType: 'image/png', sessionId, replaceUrl: oldUrl }),
+          body: JSON.stringify({ base64: result, mimeType: 'image/png', sessionId, replaceUrl: null }),
         })
         .then(r => r.json())
         .then(r => {
@@ -1238,8 +1249,8 @@ function EstampaStep({ brand, accentColor, marca, patterns, setPatterns, genCoun
               const next = [...prev];
               if (next[selectedIdx]) {
                 next[selectedIdx] = { ...next[selectedIdx], url: r.url };
-                try { localStorage.setItem('brandbox_patterns_all', JSON.stringify(next)); } catch {}
-                try { localStorage.setItem('brandbox_pattern', JSON.stringify(next[selectedIdx])); } catch {}
+                try { localStorage.setItem('brandbox_patterns_all', JSON.stringify(next.map(p => ({ ...p, base64: p.url ? null : p.base64, originalBase64: p.url ? null : p.originalBase64 })))); } catch {}
+                try { localStorage.setItem('brandbox_pattern', JSON.stringify({ ...next[selectedIdx], base64: null, originalBase64: null })); } catch {}
               }
               return next;
             });
@@ -1394,20 +1405,47 @@ function EstampaStep({ brand, accentColor, marca, patterns, setPatterns, genCoun
               >
                 {fixingSeams === 'mirror' ? '⏳ Espelhando...' : '🪞 Espelhar padrão'}
               </button>
-              {patterns[selectedIdx]?.originalBase64 && (
+              {(patterns[selectedIdx]?.originalBase64 || patterns[selectedIdx]?.originalUrl) && (
                 <button
                   onClick={() => {
+                    const originalBase64ToRevert = patterns[selectedIdx].originalBase64;
+                    const originalUrlToRevert = patterns[selectedIdx].originalUrl;
                     setPatterns(prev => {
                       const next = [...prev];
                       next[selectedIdx] = {
                         ...next[selectedIdx],
-                        base64: next[selectedIdx].originalBase64,
-                        originalBase64: null // Limpa o original pois voltou ao normal
+                        base64: originalBase64ToRevert || null,
+                        url: originalUrlToRevert || null,
+                        originalBase64: null,
+                        originalUrl: null
                       };
-                      try { localStorage.setItem('brandbox_patterns_all', JSON.stringify(next)); } catch {}
-                      try { localStorage.setItem('brandbox_pattern', JSON.stringify(next[selectedIdx])); } catch {}
+                      try { localStorage.setItem('brandbox_patterns_all', JSON.stringify(next.map(p => ({ ...p, base64: p.url ? null : p.base64, originalBase64: p.url ? null : p.originalBase64 })))); } catch {}
+                      try { localStorage.setItem('brandbox_pattern', JSON.stringify({ ...next[selectedIdx], base64: null, originalBase64: null })); } catch {}
                       return next;
                     });
+                    
+                    // Sobe a original de volta
+                    const sessionId = typeof window !== 'undefined'
+                      ? (new URLSearchParams(window.location.search).get('session') || localStorage.getItem('brandbox_session'))
+                      : null;
+                    if (sessionId && originalBase64ToRevert) {
+                      fetch('/api/salvar-estampa', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ base64: originalBase64ToRevert, mimeType: 'image/png', sessionId, replaceUrl: patterns[selectedIdx].url }),
+                      }).then(r => r.json()).then(r => {
+                        if (r.url) {
+                          setPatterns(prev => {
+                            const next = [...prev];
+                            if (next[selectedIdx]) {
+                              next[selectedIdx] = { ...next[selectedIdx], url: r.url };
+                              try { localStorage.setItem('brandbox_patterns_all', JSON.stringify(next.map(p => ({ ...p, base64: p.url ? null : p.base64, originalBase64: p.url ? null : p.originalBase64 })))); } catch {}
+                            }
+                            return next;
+                          });
+                        }
+                      });
+                    }
                   }}
                   style={{ padding: '7px 18px', borderRadius: '20px', border: '1.5px solid #ddd', background: '#fff', color: '#888', fontSize: '0.72rem', fontWeight: 700, cursor: 'pointer', fontFamily: 'Montserrat, sans-serif', display: 'flex', alignItems: 'center', gap: '6px', transition: 'all 0.2s' }}
                 >
