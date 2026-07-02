@@ -40,11 +40,16 @@ export async function POST(req) {
 
     const colorRule = `
 =========================================
-CRITICAL COLOR OVERRIDE (MANDATORY)
+CRITICAL COLOR OVERRIDE & HIERARCHY (MANDATORY)
 =========================================
 You MUST completely IGNORE the colors of the reference image. The reference image is ONLY for shapes, layout, and drawing style. 
-You MUST strictly color ALL elements using ONLY the following exact hex colors:
-[ ${coresStr} ]
+You MUST strictly color ALL elements using ONLY the exact hex colors provided below, AND you MUST respect their hierarchy of incidence/frequency:
+
+1. DOMINANT COLOR (Highest incidence, use for largest/most elements): ${(paleta || [])[0] || ''}
+2. SECONDARY COLOR (High incidence): ${(paleta || [])[1] || ''}
+3. ACCENT COLOR (Medium incidence): ${(paleta || [])[2] || ''}
+4. MINOR COLOR (Low incidence): ${(paleta || [])[3] || ''}
+5. DETAIL COLOR (Lowest incidence, use sparingly): ${(paleta || [])[4] || ''}
 
 Do NOT use any colors from the reference image (like greens, browns, etc.) unless they are in the hex list above. 
 CRITICAL: Even natural elements like leaves and stems MUST be colored using ONLY the provided palette colors. Absolutely NO GREEN is allowed unless it is explicitly in the palette list above.
@@ -95,10 +100,11 @@ Composition Style: Dynamic diagonal flow, varied rotations, fluid and active. Ex
 
     const results = [];
 
-    // Cada variação recebe referências DIFERENTES (cicla pelo array disponível)
+    // Cada variação recebe referências DIFERENTES, com offset aleatório para variar o input
+    const randomRefOffset = Math.floor(Math.random() * (refs.length || 1));
     const pickRef = (i) => {
       if (refs.length === 0) return null;
-      return refs[i % refs.length];
+      return refs[(i + randomRefOffset) % refs.length];
     };
     
     // Offset aleatório para garantir que não pegue sempre a mesma variação ao pedir apenas 1 estampa
@@ -185,7 +191,7 @@ Composition Style: Dynamic diagonal flow, varied rotations, fluid and active. Ex
           const seed = Math.floor(Math.random() * 1000000);
           const response = await ai.models.generateImages({
             model: 'imagen-4.0-generate-001',
-            prompt: `A single seamless repeating tile for a premium brand surface pattern. Style DNA: ${estiloNome} — ${hint}. SEAMLESS TILING: Must tile perfectly seamlessly. Elements exiting one edge wrap around and re-enter from the exact opposite edge. Absolutely NO vertical or horizontal seams, NO white borders, NO margins, NO vignettes, and NO grid lines. Background must be 100% solid, flat, and uniform right up to the absolute edges. COMPOSITION: Do not cut or crop main motifs in half inside the tile (except for seamless wrap-around edge bleed at the boundaries). Replicate the drawing technique and elements of style references (70% style influence) but create a completely new, unique and custom arrangement (30% creative composition). Composition layout style: ${fallbackCompositions[compIdx % 3]}. Colors ONLY: ${coresStr}. Absolutely NO GREEN unless in palette. Leaves/stems must use palette colors. White background. Flat illustration. [Creative Seed: ${seed}]`,
+            prompt: `A single seamless repeating tile for a premium brand surface pattern. Style DNA: ${estiloNome} — ${hint}. SEAMLESS TILING: Must tile perfectly seamlessly. Elements exiting one edge wrap around and re-enter from the exact opposite edge. Absolutely NO vertical or horizontal seams, NO white borders, NO margins, NO vignettes, and NO grid lines. Background must be 100% solid, flat, and uniform right up to the absolute edges. COMPOSITION: Do not cut or crop main motifs in half inside the tile (except for seamless wrap-around edge bleed at the boundaries). Replicate the drawing technique and elements of style references (70% style influence) but create a completely new, unique and custom arrangement (30% creative composition). Composition layout style: ${fallbackCompositions[compIdx % 3]}. Colors ONLY from palette: ${coresStr}. STRICT COLOR HIERARCHY: Dominant color ${(paleta || [])[0] || ''}, secondary ${(paleta || [])[1] || ''}, accent ${(paleta || [])[2] || ''}, minor ${(paleta || [])[3] || ''}, detail ${(paleta || [])[4] || ''}. Absolutely NO GREEN unless in palette. Leaves/stems must use palette colors. White background. Flat illustration. [Creative Seed: ${seed}]`,
             config: { numberOfImages: 1 },
           });
           for (const img of response.generatedImages) {
