@@ -969,6 +969,27 @@ function EstampaStep({ brand, accentColor, marca, patterns, setPatterns, genCoun
   const [viewMode, setViewMode] = useState('ampliada');
   const [showSlotModal, setShowSlotModal] = useState(false);
   const bxSpinStyle = `@keyframes bx-spin { 0%,100%{transform:scale(1);opacity:1} 50%{transform:scale(1.4);opacity:0.5} }`;
+  const [loadingPhraseIdx, setLoadingPhraseIdx] = useState(0);
+
+  const loadingPhrases = [
+    'Criando sua estampa exclusiva…',
+    'Ajustando as cores da sua paleta…',
+    'Testando os encaixes dos elementos…',
+    'Se a estampa vier com cortes, não se preocupe!',
+    'Use os botões de suavizar para corrigir as bordas.',
+    'Quase pronto…'
+  ];
+
+  useEffect(() => {
+    let interval;
+    if (generating) {
+      setLoadingPhraseIdx(0);
+      interval = setInterval(() => {
+        setLoadingPhraseIdx(prev => (prev + 1) % loadingPhrases.length);
+      }, 4000); // Muda a cada 4 segundos
+    }
+    return () => clearInterval(interval);
+  }, [generating]);
 
   const remaining = MAX_GENERATIONS - genCount;
   const patternSrc = patterns[selectedIdx]
@@ -1271,7 +1292,7 @@ function EstampaStep({ brand, accentColor, marca, patterns, setPatterns, genCoun
                   <div key={i} style={{ width: 12, height: 12, borderRadius: '50%', background: (paletteColors && paletteColors[i]) || accentColor, animation: `bx-spin 1.2s ease-in-out ${i * 0.2}s infinite` }} />
                 ))}
               </div>
-              <span style={{ fontSize: '0.85rem', color: accentColor, fontWeight: 600, textAlign: 'center', lineHeight: 1.5 }}>Criando sua estampa exclusiva…<br/><span style={{ fontWeight: 400, fontSize: '0.78rem', color: '#888' }}>Isso leva cerca de 15–30 segundos</span></span>
+              <span style={{ fontSize: '0.85rem', color: accentColor, fontWeight: 600, textAlign: 'center', lineHeight: 1.5, transition: 'opacity 0.5s' }}>{loadingPhrases[loadingPhraseIdx]}<br/><span style={{ fontWeight: 400, fontSize: '0.78rem', color: '#888' }}>Isso leva cerca de 15–30 segundos</span></span>
             </div>
           )}
           {viewMode === 'no_consultorio' ? (
@@ -1405,7 +1426,7 @@ function EstampaStep({ brand, accentColor, marca, patterns, setPatterns, genCoun
                   <div key={i} style={{ width: 12, height: 12, borderRadius: '50%', background: (paletteColors && paletteColors[i]) || accentColor, animation: `bx-spin 1.2s ease-in-out ${i * 0.2}s infinite` }} />
                 ))}
               </div>
-              <span style={{ fontSize: '0.85rem', color: accentColor, fontWeight: 600, textAlign: 'center', lineHeight: 1.5 }}>Criando sua estampa exclusiva…<br/><span style={{ fontWeight: 400, fontSize: '0.78rem', color: '#aaa' }}>Isso leva cerca de 15–30 segundos</span></span>
+              <span style={{ fontSize: '0.85rem', color: accentColor, fontWeight: 600, textAlign: 'center', lineHeight: 1.5, transition: 'opacity 0.5s' }}>{loadingPhrases[loadingPhraseIdx]}<br/><span style={{ fontWeight: 400, fontSize: '0.78rem', color: '#aaa' }}>Isso leva cerca de 15–30 segundos</span></span>
             </>
           ) : (
             <>
