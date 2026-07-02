@@ -9977,7 +9977,10 @@ function EntregaContent({ brand, plano, setBrand }) {
     const hasLocalEdits = patAllLocal && patAllLocal.some(p => p.base64 && !p.url);
     const hasSynced = syncedBrandIdRef.current === brand.id;
     
-    if (estampaUrls.length > 0 && !hasSynced && (estampaUrls.length > patAllLocalCount || !patLocal || patAllLocalCount === 0) && !hasLocalEdits) {
+    const localUrls = patAllLocal ? patAllLocal.map(p => p.url).filter(Boolean) : [];
+    const hasNewUrlsInDb = estampaUrls.some(u => !localUrls.includes(u));
+    
+    if (estampaUrls.length > 0 && !hasSynced && (estampaUrls.length > patAllLocalCount || hasNewUrlsInDb || !patLocal || patAllLocalCount === 0) && !hasLocalEdits) {
       syncedBrandIdRef.current = brand.id;
       isAsync = true;
       // Initialize immediately with URL-only objects so they display instantly without causing blank layouts
@@ -9996,7 +9999,10 @@ function EntregaContent({ brand, plano, setBrand }) {
       Promise.all(
         estampaUrls.map(url =>
           fetch(url)
-            .then(r => r.blob())
+            .then(r => {
+              if (!r.ok) throw new Error('Fetch failed: ' + r.status);
+              return r.blob();
+            })
             .then(blob => new Promise((resolve) => {
               const reader = new FileReader();
               reader.onload = () => resolve({ base64: reader.result.split(',')[1], mimeType: blob.type, url });
