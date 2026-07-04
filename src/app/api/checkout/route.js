@@ -29,6 +29,7 @@ export async function POST(request) {
         'Cartão de Visita': 'cartao-visita',
         'Cartão de Retorno': 'cartao-retorno',
         'Cartão de Agradecimento (10x15cm)': 'agradecimento',
+        'Capa de Caderno / Agenda': 'caderno',
         'Papel Timbrado': 'papel-timbrado',
         'Papel de Presente': 'papel-presente',
         'Tag para Sacola': 'tag-sacola',

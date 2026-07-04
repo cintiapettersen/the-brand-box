@@ -70,6 +70,7 @@ const ITEM_KEYS_MAP = {
   'Cartão de Retorno': 'cartao_retorno',
   'Cartão de Agradecimento (10x15cm)': 'cartao_agradecimento',
   'Cartão de Agradecimento': 'cartao_agradecimento',
+  'Capa de Caderno / Agenda': 'caderno',
   'Caderno (Capa e Contra-capa)': 'caderno',
   'Caderno': 'caderno',
   'Receituário Padrão (A4 e A5)': 'receituario_padrao',
@@ -1074,12 +1075,14 @@ function EstampaStep({ brand, accentColor, marca, patterns, setPatterns, genCoun
           const nextActiveIdx = replaceIdx !== null ? replaceIdx : next.length - 1;
           setSelectedIdx(nextActiveIdx);
           try { 
-            localStorage.setItem('brandbox_pattern', JSON.stringify(next[nextActiveIdx])); 
-            if (brand?.id) localStorage.setItem(`brandbox_pattern_${brand.id}`, JSON.stringify(next[nextActiveIdx]));
+            const toSaveSingle = JSON.stringify({ ...next[nextActiveIdx], base64: next[nextActiveIdx].url ? null : next[nextActiveIdx].base64, originalBase64: next[nextActiveIdx].url ? null : next[nextActiveIdx].originalBase64 });
+            localStorage.setItem('brandbox_pattern', toSaveSingle); 
+            if (brand?.id) localStorage.setItem(`brandbox_pattern_${brand.id}`, toSaveSingle);
           } catch {}
           try { 
-            localStorage.setItem('brandbox_patterns_all', JSON.stringify(next)); 
-            if (brand?.id) localStorage.setItem(`brandbox_patterns_all_${brand.id}`, JSON.stringify(next));
+            const toSave = JSON.stringify(next.map(p => ({ ...p, base64: p.url ? null : p.base64, originalBase64: p.url ? null : p.originalBase64 })));
+            localStorage.setItem('brandbox_patterns_all', toSave); 
+            if (brand?.id) localStorage.setItem(`brandbox_patterns_all_${brand.id}`, toSave);
           } catch {}
           return next;
         });
@@ -1107,22 +1110,23 @@ function EstampaStep({ brand, accentColor, marca, patterns, setPatterns, genCoun
               setPatterns(prev => {
                 const next = [...prev];
                 if (replaceIdx !== null) {
-                  if (next[replaceIdx]) next[replaceIdx].url = r.url;
+                  if (next[replaceIdx]) next[replaceIdx] = { ...next[replaceIdx], url: r.url };
                 } else {
                   const startIdx = next.length - novos.length;
                   if (startIdx >= 0) {
-                    if (next[startIdx]) next[startIdx].url = r.url;
+                    if (next[startIdx]) next[startIdx] = { ...next[startIdx], url: r.url };
                     if (r.extraUrls && r.extraUrls.length > 0) {
                       for (let j = 0; j < r.extraUrls.length; j++) {
                         const idx = startIdx + 1 + j;
-                        if (next[idx]) next[idx].url = r.extraUrls[j];
+                        if (next[idx]) next[idx] = { ...next[idx], url: r.extraUrls[j] };
                       }
                     }
                   }
                 }
                 try { 
-                  localStorage.setItem('brandbox_patterns_all', JSON.stringify(next)); 
-                  if (brand?.id) localStorage.setItem(`brandbox_patterns_all_${brand.id}`, JSON.stringify(next));
+                  const toSave = JSON.stringify(next.map(p => ({ ...p, base64: p.url ? null : p.base64, originalBase64: p.url ? null : p.originalBase64 })));
+                  localStorage.setItem('brandbox_patterns_all', toSave); 
+                  if (brand?.id) localStorage.setItem(`brandbox_patterns_all_${brand.id}`, toSave);
                 } catch {}
                 return next;
               });
@@ -1495,19 +1499,21 @@ function EstampaStep({ brand, accentColor, marca, patterns, setPatterns, genCoun
                   ↩ Reverter
                 </button>
               )}
-              {patterns[selectedIdx]?.url && (
+              {patterns[selectedIdx] && (
                 <div style={{ display: 'flex', gap: '4px', marginLeft: '4px' }}>
                   <button
                     onClick={() => handleFeedback('liked')}
-                    style={{ padding: '7px 14px', borderRadius: '20px', border: `1px solid ${feedbackState[patterns[selectedIdx].url] === 'liked' ? accentColor : '#eee'}`, background: feedbackState[patterns[selectedIdx].url] === 'liked' ? `${accentColor}15` : '#fff', color: feedbackState[patterns[selectedIdx].url] === 'liked' ? accentColor : '#aaa', fontSize: '0.8rem', cursor: 'pointer', transition: 'all 0.2s', display: 'flex', alignItems: 'center', gap: '4px' }}
-                    title="Amei essa estampa!"
+                    disabled={!patterns[selectedIdx].url}
+                    style={{ opacity: !patterns[selectedIdx].url ? 0.5 : 1, padding: '7px 14px', borderRadius: '20px', border: `1px solid ${feedbackState[patterns[selectedIdx].url] === 'liked' ? accentColor : '#eee'}`, background: feedbackState[patterns[selectedIdx].url] === 'liked' ? `${accentColor}15` : '#fff', color: feedbackState[patterns[selectedIdx].url] === 'liked' ? accentColor : '#aaa', fontSize: '0.8rem', cursor: !patterns[selectedIdx].url ? 'wait' : 'pointer', transition: 'all 0.2s', display: 'flex', alignItems: 'center', gap: '4px' }}
+                    title={!patterns[selectedIdx].url ? "Aguarde o salvamento..." : "Amei essa estampa!"}
                   >
                     {feedbackState[patterns[selectedIdx].url] === 'liked' ? '♥️ Amei' : '🤍 Amei'}
                   </button>
                   <button
                     onClick={() => handleFeedback('disliked')}
-                    style={{ padding: '7px 14px', borderRadius: '20px', border: `1px solid ${feedbackState[patterns[selectedIdx].url] === 'disliked' ? '#ff4444' : '#eee'}`, background: feedbackState[patterns[selectedIdx].url] === 'disliked' ? '#ff444415' : '#fff', color: feedbackState[patterns[selectedIdx].url] === 'disliked' ? '#ff4444' : '#aaa', fontSize: '0.8rem', cursor: 'pointer', transition: 'all 0.2s', display: 'flex', alignItems: 'center', gap: '4px' }}
-                    title="Não combinou"
+                    disabled={!patterns[selectedIdx].url}
+                    style={{ opacity: !patterns[selectedIdx].url ? 0.5 : 1, padding: '7px 14px', borderRadius: '20px', border: `1px solid ${feedbackState[patterns[selectedIdx].url] === 'disliked' ? '#ff4444' : '#eee'}`, background: feedbackState[patterns[selectedIdx].url] === 'disliked' ? '#ff444415' : '#fff', color: feedbackState[patterns[selectedIdx].url] === 'disliked' ? '#ff4444' : '#aaa', fontSize: '0.8rem', cursor: !patterns[selectedIdx].url ? 'wait' : 'pointer', transition: 'all 0.2s', display: 'flex', alignItems: 'center', gap: '4px' }}
+                    title={!patterns[selectedIdx].url ? "Aguarde o salvamento..." : "Não combinou"}
                   >
                     👎 Descartar
                   </button>
@@ -1616,6 +1622,12 @@ function EstampaStep({ brand, accentColor, marca, patterns, setPatterns, genCoun
       {patternSrc && (
         <p style={{ textAlign: 'center', fontSize: '0.68rem', color: '#999', margin: '-5px 0 5px' }}>
           <span dangerouslySetInnerHTML={{ __html: dictionary?.pattern_tab?.gallery_hint || '💡 As estampas geradas ficam salvas na galeria acima.<br/>Clique nas miniaturas para alternar entre as versões.' }} />
+        </p>
+      )}
+
+      {patternSrc && viewMode === 'repetida' && (
+        <p style={{ textAlign: 'center', fontSize: '0.68rem', color: '#888', margin: '8px 0', padding: '0 10px', lineHeight: 1.4 }}>
+          {dictionary?.pattern_tab?.repetition_hint || 'O sistema pode gerar pequenos cortes na repetição. Use os botões "Suavizar" ou "Espelhar" acima para corrigir, ou peça ajuda à sua gráfica parceira para ajustar o encaixe na hora da impressão.'}
         </p>
       )}
 
@@ -5602,7 +5614,7 @@ function PapelariaStep({ brand, accentColor, paletteColors, estampaPatterns, est
   const PAPELARIA_GERAL = [
     "Cartão de Visita", "Papel Timbrado", "Tag para Sacola",
     "Etiqueta para Correios", "Envelope Ofício (23x11,5cm)", "Envelope Saco (24x34cm)", "Recibo",
-    "Pasta A4", "Caneca", "Cartão de Retorno", "Cartão de Agradecimento (10x15cm)", "Caderno (Capa e Contra-capa)"
+    "Pasta A4", "Caneca", "Cartão de Retorno", "Cartão de Agradecimento (10x15cm)", "Capa de Caderno / Agenda"
   ];
   // Papelaria exclusiva para área médica
   const PAPELARIA_MEDICA = [
@@ -6373,7 +6385,7 @@ body { width: 485.775mm; height: 385.233mm; position: relative; overflow: hidden
 <div class="page">
     ${genBgC()}
     <div style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:${w_mm * 0.75}mm;height:${h_mm * 0.4}mm;display:flex;align-items:center;justify-content:center;z-index:10;">
-        ${genPDFLogoHtml({ brand, editDataOverride: itemEditData, color: logoColor, layout: logoLayout, localSlogan, crmLine: null, fontPt: (parseFloat(_fontPt) * 1.65).toFixed(1), lineH: _lineH, letterSp: _letterSp, customLogoSrc, customLogoScale: customLogoSrc ? getCustomLogoScale(item) * (ITEM_CUSTOM_BASE_SCALES[item] || 1) * 1.2 : 120, maxWidth: '100%', maxHeight: '100%', withBackground: comBorda && patternSrc, hideSlogan: false })}
+        ${genPDFLogoHtml({ brand, editDataOverride: itemEditData, color: logoColor, layout: logoLayout, localSlogan, crmLine: null, fontPt: (parseFloat(_fontPt) * 1.65).toFixed(1), lineH: _lineH, letterSp: _letterSp, customLogoSrc, customLogoScale: customLogoSrc ? getCustomLogoScale(item) * (ITEM_CUSTOM_BASE_SCALES[item] || 1) * 1.2 : 120, maxWidth: `${w_mm * 0.75}mm`, maxHeight: `${h_mm * 0.4}mm`, withBackground: comBorda && patternSrc, hideSlogan: false })}
     </div>
     
     <div class="cropmarks">
@@ -8979,6 +8991,7 @@ ${fontImports2}
             'Cartão de Retorno': 'cartao_retorno',
             'Cartão de Agradecimento (10x15cm)': 'cartao_agradecimento',
             'Cartão de Agradecimento': 'cartao_agradecimento',
+            'Capa de Caderno / Agenda': 'caderno',
             'Caderno (Capa e Contra-capa)': 'caderno',
             'Caderno': 'caderno',
             'Receituário Padrão (A4 e A5)': 'receituario_padrao',
@@ -9231,6 +9244,7 @@ ${fontImports2}
           'Cartão de Aniversário':  { cat: 'Flyer', tam: 'A6 (10,5 × 14,8 cm)', papel: 'Couché 240g+', acabamento: 'Refile', preco: '' },
           'Caderneta':              { cat: 'Livreto', tam: 'A5 (14,8 × 21 cm)', papel: 'Offset 120g+', acabamento: 'Grampo canoa', preco: '' },
           'Livro de Atividades':    { cat: 'Livreto', tam: 'A5 (14,8 × 21 cm)', papel: 'Offset 120g+', acabamento: 'Grampo canoa', preco: '' },
+          'Capa de Caderno / Agenda': { cat: 'Capa Dura (Caderno/Agenda)', tam: '17 × 24 cm ou 21 × 28 cm', papel: 'Capa Rígida + Miolo Offset 70g (192 pág.)', acabamento: 'Wire-o preto · Laminação Fosca', preco: '~R$45,28 / un. (10 un.)' },
           'Caderno (Capa e Contra-capa)': { cat: 'Caderno Capa Dura', tam: '17 × 24 cm ou 21 × 28 cm', papel: 'Capa Rígida + Miolo Offset 70g (192 pág.)', acabamento: 'Wire-o preto · Laminação Fosca', preco: '~R$45,28 / un. (10 un.)' },
         };
         const folderItems = ['Guia de Cuidados','Guia Alimentar','Guia de Desenvolvimento','Cartão de Vacina','Guia Pré-natal', 'Guia do Sono'];
@@ -11573,7 +11587,7 @@ function SucessoContent() {
           'recibo': 'Recibo',
           'pasta': 'Pasta A4',
           'caneca': 'Caneca',
-          'caderno': 'Caderno (Capa e Contra-capa)',
+          'caderno': 'Capa de Caderno / Agenda',
           'receituario': 'Receituário Padrão (A4 e A5)',
           'atestado': 'Atestado Médico (A4 e A5)',
           'controle-especial': 'Receituário de Controle Especial',
@@ -11677,7 +11691,7 @@ function SucessoContent() {
         while (attempts < maxAttempts && !success) {
           attempts++;
           try {
-            const res = await fetch(`/api/get-entrega?id=${sessionParam}`);
+            const res = await fetch(`/api/get-entrega?id=${sessionParam}&t=${Date.now()}`, { cache: 'no-store' });
             const json = await res.json();
             const data = json.data;
 

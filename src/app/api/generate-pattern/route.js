@@ -51,6 +51,8 @@ You MUST strictly color ALL elements using ONLY the exact hex colors provided be
 4. MINOR COLOR (Low incidence): ${(paleta || [])[3] || ''}
 5. DETAIL COLOR (Lowest incidence, use sparingly): ${(paleta || [])[4] || ''}
 
+CRITICAL REQUIREMENT: You MUST use ALL of the colors provided above in your final image. Do NOT create a monochromatic or bi-chromatic design. Every single color listed MUST be visibly present in the pattern. Distribute the colors across different motifs (e.g. use secondary and accent colors for different types of flowers, minor colors for berries or distinct leaves).
+
 Do NOT use any colors from the reference image (like greens, browns, etc.) unless they are in the hex list above. 
 CRITICAL: Even natural elements like leaves and stems MUST be colored using ONLY the provided palette colors. Absolutely NO GREEN is allowed unless it is explicitly in the palette list above.
 Keep the background pure white or very light cream.
