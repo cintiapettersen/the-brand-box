@@ -5441,7 +5441,7 @@ function CadernoPreview({ editData, accentColor, solidColor, logoColor, logoLayo
                 const { whatsapp, telefone, telefone2, email, instagram, site, endereco } = cartaoContacts || {};
                 const phones = [whatsapp, telefone, telefone2].filter(Boolean).join('  ·  ');
                 const line2 = [instagram ? `@${instagram}` : '', email, site, endereco].filter(Boolean).join('  ·  ');
-                const textStyle = { fontFamily: "'Montserrat',sans-serif", fontSize: '5px', color: logoColor || '#fff', textAlign: 'center', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', maxWidth: '200px', opacity: 0.85 };
+                const textStyle = { fontFamily: "'Montserrat',sans-serif", fontSize: '5px', color: '#333', textAlign: 'center', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', maxWidth: '200px', opacity: 0.85 };
                 return (
                   <>
                     {(clinicaNome || phones) && <div style={textStyle}>{[clinicaNome, phones].filter(Boolean).join('  ·  ')}</div>}
@@ -6399,6 +6399,19 @@ body { width: 485.775mm; height: 385.233mm; position: relative; overflow: hidden
 <!-- CONTRA-CAPA -->
 <div class="page">
     ${genBgC()}
+    
+    <div style="position:absolute;bottom:${BLEED + 8}mm;left:50%;transform:translateX(-50%);width:${w_mm * 0.8}mm;text-align:center;font-family:'Montserrat',sans-serif;z-index:10;">
+      ${(() => {
+        const { whatsapp, telefone, telefone2, email, instagram, site, endereco } = cartaoContacts || {};
+        const phones = [whatsapp, telefone, telefone2].filter(Boolean).join('  ·  ');
+        const line2 = [instagram ? `@${instagram}` : '', email, site, endereco].filter(Boolean).join('  ·  ');
+        const txtC = '#333';
+        let res = '';
+        if (clinicaNome || phones) res += `<div style="font-size:7pt;color:${txtC};opacity:0.85;margin-bottom:2mm;">${[clinicaNome, phones].filter(Boolean).join('  &middot;  ')}</div>`;
+        if (line2) res += `<div style="font-size:7pt;color:${txtC};opacity:0.65;">${line2}</div>`;
+        return res;
+      })()}
+    </div>
     
     <div class="cropmarks">
         <div class="cm-tl-h"></div><div class="cm-tl-v"></div>
