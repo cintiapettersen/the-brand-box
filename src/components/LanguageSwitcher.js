@@ -1,7 +1,7 @@
 'use client';
 
 import React from 'react';
-import { useRouter, usePathname } from 'next/navigation';
+import { useRouter, usePathname, useSearchParams } from 'next/navigation';
 import { useTranslation } from '../app/LanguageContext';
 
 export default function LanguageSwitcher({ style }) {
@@ -9,12 +9,20 @@ export default function LanguageSwitcher({ style }) {
   const pathname = usePathname();
   const { lang } = useTranslation();
 
+  const searchParams = useSearchParams();
+
   const handleLanguageChange = (newLocale) => {
     if (newLocale === lang) return;
     document.cookie = `NEXT_LOCALE=${newLocale}; path=/; max-age=31536000`;
+    
     // Replace the current locale in the pathname
     const newPath = pathname.replace(`/${lang}`, `/${newLocale}`);
-    router.push(newPath);
+    
+    // Preserve query parameters
+    const searchString = searchParams.toString();
+    const finalUrl = searchString ? `${newPath}?${searchString}` : newPath;
+    
+    router.push(finalUrl);
   };
 
   return (

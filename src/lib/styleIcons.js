@@ -1,3 +1,13 @@
+
+export const ESTILO_NOME_BY_ID = {
+  2: 'Jardim Encantado',
+  3: 'Escandinavo Acolhedor',
+  8: 'Doce Encantamento',
+  5: 'Essência Atemporal',
+  6: 'Raízes & Cuidado',
+  11: 'Estético Editorial'
+};
+
 export const STYLE_ICONS = {
   'Doce Encantamento': [
     { id: 'icon--51', label: ' 51', path: '/icons/icon--51.png' },

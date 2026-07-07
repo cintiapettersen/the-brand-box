@@ -9,40 +9,41 @@ import LanguageSwitcher from '../../components/LanguageSwitcher';
 import { useTranslation } from '../LanguageContext';
 import { createClient } from '@supabase/supabase-js';
 import FONT_MAP from '../../lib/fontMap';
-import { STYLE_ICONS, getIconById } from '../../lib/styleIcons';
+import { STYLE_ICONS, getIconById, ESTILO_NOME_BY_ID } from '../../lib/styleIcons';
 import Image from 'next/image';
 
 const PAPELARIA_CLINICA = [
-  "Cartão de Visita", "Receituário Padrão (A4 e A5)", "Atestado Médico (A4 e A5)", "Cartão de Retorno", "Pasta A4 Exclusiva",
+  "Cartão de Visita", "Papel Timbrado", "Receituário Padrão (A4 e A5)", "Atestado Médico (A4 e A5)", "Cartão de Retorno", "Pasta A4 Exclusiva",
   "Envelope Ofício (23x11,5cm)", "Envelope Saco (24x34cm)", "Recibo", "Receituário de Controle Especial", 
   "Dicas de Introdução Alimentar", "Guia de Vacina c/ Calendário", "Guia de Desenvolvimento", "Orientação Pré-Natal",
   "Cartão de Exame Pré-Natal", "Checklist Maternidade", "Guia do Sono", "Orientações p/ Recém Nascidos",
   "Prontuário Médico", "Receita de Alta", "Ficha de Cadastro",
   "Certificado de Coragem", "Quadro de Incentivo",
   "Arte para Caneca/Brindes", "Gráfico de Crescimento", "Diário do Xixi", "Card de Orientação de Sono",
-  "Meu Pratinho", "Guia de Amamentação" // Caderneta de Saúde: em desenvolvimento, temporariamente oculta do checkout
+  "Meu Pratinho", "Guia de Amamentação", "T-Shirt", "Cartão de Agradecimento (10x15cm)", "Tag para Sacola"
 ];
 
 const PAPELARIA_INSTITUCIONAL = [
   "Cartão de Visita", "Pasta A4 Exclusiva", "Envelope Ofício (23x11,5cm)", "Envelope Saco (24x34cm)", "Papel Timbrado", 
   "Cartão de Agradecimento (10x15cm)", "Etiqueta para Correios", "Recibo Comercial",
-  "Cartão de Retorno/Fidelidade", "Assinatura de E-mail", "Tag para Sacola"
+  "Cartão de Retorno/Fidelidade", "Tag para Sacola", "Arte para Caneca/Brindes", "Ficha de Cadastro", "T-Shirt"
 ];
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
 const supabaseKey = (process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY ? process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY.replace(/['"]/g, '') : undefined);
 const supabase = createClient(supabaseUrl, supabaseKey);
 
-const PATTERN_PHRASES = [
-  <>A <strong>The Brand Box</strong> está criando<br/>padrões únicos com as cores da sua paleta 🎨</>,
-  <>Desenhando as formas que combinam<br/>com o seu estilo ✨</>,
-  <>Buscando as melhores proporções<br/>para a sua estampa 🌟</>,
-  <>Ajustando os contrastes para<br/>um resultado perfeito 🖌️</>,
-  <>Preparando a versão final<br/>em alta resolução 🎀</>
-];
 
 export default function Home() {
-  const { dictionary } = useTranslation();
+  const { dictionary, lang } = useTranslation();
+
+  const patternPhrases = dictionary?.postmatch?.pattern_phrases || [
+    "A <strong>The Brand Box</strong> está criando<br/>padrões únicos com as cores da sua paleta 🎨",
+    "Desenhando as formas que combinam<br/>com o seu estilo ✨",
+    "Buscando as melhores proporções<br/>para a sua estampa 🌟",
+    "Ajustando os contrastes para<br/>um resultado perfeito 🖌️",
+    "Preparando a versão final<br/>em alta resolução 🎀"
+  ];
   const [devMode, setDevMode] = useState(false);
   const [devTapCount, setDevTapCount] = useState(0);
   useEffect(() => {
@@ -77,8 +78,16 @@ export default function Home() {
   };
 
   const getTaglineSuggestions = () => {
-    const estilo = resultadoFinal?.estiloNome || '';
-    return TAGLINES_BY_ESTILO[estilo] || TAGLINES_BY_ESTILO['Essência Atemporal'];
+    const idToKey = {
+      2: 'Jardim Encantado',
+      3: 'Escandinavo Acolhedor',
+      5: 'Essência Atemporal',
+      6: 'Raízes & Cuidado',
+      8: 'Doce Encantamento',
+      11: 'Estético Editorial'
+    };
+    const key = idToKey[resultadoFinal?.estiloId] || 'Essência Atemporal';
+    return dictionary?.postmatch?.taglines_by_estilo?.[key] || TAGLINES_BY_ESTILO[key] || TAGLINES_BY_ESTILO['Essência Atemporal'];
   };
 
   const elementosDesc = [
@@ -161,7 +170,7 @@ export default function Home() {
       return;
     }
     const interval = setInterval(() => {
-      setPatternPhraseIndex(prev => (prev + 1) % PATTERN_PHRASES.length);
+      setPatternPhraseIndex(prev => (prev + 1) % patternPhrases.length);
     }, 4500);
     return () => clearInterval(interval);
   }, [patternLoading]);
@@ -175,6 +184,8 @@ export default function Home() {
     if (parsed.patternGenerationCount) setPatternGenerationCount(parsed.patternGenerationCount);
     if (parsed.refazerAttempts) setRefazerAttempts(parsed.refazerAttempts);
     if (parsed.resultadoFinal) setResultadoFinal(parsed.resultadoFinal);
+    if (parsed.generatedPatterns) setGeneratedPatterns(parsed.generatedPatterns);
+    if (parsed.selectedPattern !== undefined) setSelectedPattern(parsed.selectedPattern);
 
     // Re-busca paletas/tipografias do Supabase se estava em etapa avançada
     if (parsed.resultadoFinal?.estiloId && parsed.step >= 10) {
@@ -203,15 +214,32 @@ export default function Home() {
 
   // Salva progresso automaticamente
   useEffect(() => {
+    const dataToSave = {
+      step, formData, selectedTagline, customTagline,
+      editData: { marca: editData.marca, tagline: editData.tagline, whatsapp: editData.whatsapp, instagram: editData.instagram, fontFamily: editData.fontFamily, fontStyle: editData.fontStyle, fontWeight: editData.fontWeight, fontSizeBoost: editData.fontSizeBoost, fontLetterSpacing: editData.fontLetterSpacing, corAtiva: editData.corAtiva },
+      patternGenerationCount, refazerAttempts,
+      resultadoFinal, selectedPaleta, selectedTipo, selectedIcon,
+      generatedPatterns, selectedPattern
+    };
     try {
-      localStorage.setItem('brandbox_progress', JSON.stringify({
-        step, formData, selectedTagline, customTagline,
-        editData: { marca: editData.marca, tagline: editData.tagline, whatsapp: editData.whatsapp, instagram: editData.instagram, fontFamily: editData.fontFamily, fontStyle: editData.fontStyle, fontWeight: editData.fontWeight, fontSizeBoost: editData.fontSizeBoost, fontLetterSpacing: editData.fontLetterSpacing, corAtiva: editData.corAtiva },
-        patternGenerationCount, refazerAttempts,
-        resultadoFinal, selectedPaleta, selectedTipo, selectedIcon
-      }));
-    } catch(e) {}
-  }, [step, formData, selectedTagline, customTagline, editData]);
+      localStorage.setItem('brandbox_progress', JSON.stringify(dataToSave));
+    } catch(e) {
+      console.warn("localStorage quota exceeded, saving minified patterns...");
+      try {
+        // Fallback 1: Keep only the selected pattern's base64 to save space
+        const minimizedPatterns = generatedPatterns.map((p, i) => i === selectedPattern ? p : { ...p, base64: null });
+        localStorage.setItem('brandbox_progress', JSON.stringify({ ...dataToSave, generatedPatterns: minimizedPatterns }));
+      } catch (e2) {
+        // Fallback 2: Strip all base64 if it still fails
+        try {
+           const strippedPatterns = generatedPatterns.map(p => ({ ...p, base64: null }));
+           localStorage.setItem('brandbox_progress', JSON.stringify({ ...dataToSave, generatedPatterns: strippedPatterns }));
+        } catch (e3) {
+           console.error("Fatal error saving progress", e3);
+        }
+      }
+    }
+  }, [step, formData, selectedTagline, customTagline, editData, generatedPatterns, selectedPattern]);
 
   const downloadBrandBoard = async () => {
     if (brandBoardRef.current) {
@@ -429,7 +457,7 @@ export default function Home() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           paleta: cores,
-          estiloNome: resultadoFinal?.estiloNome || 'Elegante',
+          estiloNome: ESTILO_NOME_BY_ID[resultadoFinal?.estiloId] || resultadoFinal?.estiloNome || 'Elegante',
           marca: formData.marca || 'Marca',
           descricao: resultadoFinal?.mensagem || '',
           referenceUrls: refs
@@ -503,7 +531,7 @@ export default function Home() {
       const response = await fetch('/api/matchmaker', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(formData)
+        body: JSON.stringify({ ...formData, lang })
       });
       
       const data = await response.json();
@@ -597,7 +625,7 @@ export default function Home() {
              else if (step === 5.5) setStep(5);
              else setStep(s => s - 1);
            }} style={{ position: 'absolute', top: '10px', left: '10px', background: 'var(--bg-soft)', border: '1px solid var(--border)', borderRadius: '30px', padding: '6px 14px', color: 'var(--text-secondary)', cursor: 'pointer', zIndex: 100, fontSize: '0.85rem', fontWeight: 500, transition: 'all 0.2s ease', display: 'flex', alignItems: 'center', gap: '5px' }}>
-             ← Voltar
+             ← {dictionary?.onboarding?.btn_back || 'Voltar'}
            </button>
         )}
         
@@ -653,13 +681,13 @@ export default function Home() {
               className="wizard-step" style={{ position: 'absolute', width: '100%', height: '100%', display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center', background: '#ffffff', borderRadius: '24px', border: '1px solid var(--border)' }}
             >
               <div style={{ position: 'absolute', top: '3rem', left: '3rem', right: '3rem', height: '4px', background: 'var(--border)', borderRadius: '4px' }}><div style={{ height: '100%', background: 'var(--accent-turquoise)', width: '15%', borderRadius: '4px', transition: 'width 0.5s' }} /></div>
-              <h2 style={{ fontSize: '2rem', marginBottom: '0.5rem' }}>Antes de começarmos...</h2>
-              <p style={{ fontSize: '1rem', color: 'var(--text-secondary)', marginBottom: '2rem' }}>Como você gostaria de ser chamada(o)?</p>
+              <h2 style={{ fontSize: '2rem', marginBottom: '0.5rem' }}>{dictionary?.onboarding?.step_2_title || 'Antes de começarmos...'}</h2>
+              <p style={{ fontSize: '1rem', color: 'var(--text-secondary)', marginBottom: '2rem' }}>{dictionary?.onboarding?.step_2_subtitle || 'Como você gostaria de ser chamada(o)?'}</p>
               <div style={{ width: '100%', marginBottom: '2rem', display: 'flex', flexDirection: 'column', gap: '15px' }}>
-                <input name="nome" value={formData.nome} onChange={handleInput} placeholder="Seu nome ou apelido" />
-                <input name="email" value={formData.email} onChange={handleInput} type="email" placeholder="O seu melhor e-mail" />
+                <input name="nome" value={formData.nome} onChange={handleInput} placeholder={dictionary?.onboarding?.step_2_name_placeholder || 'Seu nome ou apelido'} />
+                <input name="email" value={formData.email} onChange={handleInput} type="email" placeholder={dictionary?.onboarding?.step_2_email_placeholder || 'O seu melhor e-mail'} />
               </div>
-              <button onClick={nextStep} className="btn-secondary" style={{ opacity: formData.nome ? 1 : 0.5, pointerEvents: formData.nome ? 'auto' : 'none' }}>Continuar</button>
+              <button onClick={nextStep} className="btn-secondary" style={{ opacity: formData.nome ? 1 : 0.5, pointerEvents: formData.nome ? 'auto' : 'none' }}>{dictionary?.onboarding?.btn_continue || 'Continuar'}</button>
             </motion.div>
           )}
 
@@ -669,10 +697,10 @@ export default function Home() {
               className="wizard-step" style={{ position: 'absolute', width: '100%', height: '100%', display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center', background: '#ffffff', borderRadius: '24px', border: '1px solid var(--border)' }}
             >
               <div style={{ position: 'absolute', top: '3rem', left: '3rem', right: '3rem', height: '4px', background: 'var(--border)', borderRadius: '4px' }}><div style={{ height: '100%', background: 'var(--accent-turquoise)', width: '30%', borderRadius: '4px', transition: 'width 0.5s' }} /></div>
-              <h2 style={{ fontSize: '2rem', marginBottom: '0.5rem' }}>E a sua marca?</h2>
-              <p style={{ fontSize: '1rem', color: 'var(--text-secondary)', marginBottom: '2rem' }}>Este nome vai guiar toda a sua identidade visual.</p>
+              <h2 style={{ fontSize: '2rem', marginBottom: '0.5rem' }}>{dictionary?.onboarding?.step_3_title || 'E a sua marca?'}</h2>
+              <p style={{ fontSize: '1rem', color: 'var(--text-secondary)', marginBottom: '2rem' }}>{dictionary?.onboarding?.step_3_subtitle || 'Este nome vai guiar toda a sua identidade visual.'}</p>
               <div style={{ width: '100%', marginBottom: '0.75rem' }}>
-                <input name="marca" value={formData.marca} onChange={e => { handleInput(e); setMarcaSugestaoAceita(false); }} placeholder="Ex: Clínica Sonho Meu..." />
+                <input name="marca" value={formData.marca} onChange={e => { handleInput(e); setMarcaSugestaoAceita(false); }} placeholder={dictionary?.onboarding?.step_3_placeholder || 'Ex: Clínica Sonho Meu...'} />
               </div>
 
               {/* Contador de palavras */}
@@ -682,7 +710,7 @@ export default function Home() {
                 const ok = count <= 3;
                 return (
                   <p style={{ fontSize: '0.78rem', color: ok ? '#3cccbf' : '#e07a30', fontWeight: 600, marginBottom: '0.75rem', transition: 'color 0.3s' }}>
-                    {ok ? `${count} palavra${count > 1 ? 's' : ''} — ótimo para uma logo bonita ✓` : `${count} palavras — veja a dica abaixo`}
+                    {ok ? (dictionary?.onboarding?.step_3_words_ok?.replace('{count}', count) || `${count} palavra${count > 1 ? 's' : ''} — ótimo para uma logo bonita ✓`) : (dictionary?.onboarding?.step_3_words_warning?.replace('{count}', count) || `${count} palavras — veja a dica abaixo`)}
                   </p>
                 );
               })()}
@@ -691,7 +719,7 @@ export default function Home() {
               {marcaSugestaoAceita && (
                 <motion.div initial={{ opacity: 0, y: -8 }} animate={{ opacity: 1, y: 0 }} style={{ background: '#f0fdf4', border: '1px solid #86efac', borderRadius: '12px', padding: '10px 14px', marginBottom: '1rem', textAlign: 'left', width: '100%' }}>
                   <p style={{ fontSize: '0.82rem', color: '#166534', lineHeight: 1.5 }}>
-                    ✅ Nome atualizado! Ficou muito mais elegante para a logo.
+                    {dictionary?.onboarding?.step_3_success || '✅ Nome atualizado! Ficou muito mais elegante para a logo.'}
                   </p>
                 </motion.div>
               )}
@@ -708,15 +736,13 @@ export default function Home() {
                 }
                 return (
                   <motion.div initial={{ opacity: 0, y: -8 }} animate={{ opacity: 1, y: 0 }} style={{ background: '#fff8f0', border: '1px solid #f5d9b8', borderRadius: '12px', padding: '12px 14px', marginBottom: '1rem', textAlign: 'left', width: '100%' }}>
-                    <p style={{ fontSize: '0.82rem', color: '#7a4a1e', lineHeight: 1.6, marginBottom: sugestao ? '8px' : '0' }}>
-                      💡 <strong>Dica visual:</strong> nomes longos ficam difíceis de ler na logo. Abreviar o nome do meio mantém a elegância sem perder a identidade.
-                    </p>
+                    <p style={{ fontSize: '0.82rem', color: '#7a4a1e', lineHeight: 1.6, marginBottom: sugestao ? '8px' : '0' }} dangerouslySetInnerHTML={{ __html: dictionary?.onboarding?.step_3_tip || '💡 <strong>Dica visual:</strong> nomes longos ficam difíceis de ler na logo. Abreviar o nome do meio mantém a elegância sem perder a identidade.' }} />
                     {sugestao && (
                       <button
                         onClick={() => { setFormData(prev => ({ ...prev, marca: sugestao })); setMarcaSugestaoAceita(true); }}
                         style={{ fontSize: '0.8rem', color: '#e07a30', background: 'rgba(224,122,48,0.08)', border: '1px solid rgba(224,122,48,0.3)', borderRadius: '20px', padding: '4px 12px', cursor: 'pointer', fontWeight: 600 }}
                       >
-                        Usar "{sugestao}"
+                        {dictionary?.onboarding?.step_3_use_suggestion?.replace('{sugestao}', sugestao) || `Usar \"${sugestao}\"`}
                       </button>
                     )}
                   </motion.div>
@@ -726,13 +752,11 @@ export default function Home() {
               {/* Dica sobre título Dra./Dr. */}
               {formData.marca && /^(dra?\.?|dr\.?)\s/i.test(formData.marca.trim()) && (
                 <motion.div initial={{ opacity: 0, y: -8 }} animate={{ opacity: 1, y: 0 }} style={{ background: '#f0f7ff', border: '1px solid #c0d8f5', borderRadius: '12px', padding: '10px 14px', marginBottom: '1rem', textAlign: 'left', width: '100%' }}>
-                  <p style={{ fontSize: '0.8rem', color: '#2a5a8a', lineHeight: 1.6 }}>
-                    👩‍⚕️ Quer manter o título <strong>Dra.</strong> na logo? Fica lindo em alguns estilos! Pode deixar — a gente vai usar na identidade visual.
-                  </p>
+                  <p style={{ fontSize: '0.8rem', color: '#2a5a8a', lineHeight: 1.6 }} dangerouslySetInnerHTML={{ __html: dictionary?.onboarding?.step_3_dr_tip || '👩‍⚕️ Quer manter o título <strong>Dra.</strong> na logo? Fica lindo em alguns estilos! Pode deixar — a gente vai usar na identidade visual.' }} />
                 </motion.div>
               )}
 
-              <button onClick={nextStep} className="btn-secondary" style={{ opacity: formData.marca ? 1 : 0.5, pointerEvents: formData.marca ? 'auto' : 'none', marginTop: '0.5rem' }}>Avançar 🤍</button>
+              <button onClick={nextStep} className="btn-secondary" style={{ opacity: formData.marca ? 1 : 0.5, pointerEvents: formData.marca ? 'auto' : 'none', marginTop: '0.5rem' }}>{dictionary?.onboarding?.btn_next_heart || 'Avançar 🤍'}</button>
             </motion.div>
           )}
 
@@ -742,8 +766,8 @@ export default function Home() {
               className="wizard-step" style={{ position: 'absolute', width: '100%', height: '100%', display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center', background: '#ffffff', borderRadius: '24px', border: '1px solid var(--border)' }}
             >
               <div style={{ position: 'absolute', top: '3rem', left: '3rem', right: '3rem', height: '4px', background: 'var(--border)', borderRadius: '4px' }}><div style={{ height: '100%', background: 'var(--accent-turquoise)', width: '50%', borderRadius: '4px', transition: 'width 0.5s' }} /></div>
-              <h2 style={{ fontSize: '2rem', marginBottom: '0.5rem' }}>Qual é a sua área de atuação?</h2>
-              <p style={{ fontSize: '1rem', color: 'var(--text-secondary)', marginBottom: '1.5rem' }}>Escolha a que mais combina com o seu negócio.</p>
+              <h2 style={{ fontSize: '2rem', marginBottom: '0.5rem' }}>{dictionary?.onboarding?.step_4_title || 'Qual é a sua área de atuação?'}</h2>
+              <p style={{ fontSize: '1rem', color: 'var(--text-secondary)', marginBottom: '1.5rem' }}>{dictionary?.onboarding?.step_4_subtitle || 'Escolha a que mais combina com o seu negócio.'}</p>
               <div style={{ width: '100%', marginBottom: '1rem', overflowY: 'auto', maxHeight: '45vh' }}>
                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px', padding: '4px' }}>
                   {areas.map(a => (
@@ -764,12 +788,11 @@ export default function Home() {
                         textAlign: 'center',
                       }}
                     >
-                      {a}
-                    </button>
+                      {dictionary?.onboarding?.areas_options?.[a] || a}</button>
                   ))}
                 </div>
               </div>
-              <button onClick={nextStep} className="btn-secondary" style={{ opacity: (formData.atuacao !== '' && (formData.atuacao !== 'Outra área' || formData.atuacaoOutra !== '')) ? 1 : 0.5, pointerEvents: (formData.atuacao !== '' && (formData.atuacao !== 'Outra área' || formData.atuacaoOutra !== '')) ? 'auto' : 'none' }}>Avançar</button>
+              <button onClick={nextStep} className="btn-secondary" style={{ opacity: (formData.atuacao !== '' && (formData.atuacao !== 'Outra área' || formData.atuacaoOutra !== '')) ? 1 : 0.5, pointerEvents: (formData.atuacao !== '' && (formData.atuacao !== 'Outra área' || formData.atuacaoOutra !== '')) ? 'auto' : 'none' }}>{dictionary?.onboarding?.btn_next || 'Avançar'}</button>
             </motion.div>
           )}
 
@@ -779,12 +802,12 @@ export default function Home() {
               className="wizard-step" style={{ position: 'absolute', width: '100%', height: '100%', display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center', background: '#ffffff', borderRadius: '24px', border: '1px solid var(--border)' }}
             >
               <div style={{ position: 'absolute', top: '3rem', left: '3rem', right: '3rem', height: '4px', background: 'var(--border)', borderRadius: '4px' }}><div style={{ height: '100%', background: 'var(--accent-turquoise)', width: '70%', borderRadius: '4px', transition: 'width 0.5s' }} /></div>
-              <h2 style={{ fontSize: '2rem', marginBottom: '0.5rem' }}>Para quem você atende?</h2>
-              <p style={{ fontSize: '1rem', color: 'var(--text-secondary)', marginBottom: '1.5rem' }}>Qual o seu público principal?</p>
+              <h2 style={{ fontSize: '2rem', marginBottom: '0.5rem' }}>{dictionary?.onboarding?.step_5_title || 'Para quem você atende?'}</h2>
+              <p style={{ fontSize: '1rem', color: 'var(--text-secondary)', marginBottom: '1.5rem' }}>{dictionary?.onboarding?.step_5_subtitle || 'Qual o seu público principal?'}</p>
               <div style={{ width: '100%', marginBottom: '2rem', display: 'flex', flexDirection: 'column', gap: '10px', alignItems: 'center' }}>
-                {publicos.map(p => (<button key={p} onClick={() => setSingleChoice('publico', p)} style={chipStyle(formData.publico === p)}>{p}</button>))}
+                {publicos.map(p => (<button key={p} onClick={() => setSingleChoice('publico', p)} style={chipStyle(formData.publico === p)}>{dictionary?.onboarding?.publicos_options?.[p] || p}</button>))}
               </div>
-              <button onClick={() => setStep(5.5)} className="btn-secondary" style={{ opacity: formData.publico ? 1 : 0.5, pointerEvents: formData.publico ? 'auto' : 'none' }}>Avançar</button>
+              <button onClick={() => setStep(5.5)} className="btn-secondary" style={{ opacity: formData.publico ? 1 : 0.5, pointerEvents: formData.publico ? 'auto' : 'none' }}>{dictionary?.onboarding?.btn_next || 'Avançar'}</button>
             </motion.div>
           )}
 
@@ -794,12 +817,12 @@ export default function Home() {
               className="wizard-step" style={{ position: 'absolute', width: '100%', height: '100%', display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center', background: '#ffffff', borderRadius: '24px', border: '1px solid var(--border)' }}
             >
               <div style={{ position: 'absolute', top: '3rem', left: '3rem', right: '3rem', height: '4px', background: 'var(--border)', borderRadius: '4px' }}><div style={{ height: '100%', background: 'var(--accent-turquoise)', width: '80%', borderRadius: '4px', transition: 'width 0.5s' }} /></div>
-              <h2 style={{ fontSize: '2rem', marginBottom: '0.5rem' }}>Qual a energia da sua marca?</h2>
-              <p style={{ fontSize: '1rem', color: 'var(--text-secondary)', marginBottom: '1.5rem' }}>Isso ajuda a calibrarmos as cores e os elementos visuais (evitando estampas que não combinem com você).</p>
+              <h2 style={{ fontSize: '2rem', marginBottom: '0.5rem' }}>{dictionary?.onboarding?.step_5_5_title || 'Qual a energia da sua marca?'}</h2>
+              <p style={{ fontSize: '1rem', color: 'var(--text-secondary)', marginBottom: '1.5rem' }}>{dictionary?.onboarding?.step_5_5_subtitle || 'Isso ajuda a calibrarmos as cores e os elementos visuais (evitando estampas que não combinem com você).'}</p>
               <div style={{ width: '100%', marginBottom: '2rem', display: 'flex', flexDirection: 'column', gap: '10px', alignItems: 'center' }}>
-                {identidades.map(i => (<button key={i} onClick={() => setSingleChoice('identidade', i)} style={chipStyle(formData.identidade === i)}>{i}</button>))}
+                {identidades.map(i => (<button key={i} onClick={() => setSingleChoice('identidade', i)} style={chipStyle(formData.identidade === i)}>{dictionary?.onboarding?.identidades_options?.[i] || i}</button>))}
               </div>
-              <button onClick={() => setStep(6)} className="btn-secondary" style={{ opacity: formData.identidade ? 1 : 0.5, pointerEvents: formData.identidade ? 'auto' : 'none' }}>Avançar</button>
+              <button onClick={() => setStep(6)} className="btn-secondary" style={{ opacity: formData.identidade ? 1 : 0.5, pointerEvents: formData.identidade ? 'auto' : 'none' }}>{dictionary?.onboarding?.btn_next || 'Avançar'}</button>
             </motion.div>
           )}
 
@@ -809,18 +832,18 @@ export default function Home() {
               className="wizard-step" style={{ position: 'absolute', width: '100%', height: '100%', display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center', background: '#ffffff', borderRadius: '24px', border: '1px solid var(--border)' }}
             >
               <div style={{ position: 'absolute', top: '3rem', left: '3rem', right: '3rem', height: '4px', background: 'var(--border)', borderRadius: '4px' }}><div style={{ height: '100%', background: 'var(--accent-turquoise)', width: '90%', borderRadius: '4px', transition: 'width 0.5s' }} /></div>
-              <h2 style={{ fontSize: '2rem', marginBottom: '0.5rem' }}>Que sensações você quer transmitir?</h2>
-              <p style={{ fontSize: '1rem', color: 'var(--text-secondary)', marginBottom: '1.5rem' }}>Selecione até 2 opções que mais se conectam com a sua marca.</p>
+              <h2 style={{ fontSize: '2rem', marginBottom: '0.5rem' }}>{dictionary?.onboarding?.step_6_title || 'Que sensações você quer transmitir?'}</h2>
+              <p style={{ fontSize: '1rem', color: 'var(--text-secondary)', marginBottom: '1.5rem' }}>{dictionary?.onboarding?.step_6_subtitle || 'Selecione até 2 opções que mais se conectam com a sua marca.'}</p>
               <div style={{ width: '100%', marginBottom: '1.5rem', display: 'flex', flexWrap: 'wrap', gap: '10px', justifyContent: 'center' }}>
                 {sensacoes.map(s => {
                   const isSelected = formData.sentimentos.includes(s);
                   return (
-                    <button key={s} onClick={() => toggleSentimento(s)} style={{ background: isSelected ? 'var(--accent-turquoise)' : '#fff', color: isSelected ? '#fff' : 'var(--text-secondary)', border: `1.5px solid ${isSelected ? 'var(--accent-turquoise)' : 'var(--border)'}`, padding: '10px 20px', borderRadius: '30px', cursor: 'pointer', transition: 'all 0.2s ease', fontSize: '1rem', fontWeight: isSelected ? 500 : 400 }}>{s}</button>
+                    <button key={s} onClick={() => toggleSentimento(s)} style={{ background: isSelected ? 'var(--accent-turquoise)' : '#fff', color: isSelected ? '#fff' : 'var(--text-secondary)', border: `1.5px solid ${isSelected ? 'var(--accent-turquoise)' : 'var(--border)'}`, padding: '10px 20px', borderRadius: '30px', cursor: 'pointer', transition: 'all 0.2s ease', fontSize: '1rem', fontWeight: isSelected ? 500 : 400 }}>{dictionary?.onboarding?.sensacoes_options?.[s] || s}</button>
                   )
                 })}
               </div>
-              <p style={{fontSize: '0.9rem', color: 'var(--text-secondary)', marginBottom: '1.5rem', fontWeight: 500}}>Selecionadas: {formData.sentimentos.length}/2</p>
-              <button onClick={nextStep} className="btn-primary" style={{ opacity: formData.sentimentos.length > 0 ? 1 : 0.5, pointerEvents: formData.sentimentos.length > 0 ? 'auto' : 'none' }}>Avançar</button>
+              <p style={{fontSize: '0.9rem', color: 'var(--text-secondary)', marginBottom: '1.5rem', fontWeight: 500}}>{dictionary?.onboarding?.step_6_selected?.replace('{count}', formData.sentimentos.length) || `Selecionadas: ${formData.sentimentos.length}/2`}</p>
+              <button onClick={nextStep} className="btn-primary" style={{ opacity: formData.sentimentos.length > 0 ? 1 : 0.5, pointerEvents: formData.sentimentos.length > 0 ? 'auto' : 'none' }}>{dictionary?.onboarding?.btn_next || 'Avançar'}</button>
             </motion.div>
           )}
 
@@ -830,17 +853,17 @@ export default function Home() {
               className="wizard-step" style={{ position: 'absolute', width: '100%', height: '100%', display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center', background: '#ffffff', borderRadius: '24px', border: '1px solid var(--border)' }}
             >
               <div style={{ position: 'absolute', top: '3rem', left: '3rem', right: '3rem', height: '4px', background: 'var(--border)', borderRadius: '4px' }}><div style={{ height: '100%', background: 'var(--accent-turquoise)', width: '95%', borderRadius: '4px', transition: 'width 0.5s' }} /></div>
-              <h2 style={{ fontSize: '2rem', marginBottom: '0.5rem' }}>O que não pode faltar no layout?</h2>
-              <p style={{ fontSize: '1rem', color: 'var(--text-secondary)', marginBottom: '1.5rem' }}>Quais elementos visuais e temáticos são vitais para você? (Escolha 1 opção)</p>
+              <h2 style={{ fontSize: '2rem', marginBottom: '0.5rem' }}>{dictionary?.onboarding?.step_7_title || 'O que não pode faltar no layout?'}</h2>
+              <p style={{ fontSize: '1rem', color: 'var(--text-secondary)', marginBottom: '1.5rem' }}>{dictionary?.onboarding?.step_7_subtitle || 'Quais elementos visuais e temáticos são vitais para você? (Escolha 1 opção)'}</p>
               <div style={{ width: '100%', marginBottom: '1.5rem', display: 'flex', flexWrap: 'wrap', gap: '10px', justifyContent: 'center' }}>
                 {elementosDesc.map(s => {
                   const isSelected = formData.elementosVisuais.includes(s);
                   return (
-                    <button key={s} onClick={() => toggleElemento(s)} style={{ background: isSelected ? 'var(--accent-turquoise)' : '#fff', color: isSelected ? '#fff' : 'var(--text-secondary)', border: `1.5px solid ${isSelected ? 'var(--accent-turquoise)' : 'var(--border)'}`, padding: '10px 20px', borderRadius: '30px', cursor: 'pointer', transition: 'all 0.2s ease', fontSize: '1rem', fontWeight: isSelected ? 500 : 400 }}>{s}</button>
+                    <button key={s} onClick={() => toggleElemento(s)} style={{ background: isSelected ? 'var(--accent-turquoise)' : '#fff', color: isSelected ? '#fff' : 'var(--text-secondary)', border: `1.5px solid ${isSelected ? 'var(--accent-turquoise)' : 'var(--border)'}`, padding: '10px 20px', borderRadius: '30px', cursor: 'pointer', transition: 'all 0.2s ease', fontSize: '1rem', fontWeight: isSelected ? 500 : 400 }}>{dictionary?.onboarding?.elementos_options?.[s] || s}</button>
                   )
                 })}
               </div>
-              <button onClick={callMatchmaker} className="btn-primary" style={{ opacity: formData.elementosVisuais.length > 0 ? 1 : 0.5, pointerEvents: formData.elementosVisuais.length > 0 ? 'auto' : 'none' }}>Descobrir meu Estilo Ideal ✨</button>
+              <button onClick={callMatchmaker} className="btn-primary" style={{ opacity: formData.elementosVisuais.length > 0 ? 1 : 0.5, pointerEvents: formData.elementosVisuais.length > 0 ? 'auto' : 'none' }}>{dictionary?.onboarding?.btn_matchmaker || 'Descobrir meu Estilo Ideal ✨'}</button>
             </motion.div>
           )}
 
@@ -854,8 +877,8 @@ export default function Home() {
                 transition={{ duration: 3, repeat: Infinity, ease: 'linear' }}
                 style={{ fontSize: '3.5rem', marginBottom: '1.5rem' }}
               >✦</motion.div>
-              <h2 style={{ fontSize: '1.8rem', marginBottom: '0.8rem', color: 'var(--accent-turquoise)' }}>Traduzindo sua essência em direção visual...</h2>
-              <p style={{ fontSize: '1rem', color: 'var(--text-secondary)', lineHeight: 1.6, maxWidth: '320px' }}>Nosso motor criativo está analisando o seu perfil para encontrar a combinação perfeita para você.</p>
+              <h2 style={{ fontSize: '1.8rem', marginBottom: '0.8rem', color: 'var(--accent-turquoise)' }}>{dictionary?.postmatch?.step_8_title || 'Traduzindo sua essência em direção visual...'}</h2>
+              <p style={{ fontSize: '1rem', color: 'var(--text-secondary)', lineHeight: 1.6, maxWidth: '320px' }}>{dictionary?.postmatch?.step_8_subtitle || 'Nosso motor criativo está analisando o seu perfil para encontrar a combinação perfeita para você.'}</p>
             </motion.div>
           )}
 
@@ -865,7 +888,7 @@ export default function Home() {
               key="step9" variants={variants} initial="initial" animate="animate" exit="exit" transition={{ duration: 0.5 }}
               className="wizard-step" style={{ position: 'absolute', width: '100%', height: '100%', display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center', background: '#ffffff', borderRadius: '24px', border: '1px solid var(--border)', boxShadow: '0 20px 40px rgba(0,0,0,0.08)' }}
             >
-              <p style={{ fontSize: '0.9rem', color: 'var(--text-secondary)', marginBottom: '0.5rem', textTransform: 'uppercase', letterSpacing: '2px', fontWeight: 600 }}>O MATCH PERFEITO PARA {formData.marca || "SUA MARCA"}</p>
+              <p style={{ fontSize: '0.9rem', color: 'var(--text-secondary)', marginBottom: '0.5rem', textTransform: 'uppercase', letterSpacing: '2px', fontWeight: 600 }}>{dictionary?.postmatch?.step_9_perfect_match || 'O MATCH PERFEITO PARA'} {formData.marca || 'SUA MARCA'}</p>
               <h2 style={{ fontSize: '2.5rem', marginBottom: '1.5rem', color: 'var(--accent-magenta)', fontWeight: 600 }}>{resultadoFinal.estiloNome}</h2>
               
               <div style={{ background: 'var(--bg-soft)', padding: '1.5rem', borderRadius: '16px', marginBottom: '2rem', border: '1px solid var(--border)' }}>
@@ -874,14 +897,14 @@ export default function Home() {
                 </p>
               </div>
 
-              <button onClick={fetchVariacoes} className="btn-primary" style={{ background: 'var(--accent-turquoise)', boxShadow: 'none' }}>Personalizar minha Identidade</button>
+              <button onClick={fetchVariacoes} className="btn-primary" style={{ background: 'var(--accent-turquoise)', boxShadow: 'none' }}>{dictionary?.postmatch?.step_9_btn_customize || 'Personalizar minha Identidade'}</button>
 
               {refazerAttempts < 2 ? (
                 <button
                   onClick={() => setShowRefazerModal(true)}
                   style={{ marginTop: '12px', background: 'none', border: 'none', color: 'var(--text-secondary)', fontSize: '0.82rem', cursor: 'pointer', textDecoration: 'underline' }}
                 >
-                  Refazer o questionário ({2 - refazerAttempts} tentativa{2 - refazerAttempts !== 1 ? 's' : ''} restante{2 - refazerAttempts !== 1 ? 's' : ''})
+                  {dictionary?.postmatch?.step_9_btn_retake || 'Refazer o questionário'} {(dictionary?.postmatch?.step_9_attempts_remaining || '({count} tentativa{s} restante{s})').replace('{count}', 2 - refazerAttempts).replace('{s}', 2 - refazerAttempts !== 1 ? 's' : '')}
                 </button>
               ) : (
                 <p style={{ marginTop: '12px', fontSize: '0.78rem', color: '#bbb', textAlign: 'center' }}>
@@ -903,10 +926,10 @@ export default function Home() {
                   style={{ background: '#fff', borderRadius: '20px', padding: '2rem', maxWidth: '360px', width: '100%', textAlign: 'center', boxShadow: '0 20px 40px rgba(0,0,0,0.15)' }}
                 >
                   <p style={{ fontSize: '2rem', marginBottom: '0.5rem' }}>⚠️</p>
-                  <h3 style={{ fontSize: '1.2rem', color: 'var(--text-primary)', marginBottom: '0.75rem' }}>Tem certeza?</h3>
+                  <h3 style={{ fontSize: '1.2rem', color: 'var(--text-primary)', marginBottom: '0.75rem' }}>{dictionary?.postmatch?.modal_retake_title || 'Tem certeza?'}</h3>
                   <p style={{ fontSize: '0.88rem', color: 'var(--text-secondary)', lineHeight: 1.6, marginBottom: '1.5rem' }}>
-                    Você perderá o modelo gerado e <strong>não poderá recuperá-lo</strong>.<br/>
-                    Após refazer, você terá mais <strong>{1 - refazerAttempts} tentativa{1 - refazerAttempts !== 1 ? 's' : ''}</strong> restante{1 - refazerAttempts !== 1 ? 's' : ''}.
+                    <span dangerouslySetInnerHTML={{ __html: dictionary?.postmatch?.modal_retake_desc_1 || 'Você perderá o modelo gerado e <strong>não poderá recuperá-lo</strong>.' }} /><br/>
+                    <span dangerouslySetInnerHTML={{ __html: (dictionary?.postmatch?.modal_retake_desc_2 || 'Após refazer, você terá mais <strong>{count} tentativa{s}</strong> restante{s}.').replace('{count}', 1 - refazerAttempts).replace('{s}', 1 - refazerAttempts !== 1 ? 's' : '') }} />
                   </p>
                   <div style={{ display: 'flex', gap: '10px' }}>
                     <button
@@ -943,9 +966,9 @@ export default function Home() {
               key="step10" variants={variants} initial="initial" animate="animate" exit="exit" transition={{ duration: 0.5 }}
               style={{ position: 'absolute', width: '100%', height: '100%', display: 'flex', flexDirection: 'column', background: '#ffffff', borderRadius: '24px', padding: '1.5rem 1.25rem', border: '1px solid var(--border)', overflowY: 'hidden' }}
             >
-              <h2 style={{ fontSize: '1.8rem', marginBottom: '0.5rem', textAlign: 'center' }}>Refinamento Visual</h2>
+              <h2 style={{ fontSize: '1.8rem', marginBottom: '0.5rem', textAlign: 'center' }}>{dictionary?.postmatch?.step_10_title || 'Refinamento Visual'}</h2>
               <p style={{ fontSize: '1rem', color: 'var(--text-secondary)', marginBottom: '2rem', textAlign: 'center' }}>
-                {customStep === 'tipo' ? '1. Escolha a sua Tipografia ideal' : customStep === 'paleta' ? '2. Defina sua Paleta de Cores' : '3. Qual cor será o destaque da sua marca?'}
+                {customStep === 'tipo' ? (dictionary?.postmatch?.step_10_subtitle_tipo || '1. Escolha a sua Tipografia ideal') : customStep === 'paleta' ? (dictionary?.postmatch?.step_10_subtitle_paleta || '2. Defina sua Paleta de Cores') : (dictionary?.postmatch?.step_10_subtitle_cor || '3. Qual cor será o destaque da sua marca?')}
               </p>
               
               <div style={{ display: 'flex', gap: '8px', justifyContent: 'center', marginBottom: '20px' }}>
@@ -959,15 +982,15 @@ export default function Home() {
                   {loadingVariacoes ? (
                     <motion.div key="loading" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} style={{ position: 'absolute', width: '100%', height: '100%', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: '15px' }}>
                        <div className="spinner" style={{ width: '40px', height: '40px', border: '3px solid var(--border)', borderTop: '3px solid var(--accent-turquoise)', borderRadius: '50%', animation: 'spin 1s linear infinite' }} />
-                       <p style={{ fontSize: '0.9rem', color: 'var(--text-secondary)' }}>Carregando estilos exclusivos...</p>
+                       <p style={{ fontSize: '0.9rem', color: 'var(--text-secondary)' }}>{dictionary?.postmatch?.step_10_loading_styles || 'Carregando estilos exclusivos...'}</p>
                     </motion.div>
                   ) : customStep === 'tipo' && (
                      <motion.div key="ctipo" variants={slideVariants} initial="initial" animate="animate" exit="exit" transition={{ duration: 0.3 }} style={{ position: 'absolute', width: '100%', height: '100%', display: 'grid', gridTemplateColumns: 'minmax(0, 1fr) minmax(0, 1fr)', gap: '15px', overflowY: 'auto', paddingBottom: '2rem' }}>
                         {tipografias.length === 0 ? (
                           <div style={{ gridColumn: 'span 2', textAlign: 'center', padding: '2rem', background: '#fff0f0', borderRadius: '12px', border: '1px solid #ffcccc' }}>
-                            <p style={{ color: '#d32f2f', fontSize: '0.95rem', fontWeight: 600, marginBottom: '10px' }}>Ops! Não conseguimos carregar as tipografias.</p>
-                            <p style={{ color: '#666', fontSize: '0.8rem', lineHeight: 1.5 }}>Isso pode ser um erro de conexão temporário ou falta de dados para o estilo <strong>{resultadoFinal?.estiloNome}</strong>.</p>
-                            <button onClick={fetchVariacoes} style={{ marginTop: '15px', padding: '8px 16px', background: '#d32f2f', color: '#fff', border: 'none', borderRadius: '8px', cursor: 'pointer', fontSize: '0.8rem' }}>Tentar carregar novamente</button>
+                            <p style={{ color: '#d32f2f', fontSize: '0.95rem', fontWeight: 600, marginBottom: '10px' }}>{dictionary?.postmatch?.step_10_error_title || 'Ops! Não conseguimos carregar as tipografias.'}</p>
+                            <p style={{ color: '#666', fontSize: '0.8rem', lineHeight: 1.5 }}>{dictionary?.postmatch?.step_10_error_desc || 'Isso pode ser um erro de conexão temporário ou falta de dados para o estilo'} <strong>{resultadoFinal?.estiloNome}</strong>.</p>
+                            <button onClick={fetchVariacoes} style={{ marginTop: '15px', padding: '8px 16px', background: '#d32f2f', color: '#fff', border: 'none', borderRadius: '8px', cursor: 'pointer', fontSize: '0.8rem' }}>{dictionary?.postmatch?.step_10_btn_retry || 'Tentar carregar novamente'}</button>
                           </div>
                         ) : tipografias.map(t => {
                           const fontInfo = FONT_MAP[t.nome_variacao];
@@ -1082,7 +1105,7 @@ export default function Home() {
                               const qualquer = paletas.find(p => (p.paleta_hex?.length > 0) || (p.cores_hex?.length > 0));
                               cores = qualquer?.paleta_hex || qualquer?.cores_hex || [];
                             }
-                            if (cores.length === 0) return <p style={{ color: '#999', fontSize: '0.8rem' }}>Nenhuma cor encontrada. Rode o upload_drive.mjs para este estilo.</p>;
+                            if (cores.length === 0) return <p style={{ color: '#999', fontSize: '0.8rem' }}>{dictionary?.postmatch?.step_10_no_color || 'Nenhuma cor encontrada.'}</p>;
                             return cores.map((hex, i) => (
                               <div
                                 key={i}
@@ -1101,7 +1124,7 @@ export default function Home() {
                         </div>
                         {editData.corAtiva && (
                           <p style={{ fontSize: '0.8rem', color: 'var(--text-secondary)', fontWeight: 600 }}>
-                            Cor selecionada: <span style={{ color: editData.corAtiva, fontWeight: 800 }}>{editData.corAtiva}</span>
+                            {dictionary?.postmatch?.step_10_color_selected || 'Cor selecionada:'} <span style={{ color: editData.corAtiva, fontWeight: 800 }}>{editData.corAtiva}</span>
                           </p>
                         )}
                      </motion.div>
@@ -1110,9 +1133,9 @@ export default function Home() {
               </div>
               
               <div style={{ marginTop: 'auto', display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '10px' }}>
-                 {customStep === 'paleta' && <button onClick={() => setCustomStep('tipo')} className="btn-secondary" style={{ padding: '12px 20px', borderRadius: '14px', fontSize: '0.92rem', fontWeight: 600, flex: '0 0 auto', height: '46px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>Voltar</button>}
-                 {customStep === 'cor' && <button onClick={() => setCustomStep('paleta')} className="btn-secondary" style={{ padding: '12px 20px', borderRadius: '14px', fontSize: '0.92rem', fontWeight: 600, flex: '0 0 auto', height: '46px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>Voltar</button>}
-                 <button onClick={() => setStep(11)} className="btn-primary" style={{ flex: 1, background: (selectedTipo && selectedPaleta && editData.corAtiva) ? 'var(--accent-turquoise)' : '#ccc', pointerEvents: (selectedTipo && selectedPaleta && editData.corAtiva) ? 'auto' : 'none', padding: '12px 20px', borderRadius: '14px', fontSize: '0.92rem', fontWeight: 600, height: '46px', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: 'none' }}>Ver Inspiração ✨</button>
+                 {customStep === 'paleta' && <button onClick={() => setCustomStep('tipo')} className="btn-secondary" style={{ padding: '12px 20px', borderRadius: '14px', fontSize: '0.92rem', fontWeight: 600, flex: '0 0 auto', height: '46px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>{dictionary?.onboarding?.btn_back || 'Voltar'}</button>}
+                 {customStep === 'cor' && <button onClick={() => setCustomStep('paleta')} className="btn-secondary" style={{ padding: '12px 20px', borderRadius: '14px', fontSize: '0.92rem', fontWeight: 600, flex: '0 0 auto', height: '46px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>{dictionary?.onboarding?.btn_back || 'Voltar'}</button>}
+                 <button onClick={() => setStep(11)} className="btn-primary" style={{ flex: 1, background: (selectedTipo && selectedPaleta && editData.corAtiva) ? 'var(--accent-turquoise)' : '#ccc', pointerEvents: (selectedTipo && selectedPaleta && editData.corAtiva) ? 'auto' : 'none', padding: '12px 20px', borderRadius: '14px', fontSize: '0.92rem', fontWeight: 600, height: '46px', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: 'none' }}>{dictionary?.postmatch?.step_10_btn_inspiration || 'Ver Inspiração ✨'}</button>
               </div>
             </motion.div>
           )}
@@ -1124,17 +1147,15 @@ export default function Home() {
               style={{ position: 'absolute', width: '100%', height: '100%', display: 'flex', flexDirection: 'column', background: '#ffffff', borderRadius: '24px', overflow: 'hidden', border: '1px solid var(--border)' }}
             >
               <div style={{ padding: '1.5rem', textAlign: 'center', borderBottom: '1px solid var(--border)', zIndex: 10, background: '#fff' }}>
-                 <p style={{ color: 'var(--text-secondary)', textTransform: 'uppercase', fontSize: '0.75rem', letterSpacing: '3px', fontWeight: 700, marginBottom: '2px' }}>Moodboard</p>
-                 <p style={{ color: 'var(--text-secondary)', fontSize: '0.72rem', letterSpacing: '1px' }}>Universo Visual de {formData.marca}</p>
+                 <p style={{ color: 'var(--text-secondary)', textTransform: 'uppercase', fontSize: '0.75rem', letterSpacing: '3px', fontWeight: 700, marginBottom: '2px' }}>{dictionary?.postmatch?.step_11_moodboard || 'Moodboard'}</p>
+                 <p style={{ color: 'var(--text-secondary)', fontSize: '0.72rem', letterSpacing: '1px' }}>{dictionary?.postmatch?.step_11_visual_universe || 'Universo Visual de'} {formData.marca}</p>
                  <h2 style={{ fontSize: '1.8rem', color: 'var(--accent-magenta)' }}>{resultadoFinal?.estiloNome}</h2>
               </div>
 
               <div style={{ flex: 1, overflowY: 'auto', padding: '15px', display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '10px', background: '#fafafa' }}>
                   {/* Nota sobre referências visuais */}
                   <div style={{ gridColumn: 'span 3', textAlign: 'center', padding: '8px 15px', marginBottom: '5px' }}>
-                     <p style={{ fontSize: '0.8rem', color: 'var(--text-secondary)', lineHeight: 1.5, fontStyle: 'italic' }}>
-                        ✨ As imagens abaixo são <strong>referências visuais</strong> que servirão de inspiração para criar a identidade da sua marca. Elas não farão parte do material final — são o ponto de partida do seu universo visual.
-                     </p>
+                     <p style={{ fontSize: '0.8rem', color: 'var(--text-secondary)', lineHeight: 1.5, fontStyle: 'italic' }} dangerouslySetInnerHTML={{ __html: dictionary?.postmatch?.step_11_references_note || '✨ As imagens abaixo são <strong>referências visuais</strong> que servirão de inspiração para criar a identidade da sua marca. Elas não farão parte do material final — são o ponto de partida do seu universo visual.' }}></p>
                   </div>
 
                   {/* Mosaico Pinterest Estilo Original */}
@@ -1148,7 +1169,7 @@ export default function Home() {
               </div>
 
               <div style={{ padding: '1.5rem', background: '#fff', borderTop: '1px solid var(--border)', zIndex: 10 }}>
-                 <button onClick={() => { setSelectedTagline(''); setCustomTagline(''); setStep(11.5); }} className="btn-primary" style={{ width: '100%', background: 'var(--accent-turquoise)' }}>Definir minha Tagline ✨</button>
+                 <button onClick={() => { setSelectedTagline(''); setCustomTagline(''); setStep(11.5); }} className="btn-primary" style={{ width: '100%', background: 'var(--accent-turquoise)' }}>{dictionary?.postmatch?.step_11_btn_tagline || 'Definir minha Tagline ✨'}</button>
               </div>
             </motion.div>
           )}
@@ -1160,16 +1181,16 @@ export default function Home() {
               style={{ position: 'absolute', width: '100%', height: '100%', display: 'flex', flexDirection: 'column', background: '#ffffff', borderRadius: '24px', overflow: 'hidden', border: '1px solid var(--border)' }}
             >
               <div style={{ padding: '1.25rem 1.5rem', textAlign: 'center', borderBottom: '1px solid var(--border)', background: '#fff', zIndex: 10 }}>
-                <p style={{ color: 'var(--text-secondary)', textTransform: 'uppercase', fontSize: '0.7rem', letterSpacing: '3px', fontWeight: 700, marginBottom: '4px' }}>Sua Voz de Marca</p>
-                <h2 style={{ fontSize: '1.6rem', color: 'var(--text-primary)' }}>Qual a sua tagline?</h2>
+                <p style={{ color: 'var(--text-secondary)', textTransform: 'uppercase', fontSize: '0.7rem', letterSpacing: '3px', fontWeight: 700, marginBottom: '4px' }}>{dictionary?.postmatch?.step_115_voice || 'Sua Voz de Marca'}</p>
+                <h2 style={{ fontSize: '1.6rem', color: 'var(--text-primary)' }}>{dictionary?.postmatch?.step_115_title || 'Qual a sua tagline?'}</h2 >
                 <p style={{ fontSize: '0.8rem', color: 'var(--text-secondary)', marginTop: '4px', lineHeight: 1.4, maxWidth: '480px', margin: '4px auto 0' }}>
-                  Frase curta e memorável que captura a essência, o propósito e o posicionamento da sua marca.
+                  {dictionary?.postmatch?.step_115_subtitle || 'Frase curta e memorável que captura a essência, o propósito e o posicionamento da sua marca.'}
                 </p>
               </div>
 
               <div style={{ flex: 1, overflowY: 'auto', padding: '24px 20px', display: 'flex', flexDirection: 'column', gap: '12px' }}>
                 <p style={{ fontSize: '0.72rem', fontWeight: 700, letterSpacing: '2px', textTransform: 'uppercase', color: 'var(--text-secondary)', marginBottom: '4px' }}>
-                  Sugestões para o estilo {resultadoFinal?.estiloNome}
+                  {dictionary?.postmatch?.step_115_suggestions || 'Sugestões para o estilo'} {resultadoFinal?.estiloNome}
                 </p>
 
                 {getTaglineSuggestions().map((opt) => (
@@ -1196,10 +1217,10 @@ export default function Home() {
 
                 <div style={{ borderTop: '1px solid var(--border)', paddingTop: '16px', marginTop: '4px' }}>
                   <p style={{ fontSize: '0.72rem', fontWeight: 700, letterSpacing: '2px', textTransform: 'uppercase', color: 'var(--text-secondary)', marginBottom: '10px' }}>
-                    Ou escreva a sua
+                    {dictionary?.postmatch?.step_115_or_write || 'Ou escreva a sua'}
                   </p>
                   <textarea
-                    placeholder="Ex: Cuidado que transforma vidas · Design com Propósito · Beleza Consciente"
+                    placeholder={dictionary?.postmatch?.step_115_placeholder || "Ex: Cuidado que transforma vidas · Design com Propósito · Beleza Consciente"}
                     value={customTagline}
                     onChange={(e) => { setCustomTagline(e.target.value.slice(0, 45)); setSelectedTagline(''); }}
                     maxLength={45}
@@ -1208,7 +1229,7 @@ export default function Home() {
                   />
                   <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: '6px' }}>
                     <p style={{ fontSize: '0.72rem', color: 'var(--text-secondary)', lineHeight: 1.5, flex: 1 }}>
-                      Escreva sua especialidade ou uma frase de posicionamento curta.
+                      {dictionary?.postmatch?.step_115_write_desc || 'Escreva sua especialidade ou uma frase de posicionamento curta.'}
                     </p>
                     <p style={{ fontSize: '0.72rem', color: customTagline.length >= 40 ? 'var(--accent-magenta)' : 'var(--text-secondary)', fontWeight: customTagline.length >= 40 ? 600 : 400, marginLeft: '10px' }}>
                       {customTagline.length}/45
@@ -1218,7 +1239,7 @@ export default function Home() {
               </div>
 
               <div style={{ padding: '1.5rem', background: '#fff', borderTop: '1px solid var(--border)', zIndex: 10, display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '10px' }}>
-                <button onClick={() => setStep(11)} className="btn-secondary" style={{ padding: '12px 20px', borderRadius: '14px', fontSize: '0.92rem', fontWeight: 600, flex: '0 0 auto', height: '46px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>Voltar</button>
+                <button onClick={() => setStep(11)} className="btn-secondary" style={{ padding: '12px 20px', borderRadius: '14px', fontSize: '0.92rem', fontWeight: 600, flex: '0 0 auto', height: '46px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>{dictionary?.onboarding?.btn_back || 'Voltar'}</button>
                 <button
                   onClick={() => {
                     const tagline = customTagline.trim() || selectedTagline;
@@ -1228,7 +1249,7 @@ export default function Home() {
                   className="btn-primary"
                   style={{ flex: 1, background: (selectedTagline || customTagline.trim()) ? 'var(--accent-magenta)' : '#ccc', pointerEvents: (selectedTagline || customTagline.trim()) ? 'auto' : 'none', padding: '12px 20px', borderRadius: '14px', fontSize: '0.92rem', fontWeight: 600, height: '46px', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: 'none' }}
                 >
-                  Criar Minha Estampa ✨
+                  {dictionary?.postmatch?.step_115_btn_pattern || 'Criar Minha Estampa ✨'}
                 </button>
               </div>
             </motion.div>
@@ -1241,7 +1262,7 @@ export default function Home() {
             >
               <div style={{ padding: '2rem 2rem 0.5rem', textAlign: 'center' }}>
                 <p onClick={handleDevTap} style={{ fontSize: '0.65rem', fontWeight: 600, letterSpacing: '3px', textTransform: 'uppercase', color: 'var(--accent-magenta)', marginBottom: '8px', cursor: 'default', userSelect: 'none' }}>THE BRAND BOX</p>
-                <h2 style={{ fontSize: '1.6rem', marginBottom: '0.5rem' }}>Sua Estampa Exclusiva</h2>
+                <h2 style={{ fontSize: '1.6rem', marginBottom: '0.5rem' }}>{dictionary?.postmatch?.step_117_title || 'Sua Estampa Exclusiva'}</h2>
               </div>
 
               <div style={{ flex: 1, overflowY: 'auto', padding: '0 2rem', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '15px' }}>
@@ -1250,20 +1271,18 @@ export default function Home() {
                 {generatedPatterns.length === 0 && !patternLoading && (
                   <div style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: '20px' }}>
                     <p style={{ fontSize: '0.9rem', color: 'var(--text-secondary)', textAlign: 'center', maxWidth: '320px', lineHeight: 1.6 }}>
-                      Agora a mágica acontece! ✨<br/>
-                      <span style={{ fontSize: '0.8rem' }}>A <strong>The Brand Box</strong> vai criar uma estampa que traduz a essência da sua marca em cada detalhe.</span>
+                      {dictionary?.postmatch?.step_117_magic || 'Agora a mágica acontece! ✨'}<br/>
+                      <span style={{ fontSize: '0.8rem' }} dangerouslySetInnerHTML={{ __html: dictionary?.postmatch?.step_117_magic_desc || 'A <strong>The Brand Box</strong> vai criar uma estampa que traduz a essência da sua marca em cada detalhe.' }} />
                     </p>
                     {estampas.length > 0 && (
                       <div style={{ display: 'flex', gap: '8px', justifyContent: 'center', flexWrap: 'wrap' }}>
                         {estampas.slice(0, 3).map(e => (
                           <img key={e.id} src={`${e.image_url}?t=1`} style={{ width: '55px', height: '55px', borderRadius: '10px', objectFit: 'cover', border: '1px solid var(--border)', opacity: 0.7 }} />
                         ))}
-                        <p style={{ width: '100%', textAlign: 'center', fontSize: '0.6rem', color: '#bbb', marginTop: '2px' }}>Referências do seu universo visual</p>
+                        <p style={{ width: '100%', textAlign: 'center', fontSize: '0.6rem', color: '#bbb', marginTop: '2px' }}>{dictionary?.postmatch?.step_117_references || 'Referências do seu universo visual'}</p>
                       </div>
                     )}
-                    <button onClick={generatePatterns} className="btn-primary" style={{ background: 'var(--accent-turquoise)', padding: '12px 24px', borderRadius: '14px', fontSize: '0.95rem', fontWeight: 600, height: '46px', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: 'none' }}>
-                      ✨ Criar Minha Estampa
-                    </button>
+                    <button onClick={generatePatterns} className="btn-primary" style={{ background: 'var(--accent-turquoise)', padding: '12px 24px', borderRadius: '14px', fontSize: '0.95rem', fontWeight: 600, height: '46px', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: 'none' }}>{dictionary?.postmatch?.step_117_btn_create || '✨ Criar Minha Estampa'}</button>
                     {devMode && (
                       <button onClick={() => setStep(12)} style={{ fontSize: '0.7rem', color: '#f90', background: '#1a1a1a', border: '1px solid #f90', borderRadius: '6px', padding: '6px 14px', cursor: 'pointer', fontWeight: 700 }}>
                         ⚡ DEV: Pular estampa
@@ -1276,9 +1295,9 @@ export default function Home() {
                 {patternLoading && (
                   <div style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: '20px' }}>
                     <div style={{ width: '50px', height: '50px', border: '4px solid var(--border)', borderTop: '4px solid var(--accent-magenta)', borderRadius: '50%', animation: 'spin 1s linear infinite' }} />
-                    <p style={{ fontSize: '1.1rem', color: 'var(--text-primary)', fontWeight: 600 }}>Desenhando com carinho...</p>
+                    <p style={{ fontSize: '1.1rem', color: 'var(--text-primary)', fontWeight: 600 }}>{dictionary?.postmatch?.step_117_drawing || 'Desenhando com carinho...'}</p>
                     <p style={{ fontSize: '0.8rem', color: 'var(--text-secondary)', textAlign: 'center', lineHeight: 1.5, minHeight: '38px', transition: 'opacity 0.3s' }}>
-                      {PATTERN_PHRASES[patternPhraseIndex]}
+                      <span dangerouslySetInnerHTML={{ __html: patternPhrases[patternPhraseIndex] }} />
                     </p>
                   </div>
                 )}
@@ -1287,7 +1306,7 @@ export default function Home() {
                 {generatedPatterns.length > 0 && !patternLoading && (
                   <>
                     <p style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', textAlign: 'center' }}>
-                      Toque no cartão que mais combina com a sua marca
+                      {dictionary?.postmatch?.step_117_tap_card || 'Toque no cartão que mais combina com a sua marca'}
                     </p>
                     <div style={{ display: 'flex', gap: '20px', width: '100%', justifyContent: 'center' }}>
                       {generatedPatterns.slice(0, 2).map((p, i) => (
@@ -1337,22 +1356,18 @@ export default function Home() {
                         </div>
                       ))}
                     </div>
-                    <button onClick={generatePatterns} style={{ fontSize: '0.75rem', color: 'var(--accent-magenta)', background: 'none', border: 'none', cursor: 'pointer', textDecoration: 'underline', marginTop: '5px' }}>
-                      🔄 Gerar novas opções
-                    </button>
+                    <button onClick={generatePatterns} style={{ fontSize: '0.75rem', color: 'var(--accent-magenta)', background: 'none', border: 'none', cursor: 'pointer', textDecoration: 'underline', marginTop: '5px' }}>{dictionary?.postmatch?.step_117_btn_regenerate || '🔄 Gerar novas opções'}</button>
                   </>
                 )}
               </div>
 
               <div style={{ padding: '1.2rem', background: '#fff', borderTop: '1px solid var(--border)', zIndex: 10, display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '10px' }}>
-                <button onClick={() => setStep(11.5)} className="btn-secondary" style={{ padding: '12px 20px', borderRadius: '14px', fontSize: '0.92rem', fontWeight: 600, flex: '0 0 auto', height: '46px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>Voltar</button>
+                <button onClick={() => setStep(11.5)} className="btn-secondary" style={{ padding: '12px 20px', borderRadius: '14px', fontSize: '0.92rem', fontWeight: 600, flex: '0 0 auto', height: '46px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>{dictionary?.onboarding?.btn_back || 'Voltar'}</button>
                 <button 
                   onClick={() => setStep(12)} 
                   className="btn-primary" 
                   style={{ flex: 1, background: selectedPattern !== null ? 'var(--accent-magenta)' : '#ccc', pointerEvents: selectedPattern !== null ? 'auto' : 'none', padding: '12px 20px', borderRadius: '14px', fontSize: '0.92rem', fontWeight: 600, height: '46px', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: 'none' }}
-                >
-                  Ver Minha Placa ✨
-                </button>
+                >{dictionary?.postmatch?.step_117_btn_board || 'Ver Minha Placa ✨'}</button>
               </div>
             </motion.div>
           )}
@@ -1364,8 +1379,8 @@ export default function Home() {
               style={{ position: 'absolute', width: '100%', height: '100%', display: 'flex', flexDirection: 'column', background: '#fafafa', borderRadius: '24px', overflow: 'hidden', border: '1px solid var(--border)' }}
             >
               <div style={{ padding: '1.2rem', textAlign: 'center', borderBottom: '1px solid var(--border)', background: '#fff', zIndex: 10 }}>
-                <p style={{ color: 'var(--text-secondary)', textTransform: 'uppercase', fontSize: '0.7rem', letterSpacing: '3px', fontWeight: 700, marginBottom: '4px' }}>Identidade Visual</p>
-                <h2 style={{ fontSize: '1.5rem', color: 'var(--text-primary)' }}>Sua Placa da Marca</h2>
+                <p style={{ color: 'var(--text-secondary)', textTransform: 'uppercase', fontSize: '0.7rem', letterSpacing: '3px', fontWeight: 700, marginBottom: '4px' }}>{dictionary?.postmatch?.step_12_subtitle || 'Identidade Visual'}</p>
+                <h2 style={{ fontSize: '1.5rem', color: 'var(--text-primary)' }}>{dictionary?.postmatch?.step_12_title || 'Sua Placa da Marca'}</h2>
               </div>
 
               <div className="brand-board-container" style={{ flex: 1, overflowY: 'auto', display: 'flex', justifyContent: 'center', alignItems: 'flex-start', padding: '20px' }}>
@@ -1387,14 +1402,14 @@ export default function Home() {
                     })()} 
                     color={editData.corAtiva || '#d22f5a'}
                     patternImage={selectedPattern !== null && generatedPatterns[selectedPattern] && !generatedPatterns[selectedPattern]._devPlaceholder ? `data:${generatedPatterns[selectedPattern].mimeType};base64,${generatedPatterns[selectedPattern].base64}` : null}
-                    iconPath={getIconById(resultadoFinal?.estiloNome, selectedIcon)?.path || null}
+                    iconPath={getIconById(ESTILO_NOME_BY_ID[resultadoFinal?.estiloId] || resultadoFinal?.estiloNome, selectedIcon)?.path || null}
                   />
                 </div>
               </div>
 
               {/* Seletor de cor ao vivo */}
               <div style={{ padding: '10px 20px', background: '#fff', borderTop: '1px solid #f0f0f0', display: 'flex', alignItems: 'center', gap: '12px', justifyContent: 'center' }}>
-                <p style={{ fontSize: '0.65rem', color: 'var(--text-secondary)', textTransform: 'uppercase', letterSpacing: '1px', fontWeight: 600, whiteSpace: 'nowrap' }}>Cor Principal:</p>
+                <p style={{ fontSize: '0.65rem', color: 'var(--text-secondary)', textTransform: 'uppercase', letterSpacing: '1px', fontWeight: 600, whiteSpace: 'nowrap' }}>{dictionary?.postmatch?.step_12_main_color || 'Cor Principal:'}</p>
                 {(() => {
                   const sel = paletas.find(p => p.id === selectedPaleta);
                   const cores = sel?.paleta_hex || sel?.cores_hex || [];
@@ -1419,12 +1434,12 @@ export default function Home() {
 
               {/* Seletor de ícone da submarca */}
               {(() => {
-                const styleIcons = STYLE_ICONS[resultadoFinal?.estiloNome] || [];
+                const styleIcons = STYLE_ICONS[ESTILO_NOME_BY_ID[resultadoFinal?.estiloId] || resultadoFinal?.estiloNome] || [];
                 if (styleIcons.length === 0) return null;
                 const activeColor = editData.corAtiva || '#d22f5a';
                 return (
                   <div style={{ padding: '10px 20px', background: '#fff', borderTop: '1px solid #f0f0f0', display: 'flex', alignItems: 'center', gap: '10px', justifyContent: 'center' }}>
-                    <p style={{ fontSize: '0.65rem', color: 'var(--text-secondary)', textTransform: 'uppercase', letterSpacing: '1px', fontWeight: 600, whiteSpace: 'nowrap' }}>Ícone:</p>
+                    <p style={{ fontSize: '0.65rem', color: 'var(--text-secondary)', textTransform: 'uppercase', letterSpacing: '1px', fontWeight: 600, whiteSpace: 'nowrap' }}>{dictionary?.postmatch?.step_12_icon || 'Ícone:'}</p>
                     {/* opção nenhum */}
                     <div
                       onClick={() => setSelectedIcon(null)}
@@ -1463,7 +1478,7 @@ export default function Home() {
               })()}
 
               <div style={{ padding: '1.2rem', background: '#fff', borderTop: '1px solid var(--border)', zIndex: 10, display: 'flex', flexDirection: 'column', gap: '10px' }}>
-                 <button onClick={() => { setApprovalChecked(false); setStep(12.8); }} className="btn-primary" style={{ width: '100%', background: 'var(--accent-magenta)', padding: '12px 20px', borderRadius: '14px', fontSize: '0.92rem', fontWeight: 600, height: '46px', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: 'none' }}>Ver pacotes disponíveis ✨</button>
+                 <button onClick={() => { setApprovalChecked(false); setStep(12.8); }} className="btn-primary" style={{ width: '100%', background: 'var(--accent-magenta)', padding: '12px 20px', borderRadius: '14px', fontSize: '0.92rem', fontWeight: 600, height: '46px', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: 'none' }}>{dictionary?.postmatch?.step_12_btn_packages || 'Ver pacotes disponíveis ✨'}</button>
               </div>
             </motion.div>
           )}
@@ -1476,32 +1491,34 @@ export default function Home() {
             >
               <div style={{ padding: '2rem 1.5rem', height: '100%', display: 'flex', flexDirection: 'column', overflowY: 'auto', gap: '1.2rem' }}>
                 <div style={{ textAlign: 'center' }}>
-                  <p style={{ color: 'var(--text-secondary)', textTransform: 'uppercase', fontSize: '0.72rem', letterSpacing: '3px', fontWeight: 600, marginBottom: '0.5rem' }}>antes de continuar</p>
-                  <h2 style={{ fontSize: '1.5rem', color: 'var(--text-primary)', lineHeight: 1.3 }}>Confirme sua identidade visual</h2>
+                  <p style={{ color: 'var(--text-secondary)', textTransform: 'uppercase', fontSize: '0.72rem', letterSpacing: '3px', fontWeight: 600, marginBottom: '0.5rem' }}>{dictionary?.postmatch?.step_128_before_continue || 'antes de continuar'}</p>
+                  <h2 style={{ fontSize: '1.5rem', color: 'var(--text-primary)', lineHeight: 1.3 }}>{dictionary?.postmatch?.step_128_confirm_identity || 'Confirme sua identidade visual'}</h2>
                 </div>
 
                 {/* Resumo do que foi criado */}
                 <div style={{ background: '#fff', borderRadius: '16px', padding: '1.2rem', border: '1px solid var(--border)' }}>
-                  <p style={{ fontSize: '0.7rem', color: 'var(--text-secondary)', textTransform: 'uppercase', letterSpacing: '2px', fontWeight: 600, marginBottom: '0.75rem' }}>Sua marca</p>
+                  <p style={{ fontSize: '0.7rem', color: 'var(--text-secondary)', textTransform: 'uppercase', letterSpacing: '2px', fontWeight: 600, marginBottom: '0.75rem' }}>{dictionary?.postmatch?.step_128_your_brand || 'Sua marca'}</p>
                   <p style={{ fontSize: '1.3rem', fontWeight: 700, color: 'var(--text-primary)', marginBottom: '0.25rem' }}>{formData.marca || 'Sua Marca'}</p>
-                  <p style={{ fontSize: '0.85rem', color: 'var(--text-secondary)' }}>Estilo: <strong>{resultadoFinal?.estiloNome || '—'}</strong></p>
-                  {editData.tagline ? <p style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', marginTop: '4px' }}>Tagline: <strong>{editData.tagline}</strong></p> : null}
+                  <p style={{ fontSize: '0.85rem', color: 'var(--text-secondary)' }}>{dictionary?.postmatch?.step_128_style || 'Estilo:'} <strong>{resultadoFinal?.estiloNome || '—'}</strong></p>
+                  {editData.tagline ? <p style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', marginTop: '4px' }}>{dictionary?.postmatch?.step_128_tagline || 'Tagline:'} <strong>{editData.tagline}</strong></p> : null}
                   {editData.corAtiva ? (
                     <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginTop: '10px' }}>
                       <div style={{ width: '20px', height: '20px', borderRadius: '50%', background: editData.corAtiva, border: '1px solid #ddd' }} />
-                      <span style={{ fontSize: '0.82rem', color: 'var(--text-secondary)' }}>Cor principal: <strong>{editData.corAtiva}</strong></span>
+                      <span style={{ fontSize: '0.82rem', color: 'var(--text-secondary)' }}>{dictionary?.postmatch?.step_128_main_color || 'Cor principal:'} <strong>{editData.corAtiva}</strong></span>
                     </div>
                   ) : null}
                 </div>
 
                 {/* Aviso importante */}
                 <div style={{ background: '#fff8f0', borderRadius: '14px', padding: '1rem 1.2rem', border: '1px solid #f5d9b8', display: 'flex', flexDirection: 'column', gap: '8px' }}>
-                  <p style={{ fontSize: '0.82rem', color: '#7a4a1e', lineHeight: 1.6 }}>
-                    ⚠️ <strong>Atenção:</strong> o modelo visual acima foi gerado com base nas suas respostas. Ao prosseguir, você confirma que aprova esta base como ponto de partida para a sua marca.
-                  </p>
-                  <p style={{ fontSize: '0.78rem', color: '#7a4a1e', opacity: 0.85, lineHeight: 1.5, borderTop: '1px dashed #ebd2b8', paddingTop: '8px' }}>
-                    💡 <strong>Não se preocupe:</strong> na sua Área de Entrega (pós-pagamento), você poderá editar a sua Tagline, ajustar a Cor de destaque e atualizar os seus Contatos sempre que quiser!
-                  </p>
+                  <p 
+                    style={{ fontSize: '0.82rem', color: '#7a4a1e', lineHeight: 1.6 }}
+                    dangerouslySetInnerHTML={{ __html: dictionary?.postmatch?.step_128_attention || '⚠️ <strong>Atenção:</strong> o modelo visual acima foi gerado com base nas suas respostas. Ao prosseguir, você confirma que aprova esta base como ponto de partida para a sua marca.' }}
+                  />
+                  <p 
+                    style={{ fontSize: '0.78rem', color: '#7a4a1e', opacity: 0.85, lineHeight: 1.5, borderTop: '1px dashed #ebd2b8', paddingTop: '8px' }}
+                    dangerouslySetInnerHTML={{ __html: dictionary?.postmatch?.step_128_dont_worry || '💡 <strong>Não se preocupe:</strong> na sua Área de Entrega (pós-pagamento), você poderá editar a sua Tagline, ajustar a Cor de destaque e atualizar os seus Contatos sempre que quiser!' }}
+                  />
                 </div>
 
                 {/* Checkbox de aprovação */}
@@ -1513,7 +1530,7 @@ export default function Home() {
                     style={{ width: '18px', height: '18px', marginTop: '2px', accentColor: 'var(--accent-turquoise)', flexShrink: 0 }}
                   />
                   <span style={{ fontSize: '0.88rem', color: 'var(--text-primary)', lineHeight: 1.6 }}>
-                    Aprovo o modelo gerado e entendo que os próximos passos dependem do plano escolhido.
+                    {dictionary?.postmatch?.step_128_approval || 'Aprovo o modelo gerado e entendo que os próximos passos dependem do plano escolhido.'}
                   </span>
                 </label>
 
@@ -1524,10 +1541,10 @@ export default function Home() {
                     className="btn-primary"
                     style={{ width: '100%', background: approvalChecked ? 'var(--accent-magenta)' : '#ccc', pointerEvents: approvalChecked ? 'auto' : 'none', padding: '12px 20px', borderRadius: '14px', fontSize: '0.92rem', fontWeight: 600, height: '46px', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: 'none', transition: 'background 0.2s' }}
                   >
-                    Escolher meu plano ✨
+                    {dictionary?.postmatch?.step_128_btn_choose_plan || 'Escolher meu plano ✨'}
                   </button>
                   <button onClick={() => setStep(12)} style={{ background: 'none', border: 'none', color: 'var(--text-secondary)', fontSize: '0.82rem', cursor: 'pointer', textAlign: 'center' }}>
-                    ← Voltar e ajustar
+                    {dictionary?.postmatch?.step_128_btn_back || '← Voltar e ajustar'}
                   </button>
                 </div>
               </div>
@@ -1544,9 +1561,9 @@ export default function Home() {
                 
                 {/* Cabeçalho */}
                 <div style={{ textAlign: 'center', marginBottom: '1.5rem' }}>
-                  <p style={{ color: 'var(--text-secondary)', textTransform: 'uppercase', fontSize: '0.7rem', letterSpacing: '3px', fontWeight: 700, marginBottom: '0.5rem' }}>Clareza criativa, mesmo para quem nunca criou uma marca antes.</p>
-                  <h2 style={{ fontSize: '1.6rem', color: 'var(--text-primary)', marginBottom: '0.5rem', lineHeight: 1.3 }}>Escolha a experiência ideal para sua marca.<br/>Do essencial ao extraordinário.</h2>
-                  <p style={{ color: 'var(--text-secondary)', fontSize: '0.9rem', lineHeight: 1.6 }}>Sua identidade visual está pronta para deixar de ser ideia e começar a existir de verdade.</p>
+                  <p style={{ color: 'var(--text-secondary)', textTransform: 'uppercase', fontSize: '0.7rem', letterSpacing: '3px', fontWeight: 700, marginBottom: '0.5rem' }}>{dictionary?.checkout?.header_pretitle || 'Clareza criativa, mesmo para quem nunca criou uma marca antes.'}</p>
+                  <h2 style={{ fontSize: '1.6rem', color: 'var(--text-primary)', marginBottom: '0.5rem', lineHeight: 1.3 }}>{dictionary?.checkout?.header_title ? <span dangerouslySetInnerHTML={{ __html: dictionary.checkout.header_title }} /> : <>Escolha a experiência ideal para sua marca.<br/>Do essencial ao extraordinário.</>}</h2>
+                  <p style={{ color: 'var(--text-secondary)', fontSize: '0.9rem', lineHeight: 1.6 }}>{dictionary?.checkout?.header_subtitle || 'Sua identidade visual está pronta para deixar de ser ideia e começar a existir de verdade.'}</p>
                 </div>
 
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
@@ -1556,13 +1573,13 @@ export default function Home() {
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '8px' }}>
                       <div>
                         <p style={{ fontSize: '0.7rem', color: 'var(--text-secondary)', letterSpacing: '2px', textTransform: 'uppercase', fontWeight: 600, marginBottom: '2px' }}>brand box</p>
-                        <h3 style={{ color: 'var(--text-primary)', fontSize: '1.2rem', fontWeight: 700 }}>ESSENCE</h3>
+                        <h3 style={{ color: 'var(--text-primary)', fontSize: '1.2rem', fontWeight: 700 }}>{dictionary?.checkout?.plan_essence_title || 'ESSENCE'}</h3>
                       </div>
                       <span style={{ fontWeight: 700, color: 'var(--text-primary)', fontSize: '1.3rem', whiteSpace: 'nowrap' }}>R$ 497</span>
                     </div>
-                    <span style={{ display: 'inline-block', background: '#e8f7f5', color: '#1a7a6e', fontSize: '0.7rem', fontWeight: 700, borderRadius: '20px', padding: '3px 10px', letterSpacing: '0.5px', marginBottom: '10px' }}>Sua marca completa</span>
+                    <span style={{ display: 'inline-block', background: '#e8f7f5', color: '#1a7a6e', fontSize: '0.7rem', fontWeight: 700, borderRadius: '20px', padding: '3px 10px', letterSpacing: '0.5px', marginBottom: '10px' }}>{dictionary?.checkout?.plan_essence_badge || 'Sua marca completa'}</span>
                     <ul style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', margin: '0 0 12px 0', paddingLeft: '0', display: 'flex', flexDirection: 'column', gap: '5px', listStyle: 'none' }}>
-                      {['Logo tipográfica + variações', 'Estampa exclusiva da marca', 'Manifesto e Tom de Voz', 'Paleta de cores + tipografia', 'Guia da Marca completo (PDF)'].map(i => (
+                      {(dictionary?.checkout?.plan_essence_features || ['Logo tipográfica + variações', 'Estampa exclusiva da marca', 'Manifesto e Tom de Voz', 'Paleta de cores + tipografia', 'Guia da Marca completo (PDF)']).map(i => (
                         <li key={i} style={{ display: 'flex', alignItems: 'flex-start', gap: '8px' }}>
                           <span style={{ color: 'var(--accent-turquoise)', fontWeight: 700, flexShrink: 0, marginTop: '2px' }}>✔</span>
                           <span>{i}</span>
@@ -1570,10 +1587,10 @@ export default function Home() {
                       ))}
                     </ul>
                     <div style={{ background: '#f7f9ff', borderRadius: '10px', padding: '10px 12px', marginBottom: '10px', fontSize: '0.8rem', color: '#3a5a8a', lineHeight: 1.5 }}>
-                      ✨ O essencial para começar sua marca
+                      {dictionary?.checkout?.plan_essence_highlight || '✨ O essencial para começar sua marca'}
                     </div>
                     <div style={{ fontSize: '0.72rem', color: '#888', background: '#fafafa', borderRadius: '8px', padding: '8px 10px', marginBottom: '12px', border: '1px solid #eee', lineHeight: 1.4 }}>
-                      ⚠️ <strong>Aviso:</strong> Este plano é focado em design tipográfico moderno e estampa geométrica/abstrata do sistema. Não inclui ilustrações exclusivas personalizadas, logomarcas desenhadas à mão ou padrões ilustrados de rodapé.
+                      <span dangerouslySetInnerHTML={{ __html: dictionary?.checkout?.plan_essence_warning || '⚠️ <strong>Aviso:</strong> Este plano é focado em design tipográfico moderno e estampa geométrica/abstrata do sistema. Não inclui ilustrações exclusivas personalizadas, logomarcas desenhadas à mão ou padrões ilustrados de rodapé.' }} />
                     </div>
                     <button
                       className="btn-secondary"
@@ -1591,7 +1608,7 @@ export default function Home() {
                           pattern: selectedPattern !== null && generatedPatterns[selectedPattern] && !generatedPatterns[selectedPattern]._devPlaceholder
                             ? { mimeType: generatedPatterns[selectedPattern].mimeType, base64: generatedPatterns[selectedPattern].base64 }
                             : null,
-                          iconPath: getIconById(resultadoFinal?.estiloNome, selectedIcon)?.path || null,
+                          iconPath: getIconById(ESTILO_NOME_BY_ID[resultadoFinal?.estiloId] || resultadoFinal?.estiloNome, selectedIcon)?.path || null,
                           patternGenerationCount,
                           estampas,
                         };
@@ -1634,19 +1651,19 @@ export default function Home() {
                       }
                     }}
                   >
-                    {loadingCheckout === 'starter' ? 'Processando...' : 'Começar minha marca'}
+                    {loadingCheckout === 'starter' ? (dictionary?.checkout?.btn_processing || 'Processando...') : (dictionary?.checkout?.plan_essence_btn || 'Começar minha marca')}
                   </button>
                   </motion.div>
 
 
                   {/* PLANO 2 — Complete (DESTAQUE) */}
                   <motion.div whileHover={{ scale: 1.01 }} style={{ background: '#f5d6e8', borderRadius: '16px', padding: '20px', color: '#3a1a2e', boxShadow: '0 8px 30px rgba(220,52,149,0.1)', position: 'relative', overflow: 'hidden' }}>
-                    <div style={{ position: 'absolute', top: '12px', right: '12px', background: 'rgba(220,52,149,0.15)', borderRadius: '20px', padding: '3px 10px', fontSize: '0.7rem', fontWeight: 700, letterSpacing: '1px', color: 'var(--accent-magenta)' }}>MAIS ESCOLHIDO</div>
+                    <div style={{ position: 'absolute', top: '12px', right: '12px', background: 'rgba(220,52,149,0.15)', borderRadius: '20px', padding: '3px 10px', fontSize: '0.7rem', fontWeight: 700, letterSpacing: '1px', color: 'var(--accent-magenta)' }}>{dictionary?.checkout?.plan_studio_badge || 'MAIS ESCOLHIDO'}</div>
                     <div style={{ marginBottom: '8px', paddingRight: '90px' }}>
                       <p style={{ fontSize: '0.7rem', color: 'var(--accent-magenta)', letterSpacing: '2px', textTransform: 'uppercase', fontWeight: 600, marginBottom: '2px' }}>brand box</p>
-                      <h3 style={{ color: '#3a1a2e', fontSize: '1.2rem', fontWeight: 700 }}>STUDIO</h3>
+                      <h3 style={{ color: '#3a1a2e', fontSize: '1.2rem', fontWeight: 700 }}>{dictionary?.checkout?.plan_studio_title || 'STUDIO'}</h3>
                     </div>
-                    <span style={{ display: 'inline-block', background: 'rgba(220,52,149,0.12)', color: 'var(--accent-magenta)', fontSize: '0.7rem', fontWeight: 700, borderRadius: '20px', padding: '3px 10px', letterSpacing: '0.5px', marginBottom: '10px' }}>Marca + Digital + Impressos</span>
+                    <span style={{ display: 'inline-block', background: 'rgba(220,52,149,0.12)', color: 'var(--accent-magenta)', fontSize: '0.7rem', fontWeight: 700, borderRadius: '20px', padding: '3px 10px', letterSpacing: '0.5px', marginBottom: '10px' }}>{dictionary?.checkout?.plan_studio_subbadge || 'Marca + Digital + Impressos'}</span>
                     <span style={{ fontWeight: 700, fontSize: '1.4rem', display: 'block', marginBottom: '10px', color: '#3a1a2e' }}>
                       R$ {(() => {
                         const temCaderneta = papelariaSelecionada.includes("Caderneta de Saúde");
@@ -1655,15 +1672,13 @@ export default function Home() {
                         return 897 + extrasCount * 30 + (temCaderneta ? 180 : 0);
                       })()}
                       {(papelariaSelecionada.filter(item => item !== "Caderneta de Saúde").length > 5 || papelariaSelecionada.includes("Caderneta de Saúde")) && (
-                        <span style={{ fontSize: '0.8rem', color: 'var(--accent-magenta)', fontWeight: 700, marginLeft: '8px' }}>(+ adicionais)</span>
+                        <span style={{ fontSize: '0.8rem', color: 'var(--accent-magenta)', fontWeight: 700, marginLeft: '8px' }}>{dictionary?.checkout?.plan_studio_adicionais || '(+ adicionais)'}</span>
                       )}
                     </span>
                     <ul style={{ fontSize: '0.85rem', margin: '0 0 12px 0', paddingLeft: '0', display: 'flex', flexDirection: 'column', gap: '5px', listStyle: 'none' }}>
-                      {['Tudo do Brand Box Starter', 'PAPELARIA', 'Pack completo para Instagram', 'Cartão Digital + Assinatura de E-mail'].map(i => {
-                        const isPapelaria = i === 'PAPELARIA';
-                        const text = isPapelaria 
-                          ? (papelariaSelecionada.length > 0 ? `${papelariaSelecionada.length} itens impressos marcados` : '5 Itens impressos à escolha')
-                          : i;
+                      {(dictionary?.checkout?.plan_studio_features || ['Tudo do Brand Box Starter', 'PAPELARIA', 'Pack completo para Instagram', 'Cartão Digital + Assinatura de E-mail']).map(i => {
+                        const isPapelaria = i === 'PAPELARIA' || i === 'STATIONERY';
+                        const text = isPapelaria ? (papelariaSelecionada.length > 0 ? (dictionary?.checkout?.plan_studio_bonus_selected?.replace('{count}', papelariaSelecionada.length) || `${papelariaSelecionada.length} itens impressos marcados`) : (dictionary?.checkout?.plan_studio_bonus_unselected || '5 Itens impressos à escolha')) : i;
                         return (
                           <li key={i} style={{ display: 'flex', alignItems: 'flex-start', gap: '8px', color: '#4a1f3a' }}>
                             {!text.startsWith('✨') && <span style={{ color: 'var(--accent-magenta)', fontWeight: 700, flexShrink: 0, marginTop: '2px' }}>✔</span>}
@@ -1671,7 +1686,7 @@ export default function Home() {
                               <span>{text}</span>
                               {isPapelaria && (
                                 <button onClick={() => setShowPediatriaModal(true)} style={{ background: 'rgba(220,52,149,0.1)', color: 'var(--accent-magenta)', border: 'none', padding: '3px 8px', borderRadius: '10px', fontSize: '0.7rem', fontWeight: 700, cursor: 'pointer', marginLeft: 'auto' }}>
-                                  👀 Selecionar itens
+                                  {dictionary?.checkout?.plan_studio_btn_bonus || '👀 Selecionar itens'}
                                 </button>
                               )}
                             </div>
@@ -1680,10 +1695,10 @@ export default function Home() {
                       })}
                     </ul>
                     <div style={{ background: 'rgba(255,255,255,0.6)', borderRadius: '10px', padding: '10px 12px', marginBottom: '10px', fontSize: '0.8rem', color: '#5a2a4a', lineHeight: 1.5 }}>
-                      ✨ Sua marca pronta para o mundo
+                      {dictionary?.checkout?.plan_studio_highlight || '✨ Sua marca pronta para o mundo'}
                     </div>
                     <div style={{ fontSize: '0.72rem', color: '#6a3d5a', background: 'rgba(255,255,255,0.4)', borderRadius: '8px', padding: '8px 10px', marginBottom: '12px', border: '1px solid rgba(220,52,149,0.15)', lineHeight: 1.4 }}>
-                      ⚠️ <strong>Aviso:</strong> Este plano é focado em layouts digitais e estruturação moderna de papelaria. Não inclui desenhos/ilustrações de rodapé sob medida, nem logotipos ilustrados à mão (estas opções de arte exclusiva podem ser solicitadas pós-checkout ou contratando o plano <em>Signature</em>).
+                      <span dangerouslySetInnerHTML={{ __html: dictionary?.checkout?.plan_studio_warning || '⚠️ <strong>Aviso:</strong> Este plano é focado em layouts digitais e estruturação moderna de papelaria. Não inclui desenhos/ilustrações de rodapé sob medida, nem logotipos ilustrados à mão (estas opções de arte exclusiva podem ser solicitadas pós-checkout ou contratando o plano <em>Signature</em>).' }} />
                     </div>
                     <button
                       className="btn-primary"
@@ -1711,7 +1726,7 @@ export default function Home() {
                             pattern: selectedPattern !== null && generatedPatterns[selectedPattern] && !generatedPatterns[selectedPattern]._devPlaceholder
                               ? { mimeType: generatedPatterns[selectedPattern].mimeType, base64: generatedPatterns[selectedPattern].base64 }
                               : null,
-                            iconPath: getIconById(resultadoFinal?.estiloNome, selectedIcon)?.path || null,
+                            iconPath: getIconById(ESTILO_NOME_BY_ID[resultadoFinal?.estiloId] || resultadoFinal?.estiloNome, selectedIcon)?.path || null,
                             patternGenerationCount,
                             estampas,
                             papelariaSelecionada,
@@ -1754,7 +1769,7 @@ export default function Home() {
                         }
                       }}
                     >
-                      {loadingCheckout === 'pro' ? 'Processando...' : 'Quero minha marca completa'}
+                      {loadingCheckout === 'pro' ? (dictionary?.checkout?.btn_processing || 'Processando...') : (dictionary?.checkout?.plan_studio_btn || 'Quero minha marca completa')}
                     </button>
                   </motion.div>
 
@@ -1763,32 +1778,32 @@ export default function Home() {
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '12px' }}>
                       <div>
                         <p style={{ fontSize: '0.7rem', color: 'rgba(255,255,255,0.5)', letterSpacing: '2px', textTransform: 'uppercase', fontWeight: 600, marginBottom: '2px' }}>brand box</p>
-                        <h3 style={{ color: '#fff', fontSize: '1.2rem', fontWeight: 700 }}>SIGNATURE</h3>
-                        <p style={{ color: 'rgba(255,255,255,0.65)', fontSize: '0.82rem', marginTop: '4px', lineHeight: 1.5 }}>✨ Uma experiência exclusiva criada junto com uma designer</p>
+                        <h3 style={{ color: '#fff', fontSize: '1.2rem', fontWeight: 700 }}>{dictionary?.checkout?.plan_sig_title || 'SIGNATURE'}</h3>
+                        <p style={{ color: 'rgba(255,255,255,0.65)', fontSize: '0.82rem', marginTop: '4px', lineHeight: 1.5 }}>{dictionary?.checkout?.plan_sig_badge || '✨ Uma experiência exclusiva criada junto com uma designer'}</p>
                       </div>
-                      <span style={{ fontWeight: 700, color: '#fff', fontSize: '1rem', whiteSpace: 'nowrap', opacity: 0.8 }}>A partir de<br/>R$ 2.900</span>
+                      <span style={{ fontWeight: 700, color: '#fff', fontSize: '1rem', whiteSpace: 'nowrap', opacity: 0.8 }}>{dictionary?.checkout?.plan_sig_price ? <span dangerouslySetInnerHTML={{ __html: dictionary.checkout.plan_sig_price }} /> : <>A partir de<br/>R$ 2.900</>}</span>
                     </div>
                     <ul style={{ fontSize: '0.85rem', color: 'rgba(255,255,255,0.7)', margin: '0 0 12px 0', paddingLeft: '0', display: 'flex', flexDirection: 'column', gap: '5px', listStyle: 'none' }}>
-                      {[
+                      {(dictionary?.checkout?.plan_sig_features || [
                         'Direção criativa personalizada',
                         'Ajustes e refinamentos manuais ilimitados',
                         'Logotipo ilustrado ou símbolo desenhado sob medida',
                         'Desenhos e ilustrações unificadoras exclusivas (ex: detalhes de rodapé para impressos)',
                         'Aplicações exclusivas sob medida para sua atuação',
                         'Acompanhamento próximo pelo WhatsApp'
-                      ].map(i => <li key={i} style={{ display: 'flex', alignItems: 'flex-start', gap: '8px' }}><span style={{ color: 'rgba(255,255,255,0.4)', fontWeight: 700, flexShrink: 0, marginTop: '2px' }}>✔</span><span>{i}</span></li>)}
+                      ]).map(i => <li key={i} style={{ display: 'flex', alignItems: 'flex-start', gap: '8px' }}><span style={{ color: 'rgba(255,255,255,0.4)', fontWeight: 700, flexShrink: 0, marginTop: '2px' }}>✔</span><span>{i}</span></li>)}
                     </ul>
                     <a
-                      href={`https://wa.me/4793630746?text=Olá!%20Quero%20saber%20mais%20sobre%20o%20Brand%20Box%20Signature%20para%20a%20marca%20${encodeURIComponent(formData.marca || '')}`}
+                      href={`https://wa.me/4793630746?text=${encodeURIComponent(dictionary?.checkout?.plan_sig_msg?.replace('{marca}', formData.marca) || `Olá! Quero saber mais sobre o Brand Box Signature para a marca ${formData.marca || ''}`)}`}
                       target="_blank" rel="noopener noreferrer"
                       style={{ display: 'block', width: '100%', padding: '12px', background: '#25D366', color: '#fff', border: 'none', borderRadius: '30px', cursor: 'pointer', fontSize: '0.9rem', fontWeight: 700, letterSpacing: '0.5px', textAlign: 'center', textDecoration: 'none' }}
                     >
-                      Falar no WhatsApp
+                      {dictionary?.checkout?.plan_sig_btn || 'Falar no WhatsApp'}
                     </a>
                   </motion.div>
 
                   {/* Micro copy final */}
-                  <p style={{ textAlign: 'center', color: 'var(--text-secondary)', fontSize: '0.82rem', padding: '0.5rem 1rem 0.5rem', lineHeight: 1.6 }}>Não precisa saber por onde começar.<br/>Eu te guio em cada etapa.</p>
+                  <p style={{ textAlign: 'center', color: 'var(--text-secondary)', fontSize: '0.82rem', padding: '0.5rem 1rem 0.5rem', lineHeight: 1.6 }}>{dictionary?.checkout?.footer_msg ? <span dangerouslySetInnerHTML={{ __html: dictionary.checkout.footer_msg }} /> : <>Não precisa saber por onde começar.<br/>Eu te guio em cada etapa.</>}</p>
 
                   <button
                     onClick={() => {
@@ -1801,7 +1816,7 @@ export default function Home() {
                     }}
                     style={{ background: 'none', border: 'none', color: 'var(--text-secondary)', fontSize: '0.8rem', cursor: 'pointer', textDecoration: 'underline', textAlign: 'center', paddingBottom: '1.5rem' }}
                   >
-                    Recomeçar do zero
+                    {dictionary?.checkout?.footer_btn_restart || 'Recomeçar do zero'}
                   </button>
 
                 </div>
@@ -1823,14 +1838,14 @@ export default function Home() {
                 style={{ background: '#fff', borderRadius: '24px', padding: '2rem', maxWidth: '360px', width: '100%', textAlign: 'center', boxShadow: '0 20px 50px rgba(0,0,0,0.15)' }}
               >
                 <p style={{ fontSize: '2rem', marginBottom: '0.5rem' }}>✨</p>
-                <h3 style={{ fontSize: '1.3rem', color: 'var(--text-primary)', marginBottom: '0.5rem' }}>Você tem um progresso salvo!</h3>
+                <h3 style={{ fontSize: '1.3rem', color: 'var(--text-primary)', marginBottom: '0.5rem' }}>{dictionary?.onboarding?.resume_title || 'Você tem um progresso salvo!'}</h3>
                 {savedProgress.formData?.marca && (
                   <p style={{ fontSize: '0.9rem', color: 'var(--accent-magenta)', fontWeight: 600, marginBottom: '0.25rem' }}>
                     {savedProgress.formData.marca}
                   </p>
                 )}
                 <p style={{ fontSize: '0.82rem', color: 'var(--text-secondary)', marginBottom: '1.75rem', lineHeight: 1.5 }}>
-                  Quer continuar de onde parou ou começar uma nova marca?
+                  {dictionary?.onboarding?.resume_subtitle || 'Quer continuar de onde parou ou começar uma nova marca?'}
                 </p>
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
                   <button
@@ -1838,7 +1853,7 @@ export default function Home() {
                     className="btn-primary"
                     style={{ width: '100%', background: 'var(--accent-turquoise)' }}
                   >
-                    Continuar de onde parei
+                    {dictionary?.onboarding?.resume_btn_continue || 'Continuar de onde parei'}
                   </button>
                   <button
                     onClick={() => {
@@ -1853,7 +1868,7 @@ export default function Home() {
                     className="btn-secondary"
                     style={{ width: '100%' }}
                   >
-                    Começar do zero
+                    {dictionary?.onboarding?.resume_btn_restart || 'Começar do zero'}
                   </button>
                 </div>
               </motion.div>
@@ -1869,8 +1884,8 @@ export default function Home() {
                     
                     <div style={{ padding: '20px', background: 'var(--accent-magenta)', color: '#fff', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                        <div>
-                          <h2 style={{ fontSize: '1.5rem', marginBottom: '5px' }}>Bônus: Seus Impressos</h2>
-                          <p style={{ opacity: 0.8, fontSize: '0.9rem' }}>Escolha seus 5 impressos gratuitos. Itens adicionais saem por R$30 cada!</p>
+                          <h2 style={{ fontSize: '1.5rem', marginBottom: '5px' }}>{dictionary?.checkout?.modal_bonus_title || 'Bônus: Seus Impressos'}</h2>
+                          <p style={{ opacity: 0.8, fontSize: '0.9rem' }}>{dictionary?.checkout?.modal_bonus_subtitle || 'Escolha seus 5 impressos gratuitos. Itens adicionais saem por R$30 cada!'}</p>
                        </div>
                        <button onClick={() => setShowPediatriaModal(false)} style={{ background: 'transparent', border: 'none', color: '#fff', fontSize: '2rem', cursor: 'pointer' }}>×</button>
                     </div>
@@ -1917,16 +1932,16 @@ export default function Home() {
                                     if (e.target.checked) setPapelariaSelecionada([...papelariaSelecionada, item]);
                                     else setPapelariaSelecionada(papelariaSelecionada.filter(i => i !== item));
                                   }} style={{ width: '18px', height: '18px', accentColor: isCaderneta ? '#e6af2e' : 'var(--accent-magenta)' }} />
-                                  <span style={{ fontWeight: isCaderneta ? 700 : 500, color: isCaderneta ? '#5c4308' : 'inherit' }}>{item}</span>
+                                  <span style={{ fontWeight: isCaderneta ? 700 : 500, color: isCaderneta ? '#5c4308' : 'inherit' }}>{dictionary?.papelaria?.[item] || item}</span>
                                   {isCaderneta && (
                                     <span style={{ marginLeft: 'auto', background: 'linear-gradient(90deg, #e6af2e, #ffda73)', color: '#3a2700', fontSize: '0.7rem', fontWeight: 800, padding: '3px 8px', borderRadius: '20px', letterSpacing: '0.5px', textTransform: 'uppercase' }}>
-                                      👑 PREMIUM — 124 Págs
+                                      {dictionary?.checkout?.modal_bonus_premium || '👑 PREMIUM — 124 Págs'}
                                     </span>
                                   )}
                                </div>
                                {isCaderneta && (
                                  <div style={{ paddingLeft: '28px', fontSize: '0.78rem', color: '#7a5e1d', lineHeight: 1.4, textAlign: 'left' }}>
-                                   Adicional exclusivo: <strong>+R$ 180,00</strong>. Ideal para acompanhamento completo do bebê. <em>Não consome os 5 bônus grátis!</em>
+                                   <span dangerouslySetInnerHTML={{ __html: dictionary?.checkout?.modal_bonus_premium_info || 'Adicional exclusivo: <strong>+R$ 180,00</strong>. Ideal para acompanhamento completo do bebê. <em>Não consome os 5 bônus grátis!</em>' }} />
                                  </div>
                                )}
                             </label>
@@ -1943,13 +1958,13 @@ export default function Home() {
                             return (
                               <>
                                 <span style={{ fontWeight: 700, color: 'var(--text-primary)' }}>
-                                  Selecionados: {itensNormais.length} de 5 grátis {temCaderneta && `(+ 1 Item Premium)`}
+                                  {dictionary?.checkout?.modal_bonus_selected?.replace('{count}', itensNormais.length)?.replace('{premium_text}', temCaderneta ? (dictionary?.checkout?.modal_bonus_premium_text || '(+ 1 Item Premium)') : '') || `Selecionados: ${itensNormais.length} de 5 grátis ${temCaderneta ? ' (+ 1 Item Premium)' : ''}`}
                                 </span>
                                 {(extrasCount > 0 || temCaderneta) && (
                                   <div style={{ fontSize: '0.8rem', color: 'var(--accent-magenta)', fontWeight: 700, marginTop: '2px' }}>
-                                    {extrasCount > 0 && `+${extrasCount} extra(s) (+R$ ${extrasCount * 30})`}
-                                    {extrasCount > 0 && temCaderneta && ' e '}
-                                    {temCaderneta && `+1 Item Premium (+R$ 180)`}
+                                    {extrasCount > 0 && (dictionary?.checkout?.modal_bonus_extra?.replace('{count}', extrasCount)?.replace('{price}', extrasCount * 30) || `+${extrasCount} extra(s) (+R$ ${extrasCount * 30})`)}
+                                    {extrasCount > 0 && temCaderneta && (dictionary?.checkout?.modal_bonus_and || ' e ')}
+                                    {temCaderneta && (dictionary?.checkout?.modal_bonus_premium_price || '+1 Item Premium (+R$ 180)')}
                                   </div>
                                 )}
                               </>
@@ -1960,10 +1975,10 @@ export default function Home() {
                            const todos = lista.length === papelariaSelecionada.length;
                            setPapelariaSelecionada(todos ? [] : [...lista]);
                          }} style={{ display: 'block', marginTop: '4px', background: 'none', border: 'none', color: 'var(--accent-magenta)', fontSize: '0.75rem', fontWeight: 700, cursor: 'pointer', padding: 0, textDecoration: 'underline' }}>
-                           {(isSaude ? PAPELARIA_CLINICA : PAPELARIA_INSTITUCIONAL).length === papelariaSelecionada.length ? 'Desmarcar todos' : 'Marcar todos'}
+                           {(isSaude ? PAPELARIA_CLINICA : PAPELARIA_INSTITUCIONAL).length === papelariaSelecionada.length ? (dictionary?.checkout?.modal_bonus_uncheck_all || 'Desmarcar todos') : (dictionary?.checkout?.modal_bonus_check_all || 'Marcar todos')}
                          </button>
                        </div>
-                       <button onClick={() => setShowPediatriaModal(false)} className="btn-primary" style={{ background: 'var(--accent-magenta)', width: '250px' }}>Salvar Escolhas</button>
+                       <button onClick={() => setShowPediatriaModal(false)} className="btn-primary" style={{ background: 'var(--accent-magenta)', width: '250px' }}>{dictionary?.checkout?.modal_bonus_btn_save || 'Salvar Escolhas'}</button>
                     </div>
 
                  </motion.div>

@@ -21,7 +21,7 @@ import PrenatalPage1 from './PrenatalPage1';
 import PrenatalPage2 from './PrenatalPage2';
 import PrenatalPage3 from './PrenatalPage3';
 import PrenatalPage4 from './PrenatalPage4';
-import { STYLE_ICONS } from '../../../lib/styleIcons';
+import { STYLE_ICONS, ESTILO_NOME_BY_ID } from '../../../lib/styleIcons';
 import FONT_MAP from '../../../lib/fontMap';
 import FolderVacinaPage1 from './FolderVacinaPage1';
 import FolderVacinaPage2 from './FolderVacinaPage2';
@@ -47,6 +47,7 @@ import TagSacolaPreview from './TagSacolaPreview';
 import CartaoAgradecimentoPreview from './CartaoAgradecimentoPreview';
 import ReceitaAltaPreview, { buildReceitaAltaHTML } from './ReceitaAltaPreview';
 import CanecaPreview from './CanecaPreview';
+import CamisetaPreview from './CamisetaPreview';
 import PapelPresentePreview from './PapelPresentePreview';
 import GuiaAmamentacaoPreview from './GuiaAmamentacaoPreview';
 import GuiaAlimentarPreview from './GuiaAlimentarPreview';
@@ -67,6 +68,7 @@ const ITEM_KEYS_MAP = {
   'Pasta A4': 'pasta_a4',
   'Pasta': 'pasta_a4',
   'Caneca': 'caneca',
+  'T-Shirt': 'camiseta',
   'Cartão de Retorno': 'cartao_retorno',
   'Cartão de Agradecimento (10x15cm)': 'cartao_agradecimento',
   'Cartão de Agradecimento': 'cartao_agradecimento',
@@ -138,6 +140,7 @@ export const ITEM_CUSTOM_BASE_SCALES = {
   'Envelope Ofício': 2.0,
   'Orientações p/ Recém Nascidos': 2.0,
   'Sacola de Papel': 2.0,
+  'T-Shirt': 2.0,
   'Pasta': 2.0,
   'Receituário': 2.0,
 };
@@ -948,9 +951,10 @@ function CartaoStep({ brand, accentColor, paletteColors, marca, estampaPatterns,
         <input value={localSlogan} onChange={e => setLocalSlogan(e.target.value.slice(0, 45))} maxLength={45} placeholder="Ex: Ginecologia e Obstetrícia" style={inputStyle} />
         
         <SectionLabel>{dictionary?.digital_tab?.contacts || 'Contatos'}</SectionLabel>
-        {CONTACT_FIELDS.map(f => (
-          <input key={f.key} value={contacts[f.key]} onChange={e => setContact(f.key, e.target.value)} placeholder={f.label} style={inputStyle} />
-        ))}
+        {CONTACT_FIELDS.map(f => {
+          const tLabel = dictionary?.digital_tab?.contact_labels?.[f.key] || f.label;
+          return <input key={f.key} value={contacts[f.key]} onChange={e => setContact(f.key, e.target.value)} placeholder={tLabel} style={inputStyle} />;
+        })}
         <button onClick={() => setShowQR(v => !v)} style={{ padding: '10px', background: showQR ? '#C03B66' : 'none', color: showQR ? '#fff' : '#C03B66', border: '1.5px solid #C03B66', borderRadius: '30px', fontWeight: 700, fontSize: '0.8rem', fontFamily: 'Montserrat, sans-serif', cursor: 'pointer' }}>
           {showQR ? (dictionary?.digital_tab?.qr_active || '✓ QR Code ativo') : (dictionary?.digital_tab?.add_qr || '+ QR Code')}
         </button>
@@ -998,7 +1002,7 @@ function EstampaStep({ brand, accentColor, marca, patterns, setPatterns, genCoun
     }
   };
 
-  const loadingPhrases = [
+  const defaultLoadingPhrases = [
     'Criando sua estampa exclusiva…',
     'Ajustando as cores da sua paleta…',
     'Testando os encaixes dos elementos…',
@@ -1006,6 +1010,7 @@ function EstampaStep({ brand, accentColor, marca, patterns, setPatterns, genCoun
     'Use os botões de suavizar para corrigir as bordas.',
     'Quase pronto…'
   ];
+  const loadingPhrases = dictionary?.pattern_tab?.loading_phrases || defaultLoadingPhrases;
 
   useEffect(() => {
     let interval;
@@ -1339,7 +1344,7 @@ function EstampaStep({ brand, accentColor, marca, patterns, setPatterns, genCoun
                   <div key={i} style={{ width: 12, height: 12, borderRadius: '50%', background: (paletteColors && paletteColors[i]) || accentColor, animation: `bx-spin 1.2s ease-in-out ${i * 0.2}s infinite` }} />
                 ))}
               </div>
-              <span style={{ fontSize: '0.85rem', color: accentColor, fontWeight: 600, textAlign: 'center', lineHeight: 1.5, transition: 'opacity 0.5s' }}>{loadingPhrases[loadingPhraseIdx]}<br/><span style={{ fontWeight: 400, fontSize: '0.78rem', color: '#888' }}>Isso leva cerca de 15–30 segundos</span></span>
+              <span style={{ fontSize: '0.85rem', color: accentColor, fontWeight: 600, textAlign: 'center', lineHeight: 1.5, transition: 'opacity 0.5s' }}>{loadingPhrases[loadingPhraseIdx]}<br/><span style={{ fontWeight: 400, fontSize: '0.78rem', color: '#888' }}>{dictionary?.pattern_tab?.loading_time || 'Isso leva cerca de 15–30 segundos'}</span></span>
             </div>
           )}
           {viewMode === 'no_consultorio' ? (
@@ -1442,7 +1447,7 @@ function EstampaStep({ brand, accentColor, marca, patterns, setPatterns, genCoun
                 disabled={fixingSeams}
                 style={{ padding: '7px 18px', borderRadius: '20px', border: `1.5px solid ${accentColor}44`, background: fixingSeams === 'mirror' ? `${accentColor}10` : '#fff', color: fixingSeams === 'mirror' ? accentColor : '#666', fontSize: '0.72rem', fontWeight: 700, cursor: fixingSeams ? 'wait' : 'pointer', fontFamily: 'Montserrat, sans-serif', display: 'flex', alignItems: 'center', gap: '6px', transition: 'all 0.2s' }}
               >
-                {fixingSeams === 'mirror' ? '⏳ Espelhando...' : '🪞 Espelhar padrão'}
+                {fixingSeams === 'mirror' ? (dictionary?.sucesso?.pattern_mirror_progress || '⏳ Espelhando...') : (dictionary?.sucesso?.pattern_mirror_btn || '🪞 Espelhar padrão')}
               </button>
               {(patterns[selectedIdx]?.originalBase64 || patterns[selectedIdx]?.originalUrl) && (
                 <button
@@ -1505,9 +1510,9 @@ function EstampaStep({ brand, accentColor, marca, patterns, setPatterns, genCoun
                     onClick={() => handleFeedback('liked')}
                     disabled={!patterns[selectedIdx].url}
                     style={{ opacity: !patterns[selectedIdx].url ? 0.5 : 1, padding: '7px 14px', borderRadius: '20px', border: `1px solid ${feedbackState[patterns[selectedIdx].url] === 'liked' ? accentColor : '#eee'}`, background: feedbackState[patterns[selectedIdx].url] === 'liked' ? `${accentColor}15` : '#fff', color: feedbackState[patterns[selectedIdx].url] === 'liked' ? accentColor : '#aaa', fontSize: '0.8rem', cursor: !patterns[selectedIdx].url ? 'wait' : 'pointer', transition: 'all 0.2s', display: 'flex', alignItems: 'center', gap: '4px' }}
-                    title={!patterns[selectedIdx].url ? "Aguarde o salvamento..." : "Amei essa estampa!"}
+                    title={!patterns[selectedIdx].url ? "Aguarde o salvamento..." : (dictionary?.sucesso?.pattern_liked_title || "Amei essa estampa!")}
                   >
-                    {feedbackState[patterns[selectedIdx].url] === 'liked' ? '♥️ Amei' : '🤍 Amei'}
+                    {feedbackState[patterns[selectedIdx].url] === 'liked' ? (dictionary?.sucesso?.pattern_liked || '♥️ Amei') : (dictionary?.sucesso?.pattern_like || '🤍 Amei')}
                   </button>
                   <button
                     onClick={() => handleFeedback('disliked')}
@@ -1515,7 +1520,7 @@ function EstampaStep({ brand, accentColor, marca, patterns, setPatterns, genCoun
                     style={{ opacity: !patterns[selectedIdx].url ? 0.5 : 1, padding: '7px 14px', borderRadius: '20px', border: `1px solid ${feedbackState[patterns[selectedIdx].url] === 'disliked' ? '#ff4444' : '#eee'}`, background: feedbackState[patterns[selectedIdx].url] === 'disliked' ? '#ff444415' : '#fff', color: feedbackState[patterns[selectedIdx].url] === 'disliked' ? '#ff4444' : '#aaa', fontSize: '0.8rem', cursor: !patterns[selectedIdx].url ? 'wait' : 'pointer', transition: 'all 0.2s', display: 'flex', alignItems: 'center', gap: '4px' }}
                     title={!patterns[selectedIdx].url ? "Aguarde o salvamento..." : "Não combinou"}
                   >
-                    👎 Descartar
+                    {dictionary?.sucesso?.pattern_discard || '👎 Descartar'}
                   </button>
                 </div>
               )}
@@ -1531,7 +1536,7 @@ function EstampaStep({ brand, accentColor, marca, patterns, setPatterns, genCoun
                   <div key={i} style={{ width: 12, height: 12, borderRadius: '50%', background: (paletteColors && paletteColors[i]) || accentColor, animation: `bx-spin 1.2s ease-in-out ${i * 0.2}s infinite` }} />
                 ))}
               </div>
-              <span style={{ fontSize: '0.85rem', color: accentColor, fontWeight: 600, textAlign: 'center', lineHeight: 1.5, transition: 'opacity 0.5s' }}>{loadingPhrases[loadingPhraseIdx]}<br/><span style={{ fontWeight: 400, fontSize: '0.78rem', color: '#aaa' }}>Isso leva cerca de 15–30 segundos</span></span>
+              <span style={{ fontSize: '0.85rem', color: accentColor, fontWeight: 600, textAlign: 'center', lineHeight: 1.5, transition: 'opacity 0.5s' }}>{loadingPhrases[loadingPhraseIdx]}<br/><span style={{ fontWeight: 400, fontSize: '0.78rem', color: '#aaa' }}>{dictionary?.pattern_tab?.loading_time || 'Isso leva cerca de 15–30 segundos'}</span></span>
             </>
           ) : (
             <>
@@ -1902,13 +1907,13 @@ function AjudaStep({ brand, accentColor, onResendEmail, resendingEmail, resendSt
 
       {onResendEmail && (
         <div style={{ marginTop: '24px', textAlign: 'center' }}>
-          <p style={{ fontSize: '0.72rem', color: '#aaa', marginBottom: '8px' }}>Precisa acessar seus arquivos novamente?</p>
+          <p style={{ fontSize: '0.72rem', color: '#aaa', marginBottom: '8px' }}>{t.resend_prompt || 'Precisa acessar seus arquivos novamente?'}</p>
           <button
             onClick={onResendEmail}
             disabled={resendingEmail}
             style={{ padding: '8px 20px', background: resendStatus?.includes('✓') ? '#e8f7f5' : '#fff', color: resendStatus?.includes('✓') ? '#1a7a6e' : '#888', border: '1px solid #e0e0e0', borderRadius: '20px', fontSize: '0.72rem', fontWeight: 700, cursor: resendingEmail ? 'wait' : 'pointer', transition: 'all 0.2s' }}
           >
-            {resendingEmail ? 'Enviando...' : resendStatus || '📧 Reenviar e-mail com o link'}
+            {resendingEmail ? (t.resend_sending || 'Enviando...') : resendStatus || (t.resend_btn || '📧 Reenviar e-mail com o link')}
           </button>
         </div>
       )}
@@ -2386,7 +2391,7 @@ const QUIZ_PERGUNTAS_SAUDE = [
 ];
 
 function ManifestoQuiz({ accentColor, marca, tagline, estiloNome, isSaude, onManifestoGerado }) {
-  const { dictionary } = useTranslation();
+  const { dictionary, lang } = useTranslation();
   const tMan = dictionary?.manifesto || {};
   const tQuiz = dictionary?.quiz || {};
 
@@ -2405,7 +2410,7 @@ function ManifestoQuiz({ accentColor, marca, tagline, estiloNome, isSaude, onMan
       const res = await fetch('/api/generate-manifesto', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ marca, tagline, estiloNome, respostas: respostasArr }),
+        body: JSON.stringify({ marca, tagline, estiloNome, respostas: respostasArr, lang }),
       });
       const data = await res.json();
       if (data.success) {
@@ -2736,7 +2741,7 @@ const TOMDEVOZ_PERGUNTAS = [
 ];
 
 function TomDeVozQuiz({ accentColor, marca, tagline, estiloNome, onTomDeVozGerado }) {
-  const { dictionary } = useTranslation();
+  const { dictionary, lang } = useTranslation();
   const tTom = dictionary?.tom_de_voz || {};
   const tQuiz = dictionary?.quiz || {};
 
@@ -2756,7 +2761,7 @@ function TomDeVozQuiz({ accentColor, marca, tagline, estiloNome, onTomDeVozGerad
       const res = await fetch('/api/generate-tomdevoz', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ marca, tagline, estiloNome, respostas: respostasArr }),
+        body: JSON.stringify({ marca, tagline, estiloNome, respostas: respostasArr, lang }),
       });
       const data = await res.json();
       if (data.success) {
@@ -5599,7 +5604,7 @@ const getPreviewTargetWidth = (item) => {
   if (item.includes('Envelope Saco')) return 460;
   if (item.includes('Pasta')) return 480;
   if (item.includes('Assinatura de E-mail')) return 450;
-  if (item === 'Caneca' || item === 'Arte para Caneca') return 320;
+  if (item === 'Caneca' || item === 'Arte para Caneca' || item === 'T-Shirt') return 320;
   if (item === 'Papel de Presente') return 480;
   if (item === 'Tag para Sacola') return 320;
   if (item === 'Etiqueta para Correios') return 350;
@@ -5614,7 +5619,7 @@ function PapelariaStep({ brand, accentColor, paletteColors, estampaPatterns, est
   const PAPELARIA_GERAL = [
     "Cartão de Visita", "Papel Timbrado", "Tag para Sacola",
     "Etiqueta para Correios", "Envelope Ofício (23x11,5cm)", "Envelope Saco (24x34cm)", "Recibo",
-    "Pasta A4", "Caneca", "Cartão de Retorno", "Cartão de Agradecimento (10x15cm)", "Capa de Caderno / Agenda"
+    "Pasta A4", "Caneca", "T-Shirt", "Cartão de Retorno", "Cartão de Agradecimento (10x15cm)", "Capa de Caderno / Agenda"
   ];
   // Papelaria exclusiva para área médica
   const PAPELARIA_MEDICA = [
@@ -5648,6 +5653,7 @@ function PapelariaStep({ brand, accentColor, paletteColors, estampaPatterns, est
     'Cartão de Exames Pré-Natal': 'Cartão de Exame Pré-Natal',
     'Quadro de Incentivo': 'Certificado de Coragem',
     'Card de Orientação de Sono': 'Guia do Sono',
+    'Camiseta': 'T-Shirt',
   };
   const papelariaNorm = papelariaSelecionada.map(n => LEGACY_NAMES[n] || n);
   // Para médicos: PAPELARIA_GERAL sempre inclusa + itens comprados. Para não-médicos: só o que comprou.
@@ -7826,6 +7832,64 @@ html, body { width:${TW}mm; height:${TH}mm; overflow:hidden; }
       return;
     }
 
+    if (item === 'T-Shirt') {
+      const solidColor = borderColor || accentColor;
+      const _ffT = editData?.fontFamily || brand.editData?.fontFamily || 'Playfair Display';
+      const _lfT = LOCAL_FONT_FACES[_ffT];
+      const fiT = `<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700;800;900&display=swap" rel="stylesheet">${_lfT ? `<style>${_lfT}</style>` : `<link href="https://fonts.googleapis.com/css2?family=${encodeURIComponent(_ffT)}:wght@400;700&display=swap" rel="stylesheet">`}`;
+      const hasCustomLogoT = !!itemEditData?.customLogoSrc;
+      const seloSizeT = 65; // mm (tamanho exato do mockup para o peito)
+      const seloDataT = itemEditData?.fontStyle === 'script'
+        ? { ...itemEditData, fontFamily: 'Montserrat', fontWeight: 700, fontStyle: 'display' }
+        : { ...itemEditData };
+      
+      const logoHtmlT = hasCustomLogoT
+        ? ReactDOMServer.renderToString(
+            <div style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', background: 'rgba(255,255,255,0.92)', padding: '2mm 3mm', borderRadius: '4px' }}>
+              <img src={itemEditData.customLogoSrc} alt="logo" style={{ maxWidth: `${seloSizeT * 1.6}mm`, maxHeight: `${seloSizeT * 1.2}mm`, objectFit: 'contain' }} />
+            </div>
+          )
+        : ReactDOMServer.renderToString(
+            <div style={{ width: `${seloSizeT}mm`, height: `${seloSizeT}mm`, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+              <BrandTemplateSVG data={seloDataT} color={submarcaColor || solidColor} textColor={submarcaTextColor || '#ffffff'} side="verso" hideBackground={true} iconPath={iconPath || null} />
+            </div>
+          );
+          
+      // Na caneca scale=150 significa 0.15mm (muito denso). Na camiseta scale=150 significa ~1.2mm
+      const bgStyleT = comBorda && patternSrc
+        ? `background-image:url(${patternSrc});background-size:${(patternScale*0.65).toFixed(1)}mm;background-repeat:repeat;`
+        : `background:${solidColor};`;
+      
+      const TW = 300, TH = 300; // 30x30 cm azulejo
+      const html = `<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Estampa Camiseta - ${marca}</title>${fiT}
+<style>
+* { box-sizing:border-box; margin:0; padding:0; print-color-adjust:exact !important; -webkit-print-color-adjust:exact !important; }
+@page { size:${TW}mm ${TH}mm; margin:0; }
+.page { width:${TW}mm; height:${TH}mm; position:relative; overflow:hidden; page-break-after:always; }
+</style></head><body>
+<!-- Pagina 1: Módulo de Repetição / Cor Sólida -->
+<div class="page" style="${bgStyleT}"></div>
+<!-- Pagina 2: Selo do Peito -->
+<div class="page" style="background:#fff;">
+  <div style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);">
+    ${logoHtmlT}
+  </div>
+  <div style="position:absolute;bottom:10mm;left:0;right:0;text-align:center;font-family:Montserrat,sans-serif;font-size:10pt;color:#888;font-weight:700;">
+    SELO DO PEITO: ${seloSizeT} x ${seloSizeT} mm (Tamanho Real)
+  </div>
+</div>
+</body></html>`;
+      const exT = document.getElementById('_gabarito_camiseta'); if (exT) exT.remove();
+      const iframeT = document.createElement('iframe');
+      iframeT.id = '_gabarito_camiseta';
+      iframeT.style.cssText = 'position:fixed;top:-9999px;left:-9999px;width:400mm;height:400mm;border:none;visibility:hidden;';
+      document.body.appendChild(iframeT);
+      iframeT.contentDocument.open(); iframeT.contentDocument.write(html); iframeT.contentDocument.close();
+      const _pT_cam = document.title; document.title = pdfTitle('Gabarito Camiseta');
+      iframeT.contentWindow.document.fonts.ready.then(() => { setTimeout(() => { iframeT.contentWindow.focus(); iframeT.contentWindow.print(); setTimeout(() => { iframeT.remove(); document.title = _pT_cam; }, 3000); }, 1000); });
+      return;
+    }
+
 
     if (item === 'Papel de Presente') {
       const solidColor = borderColor || accentColor;
@@ -9110,6 +9174,8 @@ ${fontImports2}
               ? <ReceitaAltaPreview accentColor={accentColor} patternSrc={patternSrc} editData={{ ...itemEditData, tagline: localSlogan }} logoColor={logoColor} logoLayout={logoLayout} cartaoContacts={cartaoContacts} crmLine={crmLine} clinicaNome={clinicaNome} comBorda={comBorda} setComBorda={setComBorda} paletteColors={paletteColors} borderColor={borderColor} setBorderColor={setBorderColor} patternScale={patternScale} setPatternScale={setPatternScale} receitaFields={receitaFields} setReceitaFields={setReceitaFields} />
             : currentItem === 'Caneca' || currentItem === 'Arte para Caneca'
               ? <CanecaPreview accentColor={accentColor} patternSrc={patternSrc} editData={{ ...itemEditData, tagline: localSlogan }} logoColor={logoColor} logoLayout={logoLayout} cartaoContacts={cartaoContacts} crmLine={crmLine} clinicaNome={clinicaNome} comBorda={comBorda} setComBorda={setComBorda} paletteColors={paletteColors} borderColor={borderColor} setBorderColor={setBorderColor} patternScale={patternScale} setPatternScale={setPatternScale} submarcaColor={submarcaColor} submarcaTextColor={submarcaTextColor} iconPath={iconPath} />
+            : currentItem === 'T-Shirt'
+              ? <CamisetaPreview accentColor={accentColor} patternSrc={patternSrc} editData={{ ...itemEditData, tagline: localSlogan }} logoColor={logoColor} logoLayout={logoLayout} cartaoContacts={cartaoContacts} crmLine={crmLine} clinicaNome={clinicaNome} comBorda={comBorda} setComBorda={setComBorda} paletteColors={paletteColors} borderColor={borderColor} setBorderColor={setBorderColor} patternScale={patternScale} setPatternScale={setPatternScale} submarcaColor={submarcaColor} submarcaTextColor={submarcaTextColor} iconPath={iconPath} />
             : currentItem === 'Papel de Presente'
               ? <PapelPresentePreview accentColor={accentColor} paletteColors={paletteColors} comBorda={comBorda} setComBorda={setComBorda} patternSrc={patternSrc} patternScale={patternScale} setPatternScale={setPatternScale} borderColor={borderColor} setBorderColor={setBorderColor} sizeIdx={papelPresenteSizeIdx} setSizeIdx={setPapelPresenteSizeIdx} />
             : currentItem === 'Tag para Sacola'
@@ -9165,8 +9231,8 @@ ${fontImports2}
         </span>
       </div>
 
-      {/* Editar contatos — acordeão (todos os itens exceto caneca) */}
-      {currentItem !== 'Caneca' && currentItem !== 'Arte para Caneca' && <div style={{ border: '1px solid #e8e8e8', borderRadius: '12px', overflow: 'hidden' }}>
+      {/* Editar contatos — acordeão (todos os itens exceto caneca e camiseta) */}
+      {currentItem !== 'Caneca' && currentItem !== 'Arte para Caneca' && currentItem !== 'T-Shirt' && <div style={{ border: '1px solid #e8e8e8', borderRadius: '12px', overflow: 'hidden' }}>
           <button onClick={() => setContactOpen(o => !o)} style={{ width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '10px 14px', background: 'none', border: 'none', cursor: 'pointer' }}>
             <span style={{ fontWeight: 600, fontSize: '0.78rem', color: '#555' }}>{dictionary?.ui?.editar_dados || 'Editar dados'}</span>
             <span style={{ fontSize: '0.7rem', color: '#aaa' }}>{contactOpen ? '▲' : '▼'}</span>
@@ -9442,7 +9508,7 @@ ${fontImports2}
 }
 
 function EntregaContent({ brand, plano, setBrand }) {
-  const { dictionary } = useTranslation();
+  const { dictionary, lang } = useTranslation();
   const tLogo = dictionary?.logo_tab || {};
   const _params = useSearchParams();
   const avulsoParam = _params.has('avulso') ? (_params.get('avulso') || 'inicio') : null;
@@ -9885,23 +9951,23 @@ function EntregaContent({ brand, plano, setBrand }) {
     setResendingEmail(true);
     setResendStatus(null);
     try {
-      const emailToSend = brand.formData?.email;
+      const emailToSend = brand.email || brand.formData?.email;
       const marcaToSend = brand.editData?.marca || brand.name;
       const sessionId = brand.sessionId || brand.id || new URLSearchParams(window.location.search).get('session') || 'no-session';
       
       const res = await fetch('/api/send-email', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email: emailToSend, marca: marcaToSend, sessionId, plano: plano || brand.plano }),
+        body: JSON.stringify({ email: emailToSend, marca: marcaToSend, sessionId, plano: plano || brand.plano, lang }),
       });
       const data = await res.json();
       if (data.sent) {
-        setResendStatus('✓ E-mail enviado!');
+        setResendStatus(dictionary?.help?.resend_success || '✓ E-mail enviado!');
       } else {
-        setResendStatus('❌ Erro: ' + (data.error || 'Falha no envio'));
+        setResendStatus((dictionary?.help?.resend_error || '❌ Erro: ') + (data.error || (dictionary?.help?.resend_fail || 'Falha no envio')));
       }
     } catch (e) {
-      setResendStatus('❌ Erro de conexão');
+      setResendStatus(dictionary?.help?.resend_conn_error || '❌ Erro de conexão');
     } finally {
       setResendingEmail(false);
       setTimeout(() => setResendStatus(null), 3000);
@@ -10122,7 +10188,7 @@ function EntregaContent({ brand, plano, setBrand }) {
   const syncedBrandIdRef = useRef(null);
 
   const { paletas } = brand;
-  const estiloNome = brand.resultadoFinal?.estiloNome || '';
+  const estiloNome = ESTILO_NOME_BY_ID[brand.resultadoFinal?.estiloId] || brand.resultadoFinal?.estiloNome || '';
   const styleIcons = STYLE_ICONS[estiloNome] || [];
   const [selectedIcon, setSelectedIconState] = useState(() => { try { return localStorage.getItem(`brandbox_selected_icon_${brand.id}`) || brand.selectedIcon || null; } catch { return brand.selectedIcon || null; } });
   const setSelectedIcon = (v) => { setSelectedIconState(v); try { if (v) localStorage.setItem(`brandbox_selected_icon_${brand.id}`, v); else localStorage.removeItem(`brandbox_selected_icon_${brand.id}`); } catch {} };
@@ -10466,7 +10532,7 @@ function EntregaContent({ brand, plano, setBrand }) {
                   })}
                 </div>
               ) : (
-                <div style={{ fontSize: '0.65rem', color: '#aaa', fontStyle: 'italic', fontFamily: 'Montserrat, sans-serif' }}>Nenhuma variação salva ainda.</div>
+                <div style={{ fontSize: '0.65rem', color: '#aaa', fontStyle: 'italic', fontFamily: 'Montserrat, sans-serif' }}>{dictionary?.sucesso?.no_variation_saved || 'Nenhuma variação salva ainda.'}</div>
               )}
             </div>
           </div>
@@ -10857,7 +10923,7 @@ function EntregaContent({ brand, plano, setBrand }) {
                 </div>
               ) : (
                 <div style={{ fontSize: '0.68rem', color: '#aaa', fontStyle: 'italic', fontFamily: 'Montserrat, sans-serif', padding: '4px 0' }}>
-                  Nenhuma variação salva ainda. Experimente salvar o estilo atual!
+                  {dictionary?.sucesso?.no_variation_saved_hint || 'Nenhuma variação salva ainda. Experimente salvar o estilo atual!'}
                 </div>
               )}
             </div>
@@ -11513,7 +11579,7 @@ function EntregaContent({ brand, plano, setBrand }) {
 
 function SucessoContent() {
   const params = useSearchParams();
-  const { dictionary } = useTranslation();
+  const { dictionary, lang } = useTranslation();
   const [brand, setBrand] = useState(null);
   const [loading, setLoading] = useState(true);
   const [showWelcome, setShowWelcome] = useState(false);
@@ -11600,6 +11666,7 @@ function SucessoContent() {
           'recibo': 'Recibo',
           'pasta': 'Pasta A4',
           'caneca': 'Caneca',
+          'camiseta': 'T-Shirt',
           'caderno': 'Capa de Caderno / Agenda',
           'receituario': 'Receituário Padrão (A4 e A5)',
           'atestado': 'Atestado Médico (A4 e A5)',
@@ -11760,7 +11827,7 @@ function SucessoContent() {
                 fetch('/api/send-email', {
                   method: 'POST',
                   headers: { 'Content-Type': 'application/json' },
-                  body: JSON.stringify({ email: data.email, marca: data.marca, sessionId: sessionParam, plano: derivedPlano }),
+                  body: JSON.stringify({ email: data.email, marca: data.marca, sessionId: sessionParam, plano: derivedPlano, lang }),
                 }).then(() => {
                   fetch('/api/get-entrega', {
                     method: 'PATCH',
@@ -11888,7 +11955,7 @@ function SucessoContent() {
                     await fetch('/api/send-email', {
                       method: 'POST',
                       headers: { 'Content-Type': 'application/json' },
-                      body: JSON.stringify({ email: avulsoEmail, marca: brand?.editData?.marca || '', sessionId: null, plano: 'avulso', avulsoLink: link }),
+                      body: JSON.stringify({ email: avulsoEmail, marca: brand?.editData?.marca || '', sessionId: null, plano: 'avulso', avulsoLink: link, lang }),
                     });
                     setAvulsoEmailSent(true);
                   } catch {}
@@ -11940,10 +12007,10 @@ function SucessoContent() {
             {/* Título */}
             <div>
               <p style={{ fontSize: '0.7rem', letterSpacing: '3px', textTransform: 'uppercase', color: '#C03B66', fontWeight: 700, marginBottom: '0.5rem' }}>
-                Instruções & Dicas
+                {dictionary?.sucesso?.instructions_subtitle || 'Instruções & Dicas'}
               </p>
               <h1 style={{ fontSize: '1.6rem', fontWeight: 800, color: '#1a1a1a', lineHeight: 1.3, margin: 0 }}>
-                Como aproveitar sua experiência
+                {dictionary?.sucesso?.instructions_title || 'Como aproveitar sua experiência'}
               </h1>
             </div>
 
@@ -11964,23 +12031,23 @@ function SucessoContent() {
               {[
                 {
                   color: '#C03B66',
-                  title: 'Use um Computador',
-                  desc: 'Para melhor aproveitamento visual e facilidade ao baixar as artes e arquivos em alta qualidade.'
+                  title: dictionary?.sucesso?.instructions_item1_title || 'Use um Computador',
+                  desc: dictionary?.sucesso?.instructions_item1_desc || 'Para melhor aproveitamento visual e facilidade ao baixar as artes e arquivos em alta qualidade.'
                 },
                 {
                   color: '#4EB0B5',
-                  title: 'Siga o Botão de Avançar',
-                  desc: 'Avançar passo a passo ajuda a construir sua identidade visual de forma fluida e natural.'
+                  title: dictionary?.sucesso?.instructions_item2_title || 'Siga o Botão de Avançar',
+                  desc: dictionary?.sucesso?.instructions_item2_desc || 'Avançar passo a passo ajuda a construir sua identidade visual de forma fluida e natural.'
                 },
                 {
                   color: '#FBDA86',
-                  title: 'Responda com Calma & Esteja Presente',
-                  desc: 'Responda às perguntas com carinho e presença enquanto você vivencia a criação da sua marca.'
+                  title: dictionary?.sucesso?.instructions_item3_title || 'Responda com Calma & Esteja Presente',
+                  desc: dictionary?.sucesso?.instructions_item3_desc || 'Responda às perguntas com carinho e presença enquanto você vivencia a criação da sua marca.'
                 },
                 {
                   color: '#E08E79',
-                  title: 'Consulte o Guia de Ajuda',
-                  desc: 'Na dúvida, nossa aba de Ajuda tem todas as dicas e inspirações para te apoiar no processo.'
+                  title: dictionary?.sucesso?.instructions_item4_title || 'Consulte o Guia de Ajuda',
+                  desc: dictionary?.sucesso?.instructions_item4_desc || 'Na dúvida, nossa aba de Ajuda tem todas as dicas e inspirações para te apoiar no processo.'
                 }
               ].map((item, idx) => (
                 <div key={idx} style={{ display: 'flex', gap: '14px', alignItems: 'flex-start' }}>
@@ -12002,7 +12069,7 @@ function SucessoContent() {
               lineHeight: 1.5,
               margin: '0.5rem 0 0 0'
             }}>
-              "Desejamos a você uma excelente experiência com a The Brand Box!" 🤍
+              {dictionary?.sucesso?.instructions_closing || '"Desejamos a você uma excelente experiência com a The Brand Box!" 🤍'}
             </p>
 
             {/* CTA Button */}
@@ -12026,7 +12093,7 @@ function SucessoContent() {
               onMouseEnter={e => e.currentTarget.style.transform = 'translateY(-2px)'}
               onMouseLeave={e => e.currentTarget.style.transform = 'translateY(0)'}
             >
-              {welcomeSeen ? 'Entrar na minha Brand Box →' : 'Começar minha experiência →'}
+              {welcomeSeen ? (dictionary?.sucesso?.welcome_btn_returning || 'Entrar na minha Brand Box →') : (dictionary?.sucesso?.instructions_btn_start || 'Começar minha experiência →')}
             </button>
           </div>
         </div>
@@ -12060,7 +12127,7 @@ function SucessoContent() {
                 : null
               }
               <span style={{ fontWeight: 800, color: '#1a1a1a' }}>
-                {welcomeSeen ? 'sua Brand Box está te esperando!' : 'sua marca começou a ganhar forma ✨'}
+                {welcomeSeen ? (dictionary?.sucesso?.welcome_title_returning || 'sua Brand Box está te esperando!') : (dictionary?.sucesso?.welcome_title_new || 'sua marca começou a ganhar forma ✨')}
               </span>
             </h1>
           </div>
@@ -12069,22 +12136,22 @@ function SucessoContent() {
           {welcomeSeen ? (
             <div style={{ fontSize: '1.05rem', color: '#555', lineHeight: 1.8, margin: 0, display: 'flex', flexDirection: 'column', gap: '0.8rem' }}>
               <p style={{ margin: 0 }}>
-                Sua marca continua aqui, pronta para evoluir com você.
+                {dictionary?.sucesso?.welcome_desc_returning_1 || 'Sua marca continua aqui, pronta para evoluir com você.'}
               </p>
               <p style={{ margin: 0 }}>
-                Continue explorando combinações, ajustando detalhes e construindo uma marca cada vez mais sua.
+                {dictionary?.sucesso?.welcome_desc_returning_2 || 'Continue explorando combinações, ajustando detalhes e construindo uma marca cada vez mais sua.'}
               </p>
             </div>
           ) : (
             <div style={{ fontSize: '1.05rem', color: '#555', lineHeight: 1.8, margin: 0, display: 'flex', flexDirection: 'column', gap: '0.8rem' }}>
               <p style={{ margin: 0 }}>
-                Esse é o primeiro passo da sua Brand Box.
+                {dictionary?.sucesso?.welcome_desc_new_1 || 'Esse é o primeiro passo da sua Brand Box.'}
               </p>
               <p style={{ margin: 0 }}>
-                A partir de agora, vamos te guiar por uma experiência criativa construída para transformar ideias, referências e essência em uma identidade visual completa.
+                {dictionary?.sucesso?.welcome_desc_new_2 || 'A partir de agora, vamos te guiar por uma experiência criativa construída para transformar ideias, referências e essência em uma identidade visual completa.'}
               </p>
               <p style={{ margin: 0, fontWeight: 600, color: '#C03B66', marginTop: '0.4rem' }}>
-                Você faz as escolhas. Nós organizamos o caminho.
+                {dictionary?.sucesso?.welcome_desc_new_3 || 'Você faz as escolhas. Nós organizamos o caminho.'}
               </p>
             </div>
           )}
@@ -12108,11 +12175,11 @@ function SucessoContent() {
             onMouseEnter={e => e.currentTarget.style.transform = 'translateY(-2px)'}
             onMouseLeave={e => e.currentTarget.style.transform = 'translateY(0)'}
           >
-            {welcomeSeen ? 'Entrar na minha Brand Box →' : 'Começar minha marca →'}
+            {welcomeSeen ? (dictionary?.sucesso?.welcome_btn_returning || 'Entrar na minha Brand Box →') : (dictionary?.sucesso?.welcome_btn_new || 'Começar minha marca →')}
           </button>
 
           <p style={{ fontSize: '0.75rem', color: '#bbb', margin: 0 }}>
-            Pagamento confirmado · {plano === 'pro' ? 'Brand Box Pro' : 'Brand Box Starter'}
+            {dictionary?.sucesso?.payment_confirmed || 'Pagamento confirmado'} · {plano === 'pro' ? 'Brand Box Pro' : 'Brand Box Starter'}
           </p>
         </div>
       </div>
@@ -12123,20 +12190,20 @@ function SucessoContent() {
     return (
       <div style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '2rem', textAlign: 'center', fontFamily: 'Montserrat, sans-serif', background: '#fff' }}>
         <div style={{ fontSize: '3.5rem', marginBottom: '1.5rem' }}>🔍</div>
-        <h1 style={{ fontSize: '1.8rem', fontWeight: 800, marginBottom: '1rem', color: '#1a1a1a' }}>Ops! Não encontramos sua marca</h1>
+        <h1 style={{ fontSize: '1.8rem', fontWeight: 800, marginBottom: '1rem', color: '#1a1a1a' }}>{dictionary?.sucesso?.error_not_found_title || 'Ops! Não encontramos sua marca'}</h1>
         <p style={{ fontSize: '1rem', color: '#666', maxWidth: '450px', lineHeight: 1.7, marginBottom: '2rem' }}>
-          Não conseguimos localizar os dados da sua identidade visual. Isso pode acontecer se o link expirou ou se houve um erro na finalização.<br/><br/>
-          <strong>💡 Dica:</strong> Verifique seu e-mail, procure pela mensagem de confirmação do <strong>The Brand Box</strong> e tente acessar o link exclusivo novamente.
+          {dictionary?.sucesso?.error_not_found_desc_1 || 'Não conseguimos localizar os dados da sua identidade visual. Isso pode acontecer se o link expirou ou se houve um erro na finalização.'}<br/><br/>
+          <span dangerouslySetInnerHTML={{ __html: dictionary?.sucesso?.error_not_found_desc_2 || '<strong>💡 Dica:</strong> Verifique seu e-mail, procure pela mensagem de confirmação do <strong>The Brand Box</strong> e tente acessar o link exclusivo novamente.' }} />
         </p>
         <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap', justifyContent: 'center' }}>
           <a href="/" style={{ padding: '14px 28px', background: '#dc3495', color: '#fff', borderRadius: '30px', fontWeight: 700, fontSize: '0.9rem', textDecoration: 'none', boxShadow: '0 8px 20px rgba(220,52,149,0.2)' }}>
-            Criar nova marca
+            {dictionary?.sucesso?.error_btn_new || 'Criar nova marca'}
           </a>
           <button onClick={() => window.location.reload()} style={{ padding: '14px 28px', background: '#f5f5f5', color: '#333', border: 'none', borderRadius: '30px', fontWeight: 700, fontSize: '0.9rem', cursor: 'pointer' }}>
-            Tentar novamente
+            {dictionary?.sucesso?.error_btn_retry || 'Tentar novamente'}
           </button>
           <a href="https://wa.me/4793630746" target="_blank" style={{ padding: '14px 28px', background: '#25D366', color: '#fff', borderRadius: '30px', fontWeight: 700, fontSize: '0.9rem', textDecoration: 'none', boxShadow: '0 8px 20px rgba(37,211,102,0.2)' }}>
-            Falar com suporte
+            {dictionary?.sucesso?.error_btn_support || 'Falar com suporte'}
           </a>
         </div>
       </div>

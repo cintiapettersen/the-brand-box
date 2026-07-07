@@ -56,6 +56,8 @@ export async function POST(req) {
     Exemplo de tom e estrutura ideal para a 'mensagem':
     "Olá [Nome]! Sua marca pede delicadeza, magia e um toque lúdico. O estilo Doce Encantamento traduz exatamente essa atmosfera através de cores suaves, elementos afetivos e uma identidade visual acolhedora e memorável."
 
+    ${body.lang === 'en' ? "CRITICAL: The user's language is English. You MUST translate both the 'estiloNome' and the 'mensagem' into English. For example, 'Essência Atemporal' becomes 'Timeless Essence'. The tone of the 'mensagem' must be just as magical and emotional, but fully in English." : ""}
+
     Responda EXCLUSIVAMENTE num formato JSON estruturado com 'estiloId' (numero), 'estiloNome' (string) e 'mensagem' (string).
     {
        "estiloId": 5,
