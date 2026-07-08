@@ -784,7 +784,7 @@ export default function Home() {
                 </motion.div>
               )}
 
-              <button onClick={nextStep} className="btn-secondary" style={{ opacity: formData.marca ? 1 : 0.5, pointerEvents: formData.marca ? 'auto' : 'none', marginTop: '0.5rem' }}>{dictionary?.onboarding?.btn_next_heart || 'Avançar 🤍'}</button>
+              <button onClick={nextStep} className="btn-secondary" style={{ opacity: formData.marca ? 1 : 0.5, pointerEvents: formData.marca ? 'auto' : 'none', marginTop: '0.5rem' }}>{dictionary?.onboarding?.btn_next_heart || 'Avançar'}</button>
             </motion.div>
           )}
 
