@@ -897,7 +897,7 @@ export default function Home() {
               className="wizard-step" style={{ position: 'absolute', width: '100%', height: '100%', display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center', background: '#ffffff', borderRadius: '24px', border: '1px solid var(--border)' }}
             >
               <div style={{ position: 'absolute', top: '3rem', left: '3rem', right: '3rem', height: '4px', background: 'var(--border)', borderRadius: '4px' }}><div style={{ height: '100%', background: 'var(--accent-turquoise)', width: '75%', borderRadius: '4px', transition: 'width 0.5s' }} /></div>
-              <h2 style={{ fontSize: '1.4rem', marginBottom: '0.5rem' }}>{dictionary?.onboarding?.step_5_2_title || 'O que você quer que as pessoas pensem quando virem sua marca pela primeira vez? ❤️'}</h2>
+              <h2 style={{ fontSize: '1.4rem', marginBottom: '0.5rem' }}>{dictionary?.onboarding?.step_5_2_title || 'O que você quer que as pessoas pensem quando virem sua marca pela primeira vez?'}</h2>
               <p style={{ fontSize: '1rem', color: 'var(--text-secondary)', marginBottom: '1.5rem' }}>{dictionary?.onboarding?.step_5_2_subtitle || 'Escolha a principal primeira impressão.'}</p>
               <div style={{ width: '100%', marginBottom: '1.5rem', display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px' }}>
                 {primeirasImpressoes.map(i => (
