@@ -2390,7 +2390,7 @@ const QUIZ_PERGUNTAS_SAUDE = [
   },
 ];
 
-function ManifestoQuiz({ accentColor, marca, tagline, estiloNome, isSaude, onManifestoGerado }) {
+function ManifestoQuiz({ accentColor, marca, tagline, estiloNome, atuacao, contextoExtra, isSaude, onManifestoGerado }) {
   const { dictionary, lang } = useTranslation();
   const tMan = dictionary?.manifesto || {};
   const tQuiz = dictionary?.quiz || {};
@@ -2410,7 +2410,7 @@ function ManifestoQuiz({ accentColor, marca, tagline, estiloNome, isSaude, onMan
       const res = await fetch('/api/generate-manifesto', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ marca, tagline, estiloNome, respostas: respostasArr, lang }),
+        body: JSON.stringify({ marca, tagline, estiloNome, atuacao, contextoExtra, respostas: respostasArr, lang }),
       });
       const data = await res.json();
       if (data.success) {
@@ -2630,7 +2630,7 @@ function ManifestoStep({ accentColor, marca, tagline, brand, isSaude, editData }
     return <ManifestoDisplay manifesto={manifesto} accentColor={accentColor} marca={marca} tagline={tagline} fontFamily={fontFamily} fontWeight={fontWeight} isScript={isScript} onRegerar={handleRegerar} podeRefazer={geracoes < LIMITE} geracoes={geracoes} limite={LIMITE} />;
   }
   if (showQuiz) {
-    return <ManifestoQuiz accentColor={accentColor} marca={marca} tagline={tagline} estiloNome={estiloNome} isSaude={isSaude} onManifestoGerado={handleManifestoGerado} />;
+    return <ManifestoQuiz accentColor={accentColor} marca={marca} tagline={tagline} estiloNome={estiloNome} atuacao={brand.formData?.atuacao === 'Outra' ? brand.formData?.atuacaoOutra : brand.formData?.atuacao} contextoExtra={brand.formData?.contextoExtra} isSaude={isSaude} onManifestoGerado={handleManifestoGerado} />;
   }
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem', paddingTop: '0.5rem' }}>
@@ -2740,7 +2740,7 @@ const TOMDEVOZ_PERGUNTAS = [
   },
 ];
 
-function TomDeVozQuiz({ accentColor, marca, tagline, estiloNome, onTomDeVozGerado }) {
+function TomDeVozQuiz({ accentColor, marca, tagline, estiloNome, atuacao, contextoExtra, onTomDeVozGerado }) {
   const { dictionary, lang } = useTranslation();
   const tTom = dictionary?.tom_de_voz || {};
   const tQuiz = dictionary?.quiz || {};
@@ -2761,7 +2761,7 @@ function TomDeVozQuiz({ accentColor, marca, tagline, estiloNome, onTomDeVozGerad
       const res = await fetch('/api/generate-tomdevoz', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ marca, tagline, estiloNome, respostas: respostasArr, lang }),
+        body: JSON.stringify({ marca, tagline, estiloNome, atuacao, contextoExtra, respostas: respostasArr, lang }),
       });
       const data = await res.json();
       if (data.success) {
@@ -2959,7 +2959,7 @@ function TomDeVozStep({ accentColor, marca, tagline, brand, editData }) {
     return <TomDeVozDisplay tomDeVoz={tomDeVoz} accentColor={accentColor} marca={marca} onRegerar={handleRegerar} podeRefazer={geracoes < LIMITE} geracoes={geracoes} limite={LIMITE} />;
   }
   if (showQuiz) {
-    return <TomDeVozQuiz accentColor={accentColor} marca={marca} tagline={tagline} estiloNome={estiloNome} onTomDeVozGerado={handleTomDeVozGerado} />;
+    return <TomDeVozQuiz accentColor={accentColor} marca={marca} tagline={tagline} estiloNome={estiloNome} atuacao={brand.formData?.atuacao === 'Outra' ? brand.formData?.atuacaoOutra : brand.formData?.atuacao} contextoExtra={brand.formData?.contextoExtra} onTomDeVozGerado={handleTomDeVozGerado} />;
   }
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem', paddingTop: '0.5rem' }}>

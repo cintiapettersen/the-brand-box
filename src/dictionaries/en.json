@@ -1571,7 +1571,11 @@
     "summary_feelings": "Feelings",
     "summary_style": "Style",
     "summary_goals": "Goals",
-    "summary_text": "Based on this, I'm now looking for visual directions that fit your brand."
+    "summary_text": "Based on this, I'm now looking for visual directions that fit your brand.",
+    "step_4_other_btn": "Other",
+    "step_4_other_placeholder": "Type your field...",
+    "step_4_add_context_btn": "Add more context +",
+    "step_4_context_placeholder": "This helps us understand the context behind your brand. Tell us more about what you do, your unique approach, etc. (Optional)"
   },
   "postmatch": {
     "step_8_title": "Translating your essence into visual direction...",

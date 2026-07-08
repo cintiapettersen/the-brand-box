@@ -64,7 +64,7 @@ export default function Home() {
   const [customTagline, setCustomTagline] = useState('');
   
   const [formData, setFormData] = useState({
-    nome: '', email: '', marca: '', atuacao: '', atuacaoOutra: '', publico: '', sentimentos: [], elementosVisuais: [], personalidade: '', primeiraImpressao: '', locais: [], inspiracoes: '', nuncaPensar: ''
+    nome: '', email: '', marca: '', atuacao: '', atuacaoOutra: '', contextoExtra: '', publico: '', sentimentos: [], elementosVisuais: [], personalidade: '', primeiraImpressao: '', locais: [], inspiracoes: '', nuncaPensar: ''
   });
 
   // Sugestões de tagline agrupadas por categoria
@@ -138,6 +138,7 @@ export default function Home() {
   const [refazerAttempts, setRefazerAttempts] = useState(0);
   const [approvalChecked, setApprovalChecked] = useState(false);
   const [marcaSugestaoAceita, setMarcaSugestaoAceita] = useState(false);
+  const [showContext, setShowContext] = useState(false);
   const [selectedIcon, setSelectedIcon] = useState(null);
   const [showResumePrompt, setShowResumePrompt] = useState(false);
   const [savedProgress, setSavedProgress] = useState(null);
@@ -798,17 +799,21 @@ export default function Home() {
               <p style={{ fontSize: '1rem', color: 'var(--text-secondary)', marginBottom: '1.5rem' }}>{dictionary?.onboarding?.step_4_subtitle || 'Escolha a que mais combina com o seu negócio.'}</p>
               <div style={{ width: '100%', marginBottom: '1rem', overflowY: 'auto', maxHeight: '45vh' }}>
                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px', padding: '4px' }}>
-                  {[...areas, 'Outra'].map(a => (
+                  {[...areas, 'Other'].map(a => {
+                    const isOther = a === 'Other';
+                    const displayLabel = isOther ? (dictionary?.onboarding?.step_4_other_btn || 'Outra') : (dictionary?.onboarding?.areas_options?.[a] || a);
+                    const value = isOther ? 'Outra' : a;
+                    return (
                     <button
-                      key={a}
-                      onClick={() => setSingleChoice('atuacao', a)}
+                      key={value}
+                      onClick={() => setSingleChoice('atuacao', value)}
                       style={{
                         padding: '14px 10px',
                         borderRadius: '14px',
-                        border: formData.atuacao === a ? '2px solid var(--accent-turquoise)' : '1.5px solid var(--border)',
-                        background: formData.atuacao === a ? 'rgba(60,204,191,0.08)' : '#fafafa',
-                        color: formData.atuacao === a ? 'var(--accent-turquoise)' : 'var(--text-primary)',
-                        fontWeight: formData.atuacao === a ? 700 : 500,
+                        border: formData.atuacao === value ? '2px solid var(--accent-turquoise)' : '1.5px solid var(--border)',
+                        background: formData.atuacao === value ? 'rgba(60,204,191,0.08)' : '#fafafa',
+                        color: formData.atuacao === value ? 'var(--accent-turquoise)' : 'var(--text-primary)',
+                        fontWeight: formData.atuacao === value ? 700 : 500,
                         fontSize: '0.82rem',
                         lineHeight: 1.4,
                         cursor: 'pointer',
@@ -816,8 +821,8 @@ export default function Home() {
                         textAlign: 'center',
                       }}
                     >
-                      {dictionary?.onboarding?.areas_options?.[a] || a}</button>
-                  ))}
+                      {displayLabel}</button>
+                  )})}
                 </div>
               </div>
               
@@ -826,6 +831,25 @@ export default function Home() {
                   <input name="atuacaoOutra" value={formData.atuacaoOutra} onChange={handleInput} placeholder={dictionary?.onboarding?.step_4_other_placeholder || 'Digite sua área...'} style={{ width: '100%', padding: '12px 16px', borderRadius: '12px', border: '1px solid var(--border)', fontSize: '1rem' }} />
                 </motion.div>
               )}
+              
+              <div style={{ width: '100%', marginBottom: '1.5rem', marginTop: '0.5rem', textAlign: 'center' }}>
+                {!showContext ? (
+                  <button onClick={() => setShowContext(true)} style={{ background: 'transparent', border: 'none', color: 'var(--accent-turquoise)', fontWeight: 600, fontSize: '0.9rem', cursor: 'pointer', padding: '10px' }}>
+                    {dictionary?.onboarding?.step_4_add_context_btn || 'Adicionar mais contexto +'}
+                  </button>
+                ) : (
+                  <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: 'auto' }} style={{ width: '100%' }}>
+                    <textarea 
+                      name="contextoExtra" 
+                      value={formData.contextoExtra} 
+                      onChange={handleInput} 
+                      placeholder={dictionary?.onboarding?.step_4_context_placeholder || 'Isso nos ajuda a entender o contexto e a alma da sua marca. Conte mais sobre o que você faz, seu diferencial, etc. (Opcional)'}
+                      style={{ width: '100%', padding: '12px 16px', borderRadius: '12px', border: '1px solid var(--border)', fontSize: '0.95rem', minHeight: '100px', outline: 'none' }} 
+                    />
+                  </motion.div>
+                )}
+              </div>
+
               <button onClick={() => setStep(5)} className="btn-secondary" style={{ opacity: (formData.atuacao !== '' && (formData.atuacao !== 'Outra' || formData.atuacaoOutra !== '')) ? 1 : 0.5, pointerEvents: (formData.atuacao !== '' && (formData.atuacao !== 'Outra' || formData.atuacaoOutra !== '')) ? 'auto' : 'none' }}>{dictionary?.onboarding?.btn_next || 'Avançar'}</button>
             </motion.div>
           )}
@@ -1931,7 +1955,8 @@ export default function Home() {
                     onClick={() => {
                       localStorage.removeItem('brandbox_progress');
                       setStep(1);
-                      setFormData({ nome: '', email: '', marca: '', atuacao: '', atuacaoOutra: '', publico: '', sentimentos: [], elementosVisuais: [] });
+                      setFormData({ nome: '', email: '', marca: '', atuacao: '', atuacaoOutra: '', contextoExtra: '', publico: '', sentimentos: [], elementosVisuais: [], personalidade: '', primeiraImpressao: '', locais: [], inspiracoes: '', nuncaPensar: '' });
+                      setShowContext(false);
                       setResultadoFinal(null);
                       setSelectedTagline('');
                       setCustomTagline('');

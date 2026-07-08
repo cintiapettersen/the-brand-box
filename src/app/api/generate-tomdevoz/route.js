@@ -2,7 +2,7 @@ import { GoogleGenAI } from "@google/genai";
 
 export async function POST(req) {
   try {
-    const { marca, tagline, estiloNome, respostas, lang = 'pt-BR' } = await req.json();
+    const { marca, tagline, estiloNome, atuacao, contextoExtra, respostas, lang = 'pt-BR' } = await req.json();
     const ai = new GoogleGenAI({ apiKey: (process.env.GEMINI_API_KEY ? process.env.GEMINI_API_KEY.replace(/['"]/g, '') : undefined) });
     const isEng = lang === 'en';
 

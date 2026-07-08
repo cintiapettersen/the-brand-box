@@ -1491,7 +1491,11 @@
     "summary_feelings": "Sentimentos",
     "summary_style": "Estilo",
     "summary_goals": "Objetivos",
-    "summary_text": "Com base nisso, estou buscando as direções visuais que melhor se encaixam na sua marca."
+    "summary_text": "Com base nisso, estou buscando as direções visuais que melhor se encaixam na sua marca.",
+    "step_4_other_btn": "Outra",
+    "step_4_other_placeholder": "Digite sua área...",
+    "step_4_add_context_btn": "Adicionar mais contexto +",
+    "step_4_context_placeholder": "Isso nos ajuda a entender o contexto e a alma da sua marca. Conte mais sobre o que você faz, seu diferencial, etc. (Opcional)"
   },
   "postmatch": {
     "step_8_title": "Traduzindo sua essência em direção visual...",

@@ -2,7 +2,7 @@ import { GoogleGenAI } from "@google/genai";
 
 export async function POST(req) {
   try {
-    const { marca, tagline, estiloNome, respostas, lang = 'pt-BR' } = await req.json();
+    const { marca, tagline, estiloNome, atuacao, contextoExtra, respostas, lang = 'pt-BR' } = await req.json();
 
     const ai = new GoogleGenAI({ apiKey: (process.env.GEMINI_API_KEY ? process.env.GEMINI_API_KEY.replace(/['"]/g, '') : undefined) });
     const isEng = lang === 'en';
@@ -12,6 +12,10 @@ export async function POST(req) {
 Crie um **Manifesto de Marca** único e poético para a marca "${marca}"${tagline ? ` (tagline: "${tagline}")` : ''}.
 
 Estilo visual da marca: ${estiloNome || 'elegante e atemporal'}.
+
+Contexto da marca:
+${atuacao ? `- Área de atuação: ${atuacao}` : ''}
+${contextoExtra ? `- Informações extras da fundadora: "${contextoExtra}"` : ''}
 
 Respostas da fundadora sobre sua marca:
 ${respostas.map(r => `- ${r.pergunta}: "${r.resposta}"`).join('\n')}
