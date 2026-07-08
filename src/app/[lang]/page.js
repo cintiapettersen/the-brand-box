@@ -64,7 +64,7 @@ export default function Home() {
   const [customTagline, setCustomTagline] = useState('');
   
   const [formData, setFormData] = useState({
-    nome: '', email: '', marca: '', atuacao: '', atuacaoOutra: '', publico: '', sentimentos: [], elementosVisuais: [], identidade: ''
+    nome: '', email: '', marca: '', atuacao: '', atuacaoOutra: '', publico: '', sentimentos: [], elementosVisuais: [], personalidade: '', primeiraImpressao: '', locais: [], inspiracoes: '', nuncaPensar: ''
   });
 
   // Sugestões de tagline agrupadas por categoria
@@ -573,6 +573,18 @@ export default function Home() {
     "Neutra / Unissex"
   ];
 
+  
+  const primeirasImpressoes = ['Professional', 'Creative', 'Trustworthy', 'Premium', 'Friendly', 'Playful', 'Elegant', 'Modern', 'Calm', 'Bold', 'Natural', 'Innovative'];
+  const personalidades = ['Calm', 'Bold', 'Elegant', 'Joyful', 'Minimal', 'Expressive'];
+  const locais_options = ['Instagram', 'Printed materials', 'Packaging', 'Website', 'Clothing', 'Products', 'Signage', 'Presentations'];
+
+  const toggleLocal = (val) => {
+    setFormData(prev => ({
+      ...prev,
+      locais: prev.locais.includes(val) ? prev.locais.filter(item => item !== val) : [...prev.locais, val]
+    }));
+  };
+
   const sensacoes = [
     "Acolhimento e cuidado",
     "Alegria e leveza",
@@ -619,10 +631,16 @@ export default function Home() {
       )}
       <div style={{ width: '100%', maxWidth: '700px', position: 'relative', height: '85vh', marginTop: devMode ? '22px' : 0 }}>
 
-        {step > 1 && step <= 7 && (
+        {step > 1 && step < 8 && (
            <button onClick={() => {
-             if (step === 6) setStep(5.5);
-             else if (step === 5.5) setStep(5);
+             if (step === 7.8) setStep(7.5);
+             else if (step === 7.5) setStep(7.2);
+             else if (step === 7.2) setStep(7);
+             else if (step === 7) setStep(6.5);
+             else if (step === 6.5) setStep(6);
+             else if (step === 6) setStep(5.5);
+             else if (step === 5.5) setStep(5.2);
+             else if (step === 5.2) setStep(5);
              else setStep(s => s - 1);
            }} style={{ position: 'absolute', top: '10px', left: '10px', background: 'var(--bg-soft)', border: '1px solid var(--border)', borderRadius: '30px', padding: '6px 14px', color: 'var(--text-secondary)', cursor: 'pointer', zIndex: 100, fontSize: '0.85rem', fontWeight: 500, transition: 'all 0.2s ease', display: 'flex', alignItems: 'center', gap: '5px' }}>
              ← {dictionary?.onboarding?.btn_back || 'Voltar'}
@@ -682,7 +700,11 @@ export default function Home() {
             >
               <div style={{ position: 'absolute', top: '3rem', left: '3rem', right: '3rem', height: '4px', background: 'var(--border)', borderRadius: '4px' }}><div style={{ height: '100%', background: 'var(--accent-turquoise)', width: '15%', borderRadius: '4px', transition: 'width 0.5s' }} /></div>
               <h2 style={{ fontSize: '2rem', marginBottom: '0.5rem' }}>{dictionary?.onboarding?.step_2_title || 'Antes de começarmos...'}</h2>
-              <p style={{ fontSize: '1rem', color: 'var(--text-secondary)', marginBottom: '2rem' }}>{dictionary?.onboarding?.step_2_subtitle || 'Como você gostaria de ser chamada(o)?'}</p>
+              <div style={{ background: '#fff8f0', border: '1px solid #f5d9b8', borderRadius: '12px', padding: '12px 14px', marginBottom: '2rem', textAlign: 'left', width: '100%' }}>
+                <p style={{ fontSize: '0.85rem', color: '#7a4a1e', lineHeight: 1.5 }}>
+                  💡 {dictionary?.onboarding?.step_2_hint || 'Seu nome ajuda a personalizar a experiência.'}
+                </p>
+              </div>
               <div style={{ width: '100%', marginBottom: '2rem', display: 'flex', flexDirection: 'column', gap: '15px' }}>
                 <input name="nome" value={formData.nome} onChange={handleInput} placeholder={dictionary?.onboarding?.step_2_name_placeholder || 'Seu nome ou apelido'} />
                 <input name="email" value={formData.email} onChange={handleInput} type="email" placeholder={dictionary?.onboarding?.step_2_email_placeholder || 'O seu melhor e-mail'} />
@@ -698,7 +720,11 @@ export default function Home() {
             >
               <div style={{ position: 'absolute', top: '3rem', left: '3rem', right: '3rem', height: '4px', background: 'var(--border)', borderRadius: '4px' }}><div style={{ height: '100%', background: 'var(--accent-turquoise)', width: '30%', borderRadius: '4px', transition: 'width 0.5s' }} /></div>
               <h2 style={{ fontSize: '2rem', marginBottom: '0.5rem' }}>{dictionary?.onboarding?.step_3_title || 'E a sua marca?'}</h2>
-              <p style={{ fontSize: '1rem', color: 'var(--text-secondary)', marginBottom: '2rem' }}>{dictionary?.onboarding?.step_3_subtitle || 'Este nome vai guiar toda a sua identidade visual.'}</p>
+              <div style={{ background: '#f0fdf4', border: '1px solid #86efac', borderRadius: '12px', padding: '12px 14px', marginBottom: '2rem', textAlign: 'left', width: '100%' }}>
+                <p style={{ fontSize: '0.85rem', color: '#166534', lineHeight: 1.5 }}>
+                  💡 {dictionary?.onboarding?.step_3_hint || 'Grandes marcas geralmente começam com um nome simples. 🥹'}
+                </p>
+              </div>
               <div style={{ width: '100%', marginBottom: '0.75rem' }}>
                 <input name="marca" value={formData.marca} onChange={e => { handleInput(e); setMarcaSugestaoAceita(false); }} placeholder={dictionary?.onboarding?.step_3_placeholder || 'Ex: Clínica Sonho Meu...'} />
               </div>
@@ -770,7 +796,7 @@ export default function Home() {
               <p style={{ fontSize: '1rem', color: 'var(--text-secondary)', marginBottom: '1.5rem' }}>{dictionary?.onboarding?.step_4_subtitle || 'Escolha a que mais combina com o seu negócio.'}</p>
               <div style={{ width: '100%', marginBottom: '1rem', overflowY: 'auto', maxHeight: '45vh' }}>
                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px', padding: '4px' }}>
-                  {areas.map(a => (
+                  {[...areas, 'Outra'].map(a => (
                     <button
                       key={a}
                       onClick={() => setSingleChoice('atuacao', a)}
@@ -792,7 +818,13 @@ export default function Home() {
                   ))}
                 </div>
               </div>
-              <button onClick={nextStep} className="btn-secondary" style={{ opacity: (formData.atuacao !== '' && (formData.atuacao !== 'Outra área' || formData.atuacaoOutra !== '')) ? 1 : 0.5, pointerEvents: (formData.atuacao !== '' && (formData.atuacao !== 'Outra área' || formData.atuacaoOutra !== '')) ? 'auto' : 'none' }}>{dictionary?.onboarding?.btn_next || 'Avançar'}</button>
+              
+              {formData.atuacao === 'Outra' && (
+                <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: 'auto' }} style={{ width: '100%', marginBottom: '1rem' }}>
+                  <input name="atuacaoOutra" value={formData.atuacaoOutra} onChange={handleInput} placeholder={dictionary?.onboarding?.step_4_other_placeholder || 'Digite sua área...'} style={{ width: '100%', padding: '12px 16px', borderRadius: '12px', border: '1px solid var(--border)', fontSize: '1rem' }} />
+                </motion.div>
+              )}
+              <button onClick={() => setStep(5)} className="btn-secondary" style={{ opacity: (formData.atuacao !== '' && (formData.atuacao !== 'Outra' || formData.atuacaoOutra !== '')) ? 1 : 0.5, pointerEvents: (formData.atuacao !== '' && (formData.atuacao !== 'Outra' || formData.atuacaoOutra !== '')) ? 'auto' : 'none' }}>{dictionary?.onboarding?.btn_next || 'Avançar'}</button>
             </motion.div>
           )}
 
@@ -807,7 +839,26 @@ export default function Home() {
               <div style={{ width: '100%', marginBottom: '2rem', display: 'flex', flexDirection: 'column', gap: '10px', alignItems: 'center' }}>
                 {publicos.map(p => (<button key={p} onClick={() => setSingleChoice('publico', p)} style={chipStyle(formData.publico === p)}>{dictionary?.onboarding?.publicos_options?.[p] || p}</button>))}
               </div>
-              <button onClick={() => setStep(5.5)} className="btn-secondary" style={{ opacity: formData.publico ? 1 : 0.5, pointerEvents: formData.publico ? 'auto' : 'none' }}>{dictionary?.onboarding?.btn_next || 'Avançar'}</button>
+              <button onClick={() => setStep(5.2)} className="btn-secondary" style={{ opacity: formData.publico ? 1 : 0.5, pointerEvents: formData.publico ? 'auto' : 'none' }}>{dictionary?.onboarding?.btn_next || 'Avançar'}</button>
+            </motion.div>
+          )}
+
+          {step === 5.2 && (
+            <motion.div 
+              key="step5_2" variants={variants} initial="initial" animate="animate" exit="exit" transition={{ duration: 0.5 }}
+              className="wizard-step" style={{ position: 'absolute', width: '100%', height: '100%', display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center', background: '#ffffff', borderRadius: '24px', border: '1px solid var(--border)' }}
+            >
+              <div style={{ position: 'absolute', top: '3rem', left: '3rem', right: '3rem', height: '4px', background: 'var(--border)', borderRadius: '4px' }}><div style={{ height: '100%', background: 'var(--accent-turquoise)', width: '75%', borderRadius: '4px', transition: 'width 0.5s' }} /></div>
+              <h2 style={{ fontSize: '1.8rem', marginBottom: '0.5rem' }}>{dictionary?.onboarding?.step_5_2_title || 'O que você quer que as pessoas pensem quando virem sua marca pela primeira vez? ❤️'}</h2>
+              <p style={{ fontSize: '1rem', color: 'var(--text-secondary)', marginBottom: '1.5rem' }}>{dictionary?.onboarding?.step_5_2_subtitle || 'Escolha a principal primeira impressão.'}</p>
+              <div style={{ width: '100%', marginBottom: '1.5rem', display: 'flex', flexWrap: 'wrap', gap: '10px', justifyContent: 'center' }}>
+                {primeirasImpressoes.map(i => (
+                   <button key={i} onClick={() => setSingleChoice('primeiraImpressao', i)} style={chipStyle(formData.primeiraImpressao === i)}>
+                     {dictionary?.onboarding?.primeiras_impressoes_options?.[i] || i}
+                   </button>
+                ))}
+              </div>
+              <button onClick={() => setStep(5.5)} className="btn-secondary" style={{ opacity: formData.primeiraImpressao ? 1 : 0.5, pointerEvents: formData.primeiraImpressao ? 'auto' : 'none' }}>{dictionary?.onboarding?.btn_next || 'Avançar'}</button>
             </motion.div>
           )}
 
@@ -817,12 +868,12 @@ export default function Home() {
               className="wizard-step" style={{ position: 'absolute', width: '100%', height: '100%', display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center', background: '#ffffff', borderRadius: '24px', border: '1px solid var(--border)' }}
             >
               <div style={{ position: 'absolute', top: '3rem', left: '3rem', right: '3rem', height: '4px', background: 'var(--border)', borderRadius: '4px' }}><div style={{ height: '100%', background: 'var(--accent-turquoise)', width: '80%', borderRadius: '4px', transition: 'width 0.5s' }} /></div>
-              <h2 style={{ fontSize: '2rem', marginBottom: '0.5rem' }}>{dictionary?.onboarding?.step_5_5_title || 'Qual a energia da sua marca?'}</h2>
-              <p style={{ fontSize: '1rem', color: 'var(--text-secondary)', marginBottom: '1.5rem' }}>{dictionary?.onboarding?.step_5_5_subtitle || 'Isso ajuda a calibrarmos as cores e os elementos visuais (evitando estampas que não combinem com você).'}</p>
+              <h2 style={{ fontSize: '1.8rem', marginBottom: '0.5rem' }}>{dictionary?.onboarding?.step_5_5_title || 'Qual descreve melhor a personalidade da sua marca?'}</h2>
+              <p style={{ fontSize: '1rem', color: 'var(--text-secondary)', marginBottom: '1.5rem' }}>{dictionary?.onboarding?.step_5_5_subtitle || 'Isso ajuda a calibrar as cores e os elementos visuais.'}</p>
               <div style={{ width: '100%', marginBottom: '2rem', display: 'flex', flexDirection: 'column', gap: '10px', alignItems: 'center' }}>
-                {identidades.map(i => (<button key={i} onClick={() => setSingleChoice('identidade', i)} style={chipStyle(formData.identidade === i)}>{dictionary?.onboarding?.identidades_options?.[i] || i}</button>))}
+                {personalidades.map(i => (<button key={i} onClick={() => setSingleChoice('personalidade', i)} style={chipStyle(formData.personalidade === i)}>{dictionary?.onboarding?.personalidades_options?.[i] || i}</button>))}
               </div>
-              <button onClick={() => setStep(6)} className="btn-secondary" style={{ opacity: formData.identidade ? 1 : 0.5, pointerEvents: formData.identidade ? 'auto' : 'none' }}>{dictionary?.onboarding?.btn_next || 'Avançar'}</button>
+              <button onClick={() => setStep(6)} className="btn-secondary" style={{ opacity: formData.personalidade ? 1 : 0.5, pointerEvents: formData.personalidade ? 'auto' : 'none' }}>{dictionary?.onboarding?.btn_next || 'Avançar'}</button>
             </motion.div>
           )}
 
@@ -832,7 +883,7 @@ export default function Home() {
               className="wizard-step" style={{ position: 'absolute', width: '100%', height: '100%', display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center', background: '#ffffff', borderRadius: '24px', border: '1px solid var(--border)' }}
             >
               <div style={{ position: 'absolute', top: '3rem', left: '3rem', right: '3rem', height: '4px', background: 'var(--border)', borderRadius: '4px' }}><div style={{ height: '100%', background: 'var(--accent-turquoise)', width: '90%', borderRadius: '4px', transition: 'width 0.5s' }} /></div>
-              <h2 style={{ fontSize: '2rem', marginBottom: '0.5rem' }}>{dictionary?.onboarding?.step_6_title || 'Que sensações você quer transmitir?'}</h2>
+              <h2 style={{ fontSize: '2rem', marginBottom: '0.5rem' }}>{dictionary?.onboarding?.step_6_title || 'Como as pessoas devem se sentir após interagir com a sua marca? ❤️'}</h2>
               <p style={{ fontSize: '1rem', color: 'var(--text-secondary)', marginBottom: '1.5rem' }}>{dictionary?.onboarding?.step_6_subtitle || 'Selecione até 2 opções que mais se conectam com a sua marca.'}</p>
               <div style={{ width: '100%', marginBottom: '1.5rem', display: 'flex', flexWrap: 'wrap', gap: '10px', justifyContent: 'center' }}>
                 {sensacoes.map(s => {
@@ -843,7 +894,27 @@ export default function Home() {
                 })}
               </div>
               <p style={{fontSize: '0.9rem', color: 'var(--text-secondary)', marginBottom: '1.5rem', fontWeight: 500}}>{dictionary?.onboarding?.step_6_selected?.replace('{count}', formData.sentimentos.length) || `Selecionadas: ${formData.sentimentos.length}/2`}</p>
-              <button onClick={nextStep} className="btn-primary" style={{ opacity: formData.sentimentos.length > 0 ? 1 : 0.5, pointerEvents: formData.sentimentos.length > 0 ? 'auto' : 'none' }}>{dictionary?.onboarding?.btn_next || 'Avançar'}</button>
+              <button onClick={() => setStep(6.5)} className="btn-primary" style={{ opacity: formData.sentimentos.length > 0 ? 1 : 0.5, pointerEvents: formData.sentimentos.length > 0 ? 'auto' : 'none' }}>{dictionary?.onboarding?.btn_next || 'Avançar'}</button>
+            </motion.div>
+          )}
+
+          {step === 6.5 && (
+            <motion.div 
+              key="step6_5" variants={variants} initial="initial" animate="animate" exit="exit" transition={{ duration: 0.5 }}
+              className="wizard-step" style={{ position: 'absolute', width: '100%', height: '100%', display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center', background: '#ffffff', borderRadius: '24px', border: '1px solid var(--border)' }}
+            >
+              <div style={{ position: 'absolute', top: '3rem', left: '3rem', right: '3rem', height: '4px', background: 'var(--border)', borderRadius: '4px' }}><div style={{ height: '100%', background: 'var(--accent-turquoise)', width: '92%', borderRadius: '4px', transition: 'width 0.5s' }} /></div>
+              <h2 style={{ fontSize: '1.8rem', marginBottom: '0.5rem' }}>{dictionary?.onboarding?.step_6_5_title || 'Onde a sua marca vai aparecer com mais frequência?'}</h2>
+              <p style={{ fontSize: '1rem', color: 'var(--text-secondary)', marginBottom: '1.5rem' }}>{dictionary?.onboarding?.step_6_5_subtitle || 'Selecione todos que se aplicam.'}</p>
+              <div style={{ width: '100%', marginBottom: '1.5rem', display: 'flex', flexWrap: 'wrap', gap: '10px', justifyContent: 'center' }}>
+                {locais_options.map(s => {
+                  const isSelected = formData.locais.includes(s);
+                  return (
+                    <button key={s} onClick={() => toggleLocal(s)} style={{ background: isSelected ? 'var(--accent-turquoise)' : '#fff', color: isSelected ? '#fff' : 'var(--text-secondary)', border: `1.5px solid ${isSelected ? 'var(--accent-turquoise)' : 'var(--border)'}`, padding: '10px 20px', borderRadius: '30px', cursor: 'pointer', transition: 'all 0.2s ease', fontSize: '1rem', fontWeight: isSelected ? 500 : 400 }}>{dictionary?.onboarding?.locais_options?.[s] || s}</button>
+                  )
+                })}
+              </div>
+              <button onClick={() => setStep(7)} className="btn-primary" style={{ opacity: formData.locais.length > 0 ? 1 : 0.5, pointerEvents: formData.locais.length > 0 ? 'auto' : 'none' }}>{dictionary?.onboarding?.btn_next || 'Avançar'}</button>
             </motion.div>
           )}
 
@@ -852,7 +923,7 @@ export default function Home() {
               key="step7" variants={variants} initial="initial" animate="animate" exit="exit" transition={{ duration: 0.5 }}
               className="wizard-step" style={{ position: 'absolute', width: '100%', height: '100%', display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center', background: '#ffffff', borderRadius: '24px', border: '1px solid var(--border)' }}
             >
-              <div style={{ position: 'absolute', top: '3rem', left: '3rem', right: '3rem', height: '4px', background: 'var(--border)', borderRadius: '4px' }}><div style={{ height: '100%', background: 'var(--accent-turquoise)', width: '95%', borderRadius: '4px', transition: 'width 0.5s' }} /></div>
+              <div style={{ position: 'absolute', top: '3rem', left: '3rem', right: '3rem', height: '4px', background: 'var(--border)', borderRadius: '4px' }}><div style={{ height: '100%', background: 'var(--accent-turquoise)', width: '94%', borderRadius: '4px', transition: 'width 0.5s' }} /></div>
               <h2 style={{ fontSize: '2rem', marginBottom: '0.5rem' }}>{dictionary?.onboarding?.step_7_title || 'O que não pode faltar no layout?'}</h2>
               <p style={{ fontSize: '1rem', color: 'var(--text-secondary)', marginBottom: '1.5rem' }}>{dictionary?.onboarding?.step_7_subtitle || 'Quais elementos visuais e temáticos são vitais para você? (Escolha 1 opção)'}</p>
               <div style={{ width: '100%', marginBottom: '1.5rem', display: 'flex', flexWrap: 'wrap', gap: '10px', justifyContent: 'center' }}>
@@ -863,7 +934,56 @@ export default function Home() {
                   )
                 })}
               </div>
-              <button onClick={callMatchmaker} className="btn-primary" style={{ opacity: formData.elementosVisuais.length > 0 ? 1 : 0.5, pointerEvents: formData.elementosVisuais.length > 0 ? 'auto' : 'none' }}>{dictionary?.onboarding?.btn_matchmaker || 'Descobrir meu Estilo Ideal ✨'}</button>
+              <button onClick={() => setStep(7.2)} className="btn-primary" style={{ opacity: formData.elementosVisuais.length > 0 ? 1 : 0.5, pointerEvents: formData.elementosVisuais.length > 0 ? 'auto' : 'none' }}>{dictionary?.onboarding?.btn_next || 'Avançar'}</button>
+            </motion.div>
+          )}
+
+          {step === 7.2 && (
+            <motion.div 
+              key="step7_2" variants={variants} initial="initial" animate="animate" exit="exit" transition={{ duration: 0.5 }}
+              className="wizard-step" style={{ position: 'absolute', width: '100%', height: '100%', display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center', background: '#ffffff', borderRadius: '24px', border: '1px solid var(--border)' }}
+            >
+              <div style={{ position: 'absolute', top: '3rem', left: '3rem', right: '3rem', height: '4px', background: 'var(--border)', borderRadius: '4px' }}><div style={{ height: '100%', background: 'var(--accent-turquoise)', width: '96%', borderRadius: '4px', transition: 'width 0.5s' }} /></div>
+              <h2 style={{ fontSize: '2rem', marginBottom: '0.5rem' }}>{dictionary?.onboarding?.step_7_2_title || 'Quais marcas te inspiram?'}</h2>
+              <p style={{ fontSize: '1rem', color: 'var(--text-secondary)', marginBottom: '1.5rem' }}>{dictionary?.onboarding?.step_7_2_subtitle || 'Não para copiar, mas para calibrar o estilo. Escreva nomes ou cole links. (Opcional)'}</p>
+              <div style={{ width: '100%', marginBottom: '1.5rem' }}>
+                <textarea name="inspiracoes" value={formData.inspiracoes} onChange={handleInput} placeholder={dictionary?.onboarding?.step_7_2_placeholder || 'Ex: Apple, Natura, Nubank...'} style={{ width: '100%', padding: '12px 16px', borderRadius: '12px', border: '1px solid var(--border)', fontSize: '1rem', minHeight: '100px' }} />
+              </div>
+              <button onClick={() => setStep(7.5)} className="btn-secondary">{dictionary?.onboarding?.btn_next || 'Avançar'}</button>
+            </motion.div>
+          )}
+
+          {step === 7.5 && (
+            <motion.div 
+              key="step7_5" variants={variants} initial="initial" animate="animate" exit="exit" transition={{ duration: 0.5 }}
+              className="wizard-step" style={{ position: 'absolute', width: '100%', height: '100%', display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center', background: '#ffffff', borderRadius: '24px', border: '1px solid var(--border)' }}
+            >
+              <div style={{ position: 'absolute', top: '3rem', left: '3rem', right: '3rem', height: '4px', background: 'var(--border)', borderRadius: '4px' }}><div style={{ height: '100%', background: 'var(--accent-turquoise)', width: '98%', borderRadius: '4px', transition: 'width 0.5s' }} /></div>
+              <h2 style={{ fontSize: '2rem', marginBottom: '0.5rem' }}>{dictionary?.onboarding?.step_7_5_title || 'O que as pessoas NUNCA devem pensar da sua marca? 😳'}</h2>
+              <p style={{ fontSize: '1rem', color: 'var(--text-secondary)', marginBottom: '1.5rem' }}>{dictionary?.onboarding?.step_7_5_subtitle || "Ex: 'Não quero parecer infantil', 'Não quero parecer cara demais'. (Opcional)"}</p>
+              <div style={{ width: '100%', marginBottom: '1.5rem' }}>
+                <textarea name="nuncaPensar" value={formData.nuncaPensar} onChange={handleInput} placeholder={dictionary?.onboarding?.step_7_5_placeholder || 'Escreva aqui...'} style={{ width: '100%', padding: '12px 16px', borderRadius: '12px', border: '1px solid var(--border)', fontSize: '1rem', minHeight: '100px' }} />
+              </div>
+              <button onClick={() => setStep(7.8)} className="btn-secondary">{dictionary?.onboarding?.btn_next || 'Avançar'}</button>
+            </motion.div>
+          )}
+
+          {step === 7.8 && (
+            <motion.div 
+              key="step7_8" variants={variants} initial="initial" animate="animate" exit="exit" transition={{ duration: 0.5 }}
+              className="wizard-step" style={{ position: 'absolute', width: '100%', height: '100%', display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center', background: '#ffffff', borderRadius: '24px', border: '1px solid var(--border)' }}
+            >
+              <div style={{ position: 'absolute', top: '3rem', left: '3rem', right: '3rem', height: '4px', background: 'var(--border)', borderRadius: '4px' }}><div style={{ height: '100%', background: 'var(--accent-turquoise)', width: '100%', borderRadius: '4px', transition: 'width 0.5s' }} /></div>
+              <h2 style={{ fontSize: '2rem', marginBottom: '1rem' }}>{dictionary?.onboarding?.step_7_8_title || 'Aqui está o que eu entendi sobre a sua marca.'}</h2>
+              <div style={{ background: 'var(--bg-soft)', borderRadius: '16px', padding: '1.5rem', width: '100%', textAlign: 'left', marginBottom: '1.5rem' }}>
+                 <p style={{ margin: '8px 0', fontSize: '1.1rem' }}>✅ <strong>{dictionary?.onboarding?.summary_audience || 'Público'}:</strong> {dictionary?.onboarding?.publicos_options?.[formData.publico] || formData.publico}</p>
+                 <p style={{ margin: '8px 0', fontSize: '1.1rem' }}>✅ <strong>{dictionary?.onboarding?.summary_personality || 'Personalidade'}:</strong> {dictionary?.onboarding?.personalidades_options?.[formData.personalidade] || formData.personalidade}</p>
+                 <p style={{ margin: '8px 0', fontSize: '1.1rem' }}>✅ <strong>{dictionary?.onboarding?.summary_feelings || 'Sentimentos'}:</strong> {formData.sentimentos.length} selecionados</p>
+                 <p style={{ margin: '8px 0', fontSize: '1.1rem' }}>✅ <strong>{dictionary?.onboarding?.summary_style || 'Estilo'}:</strong> {dictionary?.onboarding?.primeiras_impressoes_options?.[formData.primeiraImpressao] || formData.primeiraImpressao}</p>
+                 <p style={{ margin: '8px 0', fontSize: '1.1rem' }}>✅ <strong>{dictionary?.onboarding?.summary_goals || 'Objetivos'}:</strong> Alinhados</p>
+              </div>
+              <p style={{ fontSize: '1rem', color: 'var(--text-secondary)', marginBottom: '1.5rem' }}>{dictionary?.onboarding?.summary_text || 'Com base nisso, estou buscando as direções visuais que melhor se encaixam na sua marca.'}</p>
+              <button onClick={callMatchmaker} className="btn-primary" style={{ background: 'var(--accent-magenta)' }}>{dictionary?.onboarding?.step_7_8_btn || 'Gerando...'}</button>
             </motion.div>
           )}
 

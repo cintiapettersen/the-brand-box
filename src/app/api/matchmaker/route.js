@@ -39,8 +39,12 @@ export async function POST(req) {
     Nome: ${body.nome}
     Área de Atuação: ${body.atuacao} - ${body.atuacaoOutra}
     Público Alvo: ${body.publico}
-    Identidade / Energia da Marca: ${body.identidade}
-    Sensações desejadas: ${body.sentimentos.join(", ")}
+    Primeira Impressão Desejada: ${body.primeiraImpressao || "Não informada"}
+    Personalidade da Marca: ${body.personalidade || body.identidade || "Não informada"}
+    Sensações Pós-Interação: ${body.sentimentos ? body.sentimentos.join(", ") : "Não informadas"}
+    Onde a marca mais vai aparecer: ${body.locais ? body.locais.join(", ") : "Não informados"}
+    Marcas de Inspiração (Estilo Calibrado): ${body.inspiracoes || "Nenhuma informada"}
+    O que NUNCA pensar da marca (Red Flags): ${body.nuncaPensar || "Nenhuma restrição informada"}
     Elementos Visuais exigidos na arte: ${body.elementosVisuais ? body.elementosVisuais.join(", ") : "Nenhum específico"}
     
     Aja como uma consultora mágica. Identifique o melhor estilo com base nestas regras.
