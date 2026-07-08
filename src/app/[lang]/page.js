@@ -655,8 +655,8 @@ export default function Home() {
              else if (step === 7.2) setStep(7);
              else if (step === 7) setStep(6.5);
              else if (step === 6.5) setStep(6);
-             else if (step === 6) setStep(5.5);
-             else if (step === 5.5) setStep(5.2);
+             else if (step === 6) setStep(5.2);
+             
              else if (step === 5.2) setStep(5);
              else setStep(s => s - 1);
            }} style={{ position: 'absolute', top: '10px', left: '10px', background: 'var(--bg-soft)', border: '1px solid var(--border)', borderRadius: '30px', padding: '6px 14px', color: 'var(--text-secondary)', cursor: 'pointer', zIndex: 100, fontSize: '0.85rem', fontWeight: 500, transition: 'all 0.2s ease', display: 'flex', alignItems: 'center', gap: '5px' }}>
@@ -906,22 +906,7 @@ export default function Home() {
                    </button>
                 ))}
               </div>
-              <button onClick={() => setStep(5.5)} className="btn-secondary" style={{ opacity: formData.primeiraImpressao ? 1 : 0.5, pointerEvents: formData.primeiraImpressao ? 'auto' : 'none' }}>{dictionary?.onboarding?.btn_next || 'Avançar'}</button>
-            </motion.div>
-          )}
-
-          {step === 5.5 && (
-            <motion.div 
-              key="step5_5" variants={variants} initial="initial" animate="animate" exit="exit" transition={{ duration: 0.5 }}
-              className="wizard-step" style={{ position: 'absolute', width: '100%', height: '100%', display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center', background: '#ffffff', borderRadius: '24px', border: '1px solid var(--border)' }}
-            >
-              <div style={{ position: 'absolute', top: '3rem', left: '3rem', right: '3rem', height: '4px', background: 'var(--border)', borderRadius: '4px' }}><div style={{ height: '100%', background: 'var(--accent-turquoise)', width: '80%', borderRadius: '4px', transition: 'width 0.5s' }} /></div>
-              <h2 style={{ fontSize: '1.8rem', marginBottom: '0.5rem' }}>{dictionary?.onboarding?.step_5_5_title || 'Qual descreve melhor a personalidade da sua marca?'}</h2>
-              <p style={{ fontSize: '1rem', color: 'var(--text-secondary)', marginBottom: '1.5rem' }}>{dictionary?.onboarding?.step_5_5_subtitle || 'Isso ajuda a calibrar as cores e os elementos visuais.'}</p>
-              <div style={{ width: '100%', marginBottom: '2rem', display: 'flex', flexDirection: 'column', gap: '10px', alignItems: 'center' }}>
-                {personalidades.map(i => (<button key={i} onClick={() => setSingleChoice('personalidade', i)} style={chipStyle(formData.personalidade === i)}>{dictionary?.onboarding?.personalidades_options?.[i] || i}</button>))}
-              </div>
-              <button onClick={() => setStep(6)} className="btn-secondary" style={{ opacity: formData.personalidade ? 1 : 0.5, pointerEvents: formData.personalidade ? 'auto' : 'none' }}>{dictionary?.onboarding?.btn_next || 'Avançar'}</button>
+              <button onClick={() => setStep(6)} className="btn-secondary" style={{ opacity: formData.primeiraImpressao ? 1 : 0.5, pointerEvents: formData.primeiraImpressao ? 'auto' : 'none' }}>{dictionary?.onboarding?.btn_next || 'Avançar'}</button>
             </motion.div>
           )}
 
@@ -1025,7 +1010,6 @@ export default function Home() {
               <h2 style={{ fontSize: '2rem', marginBottom: '1rem' }}>{dictionary?.onboarding?.step_7_8_title || 'Aqui está o que eu entendi sobre a sua marca.'}</h2>
               <div style={{ background: 'var(--bg-soft)', borderRadius: '16px', padding: '1.5rem', width: '100%', textAlign: 'left', marginBottom: '1.5rem' }}>
                  <p style={{ margin: '8px 0', fontSize: '1.1rem' }}>✅ <strong>{dictionary?.onboarding?.summary_audience || 'Público'}:</strong> {dictionary?.onboarding?.publicos_options?.[formData.publico] || formData.publico}</p>
-                 <p style={{ margin: '8px 0', fontSize: '1.1rem' }}>✅ <strong>{dictionary?.onboarding?.summary_personality || 'Personalidade'}:</strong> {dictionary?.onboarding?.personalidades_options?.[formData.personalidade] || formData.personalidade}</p>
                  <p style={{ margin: '8px 0', fontSize: '1.1rem' }}>✅ <strong>{dictionary?.onboarding?.summary_feelings || 'Sentimentos'}:</strong> {formData.sentimentos.length} selecionados</p>
                  <p style={{ margin: '8px 0', fontSize: '1.1rem' }}>✅ <strong>{dictionary?.onboarding?.summary_style || 'Estilo'}:</strong> {dictionary?.onboarding?.primeiras_impressoes_options?.[formData.primeiraImpressao] || formData.primeiraImpressao}</p>
                  <p style={{ margin: '8px 0', fontSize: '1.1rem' }}>✅ <strong>{dictionary?.onboarding?.summary_goals || 'Objetivos'}:</strong> Alinhados</p>
