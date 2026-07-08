@@ -1387,7 +1387,7 @@
     "step_4_title": "Qual é a sua área de atuação?",
     "step_4_subtitle": "Escolha a que mais combina com o seu negócio.",
     "step_5_title": "Para quem você atende?",
-    "step_5_subtitle": "Qual o seu público principal?",
+    "step_5_subtitle": "Seu público influencia o estilo, cores e linguagem visual que vamos sugerir.",
     "step_5_5_title": "Qual descreve melhor a personalidade da sua marca?",
     "step_5_5_subtitle": "Isso ajuda a calibrar as cores e os elementos visuais.",
     "step_6_title": "Como as pessoas devem se sentir após interagir com a sua marca? ❤️",
@@ -1495,7 +1495,8 @@
     "step_4_other_btn": "Outra",
     "step_4_other_placeholder": "Digite sua área...",
     "step_4_add_context_btn": "Adicionar mais contexto +",
-    "step_4_context_placeholder": "Isso nos ajuda a entender o contexto e a alma da sua marca. Conte mais sobre o que você faz, seu diferencial, etc. (Opcional)"
+    "step_4_context_placeholder": "Isso nos ajuda a entender o contexto e a alma da sua marca. Conte mais sobre o que você faz, seu diferencial, etc. (Opcional)",
+    "step_5_hint": "Pense com quem você quer se conectar, não necessariamente quem compra de você."
   },
   "postmatch": {
     "step_8_title": "Traduzindo sua essência em direção visual...",

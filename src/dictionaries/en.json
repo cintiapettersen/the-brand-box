@@ -1467,7 +1467,7 @@
     "step_4_title": "What is your field of work?",
     "step_4_subtitle": "Choose the one that best suits your business.",
     "step_5_title": "Who do you serve?",
-    "step_5_subtitle": "What is your main audience?",
+    "step_5_subtitle": "Your audience influences the style, colors and visual language we'll suggest.",
     "step_5_5_title": "Which best describes your brand personality?",
     "step_5_5_subtitle": "This helps calibrate colors and visual elements.",
     "step_6_title": "How should people feel after interacting with your brand? ❤️",
@@ -1575,7 +1575,8 @@
     "step_4_other_btn": "Other",
     "step_4_other_placeholder": "Type your field...",
     "step_4_add_context_btn": "Add more context +",
-    "step_4_context_placeholder": "This helps us understand the context behind your brand. Tell us more about what you do, your unique approach, etc. (Optional)"
+    "step_4_context_placeholder": "This helps us understand the context behind your brand. Tell us more about what you do, your unique approach, etc. (Optional)",
+    "step_5_hint": "Think about who you're trying to connect with, not necessarily who buys from you."
   },
   "postmatch": {
     "step_8_title": "Translating your essence into visual direction...",
