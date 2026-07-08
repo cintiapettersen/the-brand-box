@@ -138,7 +138,8 @@ input:focus {
 }
 
 ::placeholder {
-    color: #a09d9b;
+    color: #d8d4d1;
+    font-weight: 300;
 }
 
 button {
@@ -216,4 +217,52 @@ button {
   .brand-board-wrapper {
     zoom: 0.38;
   }
+}
+
+/* Tooltip */
+.hint-tooltip {
+  position: relative;
+  display: inline-block;
+  cursor: help;
+  font-size: 1.2rem;
+  padding: 4px;
+}
+
+.hint-tooltip .tooltiptext {
+  visibility: hidden;
+  width: 260px;
+  background-color: var(--text-primary);
+  color: #fff;
+  text-align: center;
+  border-radius: 8px;
+  padding: 8px 12px;
+  position: absolute;
+  z-index: 1;
+  bottom: 130%; 
+  left: 50%;
+  margin-left: -130px;
+  opacity: 0;
+  transition: opacity 0.3s;
+  font-size: 0.85rem;
+  font-weight: 400;
+  font-family: 'Outfit', sans-serif;
+  line-height: 1.4;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+  pointer-events: none;
+}
+
+.hint-tooltip .tooltiptext::after {
+  content: "";
+  position: absolute;
+  top: 100%;
+  left: 50%;
+  margin-left: -6px;
+  border-width: 6px;
+  border-style: solid;
+  border-color: var(--text-primary) transparent transparent transparent;
+}
+
+.hint-tooltip:hover .tooltiptext {
+  visibility: visible;
+  opacity: 1;
 }
