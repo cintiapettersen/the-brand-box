@@ -703,7 +703,7 @@ export default function Home() {
               <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', marginBottom: '2rem' }}>
                 <h2 style={{ fontSize: '2rem', margin: 0 }}>{dictionary?.onboarding?.step_2_title || 'Antes de começarmos...'}</h2>
                 <div className="hint-tooltip">
-                  💡
+                  <LightbulbIcon size={20} />
                   <span className="tooltiptext">{dictionary?.onboarding?.step_2_hint || 'Seu nome de contato, como você se chama, e não a sua marca...'}</span>
                 </div>
               </div>
@@ -724,7 +724,7 @@ export default function Home() {
               <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', marginBottom: '2rem' }}>
                 <h2 style={{ fontSize: '2rem', margin: 0 }}>{dictionary?.onboarding?.step_3_title || 'E a sua marca?'}</h2>
                 <div className="hint-tooltip">
-                  💡
+                  <LightbulbIcon size={20} />
                   <span className="tooltiptext">{dictionary?.onboarding?.step_3_hint || 'Grandes marcas geralmente começam com um nome simples. 🥹'}</span>
                 </div>
               </div>
@@ -863,7 +863,7 @@ export default function Home() {
               <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', marginBottom: '0.5rem' }}>
                 <h2 style={{ fontSize: '2rem', margin: 0 }}>{dictionary?.onboarding?.step_5_title || 'Para quem você atende?'}</h2>
                 <div className="hint-tooltip">
-                  💡
+                  <LightbulbIcon size={20} />
                   <span className="tooltiptext">{dictionary?.onboarding?.step_5_hint || 'Pense com quem você quer se conectar, não necessariamente quem compra de você.'}</span>
                 </div>
               </div>
