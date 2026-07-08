@@ -1450,7 +1450,7 @@
   "onboarding": {
     "step_2_title": "Before we start...",
     "step_2_subtitle": "How would you like to be called?",
-    "step_2_name_placeholder": "Maria",
+    "step_2_name_placeholder": "Your name",
     "step_2_email_placeholder": "Your best email",
     "btn_continue": "Continue",
     "btn_next": "Next",
