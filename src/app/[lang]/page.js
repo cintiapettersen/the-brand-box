@@ -867,7 +867,13 @@ export default function Home() {
                 )}
               </div>
 
-              <button onClick={() => setStep(5)} className="btn-secondary" style={{ opacity: (formData.atuacao !== '' && (formData.atuacao !== 'Outra' || formData.atuacaoOutra !== '')) ? 1 : 0.5, pointerEvents: (formData.atuacao !== '' && (formData.atuacao !== 'Outra' || formData.atuacaoOutra !== '')) ? 'auto' : 'none' }}>{dictionary?.onboarding?.btn_next || 'Avançar'}</button>
+              <button onClick={() => {
+                if (formData.atuacao !== '' && (formData.atuacao !== 'Outra' || formData.atuacaoOutra !== '')) {
+                  setStep(5);
+                } else {
+                  alert(dictionary?.onboarding?.step_4_alert || 'Por favor, selecione uma área de atuação antes de avançar.');
+                }
+              }} className="btn-secondary" style={{ opacity: (formData.atuacao !== '' && (formData.atuacao !== 'Outra' || formData.atuacaoOutra !== '')) ? 1 : 0.5 }}>{dictionary?.onboarding?.btn_next || 'Avançar'}</button>
             </motion.div>
           )}
 
