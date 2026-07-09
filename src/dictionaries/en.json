@@ -1470,7 +1470,7 @@
     "step_5_subtitle": "Your audience influences the style, colors and visual language we'll suggest.",
     "step_5_5_title": "Which best describes your brand personality?",
     "step_5_5_subtitle": "This helps calibrate colors and visual elements.",
-    "step_6_title": "How should people feel after interacting with your brand? ❤️",
+    "step_6_title": "How should people feel after interacting with your brand?",
     "step_6_subtitle": "Select up to 2 options that best connect with your brand.",
     "step_6_selected": "Selected: {count}/2",
     "step_7_title": "What cannot be missing in the layout?",
@@ -1503,7 +1503,8 @@
       "Sofisticação e elegância": "Sophistication and elegance",
       "Criatividade e originalidade": "Creativity and originality",
       "Encantamento e delicadeza": "Enchantment and delicacy",
-      "Natureza e tranquilidade": "Nature and tranquility"
+      "Natureza e tranquilidade": "Nature and tranquility",
+      "Inovação e modernidade": "Innovation and modernity"
     },
     "elementos_options": {
       "Cores vibrantes": "Vibrant colors",

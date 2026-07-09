@@ -1390,7 +1390,7 @@
     "step_5_subtitle": "Seu público influencia o estilo, cores e linguagem visual que vamos sugerir.",
     "step_5_5_title": "Qual descreve melhor a personalidade da sua marca?",
     "step_5_5_subtitle": "Isso ajuda a calibrar as cores e os elementos visuais.",
-    "step_6_title": "Como as pessoas devem se sentir após interagir com a sua marca? ❤️",
+    "step_6_title": "Como as pessoas devem se sentir após interagir com a sua marca?",
     "step_6_subtitle": "Selecione até 2 opções que mais se conectam com a sua marca.",
     "step_6_selected": "Selecionadas: {count}/2",
     "step_7_title": "O que não pode faltar no layout?",
@@ -1423,7 +1423,8 @@
       "Sofisticação e elegância": "Sofisticação e elegância",
       "Criatividade e originalidade": "Criatividade e originalidade",
       "Encantamento e delicadeza": "Encantamento e delicadeza",
-      "Natureza e tranquilidade": "Natureza e tranquilidade"
+      "Natureza e tranquilidade": "Natureza e tranquilidade",
+      "Inovação e modernidade": "Inovação e modernidade"
     },
     "elementos_options": {
       "Cores vibrantes": "Cores vibrantes",

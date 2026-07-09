@@ -609,7 +609,8 @@ export default function Home() {
     "Sofisticação e elegância",
     "Criatividade e originalidade",
     "Encantamento e delicadeza",
-    "Natureza e tranquilidade"
+    "Natureza e tranquilidade",
+    "Inovação e modernidade"
   ];
 
   const variants = {
@@ -916,7 +917,7 @@ export default function Home() {
               className="wizard-step" style={{ position: 'absolute', width: '100%', height: '100%', display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center', background: '#ffffff', borderRadius: '24px', border: '1px solid var(--border)' }}
             >
               <div style={{ position: 'absolute', top: '3rem', left: '3rem', right: '3rem', height: '4px', background: 'var(--border)', borderRadius: '4px' }}><div style={{ height: '100%', background: 'var(--accent-turquoise)', width: '90%', borderRadius: '4px', transition: 'width 0.5s' }} /></div>
-              <h2 style={{ fontSize: '2rem', marginBottom: '0.5rem' }}>{dictionary?.onboarding?.step_6_title || 'Como as pessoas devem se sentir após interagir com a sua marca? ❤️'}</h2>
+              <h2 style={{ fontSize: '2rem', marginBottom: '0.5rem' }}>{dictionary?.onboarding?.step_6_title || 'Como as pessoas devem se sentir após interagir com a sua marca?'}</h2>
               <p style={{ fontSize: '1rem', color: 'var(--text-secondary)', marginBottom: '1.5rem' }}>{dictionary?.onboarding?.step_6_subtitle || 'Selecione até 2 opções que mais se conectam com a sua marca.'}</p>
               <div style={{ width: '100%', marginBottom: '1.5rem', display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px' }}>
                 {sensacoes.map(s => {
