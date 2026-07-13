@@ -1119,7 +1119,7 @@ export default function Home() {
               
               <div style={{ background: 'var(--bg-soft)', padding: '1.5rem', borderRadius: '16px', marginBottom: '2rem', border: '1px solid var(--border)' }}>
                 <p className="mobile-font-sm" style={{ fontSize: '1.15rem', color: 'var(--text-primary)', lineHeight: 1.5, fontStyle: 'italic' }}>
-                  "{resultadoFinal.mensagem}"
+                  &quot;{resultadoFinal.mensagem}&quot;
                 </p>
               </div>
 
