@@ -159,7 +159,7 @@ export default function Home() {
   const [showResumePrompt, setShowResumePrompt] = useState(false);
   const [savedProgress, setSavedProgress] = useState(null);
   const [loadingCheckout, setLoadingCheckout] = useState(false);
-  const [inspiracoesOption, setInspiracoesOption] = useState('');
+
   const brandBoardRef = useRef(null);
 
   // Restaura progresso salvo ao montar
