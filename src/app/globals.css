@@ -184,8 +184,9 @@ button {
 /* MOBILE RESPONSIVE UTILITIES                  */
 /* ============================================ */
 .wizard-step {
-  padding: 3rem;
-  justify-content: center;
+  padding: 5rem 3rem 3rem 3rem;
+  justify-content: flex-start;
+  overflow-y: auto;
 }
 
 .brand-board-wrapper {

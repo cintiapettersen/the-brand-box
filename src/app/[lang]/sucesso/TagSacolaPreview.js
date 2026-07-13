@@ -36,8 +36,8 @@ function TagCard({ size, solidColor, c0, c1, paletteColors, effectiveSrc, patter
         {(() => {
           const hasImg = !!editData?.customLogoSrc;
           const isRect = size.shape === 'rect';
-          const boxW = Math.round(W * (isCircle ? 0.68 : isRect ? 0.75 : 0.80));
-          const boxH = Math.round(H * (isCircle ? 0.55 : isRect ? 0.65 : 0.65));
+          const boxW = Math.round(W * (isCircle ? 0.62 : isRect ? 0.58 : 0.70));
+          const boxH = Math.round(H * (isCircle ? 0.55 : isRect ? 0.58 : 0.62));
           return (
             <div style={{
               position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%)', zIndex: 2,

@@ -129,7 +129,7 @@ export const genPDFLogoHtml = ({ brand, editDataOverride = null, color, localSlo
   const _sloganMaxLineLen = (localSlogan && !hideSlogan) ? displaySloganLines.reduce((max, l) => Math.max(max, l.length), 0) : 0;
   // inclui o letter-spacing real do slogan no cálculo de largura
   const _sloganLsFactor = _sloganLenRaw > 45 ? 1.55 : _sloganLenRaw > 30 ? 1.48 : _sloganLenRaw > 15 ? 1.40 : 1.35;
-  const _sloganW_pt = _sloganMaxLineLen * (parseFloat(effectiveSloganSize) * 0.6 * _sloganLsFactor);
+  const _sloganW_pt = _sloganMaxLineLen * (parseFloat(effectiveSloganSize) * 0.65 * _sloganLsFactor);
   const _estimatedWidthPt = Math.max(_logoW_pt, _crmW_pt, _sloganW_pt);
   const _maxWidthPt = _maxWmm ? _maxWmm * 2.83465 : 9999;
   const _autoZoomW = (_estimatedWidthPt > _maxWidthPt) ? (_maxWidthPt / _estimatedWidthPt) : 1;
@@ -166,7 +166,7 @@ export const genPDFLogoHtml = ({ brand, editDataOverride = null, color, localSlo
   `;
 
   const sloganPart = (localSlogan && !hideSlogan) ? `
-    <div style="${PDFStyles.montserrat} font-size:${_effectiveSloganSizeScaled}; font-weight:700; letter-spacing:${_sloganLs}; text-transform:uppercase; color:${_sloganColor}; margin-top:${isStacked ? _sloganGapScaled + 'pt' : '0'}; text-align:${alignLeft ? 'left' : 'center'}; max-width:100%; overflow:hidden;">
+    <div style="${PDFStyles.montserrat} font-size:${_effectiveSloganSizeScaled}; font-weight:700; letter-spacing:${_sloganLs}; text-transform:uppercase; color:${_sloganColor}; margin-top:${isStacked ? _sloganGapScaled + 'pt' : '0'}; text-align:${alignLeft ? 'left' : 'center'}; max-width:100%; overflow:visible;">
       ${displaySloganLines.map(l => `<div style="white-space:nowrap;text-align:${alignLeft ? 'left' : 'center'};">${l}</div>`).join('')}
     </div>` : '';
   

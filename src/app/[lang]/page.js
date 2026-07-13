@@ -80,7 +80,7 @@ export default function Home() {
   const [customTagline, setCustomTagline] = useState('');
   
   const [formData, setFormData] = useState({
-    nome: '', email: '', marca: '', atuacao: '', atuacaoOutra: '', contextoExtra: '', publico: '', sentimentos: [], elementosVisuais: [], personalidade: '', primeiraImpressao: '', locais: [], inspiracoes: '', nuncaPensar: ''
+    nome: '', email: '', marca: '', atuacao: '', atuacaoOutra: '', contextoExtra: '', publico: '', sentimentos: [], elementosVisuais: [], personalidade: '', primeiraImpressao: '', locais: [], inspiracoes: '', inspiracoesTags: [], nuncaPensar: '', nuncaPensarTags: []
   });
 
   // Sugestões de tagline agrupadas por categoria
@@ -159,6 +159,7 @@ export default function Home() {
   const [showResumePrompt, setShowResumePrompt] = useState(false);
   const [savedProgress, setSavedProgress] = useState(null);
   const [loadingCheckout, setLoadingCheckout] = useState(false);
+  const [inspiracoesOption, setInspiracoesOption] = useState('');
   const brandBoardRef = useRef(null);
 
   // Restaura progresso salvo ao montar
@@ -512,7 +513,7 @@ export default function Home() {
       if (current.includes(label)) {
         return { ...prev, sentimentos: current.filter(item => item !== label) };
       }
-      if (current.length < 2) {
+      if (current.length < 3) {
         return { ...prev, sentimentos: [...current, label] };
       }
       return prev;
@@ -603,15 +604,57 @@ export default function Home() {
   };
 
   const sensacoes = [
-    "Acolhimento e cuidado",
-    "Alegria e leveza",
-    "Confiança e profissionalismo",
-    "Sofisticação e elegância",
-    "Criatividade e originalidade",
-    "Encantamento e delicadeza",
-    "Natureza e tranquilidade",
-    "Inovação e modernidade"
+    "Profissional",
+    "Acolhedora",
+    "Criativa",
+    "Elegante",
+    "Moderna",
+    "Divertida",
+    "Premium",
+    "Natural",
+    "Confiável",
+    "Sofisticada",
+    "Minimalista",
+    "Alegre",
+    "Ousada",
+    "Leve",
+    "Delicada",
+    "Inovadora"
   ];
+
+  const nuncaPensarOpcoes = [
+    "Infantil demais", "Séria ou fria demais", "Genérica / Igual a todas", "Amadora", "Confusa", "Poluída visualmente", "Antiquada", "Muito luxuosa", "Muito simples", "Pouco confiável", "Sem profissionalismo", "Sem criatividade", "Outra..."
+  ];
+
+  const toggleNuncaPensar = (val) => {
+    setFormData(prev => {
+      const current = prev.nuncaPensarTags || [];
+      if (current.includes(val)) {
+        return { ...prev, nuncaPensarTags: current.filter(item => item !== val) };
+      }
+      if (current.length < 3) {
+        return { ...prev, nuncaPensarTags: [...current, val] };
+      }
+      return prev;
+    });
+  };
+
+  const inspiracoesOpcoes = [
+    "Jardim Encantado", "Escandinavo Acolhedor", "Essência Atemporal", "Raízes & Cuidado", "Doce Encantamento", "Estético Editorial", "Outros..."
+  ];
+
+  const toggleInspiracoes = (val) => {
+    setFormData(prev => {
+      const current = prev.inspiracoesTags || [];
+      if (current.includes(val)) {
+        return { ...prev, inspiracoesTags: current.filter(item => item !== val) };
+      }
+      if (current.length < 3) {
+        return { ...prev, inspiracoesTags: [...current, val] };
+      }
+      return prev;
+    });
+  };
 
   const variants = {
     initial: { y: 20, opacity: 0 },
@@ -656,7 +699,7 @@ export default function Home() {
              else if (step === 7.2) setStep(7);
              else if (step === 7) setStep(6.5);
              else if (step === 6.5) setStep(6);
-             else if (step === 6) setStep(5.2);
+             else if (step === 6) setStep(5);
              
              else if (step === 5.2) setStep(5);
              else setStep(s => s - 1);
@@ -738,28 +781,41 @@ export default function Home() {
               className="wizard-step" style={{ position: 'absolute', width: '100%', height: '100%', display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center', background: '#ffffff', borderRadius: '24px', border: '1px solid var(--border)' }}
             >
               <div style={{ position: 'absolute', top: '3rem', left: '3rem', right: '3rem', height: '4px', background: 'var(--border)', borderRadius: '4px' }}><div style={{ height: '100%', background: 'var(--accent-turquoise)', width: '30%', borderRadius: '4px', transition: 'width 0.5s' }} /></div>
-              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', marginBottom: '2rem' }}>
-                <h2 style={{ fontSize: '2rem', margin: 0 }}>{dictionary?.onboarding?.step_3_title || 'E a sua marca?'}</h2>
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', marginBottom: '0.5rem' }}>
+                <h2 style={{ fontSize: '1.8rem', margin: 0 }}>{dictionary?.onboarding?.step_3_title || 'Qual nome vai aparecer na sua identidade visual?'}</h2>
                 <div className="hint-tooltip">
                   <LightbulbIcon size={20} />
-                  <span className="tooltiptext">{dictionary?.onboarding?.step_3_hint || 'Grandes marcas geralmente começam com um nome simples. 🥹'}</span>
+                  <span className="tooltiptext">{dictionary?.onboarding?.step_3_hint || 'Nomes curtos costumam ser mais fáceis de lembrar, mas o mais importante é que ele faça sentido para você. Você ainda pode mudar esse nome depois.'}</span>
                 </div>
               </div>
+              <p style={{ fontSize: '0.95rem', color: 'var(--text-secondary)', marginBottom: '2rem', maxWidth: '450px' }}>
+                {dictionary?.onboarding?.step_3_subtitle || 'Pode ser o nome da sua empresa, da sua marca, do seu produto ou até o seu próprio nome.'}
+              </p>
               <div style={{ width: '100%', marginBottom: '0.75rem' }}>
                 <input name="marca" value={formData.marca} onChange={e => { handleInput(e); setMarcaSugestaoAceita(false); }} placeholder={dictionary?.onboarding?.step_3_placeholder || 'Ex: Clínica Sonho Meu...'} />
               </div>
 
               {/* Contador de palavras */}
-              {formData.marca && (() => {
-                const palavras = formData.marca.trim().split(/\s+/).filter(Boolean);
-                const count = palavras.length;
-                const ok = count <= 3;
-                return (
-                  <p style={{ fontSize: '0.78rem', color: ok ? '#3cccbf' : '#e07a30', fontWeight: 600, marginBottom: '0.75rem', transition: 'color 0.3s' }}>
-                    {ok ? (dictionary?.onboarding?.step_3_words_ok?.replace('{count}', count) || `${count} palavra${count > 1 ? 's' : ''} — ótimo para uma logo bonita ✓`) : (dictionary?.onboarding?.step_3_words_warning?.replace('{count}', count) || `${count} palavras — veja a dica abaixo`)}
-                  </p>
-                );
-              })()}
+              {formData.marca && (
+                <div style={{ marginTop: '0.5rem', fontSize: '0.85rem', color: 'var(--text-secondary)', fontWeight: 500 }}>
+                  {(() => {
+                    const val = formData.marca.trim();
+                    if (val.length === 0) return null;
+                    
+                    const isPersonal = /^(dr|dra|dr\.|dra\.|doutor|doutora|prof|profa|prof\.|profa\.|psicóloga|psicólogo|nutri|nutricionista|advogado|advogada|arquiteto|arquiteta|eng\.|eng|engenheiro|engenheira)\b/i.test(val);
+                    const wordCount = val.split(/\s+/).length;
+                    
+                    if (isPersonal) {
+                      return <span style={{ color: 'var(--accent-turquoise)' }}>{dictionary?.onboarding?.step_3_feedback_personal || '💡 Marcas pessoais costumam transmitir mais proximidade e confiança.'}</span>;
+                    } else if (wordCount > 3) {
+                      return <span style={{ color: 'var(--accent-magenta)' }}>{dictionary?.onboarding?.step_3_feedback_long || '💡 Nomes longos podem funcionar, mas talvez uma versão reduzida fique mais memorável.'}</span>;
+                    } else {
+                      const text = dictionary?.onboarding?.step_3_feedback_short?.replace('{count}', wordCount) || `✅ Nome de ${wordCount} palavra(s). Fácil de memorizar.`;
+                      return <span style={{ color: 'var(--accent-turquoise)' }}>{text}</span>;
+                    }
+                  })()}
+                </div>
+              )}
 
               {/* Confirmação de sugestão aceita */}
               {marcaSugestaoAceita && (
@@ -894,26 +950,7 @@ export default function Home() {
               <div style={{ width: '100%', marginBottom: '2rem', display: 'flex', flexDirection: 'column', gap: '10px', alignItems: 'center' }}>
                 {publicos.map(p => (<button key={p} onClick={() => setSingleChoice('publico', p)} style={chipStyle(formData.publico === p)}>{dictionary?.onboarding?.publicos_options?.[p] || p}</button>))}
               </div>
-              <button onClick={() => setStep(5.2)} className="btn-secondary" style={{ opacity: formData.publico ? 1 : 0.5, pointerEvents: formData.publico ? 'auto' : 'none' }}>{dictionary?.onboarding?.btn_next || 'Avançar'}</button>
-            </motion.div>
-          )}
-
-          {step === 5.2 && (
-            <motion.div 
-              key="step5_2" variants={variants} initial="initial" animate="animate" exit="exit" transition={{ duration: 0.5 }}
-              className="wizard-step" style={{ position: 'absolute', width: '100%', height: '100%', display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center', background: '#ffffff', borderRadius: '24px', border: '1px solid var(--border)' }}
-            >
-              <div style={{ position: 'absolute', top: '3rem', left: '3rem', right: '3rem', height: '4px', background: 'var(--border)', borderRadius: '4px' }}><div style={{ height: '100%', background: 'var(--accent-turquoise)', width: '75%', borderRadius: '4px', transition: 'width 0.5s' }} /></div>
-              <h2 style={{ fontSize: '1.4rem', marginBottom: '0.5rem' }}>{dictionary?.onboarding?.step_5_2_title || 'O que você quer que as pessoas pensem quando virem sua marca pela primeira vez?'}</h2>
-              <p style={{ fontSize: '1rem', color: 'var(--text-secondary)', marginBottom: '1.5rem' }}>{dictionary?.onboarding?.step_5_2_subtitle || 'Escolha a principal primeira impressão.'}</p>
-              <div style={{ width: '100%', marginBottom: '1.5rem', display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px' }}>
-                {primeirasImpressoes.map(i => (
-                   <button key={i} onClick={() => setSingleChoice('primeiraImpressao', i)} style={chipStyle(formData.primeiraImpressao === i)}>
-                     {dictionary?.onboarding?.primeiras_impressoes_options?.[i] || i}
-                   </button>
-                ))}
-              </div>
-              <button onClick={() => setStep(6)} className="btn-secondary" style={{ opacity: formData.primeiraImpressao ? 1 : 0.5, pointerEvents: formData.primeiraImpressao ? 'auto' : 'none' }}>{dictionary?.onboarding?.btn_next || 'Avançar'}</button>
+              <button onClick={() => { if (formData.publico) setStep(6); else alert(dictionary?.onboarding?.alert_select_option || 'Por favor, selecione uma opção antes de avançar.'); }} className="btn-secondary" style={{ opacity: formData.publico ? 1 : 0.5 }}>{dictionary?.onboarding?.btn_next || 'Avançar'}</button>
             </motion.div>
           )}
 
@@ -923,8 +960,8 @@ export default function Home() {
               className="wizard-step" style={{ position: 'absolute', width: '100%', height: '100%', display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center', background: '#ffffff', borderRadius: '24px', border: '1px solid var(--border)' }}
             >
               <div style={{ position: 'absolute', top: '3rem', left: '3rem', right: '3rem', height: '4px', background: 'var(--border)', borderRadius: '4px' }}><div style={{ height: '100%', background: 'var(--accent-turquoise)', width: '90%', borderRadius: '4px', transition: 'width 0.5s' }} /></div>
-              <h2 style={{ fontSize: '2rem', marginBottom: '0.5rem' }}>{dictionary?.onboarding?.step_6_title || 'Como as pessoas devem se sentir após interagir com a sua marca?'}</h2>
-              <p style={{ fontSize: '1rem', color: 'var(--text-secondary)', marginBottom: '1.5rem' }}>{dictionary?.onboarding?.step_6_subtitle || 'Selecione até 2 opções que mais se conectam com a sua marca.'}</p>
+              <h2 style={{ fontSize: '2rem', marginBottom: '0.5rem' }}>{dictionary?.onboarding?.step_6_title || 'Como você quer que sua marca seja percebida?'}</h2>
+              <p style={{ fontSize: '1rem', color: 'var(--text-secondary)', marginBottom: '1.5rem' }}>{dictionary?.onboarding?.step_6_subtitle || 'Escolha até 3 opções.'}</p>
               <div style={{ width: '100%', marginBottom: '1.5rem', display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px' }}>
                 {sensacoes.map(s => {
                   const isSelected = formData.sentimentos.includes(s);
@@ -933,8 +970,8 @@ export default function Home() {
                   )
                 })}
               </div>
-              <p style={{fontSize: '0.9rem', color: 'var(--text-secondary)', marginBottom: '1.5rem', fontWeight: 500}}>{dictionary?.onboarding?.step_6_selected?.replace('{count}', formData.sentimentos.length) || `Selecionadas: ${formData.sentimentos.length}/2`}</p>
-              <button onClick={() => setStep(6.5)} className="btn-primary" style={{ opacity: formData.sentimentos.length > 0 ? 1 : 0.5, pointerEvents: formData.sentimentos.length > 0 ? 'auto' : 'none' }}>{dictionary?.onboarding?.btn_next || 'Avançar'}</button>
+              <p style={{fontSize: '0.9rem', color: 'var(--text-secondary)', marginBottom: '1.5rem', fontWeight: 500}}>{dictionary?.onboarding?.step_6_selected?.replace('{count}', formData.sentimentos.length) || `Selecionadas: ${formData.sentimentos.length}/3`}</p>
+              <button onClick={() => { if (formData.sentimentos.length > 0) setStep(6.5); else alert(dictionary?.onboarding?.alert_select_option || 'Por favor, selecione uma opção antes de avançar.'); }} className="btn-primary" style={{ opacity: formData.sentimentos.length > 0 ? 1 : 0.5 }}>{dictionary?.onboarding?.btn_next || 'Avançar'}</button>
             </motion.div>
           )}
 
@@ -954,7 +991,7 @@ export default function Home() {
                   )
                 })}
               </div>
-              <button onClick={() => setStep(7)} className="btn-primary" style={{ opacity: formData.locais.length > 0 ? 1 : 0.5, pointerEvents: formData.locais.length > 0 ? 'auto' : 'none' }}>{dictionary?.onboarding?.btn_next || 'Avançar'}</button>
+              <button onClick={() => { if (formData.locais.length > 0) setStep(7); else alert(dictionary?.onboarding?.alert_select_option || 'Por favor, selecione uma opção antes de avançar.'); }} className="btn-primary" style={{ opacity: formData.locais.length > 0 ? 1 : 0.5 }}>{dictionary?.onboarding?.btn_next || 'Avançar'}</button>
             </motion.div>
           )}
 
@@ -974,7 +1011,7 @@ export default function Home() {
                   )
                 })}
               </div>
-              <button onClick={() => setStep(7.2)} className="btn-primary" style={{ opacity: formData.elementosVisuais.length > 0 ? 1 : 0.5, pointerEvents: formData.elementosVisuais.length > 0 ? 'auto' : 'none' }}>{dictionary?.onboarding?.btn_next || 'Avançar'}</button>
+              <button onClick={() => { if (formData.elementosVisuais.length > 0) setStep(7.2); else alert(dictionary?.onboarding?.alert_select_option || 'Por favor, selecione uma opção antes de avançar.'); }} className="btn-primary" style={{ opacity: formData.elementosVisuais.length > 0 ? 1 : 0.5 }}>{dictionary?.onboarding?.btn_next || 'Avançar'}</button>
             </motion.div>
           )}
 
@@ -984,12 +1021,27 @@ export default function Home() {
               className="wizard-step" style={{ position: 'absolute', width: '100%', height: '100%', display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center', background: '#ffffff', borderRadius: '24px', border: '1px solid var(--border)' }}
             >
               <div style={{ position: 'absolute', top: '3rem', left: '3rem', right: '3rem', height: '4px', background: 'var(--border)', borderRadius: '4px' }}><div style={{ height: '100%', background: 'var(--accent-turquoise)', width: '96%', borderRadius: '4px', transition: 'width 0.5s' }} /></div>
-              <h2 style={{ fontSize: '2rem', marginBottom: '0.5rem' }}>{dictionary?.onboarding?.step_7_2_title || 'Quais marcas te inspiram?'}</h2>
-              <p style={{ fontSize: '1rem', color: 'var(--text-secondary)', marginBottom: '1.5rem' }}>{dictionary?.onboarding?.step_7_2_subtitle || 'Não para copiar, mas para calibrar o estilo. Escreva nomes ou cole links. (Opcional)'}</p>
-              <div style={{ width: '100%', marginBottom: '1.5rem' }}>
-                <textarea name="inspiracoes" value={formData.inspiracoes} onChange={handleInput} placeholder={dictionary?.onboarding?.step_7_2_placeholder || 'Ex: Apple, Natura, Nubank...'} style={{ width: '100%', padding: '12px 16px', borderRadius: '12px', border: '1px solid var(--border)', fontSize: '1rem', minHeight: '100px' }} />
+              <h2 style={{ fontSize: '2rem', marginBottom: '0.5rem' }}>{dictionary?.onboarding?.step_7_2_title || 'Existe alguma marca cujo estilo você admira?'}</h2>
+              <p style={{ fontSize: '1rem', color: 'var(--text-secondary)', marginBottom: '1.5rem' }}>{dictionary?.onboarding?.step_7_2_subtitle || '(Opcional)'}</p>
+              
+              <div style={{ width: '100%', marginBottom: '1.5rem', display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px' }}>
+                {inspiracoesOpcoes.map(s => {
+                  const isSelected = (formData.inspiracoesTags || []).includes(s);
+                  return (
+                    <button key={s} onClick={() => toggleInspiracoes(s)} style={{ background: isSelected ? 'var(--accent-turquoise)' : '#fff', color: isSelected ? '#fff' : 'var(--text-secondary)', border: `1.5px solid ${isSelected ? 'var(--accent-turquoise)' : 'var(--border)'}`, padding: '10px 20px', borderRadius: '30px', cursor: 'pointer', transition: 'all 0.2s ease', fontSize: '1rem', fontWeight: isSelected ? 500 : 400 }}>{dictionary?.onboarding?.inspiracoes_options?.[s] || s}</button>
+                  )
+                })}
               </div>
-              <button onClick={() => setStep(7.5)} className="btn-secondary">{dictionary?.onboarding?.btn_next || 'Avançar'}</button>
+
+              <AnimatePresence>
+                {(formData.inspiracoesTags || []).includes('Outros...') && (
+                  <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: 'auto' }} exit={{ opacity: 0, height: 0 }} style={{ width: '100%', marginBottom: '1.5rem' }}>
+                    <textarea name="inspiracoes" value={formData.inspiracoes} onChange={handleInput} placeholder={dictionary?.onboarding?.step_7_2_placeholder || 'Ex: Apple, Natura, Nubank...'} style={{ width: '100%', padding: '12px 16px', borderRadius: '12px', border: '1px solid var(--border)', fontSize: '1rem', minHeight: '100px' }} autoFocus />
+                  </motion.div>
+                )}
+              </AnimatePresence>
+              
+              <button onClick={() => setStep(7.5)} className="btn-secondary" style={{ opacity: formData.inspiracoesTags?.length > 0 ? 1 : 0.5 }}>{dictionary?.onboarding?.btn_next || 'Avançar'}</button>
             </motion.div>
           )}
 
@@ -999,11 +1051,26 @@ export default function Home() {
               className="wizard-step" style={{ position: 'absolute', width: '100%', height: '100%', display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center', background: '#ffffff', borderRadius: '24px', border: '1px solid var(--border)' }}
             >
               <div style={{ position: 'absolute', top: '3rem', left: '3rem', right: '3rem', height: '4px', background: 'var(--border)', borderRadius: '4px' }}><div style={{ height: '100%', background: 'var(--accent-turquoise)', width: '98%', borderRadius: '4px', transition: 'width 0.5s' }} /></div>
-              <h2 style={{ fontSize: '2rem', marginBottom: '0.5rem' }}>{dictionary?.onboarding?.step_7_5_title || 'O que as pessoas NUNCA devem pensar da sua marca? 😳'}</h2>
-              <p style={{ fontSize: '1rem', color: 'var(--text-secondary)', marginBottom: '1.5rem' }}>{dictionary?.onboarding?.step_7_5_subtitle || "Ex: 'Não quero parecer infantil', 'Não quero parecer cara demais'. (Opcional)"}</p>
-              <div style={{ width: '100%', marginBottom: '1.5rem' }}>
-                <textarea name="nuncaPensar" value={formData.nuncaPensar} onChange={handleInput} placeholder={dictionary?.onboarding?.step_7_5_placeholder || 'Escreva aqui...'} style={{ width: '100%', padding: '12px 16px', borderRadius: '12px', border: '1px solid var(--border)', fontSize: '1rem', minHeight: '100px' }} />
+              <h2 style={{ fontSize: '2rem', marginBottom: '0.5rem' }}>{dictionary?.onboarding?.step_7_5_title || 'O que as pessoas NUNCA devem pensar da sua marca?'}</h2>
+              <p style={{ fontSize: '1rem', color: 'var(--text-secondary)', marginBottom: '1.5rem' }}>{dictionary?.onboarding?.step_7_5_subtitle || 'Escolha até 3 opções.'}</p>
+              
+              <div style={{ width: '100%', marginBottom: '1.5rem', display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px' }}>
+                {nuncaPensarOpcoes.map(s => {
+                  const isSelected = (formData.nuncaPensarTags || []).includes(s);
+                  return (
+                    <button key={s} onClick={() => toggleNuncaPensar(s)} style={{ background: isSelected ? 'var(--accent-turquoise)' : '#fff', color: isSelected ? '#fff' : 'var(--text-secondary)', border: `1.5px solid ${isSelected ? 'var(--accent-turquoise)' : 'var(--border)'}`, padding: '10px 20px', borderRadius: '30px', cursor: 'pointer', transition: 'all 0.2s ease', fontSize: '1rem', fontWeight: isSelected ? 500 : 400 }}>{dictionary?.onboarding?.nunca_pensar_options?.[s] || s}</button>
+                  )
+                })}
               </div>
+
+              <AnimatePresence>
+                {(formData.nuncaPensarTags || []).includes('Outra...') && (
+                  <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: 'auto' }} exit={{ opacity: 0, height: 0 }} style={{ width: '100%', marginBottom: '1.5rem' }}>
+                    <textarea name="nuncaPensar" value={formData.nuncaPensar} onChange={handleInput} placeholder={dictionary?.onboarding?.step_7_5_placeholder || "Ex: 'Não quero parecer infantil', 'Não quero parecer cara demais'."} style={{ width: '100%', padding: '12px 16px', borderRadius: '12px', border: '1px solid var(--border)', fontSize: '1rem', minHeight: '80px' }} autoFocus />
+                  </motion.div>
+                )}
+              </AnimatePresence>
+
               <button onClick={() => setStep(7.8)} className="btn-secondary">{dictionary?.onboarding?.btn_next || 'Avançar'}</button>
             </motion.div>
           )}
@@ -1251,10 +1318,21 @@ export default function Home() {
                   {customStep === 'cor' && (
                      <motion.div key="ccor" variants={slideVariants} initial="initial" animate="animate" exit="exit" transition={{ duration: 0.3 }} style={{ position: 'absolute', width: '100%', height: '100%', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: '25px', paddingBottom: '2rem' }}>
                         <p style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', textAlign: 'center', maxWidth: '320px', lineHeight: 1.5 }}>
-                          Essa cor será usada no logo, submarca e nos elementos de destaque da sua identidade visual.
+                          {dictionary?.postmatch?.step_10_color_desc || 'Essa cor será usada no logo, submarca e nos elementos de destaque da sua identidade visual.'}
                         </p>
                         <div style={{ display: 'flex', gap: '15px', flexWrap: 'wrap', justifyContent: 'center' }}>
                           {(() => {
+                            const isTooLight = (hexCode) => {
+                              if (!hexCode) return false;
+                              let c = hexCode.replace('#', '');
+                              if (c.length === 3) c = c.split('').map(x => x + x).join('');
+                              const rgb = parseInt(c, 16);
+                              const r = (rgb >> 16) & 0xff;
+                              const g = (rgb >>  8) & 0xff;
+                              const b = (rgb >>  0) & 0xff;
+                              const luma = 0.2126 * r + 0.7152 * g + 0.0722 * b;
+                              return luma > 220; 
+                            };
                             const sel = paletas.find(p => p.id === selectedPaleta);
                             console.log('🎯 Cor picker - selectedPaleta:', selectedPaleta, 'sel:', sel);
                             console.log('🎯 Todas paletas:', paletas.map(p => ({ id: p.id, hex: p.paleta_hex, cores: p.cores_hex })));
@@ -1265,20 +1343,27 @@ export default function Home() {
                               cores = qualquer?.paleta_hex || qualquer?.cores_hex || [];
                             }
                             if (cores.length === 0) return <p style={{ color: '#999', fontSize: '0.8rem' }}>{dictionary?.postmatch?.step_10_no_color || 'Nenhuma cor encontrada.'}</p>;
-                            return cores.map((hex, i) => (
-                              <div
-                                key={i}
-                                onClick={() => setEditData(prev => ({ ...prev, corAtiva: hex }))}
-                                style={{
-                                  width: '60px', height: '60px', borderRadius: '50%',
-                                  background: hex, cursor: 'pointer',
-                                  border: editData.corAtiva === hex ? '4px solid #333' : '3px solid #fff',
-                                  boxShadow: editData.corAtiva === hex ? '0 0 0 2px #333, 0 4px 15px rgba(0,0,0,0.2)' : '0 4px 15px rgba(0,0,0,0.15)',
-                                  transition: 'all 0.2s ease',
-                                  transform: editData.corAtiva === hex ? 'scale(1.15)' : 'scale(1)'
-                                }}
-                              />
-                            ));
+                            return cores.map((hex, i) => {
+                              const tooLight = isTooLight(hex);
+                              return (
+                                <div
+                                  key={i}
+                                  onClick={() => {
+                                    if (!tooLight) setEditData(prev => ({ ...prev, corAtiva: hex }));
+                                  }}
+                                  title={tooLight ? (dictionary?.postmatch?.color_too_light || 'Cor muito clara para destaque principal') : ''}
+                                  style={{
+                                    width: '60px', height: '60px', borderRadius: '50%',
+                                    background: hex, cursor: tooLight ? 'not-allowed' : 'pointer',
+                                    opacity: tooLight ? 0.3 : 1,
+                                    border: editData.corAtiva === hex ? '4px solid #333' : '3px solid #fff',
+                                    boxShadow: editData.corAtiva === hex ? '0 0 0 2px #333, 0 4px 15px rgba(0,0,0,0.2)' : '0 4px 15px rgba(0,0,0,0.15)',
+                                    transition: 'all 0.2s ease',
+                                    transform: editData.corAtiva === hex ? 'scale(1.15)' : 'scale(1)'
+                                  }}
+                                />
+                              );
+                            });
                           })()}
                         </div>
                         {editData.corAtiva && (
@@ -1734,7 +1819,7 @@ export default function Home() {
                         <p style={{ fontSize: '0.7rem', color: 'var(--text-secondary)', letterSpacing: '2px', textTransform: 'uppercase', fontWeight: 600, marginBottom: '2px' }}>brand box</p>
                         <h3 style={{ color: 'var(--text-primary)', fontSize: '1.2rem', fontWeight: 700 }}>{dictionary?.checkout?.plan_essence_title || 'ESSENCE'}</h3>
                       </div>
-                      <span style={{ fontWeight: 700, color: 'var(--text-primary)', fontSize: '1.3rem', whiteSpace: 'nowrap' }}>R$ 497</span>
+                      <span style={{ fontWeight: 700, color: 'var(--text-primary)', fontSize: '1.3rem', whiteSpace: 'nowrap' }}>{lang === 'en' ? '$ 98' : 'R$ 497'}</span>
                     </div>
                     <span style={{ display: 'inline-block', background: '#e8f7f5', color: '#1a7a6e', fontSize: '0.7rem', fontWeight: 700, borderRadius: '20px', padding: '3px 10px', letterSpacing: '0.5px', marginBottom: '10px' }}>{dictionary?.checkout?.plan_essence_badge || 'Sua marca completa'}</span>
                     <ul style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', margin: '0 0 12px 0', paddingLeft: '0', display: 'flex', flexDirection: 'column', gap: '5px', listStyle: 'none' }}>
@@ -1759,25 +1844,40 @@ export default function Home() {
                         setLoadingCheckout('starter');
                         console.log('🚀 Iniciando checkout Starter...');
                         try {
+                          let finalPatternUrl = null;
+                          const patternObj = selectedPattern !== null && generatedPatterns[selectedPattern] && !generatedPatterns[selectedPattern]._devPlaceholder
+                            ? { mimeType: generatedPatterns[selectedPattern].mimeType, base64: generatedPatterns[selectedPattern].base64 }
+                            : null;
+                          if (patternObj) {
+                            try {
+                              const uploadRes = await fetch('/api/salvar-estampa', {
+                                method: 'POST',
+                                headers: { 'Content-Type': 'application/json' },
+                                body: JSON.stringify({ base64: patternObj.base64, marca: formData.marca, sessionId: 'temp' })
+                              });
+                              const uploadData = await uploadRes.json();
+                              if (uploadData.url) finalPatternUrl = uploadData.url;
+                            } catch (e) { console.warn('Pattern upload error:', e); }
+                          }
+
                           const brandState = {
                           editData, formData, resultadoFinal,
                           selectedPaleta, selectedIcon, selectedTipo,
                           paletas, tipografias,
                           activeColor: editData.corAtiva,
-                          pattern: selectedPattern !== null && generatedPatterns[selectedPattern] && !generatedPatterns[selectedPattern]._devPlaceholder
-                            ? { mimeType: generatedPatterns[selectedPattern].mimeType, base64: generatedPatterns[selectedPattern].base64 }
-                            : null,
+                          pattern: finalPatternUrl ? { url: finalPatternUrl } : patternObj,
                           iconPath: getIconById(ESTILO_NOME_BY_ID[resultadoFinal?.estiloId] || resultadoFinal?.estiloNome, selectedIcon)?.path || null,
                           patternGenerationCount,
                           estampas,
                         };
-                        if (brandState.pattern) try { localStorage.setItem('brandbox_pattern', JSON.stringify(brandState.pattern)); } catch {}
-                        try { localStorage.setItem('brandbox_delivery', JSON.stringify({ ...brandState, pattern: null })); } catch {}
+                        if (brandState.pattern && !finalPatternUrl) try { localStorage.setItem('brandbox_pattern', JSON.stringify(brandState.pattern)); } catch {}
+                        try { localStorage.setItem('brandbox_delivery', JSON.stringify({ ...brandState, pattern: finalPatternUrl ? brandState.pattern : null })); } catch {}
                         ['brandbox_step', 'brandbox_cartao', 'brandbox_crm', 'brandbox_plano', 'brandbox_papelaria'].forEach(k => localStorage.removeItem(k));
                         // Salvar no Supabase para link permanente + disparo de email
                         let sessionIdExp = null;
                         try {
-                          const cleanState = { ...brandState, pattern: null, estampas: null, generatedPatterns: null };
+                          const cleanState = { ...brandState, estampas: null, generatedPatterns: null };
+                          if (!finalPatternUrl) cleanState.pattern = null;
                           const saveRes = await fetch('/api/salvar-entrega', {
                             method: 'POST',
                             headers: { 'Content-Type': 'application/json' },
@@ -1794,7 +1894,7 @@ export default function Home() {
                           const res = await fetch('/api/checkout', {
                             method: 'POST',
                             headers: { 'Content-Type': 'application/json' },
-                            body: JSON.stringify({ plano: 'starter', marca: formData.marca, email: formData.email, sessionId: sessionIdExp }),
+                            body: JSON.stringify({ plano: 'starter', marca: formData.marca, email: formData.email, sessionId: sessionIdExp, lang }),
                           });
                           const data = await res.json();
                           if (data.url) {
@@ -1824,11 +1924,18 @@ export default function Home() {
                     </div>
                     <span style={{ display: 'inline-block', background: 'rgba(220,52,149,0.12)', color: 'var(--accent-magenta)', fontSize: '0.7rem', fontWeight: 700, borderRadius: '20px', padding: '3px 10px', letterSpacing: '0.5px', marginBottom: '10px' }}>{dictionary?.checkout?.plan_studio_subbadge || 'Marca + Digital + Impressos'}</span>
                     <span style={{ fontWeight: 700, fontSize: '1.4rem', display: 'block', marginBottom: '10px', color: '#3a1a2e' }}>
-                      R$ {(() => {
+                      {lang === 'en' ? '$' : 'R$'} {(() => {
+                        const isEn = lang === 'en';
+                        const basePrice = isEn ? 173.76 : 897;
+                        const extraPrice = isEn ? 7 : 30;
+                        const cadernetaPrice = isEn ? 35 : 180;
+                        
                         const temCaderneta = papelariaSelecionada.includes("Caderneta de Saúde");
                         const itensNormais = papelariaSelecionada.filter(item => item !== "Caderneta de Saúde");
                         const extrasCount = Math.max(0, itensNormais.length - 5);
-                        return 897 + extrasCount * 30 + (temCaderneta ? 180 : 0);
+                        
+                        const total = basePrice + (extrasCount * extraPrice) + (temCaderneta ? cadernetaPrice : 0);
+                        return isEn ? total.toFixed(2) : total;
                       })()}
                       {(papelariaSelecionada.filter(item => item !== "Caderneta de Saúde").length > 5 || papelariaSelecionada.includes("Caderneta de Saúde")) && (
                         <span style={{ fontSize: '0.8rem', color: 'var(--accent-magenta)', fontWeight: 700, marginLeft: '8px' }}>{dictionary?.checkout?.plan_studio_adicionais || '(+ adicionais)'}</span>
@@ -1876,30 +1983,45 @@ export default function Home() {
                           if (!confirmar) { setShowPediatriaModal(true); setLoadingCheckout(false); return; }
                         }
                         try {
+                          let finalPatternUrl = null;
+                          const patternObj = selectedPattern !== null && generatedPatterns[selectedPattern] && !generatedPatterns[selectedPattern]._devPlaceholder
+                            ? { mimeType: generatedPatterns[selectedPattern].mimeType, base64: generatedPatterns[selectedPattern].base64 }
+                            : null;
+                          if (patternObj) {
+                            try {
+                              const uploadRes = await fetch('/api/salvar-estampa', {
+                                method: 'POST',
+                                headers: { 'Content-Type': 'application/json' },
+                                body: JSON.stringify({ base64: patternObj.base64, marca: formData.marca, sessionId: 'temp' })
+                              });
+                              const uploadData = await uploadRes.json();
+                              if (uploadData.url) finalPatternUrl = uploadData.url;
+                            } catch (e) { console.warn('Pattern upload error:', e); }
+                          }
+
                           const brandState = {
                             editData, formData, resultadoFinal,
                             selectedPaleta, selectedIcon, selectedTipo,
                             currentPaletteColors: paletas?.find(p => p.id === selectedPaleta)?.paleta_hex || [],
                             paletas, tipografias,
                             activeColor: editData.corAtiva,
-                            pattern: selectedPattern !== null && generatedPatterns[selectedPattern] && !generatedPatterns[selectedPattern]._devPlaceholder
-                              ? { mimeType: generatedPatterns[selectedPattern].mimeType, base64: generatedPatterns[selectedPattern].base64 }
-                              : null,
+                            pattern: finalPatternUrl ? { url: finalPatternUrl } : patternObj,
                             iconPath: getIconById(ESTILO_NOME_BY_ID[resultadoFinal?.estiloId] || resultadoFinal?.estiloNome, selectedIcon)?.path || null,
                             patternGenerationCount,
                             estampas,
                             papelariaSelecionada,
                             plano: 'pro',
                           };
-                          if (brandState.pattern) try { localStorage.setItem('brandbox_pattern', JSON.stringify(brandState.pattern)); } catch {}
-                          try { localStorage.setItem('brandbox_delivery', JSON.stringify({ ...brandState, pattern: null })); } catch {}
+                          if (brandState.pattern && !finalPatternUrl) try { localStorage.setItem('brandbox_pattern', JSON.stringify(brandState.pattern)); } catch {}
+                          try { localStorage.setItem('brandbox_delivery', JSON.stringify({ ...brandState, pattern: finalPatternUrl ? brandState.pattern : null })); } catch {}
                           ['brandbox_step', 'brandbox_cartao', 'brandbox_crm', 'brandbox_papelaria'].forEach(k => localStorage.removeItem(k));
                           localStorage.setItem('brandbox_plano', 'pro');
                           const extrasCount = Math.max(0, papelariaSelecionada.filter(item => item !== "Caderneta de Saúde").length - 5);
 
                           let sessionId = null;
                           try {
-                            const cleanState = { ...brandState, pattern: null, estampas: null, generatedPatterns: null };
+                            const cleanState = { ...brandState, estampas: null, generatedPatterns: null };
+                            if (!finalPatternUrl) cleanState.pattern = null;
                             const saveRes = await fetch('/api/salvar-entrega', {
                               method: 'POST',
                               headers: { 'Content-Type': 'application/json' },
@@ -1912,7 +2034,7 @@ export default function Home() {
                           const res = await fetch('/api/checkout', {
                             method: 'POST',
                             headers: { 'Content-Type': 'application/json' },
-                            body: JSON.stringify({ plano: 'pro', marca: formData.marca, email: formData.email, extrasCount, papelaria: papelariaSelecionada, sessionId }),
+                            body: JSON.stringify({ plano: 'pro', marca: formData.marca, email: formData.email, extrasCount, papelaria: papelariaSelecionada, sessionId, lang }),
                           });
                           const data = await res.json();
                           if (data.url) {
@@ -1968,7 +2090,7 @@ export default function Home() {
                     onClick={() => {
                       localStorage.removeItem('brandbox_progress');
                       setStep(1);
-                      setFormData({ nome: '', email: '', marca: '', atuacao: '', atuacaoOutra: '', contextoExtra: '', publico: '', sentimentos: [], elementosVisuais: [], personalidade: '', primeiraImpressao: '', locais: [], inspiracoes: '', nuncaPensar: '' });
+                      setFormData({ nome: '', email: '', marca: '', atuacao: '', atuacaoOutra: '', contextoExtra: '', publico: '', sentimentos: [], elementosVisuais: [], personalidade: '', primeiraImpressao: '', locais: [], inspiracoes: '', nuncaPensar: '', nuncaPensarTags: [] });
                       setShowContext(false);
                       setResultadoFinal(null);
                       setSelectedTagline('');

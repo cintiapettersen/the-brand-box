@@ -38,35 +38,36 @@ export async function POST(req) {
     DADOS DA CLIENTE:
     Nome: ${body.nome}
     Área de Atuação: ${body.atuacao} - ${body.atuacaoOutra}
-    Público Alvo: ${body.publico}
-    Primeira Impressão Desejada: ${body.primeiraImpressao || "Não informada"}
+    Público Principal: ${body.publico || "Não informado"}
     Personalidade da Marca: ${body.personalidade || body.identidade || "Não informada"}
     Sensações Pós-Interação: ${body.sentimentos ? body.sentimentos.join(", ") : "Não informadas"}
     Onde a marca mais vai aparecer: ${body.locais ? body.locais.join(", ") : "Não informados"}
     Marcas de Inspiração (Estilo Calibrado): ${body.inspiracoes || "Nenhuma informada"}
-    O que NUNCA pensar da marca (Red Flags): ${body.nuncaPensar || "Nenhuma restrição informada"}
+    O que NUNCA pensar da marca (Red Flags): ${body.nuncaPensarTags ? body.nuncaPensarTags.join(", ") : ""} ${body.nuncaPensar || "Nenhuma restrição informada"}
     Elementos Visuais exigidos na arte: ${body.elementosVisuais ? body.elementosVisuais.join(", ") : "Nenhum específico"}
     
     Aja como uma consultora mágica. Identifique o melhor estilo com base nestas regras.
 
     IMPORTANTE PARA A 'mensagem':
     NUNCA mencione o ID numérico do estilo (ex: "ID 8", "(ID 5)"). Apenas o nome.
-    Escreva de forma extremamente mágica, emotiva e encantadora, e não de forma técnica ou racional. A cliente precisa ler a mensagem e pensar "uau, isso me representa!".
-    Use rigorosamente a seguinte estrutura em três partes na 'mensagem' (sem subtítulos ou marcações, apenas em texto fluido, natural e contínuo):
-    1. Reconhecimento Emocional: Reconheça a alma do negócio dela e o que a marca dela pede emocionalmente (ex: "Olá [Nome]! Sua marca pede delicadeza, magia e um toque lúdico." ou "Olá [Nome]! Sua marca pede sofisticação silenciosa, acolhimento e um toque de leveza.").
-    2. Interpretação: Faça a ponte entre as sensações desejadas e o estilo ideal escolhido (ex: "O estilo [Estilo Nome] traduz exatamente essa atmosfera..." ou "A coleção [Estilo Nome] captura perfeitamente essa essência...").
-    3. Promessa Visual: Explique como isso se manifestará no design dela de forma inspiradora e memorável, focando nos aspectos sensoriais do design (ex: "...através de cores suaves, elementos afetivos e uma identidade visual acolhedora e memorável." ou "...através de linhas limpas, tons terrosos suaves e uma identidade visual elegante, acolhedora e atemporal.").
+    O tom da mensagem deve ser o de uma DIRETORA DE CRIAÇÃO e CONSULTORA DE BRANDING experiente conversando diretamente com a cliente.
+    A mensagem não deve parecer um texto poético genérico. Ela deve ser uma CONVERSA, mostrando RACIOCÍNIO e JUSTIFICANDO as decisões criativas com base nas respostas específicas da cliente (público, red flags/o que nunca pensar, área de atuação, etc).
+    
+    Use a seguinte estrutura de raciocínio lógico e criativo na 'mensagem' (em um texto fluido e natural):
+    1. Acolhimento e Observação: Comece chamando a cliente pelo nome e citando uma observação estratégica e real baseada nos dados enviados.
+    2. A Decisão Estratégica (Justificativa): Mostre que você pensou nas restrições dela (o que "NUNCA pensar" ou os sentimentos desejados) para tomar sua decisão. 
+    3. O Match Perfeito: Apresente o estilo escolhido e explique como ele resolve o desafio visual que ela propôs.
 
-    Exemplo de tom e estrutura ideal para a 'mensagem':
-    "Olá [Nome]! Sua marca pede delicadeza, magia e um toque lúdico. O estilo Doce Encantamento traduz exatamente essa atmosfera através de cores suaves, elementos afetivos e uma identidade visual acolhedora e memorável."
+    Exemplo de tom e estrutura ideal:
+    "Olá [Nome]! Analisando o seu perfil, notei que o seu público vai de bebês até adolescentes. Como você marcou que não quer que a marca pareça 'infantil demais' ou 'amadora', eu evitei linguagens muito óbvias ou puramente lúdicas, para mantermos um ar profissional. Por isso, a direção [Estilo Nome] é o nosso match perfeito! Ela equilibra a imaginação e a alegria com uma estética moderna e limpa, garantindo que a sua marca converse de forma inteligente e sofisticada tanto com as mães quanto com as crianças."
 
-    ${body.lang === 'en' ? "CRITICAL: The user's language is English. You MUST translate both the 'estiloNome' and the 'mensagem' into English. For example, 'Essência Atemporal' becomes 'Timeless Essence'. The tone of the 'mensagem' must be just as magical and emotional, but fully in English." : ""}
+    ${body.lang === 'en' ? "CRITICAL: The user's language is English. You MUST translate both the 'estiloNome' and the 'mensagem' into English. For example, 'Essência Atemporal' becomes 'Timeless Essence'. The tone of the 'mensagem' must be conversational, strategic, and sound like a Creative Director justifying her design choices, but fully in English." : ""}
 
     Responda EXCLUSIVAMENTE num formato JSON estruturado com 'estiloId' (numero), 'estiloNome' (string) e 'mensagem' (string).
     {
        "estiloId": 5,
        "estiloNome": "Essência Atemporal",
-       "mensagem": "Olá [Nome]! Sua marca pede sofisticação silenciosa, acolhimento e um cuidado genuíno. O estilo Essência Atemporal traduz exatamente essa atmosfera através de cores equilibradas, formas orgânicas elegantes e uma identidade visual acolhedora e memorável."
+       "mensagem": "Olá [Nome]! Analisei profundamente o seu perfil e vi que a sua atuação pede um acolhimento especial. Sabendo que você quer evitar a qualquer custo parecer 'fria demais', descartei opções puramente clínicas. O estilo Essência Atemporal é o match ideal porque ele transmite uma confiança silenciosa e profissionalismo, mas com formas orgânicas e tons que aquecem e acolhem."
     }
     `;
 

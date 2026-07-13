@@ -98,12 +98,12 @@ def update_dict(path, is_en):
     ob['locais_options'] = locais
 
     # Step 7.2 - Inspiring Brands
-    ob['step_7_2_title'] = "Which brands inspire you?" if is_en else "Quais marcas te inspiram?"
-    ob['step_7_2_subtitle'] = "Not to copy, but to calibrate the style. You can write names or paste links. (Optional)" if is_en else "Não para copiar, mas para calibrar o estilo. Escreva nomes ou cole links. (Opcional)"
-    ob['step_7_2_placeholder'] = "Ex: Apple, Natura, Nubank..." if is_en else "Ex: Apple, Natura, Nubank..."
+    ob['step_7_2_title'] = "Which styles or brands inspire you?" if is_en else "Quais estilos ou marcas te inspiram?"
+    ob['step_7_2_subtitle'] = "Not to copy, but to calibrate the style. Select the ones you identify with. (Optional)" if is_en else "Não para copiar, mas para calibrar o estilo. Selecione os que você mais se identifica. (Opcional)"
+    ob['step_7_2_placeholder'] = "Type here..." if is_en else "Escreva aqui..."
 
     # Step 7.5 - Never think
-    ob['step_7_5_title'] = "What should people never think about your brand? 😳" if is_en else "O que as pessoas NUNCA devem pensar da sua marca? 😳"
+    ob['step_7_5_title'] = "What should people never think about your brand?" if is_en else "O que as pessoas NUNCA devem pensar da sua marca?"
     ob['step_7_5_subtitle'] = "Ex: 'I don't want to look childish', 'I don't want to look expensive'. (Optional)" if is_en else "Ex: 'Não quero parecer infantil', 'Não quero parecer cara demais'. (Opcional)"
     ob['step_7_5_placeholder'] = "Type here..." if is_en else "Escreva aqui..."
 

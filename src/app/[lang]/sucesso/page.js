@@ -5815,6 +5815,7 @@ function PapelariaStep({ brand, accentColor, paletteColors, estampaPatterns, est
             sessionId,
             avulsoParam,
             itensSelecionados: itensParaCobrar,
+            lang,
           }),
         });
         const data = await res.json();
@@ -6327,7 +6328,7 @@ body { width: 485.775mm; height: 385.233mm; position: relative; overflow: hidden
     <div style="position:absolute;top:0;right:0;width:242.888mm;height:310mm;">
         <div style="position:absolute;bottom:12mm;left:10mm;right:10mm;top:30mm;background:#fff;border-radius:2mm;${folderRoof ? 'clip-path:polygon(0% 8%, 50% 0%, 100% 8%, 100% 100%, 0% 100%);' : ''}"></div>
         <div style="position:absolute;top:55%;left:50%;transform:translate(-50%,-50%);width:190mm;height:80mm;display:flex;align-items:center;justify-content:center;">
-            <div style="zoom:3.78;">${ReactDOMServer.renderToString(<LogoPreviewHTML item="Folder de Vacinação" editData={itemEditData} color={logoColor} layout={logoLayout||'stacked'} scaleFactor={0.85} hideTagline={false} maxWidth="100%" maxHeight="100%" />)}</div>
+            ${genPDFLogoHtml({ brand, editDataOverride: editData, color: logoColor, layout: logoLayout, localSlogan, crmLine: null, fontPt: 48, lineH: _lineH, letterSp: _letterSp, customLogoSrc, customLogoScale: customLogoSrc ? getCustomLogoScale(item) * (ITEM_CUSTOM_BASE_SCALES[item] || 1) : 100, maxWidth: '180mm', maxHeight: '75mm', withBackground: false })}
         </div>
     </div>
 
@@ -6786,7 +6787,7 @@ ${versoHtml}
       const totalH = (BLEED * 2) + ABA_S + H + ABA_I;
 
       const solidColor = borderColor || accentColor;
-      const genPattern = (scaleMul = 1) => (comBorda && patternSrc) ? `<div style="position:absolute;inset:0;background-image:url(${patternSrc});background-size:${(patternScale * 0.255 * scaleMul).toFixed(1)}mm;background-repeat:repeat;opacity:1;"></div>` : '';
+      const genPattern = (scaleMul = 1, offX = 0, offY = 0) => (comBorda && patternSrc) ? `<div style="position:absolute;inset:0;background-image:url(${patternSrc});background-size:${(patternScale * 1.022 * scaleMul).toFixed(1)}mm;background-repeat:repeat;background-position:${offX}mm ${offY}mm;opacity:1;"></div>` : '';
       const _sacPhones = [mainPhone, telefone].filter(Boolean).join(' / ');
       const _ffSac = editData?.fontFamily || brand.editData?.fontFamily || 'Playfair Display';
       const _lfSac = LOCAL_FONT_FACES[_ffSac];
@@ -6794,16 +6795,15 @@ ${versoHtml}
       const _waIcoSac = `<svg viewBox="0 0 24 24" width="9" height="9" style="display:inline;vertical-align:middle;margin-right:1.5pt;" fill="#25D366"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>`;
 
       const abaSupHtml = `<div style="position:absolute;top:0;left:${BLEED + ABA_L}mm;width:${W}mm;height:${ABA_S + BLEED}mm;background:${solidColor};"></div>`;
-      const abaInfHtml = `<div style="position:absolute;top:${BLEED + ABA_S + H}mm;left:${BLEED + ABA_L}mm;width:${W}mm;height:${ABA_I + BLEED}mm;background:#fff;z-index:1;">${genPattern(1)}</div>`;
-      const abaLatHtml = `<div style="position:absolute;top:${BLEED + ABA_S}mm;left:0;width:${ABA_L + BLEED}mm;height:${H}mm;background:#fff;z-index:1;">${genPattern(1)}</div>`;
+      const abaInfHtml = `<div style="position:absolute;top:${BLEED + ABA_S + H}mm;left:${BLEED + ABA_L}mm;width:${W}mm;height:${ABA_I + BLEED}mm;background:#fff;z-index:1;">${genPattern(1, 0, -H)}</div>`;
+      const abaLatHtml = `<div style="position:absolute;top:${BLEED + ABA_S}mm;left:0;width:${ABA_L + BLEED}mm;height:${H}mm;background:#fff;z-index:1;">${genPattern(1, ABA_L, 0)}</div>`;
 
-      // Preview: 220px container / 240mm = 0.917px/mm → zoom = 3.78/0.917 ≈ 4.12
-      const _sacLogoInner = ReactDOMServer.renderToString(<LogoPreviewHTML editData={itemEditData} color={logoColor} layout={logoLayout||'stacked'} scaleFactor={0.80} crm={crmLine} hideTagline={false} maxWidth={`${W-30}mm`} />);
-      const _sacLogoHtml = `<div style="zoom:4.12;">${_sacLogoInner}</div>`;
+      // Respect user's logoLayout choice so it stays on one line if requested. Use a smaller fontPt so it fits the white box without overflowing and breaking CSS centering.
+      const _sacLogoHtml = genPDFLogoHtml({ brand, editDataOverride: editData, color: logoColor, layout: logoLayout, localSlogan, crmLine: null, fontPt: 40, lineH: _lineH, letterSp: _letterSp, customLogoSrc, customLogoScale: customLogoSrc ? getCustomLogoScale(item) * (ITEM_CUSTOM_BASE_SCALES[item] || 1) : 100, maxWidth: '130mm', maxHeight: '75mm', withBackground: false });
       const frenteHtml = `
         <div style="position:absolute;top:${BLEED + ABA_S}mm;left:${BLEED + ABA_L}mm;width:${W}mm;height:${H}mm;overflow:hidden;background:#fff;z-index:2;">
-            ${genPattern(1)}
-            <div style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);z-index:3;background:rgba(255,255,255,0.93);border-radius:4px;padding:10mm 15mm;display:inline-flex;align-items:center;justify-content:center;width:150mm;height:95mm;">
+            ${genPattern(1, 0, 0)}
+            <div style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);z-index:3;background:rgba(255,255,255,0.93);border-radius:4px;padding:10mm;display:flex;flex-direction:column;align-items:center;justify-content:center;width:150mm;height:95mm;box-sizing:border-box;">
               ${_sacLogoHtml}
             </div>
         </div>`;
@@ -6811,7 +6811,7 @@ ${versoHtml}
       const hasEnvelopeContacts = !!(clinicaNome || endereco || _sacPhones || email || site || instagram);
       const versoHtml = `
         <div style="position:absolute;top:${BLEED + ABA_S}mm;left:${BLEED + ABA_L + W}mm;width:${W + BLEED}mm;height:${H}mm;background:#fff;overflow:hidden;z-index:2;border-left:0.1mm dashed rgba(0,0,0,0.1);">
-            ${genPattern(1)}
+            ${genPattern(1, -W, 0)}
             ${hasEnvelopeContacts ? `
             <div style="position:absolute;bottom:15mm;left:50%;transform:translateX(-50%);width:max-content;max-width:${W - 20}mm;background:rgba(255,255,255,0.97);padding:6mm 12mm;border-radius:2mm;display:flex;flex-direction:column;align-items:center;justify-content:center;border:0.2mm solid #ddd;text-align:center;white-space:nowrap;">
                <div style="font-size:11pt;color:#666;font-family:'Montserrat',sans-serif;line-height:1.7;">
@@ -6860,7 +6860,7 @@ body { width:${totalW}mm; height:${totalH}mm; position:relative; overflow:hidden
       const totalH = (H * 2) + ABA + (BLEED * 2);
 
       const solidColor = borderColor || accentColor;
-      const genPattern = (scaleMul = 1) => (comBorda && patternSrc) ? `<div style="position:absolute;inset:0;background-image:url(${patternSrc});background-size:${(patternScale * 0.28 * scaleMul).toFixed(1)}mm;background-repeat:repeat;opacity:1;"></div>` : '';
+      const genPattern = (scaleMul = 1) => (comBorda && patternSrc) ? `<div style="position:absolute;inset:0;background-image:url(${patternSrc});background-size:${(patternScale * 0.71 * scaleMul).toFixed(1)}mm;background-repeat:repeat;opacity:1;"></div>` : '';
       const _envPhones = [mainPhone, telefone].filter(Boolean).join(' / ');
 
       const _ffEnv = editData?.fontFamily || brand.editData?.fontFamily || 'Playfair Display';
@@ -9342,18 +9342,92 @@ ${fontImports2}
           spec = { ...spec, tam: 'A4 (21 × 29,7 cm)' };
         }
 
+        const translateSpecTerm = (term, lang) => {
+          if (lang?.startsWith('pt')) return term;
+          if (!term) return '';
+          
+          const dict = {
+            'Offset 90g+': '90gsm+ Offset Paper',
+            'Offset 90g': '90gsm Offset Paper',
+            'Offset 120g+': '120gsm+ Offset Paper',
+            'Offset 120g': '120gsm Offset Paper',
+            'Couché Fosco 300g': '300gsm Matte Coated Paper',
+            'Couché Fosco 250g+': '250gsm+ Matte Coated Paper',
+            'Couché Fosco 150g': '150gsm Matte Coated Paper',
+            'Couché Fosco 115g': '115gsm Matte Coated Paper',
+            'Couché Fosco 90g': '90gsm Matte Coated Paper',
+            'Couché 300g+': '300gsm+ Coated Paper',
+            'Couché 240g+': '240gsm+ Coated Paper',
+            'Cartão 300g': '300gsm Cardstock',
+            'Cerâmica': 'Ceramic',
+            'Couché Fosco 150g (ou 300g premium)': '150gsm (or 300gsm premium) Matte Coated',
+            'Capa Rígida + Miolo Offset 70g (192 pág.)': 'Hardcover + 70gsm Offset Pages (192 p)',
+            
+            'Blocado Colado · 25 vias': 'Glued Notepad · 25 sheets',
+            'Blocado Colado · 50 vias': 'Glued Notepad · 50 sheets',
+            'Folhas avulsas': 'Loose sheets',
+            'Faca c/ Bolsa · Vinco · Dobra': 'Die cut w/ Pocket · Score · Fold',
+            'Faca especial · Cola': 'Custom die cut · Glued',
+            'Refile · Frente e Verso': 'Straight cut · Double-sided',
+            'Refile · Frente': 'Straight cut · Single-sided',
+            'Refile · Furo': 'Straight cut · Hole punch',
+            'Refile': 'Straight cut',
+            'Sublimação': 'Sublimation',
+            'Grampo canoa': 'Saddle stitch',
+            'Wire-o preto · Laminação Fosca': 'Black Wire-O · Matte Lamination',
+            'Carteira · 2 Dobras': 'Gate Fold · 2 Folds',
+            'Sanfona · 3 Dobras': 'Accordion · 3 Folds',
+            'Simples · 1 Dobra': 'Half Fold · 1 Fold',
+            
+            'Receituário Especial': 'Special Prescription Pad',
+            'Receituário': 'Prescription Pad',
+            'Timbrado': 'Letterhead',
+            'Cartão de retorno / fidelidade': 'Appointment / Loyalty Card',
+            'Cartão de agradecimento': 'Thank You Card',
+            'Pasta com bolsa': 'Presentation Folder',
+            'Envelope Saco': 'Catalog Envelope',
+            'Envelope': 'Envelope',
+            'Recibo': 'Receipt',
+            'Caneca': 'Mug',
+            'Checklist': 'Checklist',
+            'Prontuário': 'Medical Record',
+            'Gráfico Clínico': 'Clinical Chart',
+            'Orientação Médica': 'Medical Guidelines',
+            'Diário de Controle': 'Tracking Diary',
+            'Guia Educativo': 'Educational Guide',
+            'Ficha Cadastral': 'Registration Form',
+            'Certificado': 'Certificate',
+            'Tag / Etiqueta': 'Tag / Label',
+            'Flyer': 'Flyer',
+            'Livreto': 'Booklet',
+            'Capa Dura (Caderno/Agenda)': 'Hardcover (Notebook/Planner)',
+            'Caderno Capa Dura': 'Hardcover Notebook',
+            'Folder Trifold': 'Trifold Brochure',
+            'Folder Sanfonado': 'Accordion Brochure',
+            'Folder Simples': 'Bifold Brochure'
+          };
+          
+          let translated = term;
+          for (const [pt, en] of Object.entries(dict)) {
+            if (translated.includes(pt)) {
+              translated = translated.replace(pt, en);
+            }
+          }
+          return translated;
+        };
+
         return (
           <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.5)', zIndex: 9999, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '16px' }}
             onClick={() => setShowPrintModal(false)}>
             <div style={{ background: '#fff', borderRadius: '16px', padding: '24px 22px', maxWidth: '420px', width: '100%', boxShadow: '0 20px 60px rgba(0,0,0,0.25)', maxHeight: '90vh', overflowY: 'auto' }}
               onClick={e => e.stopPropagation()}>
               <div style={{ fontFamily: "'Montserrat',sans-serif", fontWeight: 800, fontSize: '1rem', color: accentColor, marginBottom: '16px' }}>
-                Como salvar o PDF padrão gráfica
+                {dictionary?.ui?.modal_titulo || 'Como salvar o PDF padrão gráfica'}
               </div>
               {[
-                ['Margens → Nenhuma', 'Na janela de impressão, defina as margens como Nenhuma para preservar a sangria.'],
-                ['Gráficos de fundo ativado', 'Ative "Gráficos de fundo" (Background graphics) para cores e estampas aparecerem.'],
-                ['Destino → Salvar como PDF', 'Selecione Salvar como PDF — não envie para impressora.'],
+                [dictionary?.ui?.modal_passo1_titulo || 'Margens → Nenhuma', dictionary?.ui?.modal_passo1_desc || 'Na janela de impressão, defina as margens como Nenhuma para preservar a sangria.'],
+                [dictionary?.ui?.modal_passo2_titulo || 'Gráficos de fundo ativado', dictionary?.ui?.modal_passo2_desc || 'Ative "Gráficos de fundo" (Background graphics) para cores e estampas aparecerem.'],
+                [dictionary?.ui?.modal_passo3_titulo || 'Destino → Salvar como PDF', dictionary?.ui?.modal_passo3_desc || 'Selecione Salvar como PDF — não envie para impressora.'],
               ].map(([titulo, desc], i) => (
                 <div key={i} style={{ display: 'flex', gap: '12px', marginBottom: '12px', alignItems: 'flex-start' }}>
                   <div style={{ minWidth: '24px', height: '24px', borderRadius: '50%', background: accentColor, color: '#fff', fontWeight: 800, fontSize: '0.75rem', display: 'flex', alignItems: 'center', justifyContent: 'center', fontFamily: "'Montserrat',sans-serif", flexShrink: 0 }}>{i + 1}</div>
@@ -9366,27 +9440,29 @@ ${fontImports2}
 
               {spec && <>
                 <div style={{ fontFamily: "'Montserrat',sans-serif", fontWeight: 800, fontSize: '0.8rem', color: '#333', margin: '16px 0 10px', letterSpacing: '0.5px', textTransform: 'uppercase' }}>
-                  Especificações para a gráfica
+                  {dictionary?.ui?.modal_specs_titulo || 'Especificações para a gráfica'}
                 </div>
                 <div style={{ background: '#f7f7f7', borderRadius: '10px', padding: '12px 14px', fontFamily: "'Montserrat',sans-serif", fontSize: '0.75rem', color: '#555', lineHeight: 1.8 }}>
-                  {spec.cat && <div><strong>Categoria:</strong> {spec.cat}</div>}
-                  {spec.tam && <div><strong>Tamanho:</strong> {spec.tam}</div>}
-                  {spec.papel && <div><strong>Papel:</strong> {spec.papel}</div>}
-                  {spec.acabamento && <div><strong>Acabamento:</strong> {spec.acabamento}</div>}
-                  {spec.preco && <div><strong>Preço médio:</strong> {spec.preco}</div>}
+                  {spec.cat && <div><strong>{dictionary?.ui?.spec_categoria || 'Categoria:'}</strong> {translateSpecTerm(spec.cat, lang)}</div>}
+                  {spec.tam && <div><strong>{dictionary?.ui?.spec_tamanho || 'Tamanho:'}</strong> {translateSpecTerm(spec.tam, lang)}</div>}
+                  {spec.papel && <div><strong>{dictionary?.ui?.spec_papel || 'Papel:'}</strong> {translateSpecTerm(spec.papel, lang)}</div>}
+                  {spec.acabamento && <div><strong>{dictionary?.ui?.spec_acabamento || 'Acabamento:'}</strong> {translateSpecTerm(spec.acabamento, lang)}</div>}
+                  {spec.preco && lang?.startsWith('pt') && <div><strong>{dictionary?.ui?.spec_preco || 'Preço médio:'}</strong> {spec.preco}</div>}
                   {spec.obs && <div style={{ marginTop: '6px', color: '#c0392b', fontSize: '0.72rem' }}>⚠️ {spec.obs}</div>}
                 </div>
               </>}
 
-              <div style={{ background: '#fffbea', borderRadius: '10px', padding: '10px 14px', fontFamily: "'Montserrat',sans-serif", fontSize: '0.74rem', color: '#555', lineHeight: 1.7, margin: '12px 0 16px' }}>
-                <strong>Sugestão de gráfica:</strong> printi.com.br<br/>
-                Selecione <em>"Enviar minha arte final"</em> e envie o PDF gerado.<br/>
-                <strong style={{ color: '#b7791f' }}>Cupom 5% off:</strong> <span style={{ fontWeight: 700, letterSpacing: '1px' }}>CIN243460MS</span> (primeira compra)
-              </div>
+              {lang?.startsWith('pt') && (
+                <div style={{ background: '#fffbea', borderRadius: '10px', padding: '10px 14px', fontFamily: "'Montserrat',sans-serif", fontSize: '0.74rem', color: '#555', lineHeight: 1.7, margin: '12px 0 16px' }}>
+                  <strong>{dictionary?.ui?.modal_grafica_sugestao || 'Sugestão de gráfica:'}</strong> printi.com.br<br/>
+                  <span dangerouslySetInnerHTML={{ __html: dictionary?.ui?.modal_grafica_enviar || 'Selecione <em>"Enviar minha arte final"</em> e envie o PDF gerado.' }}></span><br/>
+                  <strong style={{ color: '#b7791f' }}>{dictionary?.ui?.modal_cupom || 'Cupom 5% off:'}</strong> <span style={{ fontWeight: 700, letterSpacing: '1px' }}>CIN243460MS</span> ({dictionary?.ui?.modal_cupom_primeira || 'primeira compra'})
+                </div>
+              )}
 
               <div style={{ display: 'flex', gap: '10px' }}>
-                <button onClick={() => setShowPrintModal(false)} style={{ flex: 1, padding: '11px', background: 'none', border: '1px solid #e0e0e0', borderRadius: '30px', fontWeight: 600, fontSize: '0.82rem', cursor: 'pointer', color: '#888' }}>Cancelar</button>
-                <button onClick={() => { setShowPrintModal(false); openGabarito(pendingItem); }} style={{ flex: 2, padding: '11px', background: '#C03B66', color: '#fff', border: 'none', borderRadius: '30px', fontWeight: 700, fontSize: '0.82rem', cursor: 'pointer' }}>Entendi, baixar PDF →</button>
+                <button onClick={() => setShowPrintModal(false)} style={{ flex: 1, padding: '11px', background: 'none', border: '1px solid #e0e0e0', borderRadius: '30px', fontWeight: 600, fontSize: '0.82rem', cursor: 'pointer', color: '#888' }}>{dictionary?.ui?.cancelar || 'Cancelar'}</button>
+                <button onClick={() => { setShowPrintModal(false); openGabarito(pendingItem); }} style={{ flex: 2, padding: '11px', background: '#C03B66', color: '#fff', border: 'none', borderRadius: '30px', fontWeight: 700, fontSize: '0.82rem', cursor: 'pointer' }}>{dictionary?.ui?.entendi_baixar || 'Entendi, baixar PDF →'}</button>
               </div>
             </div>
           </div>
