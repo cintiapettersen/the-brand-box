@@ -84,6 +84,28 @@ export default function Home() {
     nome: '', email: '', marca: '', atuacao: '', atuacaoOutra: '', contextoExtra: '', publico: '', sentimentos: [], elementosVisuais: [], personalidade: '', primeiraImpressao: '', locais: [], inspiracoes: '', inspiracoesTags: [], nuncaPensar: '', nuncaPensarTags: []
   });
 
+  const refineCopy = {
+    button: dictionary?.postmatch?.creative_refine_button || 'Refinar esta direção',
+    tension: dictionary?.postmatch?.creative_refine_tension || 'Tensão identificada',
+    question: dictionary?.postmatch?.creative_refine_question || 'Pergunta da diretora criativa',
+    placeholder: dictionary?.postmatch?.creative_refine_placeholder || 'Escreva sua resposta aqui...',
+    analyze: dictionary?.postmatch?.creative_refine_analyze || 'Analisar minha resposta',
+    keepCurrent: dictionary?.postmatch?.creative_refine_keep_current || 'Manter direção atual',
+    loadingQuestion: dictionary?.postmatch?.creative_refine_loading_question || 'Conversando com a AI Creative Director...',
+    loadingResolution: dictionary?.postmatch?.creative_refine_loading_resolution || 'Analisando sua resposta...',
+    decision: dictionary?.postmatch?.creative_refine_decision || 'Decisão',
+    direction: dictionary?.postmatch?.creative_refine_direction || 'Direção refinada',
+    palette: dictionary?.postmatch?.creative_refine_palette || 'Impacto na paleta',
+    typography: dictionary?.postmatch?.creative_refine_typography || 'Impacto na tipografia',
+    composition: dictionary?.postmatch?.creative_refine_composition || 'Impacto na composição',
+    pattern: dictionary?.postmatch?.creative_refine_pattern || 'Impacto na estampa',
+    altStyle: dictionary?.postmatch?.creative_refine_alt_style || 'Estilo alternativo recomendado',
+    altNote: dictionary?.postmatch?.creative_refine_alt_note || 'Esta recomendação é apenas consultiva e não será aplicada automaticamente.',
+    unavailable: dictionary?.postmatch?.creative_refine_unavailable || 'Não foi possível analisar agora. Sua direção atual continua salva.',
+    close: dictionary?.postmatch?.creative_refine_close || 'Fechar',
+    retry: dictionary?.postmatch?.creative_refine_retry || 'Tentar novamente'
+  };
+
   // Sugestões de tagline agrupadas por categoria
   const TAGLINES_BY_ESTILO = {
     'Jardim Encantado':       ['Onde a imaginação encontra o cuidado', 'Criatividade que floresce todos os dias', 'O olhar lúdico e afetuoso da infância'],
@@ -675,9 +697,9 @@ export default function Home() {
       const data = await response.json();
       
       if (data.estiloNome) {
+        setIsCreativeDirectorLoading(true);
         setResultadoFinal(data);
         setStep(9); // Tela de Resultado Triunfal
-        setIsCreativeDirectorLoading(true);
 
         try {
           const creativeResponse = await fetch('/api/creative-director', {
@@ -1465,7 +1487,7 @@ export default function Home() {
                       className="btn-secondary"
                       style={{ padding: '0.85rem 1.2rem', fontSize: '0.9rem' }}
                     >
-                      Refinar esta direção
+                      {refineCopy.button}
                     </button>
                   </div>
 
@@ -1473,7 +1495,7 @@ export default function Home() {
                     <div style={{ marginTop: '1rem', background: 'var(--bg-color)', borderRadius: '16px', padding: '1rem', border: '1px solid var(--border)' }}>
                       {isRefinementLoading && (
                         <p style={{ color: 'var(--text-secondary)', fontSize: '0.85rem', textAlign: 'center', margin: 0 }}>
-                          Conversando com a AI Creative Director...
+                          {refinementStep === 'question' ? refineCopy.loadingQuestion : refineCopy.loadingResolution}
                         </p>
                       )}
 
@@ -1481,19 +1503,19 @@ export default function Home() {
                         <div>
                           {refinementQuestion.tensaoIdentificada && (
                             <div style={{ marginBottom: '0.85rem' }}>
-                              <strong style={{ color: 'var(--text-primary)', fontSize: '0.88rem' }}>Tensão identificada</strong>
+                              <strong style={{ color: 'var(--text-primary)', fontSize: '0.88rem' }}>{refineCopy.tension}</strong>
                               <p style={{ color: 'var(--text-secondary)', fontSize: '0.88rem', lineHeight: 1.5, marginTop: '0.25rem' }}>{refinementQuestion.tensaoIdentificada}</p>
                             </div>
                           )}
                           <div style={{ marginBottom: '0.85rem' }}>
-                            <strong style={{ color: 'var(--text-primary)', fontSize: '0.88rem' }}>Pergunta da diretora criativa</strong>
+                            <strong style={{ color: 'var(--text-primary)', fontSize: '0.88rem' }}>{refineCopy.question}</strong>
                             <p style={{ color: 'var(--text-primary)', fontSize: '0.95rem', lineHeight: 1.5, marginTop: '0.25rem' }}>{refinementQuestion.pergunta}</p>
                             <p style={{ color: 'var(--text-secondary)', fontSize: '0.82rem', lineHeight: 1.5, marginTop: '0.35rem' }}>{refinementQuestion.porquePerguntar}</p>
                           </div>
                           <textarea
                             value={refinementAnswer}
                             onChange={(event) => setRefinementAnswer(event.target.value)}
-                            placeholder="Escreva sua resposta aqui..."
+                            placeholder={refineCopy.placeholder}
                             rows={3}
                             style={{ width: '100%', border: '1px solid var(--border)', borderRadius: '12px', padding: '0.85rem', resize: 'vertical', fontFamily: 'inherit', color: 'var(--text-primary)' }}
                           />
@@ -1505,10 +1527,10 @@ export default function Home() {
                               className="btn-primary"
                               style={{ padding: '0.8rem 1rem', opacity: refinementAnswer.trim() ? 1 : 0.55 }}
                             >
-                              Analisar minha resposta
+                              {refineCopy.analyze}
                             </button>
                             <button type="button" onClick={keepCurrentDirection} className="btn-secondary" style={{ padding: '0.8rem 1rem' }}>
-                              Manter direção atual
+                              {refineCopy.keepCurrent}
                             </button>
                           </div>
                         </div>
@@ -1517,19 +1539,19 @@ export default function Home() {
                       {!isRefinementLoading && refinementStep === 'result' && resultadoFinal.creativeDirector.refinement && (
                         <div style={{ display: 'grid', gap: '0.75rem' }}>
                           <div style={{ background: '#fff', borderRadius: '12px', padding: '0.85rem' }}>
-                            <strong style={{ color: 'var(--text-primary)', fontSize: '0.88rem' }}>Decisão</strong>
+                            <strong style={{ color: 'var(--text-primary)', fontSize: '0.88rem' }}>{refineCopy.decision}</strong>
                             <p style={{ color: 'var(--text-secondary)', fontSize: '0.88rem', lineHeight: 1.5, marginTop: '0.25rem' }}>{resultadoFinal.creativeDirector.refinement.resumoDecisao}</p>
                           </div>
                           <div style={{ background: '#fff', borderRadius: '12px', padding: '0.85rem' }}>
-                            <strong style={{ color: 'var(--text-primary)', fontSize: '0.88rem' }}>Direção refinada</strong>
+                            <strong style={{ color: 'var(--text-primary)', fontSize: '0.88rem' }}>{refineCopy.direction}</strong>
                             <p style={{ color: 'var(--text-secondary)', fontSize: '0.88rem', lineHeight: 1.5, marginTop: '0.25rem' }}>{resultadoFinal.creativeDirector.refinement.direcaoRefinada}</p>
                           </div>
                           <div style={{ display: 'grid', gap: '0.65rem' }}>
                             {[
-                              ['Paleta', resultadoFinal.creativeDirector.refinement.impactoPaleta],
-                              ['Tipografia', resultadoFinal.creativeDirector.refinement.impactoTipografia],
-                              ['Composição', resultadoFinal.creativeDirector.refinement.impactoComposicao],
-                              ['Estampa', resultadoFinal.creativeDirector.refinement.impactoEstampa]
+                              [refineCopy.palette, resultadoFinal.creativeDirector.refinement.impactoPaleta],
+                              [refineCopy.typography, resultadoFinal.creativeDirector.refinement.impactoTipografia],
+                              [refineCopy.composition, resultadoFinal.creativeDirector.refinement.impactoComposicao],
+                              [refineCopy.pattern, resultadoFinal.creativeDirector.refinement.impactoEstampa]
                             ].map(([label, value]) => (
                               <div key={label} style={{ background: '#fff', borderRadius: '12px', padding: '0.85rem' }}>
                                 <strong style={{ color: 'var(--text-primary)', fontSize: '0.86rem' }}>{label}</strong>
@@ -1539,14 +1561,14 @@ export default function Home() {
                           </div>
                           {resultadoFinal.creativeDirector.refinement.estiloAlternativoId && (
                             <div style={{ background: '#fff', borderRadius: '12px', padding: '0.85rem', border: '1px solid var(--accent-magenta)' }}>
-                              <strong style={{ color: 'var(--text-primary)', fontSize: '0.88rem' }}>Recomendação alternativa</strong>
+                              <strong style={{ color: 'var(--text-primary)', fontSize: '0.88rem' }}>{refineCopy.altStyle}</strong>
                               <p style={{ color: 'var(--text-secondary)', fontSize: '0.88rem', lineHeight: 1.5, marginTop: '0.25rem' }}>
-                                {resultadoFinal.creativeDirector.refinement.estiloAlternativoNome}. Esta recomendação é apenas consultiva e não será aplicada automaticamente.
+                                {resultadoFinal.creativeDirector.refinement.estiloAlternativoNome}. {refineCopy.altNote}
                               </p>
                             </div>
                           )}
                           <button type="button" onClick={keepCurrentDirection} className="btn-secondary" style={{ padding: '0.8rem 1rem', justifySelf: 'center' }}>
-                            Manter direção atual
+                            {refineCopy.keepCurrent}
                           </button>
                         </div>
                       )}
@@ -1554,11 +1576,16 @@ export default function Home() {
                       {!isRefinementLoading && refinementStep === 'unavailable' && (
                         <div style={{ textAlign: 'center' }}>
                           <p style={{ color: 'var(--text-secondary)', fontSize: '0.88rem', lineHeight: 1.5 }}>
-                            Não consegui abrir o refinamento agora, mas sua direção atual continua salva.
+                            {refineCopy.unavailable}
                           </p>
-                          <button type="button" onClick={keepCurrentDirection} className="btn-secondary" style={{ marginTop: '0.75rem', padding: '0.8rem 1rem' }}>
-                            Manter direção atual
-                          </button>
+                          <div style={{ display: 'flex', gap: '0.75rem', marginTop: '0.75rem', justifyContent: 'center', flexWrap: 'wrap' }}>
+                            <button type="button" onClick={startCreativeRefinement} className="btn-primary" style={{ padding: '0.8rem 1rem' }}>
+                              {refineCopy.retry}
+                            </button>
+                            <button type="button" onClick={keepCurrentDirection} className="btn-secondary" style={{ padding: '0.8rem 1rem' }}>
+                              {refineCopy.close}
+                            </button>
+                          </div>
                         </div>
                       )}
                     </div>
