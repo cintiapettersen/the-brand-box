@@ -1649,7 +1649,9 @@
     "creative_refine_close": "Fechar",
     "creative_refine_retry": "Tentar novamente",
     "creative_refine_regenerate": "Gerar novamente em português",
-    "creative_refine_regenerating": "Gerando novamente em português..."
+    "creative_refine_regenerating": "Gerando novamente em português...",
+    "creative_palette_suggested": "Paleta sugerida {count}",
+    "creative_palette_curated": "Paleta curada"
   },
   "checkout": {
     "header_pretitle": "Clareza criativa, mesmo para quem nunca criou uma marca antes.",

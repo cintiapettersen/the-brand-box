@@ -1729,7 +1729,9 @@
     "creative_refine_close": "Close",
     "creative_refine_retry": "Try again",
     "creative_refine_regenerate": "Regenerate in English",
-    "creative_refine_regenerating": "Regenerating in English..."
+    "creative_refine_regenerating": "Regenerating in English...",
+    "creative_palette_suggested": "Suggested palette {count}",
+    "creative_palette_curated": "Curated palette"
   },
   "checkout": {
     "header_pretitle": "Creative clarity, even for those who have never created a brand before.",

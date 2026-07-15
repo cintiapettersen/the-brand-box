@@ -1238,13 +1238,13 @@ export default function Home() {
                         <button 
                           key={s} 
                           onClick={() => toggleSentimento(s)} 
-                          style={{ 
+                          style={{
                             background: isSelected ? baseColor : '#F9F8F6',
                             color: isSelected ? (isDark ? '#fff' : 'var(--text-primary)') : 'var(--text-secondary)',
                             border: isSelected ? `2px solid ${isDark ? baseColor : 'var(--text-primary)'}` : '1px solid var(--border)', 
                             padding: '16px 12px', 
                             borderRadius: '12px', 
-                            cursor: 'pointer', 
+                            cursor: 'pointer',
                             transition: 'all 0.2s ease', 
                             fontSize: '0.82rem', 
                             fontWeight: isSelected ? 600 : 400,
@@ -1316,13 +1316,13 @@ export default function Home() {
                         <button 
                           key={s} 
                           onClick={() => toggleElemento(s)} 
-                          style={{ 
+                          style={{
                             background: isSelected ? baseColor : '#F9F8F6',
                             color: isSelected ? (isDark ? '#fff' : 'var(--text-primary)') : 'var(--text-secondary)',
                             border: isSelected ? `2px solid ${isDark ? baseColor : 'var(--text-primary)'}` : '1px solid var(--border)', 
                             padding: '16px 12px', 
                             borderRadius: '12px', 
-                            cursor: 'pointer', 
+                            cursor: 'pointer',
                             transition: 'all 0.2s ease', 
                             fontSize: '0.82rem', 
                             fontWeight: isSelected ? 600 : 400,
@@ -1361,7 +1361,7 @@ export default function Home() {
                     <div 
                       key={opt.id} 
                       onClick={() => toggleInspiracoes(opt.id, opt.font)}
-                      style={{ 
+                      style={{
                         border: `2px solid ${isSelected ? 'var(--accent-turquoise)' : 'var(--border)'}`, 
                         borderRadius: '12px', 
                         overflow: 'hidden', 
@@ -1411,13 +1411,13 @@ export default function Home() {
                       <button 
                         key={s} 
                         onClick={() => toggleNuncaPensar(s)} 
-                        style={{ 
+                        style={{
                           background: isSelected ? '#363532' : '#F9F8F6',
                           color: isSelected ? '#fff' : 'var(--text-secondary)',
                           border: isSelected ? '2px solid #363532' : '1px solid var(--border)', 
                           padding: '16px 12px', 
                           borderRadius: '12px', 
-                          cursor: 'pointer', 
+                          cursor: 'pointer',
                           transition: 'all 0.2s ease', 
                           fontSize: '0.82rem', 
                           fontWeight: isSelected ? 600 : 400,
@@ -1793,9 +1793,9 @@ export default function Home() {
                           const baseSize = isPrimary ? 1.3 : 1.15;
                           const finalSize = `${(baseSize * sizeBoost).toFixed(2)}rem`;
                           return (
-                            <div key={t.id} onClick={() => selectTipoItem(t.id)} style={{ 
+                            <div key={t.id} onClick={() => selectTipoItem(t.id)} style={{
                               border: selectedTipo === t.id ? '3px solid var(--accent-turquoise)' : '1px solid var(--border)', 
-                              borderRadius: '12px', padding: '15px 10px', cursor: 'pointer', 
+                              borderRadius: '12px', padding: '15px 10px', cursor: 'pointer',
                               display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
                               minHeight: '110px', background: selectedTipo === t.id ? 'rgba(60,204,191,0.05)' : '#fafafa',
                               transition: 'all 0.2s ease',
@@ -1819,82 +1819,43 @@ export default function Home() {
                      <motion.div key="cpaleta" variants={slideVariants} initial="initial" animate="animate" exit="exit" transition={{ duration: 0.3 }} style={{ position: 'absolute', width: '100%', height: '100%', display: 'grid', gridTemplateColumns: 'minmax(0, 1fr) minmax(0, 1fr)', gap: '12px', overflowY: 'auto', paddingBottom: '2rem' }}>
                         {paletas.map((p, pi) => {
                           const cores = p.paleta_hex || p.cores_hex || [];
-                          const blobShapes = [
-                            '60% 40% 55% 45% / 50% 60% 40% 50%',
-                            '45% 55% 50% 50% / 55% 45% 55% 45%',
-                            '50% 50% 40% 60% / 45% 55% 50% 50%',
-                            '55% 45% 60% 40% / 50% 50% 45% 55%',
-                            '40% 60% 50% 50% / 60% 40% 55% 45%',
-                          ];
-                          const row1 = cores.slice(0, 3);
-                          const row2 = cores.slice(3, 5);
+                          const isSelected = selectedPaleta === p.id;
+                          const isAiPalette = p.source === 'openai' || p.origem === 'OPENAI' || p.isAiGenerated;
+                          const paletteLabel = isAiPalette
+                            ? (dictionary?.postmatch?.creative_palette_suggested || 'Paleta sugerida {count}').replace('{count}', pi + 1)
+                            : (dictionary?.postmatch?.creative_palette_curated || 'Paleta curada');
                           return (
-                            <div key={p.id} onClick={() => { setSelectedPaleta(p.id); setTimeout(() => setCustomStep('cor'), 300); }} style={{ 
-                              border: selectedPaleta === p.id ? '4px solid var(--accent-magenta)' : '1px solid var(--border)', 
-                              borderRadius: '12px', padding: '0', cursor: 'pointer', 
+                            <div key={p.id} onClick={() => { setSelectedPaleta(p.id); setTimeout(() => setCustomStep('cor'), 300); }} style={{
+                              border: isSelected ? '2px solid var(--accent-magenta)' : '1px solid rgba(0,0,0,0.06)',
+                              borderRadius: '18px', padding: '0', cursor: 'pointer',
                               display: 'flex', flexDirection: 'column', alignItems: 'stretch', justifyContent: 'stretch',
                               background: '#fff',
-                              transition: 'all 0.2s ease',
-                              boxShadow: selectedPaleta === p.id ? '0 8px 25px rgba(0,0,0,0.1)' : '0 4px 12px rgba(0,0,0,0.03)',
+                              transition: 'transform 0.22s ease, box-shadow 0.22s ease, border-color 0.22s ease',
+                              boxShadow: isSelected ? '0 16px 34px rgba(0,0,0,0.12)' : '0 8px 24px rgba(0,0,0,0.05)',
                               overflow: 'hidden',
-                              transform: selectedPaleta === p.id ? 'scale(1.02)' : 'scale(1)',
-                              minHeight: '140px'
+                              transform: isSelected ? 'translateY(-2px) scale(1.015)' : 'translateY(0)',
+                              minHeight: '158px',
+                              outline: isSelected ? '3px solid rgba(217, 74, 138, 0.12)' : 'none'
                             }}>
                               {cores.length > 0 ? (
-                                <div style={{ display: 'flex', flexDirection: 'column', flex: 1, width: '100%', height: '100%' }}>
-                                  
-                                  {/* Cores Verticais - Pantone Style */}
-                                  <div style={{ display: 'flex', width: '100%', flex: 1 }}>
+                                <div title={cores.map(c => c.toUpperCase()).join(' · ')} style={{ display: 'flex', flexDirection: 'column', flex: 1, width: '100%', height: '100%' }}>
+                                  <div style={{ display: 'grid', gridTemplateColumns: `repeat(${cores.length}, minmax(0, 1fr))`, width: '100%', flex: 1, minHeight: '128px' }}>
                                     {cores.map((hex, ci) => (
-                                      <div key={ci} style={{
-                                        flex: 1,
+                                      <div key={`${hex}-${ci}`} style={{
                                         backgroundColor: hex,
-                                        height: '100px'
+                                        minHeight: '128px'
                                       }} />
                                     ))}
                                   </div>
-                                  
-                                  {/* Base Branca / Label Pantone */}
-                                  <div style={{ padding: '12px 14px', background: '#fff', display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
-                                    <p style={{ fontSize: '0.65rem', fontWeight: 800, letterSpacing: '1.5px', textTransform: 'uppercase', color: 'var(--text-primary)', marginBottom: '4px' }}>
-                                      {p.nome_variacao || `Paleta ${pi + 1}`}
+                                  <div style={{ padding: '8px 10px', background: 'rgba(255,255,255,0.92)', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '8px' }}>
+                                    <p style={{ fontSize: '0.58rem', fontWeight: 800, letterSpacing: '1.4px', textTransform: 'uppercase', color: 'var(--text-secondary)', margin: 0 }}>
+                                      {paletteLabel}
                                     </p>
-                                    <div style={{ display: 'flex', gap: '4px', fontSize: '0.45rem', color: 'var(--text-secondary)', letterSpacing: '0.5px' }}>
-                                      {cores.map(c => <span key={c}>{c.toUpperCase()}</span>)}
-                                    </div>
+                                    {isSelected && <span style={{ width: '7px', height: '7px', borderRadius: '999px', background: 'var(--accent-magenta)', flexShrink: 0 }} />}
                                   </div>
-
-                                  {/* Versão Bolinhas Orgânicas (Antiga - Salva para eventual rollback)
-                                  <div style={{ display: 'flex', gap: '6px', justifyContent: 'center' }}>
-                                    {row1.map((hex, ci) => (
-                                      <div key={ci} style={{
-                                        width: ci === 0 ? '34px' : '28px',
-                                        height: ci === 0 ? '34px' : '28px',
-                                        backgroundColor: hex,
-                                        borderRadius: blobShapes[(ci + pi) % blobShapes.length],
-                                        boxShadow: `0 3px 10px ${hex}35`,
-                                        flexShrink: 0
-                                      }} />
-                                    ))}
-                                  </div>
-                                  {row2.length > 0 && (
-                                    <div style={{ display: 'flex', gap: '6px', justifyContent: 'center' }}>
-                                      {row2.map((hex, ci) => (
-                                        <div key={ci} style={{
-                                          width: '28px',
-                                          height: '28px',
-                                          backgroundColor: hex,
-                                          borderRadius: blobShapes[(ci + 3 + pi) % blobShapes.length],
-                                          boxShadow: `0 3px 10px ${hex}35`,
-                                        }} />
-                                      ))}
-                                    </div>
-                                  )}
-                                  */}
-
                                 </div>
                               ) : (
-                                <img src={`${p.image_url}?t=${Date.now()}`} alt={p.nome_variacao} style={{ width: '100%', height: '100px', objectFit: 'cover', borderRadius: '8px' }} />
+                                <img src={`${p.image_url}?t=${Date.now()}`} alt={p.nome_variacao} style={{ width: '100%', height: '158px', objectFit: 'cover' }} />
                               )}
                             </div>
                           );
