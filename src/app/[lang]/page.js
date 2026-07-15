@@ -76,6 +76,7 @@ export default function Home() {
 
   const [step, setStep] = useState(1);
   const [resultadoFinal, setResultadoFinal] = useState(null);
+  const [isCreativeDirectorLoading, setIsCreativeDirectorLoading] = useState(false);
   const [selectedTagline, setSelectedTagline] = useState('');
   const [customTagline, setCustomTagline] = useState('');
   
@@ -583,6 +584,30 @@ export default function Home() {
       if (data.estiloNome) {
         setResultadoFinal(data);
         setStep(9); // Tela de Resultado Triunfal
+        setIsCreativeDirectorLoading(true);
+
+        try {
+          const creativeResponse = await fetch('/api/creative-director', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              formData,
+              estiloId: data.estiloId,
+              estiloNome: data.estiloNome,
+              mensagem: data.mensagem,
+              idioma: lang
+            })
+          });
+
+          if (creativeResponse.ok) {
+            const creativeDirector = await creativeResponse.json();
+            setResultadoFinal(prev => prev ? ({ ...prev, creativeDirector }) : prev);
+          }
+        } catch (creativeError) {
+          console.warn('Creative Director indisponível; mantendo o fluxo antigo.', creativeError);
+        } finally {
+          setIsCreativeDirectorLoading(false);
+        }
       } else {
         alert("Ops, deu um pequeno tilt na IA. Refaça por favor!");
         setStep(7);
@@ -1296,6 +1321,49 @@ export default function Home() {
                   &quot;{resultadoFinal.mensagem}&quot;
                 </p>
               </div>
+
+              {isCreativeDirectorLoading && (
+                <p style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', marginTop: '-1rem', marginBottom: '1.25rem' }}>
+                  Preparando seu diagnóstico criativo...
+                </p>
+              )}
+
+              {resultadoFinal.creativeDirector && (
+                <div style={{ width: '100%', maxWidth: '620px', background: '#ffffff', padding: '1.5rem', borderRadius: '18px', marginBottom: '2rem', boxShadow: '0 4px 15px rgba(0,0,0,0.03)', textAlign: 'left' }}>
+                  <p style={{ fontSize: '0.78rem', color: 'var(--accent-magenta)', textTransform: 'uppercase', letterSpacing: '1.8px', fontWeight: 700, marginBottom: '0.75rem', textAlign: 'center' }}>Diagnóstico Criativo</p>
+                  <p style={{ fontSize: '0.98rem', color: 'var(--text-primary)', lineHeight: 1.6, marginBottom: '1.2rem', textAlign: 'center' }}>{resultadoFinal.creativeDirector.diagnostico}</p>
+
+                  <div style={{ display: 'grid', gap: '0.9rem' }}>
+                    <div>
+                      <strong style={{ color: 'var(--text-primary)', fontSize: '0.9rem' }}>Personalidade da marca</strong>
+                      <p style={{ color: 'var(--text-secondary)', fontSize: '0.9rem', lineHeight: 1.5, marginTop: '0.25rem' }}>{resultadoFinal.creativeDirector.personalidade.join(' • ')}</p>
+                    </div>
+                    <div>
+                      <strong style={{ color: 'var(--text-primary)', fontSize: '0.9rem' }}>O que o público precisa sentir</strong>
+                      <ul style={{ color: 'var(--text-secondary)', fontSize: '0.9rem', lineHeight: 1.5, marginTop: '0.35rem', paddingLeft: '1.1rem' }}>
+                        {resultadoFinal.creativeDirector.expectativasPublico.map((item, index) => <li key={`expectativa-${index}`}>{item}</li>)}
+                      </ul>
+                    </div>
+                    <div>
+                      <strong style={{ color: 'var(--text-primary)', fontSize: '0.9rem' }}>Objetivos emocionais</strong>
+                      <ul style={{ color: 'var(--text-secondary)', fontSize: '0.9rem', lineHeight: 1.5, marginTop: '0.35rem', paddingLeft: '1.1rem' }}>
+                        {resultadoFinal.creativeDirector.objetivosEmocionais.map((item, index) => <li key={`objetivo-${index}`}>{item}</li>)}
+                      </ul>
+                    </div>
+                    <div>
+                      <strong style={{ color: 'var(--text-primary)', fontSize: '0.9rem' }}>Por que essa direção combina</strong>
+                      <p style={{ color: 'var(--text-secondary)', fontSize: '0.9rem', lineHeight: 1.5, marginTop: '0.25rem' }}>{resultadoFinal.creativeDirector.porqueEsseEstilo}</p>
+                      <p style={{ color: 'var(--text-secondary)', fontSize: '0.9rem', lineHeight: 1.5, marginTop: '0.35rem' }}>{resultadoFinal.creativeDirector.direcaoVisual}</p>
+                    </div>
+                    <div>
+                      <strong style={{ color: 'var(--text-primary)', fontSize: '0.9rem' }}>Riscos criativos a evitar</strong>
+                      <ul style={{ color: 'var(--text-secondary)', fontSize: '0.9rem', lineHeight: 1.5, marginTop: '0.35rem', paddingLeft: '1.1rem' }}>
+                        {resultadoFinal.creativeDirector.riscosEvitar.map((item, index) => <li key={`risco-${index}`}>{item}</li>)}
+                      </ul>
+                    </div>
+                  </div>
+                </div>
+              )}
 
               <button onClick={fetchVariacoes} className="btn-primary" style={{ background: 'var(--accent-magenta)', color: 'var(--text-primary)', boxShadow: 'none' }}>{dictionary?.postmatch?.step_9_btn_customize || 'Personalizar minha Identidade'}</button>
 
