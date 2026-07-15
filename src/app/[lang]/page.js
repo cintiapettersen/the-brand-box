@@ -107,17 +107,18 @@ export default function Home() {
   };
 
   const elementosDesc = [
-    "Cores vibrantes", "Universo Lúdico (Fadas, Princesas)", "Bichinhos / Animais Fofos", 
-    "Aquarela Clássica", "Minimalismo e Traços Limpos", "Tons Quentes / Linho Orgânico", 
-    "Clássico e Nostálgico", "Clean / Tipografia Pura"
+    "Toque Lúdico / Elementos Mágicos", // Substituto mais versátil para fadas/princesas
+    "Mascotes / Ícones Divertidos", // Substituto para bichinhos
+    "Minimalismo / Linhas Retas",
+    "Aquarela Clássica",
+    "Formas Orgânicas / Tons Terrosos",
+    "Tipografia Pura / Editorial"
   ];
   
   const toggleElemento = (val) => {
     setFormData(prev => ({
       ...prev,
-      elementosVisuais: prev.elementosVisuais.includes(val)
-        ? prev.elementosVisuais.filter(item => item !== val)
-        : (prev.elementosVisuais.length < 1 ? [...prev.elementosVisuais, val] : prev.elementosVisuais)
+      elementosVisuais: prev.elementosVisuais.includes(val) ? [] : [val]
     }));
   };
 
@@ -394,7 +395,7 @@ export default function Home() {
       console.log('--- DIAGNÓSTICO BRAND BOX ---');
       console.log('Solicitando variações para estilo:', id);
       
-      setCustomStep('tipo'); // Reset para o primeiro passo do refinamento
+      setCustomStep('paleta'); // Pula o passo 'tipo' (fonte é setada no callMatchmaker)
       
       const res = await fetch(`/api/variacoes?id=${id}&t=${Date.now()}`);
       if (!res.ok) {
@@ -431,12 +432,37 @@ export default function Home() {
       
       if (resultadoFinal) {
         setStep(10);
+
+        // Transfere a lógica de tipografia (FONT_MAP)
+        let fontProps = {};
+        if (formData.selectedBrandFont) {
+          const found = Object.values(FONT_MAP).find(f => f.fontFamily === formData.selectedBrandFont);
+          if (found) {
+            fontProps = {
+              fontFamily: found.fontFamily,
+              fontWeight: found.weight || 400,
+              fontStyle: found.style || 'serif',
+              fontSizeBoost: found.sizeBoost || 1,
+              fontLetterSpacing: found.letterSpacing || '0px',
+              fontLineHeight: found.lineHeight,
+              fontFeatureSettings: found.featureSettings
+            };
+          }
+        }
+
         setEditData(prev => ({ 
           ...prev, 
           marca: formData.marca, 
           tagline: editData.tagline || 'Identidade Visual',
           instagram: formData.marca.toLowerCase().replace(/\s/g, ''),
-          whatsapp: prev.whatsapp || '(11) 99999-9999'
+          whatsapp: prev.whatsapp || '(11) 99999-9999',
+          fontFamily: fontProps.fontFamily || formData.selectedBrandFont || prev.fontFamily,
+          fontWeight: fontProps.fontWeight || prev.fontWeight,
+          fontStyle: fontProps.fontStyle || prev.fontStyle,
+          fontSizeBoost: fontProps.fontSizeBoost || prev.fontSizeBoost,
+          fontLetterSpacing: fontProps.fontLetterSpacing || prev.fontLetterSpacing,
+          fontLineHeight: fontProps.fontLineHeight || prev.fontLineHeight,
+          fontFeatureSettings: fontProps.fontFeatureSettings || prev.fontFeatureSettings
         }));
       }
     }
@@ -604,26 +630,27 @@ export default function Home() {
   };
 
   const sensacoes = [
-    "Profissional",
-    "Acolhedora",
-    "Criativa",
-    "Elegante",
-    "Moderna",
-    "Divertida",
-    "Premium",
-    "Natural",
-    "Confiável",
-    "Sofisticada",
-    "Minimalista",
-    "Alegre",
-    "Ousada",
-    "Leve",
-    "Delicada",
-    "Inovadora"
+    "Sofisticada / Premium",
+    "Minimalista / Moderna",
+    "Acolhedora / Humana",
+    "Ousada / Inovadora",
+    "Criativa / Divertida",
+    "Leve / Delicada",
+    "Natural / Orgânica",
+    "Profissional / Confiável",
+    "Elegante / Clássica"
   ];
 
   const nuncaPensarOpcoes = [
-    "Infantil demais", "Séria ou fria demais", "Genérica / Igual a todas", "Amadora", "Confusa", "Poluída visualmente", "Antiquada", "Muito luxuosa", "Muito simples", "Pouco confiável", "Sem profissionalismo", "Sem criatividade", "Outra..."
+    "Infantil / Amadora",
+    "Muito Séria / Fria",
+    "Genérica / Sem Graça",
+    "Poluída / Confusa",
+    "Muito Simples / Básica",
+    "Exageradamente Luxuosa",
+    "Antiquada / Ultrapassada",
+    "Pouco Confiável",
+    "Outra..."
   ];
 
   const toggleNuncaPensar = (val) => {
@@ -639,21 +666,21 @@ export default function Home() {
     });
   };
 
-  const inspiracoesOpcoes = [
-    "Jardim Encantado", "Escandinavo Acolhedor", "Essência Atemporal", "Raízes & Cuidado", "Doce Encantamento", "Estético Editorial", "Outros..."
+  const visualBrandOptions = [
+    { id: 'brand_1', image: '/estilos de fontes/estilo-de-fontes-1-01.png', font: 'Playfair Display' },
+    { id: 'brand_2', image: '/estilos de fontes/estilo-de-fontes-1-02.png', font: 'Borel' },
+    { id: 'brand_3', image: '/estilos de fontes/estilo-de-fontes-1-03.png', font: 'Abril Fatface' },
+    { id: 'brand_4', image: '/estilos de fontes/estilo-de-fontes-1-04.png', font: 'DM Sans' },
+    { id: 'brand_5', image: '/estilos de fontes/estilo-de-fontes-1-05.png', font: 'Julius Sans One' },
+    { id: 'brand_6', image: '/estilos de fontes/estilo-de-fontes-1-06.png', font: 'Sacramento' },
   ];
 
-  const toggleInspiracoes = (val) => {
-    setFormData(prev => {
-      const current = prev.inspiracoesTags || [];
-      if (current.includes(val)) {
-        return { ...prev, inspiracoesTags: current.filter(item => item !== val) };
-      }
-      if (current.length < 3) {
-        return { ...prev, inspiracoesTags: [...current, val] };
-      }
-      return prev;
-    });
+  const toggleInspiracoes = (val, fontName) => {
+    setFormData(prev => ({
+      ...prev,
+      inspiracoesVisual: val,
+      selectedBrandFont: fontName
+    }));
   };
 
   const variants = {
@@ -713,25 +740,29 @@ export default function Home() {
           {step === 1 && (
             <motion.div 
               key="step1" variants={variants} initial="initial" animate="animate" exit="exit" transition={{ duration: 0.5 }}
-              className="wizard-step" style={{ position: 'absolute', width: '100%', height: '100%', display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center', background: 'var(--bg-soft)', borderRadius: '24px' }}
+              className="wizard-step" style={{ position: 'absolute', width: '100%', height: '100%', display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center', background: 'var(--bg-color)', borderRadius: '24px', border: 'none', boxShadow: 'none' }}
             >
-              <p style={{ fontSize: '0.8rem', letterSpacing: '3px', textTransform: 'uppercase', color: 'var(--text-secondary)', marginBottom: '1rem', fontWeight: 500 }}>{dictionary?.landing?.apresenta || 'sonho de papel apresenta'}</p>
+              <p style={{ fontSize: '0.75rem', letterSpacing: '4px', textTransform: 'uppercase', color: 'var(--accent-turquoise)', marginBottom: '1.5rem', fontWeight: 600 }}>{dictionary?.landing?.apresenta || 'THE BRAND BOX.'}</p>
+              
               {/* Logo com fonte Golden Blast */}
-              <Image src="/the-brand-box-logo.png" alt="the brand box." width={1024} height={225} priority={true} style={{ width: '85%', maxWidth: '420px', height: 'auto', marginBottom: '0.5rem', mixBlendMode: 'multiply' }} />
-              <p style={{ fontSize: '1.05rem', color: 'var(--text-secondary)', marginBottom: '2.5rem', lineHeight: 1.7, maxWidth: '85%', fontWeight: 500 }}>{dictionary?.landing?.marca_ja_existe || 'Sua marca já existe dentro de você.'}</p>
-              <p style={{ fontSize: '1.05rem', color: 'var(--text-secondary)', marginBottom: '2.5rem', lineHeight: 1.7, maxWidth: '85%' }}>
-                {dictionary?.landing?.ajuda_aparecer || 'A gente só ajuda ela a aparecer.'}
+              <Image src="/the-brand-box-logo.png" alt="the brand box." width={1024} height={225} priority={true} style={{ width: '80%', maxWidth: '380px', height: 'auto', marginBottom: '1rem', mixBlendMode: 'multiply', opacity: 0.9 }} />
+              
+              <h1 style={{ fontSize: '1.05rem', color: 'var(--text-primary)', marginBottom: '1.5rem', lineHeight: 1.5, maxWidth: '85%', fontWeight: 400, letterSpacing: '0' }}>{dictionary?.landing?.marca_ja_existe || 'Sua marca já existe dentro de você.'}</h1>
+              
+              <p style={{ fontSize: '0.95rem', color: 'var(--text-secondary)', marginBottom: '2.5rem', lineHeight: 1.6, maxWidth: '85%', fontWeight: 400 }}>
+                {dictionary?.landing?.ajuda_aparecer || 'Nós apenas ajudamos a revelá-la ao mundo.'}
                 {dictionary?.landing?.experiencia_guiada && (
                   <><br/>{dictionary.landing.experiencia_guiada}</>
                 )}
               </p>
-              <button onClick={nextStep} className="btn-primary">{dictionary?.landing?.criar_marca || 'CRIAR MINHA MARCA AGORA'}</button>
+              
+              <button onClick={nextStep} className="btn-primary" style={{ padding: '1rem 3rem', fontSize: '0.95rem', letterSpacing: '1px', textTransform: 'uppercase', fontWeight: 600 }}>{dictionary?.landing?.criar_marca || 'CRIAR MINHA MARCA AGORA'}</button>
 
               {/* DEV SHORTCUTS - só aparece em desenvolvimento */}
               {process.env.NODE_ENV === 'development' && (
-                <div style={{ marginTop: '20px', padding: '15px', background: '#fff3cd', borderRadius: '12px', width: '100%' }}>
-                  <p style={{ fontSize: '0.65rem', fontWeight: 700, color: '#856404', marginBottom: '8px', letterSpacing: '1px' }}>⚡ ATALHO DEV (sem gastar crédito)</p>
-                  <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px', justifyContent: 'center' }}>
+                <div style={{ marginTop: '30px', padding: '15px', background: 'transparent', border: '1px dashed var(--border)', borderRadius: '12px', width: '100%' }}>
+                  <p style={{ fontSize: '0.65rem', fontWeight: 600, color: 'var(--text-secondary)', marginBottom: '10px', letterSpacing: '1px', textTransform: 'uppercase' }}>⚡ Atalho Dev</p>
+                  <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px', justifyContent: 'center' }}>
                     {[
                       { id: 2, nome: 'Jardim Encantado' },
                       { id: 3, nome: 'Escandinavo Acolhedor' },
@@ -744,7 +775,7 @@ export default function Home() {
                         setFormData(prev => ({ ...prev, marca: prev.marca || 'Minha Marca', nome: prev.nome || 'Dev' }));
                         setResultadoFinal({ estiloId: e.id, estiloNome: e.nome, mensagem: `Teste direto do estilo ${e.nome}` });
                         setStep(9);
-                      }} style={{ padding: '5px 10px', fontSize: '0.65rem', borderRadius: '8px', border: '1px solid #856404', background: '#fff', color: '#856404', cursor: 'pointer' }}>
+                      }} style={{ padding: '6px 12px', fontSize: '0.65rem', borderRadius: '30px', border: '1px solid var(--border)', background: 'var(--bg-soft)', color: 'var(--text-secondary)', cursor: 'pointer', transition: 'all 0.2s ease' }}>
                         {e.nome}
                       </button>
                     ))}
@@ -870,32 +901,40 @@ export default function Home() {
               <div style={{ position: 'absolute', top: '3rem', left: '3rem', right: '3rem', height: '4px', background: 'var(--border)', borderRadius: '4px' }}><div style={{ height: '100%', background: 'var(--accent-turquoise)', width: '50%', borderRadius: '4px', transition: 'width 0.5s' }} /></div>
               <h2 style={{ fontSize: '2rem', marginBottom: '0.5rem' }}>{dictionary?.onboarding?.step_4_title || 'Qual é a sua área de atuação?'}</h2>
               <p style={{ fontSize: '1rem', color: 'var(--text-secondary)', marginBottom: '1.5rem' }}>{dictionary?.onboarding?.step_4_subtitle || 'Escolha a que mais combina com o seu negócio.'}</p>
-              <div style={{ width: '100%', marginBottom: '1rem', overflowY: 'auto', maxHeight: '45vh' }}>
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px', padding: '4px' }}>
+              <div style={{ width: '100%', marginBottom: '1rem', overflowY: 'auto', maxHeight: '50vh', padding: '0 4px' }}>
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '12px', padding: '4px' }}>
                   {[...areas, 'Other'].map(a => {
                     const isOther = a === 'Other';
                     const displayLabel = isOther ? (dictionary?.onboarding?.step_4_other_btn || 'Outra') : (dictionary?.onboarding?.areas_options?.[a] || a);
                     const value = isOther ? 'Outra' : a;
+                    const isSelected = formData.atuacao === value;
                     return (
-                    <button
-                      key={value}
-                      onClick={() => setSingleChoice('atuacao', value)}
-                      style={{
-                        padding: '14px 10px',
-                        borderRadius: '14px',
-                        border: formData.atuacao === value ? '2px solid var(--accent-turquoise)' : '1.5px solid var(--border)',
-                        background: formData.atuacao === value ? 'rgba(60,204,191,0.08)' : '#fafafa',
-                        color: formData.atuacao === value ? 'var(--accent-turquoise)' : 'var(--text-primary)',
-                        fontWeight: formData.atuacao === value ? 700 : 500,
-                        fontSize: '0.82rem',
-                        lineHeight: 1.4,
-                        cursor: 'pointer',
-                        transition: 'all 0.2s',
-                        textAlign: 'center',
-                      }}
-                    >
-                      {displayLabel}</button>
-                  )})}
+                      <button
+                        key={value}
+                        onClick={() => setSingleChoice('atuacao', value)}
+                        style={{
+                          padding: '12px 8px',
+                          borderRadius: '12px',
+                          border: isSelected ? '2px solid var(--text-primary)' : '1px solid var(--border)',
+                          background: isSelected ? 'var(--text-primary)' : '#F9F8F6', // Off-white/Beige chic
+                          color: isSelected ? '#FFFFFF' : 'var(--text-secondary)',
+                          fontWeight: isSelected ? 600 : 400,
+                          fontSize: '0.82rem',
+                          lineHeight: 1.3,
+                          cursor: 'pointer',
+                          transition: 'all 0.2s ease',
+                          textAlign: 'center',
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                          minHeight: '110px',
+                          boxShadow: isSelected ? '0 6px 15px rgba(0,0,0,0.1)' : '0 2px 5px rgba(0,0,0,0.02)'
+                        }}
+                      >
+                        {displayLabel}
+                      </button>
+                    );
+                  })}
                 </div>
               </div>
               
@@ -959,16 +998,58 @@ export default function Home() {
               key="step6" variants={variants} initial="initial" animate="animate" exit="exit" transition={{ duration: 0.5 }}
               className="wizard-step" style={{ position: 'absolute', width: '100%', height: '100%', display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center', background: '#ffffff', borderRadius: '24px', border: '1px solid var(--border)' }}
             >
-              <div style={{ position: 'absolute', top: '3rem', left: '3rem', right: '3rem', height: '4px', background: 'var(--border)', borderRadius: '4px' }}><div style={{ height: '100%', background: 'var(--accent-turquoise)', width: '90%', borderRadius: '4px', transition: 'width 0.5s' }} /></div>
-              <h2 style={{ fontSize: '2rem', marginBottom: '0.5rem' }}>{dictionary?.onboarding?.step_6_title || 'Como você quer que sua marca seja percebida?'}</h2>
-              <p style={{ fontSize: '1rem', color: 'var(--text-secondary)', marginBottom: '1.5rem' }}>{dictionary?.onboarding?.step_6_subtitle || 'Escolha até 3 opções.'}</p>
-              <div style={{ width: '100%', marginBottom: '1.5rem', display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px' }}>
-                {sensacoes.map(s => {
-                  const isSelected = formData.sentimentos.includes(s);
-                  return (
-                    <button key={s} onClick={() => toggleSentimento(s)} style={{ background: isSelected ? 'var(--accent-turquoise)' : '#fff', color: isSelected ? '#fff' : 'var(--text-secondary)', border: `1.5px solid ${isSelected ? 'var(--accent-turquoise)' : 'var(--border)'}`, padding: '10px 20px', borderRadius: '30px', cursor: 'pointer', transition: 'all 0.2s ease', fontSize: '1rem', fontWeight: isSelected ? 500 : 400 }}>{dictionary?.onboarding?.sensacoes_options?.[s] || s}</button>
-                  )
-                })}
+              <div style={{ position: 'absolute', top: '3rem', left: '3rem', right: '3rem', height: '4px', background: 'var(--border)', borderRadius: '4px' }}><div style={{ height: '100%', background: 'var(--accent-turquoise)', width: '70%', borderRadius: '4px', transition: 'width 0.5s' }} /></div>
+              <h2 style={{ fontSize: '2rem', marginBottom: '0.5rem' }}>{dictionary?.onboarding?.step_5_title || 'Como as pessoas devem se sentir após interagir com a sua marca?'}</h2>
+              <p style={{ fontSize: '1rem', color: 'var(--text-secondary)', marginBottom: '1.5rem' }}>{dictionary?.onboarding?.step_5_subtitle || 'Escolha até 3 opções.'}</p>
+              
+              <div style={{ width: '100%', marginBottom: '1rem', overflowY: 'auto', maxHeight: '50vh', padding: '0 4px' }}>
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '12px', padding: '4px' }}>
+                  {(() => {
+                    const SENSACOES_COLORS = {
+                      "Sofisticada / Premium": "#363532", // Obsidian
+                      "Minimalista / Moderna": "#E8EAEB", // Light Cool Grey
+                      "Acolhedora / Humana": "#F2E3D5", // Warm Peach/Taupe
+                      "Ousada / Inovadora": "#D95D5D", // Muted Red
+                      "Criativa / Divertida": "#E3C878", // Muted Mustard
+                      "Leve / Delicada": "#E3EBE6", // Pale Sage
+                      "Natural / Orgânica": "#A2AD91", // Olive
+                      "Profissional / Confiável": "#4A6274", // Slate Blue
+                      "Elegante / Clássica": "#C6B098" // Porcini
+                    };
+                    return sensacoes.map(s => {
+                      const isSelected = formData.sentimentos.includes(s);
+                      const baseColor = SENSACOES_COLORS[s] || '#F9F8F6';
+                      // Se for escuro (Obsidian, Red, Olive, Slate), o texto base tem que ser branco
+                      const isDark = ["Sofisticada / Premium", "Ousada / Inovadora", "Natural / Orgânica", "Profissional / Confiável"].includes(s);
+                      
+                      return (
+                        <button 
+                          key={s} 
+                          onClick={() => toggleSentimento(s)} 
+                          style={{ 
+                            background: isSelected ? baseColor : '#F9F8F6',
+                            color: isSelected ? (isDark ? '#fff' : 'var(--text-primary)') : 'var(--text-secondary)',
+                            border: isSelected ? `2px solid ${isDark ? baseColor : 'var(--text-primary)'}` : '1px solid var(--border)', 
+                            padding: '16px 12px', 
+                            borderRadius: '12px', 
+                            cursor: 'pointer', 
+                            transition: 'all 0.2s ease', 
+                            fontSize: '0.82rem', 
+                            fontWeight: isSelected ? 600 : 400,
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            textAlign: 'center',
+                            minHeight: '100px',
+                            boxShadow: isSelected ? '0 6px 15px rgba(0,0,0,0.1)' : '0 2px 5px rgba(0,0,0,0.02)'
+                          }}
+                        >
+                          {dictionary?.onboarding?.sensacoes_options?.[s] || s}
+                        </button>
+                      );
+                    });
+                  })()}
+                </div>
               </div>
               <p style={{fontSize: '0.9rem', color: 'var(--text-secondary)', marginBottom: '1.5rem', fontWeight: 500}}>{dictionary?.onboarding?.step_6_selected?.replace('{count}', formData.sentimentos.length) || `Selecionadas: ${formData.sentimentos.length}/3`}</p>
               <button onClick={() => { if (formData.sentimentos.length > 0) setStep(6.5); else alert(dictionary?.onboarding?.alert_select_option || 'Por favor, selecione uma opção antes de avançar.'); }} className="btn-primary" style={{ opacity: formData.sentimentos.length > 0 ? 1 : 0.5 }}>{dictionary?.onboarding?.btn_next || 'Avançar'}</button>
@@ -1003,13 +1084,50 @@ export default function Home() {
               <div style={{ position: 'absolute', top: '3rem', left: '3rem', right: '3rem', height: '4px', background: 'var(--border)', borderRadius: '4px' }}><div style={{ height: '100%', background: 'var(--accent-turquoise)', width: '94%', borderRadius: '4px', transition: 'width 0.5s' }} /></div>
               <h2 style={{ fontSize: '2rem', marginBottom: '0.5rem' }}>{dictionary?.onboarding?.step_7_title || 'O que não pode faltar no layout?'}</h2>
               <p style={{ fontSize: '1rem', color: 'var(--text-secondary)', marginBottom: '1.5rem' }}>{dictionary?.onboarding?.step_7_subtitle || 'Quais elementos visuais e temáticos são vitais para você? (Escolha 1 opção)'}</p>
-              <div style={{ width: '100%', marginBottom: '1.5rem', display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px' }}>
-                {elementosDesc.map(s => {
-                  const isSelected = formData.elementosVisuais.includes(s);
-                  return (
-                    <button key={s} onClick={() => toggleElemento(s)} style={{ background: isSelected ? 'var(--accent-turquoise)' : '#fff', color: isSelected ? '#fff' : 'var(--text-secondary)', border: `1.5px solid ${isSelected ? 'var(--accent-turquoise)' : 'var(--border)'}`, padding: '10px 20px', borderRadius: '30px', cursor: 'pointer', transition: 'all 0.2s ease', fontSize: '1rem', fontWeight: isSelected ? 500 : 400 }}>{dictionary?.onboarding?.elementos_options?.[s] || s}</button>
-                  )
-                })}
+              <div style={{ width: '100%', marginBottom: '1.5rem', overflowY: 'auto', maxHeight: '50vh', padding: '0 4px' }}>
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '12px', padding: '4px' }}>
+                  {(() => {
+                    const ELEMENTO_COLORS = {
+                      "Toque Lúdico / Elementos Mágicos": "#E6DDF2", // Lilac
+                      "Mascotes / Ícones Divertidos": "#F2E8D5", // Warm yellow/beige
+                      "Minimalismo / Linhas Retas": "#E8EAEB", // Cool grey
+                      "Aquarela Clássica": "#F2E3E9", // Soft pink
+                      "Formas Orgânicas / Tons Terrosos": "#C6B098", // Porcini / Taupe
+                      "Tipografia Pura / Editorial": "#C3CEDB" // Plein Air (Azul acinzentado chique)
+                    };
+                    return elementosDesc.map(s => {
+                      const isSelected = formData.elementosVisuais.includes(s);
+                      const baseColor = ELEMENTO_COLORS[s] || '#F9F8F6';
+                      const isDark = ["Formas Orgânicas / Tons Terrosos", "Tipografia Pura / Editorial"].includes(s);
+
+                      return (
+                        <button 
+                          key={s} 
+                          onClick={() => toggleElemento(s)} 
+                          style={{ 
+                            background: isSelected ? baseColor : '#F9F8F6',
+                            color: isSelected ? (isDark ? '#fff' : 'var(--text-primary)') : 'var(--text-secondary)',
+                            border: isSelected ? `2px solid ${isDark ? baseColor : 'var(--text-primary)'}` : '1px solid var(--border)', 
+                            padding: '16px 12px', 
+                            borderRadius: '12px', 
+                            cursor: 'pointer', 
+                            transition: 'all 0.2s ease', 
+                            fontSize: '0.82rem', 
+                            fontWeight: isSelected ? 600 : 400,
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            textAlign: 'center',
+                            minHeight: '100px',
+                            boxShadow: isSelected ? '0 6px 15px rgba(0,0,0,0.1)' : '0 2px 5px rgba(0,0,0,0.02)'
+                          }}
+                        >
+                          {dictionary?.onboarding?.elementos_options?.[s] || s}
+                        </button>
+                      )
+                    });
+                  })()}
+                </div>
               </div>
               <button onClick={() => { if (formData.elementosVisuais.length > 0) setStep(7.2); else alert(dictionary?.onboarding?.alert_select_option || 'Por favor, selecione uma opção antes de avançar.'); }} className="btn-primary" style={{ opacity: formData.elementosVisuais.length > 0 ? 1 : 0.5 }}>{dictionary?.onboarding?.btn_next || 'Avançar'}</button>
             </motion.div>
@@ -1024,24 +1142,43 @@ export default function Home() {
               <h2 style={{ fontSize: '2rem', marginBottom: '0.5rem' }}>{dictionary?.onboarding?.step_7_2_title || 'Existe alguma marca cujo estilo você admira?'}</h2>
               <p style={{ fontSize: '1rem', color: 'var(--text-secondary)', marginBottom: '1.5rem' }}>{dictionary?.onboarding?.step_7_2_subtitle || '(Opcional)'}</p>
               
-              <div style={{ width: '100%', marginBottom: '1.5rem', display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px' }}>
-                {inspiracoesOpcoes.map(s => {
-                  const isSelected = (formData.inspiracoesTags || []).includes(s);
+              <div style={{ width: '100%', marginBottom: '1.5rem', display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '15px' }}>
+                {visualBrandOptions.map(opt => {
+                  const isSelected = formData.inspiracoesVisual === opt.id;
                   return (
-                    <button key={s} onClick={() => toggleInspiracoes(s)} style={{ background: isSelected ? 'var(--accent-turquoise)' : '#fff', color: isSelected ? '#fff' : 'var(--text-secondary)', border: `1.5px solid ${isSelected ? 'var(--accent-turquoise)' : 'var(--border)'}`, padding: '10px 20px', borderRadius: '30px', cursor: 'pointer', transition: 'all 0.2s ease', fontSize: '1rem', fontWeight: isSelected ? 500 : 400 }}>{dictionary?.onboarding?.inspiracoes_options?.[s] || s}</button>
+                    <div 
+                      key={opt.id} 
+                      onClick={() => toggleInspiracoes(opt.id, opt.font)}
+                      style={{ 
+                        border: `2px solid ${isSelected ? 'var(--accent-turquoise)' : 'var(--border)'}`, 
+                        borderRadius: '12px', 
+                        overflow: 'hidden', 
+                        cursor: 'pointer',
+                        transition: 'all 0.2s ease',
+                        boxShadow: isSelected ? '0 0 0 2px var(--accent-turquoise)' : 'none',
+                        background: '#f9f9f9',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        aspectRatio: '1 / 1'
+                      }}
+                    >
+                      <img src={opt.image} alt={`Style ${opt.id}`} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                    </div>
                   )
                 })}
               </div>
 
-              <AnimatePresence>
-                {(formData.inspiracoesTags || []).includes('Outros...') && (
-                  <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: 'auto' }} exit={{ opacity: 0, height: 0 }} style={{ width: '100%', marginBottom: '1.5rem' }}>
-                    <textarea name="inspiracoes" value={formData.inspiracoes} onChange={handleInput} placeholder={dictionary?.onboarding?.step_7_2_placeholder || 'Ex: Apple, Natura, Nubank...'} style={{ width: '100%', padding: '12px 16px', borderRadius: '12px', border: '1px solid var(--border)', fontSize: '1rem', minHeight: '100px' }} autoFocus />
-                  </motion.div>
-                )}
-              </AnimatePresence>
-              
-              <button onClick={() => setStep(7.5)} className="btn-secondary" style={{ opacity: formData.inspiracoesTags?.length > 0 ? 1 : 0.5 }}>{dictionary?.onboarding?.btn_next || 'Avançar'}</button>
+              <button 
+                onClick={() => { 
+                  if (formData.inspiracoesVisual) setStep(7.5); 
+                  else alert(dictionary?.onboarding?.alert_select_brand || 'Por favor, selecione uma marca que te inspira para definirmos a sua fonte inicial.'); 
+                }} 
+                className="btn-primary" 
+                style={{ opacity: formData.inspiracoesVisual ? 1 : 0.5 }}
+              >
+                {dictionary?.onboarding?.btn_next || 'Avançar'}
+              </button>
             </motion.div>
           )}
 
@@ -1054,13 +1191,37 @@ export default function Home() {
               <h2 style={{ fontSize: '2rem', marginBottom: '0.5rem' }}>{dictionary?.onboarding?.step_7_5_title || 'O que as pessoas NUNCA devem pensar da sua marca?'}</h2>
               <p style={{ fontSize: '1rem', color: 'var(--text-secondary)', marginBottom: '1.5rem' }}>{dictionary?.onboarding?.step_7_5_subtitle || 'Escolha até 3 opções.'}</p>
               
-              <div style={{ width: '100%', marginBottom: '1.5rem', display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px' }}>
-                {nuncaPensarOpcoes.map(s => {
-                  const isSelected = (formData.nuncaPensarTags || []).includes(s);
-                  return (
-                    <button key={s} onClick={() => toggleNuncaPensar(s)} style={{ background: isSelected ? 'var(--accent-turquoise)' : '#fff', color: isSelected ? '#fff' : 'var(--text-secondary)', border: `1.5px solid ${isSelected ? 'var(--accent-turquoise)' : 'var(--border)'}`, padding: '10px 20px', borderRadius: '30px', cursor: 'pointer', transition: 'all 0.2s ease', fontSize: '1rem', fontWeight: isSelected ? 500 : 400 }}>{dictionary?.onboarding?.nunca_pensar_options?.[s] || s}</button>
-                  )
-                })}
+              <div style={{ width: '100%', marginBottom: '1rem', overflowY: 'auto', maxHeight: '50vh', padding: '0 4px' }}>
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '12px', padding: '4px' }}>
+                  {nuncaPensarOpcoes.map(s => {
+                    const isSelected = (formData.nuncaPensarTags || []).includes(s);
+                    return (
+                      <button 
+                        key={s} 
+                        onClick={() => toggleNuncaPensar(s)} 
+                        style={{ 
+                          background: isSelected ? '#363532' : '#F9F8F6',
+                          color: isSelected ? '#fff' : 'var(--text-secondary)',
+                          border: isSelected ? '2px solid #363532' : '1px solid var(--border)', 
+                          padding: '16px 12px', 
+                          borderRadius: '12px', 
+                          cursor: 'pointer', 
+                          transition: 'all 0.2s ease', 
+                          fontSize: '0.82rem', 
+                          fontWeight: isSelected ? 600 : 400,
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                          textAlign: 'center',
+                          minHeight: '100px',
+                          boxShadow: isSelected ? '0 6px 15px rgba(0,0,0,0.1)' : '0 2px 5px rgba(0,0,0,0.02)'
+                        }}
+                      >
+                        {dictionary?.onboarding?.nunca_pensar_options?.[s] || s}
+                      </button>
+                    )
+                  })}
+                </div>
               </div>
 
               <AnimatePresence>
@@ -1112,18 +1273,31 @@ export default function Home() {
           {step === 9 && resultadoFinal && (
             <motion.div 
               key="step9" variants={variants} initial="initial" animate="animate" exit="exit" transition={{ duration: 0.5 }}
-              className="wizard-step" style={{ position: 'absolute', width: '100%', height: '100%', display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center', background: '#ffffff', borderRadius: '24px', border: '1px solid var(--border)', boxShadow: '0 20px 40px rgba(0,0,0,0.08)' }}
+              className="wizard-step" style={{ position: 'absolute', width: '100%', height: '100%', display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center', background: 'var(--bg-color)', borderRadius: '24px', border: 'none', boxShadow: 'none' }}
             >
               <p style={{ fontSize: '0.9rem', color: 'var(--text-secondary)', marginBottom: '0.5rem', textTransform: 'uppercase', letterSpacing: '2px', fontWeight: 600 }}>{dictionary?.postmatch?.step_9_perfect_match || 'O MATCH PERFEITO PARA'} {formData.marca || 'SUA MARCA'}</p>
-              <h2 style={{ fontSize: '2.5rem', marginBottom: '1.5rem', color: 'var(--accent-magenta)', fontWeight: 600 }}>{resultadoFinal.estiloNome}</h2>
+              {(() => {
+                const styleColors = {
+                  'Jardim Encantado': '#C492B1', // Dusty magical lilac/pink
+                  'Escandinavo Acolhedor': '#C9B6A1', // Warm sand
+                  'Essência Atemporal': '#363532', // Obsidian
+                  'Raízes & Cuidado': '#A2AD91', // Olive green
+                  'Doce Encantamento': '#E8B4B8', // Soft sweet pink
+                  'Estético Editorial': '#C3CEDB', // Plein Air Blue
+                };
+                const titleColor = styleColors[resultadoFinal.estiloNome] || 'var(--accent-magenta)';
+                return (
+                  <h2 style={{ fontSize: '2.5rem', marginBottom: '1.5rem', color: titleColor, fontWeight: 600 }}>{resultadoFinal.estiloNome}</h2>
+                );
+              })()}
               
-              <div style={{ background: 'var(--bg-soft)', padding: '1.5rem', borderRadius: '16px', marginBottom: '2rem', border: '1px solid var(--border)' }}>
-                <p className="mobile-font-sm" style={{ fontSize: '1.15rem', color: 'var(--text-primary)', lineHeight: 1.5, fontStyle: 'italic' }}>
+              <div style={{ background: '#ffffff', padding: '1.5rem', borderRadius: '16px', marginBottom: '2rem', border: 'none', boxShadow: '0 4px 15px rgba(0,0,0,0.03)' }}>
+                <p className="mobile-font-sm" style={{ fontSize: '1.05rem', color: 'var(--text-primary)', lineHeight: 1.6, fontWeight: 400, letterSpacing: '0.2px' }}>
                   &quot;{resultadoFinal.mensagem}&quot;
                 </p>
               </div>
 
-              <button onClick={fetchVariacoes} className="btn-primary" style={{ background: 'var(--accent-turquoise)', boxShadow: 'none' }}>{dictionary?.postmatch?.step_9_btn_customize || 'Personalizar minha Identidade'}</button>
+              <button onClick={fetchVariacoes} className="btn-primary" style={{ background: 'var(--accent-magenta)', color: 'var(--text-primary)', boxShadow: 'none' }}>{dictionary?.postmatch?.step_9_btn_customize || 'Personalizar minha Identidade'}</button>
 
               {refazerAttempts < 2 ? (
                 <button
@@ -1194,13 +1368,13 @@ export default function Home() {
             >
               <h2 style={{ fontSize: '1.8rem', marginBottom: '0.5rem', textAlign: 'center' }}>{dictionary?.postmatch?.step_10_title || 'Refinamento Visual'}</h2>
               <p style={{ fontSize: '1rem', color: 'var(--text-secondary)', marginBottom: '2rem', textAlign: 'center' }}>
-                {customStep === 'tipo' ? (dictionary?.postmatch?.step_10_subtitle_tipo || '1. Escolha a sua Tipografia ideal') : customStep === 'paleta' ? (dictionary?.postmatch?.step_10_subtitle_paleta || '2. Defina sua Paleta de Cores') : (dictionary?.postmatch?.step_10_subtitle_cor || '3. Qual cor será o destaque da sua marca?')}
+                {/* customStep === 'tipo' ? (dictionary?.postmatch?.step_10_subtitle_tipo || '1. Escolha a sua Tipografia ideal') : */ customStep === 'paleta' ? (dictionary?.postmatch?.step_10_subtitle_paleta || '1. Defina sua Paleta de Cores') : (dictionary?.postmatch?.step_10_subtitle_cor || '2. Qual cor será o destaque da sua marca?')}
               </p>
               
               <div style={{ display: 'flex', gap: '8px', justifyContent: 'center', marginBottom: '20px' }}>
-                 <div onClick={() => setCustomStep('tipo')} style={{ height: '6px', width: '30%', borderRadius: '4px', cursor: 'pointer', background: customStep === 'tipo' ? 'var(--accent-turquoise)' : (selectedTipo ? 'var(--accent-turquoise)' : 'var(--border)'), opacity: customStep === 'tipo' ? 1 : 0.4, transition: 'all 0.3s' }} />
-                 <div onClick={() => selectedTipo ? setCustomStep('paleta') : null} style={{ height: '6px', width: '30%', borderRadius: '4px', cursor: selectedTipo ? 'pointer' : 'default', background: customStep === 'paleta' ? 'var(--accent-magenta)' : (selectedPaleta ? 'var(--accent-magenta)' : 'var(--border)'), opacity: customStep === 'paleta' ? 1 : 0.4, transition: 'all 0.3s' }} />
-                 <div onClick={() => selectedPaleta ? setCustomStep('cor') : null} style={{ height: '6px', width: '30%', borderRadius: '4px', cursor: selectedPaleta ? 'pointer' : 'default', background: customStep === 'cor' ? 'var(--accent-magenta)' : (editData.corAtiva ? 'var(--accent-magenta)' : 'var(--border)'), opacity: customStep === 'cor' ? 1 : 0.4, transition: 'all 0.3s' }} />
+                 {/* Aba Tipografia Oculta: <div onClick={() => setCustomStep('tipo')} style={{ height: '6px', width: '30%', borderRadius: '4px', cursor: 'pointer', background: customStep === 'tipo' ? 'var(--accent-turquoise)' : (selectedTipo ? 'var(--accent-turquoise)' : 'var(--border)'), opacity: customStep === 'tipo' ? 1 : 0.4, transition: 'all 0.3s' }} /> */}
+                 <div onClick={() => setCustomStep('paleta')} style={{ height: '6px', width: '45%', borderRadius: '4px', cursor: 'pointer', background: customStep === 'paleta' ? 'var(--accent-magenta)' : (selectedPaleta ? 'var(--accent-magenta)' : 'var(--border)'), opacity: customStep === 'paleta' ? 1 : 0.4, transition: 'all 0.3s' }} />
+                 <div onClick={() => selectedPaleta ? setCustomStep('cor') : null} style={{ height: '6px', width: '45%', borderRadius: '4px', cursor: selectedPaleta ? 'pointer' : 'default', background: customStep === 'cor' ? 'var(--accent-magenta)' : (editData.corAtiva ? 'var(--accent-magenta)' : 'var(--border)'), opacity: customStep === 'cor' ? 1 : 0.4, transition: 'all 0.3s' }} />
               </div>
 
               <div style={{ flex: 1, position: 'relative', overflow: 'hidden' }}>
@@ -1271,15 +1445,41 @@ export default function Home() {
                           const row2 = cores.slice(3, 5);
                           return (
                             <div key={p.id} onClick={() => { setSelectedPaleta(p.id); setTimeout(() => setCustomStep('cor'), 300); }} style={{ 
-                              border: selectedPaleta === p.id ? '2px solid var(--accent-magenta)' : '1px solid var(--border)', 
-                              borderRadius: '16px', padding: '16px 10px', cursor: 'pointer', 
-                              display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
-                              background: selectedPaleta === p.id ? 'rgba(210,47,90,0.03)' : '#fafafa',
+                              border: selectedPaleta === p.id ? '4px solid var(--accent-magenta)' : '1px solid var(--border)', 
+                              borderRadius: '12px', padding: '0', cursor: 'pointer', 
+                              display: 'flex', flexDirection: 'column', alignItems: 'stretch', justifyContent: 'stretch',
+                              background: '#fff',
                               transition: 'all 0.2s ease',
-                              boxShadow: selectedPaleta === p.id ? '0 4px 15px rgba(210,47,90,0.15)' : 'none'
+                              boxShadow: selectedPaleta === p.id ? '0 8px 25px rgba(0,0,0,0.1)' : '0 4px 12px rgba(0,0,0,0.03)',
+                              overflow: 'hidden',
+                              transform: selectedPaleta === p.id ? 'scale(1.02)' : 'scale(1)',
+                              minHeight: '140px'
                             }}>
                               {cores.length > 0 ? (
-                                <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '8px' }}>
+                                <div style={{ display: 'flex', flexDirection: 'column', flex: 1, width: '100%', height: '100%' }}>
+                                  
+                                  {/* Cores Verticais - Pantone Style */}
+                                  <div style={{ display: 'flex', width: '100%', flex: 1 }}>
+                                    {cores.map((hex, ci) => (
+                                      <div key={ci} style={{
+                                        flex: 1,
+                                        backgroundColor: hex,
+                                        height: '100px'
+                                      }} />
+                                    ))}
+                                  </div>
+                                  
+                                  {/* Base Branca / Label Pantone */}
+                                  <div style={{ padding: '12px 14px', background: '#fff', display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
+                                    <p style={{ fontSize: '0.65rem', fontWeight: 800, letterSpacing: '1.5px', textTransform: 'uppercase', color: 'var(--text-primary)', marginBottom: '4px' }}>
+                                      {p.nome_variacao || `Paleta ${pi + 1}`}
+                                    </p>
+                                    <div style={{ display: 'flex', gap: '4px', fontSize: '0.45rem', color: 'var(--text-secondary)', letterSpacing: '0.5px' }}>
+                                      {cores.map(c => <span key={c}>{c.toUpperCase()}</span>)}
+                                    </div>
+                                  </div>
+
+                                  {/* Versão Bolinhas Orgânicas (Antiga - Salva para eventual rollback)
                                   <div style={{ display: 'flex', gap: '6px', justifyContent: 'center' }}>
                                     {row1.map((hex, ci) => (
                                       <div key={ci} style={{
@@ -1305,6 +1505,8 @@ export default function Home() {
                                       ))}
                                     </div>
                                   )}
+                                  */}
+
                                 </div>
                               ) : (
                                 <img src={`${p.image_url}?t=${Date.now()}`} alt={p.nome_variacao} style={{ width: '100%', height: '100px', objectFit: 'cover', borderRadius: '8px' }} />
@@ -1335,8 +1537,6 @@ export default function Home() {
                             };
                             const sel = paletas.find(p => p.id === selectedPaleta);
                             console.log('🎯 Cor picker - selectedPaleta:', selectedPaleta, 'sel:', sel);
-                            console.log('🎯 Todas paletas:', paletas.map(p => ({ id: p.id, hex: p.paleta_hex, cores: p.cores_hex })));
-                            // Tenta: paleta_hex da selecionada > cores_hex > qualquer paleta com hex
                             let cores = sel?.paleta_hex || sel?.cores_hex || [];
                             if (cores.length === 0) {
                               const qualquer = paletas.find(p => (p.paleta_hex?.length > 0) || (p.cores_hex?.length > 0));
@@ -1352,15 +1552,35 @@ export default function Home() {
                                     if (!tooLight) setEditData(prev => ({ ...prev, corAtiva: hex }));
                                   }}
                                   title={tooLight ? (dictionary?.postmatch?.color_too_light || 'Cor muito clara para destaque principal') : ''}
+                                  
+                                  // Versão Card Retangular (Nova)
                                   style={{
-                                    width: '60px', height: '60px', borderRadius: '50%',
-                                    background: hex, cursor: tooLight ? 'not-allowed' : 'pointer',
+                                    width: 'calc(33.333% - 10px)', minWidth: '80px', height: '70px',
+                                    borderRadius: '12px',
+                                    backgroundColor: hex,
+                                    cursor: tooLight ? 'not-allowed' : 'pointer',
                                     opacity: tooLight ? 0.3 : 1,
-                                    border: editData.corAtiva === hex ? '4px solid #333' : '3px solid #fff',
-                                    boxShadow: editData.corAtiva === hex ? '0 0 0 2px #333, 0 4px 15px rgba(0,0,0,0.2)' : '0 4px 15px rgba(0,0,0,0.15)',
-                                    transition: 'all 0.2s ease',
-                                    transform: editData.corAtiva === hex ? 'scale(1.15)' : 'scale(1)'
+                                    border: editData.corAtiva === hex ? '3px solid #fff' : (tooLight ? '1px solid #ddd' : 'none'),
+                                    boxShadow: editData.corAtiva === hex ? '0 0 0 3px var(--accent-magenta), 0 5px 15px rgba(0,0,0,0.2)' : '0 3px 8px rgba(0,0,0,0.1)',
+                                    transform: editData.corAtiva === hex ? 'scale(1.05) translateY(-2px)' : 'scale(1)',
+                                    transition: 'all 0.2s cubic-bezier(0.34, 1.56, 0.64, 1)',
+                                    display: 'flex', alignItems: 'center', justifyContent: 'center'
                                   }}
+
+                                  /* Versão Bolinhas Orgânicas (Antiga - Salva para referência)
+                                  style={{
+                                    width: '45px', height: '45px',
+                                    borderRadius: '50%',
+                                    backgroundColor: hex,
+                                    cursor: tooLight ? 'not-allowed' : 'pointer',
+                                    opacity: tooLight ? 0.3 : 1,
+                                    border: editData.corAtiva === hex ? '3px solid #fff' : (tooLight ? '1px solid #ddd' : 'none'),
+                                    boxShadow: editData.corAtiva === hex ? '0 0 0 3px var(--accent-magenta), 0 5px 15px rgba(0,0,0,0.2)' : '0 3px 8px rgba(0,0,0,0.1)',
+                                    transform: editData.corAtiva === hex ? 'scale(1.15)' : 'scale(1)',
+                                    transition: 'all 0.2s cubic-bezier(0.34, 1.56, 0.64, 1)',
+                                    display: 'flex', alignItems: 'center', justifyContent: 'center'
+                                  }}
+                                  */
                                 />
                               );
                             });
@@ -1377,9 +1597,9 @@ export default function Home() {
               </div>
               
               <div style={{ marginTop: 'auto', display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '10px' }}>
-                 {customStep === 'paleta' && <button onClick={() => setCustomStep('tipo')} className="btn-secondary" style={{ padding: '12px 20px', borderRadius: '14px', fontSize: '0.92rem', fontWeight: 600, flex: '0 0 auto', height: '46px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>{dictionary?.onboarding?.btn_back || 'Voltar'}</button>}
+                 {customStep === 'paleta' && <button onClick={() => setStep(9)} className="btn-secondary" style={{ padding: '12px 20px', borderRadius: '14px', fontSize: '0.92rem', fontWeight: 600, flex: '0 0 auto', height: '46px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>{dictionary?.onboarding?.btn_back || 'Voltar'}</button>}
                  {customStep === 'cor' && <button onClick={() => setCustomStep('paleta')} className="btn-secondary" style={{ padding: '12px 20px', borderRadius: '14px', fontSize: '0.92rem', fontWeight: 600, flex: '0 0 auto', height: '46px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>{dictionary?.onboarding?.btn_back || 'Voltar'}</button>}
-                 <button onClick={() => setStep(11)} className="btn-primary" style={{ flex: 1, background: (selectedTipo && selectedPaleta && editData.corAtiva) ? 'var(--accent-turquoise)' : '#ccc', pointerEvents: (selectedTipo && selectedPaleta && editData.corAtiva) ? 'auto' : 'none', padding: '12px 20px', borderRadius: '14px', fontSize: '0.92rem', fontWeight: 600, height: '46px', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: 'none' }}>{dictionary?.postmatch?.step_10_btn_inspiration || 'Ver Inspiração ✨'}</button>
+                 <button onClick={() => setStep(11)} className="btn-primary" style={{ flex: 1, background: (selectedPaleta && editData.corAtiva) ? 'var(--accent-magenta)' : '#ccc', color: (selectedPaleta && editData.corAtiva) ? 'var(--text-primary)' : '#666', pointerEvents: (selectedPaleta && editData.corAtiva) ? 'auto' : 'none', padding: '12px 20px', borderRadius: '14px', fontSize: '0.92rem', fontWeight: 600, height: '46px', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: 'none' }}>{dictionary?.postmatch?.step_10_btn_inspiration || 'Ver Inspiração ✨'}</button>
               </div>
             </motion.div>
           )}
@@ -1412,8 +1632,9 @@ export default function Home() {
                   </div>
               </div>
 
-              <div style={{ padding: '1.5rem', background: '#fff', borderTop: '1px solid var(--border)', zIndex: 10 }}>
-                 <button onClick={() => { setSelectedTagline(''); setCustomTagline(''); setStep(11.5); }} className="btn-primary" style={{ width: '100%', background: 'var(--accent-turquoise)' }}>{dictionary?.postmatch?.step_11_btn_tagline || 'Definir minha Tagline ✨'}</button>
+              <div style={{ padding: '1.5rem', background: '#fff', borderTop: '1px solid var(--border)', zIndex: 10, display: 'flex', gap: '10px' }}>
+                 <button onClick={() => setStep(10)} className="btn-secondary" style={{ padding: '12px 20px', borderRadius: '14px', fontSize: '0.92rem', fontWeight: 600, flex: '0 0 auto', height: '46px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>{dictionary?.onboarding?.btn_back || 'Voltar'}</button>
+                 <button onClick={() => { setSelectedTagline(''); setCustomTagline(''); setStep(11.5); }} className="btn-primary" style={{ flex: 1, background: 'var(--accent-magenta)', color: 'var(--text-primary)' }}>{dictionary?.postmatch?.step_11_btn_tagline || 'Definir minha Tagline ✨'}</button>
               </div>
             </motion.div>
           )}
@@ -1916,14 +2137,14 @@ export default function Home() {
 
 
                   {/* PLANO 2 — Complete (DESTAQUE) */}
-                  <motion.div whileHover={{ scale: 1.01 }} style={{ background: '#f5d6e8', borderRadius: '16px', padding: '20px', color: '#3a1a2e', boxShadow: '0 8px 30px rgba(220,52,149,0.1)', position: 'relative', overflow: 'hidden' }}>
-                    <div style={{ position: 'absolute', top: '12px', right: '12px', background: 'rgba(220,52,149,0.15)', borderRadius: '20px', padding: '3px 10px', fontSize: '0.7rem', fontWeight: 700, letterSpacing: '1px', color: 'var(--accent-magenta)' }}>{dictionary?.checkout?.plan_studio_badge || 'MAIS ESCOLHIDO'}</div>
+                  <motion.div whileHover={{ scale: 1.01 }} style={{ background: 'var(--accent-turquoise)', borderRadius: '16px', padding: '20px', color: 'var(--text-primary)', boxShadow: '0 8px 30px rgba(198,176,152,0.3)', position: 'relative', overflow: 'hidden' }}>
+                    <div style={{ position: 'absolute', top: '12px', right: '12px', background: 'rgba(255,255,255,0.4)', borderRadius: '20px', padding: '3px 10px', fontSize: '0.7rem', fontWeight: 700, letterSpacing: '1px', color: 'var(--text-primary)' }}>{dictionary?.checkout?.plan_studio_badge || 'MAIS ESCOLHIDO'}</div>
                     <div style={{ marginBottom: '8px', paddingRight: '90px' }}>
-                      <p style={{ fontSize: '0.7rem', color: 'var(--accent-magenta)', letterSpacing: '2px', textTransform: 'uppercase', fontWeight: 600, marginBottom: '2px' }}>brand box</p>
-                      <h3 style={{ color: '#3a1a2e', fontSize: '1.2rem', fontWeight: 700 }}>{dictionary?.checkout?.plan_studio_title || 'STUDIO'}</h3>
+                      <p style={{ fontSize: '0.7rem', color: 'var(--text-primary)', letterSpacing: '2px', textTransform: 'uppercase', fontWeight: 600, marginBottom: '2px' }}>brand box</p>
+                      <h3 style={{ color: 'var(--text-primary)', fontSize: '1.2rem', fontWeight: 700 }}>{dictionary?.checkout?.plan_studio_title || 'STUDIO'}</h3>
                     </div>
-                    <span style={{ display: 'inline-block', background: 'rgba(220,52,149,0.12)', color: 'var(--accent-magenta)', fontSize: '0.7rem', fontWeight: 700, borderRadius: '20px', padding: '3px 10px', letterSpacing: '0.5px', marginBottom: '10px' }}>{dictionary?.checkout?.plan_studio_subbadge || 'Marca + Digital + Impressos'}</span>
-                    <span style={{ fontWeight: 700, fontSize: '1.4rem', display: 'block', marginBottom: '10px', color: '#3a1a2e' }}>
+                    <span style={{ display: 'inline-block', background: 'rgba(255,255,255,0.4)', color: 'var(--text-primary)', fontSize: '0.7rem', fontWeight: 700, borderRadius: '20px', padding: '3px 10px', letterSpacing: '0.5px', marginBottom: '10px' }}>{dictionary?.checkout?.plan_studio_subbadge || 'Marca + Digital + Impressos'}</span>
+                    <span style={{ fontWeight: 700, fontSize: '1.4rem', display: 'block', marginBottom: '10px', color: 'var(--text-primary)' }}>
                       {lang === 'en' ? '$' : 'R$'} {(() => {
                         const isEn = lang === 'en';
                         const basePrice = isEn ? 173.76 : 897;
@@ -1938,7 +2159,7 @@ export default function Home() {
                         return isEn ? total.toFixed(2) : total;
                       })()}
                       {(papelariaSelecionada.filter(item => item !== "Caderneta de Saúde").length > 5 || papelariaSelecionada.includes("Caderneta de Saúde")) && (
-                        <span style={{ fontSize: '0.8rem', color: 'var(--accent-magenta)', fontWeight: 700, marginLeft: '8px' }}>{dictionary?.checkout?.plan_studio_adicionais || '(+ adicionais)'}</span>
+                        <span style={{ fontSize: '0.8rem', color: 'var(--text-primary)', fontWeight: 700, marginLeft: '8px' }}>{dictionary?.checkout?.plan_studio_adicionais || '(+ adicionais)'}</span>
                       )}
                     </span>
                     <ul style={{ fontSize: '0.85rem', margin: '0 0 12px 0', paddingLeft: '0', display: 'flex', flexDirection: 'column', gap: '5px', listStyle: 'none' }}>
@@ -1946,12 +2167,12 @@ export default function Home() {
                         const isPapelaria = i === 'PAPELARIA' || i === 'STATIONERY';
                         const text = isPapelaria ? (papelariaSelecionada.length > 0 ? (dictionary?.checkout?.plan_studio_bonus_selected?.replace('{count}', papelariaSelecionada.length) || `${papelariaSelecionada.length} itens impressos marcados`) : (dictionary?.checkout?.plan_studio_bonus_unselected || '5 Itens impressos à escolha')) : i;
                         return (
-                          <li key={i} style={{ display: 'flex', alignItems: 'flex-start', gap: '8px', color: '#4a1f3a' }}>
-                            {!text.startsWith('✨') && <span style={{ color: 'var(--accent-magenta)', fontWeight: 700, flexShrink: 0, marginTop: '2px' }}>✔</span>}
+                          <li key={i} style={{ display: 'flex', alignItems: 'flex-start', gap: '8px', color: 'var(--text-primary)' }}>
+                            {!text.startsWith('✨') && <span style={{ color: 'var(--text-primary)', fontWeight: 700, flexShrink: 0, marginTop: '2px' }}>✔</span>}
                             <div style={{ display: 'flex', flexWrap: 'wrap', alignItems: 'center', gap: '6px', flex: 1 }}>
                               <span>{text}</span>
                               {isPapelaria && (
-                                <button onClick={() => setShowPediatriaModal(true)} style={{ background: 'rgba(220,52,149,0.1)', color: 'var(--accent-magenta)', border: 'none', padding: '3px 8px', borderRadius: '10px', fontSize: '0.7rem', fontWeight: 700, cursor: 'pointer', marginLeft: 'auto' }}>
+                                <button onClick={() => setShowPediatriaModal(true)} style={{ background: 'rgba(255,255,255,0.4)', color: 'var(--text-primary)', border: 'none', padding: '3px 8px', borderRadius: '10px', fontSize: '0.7rem', fontWeight: 700, cursor: 'pointer', marginLeft: 'auto' }}>
                                   {dictionary?.checkout?.plan_studio_btn_bonus || '👀 Selecionar itens'}
                                 </button>
                               )}
@@ -1960,15 +2181,15 @@ export default function Home() {
                         );
                       })}
                     </ul>
-                    <div style={{ background: 'rgba(255,255,255,0.6)', borderRadius: '10px', padding: '10px 12px', marginBottom: '10px', fontSize: '0.8rem', color: '#5a2a4a', lineHeight: 1.5 }}>
+                    <div style={{ background: 'rgba(255,255,255,0.6)', borderRadius: '10px', padding: '10px 12px', marginBottom: '10px', fontSize: '0.8rem', color: 'var(--text-primary)', lineHeight: 1.5 }}>
                       {dictionary?.checkout?.plan_studio_highlight || '✨ Sua marca pronta para o mundo'}
                     </div>
-                    <div style={{ fontSize: '0.72rem', color: '#6a3d5a', background: 'rgba(255,255,255,0.4)', borderRadius: '8px', padding: '8px 10px', marginBottom: '12px', border: '1px solid rgba(220,52,149,0.15)', lineHeight: 1.4 }}>
+                    <div style={{ fontSize: '0.72rem', color: 'var(--text-primary)', background: 'rgba(255,255,255,0.4)', borderRadius: '8px', padding: '8px 10px', marginBottom: '12px', border: 'none', lineHeight: 1.4 }}>
                       <span dangerouslySetInnerHTML={{ __html: dictionary?.checkout?.plan_studio_warning || '⚠️ <strong>Aviso:</strong> Este plano é focado em layouts digitais e estruturação moderna de papelaria. Não inclui desenhos/ilustrações de rodapé sob medida, nem logotipos ilustrados à mão (estas opções de arte exclusiva podem ser solicitadas pós-checkout ou contratando o plano <em>Signature</em>).' }} />
                     </div>
                     <button
                       className="btn-primary"
-                      style={{ width: '100%', padding: '12px', background: 'var(--accent-magenta)', color: '#fff', fontWeight: 700, fontSize: '0.9rem', position: 'relative' }}
+                      style={{ width: '100%', padding: '12px', background: 'var(--accent-magenta)', color: 'var(--text-primary)', fontWeight: 700, fontSize: '0.9rem', position: 'relative' }}
                       disabled={loadingCheckout}
                       onClick={async (e) => {
                         setLoadingCheckout('pro');

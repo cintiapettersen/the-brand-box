@@ -94,16 +94,19 @@
 /* ============================================ */
 
 :root {
-  --bg-color: #FFFFFF;
-  --bg-soft: #fbeaeb; /* Light Pink */
-  --text-primary: #2C2A29;
-  --text-secondary: #736E6A;
-  --accent-magenta: #dc3495;
-  --accent-magenta-hover: #c42d84;
-  --accent-turquoise: #3cccbf;
-  --accent-yellow: #f9cb60;
-  --accent-green: #9bd4a1;
-  --border: #E8E5E1;
+  --bg-color: #F8F5F1; /* Bege muito claro / Off-white quente */
+  --bg-soft: #EFEBE4; /* Bege sutil (inspirado no Porcini super claro) */
+  --text-primary: #363532; /* Obsidian */
+  --text-secondary: #5A5855; /* Obsidian mais suave */
+  
+  /* PALETA EDITORIAL (Plein Air, Obsidian, Porcini) */
+  --accent-magenta: #C3CEDB; /* Plein Air (Azul claro acinzentado) - Botões */
+  --accent-magenta-hover: #AEBDCC; /* Plein Air sutilmente mais escuro */
+  --accent-turquoise: #C6B098; /* Porcini (Bege / Taupe) - Destaques */
+  
+  --accent-yellow: #D1B875; 
+  --accent-green: #909887; 
+  --border: #E5E0D8; /* Borda bege suave */
 }
 
 * {
@@ -111,6 +114,12 @@
   margin: 0;
   padding: 0;
   font-family: 'Outfit', sans-serif;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  font-family: 'Inter', sans-serif;
+  font-weight: 300;
+  letter-spacing: -0.01em;
 }
 
 body {
@@ -133,8 +142,8 @@ input {
 }
 
 input:focus {
-    border-color: var(--accent-turquoise);
-    box-shadow: 0 0 0 4px rgba(60, 204, 191, 0.15);
+    border-color: var(--accent-magenta);
+    box-shadow: 0 0 0 4px rgba(195, 206, 219, 0.4); /* Plein Air glow */
 }
 
 ::placeholder {
@@ -154,25 +163,25 @@ button {
 
 .btn-primary {
     background: var(--accent-magenta);
-    color: #fff;
-    box-shadow: 0 10px 20px rgba(220, 52, 149, 0.2);
+    color: var(--text-primary); /* Obsidian text on Plein Air button */
+    box-shadow: 0 8px 24px rgba(195, 206, 219, 0.4);
 }
 
 .btn-primary:hover {
     background: var(--accent-magenta-hover);
     transform: translateY(-2px);
-    box-shadow: 0 15px 25px rgba(220, 52, 149, 0.3);
+    box-shadow: 0 12px 28px rgba(195, 206, 219, 0.6);
 }
 
 .btn-secondary {
     background: transparent;
-    color: var(--accent-magenta);
+    color: var(--text-primary); /* Obsidian */
     border: 2px solid var(--accent-magenta);
 }
 
 .btn-secondary:hover {
     background: var(--accent-magenta);
-    color: #fff;
+    color: var(--text-primary); /* Obsidian */
 }
 
 @keyframes spin {

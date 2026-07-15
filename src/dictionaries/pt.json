@@ -1370,8 +1370,8 @@
   "onboarding": {
     "step_2_title": "Antes de começarmos...",
     "step_2_subtitle": "Como você gostaria de ser chamada(o)?",
-    "step_2_name_placeholder": "Maria",
-    "step_2_email_placeholder": "Salvaremos seu projeto automaticamente. ❤️",
+    "step_2_name_placeholder": "Seu nome",
+    "step_2_email_placeholder": "Seu e-mail",
     "btn_continue": "Continuar",
     "btn_next": "Avançar",
     "btn_next_heart": "Avançar",

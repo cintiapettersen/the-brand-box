@@ -16,7 +16,7 @@ function getLocale(request) {
   return match(languages, locales, defaultLocale)
 }
 
-export function middleware(request) {
+export function proxy(request) {
   const { pathname } = request.nextUrl
   
   // Exclude api, _next/static, _next/image, favicon.ico, etc.
