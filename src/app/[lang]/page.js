@@ -103,7 +103,9 @@ export default function Home() {
     altNote: dictionary?.postmatch?.creative_refine_alt_note || 'Esta recomendação é apenas consultiva e não será aplicada automaticamente.',
     unavailable: dictionary?.postmatch?.creative_refine_unavailable || 'Não foi possível analisar agora. Sua direção atual continua salva.',
     close: dictionary?.postmatch?.creative_refine_close || 'Fechar',
-    retry: dictionary?.postmatch?.creative_refine_retry || 'Tentar novamente'
+    retry: dictionary?.postmatch?.creative_refine_retry || 'Tentar novamente',
+    regenerate: dictionary?.postmatch?.creative_refine_regenerate || 'Gerar novamente em português',
+    regenerating: dictionary?.postmatch?.creative_refine_regenerating || 'Gerando novamente em português...'
   };
 
   // Sugestões de tagline agrupadas por categoria
@@ -596,6 +598,43 @@ export default function Home() {
      setTimeout(() => setCustomStep('paleta'), 300);
   }
 
+  const isDifferentLanguage = (content) => Boolean(content?.language && content.language !== lang);
+
+  const fetchCreativeDirectorDiagnostic = async (baseResult) => {
+    const creativeResponse = await fetch('/api/creative-director', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        formData,
+        estiloId: baseResult.estiloId,
+        estiloNome: baseResult.estiloNome,
+        mensagem: baseResult.mensagem,
+        idioma: lang
+      })
+    });
+
+    if (!creativeResponse.ok) return null;
+
+    const creativeDirector = await creativeResponse.json();
+    return { ...creativeDirector, language: lang };
+  };
+
+  const regenerateCreativeDirector = async () => {
+    if (!resultadoFinal) return;
+
+    setIsCreativeDirectorLoading(true);
+    try {
+      const creativeDirector = await fetchCreativeDirectorDiagnostic(resultadoFinal);
+      if (creativeDirector) {
+        setResultadoFinal(prev => prev ? ({ ...prev, creativeDirector: { ...creativeDirector, refinement: prev.creativeDirector?.refinement } }) : prev);
+      }
+    } catch (error) {
+      console.warn('Regeneração do Diagnóstico Criativo indisponível; mantendo conteúdo anterior.', error);
+    } finally {
+      setIsCreativeDirectorLoading(false);
+    }
+  };
+
   const startCreativeRefinement = async () => {
     if (!resultadoFinal?.creativeDirector) return;
 
@@ -617,7 +656,7 @@ export default function Home() {
 
       if (response.ok) {
         const question = await response.json();
-        setRefinementQuestion(question);
+        setRefinementQuestion({ ...question, language: lang });
         setRefinementStep('answer');
       } else {
         setRefinementStep('unavailable');
@@ -655,7 +694,8 @@ export default function Home() {
         const refinement = {
           ...resolution,
           pergunta: refinementQuestion.pergunta,
-          respostaUsuario
+          respostaUsuario,
+          language: lang
         };
         setResultadoFinal(prev => prev ? ({
           ...prev,
@@ -671,6 +711,49 @@ export default function Home() {
     } catch (error) {
       console.warn('Análise do refinamento indisponível; mantendo a direção atual.', error);
       setRefinementStep('unavailable');
+    } finally {
+      setIsRefinementLoading(false);
+    }
+  };
+
+  const regenerateRefinementResolution = async () => {
+    const currentRefinement = resultadoFinal?.creativeDirector?.refinement;
+    if (!currentRefinement?.respostaUsuario || !currentRefinement?.pergunta) return;
+
+    setIsRefinementLoading(true);
+    setRefinementStep('result');
+
+    try {
+      const response = await fetch('/api/creative-director/refine', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          phase: 'resolution',
+          formData,
+          resultadoFinal,
+          pergunta: currentRefinement.pergunta,
+          respostaUsuario: currentRefinement.respostaUsuario,
+          idioma: lang
+        })
+      });
+
+      if (response.ok) {
+        const resolution = await response.json();
+        setResultadoFinal(prev => prev ? ({
+          ...prev,
+          creativeDirector: {
+            ...prev.creativeDirector,
+            refinement: {
+              ...resolution,
+              pergunta: currentRefinement.pergunta,
+              respostaUsuario: currentRefinement.respostaUsuario,
+              language: lang
+            }
+          }
+        }) : prev);
+      }
+    } catch (error) {
+      console.warn('Regeneração do refinamento indisponível; mantendo conteúdo anterior.', error);
     } finally {
       setIsRefinementLoading(false);
     }
@@ -702,20 +785,9 @@ export default function Home() {
         setStep(9); // Tela de Resultado Triunfal
 
         try {
-          const creativeResponse = await fetch('/api/creative-director', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-              formData,
-              estiloId: data.estiloId,
-              estiloNome: data.estiloNome,
-              mensagem: data.mensagem,
-              idioma: lang
-            })
-          });
+          const creativeDirector = await fetchCreativeDirectorDiagnostic(data);
 
-          if (creativeResponse.ok) {
-            const creativeDirector = await creativeResponse.json();
+          if (creativeDirector) {
             setResultadoFinal(prev => prev ? ({ ...prev, creativeDirector }) : prev);
           }
         } catch (creativeError) {
@@ -1448,6 +1520,13 @@ export default function Home() {
               {resultadoFinal.creativeDirector && (
                 <div style={{ width: '100%', maxWidth: '620px', background: '#ffffff', padding: '1.5rem', borderRadius: '18px', marginBottom: '2rem', boxShadow: '0 4px 15px rgba(0,0,0,0.03)', textAlign: 'left' }}>
                   <p style={{ fontSize: '0.78rem', color: 'var(--accent-magenta)', textTransform: 'uppercase', letterSpacing: '1.8px', fontWeight: 700, marginBottom: '0.75rem', textAlign: 'center' }}>Diagnóstico Criativo</p>
+                  {isDifferentLanguage(resultadoFinal.creativeDirector) && (
+                    <div style={{ textAlign: 'center', marginBottom: '0.85rem' }}>
+                      <button type="button" onClick={regenerateCreativeDirector} className="btn-secondary" style={{ padding: '0.65rem 0.9rem', fontSize: '0.82rem' }}>
+                        {isCreativeDirectorLoading ? refineCopy.regenerating : refineCopy.regenerate}
+                      </button>
+                    </div>
+                  )}
                   <p style={{ fontSize: '0.98rem', color: 'var(--text-primary)', lineHeight: 1.6, marginBottom: '1.2rem', textAlign: 'center' }}>{resultadoFinal.creativeDirector.diagnostico}</p>
 
                   <div style={{ display: 'grid', gap: '0.9rem' }}>
@@ -1511,6 +1590,11 @@ export default function Home() {
                             <strong style={{ color: 'var(--text-primary)', fontSize: '0.88rem' }}>{refineCopy.question}</strong>
                             <p style={{ color: 'var(--text-primary)', fontSize: '0.95rem', lineHeight: 1.5, marginTop: '0.25rem' }}>{refinementQuestion.pergunta}</p>
                             <p style={{ color: 'var(--text-secondary)', fontSize: '0.82rem', lineHeight: 1.5, marginTop: '0.35rem' }}>{refinementQuestion.porquePerguntar}</p>
+                            {isDifferentLanguage(refinementQuestion) && (
+                              <button type="button" onClick={startCreativeRefinement} className="btn-secondary" style={{ marginTop: '0.65rem', padding: '0.65rem 0.9rem', fontSize: '0.82rem' }}>
+                                {refineCopy.regenerate}
+                              </button>
+                            )}
                           </div>
                           <textarea
                             value={refinementAnswer}
@@ -1545,6 +1629,11 @@ export default function Home() {
                           <div style={{ background: '#fff', borderRadius: '12px', padding: '0.85rem' }}>
                             <strong style={{ color: 'var(--text-primary)', fontSize: '0.88rem' }}>{refineCopy.direction}</strong>
                             <p style={{ color: 'var(--text-secondary)', fontSize: '0.88rem', lineHeight: 1.5, marginTop: '0.25rem' }}>{resultadoFinal.creativeDirector.refinement.direcaoRefinada}</p>
+                            {isDifferentLanguage(resultadoFinal.creativeDirector.refinement) && (
+                              <button type="button" onClick={regenerateRefinementResolution} className="btn-secondary" style={{ marginTop: '0.65rem', padding: '0.65rem 0.9rem', fontSize: '0.82rem' }}>
+                                {isRefinementLoading ? refineCopy.regenerating : refineCopy.regenerate}
+                              </button>
+                            )}
                           </div>
                           <div style={{ display: 'grid', gap: '0.65rem' }}>
                             {[

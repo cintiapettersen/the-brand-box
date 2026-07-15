@@ -1647,7 +1647,9 @@
     "creative_refine_alt_note": "Esta recomendação é apenas consultiva e não será aplicada automaticamente.",
     "creative_refine_unavailable": "Não foi possível analisar agora. Sua direção atual continua salva.",
     "creative_refine_close": "Fechar",
-    "creative_refine_retry": "Tentar novamente"
+    "creative_refine_retry": "Tentar novamente",
+    "creative_refine_regenerate": "Gerar novamente em português",
+    "creative_refine_regenerating": "Gerando novamente em português..."
   },
   "checkout": {
     "header_pretitle": "Clareza criativa, mesmo para quem nunca criou uma marca antes.",

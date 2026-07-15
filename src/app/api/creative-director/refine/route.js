@@ -48,7 +48,7 @@ function cleanText(value) {
 
 function normalizeBriefing(formData = {}) {
   return {
-    marca: formData.marca || null,
+    brandName: formData.marca || null,
     atuacao: [formData.atuacao, formData.atuacaoOutra].filter(Boolean).join(' - ') || null,
     publico: formData.publico || null,
     personalidade: formData.personalidade || formData.identidade || null,
@@ -67,7 +67,7 @@ function normalizeBriefing(formData = {}) {
 function normalizeResultado(resultadoFinal = {}) {
   return {
     estiloId: resultadoFinal.estiloId || null,
-    estiloNome: resultadoFinal.estiloNome || null,
+    styleName: resultadoFinal.estiloNome || null,
     mensagem: resultadoFinal.mensagem || null,
     creativeDirector: resultadoFinal.creativeDirector ? {
       diagnostico: resultadoFinal.creativeDirector.diagnostico || null,
@@ -78,6 +78,16 @@ function normalizeResultado(resultadoFinal = {}) {
       porqueEsseEstilo: resultadoFinal.creativeDirector.porqueEsseEstilo || null,
       direcaoVisual: resultadoFinal.creativeDirector.direcaoVisual || null
     } : null
+  };
+}
+
+function buildIdentityContext(formData = {}, resultadoFinal = {}) {
+  return {
+    brandName: formData.marca || null,
+    styleName: resultadoFinal.estiloNome || null,
+    contactName: null,
+    contactNamePolicy: 'contactName é o nome pessoal/de contato da usuária, foi removido do briefing e deve ser ignorado em decisões criativas.',
+    styleNamePolicy: 'styleName é o nome da direção criativa selecionada, nunca é nome de marca. Diferenças entre brandName e styleName não são contradições.'
   };
 }
 
@@ -137,12 +147,15 @@ function buildQuestionPrompt({ formData, resultadoFinal, idioma }) {
   return JSON.stringify({
     tarefa: 'Identifique uma tensão real do briefing que ainda precise ser esclarecida antes de refinar a direção criativa.',
     idioma,
+    identityContext: buildIdentityContext(formData, resultadoFinal),
     briefing: normalizeBriefing(formData),
     resultadoAtual: normalizeResultado(resultadoFinal),
     regras: [
       'Compare todas as respostas já fornecidas antes de perguntar.',
       'O nome pessoal/de contato da usuária foi removido do briefing e não deve ser usado para criar tensão ou direção visual.',
-      'Use somente o campo marca como nome público da marca; marca pessoal não autoriza assumir o nome de contato como marca.',
+      'Use somente identityContext.brandName como nome público da marca; marca pessoal não autoriza assumir o nome de contato como marca.',
+      'identityContext.styleName é nome da direção criativa, nunca é nome de marca; diferenças entre brandName e styleName não são contradições.',
+      'Nunca crie tensão baseada apenas na existência de brandName e styleName.',
       'Não repita nem reformule perguntas já respondidas no briefing.',
       'Só pergunte sobre contradições, ambiguidades ou prioridades ainda não resolvidas.',
       'Mencione naturalmente o contexto específico da tensão encontrada.',
@@ -161,6 +174,7 @@ function buildResolutionPrompt({ formData, resultadoFinal, pergunta, respostaUsu
   return JSON.stringify({
     tarefa: 'Analise a resposta da usuária e refine a direção criativa sem aplicar alterações automaticamente.',
     idioma,
+    identityContext: buildIdentityContext(formData, resultadoFinal),
     briefing: normalizeBriefing(formData),
     resultadoAtual: normalizeResultado(resultadoFinal),
     perguntaFeita: pergunta,
@@ -174,7 +188,8 @@ function buildResolutionPrompt({ formData, resultadoFinal, pergunta, respostaUsu
       'Não invente estilo novo.',
       'Explique impacto em paleta, tipografia, composição e estampa.',
       'Não altere resultadoFinal.estiloId nem resultadoFinal.estiloNome.',
-      'O nome pessoal/de contato da usuária foi removido do briefing; use somente o campo marca como nome público da marca.'
+      'O nome pessoal/de contato da usuária foi removido do briefing; use somente identityContext.brandName como nome público da marca.',
+      'identityContext.styleName é direção criativa, não marca; não trate diferença entre brandName e styleName como conflito.'
     ]
   });
 }
@@ -201,7 +216,7 @@ async function callOpenAI({ schema, schemaName, prompt, idioma }) {
           content: [
             {
               type: 'input_text',
-              text: `Você é a AI Creative Director da The Brand Box. Responda exclusivamente no idioma ${idioma}. Use somente os dados recebidos, não invente fatos, não exponha raciocínio interno e preserve o fluxo atual do produto. Nomes pessoais/de contato não são nomes de marca; use apenas o campo marca como nome público da marca.`
+              text: `Você é a AI Creative Director da The Brand Box. Responda exclusivamente no idioma ${idioma}. Use somente os dados recebidos, não invente fatos, não exponha raciocínio interno e preserve o fluxo atual do produto. Nomes pessoais/de contato não são nomes de marca; use apenas identityContext.brandName como nome público da marca. identityContext.styleName é a direção criativa selecionada e nunca deve ser tratada como marca.`
             }
           ]
         },

@@ -69,7 +69,7 @@ async function readOpenAIError(openAIResponse) {
 
 function buildBriefing(formData = {}) {
   return {
-    marca: formData.marca || null,
+    brandName: formData.marca || null,
     areaAtuacao: [formData.atuacao, formData.atuacaoOutra].filter(Boolean).join(' - ') || null,
     publico: formData.publico || null,
     personalidade: formData.personalidade || formData.identidade || null,
@@ -98,6 +98,13 @@ export async function POST(req) {
     const briefing = buildBriefing(body.formData);
     const estiloId = body.estiloId;
     const estiloNome = cleanText(body.estiloNome);
+    const identityContext = {
+      brandName: briefing.brandName,
+      styleName: estiloNome,
+      contactName: null,
+      contactNamePolicy: 'contactName é o nome pessoal/de contato da usuária, foi removido do briefing e deve ser ignorado em decisões criativas.',
+      styleNamePolicy: 'styleName é o nome da direção criativa selecionada, nunca é nome de marca. Diferenças entre brandName e styleName não são contradições.'
+    };
     const mensagemGemini = cleanText(body.mensagem);
     const idioma = cleanText(body.idioma || body.lang || 'pt');
 
@@ -119,7 +126,7 @@ export async function POST(req) {
           content: [
             {
               type: 'input_text',
-              text: `Você é uma AI Creative Director da The Brand Box. Gere um diagnóstico criativo estratégico, humano e específico para o briefing recebido. Responda no idioma atual da aplicação: ${idioma}. Não invente fatos, especialidades, públicos ou promessas que não estejam no briefing. O campo de nome pessoal/de contato da usuária foi removido do briefing e nunca deve ser tratado como nome público da marca. Use somente o campo marca como nome da marca; marcar marca pessoal não autoriza assumir que o nome de contato será usado publicamente. Se um dado estiver ausente, simplesmente não o use. Seja objetiva e preserve o estilo selecionado pelo Gemini.`
+              text: `Você é uma AI Creative Director da The Brand Box. Gere um diagnóstico criativo estratégico, humano e específico para o briefing recebido. Responda no idioma atual da aplicação: ${idioma}. Não invente fatos, especialidades, públicos ou promessas que não estejam no briefing. O campo de nome pessoal/de contato da usuária foi removido do briefing e nunca deve ser tratado como nome público da marca. Use somente identityContext.brandName como nome público da marca. identityContext.styleName é nome da direção criativa e nunca deve ser interpretado como nome de marca; diferenças entre brandName e styleName não são contradições. Marcar marca pessoal não autoriza assumir que o nome de contato será usado publicamente. Se um dado estiver ausente, simplesmente não o use. Seja objetiva e preserve o estilo selecionado pelo Gemini.`
             }
           ]
         },
@@ -129,8 +136,9 @@ export async function POST(req) {
             {
               type: 'input_text',
               text: JSON.stringify({
+                identityContext,
                 briefing,
-                estiloSelecionadoPeloGemini: { estiloId, estiloNome, mensagem: mensagemGemini },
+                estiloSelecionadoPeloGemini: { estiloId, styleName: estiloNome, mensagem: mensagemGemini },
                 formatoEsperado: {
                   diagnostico: 'Resumo da essência da marca em no máximo duas frases.',
                   personalidade: ['palavra 1', 'palavra 2', 'palavra 3'],

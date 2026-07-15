@@ -1727,7 +1727,9 @@
     "creative_refine_alt_note": "This recommendation is consultative only and will not be applied automatically.",
     "creative_refine_unavailable": "Unable to analyze right now. Your current direction remains saved.",
     "creative_refine_close": "Close",
-    "creative_refine_retry": "Try again"
+    "creative_refine_retry": "Try again",
+    "creative_refine_regenerate": "Regenerate in English",
+    "creative_refine_regenerating": "Regenerating in English..."
   },
   "checkout": {
     "header_pretitle": "Creative clarity, even for those who have never created a brand before.",
