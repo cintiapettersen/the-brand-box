@@ -48,7 +48,6 @@ function cleanText(value) {
 
 function normalizeBriefing(formData = {}) {
   return {
-    nome: formData.nome || null,
     marca: formData.marca || null,
     atuacao: [formData.atuacao, formData.atuacaoOutra].filter(Boolean).join(' - ') || null,
     publico: formData.publico || null,
@@ -142,6 +141,8 @@ function buildQuestionPrompt({ formData, resultadoFinal, idioma }) {
     resultadoAtual: normalizeResultado(resultadoFinal),
     regras: [
       'Compare todas as respostas já fornecidas antes de perguntar.',
+      'O nome pessoal/de contato da usuária foi removido do briefing e não deve ser usado para criar tensão ou direção visual.',
+      'Use somente o campo marca como nome público da marca; marca pessoal não autoriza assumir o nome de contato como marca.',
       'Não repita nem reformule perguntas já respondidas no briefing.',
       'Só pergunte sobre contradições, ambiguidades ou prioridades ainda não resolvidas.',
       'Mencione naturalmente o contexto específico da tensão encontrada.',
@@ -172,7 +173,8 @@ function buildResolutionPrompt({ formData, resultadoFinal, pergunta, respostaUsu
       'Se não sugerir alternativa, retorne estiloAlternativoId null e estiloAlternativoNome null.',
       'Não invente estilo novo.',
       'Explique impacto em paleta, tipografia, composição e estampa.',
-      'Não altere resultadoFinal.estiloId nem resultadoFinal.estiloNome.'
+      'Não altere resultadoFinal.estiloId nem resultadoFinal.estiloNome.',
+      'O nome pessoal/de contato da usuária foi removido do briefing; use somente o campo marca como nome público da marca.'
     ]
   });
 }
@@ -199,7 +201,7 @@ async function callOpenAI({ schema, schemaName, prompt, idioma }) {
           content: [
             {
               type: 'input_text',
-              text: `Você é a AI Creative Director da The Brand Box. Responda exclusivamente no idioma ${idioma}. Use somente os dados recebidos, não invente fatos, não exponha raciocínio interno e preserve o fluxo atual do produto.`
+              text: `Você é a AI Creative Director da The Brand Box. Responda exclusivamente no idioma ${idioma}. Use somente os dados recebidos, não invente fatos, não exponha raciocínio interno e preserve o fluxo atual do produto. Nomes pessoais/de contato não são nomes de marca; use apenas o campo marca como nome público da marca.`
             }
           ]
         },

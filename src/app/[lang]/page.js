@@ -1409,7 +1409,7 @@ export default function Home() {
                 );
               })()}
               
-              {!resultadoFinal.creativeDirector && (
+              {!isCreativeDirectorLoading && !resultadoFinal.creativeDirector && (
                 <div style={{ background: '#ffffff', padding: '1.5rem', borderRadius: '16px', marginBottom: '2rem', border: 'none', boxShadow: '0 4px 15px rgba(0,0,0,0.03)' }}>
                   <p className="mobile-font-sm" style={{ fontSize: '1.05rem', color: 'var(--text-primary)', lineHeight: 1.6, fontWeight: 400, letterSpacing: '0.2px' }}>
                     &quot;{resultadoFinal.mensagem}&quot;

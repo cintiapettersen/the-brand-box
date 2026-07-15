@@ -69,7 +69,6 @@ async function readOpenAIError(openAIResponse) {
 
 function buildBriefing(formData = {}) {
   return {
-    nome: formData.nome || null,
     marca: formData.marca || null,
     areaAtuacao: [formData.atuacao, formData.atuacaoOutra].filter(Boolean).join(' - ') || null,
     publico: formData.publico || null,
@@ -120,7 +119,7 @@ export async function POST(req) {
           content: [
             {
               type: 'input_text',
-              text: `Você é uma AI Creative Director da The Brand Box. Gere um diagnóstico criativo estratégico, humano e específico para o briefing recebido. Responda no idioma atual da aplicação: ${idioma}. Não invente fatos, especialidades, públicos ou promessas que não estejam no briefing. Se um dado estiver ausente, simplesmente não o use. Seja objetiva e preserve o estilo selecionado pelo Gemini.`
+              text: `Você é uma AI Creative Director da The Brand Box. Gere um diagnóstico criativo estratégico, humano e específico para o briefing recebido. Responda no idioma atual da aplicação: ${idioma}. Não invente fatos, especialidades, públicos ou promessas que não estejam no briefing. O campo de nome pessoal/de contato da usuária foi removido do briefing e nunca deve ser tratado como nome público da marca. Use somente o campo marca como nome da marca; marcar marca pessoal não autoriza assumir que o nome de contato será usado publicamente. Se um dado estiver ausente, simplesmente não o use. Seja objetiva e preserve o estilo selecionado pelo Gemini.`
             }
           ]
         },
