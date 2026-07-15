@@ -52,6 +52,21 @@ function validateCreativeDirector(payload) {
   return hasStrings && hasArrays ? normalized : null;
 }
 
+async function readOpenAIError(openAIResponse) {
+  try {
+    const contentType = openAIResponse.headers.get('content-type') || '';
+
+    if (contentType.includes('application/json')) {
+      const body = await openAIResponse.json();
+      return body?.error?.message || body?.error || body;
+    }
+
+    return await openAIResponse.text();
+  } catch (error) {
+    return `Unable to read OpenAI error body: ${error.message}`;
+  }
+}
+
 function buildBriefing(formData = {}) {
   return {
     nome: formData.nome || null,
@@ -143,15 +158,46 @@ export async function POST(req) {
     });
 
     if (!openAIResponse.ok) {
+      const error = await readOpenAIError(openAIResponse);
+      console.error('OpenAI Creative Director request failed:', {
+        status: openAIResponse.status,
+        error
+      });
+
       return Response.json({ error: 'creative_director_openai_error' }, { status: 502 });
     }
 
     const response = await openAIResponse.json();
     const outputText = response.output_text || response.output?.flatMap(item => item.content || []).find(content => content.type === 'output_text')?.text || '';
-    const parsed = JSON.parse(outputText || '{}');
+
+    if (!outputText) {
+      console.error('OpenAI Creative Director response missing output_text:', {
+        status: openAIResponse.status
+      });
+
+      return Response.json({ error: 'missing_creative_director_output' }, { status: 502 });
+    }
+
+    let parsed;
+    try {
+      parsed = JSON.parse(outputText);
+    } catch (error) {
+      console.error('OpenAI Creative Director returned invalid JSON:', {
+        status: openAIResponse.status,
+        error: error.message
+      });
+
+      return Response.json({ error: 'invalid_creative_director_json' }, { status: 502 });
+    }
+
     const diagnostico = validateCreativeDirector(parsed);
 
     if (!diagnostico) {
+      console.error('OpenAI Creative Director schema validation failed:', {
+        status: openAIResponse.status,
+        receivedFields: Object.keys(parsed || {})
+      });
+
       return Response.json({ error: 'invalid_creative_director_response' }, { status: 502 });
     }
 
