@@ -740,12 +740,12 @@ export default function Home() {
           {step === 1 && (
             <motion.div 
               key="step1" variants={variants} initial="initial" animate="animate" exit="exit" transition={{ duration: 0.5 }}
-              className="wizard-step" style={{ position: 'absolute', width: '100%', height: '100%', display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center', background: 'var(--bg-color)', borderRadius: '24px', border: 'none', boxShadow: 'none' }}
+              className="wizard-step" style={{ position: 'absolute', width: '100%', height: '100%', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', textAlign: 'center', background: 'var(--bg-color)', borderRadius: '24px', border: 'none', boxShadow: 'none' }}
             >
-              <p style={{ fontSize: '0.75rem', letterSpacing: '4px', textTransform: 'uppercase', color: 'var(--accent-turquoise)', marginBottom: '1.5rem', fontWeight: 600 }}>{dictionary?.landing?.apresenta || 'THE BRAND BOX.'}</p>
+              <p style={{ fontSize: '0.75rem', letterSpacing: '4px', textTransform: 'uppercase', color: 'var(--accent-turquoise)', marginBottom: '2rem', fontWeight: 600 }}>{dictionary?.landing?.apresenta || 'THE BRAND BOX.'}</p>
               
               {/* Logo com fonte Golden Blast */}
-              <Image src="/the-brand-box-logo.png" alt="the brand box." width={1024} height={225} priority={true} style={{ width: '80%', maxWidth: '380px', height: 'auto', marginBottom: '1rem', mixBlendMode: 'multiply', opacity: 0.9 }} />
+              <Image src="/the-brand-box-logo.png" alt="the brand box." width={1024} height={225} priority={true} style={{ width: '80%', maxWidth: '380px', height: 'auto', marginBottom: '1.5rem', mixBlendMode: 'multiply', opacity: 0.9 }} />
               
               <h1 style={{ fontSize: '1.05rem', color: 'var(--text-primary)', marginBottom: '1.5rem', lineHeight: 1.5, maxWidth: '85%', fontWeight: 400, letterSpacing: '0' }}>{dictionary?.landing?.marca_ja_existe || 'Sua marca já existe dentro de você.'}</h1>
               
