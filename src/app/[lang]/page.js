@@ -161,6 +161,12 @@ export default function Home() {
   const [showResumePrompt, setShowResumePrompt] = useState(false);
   const [savedProgress, setSavedProgress] = useState(null);
   const [loadingCheckout, setLoadingCheckout] = useState(false);
+  const [showRefinement, setShowRefinement] = useState(false);
+  const [refinementQuestion, setRefinementQuestion] = useState(null);
+  const [refinementAnswer, setRefinementAnswer] = useState('');
+  const [isRefinementLoading, setIsRefinementLoading] = useState(false);
+  const [refinementStep, setRefinementStep] = useState('idle');
+
 
   const brandBoardRef = useRef(null);
 
@@ -259,7 +265,7 @@ export default function Home() {
         }
       }
     }
-  }, [step, formData, selectedTagline, customTagline, editData, generatedPatterns, selectedPattern]);
+  }, [step, formData, selectedTagline, customTagline, editData, generatedPatterns, selectedPattern, resultadoFinal]);
 
   const downloadBrandBoard = async () => {
     if (brandBoardRef.current) {
@@ -567,6 +573,93 @@ export default function Home() {
      }
      setTimeout(() => setCustomStep('paleta'), 300);
   }
+
+  const startCreativeRefinement = async () => {
+    if (!resultadoFinal?.creativeDirector) return;
+
+    setShowRefinement(true);
+    setRefinementStep('question');
+    setIsRefinementLoading(true);
+
+    try {
+      const response = await fetch('/api/creative-director/refine', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          phase: 'question',
+          formData,
+          resultadoFinal,
+          idioma: lang
+        })
+      });
+
+      if (response.ok) {
+        const question = await response.json();
+        setRefinementQuestion(question);
+        setRefinementStep('answer');
+      } else {
+        setRefinementStep('unavailable');
+      }
+    } catch (error) {
+      console.warn('Refinamento criativo indisponível; mantendo a direção atual.', error);
+      setRefinementStep('unavailable');
+    } finally {
+      setIsRefinementLoading(false);
+    }
+  };
+
+  const submitCreativeRefinement = async () => {
+    const respostaUsuario = refinementAnswer.trim();
+    if (!respostaUsuario || !refinementQuestion) return;
+
+    setIsRefinementLoading(true);
+
+    try {
+      const response = await fetch('/api/creative-director/refine', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          phase: 'resolution',
+          formData,
+          resultadoFinal,
+          pergunta: refinementQuestion.pergunta,
+          respostaUsuario,
+          idioma: lang
+        })
+      });
+
+      if (response.ok) {
+        const resolution = await response.json();
+        const refinement = {
+          ...resolution,
+          pergunta: refinementQuestion.pergunta,
+          respostaUsuario
+        };
+        setResultadoFinal(prev => prev ? ({
+          ...prev,
+          creativeDirector: {
+            ...prev.creativeDirector,
+            refinement
+          }
+        }) : prev);
+        setRefinementStep('result');
+      } else {
+        setRefinementStep('unavailable');
+      }
+    } catch (error) {
+      console.warn('Análise do refinamento indisponível; mantendo a direção atual.', error);
+      setRefinementStep('unavailable');
+    } finally {
+      setIsRefinementLoading(false);
+    }
+  };
+
+  const keepCurrentDirection = () => {
+    setShowRefinement(false);
+    setRefinementStep('idle');
+    setRefinementQuestion(null);
+    setRefinementAnswer('');
+  };
 
   // Aqui é onde ativamos a Mágica
   const callMatchmaker = async () => {
@@ -1364,6 +1457,112 @@ export default function Home() {
                       </ul>
                     </div>
                   </div>
+
+                  <div style={{ marginTop: '1.25rem', paddingTop: '1rem', borderTop: '1px solid var(--border)', textAlign: 'center' }}>
+                    <button
+                      type="button"
+                      onClick={startCreativeRefinement}
+                      className="btn-secondary"
+                      style={{ padding: '0.85rem 1.2rem', fontSize: '0.9rem' }}
+                    >
+                      Refinar esta direção
+                    </button>
+                  </div>
+
+                  {showRefinement && (
+                    <div style={{ marginTop: '1rem', background: 'var(--bg-color)', borderRadius: '16px', padding: '1rem', border: '1px solid var(--border)' }}>
+                      {isRefinementLoading && (
+                        <p style={{ color: 'var(--text-secondary)', fontSize: '0.85rem', textAlign: 'center', margin: 0 }}>
+                          Conversando com a AI Creative Director...
+                        </p>
+                      )}
+
+                      {!isRefinementLoading && refinementStep === 'answer' && refinementQuestion && (
+                        <div>
+                          {refinementQuestion.tensaoIdentificada && (
+                            <div style={{ marginBottom: '0.85rem' }}>
+                              <strong style={{ color: 'var(--text-primary)', fontSize: '0.88rem' }}>Tensão identificada</strong>
+                              <p style={{ color: 'var(--text-secondary)', fontSize: '0.88rem', lineHeight: 1.5, marginTop: '0.25rem' }}>{refinementQuestion.tensaoIdentificada}</p>
+                            </div>
+                          )}
+                          <div style={{ marginBottom: '0.85rem' }}>
+                            <strong style={{ color: 'var(--text-primary)', fontSize: '0.88rem' }}>Pergunta da diretora criativa</strong>
+                            <p style={{ color: 'var(--text-primary)', fontSize: '0.95rem', lineHeight: 1.5, marginTop: '0.25rem' }}>{refinementQuestion.pergunta}</p>
+                            <p style={{ color: 'var(--text-secondary)', fontSize: '0.82rem', lineHeight: 1.5, marginTop: '0.35rem' }}>{refinementQuestion.porquePerguntar}</p>
+                          </div>
+                          <textarea
+                            value={refinementAnswer}
+                            onChange={(event) => setRefinementAnswer(event.target.value)}
+                            placeholder="Escreva sua resposta aqui..."
+                            rows={3}
+                            style={{ width: '100%', border: '1px solid var(--border)', borderRadius: '12px', padding: '0.85rem', resize: 'vertical', fontFamily: 'inherit', color: 'var(--text-primary)' }}
+                          />
+                          <div style={{ display: 'flex', gap: '0.75rem', marginTop: '0.85rem', flexWrap: 'wrap', justifyContent: 'center' }}>
+                            <button
+                              type="button"
+                              onClick={submitCreativeRefinement}
+                              disabled={!refinementAnswer.trim()}
+                              className="btn-primary"
+                              style={{ padding: '0.8rem 1rem', opacity: refinementAnswer.trim() ? 1 : 0.55 }}
+                            >
+                              Analisar minha resposta
+                            </button>
+                            <button type="button" onClick={keepCurrentDirection} className="btn-secondary" style={{ padding: '0.8rem 1rem' }}>
+                              Manter direção atual
+                            </button>
+                          </div>
+                        </div>
+                      )}
+
+                      {!isRefinementLoading && refinementStep === 'result' && resultadoFinal.creativeDirector.refinement && (
+                        <div style={{ display: 'grid', gap: '0.75rem' }}>
+                          <div style={{ background: '#fff', borderRadius: '12px', padding: '0.85rem' }}>
+                            <strong style={{ color: 'var(--text-primary)', fontSize: '0.88rem' }}>Decisão</strong>
+                            <p style={{ color: 'var(--text-secondary)', fontSize: '0.88rem', lineHeight: 1.5, marginTop: '0.25rem' }}>{resultadoFinal.creativeDirector.refinement.resumoDecisao}</p>
+                          </div>
+                          <div style={{ background: '#fff', borderRadius: '12px', padding: '0.85rem' }}>
+                            <strong style={{ color: 'var(--text-primary)', fontSize: '0.88rem' }}>Direção refinada</strong>
+                            <p style={{ color: 'var(--text-secondary)', fontSize: '0.88rem', lineHeight: 1.5, marginTop: '0.25rem' }}>{resultadoFinal.creativeDirector.refinement.direcaoRefinada}</p>
+                          </div>
+                          <div style={{ display: 'grid', gap: '0.65rem' }}>
+                            {[
+                              ['Paleta', resultadoFinal.creativeDirector.refinement.impactoPaleta],
+                              ['Tipografia', resultadoFinal.creativeDirector.refinement.impactoTipografia],
+                              ['Composição', resultadoFinal.creativeDirector.refinement.impactoComposicao],
+                              ['Estampa', resultadoFinal.creativeDirector.refinement.impactoEstampa]
+                            ].map(([label, value]) => (
+                              <div key={label} style={{ background: '#fff', borderRadius: '12px', padding: '0.85rem' }}>
+                                <strong style={{ color: 'var(--text-primary)', fontSize: '0.86rem' }}>{label}</strong>
+                                <p style={{ color: 'var(--text-secondary)', fontSize: '0.86rem', lineHeight: 1.5, marginTop: '0.25rem' }}>{value}</p>
+                              </div>
+                            ))}
+                          </div>
+                          {resultadoFinal.creativeDirector.refinement.estiloAlternativoId && (
+                            <div style={{ background: '#fff', borderRadius: '12px', padding: '0.85rem', border: '1px solid var(--accent-magenta)' }}>
+                              <strong style={{ color: 'var(--text-primary)', fontSize: '0.88rem' }}>Recomendação alternativa</strong>
+                              <p style={{ color: 'var(--text-secondary)', fontSize: '0.88rem', lineHeight: 1.5, marginTop: '0.25rem' }}>
+                                {resultadoFinal.creativeDirector.refinement.estiloAlternativoNome}. Esta recomendação é apenas consultiva e não será aplicada automaticamente.
+                              </p>
+                            </div>
+                          )}
+                          <button type="button" onClick={keepCurrentDirection} className="btn-secondary" style={{ padding: '0.8rem 1rem', justifySelf: 'center' }}>
+                            Manter direção atual
+                          </button>
+                        </div>
+                      )}
+
+                      {!isRefinementLoading && refinementStep === 'unavailable' && (
+                        <div style={{ textAlign: 'center' }}>
+                          <p style={{ color: 'var(--text-secondary)', fontSize: '0.88rem', lineHeight: 1.5 }}>
+                            Não consegui abrir o refinamento agora, mas sua direção atual continua salva.
+                          </p>
+                          <button type="button" onClick={keepCurrentDirection} className="btn-secondary" style={{ marginTop: '0.75rem', padding: '0.8rem 1rem' }}>
+                            Manter direção atual
+                          </button>
+                        </div>
+                      )}
+                    </div>
+                  )}
                 </div>
               )}
 

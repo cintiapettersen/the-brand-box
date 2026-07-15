@@ -19,3 +19,14 @@ A chamada acontece somente no servidor, usando as variáveis de ambiente `OPENAI
 ## Papel do Codex
 
 O Codex foi usado para implementar a integração de forma incremental e segura: revisar o fluxo existente, criar a nova rota isolada, conectar a chamada no front-end com fallback silencioso, adicionar a seção de interface e documentar a arquitetura criada durante a Build Week.
+
+## Segunda etapa: Refinar esta direção
+
+A segunda etapa do módulo adiciona uma experiência interativa chamada **Refinar esta direção** na tela do match perfeito. Depois que o Diagnóstico Criativo existe, a usuária pode abrir uma conversa curta com a AI Creative Director para esclarecer tensões reais do briefing, responder uma única pergunta personalizada e receber uma decisão consultiva sobre manter, ajustar ou considerar uma alternativa dentro dos estilos já cadastrados.
+
+A nova rota `/api/creative-director/refine` trabalha em duas fases:
+
+- `question`: compara o briefing, o estilo escolhido pelo Gemini e o diagnóstico da OpenAI para identificar uma tensão, ambiguidade ou prioridade ainda não resolvida. Se não houver tensão relevante, retorna uma pergunta padrão sobre qual aspecto visual deve ganhar mais personalidade.
+- `resolution`: analisa a resposta da usuária e retorna uma recomendação estruturada com impactos em paleta, tipografia, composição e estampa.
+
+Nesta etapa, nenhuma recomendação alternativa é aplicada automaticamente. O estilo atual continua preservado em `resultadoFinal.estiloId` e `resultadoFinal.estiloNome`; a recomendação fica registrada apenas em `resultadoFinal.creativeDirector.refinement` para revisão posterior.
