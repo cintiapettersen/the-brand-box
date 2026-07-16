@@ -134,7 +134,11 @@ export default function Home() {
     'Abril Fatface': { fontFamily: 'Abril Fatface', weight: 400, style: 'display', sizeBoost: 0.95, letterSpacing: '1px' },
     'DM Sans': { fontFamily: 'DM Sans', weight: 500, style: 'sans', sizeBoost: 1 },
     'Julius Sans One': { fontFamily: 'Julius Sans One', weight: 400, style: 'sans', sizeBoost: 0.95, letterSpacing: '2px' },
-    'Sacramento': { fontFamily: 'Sacramento', weight: 400, style: 'script', sizeBoost: 1.5, lineHeight: 0.9 }
+    'Sacramento': { fontFamily: 'Sacramento', weight: 400, style: 'script', sizeBoost: 1.5, lineHeight: 0.9 },
+    'Allura': { fontFamily: 'Allura', weight: 400, style: 'script', sizeBoost: 1.5, lineHeight: 0.9 },
+    'Libre Baskerville': { fontFamily: 'Libre Baskerville', weight: 700, style: 'serif', sizeBoost: 0.9 },
+    'Quicksand': { fontFamily: 'Quicksand', weight: 600, style: 'sans', sizeBoost: 1 },
+    'Nunito': { fontFamily: 'Nunito', weight: 700, style: 'sans', sizeBoost: 1 }
   };
 
   const getFontPresetByFamily = (fontFamily) => (
@@ -260,6 +264,7 @@ export default function Home() {
 
 
   const brandBoardRef = useRef(null);
+  const selectedVisualBrandRef = useRef({ optionId: '', fontFamily: '' });
 
   // Restaura progresso salvo ao montar
   useEffect(() => {
@@ -294,7 +299,13 @@ export default function Home() {
 
   const restoreProgress = async (parsed) => {
     if (parsed.step) setStep(parsed.step);
-    if (parsed.formData) setFormData(parsed.formData);
+    if (parsed.formData) {
+      setFormData(parsed.formData);
+      selectedVisualBrandRef.current = {
+        optionId: parsed.formData.inspiracoesVisual || '',
+        fontFamily: parsed.formData.selectedBrandFont || ''
+      };
+    }
     if (parsed.selectedTagline) setSelectedTagline(parsed.selectedTagline);
     if (parsed.customTagline) setCustomTagline(parsed.customTagline);
     if (parsed.editData) setEditData(prev => ({ ...prev, ...parsed.editData }));
@@ -545,11 +556,10 @@ export default function Home() {
         setStep(10);
 
         // Transfere a lógica de tipografia escolhida nos cards visuais
-        let fontProps = {};
-        if (formData.selectedBrandFont) {
-          const found = getFontPresetByFamily(formData.selectedBrandFont);
-          if (found) fontProps = buildFontEditProps(found);
-        }
+        const selectedVisualId = selectedVisualBrandRef.current.optionId || formData.inspiracoesVisual;
+        const selectedFontFamily = getVisualBrandFont(selectedVisualId, resultadoFinal.estiloId) || selectedVisualBrandRef.current.fontFamily || formData.selectedBrandFont;
+        const found = getFontPresetByFamily(selectedFontFamily);
+        const fontProps = found ? buildFontEditProps(found) : {};
 
         setEditData(prev => ({ 
           ...prev, 
@@ -557,7 +567,7 @@ export default function Home() {
           tagline: editData.tagline || 'Identidade Visual',
           instagram: formData.marca.toLowerCase().replace(/\s/g, ''),
           whatsapp: prev.whatsapp || '(11) 99999-9999',
-          fontFamily: fontProps.fontFamily || formData.selectedBrandFont || prev.fontFamily,
+          fontFamily: fontProps.fontFamily || selectedFontFamily || prev.fontFamily,
           fontWeight: fontProps.fontWeight || prev.fontWeight,
           fontStyle: fontProps.fontStyle || prev.fontStyle,
           fontSizeBoost: fontProps.fontSizeBoost || prev.fontSizeBoost,
@@ -1053,19 +1063,32 @@ export default function Home() {
   };
 
   const visualBrandOptions = [
-    { id: 'brand_1', image: '/estilos de fontes/estilo-de-fontes-1-01.png', font: 'Playfair Display' },
-    { id: 'brand_2', image: '/estilos de fontes/estilo-de-fontes-1-02.png', font: 'Borel' },
-    { id: 'brand_3', image: '/estilos de fontes/estilo-de-fontes-1-03.png', font: 'Abril Fatface' },
-    { id: 'brand_4', image: '/estilos de fontes/estilo-de-fontes-1-04.png', font: 'DM Sans' },
-    { id: 'brand_5', image: '/estilos de fontes/estilo-de-fontes-1-05.png', font: 'Julius Sans One' },
-    { id: 'brand_6', image: '/estilos de fontes/estilo-de-fontes-1-06.png', font: 'Sacramento' },
+    { id: 'brand_1', image: '/estilos de fontes/estilo-de-fontes-1-01.png', font: 'Playfair Display', fonts: ['Playfair Display', 'Cormorant Garamond', 'Libre Baskerville'] },
+    { id: 'brand_2', image: '/estilos de fontes/estilo-de-fontes-1-02.png', font: 'Borel', fonts: ['Borel', 'LittleFriend', 'Cafigine'] },
+    { id: 'brand_3', image: '/estilos de fontes/estilo-de-fontes-1-03.png', font: 'Abril Fatface', fonts: ['Abril Fatface', 'Cinzel', 'Libre Baskerville'] },
+    { id: 'brand_4', image: '/estilos de fontes/estilo-de-fontes-1-04.png', font: 'Sacramento', fonts: ['Sacramento', 'Allura', 'Amelie', 'Vellary'] },
+    { id: 'brand_5', image: '/estilos de fontes/estilo-de-fontes-1-05.png', font: 'Julius Sans One', fonts: ['Julius Sans One', 'Josefin Sans', 'Raleway'] },
+    { id: 'brand_6', image: '/estilos de fontes/estilo-de-fontes-1-06.png', font: 'DM Sans', fonts: ['DM Sans', 'Quicksand', 'Nunito'] },
   ];
 
-  const toggleInspiracoes = (val, fontName) => {
+  const getVisualBrandOption = (optionId) => visualBrandOptions.find(option => option.id === optionId);
+
+  const getVisualBrandFont = (optionId, estiloId) => {
+    const option = getVisualBrandOption(optionId);
+    if (!option) return '';
+    const fonts = option.fonts || [option.font];
+    const numericStyleId = Number(estiloId) || 0;
+    return fonts[numericStyleId % fonts.length] || option.font;
+  };
+
+  const toggleInspiracoes = (option) => {
+    const fontName = getVisualBrandFont(option.id) || option.font;
+    selectedVisualBrandRef.current = { optionId: option.id, fontFamily: fontName };
     setFormData(prev => ({
       ...prev,
-      inspiracoesVisual: val,
-      selectedBrandFont: fontName
+      inspiracoesVisual: option.id,
+      selectedBrandFont: fontName,
+      selectedBrandFontOptions: option.fonts || [option.font]
     }));
   };
 
@@ -1534,7 +1557,7 @@ export default function Home() {
                   return (
                     <div 
                       key={opt.id} 
-                      onClick={() => toggleInspiracoes(opt.id, opt.font)}
+                      onClick={() => toggleInspiracoes(opt)}
                       style={{
                         border: `2px solid ${isSelected ? 'var(--accent-turquoise)' : 'var(--border)'}`, 
                         borderRadius: '12px', 
