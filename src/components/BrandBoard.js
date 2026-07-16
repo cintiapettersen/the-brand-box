@@ -97,6 +97,8 @@ const BrandBoard = ({ data, palette, color, seloColor, seloTextColor, patternIma
 
   const { marca, tagline } = data;
   const activeColor = color || '#d22f5a';
+  const secondaryFontFamily = data.secondaryFontFamily || 'Montserrat';
+  const secondaryFontWeight = data.secondaryFontWeight || 500;
 
   // Autoscale logic for the fallback text logo
   const fitRef = React.useRef(null);
@@ -130,7 +132,7 @@ const BrandBoard = ({ data, palette, color, seloColor, seloTextColor, patternIma
       alignItems: 'center',
       boxShadow: '0 20px 50px rgba(0,0,0,0.1)',
       position: 'relative',
-      fontFamily: "'Montserrat', sans-serif"
+      fontFamily: `'${secondaryFontFamily}', sans-serif`
     }}>
       {/* Margem decorativa opcional */}
       <div style={{ position: 'absolute', top: '15px', left: '15px', right: '15px', bottom: '15px', border: '1px solid #efefef', pointerEvents: 'none' }}></div>
@@ -226,7 +228,8 @@ const BrandBoard = ({ data, palette, color, seloColor, seloTextColor, patternIma
                 </h1>
               )}
               <div style={{
-                fontFamily: "'Montserrat', sans-serif",
+                fontFamily: `'${secondaryFontFamily}', sans-serif`,
+                fontWeight: secondaryFontWeight,
                 fontSize: `${taglineSizeRem.toFixed(2)}rem`,
                 letterSpacing: taglineLetterSpacing,
                 textTransform: 'uppercase',
@@ -267,8 +270,8 @@ const BrandBoard = ({ data, palette, color, seloColor, seloTextColor, patternIma
             </p>
          </div>
          <div style={{ display: 'flex', flexDirection: 'column', justifyContent: 'center', textAlign: 'center' }}>
-            <h5 style={{ fontSize: '1.2rem', fontWeight: 600, marginBottom: '10px', fontFamily: "'Montserrat', sans-serif" }}>Montserrat</h5>
-            <p style={{ fontSize: '0.85rem', lineHeight: '2.0', color: '#666', fontWeight: 500, fontFamily: "'Montserrat', sans-serif" }}>
+            <h5 style={{ fontSize: '1.2rem', fontWeight: secondaryFontWeight, marginBottom: '10px', fontFamily: `'${secondaryFontFamily}', sans-serif` }}>{secondaryFontFamily}</h5>
+            <p style={{ fontSize: '0.85rem', lineHeight: '2.0', color: '#666', fontWeight: secondaryFontWeight, fontFamily: `'${secondaryFontFamily}', sans-serif` }}>
                Aa Bb Cc Dd<br/>Ee Ff Gg Hh<br/>1234567890
             </p>
          </div>

@@ -128,6 +128,48 @@ export default function Home() {
     'Estético Editorial':     ['Presença, precisão e estratégia', 'Estrutura, precisão e presença', 'Presença atemporal e estratégica', 'A estética da excelência e da autoridade', 'Técnica, elegância e exclusividade'],
   };
 
+  const FONT_PRESETS_BY_FAMILY = {
+    'Playfair Display': { fontFamily: 'Playfair Display', weight: 600, style: 'serif', sizeBoost: 1 },
+    'Borel': { fontFamily: 'Borel', weight: 400, style: 'script', sizeBoost: 1.15, lineHeight: 0.9 },
+    'Abril Fatface': { fontFamily: 'Abril Fatface', weight: 400, style: 'display', sizeBoost: 0.95, letterSpacing: '1px' },
+    'DM Sans': { fontFamily: 'DM Sans', weight: 500, style: 'sans', sizeBoost: 1 },
+    'Julius Sans One': { fontFamily: 'Julius Sans One', weight: 400, style: 'sans', sizeBoost: 0.95, letterSpacing: '2px' },
+    'Sacramento': { fontFamily: 'Sacramento', weight: 400, style: 'script', sizeBoost: 1.5, lineHeight: 0.9 }
+  };
+
+  const getFontPresetByFamily = (fontFamily) => (
+    Object.values(FONT_MAP).find(font => font.fontFamily === fontFamily)
+    || FONT_PRESETS_BY_FAMILY[fontFamily]
+    || null
+  );
+
+  const getSecondaryFontForPrimary = (fontInfo = {}) => {
+    const primaryStyle = fontInfo.style || 'serif';
+    const primaryFamily = fontInfo.fontFamily || '';
+
+    if (primaryStyle === 'script') {
+      return { secondaryFontFamily: 'DM Sans', secondaryFontWeight: 500, secondaryFontStyle: 'sans' };
+    }
+    if (primaryStyle === 'serif') {
+      return { secondaryFontFamily: primaryFamily === 'Cormorant Garamond' ? 'Manrope' : 'Plus Jakarta Sans', secondaryFontWeight: 500, secondaryFontStyle: 'sans' };
+    }
+    if (primaryStyle === 'display') {
+      return { secondaryFontFamily: 'Inter', secondaryFontWeight: 500, secondaryFontStyle: 'sans' };
+    }
+    return { secondaryFontFamily: 'Raleway', secondaryFontWeight: 500, secondaryFontStyle: 'sans' };
+  };
+
+  const buildFontEditProps = (fontInfo = {}) => ({
+    fontFamily: fontInfo.fontFamily,
+    fontWeight: fontInfo.weight || 400,
+    fontStyle: fontInfo.style || 'serif',
+    fontSizeBoost: fontInfo.sizeBoost || 1,
+    fontLetterSpacing: fontInfo.letterSpacing || '0px',
+    fontLineHeight: fontInfo.lineHeight,
+    fontFeatureSettings: fontInfo.featureSettings,
+    ...getSecondaryFontForPrimary(fontInfo)
+  });
+
   const getTaglineSuggestions = () => {
     const idToKey = {
       2: 'Jardim Encantado',
@@ -188,6 +230,9 @@ export default function Home() {
     whatsapp: '',
     instagram: '',
     corAtiva: '',
+    secondaryFontFamily: 'Montserrat',
+    secondaryFontWeight: 500,
+    secondaryFontStyle: 'sans',
     itemSelecionado: 'cartao',
     viewType: 'itens'
   });
@@ -288,7 +333,13 @@ export default function Home() {
   useEffect(() => {
     const dataToSave = {
       step, formData, selectedTagline, customTagline,
-      editData: { marca: editData.marca, tagline: editData.tagline, whatsapp: editData.whatsapp, instagram: editData.instagram, fontFamily: editData.fontFamily, fontStyle: editData.fontStyle, fontWeight: editData.fontWeight, fontSizeBoost: editData.fontSizeBoost, fontLetterSpacing: editData.fontLetterSpacing, corAtiva: editData.corAtiva },
+      editData: {
+        marca: editData.marca, tagline: editData.tagline, whatsapp: editData.whatsapp, instagram: editData.instagram,
+        fontFamily: editData.fontFamily, fontStyle: editData.fontStyle, fontWeight: editData.fontWeight,
+        fontSizeBoost: editData.fontSizeBoost, fontLetterSpacing: editData.fontLetterSpacing, fontLineHeight: editData.fontLineHeight,
+        fontFeatureSettings: editData.fontFeatureSettings, secondaryFontFamily: editData.secondaryFontFamily,
+        secondaryFontWeight: editData.secondaryFontWeight, secondaryFontStyle: editData.secondaryFontStyle, corAtiva: editData.corAtiva
+      },
       patternGenerationCount, refazerAttempts,
       resultadoFinal, selectedPaleta, selectedTipo, selectedIcon,
       generatedPatterns, selectedPattern
@@ -493,21 +544,11 @@ export default function Home() {
       if (resultadoFinal) {
         setStep(10);
 
-        // Transfere a lógica de tipografia (FONT_MAP)
+        // Transfere a lógica de tipografia escolhida nos cards visuais
         let fontProps = {};
         if (formData.selectedBrandFont) {
-          const found = Object.values(FONT_MAP).find(f => f.fontFamily === formData.selectedBrandFont);
-          if (found) {
-            fontProps = {
-              fontFamily: found.fontFamily,
-              fontWeight: found.weight || 400,
-              fontStyle: found.style || 'serif',
-              fontSizeBoost: found.sizeBoost || 1,
-              fontLetterSpacing: found.letterSpacing || '0px',
-              fontLineHeight: found.lineHeight,
-              fontFeatureSettings: found.featureSettings
-            };
-          }
+          const found = getFontPresetByFamily(formData.selectedBrandFont);
+          if (found) fontProps = buildFontEditProps(found);
         }
 
         setEditData(prev => ({ 
@@ -522,7 +563,10 @@ export default function Home() {
           fontSizeBoost: fontProps.fontSizeBoost || prev.fontSizeBoost,
           fontLetterSpacing: fontProps.fontLetterSpacing || prev.fontLetterSpacing,
           fontLineHeight: fontProps.fontLineHeight || prev.fontLineHeight,
-          fontFeatureSettings: fontProps.fontFeatureSettings || prev.fontFeatureSettings
+          fontFeatureSettings: fontProps.fontFeatureSettings || prev.fontFeatureSettings,
+          secondaryFontFamily: fontProps.secondaryFontFamily || prev.secondaryFontFamily || 'Montserrat',
+          secondaryFontWeight: fontProps.secondaryFontWeight || prev.secondaryFontWeight || 500,
+          secondaryFontStyle: fontProps.secondaryFontStyle || prev.secondaryFontStyle || 'sans'
         }));
       }
     }
@@ -612,15 +656,9 @@ export default function Home() {
      if (tipo) {
        const fontInfo = FONT_MAP[tipo.nome_variacao];
        if (fontInfo) {
-         setEditData(prev => ({ 
-           ...prev, 
-           fontFamily: fontInfo.fontFamily, 
-           fontWeight: fontInfo.weight || 400,
-           fontStyle: fontInfo.style || 'serif',
-           fontSizeBoost: fontInfo.sizeBoost || 1,
-           fontLetterSpacing: fontInfo.letterSpacing || '0px',
-           fontLineHeight: fontInfo.lineHeight,
-           fontFeatureSettings: fontInfo.featureSettings
+         setEditData(prev => ({
+           ...prev,
+           ...buildFontEditProps(fontInfo)
          }));
        }
      }
