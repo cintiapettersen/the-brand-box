@@ -557,7 +557,10 @@ export default function Home() {
 
         // Transfere a lógica de tipografia escolhida nos cards visuais
         const selectedVisualId = selectedVisualBrandRef.current.optionId || formData.inspiracoesVisual;
-        const selectedFontFamily = getVisualBrandFont(selectedVisualId, resultadoFinal.estiloId) || selectedVisualBrandRef.current.fontFamily || formData.selectedBrandFont;
+        const selectedFontFamily = getVisualBrandFont(selectedVisualId, resultadoFinal.estiloId)
+          || getFontFromSimilarOptions(formData.selectedBrandFontOptions, resultadoFinal.estiloId)
+          || selectedVisualBrandRef.current.fontFamily
+          || formData.selectedBrandFont;
         const found = getFontPresetByFamily(selectedFontFamily);
         const fontProps = found ? buildFontEditProps(found) : {};
 
@@ -1073,17 +1076,28 @@ export default function Home() {
 
   const getVisualBrandOption = (optionId) => visualBrandOptions.find(option => option.id === optionId);
 
+  const getFontFromSimilarOptions = (fonts = [], estiloId) => {
+    if (!Array.isArray(fonts) || fonts.length === 0) return '';
+    const numericStyleId = Number(estiloId) || 0;
+    return fonts[numericStyleId % fonts.length] || fonts[0];
+  };
+
   const getVisualBrandFont = (optionId, estiloId) => {
     const option = getVisualBrandOption(optionId);
     if (!option) return '';
-    const fonts = option.fonts || [option.font];
-    const numericStyleId = Number(estiloId) || 0;
-    return fonts[numericStyleId % fonts.length] || option.font;
+    return getFontFromSimilarOptions(option.fonts || [option.font], estiloId) || option.font;
   };
 
   const toggleInspiracoes = (option) => {
     const fontName = getVisualBrandFont(option.id) || option.font;
     selectedVisualBrandRef.current = { optionId: option.id, fontFamily: fontName };
+    const found = getFontPresetByFamily(fontName);
+    if (found) {
+      setEditData(prev => ({
+        ...prev,
+        ...buildFontEditProps(found)
+      }));
+    }
     setFormData(prev => ({
       ...prev,
       inspiracoesVisual: option.id,
