@@ -64,6 +64,14 @@ export default function Home() {
   const [devTapCount, setDevTapCount] = useState(0);
   useEffect(() => {
     setDevMode(new URLSearchParams(window.location.search).get('dev') === '1');
+    const existingSessionId = localStorage.getItem('brandbox_ai_session_id');
+    if (existingSessionId) {
+      setAiSessionId(existingSessionId);
+      return;
+    }
+    const newSessionId = window.crypto?.randomUUID?.() || `ai-${Date.now()}-${Math.random().toString(36).slice(2)}`;
+    localStorage.setItem('brandbox_ai_session_id', newSessionId);
+    setAiSessionId(newSessionId);
   }, []);
   const handleDevTap = () => {
     const next = devTapCount + 1;
@@ -76,12 +84,39 @@ export default function Home() {
 
   const [step, setStep] = useState(1);
   const [resultadoFinal, setResultadoFinal] = useState(null);
+  const [isCreativeDirectorLoading, setIsCreativeDirectorLoading] = useState(false);
+  const [isTaglineLoading, setIsTaglineLoading] = useState(false);
+  const [aiSessionId, setAiSessionId] = useState('');
   const [selectedTagline, setSelectedTagline] = useState('');
   const [customTagline, setCustomTagline] = useState('');
   
   const [formData, setFormData] = useState({
     nome: '', email: '', marca: '', atuacao: '', atuacaoOutra: '', contextoExtra: '', publico: '', sentimentos: [], elementosVisuais: [], personalidade: '', primeiraImpressao: '', locais: [], inspiracoes: '', inspiracoesTags: [], nuncaPensar: '', nuncaPensarTags: []
   });
+
+  const refineCopy = {
+    button: dictionary?.postmatch?.creative_refine_button || 'Refinar esta direção',
+    tension: dictionary?.postmatch?.creative_refine_tension || 'Tensão identificada',
+    question: dictionary?.postmatch?.creative_refine_question || 'Pergunta da diretora criativa',
+    placeholder: dictionary?.postmatch?.creative_refine_placeholder || 'Escreva sua resposta aqui...',
+    analyze: dictionary?.postmatch?.creative_refine_analyze || 'Analisar minha resposta',
+    keepCurrent: dictionary?.postmatch?.creative_refine_keep_current || 'Manter direção atual',
+    loadingQuestion: dictionary?.postmatch?.creative_refine_loading_question || 'Conversando com a AI Creative Director...',
+    loadingResolution: dictionary?.postmatch?.creative_refine_loading_resolution || 'Analisando sua resposta...',
+    decision: dictionary?.postmatch?.creative_refine_decision || 'Decisão',
+    direction: dictionary?.postmatch?.creative_refine_direction || 'Direção refinada',
+    palette: dictionary?.postmatch?.creative_refine_palette || 'Impacto na paleta',
+    typography: dictionary?.postmatch?.creative_refine_typography || 'Impacto na tipografia',
+    composition: dictionary?.postmatch?.creative_refine_composition || 'Impacto na composição',
+    pattern: dictionary?.postmatch?.creative_refine_pattern || 'Impacto na estampa',
+    altStyle: dictionary?.postmatch?.creative_refine_alt_style || 'Estilo alternativo recomendado',
+    altNote: dictionary?.postmatch?.creative_refine_alt_note || 'Esta recomendação é apenas consultiva e não será aplicada automaticamente.',
+    unavailable: dictionary?.postmatch?.creative_refine_unavailable || 'Não foi possível analisar agora. Sua direção atual continua salva.',
+    close: dictionary?.postmatch?.creative_refine_close || 'Fechar',
+    retry: dictionary?.postmatch?.creative_refine_retry || 'Tentar novamente',
+    regenerate: dictionary?.postmatch?.creative_refine_regenerate || 'Gerar novamente em português',
+    regenerating: dictionary?.postmatch?.creative_refine_regenerating || 'Gerando novamente em português...'
+  };
 
   // Sugestões de tagline agrupadas por categoria
   const TAGLINES_BY_ESTILO = {
@@ -92,6 +127,52 @@ export default function Home() {
     'Raízes & Cuidado':       ['Orgânico, consciente e acolhedor', 'Essência da terra, respeito ao tempo', 'Onde o tempo vira afeto'],
     'Estético Editorial':     ['Presença, precisão e estratégia', 'Estrutura, precisão e presença', 'Presença atemporal e estratégica', 'A estética da excelência e da autoridade', 'Técnica, elegância e exclusividade'],
   };
+
+  const FONT_PRESETS_BY_FAMILY = {
+    'Playfair Display': { fontFamily: 'Playfair Display', weight: 600, style: 'serif', sizeBoost: 1 },
+    'Borel': { fontFamily: 'Borel', weight: 400, style: 'script', sizeBoost: 1.15, lineHeight: 0.9 },
+    'Abril Fatface': { fontFamily: 'Abril Fatface', weight: 400, style: 'display', sizeBoost: 0.95, letterSpacing: '1px' },
+    'DM Sans': { fontFamily: 'DM Sans', weight: 500, style: 'sans', sizeBoost: 1 },
+    'Julius Sans One': { fontFamily: 'Julius Sans One', weight: 400, style: 'sans', sizeBoost: 0.95, letterSpacing: '2px' },
+    'Sacramento': { fontFamily: 'Sacramento', weight: 400, style: 'script', sizeBoost: 1.5, lineHeight: 0.9 },
+    'Allura': { fontFamily: 'Allura', weight: 400, style: 'script', sizeBoost: 1.5, lineHeight: 0.9 },
+    'Libre Baskerville': { fontFamily: 'Libre Baskerville', weight: 700, style: 'serif', sizeBoost: 0.9 },
+    'Quicksand': { fontFamily: 'Quicksand', weight: 600, style: 'sans', sizeBoost: 1 },
+    'Nunito': { fontFamily: 'Nunito', weight: 700, style: 'sans', sizeBoost: 1 }
+  };
+
+  const getFontPresetByFamily = (fontFamily) => (
+    Object.values(FONT_MAP).find(font => font.fontFamily === fontFamily)
+    || FONT_PRESETS_BY_FAMILY[fontFamily]
+    || null
+  );
+
+  const getSecondaryFontForPrimary = (fontInfo = {}) => {
+    const primaryStyle = fontInfo.style || 'serif';
+    const primaryFamily = fontInfo.fontFamily || '';
+
+    if (primaryStyle === 'script') {
+      return { secondaryFontFamily: 'DM Sans', secondaryFontWeight: 500, secondaryFontStyle: 'sans' };
+    }
+    if (primaryStyle === 'serif') {
+      return { secondaryFontFamily: primaryFamily === 'Cormorant Garamond' ? 'Manrope' : 'Plus Jakarta Sans', secondaryFontWeight: 500, secondaryFontStyle: 'sans' };
+    }
+    if (primaryStyle === 'display') {
+      return { secondaryFontFamily: 'Inter', secondaryFontWeight: 500, secondaryFontStyle: 'sans' };
+    }
+    return { secondaryFontFamily: 'Raleway', secondaryFontWeight: 500, secondaryFontStyle: 'sans' };
+  };
+
+  const buildFontEditProps = (fontInfo = {}) => ({
+    fontFamily: fontInfo.fontFamily,
+    fontWeight: fontInfo.weight || 400,
+    fontStyle: fontInfo.style || 'serif',
+    fontSizeBoost: fontInfo.sizeBoost || 1,
+    fontLetterSpacing: fontInfo.letterSpacing || '0px',
+    fontLineHeight: fontInfo.lineHeight,
+    fontFeatureSettings: fontInfo.featureSettings,
+    ...getSecondaryFontForPrimary(fontInfo)
+  });
 
   const getTaglineSuggestions = () => {
     const idToKey = {
@@ -104,6 +185,18 @@ export default function Home() {
     };
     const key = idToKey[resultadoFinal?.estiloId] || 'Essência Atemporal';
     return dictionary?.postmatch?.taglines_by_estilo?.[key] || TAGLINES_BY_ESTILO[key] || TAGLINES_BY_ESTILO['Essência Atemporal'];
+  };
+
+  const getCreativeTaglineSuggestions = () => {
+    const suggestions = (resultadoFinal?.creativeDirector?.taglineSuggestions || resultadoFinal?.taglineSuggestions)?.suggestions;
+    return Array.isArray(suggestions) && suggestions.length === 3
+      ? suggestions.map(suggestion => suggestion.text).filter(Boolean)
+      : [];
+  };
+
+  const getVisibleTaglineSuggestions = () => {
+    const creativeSuggestions = getCreativeTaglineSuggestions();
+    return creativeSuggestions.length === 3 ? creativeSuggestions : getTaglineSuggestions();
   };
 
   const elementosDesc = [
@@ -141,6 +234,9 @@ export default function Home() {
     whatsapp: '',
     instagram: '',
     corAtiva: '',
+    secondaryFontFamily: 'Montserrat',
+    secondaryFontWeight: 500,
+    secondaryFontStyle: 'sans',
     itemSelecionado: 'cartao',
     viewType: 'itens'
   });
@@ -160,8 +256,15 @@ export default function Home() {
   const [showResumePrompt, setShowResumePrompt] = useState(false);
   const [savedProgress, setSavedProgress] = useState(null);
   const [loadingCheckout, setLoadingCheckout] = useState(false);
+  const [showRefinement, setShowRefinement] = useState(false);
+  const [refinementQuestion, setRefinementQuestion] = useState(null);
+  const [refinementAnswer, setRefinementAnswer] = useState('');
+  const [isRefinementLoading, setIsRefinementLoading] = useState(false);
+  const [refinementStep, setRefinementStep] = useState('idle');
+
 
   const brandBoardRef = useRef(null);
+  const selectedVisualBrandRef = useRef({ optionId: '', fontFamily: '' });
 
   // Restaura progresso salvo ao montar
   useEffect(() => {
@@ -196,7 +299,13 @@ export default function Home() {
 
   const restoreProgress = async (parsed) => {
     if (parsed.step) setStep(parsed.step);
-    if (parsed.formData) setFormData(parsed.formData);
+    if (parsed.formData) {
+      setFormData(parsed.formData);
+      selectedVisualBrandRef.current = {
+        optionId: parsed.formData.inspiracoesVisual || '',
+        fontFamily: parsed.formData.selectedBrandFont || ''
+      };
+    }
     if (parsed.selectedTagline) setSelectedTagline(parsed.selectedTagline);
     if (parsed.customTagline) setCustomTagline(parsed.customTagline);
     if (parsed.editData) setEditData(prev => ({ ...prev, ...parsed.editData }));
@@ -235,7 +344,13 @@ export default function Home() {
   useEffect(() => {
     const dataToSave = {
       step, formData, selectedTagline, customTagline,
-      editData: { marca: editData.marca, tagline: editData.tagline, whatsapp: editData.whatsapp, instagram: editData.instagram, fontFamily: editData.fontFamily, fontStyle: editData.fontStyle, fontWeight: editData.fontWeight, fontSizeBoost: editData.fontSizeBoost, fontLetterSpacing: editData.fontLetterSpacing, corAtiva: editData.corAtiva },
+      editData: {
+        marca: editData.marca, tagline: editData.tagline, whatsapp: editData.whatsapp, instagram: editData.instagram,
+        fontFamily: editData.fontFamily, fontStyle: editData.fontStyle, fontWeight: editData.fontWeight,
+        fontSizeBoost: editData.fontSizeBoost, fontLetterSpacing: editData.fontLetterSpacing, fontLineHeight: editData.fontLineHeight,
+        fontFeatureSettings: editData.fontFeatureSettings, secondaryFontFamily: editData.secondaryFontFamily,
+        secondaryFontWeight: editData.secondaryFontWeight, secondaryFontStyle: editData.secondaryFontStyle, corAtiva: editData.corAtiva
+      },
       patternGenerationCount, refazerAttempts,
       resultadoFinal, selectedPaleta, selectedTipo, selectedIcon,
       generatedPatterns, selectedPattern
@@ -258,7 +373,14 @@ export default function Home() {
         }
       }
     }
-  }, [step, formData, selectedTagline, customTagline, editData, generatedPatterns, selectedPattern]);
+  }, [step, formData, selectedTagline, customTagline, editData, generatedPatterns, selectedPattern, resultadoFinal]);
+
+  useEffect(() => {
+    if (step !== 11.5 || !resultadoFinal || resultadoFinal?.creativeDirector?.taglineSuggestions || resultadoFinal?.taglineSuggestions) return;
+    generateCreativeTaglines();
+    // Depend only on step so changing the interface language does not auto-regenerate AI content.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [step]);
 
   const downloadBrandBoard = async () => {
     if (brandBoardRef.current) {
@@ -433,22 +555,14 @@ export default function Home() {
       if (resultadoFinal) {
         setStep(10);
 
-        // Transfere a lógica de tipografia (FONT_MAP)
-        let fontProps = {};
-        if (formData.selectedBrandFont) {
-          const found = Object.values(FONT_MAP).find(f => f.fontFamily === formData.selectedBrandFont);
-          if (found) {
-            fontProps = {
-              fontFamily: found.fontFamily,
-              fontWeight: found.weight || 400,
-              fontStyle: found.style || 'serif',
-              fontSizeBoost: found.sizeBoost || 1,
-              fontLetterSpacing: found.letterSpacing || '0px',
-              fontLineHeight: found.lineHeight,
-              fontFeatureSettings: found.featureSettings
-            };
-          }
-        }
+        // Transfere a lógica de tipografia escolhida nos cards visuais
+        const selectedVisualId = selectedVisualBrandRef.current.optionId || formData.inspiracoesVisual;
+        const selectedFontFamily = getVisualBrandFont(selectedVisualId, resultadoFinal.estiloId)
+          || getFontFromSimilarOptions(formData.selectedBrandFontOptions, resultadoFinal.estiloId)
+          || selectedVisualBrandRef.current.fontFamily
+          || formData.selectedBrandFont;
+        const found = getFontPresetByFamily(selectedFontFamily);
+        const fontProps = found ? buildFontEditProps(found) : {};
 
         setEditData(prev => ({ 
           ...prev, 
@@ -456,13 +570,16 @@ export default function Home() {
           tagline: editData.tagline || 'Identidade Visual',
           instagram: formData.marca.toLowerCase().replace(/\s/g, ''),
           whatsapp: prev.whatsapp || '(11) 99999-9999',
-          fontFamily: fontProps.fontFamily || formData.selectedBrandFont || prev.fontFamily,
+          fontFamily: fontProps.fontFamily || selectedFontFamily || prev.fontFamily,
           fontWeight: fontProps.fontWeight || prev.fontWeight,
           fontStyle: fontProps.fontStyle || prev.fontStyle,
           fontSizeBoost: fontProps.fontSizeBoost || prev.fontSizeBoost,
           fontLetterSpacing: fontProps.fontLetterSpacing || prev.fontLetterSpacing,
           fontLineHeight: fontProps.fontLineHeight || prev.fontLineHeight,
-          fontFeatureSettings: fontProps.fontFeatureSettings || prev.fontFeatureSettings
+          fontFeatureSettings: fontProps.fontFeatureSettings || prev.fontFeatureSettings,
+          secondaryFontFamily: fontProps.secondaryFontFamily || prev.secondaryFontFamily || 'Montserrat',
+          secondaryFontWeight: fontProps.secondaryFontWeight || prev.secondaryFontWeight || 500,
+          secondaryFontStyle: fontProps.secondaryFontStyle || prev.secondaryFontStyle || 'sans'
         }));
       }
     }
@@ -552,20 +669,284 @@ export default function Home() {
      if (tipo) {
        const fontInfo = FONT_MAP[tipo.nome_variacao];
        if (fontInfo) {
-         setEditData(prev => ({ 
-           ...prev, 
-           fontFamily: fontInfo.fontFamily, 
-           fontWeight: fontInfo.weight || 400,
-           fontStyle: fontInfo.style || 'serif',
-           fontSizeBoost: fontInfo.sizeBoost || 1,
-           fontLetterSpacing: fontInfo.letterSpacing || '0px',
-           fontLineHeight: fontInfo.lineHeight,
-           fontFeatureSettings: fontInfo.featureSettings
+         setEditData(prev => ({
+           ...prev,
+           ...buildFontEditProps(fontInfo)
          }));
        }
      }
      setTimeout(() => setCustomStep('paleta'), 300);
   }
+
+  const isDifferentLanguage = (content) => Boolean(content?.language && content.language !== lang);
+
+  const getAiUsageKey = (contentType, targetLanguage = lang) => `${contentType}:${targetLanguage}`;
+
+  const hasAiUsage = (contentType, targetLanguage = lang) => {
+    const key = getAiUsageKey(contentType, targetLanguage);
+    return Boolean(resultadoFinal?.aiUsage?.[key]);
+  };
+
+  const markAiUsage = (contentType, targetLanguage = lang) => {
+    const key = getAiUsageKey(contentType, targetLanguage);
+    const timestamp = new Date().toISOString();
+    setResultadoFinal(prev => prev ? ({
+      ...prev,
+      aiUsage: {
+        ...(prev.aiUsage || {}),
+        [key]: timestamp
+      }
+    }) : prev);
+  };
+
+  const getRequestKey = (contentType, targetLanguage = lang) => `${aiSessionId || 'pending'}:${getAiUsageKey(contentType, targetLanguage)}`;
+
+  const fetchCreativeDirectorDiagnostic = async (baseResult) => {
+    const creativeResponse = await fetch('/api/creative-director', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        formData,
+        estiloId: baseResult.estiloId,
+        estiloNome: baseResult.estiloNome,
+        mensagem: baseResult.mensagem,
+        idioma: lang,
+        requestKey: getRequestKey('diagnostic')
+      })
+    });
+
+    if (!creativeResponse.ok) return null;
+
+    const creativeDirector = await creativeResponse.json();
+    return { ...creativeDirector, language: lang, generatedAt: new Date().toISOString() };
+  };
+
+  const regenerateCreativeDirector = async () => {
+    if (!resultadoFinal || isCreativeDirectorLoading || hasAiUsage('diagnostic_regeneration')) return;
+
+    markAiUsage('diagnostic_regeneration');
+    setIsCreativeDirectorLoading(true);
+    try {
+      const creativeDirector = await fetchCreativeDirectorDiagnostic(resultadoFinal);
+      if (creativeDirector) {
+        setResultadoFinal(prev => prev ? ({ ...prev, creativeDirector: { ...creativeDirector, refinement: prev.creativeDirector?.refinement } }) : prev);
+      }
+    } catch (error) {
+      console.warn('Regeneração do Diagnóstico Criativo indisponível; mantendo conteúdo anterior.', error);
+    } finally {
+      setIsCreativeDirectorLoading(false);
+    }
+  };
+
+  const fetchCreativeTaglines = async () => {
+    if (!resultadoFinal) return null;
+
+    const response = await fetch('/api/creative-director/taglines', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        formData,
+        resultadoFinal,
+        idioma: lang,
+        requestKey: getRequestKey('taglines')
+      })
+    });
+
+    if (!response.ok) return null;
+
+    const taglines = await response.json();
+    return { ...taglines, language: lang, generatedAt: new Date().toISOString() };
+  };
+
+  const generateCreativeTaglines = async () => {
+    if (!resultadoFinal || isTaglineLoading || hasAiUsage('taglines')) return;
+
+    markAiUsage('taglines');
+    setIsTaglineLoading(true);
+    try {
+      const taglines = await fetchCreativeTaglines();
+      if (taglines) {
+        setResultadoFinal(prev => prev ? (prev.creativeDirector
+          ? {
+              ...prev,
+              creativeDirector: {
+                ...prev.creativeDirector,
+                taglineSuggestions: taglines
+              }
+            }
+          : {
+              ...prev,
+              taglineSuggestions: taglines
+            }) : prev);
+        if (selectedTagline && !taglines.suggestions.some(suggestion => suggestion.text === selectedTagline)) {
+          setSelectedTagline('');
+        }
+      }
+    } catch (error) {
+      console.warn('Sugestões de tagline indisponíveis; usando sugestões curadas.', error);
+    } finally {
+      setIsTaglineLoading(false);
+    }
+  };
+
+  const startCreativeRefinement = async () => {
+    if (!resultadoFinal?.creativeDirector || isRefinementLoading) return;
+
+    setShowRefinement(true);
+    const savedQuestion = resultadoFinal.creativeDirector.refinementQuestion;
+    if (savedQuestion?.language === lang) {
+      setRefinementQuestion(savedQuestion);
+      setRefinementStep('answer');
+      return;
+    }
+
+    if (hasAiUsage('refinement_question')) {
+      setRefinementStep('unavailable');
+      return;
+    }
+
+    setRefinementStep('question');
+    setIsRefinementLoading(true);
+    markAiUsage('refinement_question');
+
+    try {
+      const response = await fetch('/api/creative-director/refine', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          phase: 'question',
+          formData,
+          resultadoFinal,
+          idioma: lang,
+          requestKey: getRequestKey('refinement_question')
+        })
+      });
+
+      if (response.ok) {
+        const question = await response.json();
+        const questionWithMeta = { ...question, language: lang, generatedAt: new Date().toISOString() };
+        setRefinementQuestion(questionWithMeta);
+        setResultadoFinal(prev => prev ? ({
+          ...prev,
+          creativeDirector: {
+            ...prev.creativeDirector,
+            refinementQuestion: questionWithMeta
+          }
+        }) : prev);
+        setRefinementStep('answer');
+      } else {
+        setRefinementStep('unavailable');
+      }
+    } catch (error) {
+      console.warn('Refinamento criativo indisponível; mantendo a direção atual.', error);
+      setRefinementStep('unavailable');
+    } finally {
+      setIsRefinementLoading(false);
+    }
+  };
+
+  const submitCreativeRefinement = async () => {
+    const respostaUsuario = refinementAnswer.trim();
+    if (!respostaUsuario || !refinementQuestion || isRefinementLoading || hasAiUsage('refinement_resolution')) return;
+
+    setIsRefinementLoading(true);
+    markAiUsage('refinement_resolution');
+
+    try {
+      const response = await fetch('/api/creative-director/refine', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          phase: 'resolution',
+          formData,
+          resultadoFinal,
+          pergunta: refinementQuestion.pergunta,
+          respostaUsuario,
+          idioma: lang,
+          requestKey: getRequestKey('refinement_resolution')
+        })
+      });
+
+      if (response.ok) {
+        const resolution = await response.json();
+        const refinement = {
+          ...resolution,
+          pergunta: refinementQuestion.pergunta,
+          respostaUsuario,
+          language: lang,
+          generatedAt: new Date().toISOString()
+        };
+        setResultadoFinal(prev => prev ? ({
+          ...prev,
+          creativeDirector: {
+            ...prev.creativeDirector,
+            refinement
+          }
+        }) : prev);
+        setRefinementStep('result');
+      } else {
+        setRefinementStep('unavailable');
+      }
+    } catch (error) {
+      console.warn('Análise do refinamento indisponível; mantendo a direção atual.', error);
+      setRefinementStep('unavailable');
+    } finally {
+      setIsRefinementLoading(false);
+    }
+  };
+
+  const regenerateRefinementResolution = async () => {
+    const currentRefinement = resultadoFinal?.creativeDirector?.refinement;
+    if (!currentRefinement?.respostaUsuario || !currentRefinement?.pergunta || isRefinementLoading || hasAiUsage('refinement_resolution_regeneration')) return;
+
+    setIsRefinementLoading(true);
+    setRefinementStep('result');
+    markAiUsage('refinement_resolution_regeneration');
+
+    try {
+      const response = await fetch('/api/creative-director/refine', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          phase: 'resolution',
+          formData,
+          resultadoFinal,
+          pergunta: currentRefinement.pergunta,
+          respostaUsuario: currentRefinement.respostaUsuario,
+          idioma: lang,
+          requestKey: getRequestKey('refinement_resolution_regeneration')
+        })
+      });
+
+      if (response.ok) {
+        const resolution = await response.json();
+        setResultadoFinal(prev => prev ? ({
+          ...prev,
+          creativeDirector: {
+            ...prev.creativeDirector,
+            refinement: {
+              ...resolution,
+              pergunta: currentRefinement.pergunta,
+              respostaUsuario: currentRefinement.respostaUsuario,
+              language: lang,
+              generatedAt: new Date().toISOString()
+            }
+          }
+        }) : prev);
+      }
+    } catch (error) {
+      console.warn('Regeneração do refinamento indisponível; mantendo conteúdo anterior.', error);
+    } finally {
+      setIsRefinementLoading(false);
+    }
+  };
+
+  const keepCurrentDirection = () => {
+    setShowRefinement(false);
+    setRefinementStep('idle');
+    setRefinementQuestion(null);
+    setRefinementAnswer('');
+  };
 
   // Aqui é onde ativamos a Mágica
   const callMatchmaker = async () => {
@@ -581,8 +962,26 @@ export default function Home() {
       const data = await response.json();
       
       if (data.estiloNome) {
-        setResultadoFinal(data);
+        setIsCreativeDirectorLoading(true);
+        setResultadoFinal({
+          ...data,
+          aiUsage: {
+            [getAiUsageKey('diagnostic')]: new Date().toISOString()
+          }
+        });
         setStep(9); // Tela de Resultado Triunfal
+
+        try {
+          const creativeDirector = await fetchCreativeDirectorDiagnostic(data);
+
+          if (creativeDirector) {
+            setResultadoFinal(prev => prev ? ({ ...prev, creativeDirector }) : prev);
+          }
+        } catch (creativeError) {
+          console.warn('Creative Director indisponível; mantendo o fluxo antigo.', creativeError);
+        } finally {
+          setIsCreativeDirectorLoading(false);
+        }
       } else {
         alert("Ops, deu um pequeno tilt na IA. Refaça por favor!");
         setStep(7);
@@ -667,19 +1066,43 @@ export default function Home() {
   };
 
   const visualBrandOptions = [
-    { id: 'brand_1', image: '/estilos de fontes/estilo-de-fontes-1-01.png', font: 'Playfair Display' },
-    { id: 'brand_2', image: '/estilos de fontes/estilo-de-fontes-1-02.png', font: 'Borel' },
-    { id: 'brand_3', image: '/estilos de fontes/estilo-de-fontes-1-03.png', font: 'Abril Fatface' },
-    { id: 'brand_4', image: '/estilos de fontes/estilo-de-fontes-1-04.png', font: 'DM Sans' },
-    { id: 'brand_5', image: '/estilos de fontes/estilo-de-fontes-1-05.png', font: 'Julius Sans One' },
-    { id: 'brand_6', image: '/estilos de fontes/estilo-de-fontes-1-06.png', font: 'Sacramento' },
+    { id: 'brand_1', image: '/estilos de fontes/estilo-de-fontes-1-01.png', font: 'Playfair Display', fonts: ['Playfair Display', 'Cormorant Garamond', 'Libre Baskerville'] },
+    { id: 'brand_2', image: '/estilos de fontes/estilo-de-fontes-1-02.png', font: 'Borel', fonts: ['Borel', 'LittleFriend', 'Cafigine'] },
+    { id: 'brand_3', image: '/estilos de fontes/estilo-de-fontes-1-03.png', font: 'Abril Fatface', fonts: ['Abril Fatface', 'Cinzel', 'Libre Baskerville'] },
+    { id: 'brand_4', image: '/estilos de fontes/estilo-de-fontes-1-04.png', font: 'Sacramento', fonts: ['Sacramento', 'Allura', 'Amelie', 'Vellary'] },
+    { id: 'brand_5', image: '/estilos de fontes/estilo-de-fontes-1-05.png', font: 'Julius Sans One', fonts: ['Julius Sans One', 'Josefin Sans', 'Raleway'] },
+    { id: 'brand_6', image: '/estilos de fontes/estilo-de-fontes-1-06.png', font: 'DM Sans', fonts: ['DM Sans', 'Quicksand', 'Nunito'] },
   ];
 
-  const toggleInspiracoes = (val, fontName) => {
+  const getVisualBrandOption = (optionId) => visualBrandOptions.find(option => option.id === optionId);
+
+  const getFontFromSimilarOptions = (fonts = [], estiloId) => {
+    if (!Array.isArray(fonts) || fonts.length === 0) return '';
+    const numericStyleId = Number(estiloId) || 0;
+    return fonts[numericStyleId % fonts.length] || fonts[0];
+  };
+
+  const getVisualBrandFont = (optionId, estiloId) => {
+    const option = getVisualBrandOption(optionId);
+    if (!option) return '';
+    return getFontFromSimilarOptions(option.fonts || [option.font], estiloId) || option.font;
+  };
+
+  const toggleInspiracoes = (option) => {
+    const fontName = getVisualBrandFont(option.id) || option.font;
+    selectedVisualBrandRef.current = { optionId: option.id, fontFamily: fontName };
+    const found = getFontPresetByFamily(fontName);
+    if (found) {
+      setEditData(prev => ({
+        ...prev,
+        ...buildFontEditProps(found)
+      }));
+    }
     setFormData(prev => ({
       ...prev,
-      inspiracoesVisual: val,
-      selectedBrandFont: fontName
+      inspiracoesVisual: option.id,
+      selectedBrandFont: fontName,
+      selectedBrandFontOptions: option.fonts || [option.font]
     }));
   };
 
@@ -1026,13 +1449,13 @@ export default function Home() {
                         <button 
                           key={s} 
                           onClick={() => toggleSentimento(s)} 
-                          style={{ 
+                          style={{
                             background: isSelected ? baseColor : '#F9F8F6',
                             color: isSelected ? (isDark ? '#fff' : 'var(--text-primary)') : 'var(--text-secondary)',
                             border: isSelected ? `2px solid ${isDark ? baseColor : 'var(--text-primary)'}` : '1px solid var(--border)', 
                             padding: '16px 12px', 
                             borderRadius: '12px', 
-                            cursor: 'pointer', 
+                            cursor: 'pointer',
                             transition: 'all 0.2s ease', 
                             fontSize: '0.82rem', 
                             fontWeight: isSelected ? 600 : 400,
@@ -1104,13 +1527,13 @@ export default function Home() {
                         <button 
                           key={s} 
                           onClick={() => toggleElemento(s)} 
-                          style={{ 
+                          style={{
                             background: isSelected ? baseColor : '#F9F8F6',
                             color: isSelected ? (isDark ? '#fff' : 'var(--text-primary)') : 'var(--text-secondary)',
                             border: isSelected ? `2px solid ${isDark ? baseColor : 'var(--text-primary)'}` : '1px solid var(--border)', 
                             padding: '16px 12px', 
                             borderRadius: '12px', 
-                            cursor: 'pointer', 
+                            cursor: 'pointer',
                             transition: 'all 0.2s ease', 
                             fontSize: '0.82rem', 
                             fontWeight: isSelected ? 600 : 400,
@@ -1148,8 +1571,8 @@ export default function Home() {
                   return (
                     <div 
                       key={opt.id} 
-                      onClick={() => toggleInspiracoes(opt.id, opt.font)}
-                      style={{ 
+                      onClick={() => toggleInspiracoes(opt)}
+                      style={{
                         border: `2px solid ${isSelected ? 'var(--accent-turquoise)' : 'var(--border)'}`, 
                         borderRadius: '12px', 
                         overflow: 'hidden', 
@@ -1199,13 +1622,13 @@ export default function Home() {
                       <button 
                         key={s} 
                         onClick={() => toggleNuncaPensar(s)} 
-                        style={{ 
+                        style={{
                           background: isSelected ? '#363532' : '#F9F8F6',
                           color: isSelected ? '#fff' : 'var(--text-secondary)',
                           border: isSelected ? '2px solid #363532' : '1px solid var(--border)', 
                           padding: '16px 12px', 
                           borderRadius: '12px', 
-                          cursor: 'pointer', 
+                          cursor: 'pointer',
                           transition: 'all 0.2s ease', 
                           fontSize: '0.82rem', 
                           fontWeight: isSelected ? 600 : 400,
@@ -1246,11 +1669,10 @@ export default function Home() {
               <div style={{ background: 'var(--bg-soft)', borderRadius: '16px', padding: '1.5rem', width: '100%', textAlign: 'left', marginBottom: '1.5rem' }}>
                  <p style={{ margin: '8px 0', fontSize: '1.1rem' }}>✅ <strong>{dictionary?.onboarding?.summary_audience || 'Público'}:</strong> {dictionary?.onboarding?.publicos_options?.[formData.publico] || formData.publico}</p>
                  <p style={{ margin: '8px 0', fontSize: '1.1rem' }}>✅ <strong>{dictionary?.onboarding?.summary_feelings || 'Sentimentos'}:</strong> {formData.sentimentos.length} selecionados</p>
-                 <p style={{ margin: '8px 0', fontSize: '1.1rem' }}>✅ <strong>{dictionary?.onboarding?.summary_style || 'Estilo'}:</strong> {dictionary?.onboarding?.primeiras_impressoes_options?.[formData.primeiraImpressao] || formData.primeiraImpressao}</p>
                  <p style={{ margin: '8px 0', fontSize: '1.1rem' }}>✅ <strong>{dictionary?.onboarding?.summary_goals || 'Objetivos'}:</strong> Alinhados</p>
               </div>
               <p style={{ fontSize: '1rem', color: 'var(--text-secondary)', marginBottom: '1.5rem' }}>{dictionary?.onboarding?.summary_text || 'Com base nisso, estou buscando as direções visuais que melhor se encaixam na sua marca.'}</p>
-              <button onClick={callMatchmaker} className="btn-primary" style={{ background: 'var(--accent-magenta)' }}>{dictionary?.onboarding?.step_7_8_btn || 'Gerando...'}</button>
+              <button onClick={callMatchmaker} className="btn-primary" style={{ background: 'var(--accent-magenta)' }}>{dictionary?.onboarding?.step_7_8_btn || 'Traduzir a essência da minha marca'}</button>
             </motion.div>
           )}
 
@@ -1264,7 +1686,7 @@ export default function Home() {
                 transition={{ duration: 3, repeat: Infinity, ease: 'linear' }}
                 style={{ fontSize: '3.5rem', marginBottom: '1.5rem' }}
               >✦</motion.div>
-              <h2 style={{ fontSize: '1.8rem', marginBottom: '0.8rem', color: 'var(--accent-turquoise)' }}>{dictionary?.postmatch?.step_8_title || 'Traduzindo sua essência em direção visual...'}</h2>
+              <h2 style={{ fontSize: '1.8rem', marginBottom: '0.8rem', color: 'var(--accent-turquoise)' }}>{dictionary?.postmatch?.step_8_title || 'Interpretando sua marca...'}</h2>
               <p style={{ fontSize: '1rem', color: 'var(--text-secondary)', lineHeight: 1.6, maxWidth: '320px' }}>{dictionary?.postmatch?.step_8_subtitle || 'Nosso motor criativo está analisando o seu perfil para encontrar a combinação perfeita para você.'}</p>
             </motion.div>
           )}
@@ -1291,11 +1713,185 @@ export default function Home() {
                 );
               })()}
               
-              <div style={{ background: '#ffffff', padding: '1.5rem', borderRadius: '16px', marginBottom: '2rem', border: 'none', boxShadow: '0 4px 15px rgba(0,0,0,0.03)' }}>
-                <p className="mobile-font-sm" style={{ fontSize: '1.05rem', color: 'var(--text-primary)', lineHeight: 1.6, fontWeight: 400, letterSpacing: '0.2px' }}>
-                  &quot;{resultadoFinal.mensagem}&quot;
+              {!isCreativeDirectorLoading && !resultadoFinal.creativeDirector && (
+                <div style={{ background: '#ffffff', padding: '1.5rem', borderRadius: '16px', marginBottom: '2rem', border: 'none', boxShadow: '0 4px 15px rgba(0,0,0,0.03)' }}>
+                  <p className="mobile-font-sm" style={{ fontSize: '1.05rem', color: 'var(--text-primary)', lineHeight: 1.6, fontWeight: 400, letterSpacing: '0.2px' }}>
+                    &quot;{resultadoFinal.mensagem}&quot;
+                  </p>
+                </div>
+              )}
+
+              {isCreativeDirectorLoading && (
+                <p style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', marginTop: '-1rem', marginBottom: '1.25rem' }}>
+                  Preparando seu diagnóstico criativo...
                 </p>
-              </div>
+              )}
+
+              {resultadoFinal.creativeDirector && (
+                <div style={{ width: '100%', maxWidth: '620px', background: '#ffffff', padding: '1.5rem', borderRadius: '18px', marginBottom: '2rem', boxShadow: '0 4px 15px rgba(0,0,0,0.03)', textAlign: 'left' }}>
+                  <p style={{ fontSize: '0.78rem', color: 'var(--accent-magenta)', textTransform: 'uppercase', letterSpacing: '1.8px', fontWeight: 700, marginBottom: '0.75rem', textAlign: 'center' }}>Diagnóstico Criativo</p>
+                  {isDifferentLanguage(resultadoFinal.creativeDirector) && (
+                    <div style={{ textAlign: 'center', marginBottom: '0.85rem' }}>
+                      <button type="button" onClick={regenerateCreativeDirector} disabled={isCreativeDirectorLoading || hasAiUsage('diagnostic_regeneration')} className="btn-secondary" style={{ padding: '0.65rem 0.9rem', fontSize: '0.82rem', opacity: isCreativeDirectorLoading || hasAiUsage('diagnostic_regeneration') ? 0.65 : 1 }}>
+                        {isCreativeDirectorLoading ? refineCopy.regenerating : refineCopy.regenerate}
+                      </button>
+                    </div>
+                  )}
+                  <p style={{ fontSize: '0.98rem', color: 'var(--text-primary)', lineHeight: 1.6, marginBottom: '1.2rem', textAlign: 'center' }}>{resultadoFinal.creativeDirector.diagnostico}</p>
+
+                  <div style={{ display: 'grid', gap: '0.9rem' }}>
+                    <div>
+                      <strong style={{ color: 'var(--text-primary)', fontSize: '0.9rem' }}>Personalidade da marca</strong>
+                      <p style={{ color: 'var(--text-secondary)', fontSize: '0.9rem', lineHeight: 1.5, marginTop: '0.25rem' }}>{resultadoFinal.creativeDirector.personalidade.join(' • ')}</p>
+                    </div>
+                    <div>
+                      <strong style={{ color: 'var(--text-primary)', fontSize: '0.9rem' }}>O que o público precisa sentir</strong>
+                      <ul style={{ color: 'var(--text-secondary)', fontSize: '0.9rem', lineHeight: 1.5, marginTop: '0.35rem', paddingLeft: '1.1rem' }}>
+                        {resultadoFinal.creativeDirector.expectativasPublico.map((item, index) => <li key={`expectativa-${index}`}>{item}</li>)}
+                      </ul>
+                    </div>
+                    <div>
+                      <strong style={{ color: 'var(--text-primary)', fontSize: '0.9rem' }}>Objetivos emocionais</strong>
+                      <ul style={{ color: 'var(--text-secondary)', fontSize: '0.9rem', lineHeight: 1.5, marginTop: '0.35rem', paddingLeft: '1.1rem' }}>
+                        {resultadoFinal.creativeDirector.objetivosEmocionais.map((item, index) => <li key={`objetivo-${index}`}>{item}</li>)}
+                      </ul>
+                    </div>
+                    <div>
+                      <strong style={{ color: 'var(--text-primary)', fontSize: '0.9rem' }}>Por que essa direção combina</strong>
+                      <p style={{ color: 'var(--text-secondary)', fontSize: '0.9rem', lineHeight: 1.5, marginTop: '0.25rem' }}>{resultadoFinal.creativeDirector.porqueEsseEstilo}</p>
+                      <p style={{ color: 'var(--text-secondary)', fontSize: '0.9rem', lineHeight: 1.5, marginTop: '0.35rem' }}>{resultadoFinal.creativeDirector.direcaoVisual}</p>
+                    </div>
+                    <div>
+                      <strong style={{ color: 'var(--text-primary)', fontSize: '0.9rem' }}>Riscos criativos a evitar</strong>
+                      <ul style={{ color: 'var(--text-secondary)', fontSize: '0.9rem', lineHeight: 1.5, marginTop: '0.35rem', paddingLeft: '1.1rem' }}>
+                        {resultadoFinal.creativeDirector.riscosEvitar.map((item, index) => <li key={`risco-${index}`}>{item}</li>)}
+                      </ul>
+                    </div>
+                  </div>
+
+                  <div style={{ marginTop: '1.25rem', paddingTop: '1rem', borderTop: '1px solid var(--border)', textAlign: 'center' }}>
+                    <button
+                      type="button"
+                      onClick={startCreativeRefinement}
+                      disabled={isRefinementLoading}
+                      className="btn-secondary"
+                      style={{ padding: '0.85rem 1.2rem', fontSize: '0.9rem', opacity: isRefinementLoading ? 0.65 : 1 }}
+                    >
+                      {refineCopy.button}
+                    </button>
+                  </div>
+
+                  {showRefinement && (
+                    <div style={{ marginTop: '1rem', background: 'var(--bg-color)', borderRadius: '16px', padding: '1rem', border: '1px solid var(--border)' }}>
+                      {isRefinementLoading && (
+                        <p style={{ color: 'var(--text-secondary)', fontSize: '0.85rem', textAlign: 'center', margin: 0 }}>
+                          {refinementStep === 'question' ? refineCopy.loadingQuestion : refineCopy.loadingResolution}
+                        </p>
+                      )}
+
+                      {!isRefinementLoading && refinementStep === 'answer' && refinementQuestion && (
+                        <div>
+                          {refinementQuestion.tensaoIdentificada && (
+                            <div style={{ marginBottom: '0.85rem' }}>
+                              <strong style={{ color: 'var(--text-primary)', fontSize: '0.88rem' }}>{refineCopy.tension}</strong>
+                              <p style={{ color: 'var(--text-secondary)', fontSize: '0.88rem', lineHeight: 1.5, marginTop: '0.25rem' }}>{refinementQuestion.tensaoIdentificada}</p>
+                            </div>
+                          )}
+                          <div style={{ marginBottom: '0.85rem' }}>
+                            <strong style={{ color: 'var(--text-primary)', fontSize: '0.88rem' }}>{refineCopy.question}</strong>
+                            <p style={{ color: 'var(--text-primary)', fontSize: '0.95rem', lineHeight: 1.5, marginTop: '0.25rem' }}>{refinementQuestion.pergunta}</p>
+                            <p style={{ color: 'var(--text-secondary)', fontSize: '0.82rem', lineHeight: 1.5, marginTop: '0.35rem' }}>{refinementQuestion.porquePerguntar}</p>
+                            {isDifferentLanguage(refinementQuestion) && (
+                              <button type="button" onClick={startCreativeRefinement} disabled={isRefinementLoading || hasAiUsage('refinement_question')} className="btn-secondary" style={{ marginTop: '0.65rem', padding: '0.65rem 0.9rem', fontSize: '0.82rem', opacity: isRefinementLoading || hasAiUsage('refinement_question') ? 0.65 : 1 }}>
+                                {refineCopy.regenerate}
+                              </button>
+                            )}
+                          </div>
+                          <textarea
+                            value={refinementAnswer}
+                            onChange={(event) => setRefinementAnswer(event.target.value)}
+                            placeholder={refineCopy.placeholder}
+                            rows={3}
+                            style={{ width: '100%', border: '1px solid var(--border)', borderRadius: '12px', padding: '0.85rem', resize: 'vertical', fontFamily: 'inherit', color: 'var(--text-primary)' }}
+                          />
+                          <div style={{ display: 'flex', gap: '0.75rem', marginTop: '0.85rem', flexWrap: 'wrap', justifyContent: 'center' }}>
+                            <button
+                              type="button"
+                              onClick={submitCreativeRefinement}
+                              disabled={!refinementAnswer.trim() || isRefinementLoading}
+                              className="btn-primary"
+                              style={{ padding: '0.8rem 1rem', opacity: refinementAnswer.trim() && !isRefinementLoading ? 1 : 0.55 }}
+                            >
+                              {refineCopy.analyze}
+                            </button>
+                            <button type="button" onClick={keepCurrentDirection} className="btn-secondary" style={{ padding: '0.8rem 1rem' }}>
+                              {refineCopy.keepCurrent}
+                            </button>
+                          </div>
+                        </div>
+                      )}
+
+                      {!isRefinementLoading && refinementStep === 'result' && resultadoFinal.creativeDirector.refinement && (
+                        <div style={{ display: 'grid', gap: '0.75rem' }}>
+                          <div style={{ background: '#fff', borderRadius: '12px', padding: '0.85rem' }}>
+                            <strong style={{ color: 'var(--text-primary)', fontSize: '0.88rem' }}>{refineCopy.decision}</strong>
+                            <p style={{ color: 'var(--text-secondary)', fontSize: '0.88rem', lineHeight: 1.5, marginTop: '0.25rem' }}>{resultadoFinal.creativeDirector.refinement.resumoDecisao}</p>
+                          </div>
+                          <div style={{ background: '#fff', borderRadius: '12px', padding: '0.85rem' }}>
+                            <strong style={{ color: 'var(--text-primary)', fontSize: '0.88rem' }}>{refineCopy.direction}</strong>
+                            <p style={{ color: 'var(--text-secondary)', fontSize: '0.88rem', lineHeight: 1.5, marginTop: '0.25rem' }}>{resultadoFinal.creativeDirector.refinement.direcaoRefinada}</p>
+                            {isDifferentLanguage(resultadoFinal.creativeDirector.refinement) && (
+                              <button type="button" onClick={regenerateRefinementResolution} disabled={isRefinementLoading || hasAiUsage('refinement_resolution_regeneration')} className="btn-secondary" style={{ marginTop: '0.65rem', padding: '0.65rem 0.9rem', fontSize: '0.82rem', opacity: isRefinementLoading || hasAiUsage('refinement_resolution_regeneration') ? 0.65 : 1 }}>
+                                {isRefinementLoading ? refineCopy.regenerating : refineCopy.regenerate}
+                              </button>
+                            )}
+                          </div>
+                          <div style={{ display: 'grid', gap: '0.65rem' }}>
+                            {[
+                              [refineCopy.palette, resultadoFinal.creativeDirector.refinement.impactoPaleta],
+                              [refineCopy.typography, resultadoFinal.creativeDirector.refinement.impactoTipografia],
+                              [refineCopy.composition, resultadoFinal.creativeDirector.refinement.impactoComposicao],
+                              [refineCopy.pattern, resultadoFinal.creativeDirector.refinement.impactoEstampa]
+                            ].map(([label, value]) => (
+                              <div key={label} style={{ background: '#fff', borderRadius: '12px', padding: '0.85rem' }}>
+                                <strong style={{ color: 'var(--text-primary)', fontSize: '0.86rem' }}>{label}</strong>
+                                <p style={{ color: 'var(--text-secondary)', fontSize: '0.86rem', lineHeight: 1.5, marginTop: '0.25rem' }}>{value}</p>
+                              </div>
+                            ))}
+                          </div>
+                          {resultadoFinal.creativeDirector.refinement.estiloAlternativoId && (
+                            <div style={{ background: '#fff', borderRadius: '12px', padding: '0.85rem', border: '1px solid var(--accent-magenta)' }}>
+                              <strong style={{ color: 'var(--text-primary)', fontSize: '0.88rem' }}>{refineCopy.altStyle}</strong>
+                              <p style={{ color: 'var(--text-secondary)', fontSize: '0.88rem', lineHeight: 1.5, marginTop: '0.25rem' }}>
+                                {resultadoFinal.creativeDirector.refinement.estiloAlternativoNome}. {refineCopy.altNote}
+                              </p>
+                            </div>
+                          )}
+                          <button type="button" onClick={keepCurrentDirection} className="btn-secondary" style={{ padding: '0.8rem 1rem', justifySelf: 'center' }}>
+                            {refineCopy.keepCurrent}
+                          </button>
+                        </div>
+                      )}
+
+                      {!isRefinementLoading && refinementStep === 'unavailable' && (
+                        <div style={{ textAlign: 'center' }}>
+                          <p style={{ color: 'var(--text-secondary)', fontSize: '0.88rem', lineHeight: 1.5 }}>
+                            {refineCopy.unavailable}
+                          </p>
+                          <div style={{ display: 'flex', gap: '0.75rem', marginTop: '0.75rem', justifyContent: 'center', flexWrap: 'wrap' }}>
+                            <button type="button" onClick={startCreativeRefinement} className="btn-primary" style={{ padding: '0.8rem 1rem' }}>
+                              {refineCopy.retry}
+                            </button>
+                            <button type="button" onClick={keepCurrentDirection} className="btn-secondary" style={{ padding: '0.8rem 1rem' }}>
+                              {refineCopy.close}
+                            </button>
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  )}
+                </div>
+              )}
 
               <button onClick={fetchVariacoes} className="btn-primary" style={{ background: 'var(--accent-magenta)', color: 'var(--text-primary)', boxShadow: 'none' }}>{dictionary?.postmatch?.step_9_btn_customize || 'Personalizar minha Identidade'}</button>
 
@@ -1408,9 +2004,9 @@ export default function Home() {
                           const baseSize = isPrimary ? 1.3 : 1.15;
                           const finalSize = `${(baseSize * sizeBoost).toFixed(2)}rem`;
                           return (
-                            <div key={t.id} onClick={() => selectTipoItem(t.id)} style={{ 
+                            <div key={t.id} onClick={() => selectTipoItem(t.id)} style={{
                               border: selectedTipo === t.id ? '3px solid var(--accent-turquoise)' : '1px solid var(--border)', 
-                              borderRadius: '12px', padding: '15px 10px', cursor: 'pointer', 
+                              borderRadius: '12px', padding: '15px 10px', cursor: 'pointer',
                               display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
                               minHeight: '110px', background: selectedTipo === t.id ? 'rgba(60,204,191,0.05)' : '#fafafa',
                               transition: 'all 0.2s ease',
@@ -1434,82 +2030,43 @@ export default function Home() {
                      <motion.div key="cpaleta" variants={slideVariants} initial="initial" animate="animate" exit="exit" transition={{ duration: 0.3 }} style={{ position: 'absolute', width: '100%', height: '100%', display: 'grid', gridTemplateColumns: 'minmax(0, 1fr) minmax(0, 1fr)', gap: '12px', overflowY: 'auto', paddingBottom: '2rem' }}>
                         {paletas.map((p, pi) => {
                           const cores = p.paleta_hex || p.cores_hex || [];
-                          const blobShapes = [
-                            '60% 40% 55% 45% / 50% 60% 40% 50%',
-                            '45% 55% 50% 50% / 55% 45% 55% 45%',
-                            '50% 50% 40% 60% / 45% 55% 50% 50%',
-                            '55% 45% 60% 40% / 50% 50% 45% 55%',
-                            '40% 60% 50% 50% / 60% 40% 55% 45%',
-                          ];
-                          const row1 = cores.slice(0, 3);
-                          const row2 = cores.slice(3, 5);
+                          const isSelected = selectedPaleta === p.id;
+                          const isAiPalette = p.source === 'openai' || p.origem === 'OPENAI' || p.isAiGenerated;
+                          const paletteLabel = isAiPalette
+                            ? (dictionary?.postmatch?.creative_palette_suggested || 'Paleta sugerida {count}').replace('{count}', pi + 1)
+                            : (dictionary?.postmatch?.creative_palette_curated || 'Paleta curada');
                           return (
-                            <div key={p.id} onClick={() => { setSelectedPaleta(p.id); setTimeout(() => setCustomStep('cor'), 300); }} style={{ 
-                              border: selectedPaleta === p.id ? '4px solid var(--accent-magenta)' : '1px solid var(--border)', 
-                              borderRadius: '12px', padding: '0', cursor: 'pointer', 
+                            <div key={p.id} onClick={() => { setSelectedPaleta(p.id); setTimeout(() => setCustomStep('cor'), 300); }} style={{
+                              border: isSelected ? '2px solid var(--accent-magenta)' : '1px solid rgba(0,0,0,0.06)',
+                              borderRadius: '18px', padding: '0', cursor: 'pointer',
                               display: 'flex', flexDirection: 'column', alignItems: 'stretch', justifyContent: 'stretch',
                               background: '#fff',
-                              transition: 'all 0.2s ease',
-                              boxShadow: selectedPaleta === p.id ? '0 8px 25px rgba(0,0,0,0.1)' : '0 4px 12px rgba(0,0,0,0.03)',
+                              transition: 'transform 0.22s ease, box-shadow 0.22s ease, border-color 0.22s ease',
+                              boxShadow: isSelected ? '0 16px 34px rgba(0,0,0,0.12)' : '0 8px 24px rgba(0,0,0,0.05)',
                               overflow: 'hidden',
-                              transform: selectedPaleta === p.id ? 'scale(1.02)' : 'scale(1)',
-                              minHeight: '140px'
+                              transform: isSelected ? 'translateY(-2px) scale(1.015)' : 'translateY(0)',
+                              minHeight: '158px',
+                              outline: isSelected ? '3px solid rgba(217, 74, 138, 0.12)' : 'none'
                             }}>
                               {cores.length > 0 ? (
-                                <div style={{ display: 'flex', flexDirection: 'column', flex: 1, width: '100%', height: '100%' }}>
-                                  
-                                  {/* Cores Verticais - Pantone Style */}
-                                  <div style={{ display: 'flex', width: '100%', flex: 1 }}>
+                                <div title={cores.map(c => c.toUpperCase()).join(' · ')} style={{ display: 'flex', flexDirection: 'column', flex: 1, width: '100%', height: '100%' }}>
+                                  <div style={{ display: 'grid', gridTemplateColumns: `repeat(${cores.length}, minmax(0, 1fr))`, width: '100%', flex: 1, minHeight: '128px' }}>
                                     {cores.map((hex, ci) => (
-                                      <div key={ci} style={{
-                                        flex: 1,
+                                      <div key={`${hex}-${ci}`} style={{
                                         backgroundColor: hex,
-                                        height: '100px'
+                                        minHeight: '128px'
                                       }} />
                                     ))}
                                   </div>
-                                  
-                                  {/* Base Branca / Label Pantone */}
-                                  <div style={{ padding: '12px 14px', background: '#fff', display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
-                                    <p style={{ fontSize: '0.65rem', fontWeight: 800, letterSpacing: '1.5px', textTransform: 'uppercase', color: 'var(--text-primary)', marginBottom: '4px' }}>
-                                      {p.nome_variacao || `Paleta ${pi + 1}`}
+                                  <div style={{ padding: '8px 10px', background: 'rgba(255,255,255,0.92)', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '8px' }}>
+                                    <p style={{ fontSize: '0.58rem', fontWeight: 800, letterSpacing: '1.4px', textTransform: 'uppercase', color: 'var(--text-secondary)', margin: 0 }}>
+                                      {paletteLabel}
                                     </p>
-                                    <div style={{ display: 'flex', gap: '4px', fontSize: '0.45rem', color: 'var(--text-secondary)', letterSpacing: '0.5px' }}>
-                                      {cores.map(c => <span key={c}>{c.toUpperCase()}</span>)}
-                                    </div>
+                                    {isSelected && <span style={{ width: '7px', height: '7px', borderRadius: '999px', background: 'var(--accent-magenta)', flexShrink: 0 }} />}
                                   </div>
-
-                                  {/* Versão Bolinhas Orgânicas (Antiga - Salva para eventual rollback)
-                                  <div style={{ display: 'flex', gap: '6px', justifyContent: 'center' }}>
-                                    {row1.map((hex, ci) => (
-                                      <div key={ci} style={{
-                                        width: ci === 0 ? '34px' : '28px',
-                                        height: ci === 0 ? '34px' : '28px',
-                                        backgroundColor: hex,
-                                        borderRadius: blobShapes[(ci + pi) % blobShapes.length],
-                                        boxShadow: `0 3px 10px ${hex}35`,
-                                        flexShrink: 0
-                                      }} />
-                                    ))}
-                                  </div>
-                                  {row2.length > 0 && (
-                                    <div style={{ display: 'flex', gap: '6px', justifyContent: 'center' }}>
-                                      {row2.map((hex, ci) => (
-                                        <div key={ci} style={{
-                                          width: '28px',
-                                          height: '28px',
-                                          backgroundColor: hex,
-                                          borderRadius: blobShapes[(ci + 3 + pi) % blobShapes.length],
-                                          boxShadow: `0 3px 10px ${hex}35`,
-                                        }} />
-                                      ))}
-                                    </div>
-                                  )}
-                                  */}
-
                                 </div>
                               ) : (
-                                <img src={`${p.image_url}?t=${Date.now()}`} alt={p.nome_variacao} style={{ width: '100%', height: '100px', objectFit: 'cover', borderRadius: '8px' }} />
+                                <img src={`${p.image_url}?t=${Date.now()}`} alt={p.nome_variacao} style={{ width: '100%', height: '158px', objectFit: 'cover' }} />
                               )}
                             </div>
                           );
@@ -1654,11 +2211,26 @@ export default function Home() {
               </div>
 
               <div style={{ flex: 1, overflowY: 'auto', padding: '24px 20px', display: 'flex', flexDirection: 'column', gap: '12px' }}>
-                <p style={{ fontSize: '0.72rem', fontWeight: 700, letterSpacing: '2px', textTransform: 'uppercase', color: 'var(--text-secondary)', marginBottom: '4px' }}>
-                  {dictionary?.postmatch?.step_115_suggestions || 'Sugestões para o estilo'} {resultadoFinal?.estiloNome}
-                </p>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '10px', marginBottom: '4px' }}>
+                  <p style={{ fontSize: '0.72rem', fontWeight: 700, letterSpacing: '2px', textTransform: 'uppercase', color: 'var(--text-secondary)' }}>
+                    {dictionary?.postmatch?.step_115_suggestions || 'Sugestões para o estilo'} {resultadoFinal?.estiloNome}
+                  </p>
+                  {(resultadoFinal?.creativeDirector?.taglineSuggestions || resultadoFinal?.taglineSuggestions)?.language && (resultadoFinal?.creativeDirector?.taglineSuggestions || resultadoFinal?.taglineSuggestions).language !== lang && (
+                    <button type="button" onClick={generateCreativeTaglines} disabled={isTaglineLoading || hasAiUsage('taglines')} className="btn-secondary" style={{ padding: '0.45rem 0.7rem', fontSize: '0.72rem', whiteSpace: 'nowrap', opacity: isTaglineLoading || hasAiUsage('taglines') ? 0.6 : 1 }}>
+                      {isTaglineLoading
+                        ? (dictionary?.postmatch?.step_115_regenerating || 'Gerando novamente em português...')
+                        : (dictionary?.postmatch?.step_115_regenerate || 'Gerar novamente em português')}
+                    </button>
+                  )}
+                </div>
 
-                {getTaglineSuggestions().map((opt) => (
+                {isTaglineLoading && (
+                  <p style={{ fontSize: '0.78rem', color: 'var(--text-secondary)', lineHeight: 1.4, marginBottom: '2px' }}>
+                    {dictionary?.postmatch?.step_115_loading || 'Gerando sugestões personalizadas...'}
+                  </p>
+                )}
+
+                {getVisibleTaglineSuggestions().map((opt) => (
                   <button
                     key={opt}
                     onClick={() => { setSelectedTagline(opt); setCustomTagline(''); }}

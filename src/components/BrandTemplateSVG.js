@@ -15,7 +15,23 @@ const BrandTemplateSVG = ({ data = {}, color, side = 'frente', hideBackground = 
   // Fontes display com glifos visivelmente maiores — reduz font-size no texto circular do selo
   const CIRCLE_FONT_OVERRIDES = { 'LittleFriend': 16, 'GoldenBlast': 18, 'Cafigine': 18 };
   const isSlogan = safeData?.submarcaTextType === 'slogan';
-  const circleFontSize = isSlogan ? 15 : (CIRCLE_FONT_OVERRIDES[brandFont] ?? 26);
+  const circularTextSource = isSlogan ? (tagline || 'Slogan da Marca') : (marca || 'Sua Marca');
+  const getCircleTextConfig = (text) => {
+    const cleanText = (text || '').trim();
+    const charCount = Array.from(cleanText).length;
+    const wordCount = cleanText.split(/\s+/).filter(Boolean).length;
+    const baseConfig = isSlogan
+      ? { fontSize: 15, svgLetterSpacing: 3, cssLetterSpacing: 0.03, minReps: 1, separator: '\u00A0•\u00A0' }
+      : charCount <= 12 && wordCount <= 2
+        ? { fontSize: 26, svgLetterSpacing: 7, cssLetterSpacing: 0.05, minReps: 2, separator: '\u00A0\u00A0\u00A0•\u00A0\u00A0\u00A0' }
+        : charCount <= 22 && wordCount <= 3
+          ? { fontSize: 21, svgLetterSpacing: 4, cssLetterSpacing: 0.035, minReps: 1, separator: '\u00A0\u00A0•\u00A0\u00A0' }
+          : { fontSize: 16, svgLetterSpacing: 2, cssLetterSpacing: 0.02, minReps: 1, separator: '\u00A0•\u00A0' };
+    const override = CIRCLE_FONT_OVERRIDES[brandFont];
+    return override ? { ...baseConfig, fontSize: Math.min(baseConfig.fontSize, override) } : baseConfig;
+  };
+  const circleTextConfig = getCircleTextConfig(circularTextSource);
+  const circleFontSize = circleTextConfig.fontSize;
 
   // O viewBox original é 0 0 1502.53 1082.02
   // Frente e Verso estão em posições diferentes no canvas do Illustrator
@@ -48,7 +64,7 @@ const BrandTemplateSVG = ({ data = {}, color, side = 'frente', hideBackground = 
           .st6 { fill: none; stroke: ${activeColor}; stroke-width: 45px; }
           .st7 { fill: ${activeColor}; }
           .st-selo-bg { fill: ${activeColor}; }
-          .st-selo-text { fill: ${textColor}; font-family: 'Montserrat', sans-serif; font-size: ${circleFontSize}px; font-weight: 700; letter-spacing: 0.05em; }
+          .st-selo-text { fill: ${textColor}; font-family: 'Montserrat', sans-serif; font-size: ${circleFontSize}px; font-weight: 700; letter-spacing: ${circleTextConfig.cssLetterSpacing}em; }
           .st-contact { fill: #333; font-family: 'Montserrat', sans-serif; font-size: 26px; font-weight: 600; }
         `}</style>
         <path id="circlePath" d="M1165.99,316.18c0,50.61-40.39,91.64-90.21,91.64s-90.21-41.03-90.21-91.64,40.39-91.64,90.21-91.64,90.21,41.03,90.21,91.64Z"/>
@@ -131,16 +147,14 @@ const BrandTemplateSVG = ({ data = {}, color, side = 'frente', hideBackground = 
           {(() => {
             const circumference = 2 * Math.PI * 91.64;
             const toTitleCase = (str) => str.replace(/\w\S*/g, w => w.charAt(0).toUpperCase() + w.slice(1).toLowerCase());
-            const circularText = safeData.submarcaTextType === 'slogan' ? (tagline || 'Slogan da Marca') : (marca || 'Sua Marca');
-            const nameWithSep = toTitleCase(circularText) + '\u00A0\u00A0\u00A0•\u00A0\u00A0\u00A0';
+            const nameWithSep = toTitleCase(circularTextSource) + circleTextConfig.separator;
             
             // Cálculo dinâmico e robusto da largura do caractere + espaçamento
-            const charWidth = circleFontSize * 0.55 + 5; 
-            const minReps = data.submarcaTextType === 'slogan' ? 1 : 2;
-            const reps = Math.max(minReps, Math.round(circumference / (nameWithSep.length * charWidth)));
+            const charWidth = circleFontSize * 0.55 + circleTextConfig.svgLetterSpacing;
+            const reps = Math.max(circleTextConfig.minReps, Math.round(circumference / (nameWithSep.length * charWidth)));
             const fullText = nameWithSep.repeat(reps);
             return (
-              <text letterSpacing="7" xmlSpace="preserve">
+              <text letterSpacing={circleTextConfig.svgLetterSpacing} xmlSpace="preserve">
                 <textPath xlinkHref="#circlePath" startOffset="0%" textLength={circumference} lengthAdjust="spacing">
                   <tspan className="st-selo-text">{fullText}</tspan>
                 </textPath>
