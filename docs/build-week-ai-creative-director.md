@@ -36,3 +36,9 @@ Nesta etapa, nenhuma recomendação alternativa é aplicada automaticamente. O e
 A etapa existente **Qual a sua tagline?** também passou a usar a AI Creative Director sem criar um fluxo paralelo. A rota server-side `/api/creative-director/taglines` recebe o briefing, o resultado atual, o diagnóstico criativo, o refinamento quando existir e o idioma atual para gerar 3 sugestões distintas: emocional, estratégica e direta.
 
 As sugestões respeitam limites adaptativos calculados pelo tamanho do nome público da marca, nunca pelo nome pessoal/de contato. O servidor valida idioma, quantidade, duplicidade, tamanho máximo, ausência do nome pessoal e ausência de repetição desnecessária do nome da marca. Se a OpenAI falhar ou a resposta não passar na validação, a tela mantém as sugestões curadas já existentes como fallback e preserva o campo manual “Ou escreva a sua”.
+
+## Consolidação antes do deploy
+
+Antes do deploy, o fluxo pré-pagamento foi revisado para reduzir redundância e controlar chamadas de IA. A tela “O que descobri sobre sua marca” mantém apenas informações já disponíveis no briefing e não exibe mais um campo de estilo antes do match do Gemini. Os conteúdos gerados por IA passam a carregar metadados de `language` e `generatedAt` quando salvos no estado do projeto.
+
+As chamadas continuam sem regeneração automática ao trocar idioma: o conteúdo antigo permanece visível e a usuária pode solicitar uma nova versão manualmente no idioma atual. Para reduzir custo e double-click antes do pagamento, o front reutiliza conteúdos já salvos e marca tentativas por sessão/projeto, enquanto as rotas da AI Creative Director usam uma trava server-side simples por `requestKey` para bloquear chamadas simultâneas ou repetidas em janelas curtas, sem criar autenticação, tabelas ou banco novo.

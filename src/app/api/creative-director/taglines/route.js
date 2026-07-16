@@ -1,3 +1,5 @@
+import { acquireCreativeDirectorRequest } from '../requestGuards.js';
+
 const TAGLINE_TYPES = ['emotional', 'strategic', 'direct'];
 
 const TAGLINE_SCHEMA = {
@@ -186,7 +188,12 @@ function buildPrompt({ formData, resultadoFinal, idioma, maxWords, maxCharacters
   });
 }
 
-async function callOpenAI({ apiKey, model, prompt, idioma }) {
+async function callOpenAI({ apiKey, model, prompt, idioma, requestKey }) {
+  const requestGuard = acquireCreativeDirectorRequest(requestKey);
+  if (!requestGuard.ok) {
+    return { errorResponse: Response.json({ error: requestGuard.reason }, { status: 429 }) };
+  }
+
   const openAIResponse = await fetch('https://api.openai.com/v1/responses', {
     method: 'POST',
     headers: {
@@ -227,6 +234,7 @@ async function callOpenAI({ apiKey, model, prompt, idioma }) {
       status: openAIResponse.status,
       error
     });
+    requestGuard.release({ completed: true });
     return { errorResponse: Response.json({ error: 'creative_director_taglines_openai_error' }, { status: 502 }) };
   }
 
@@ -235,16 +243,20 @@ async function callOpenAI({ apiKey, model, prompt, idioma }) {
 
   if (!outputText) {
     console.error('OpenAI Creative Director taglines missing output_text:', { status: openAIResponse.status });
+    requestGuard.release({ completed: true });
     return { errorResponse: Response.json({ error: 'missing_creative_director_taglines_output' }, { status: 502 }) };
   }
 
   try {
-    return { payload: JSON.parse(outputText) };
+    const payload = JSON.parse(outputText);
+    requestGuard.release({ completed: true });
+    return { payload };
   } catch (error) {
     console.error('OpenAI Creative Director taglines returned invalid JSON:', {
       status: openAIResponse.status,
       error: error.message
     });
+    requestGuard.release({ completed: true });
     return { errorResponse: Response.json({ error: 'invalid_creative_director_taglines_json' }, { status: 502 }) };
   }
 }
@@ -262,6 +274,7 @@ export async function POST(req) {
     const formData = body.formData || {};
     const resultadoFinal = body.resultadoFinal || {};
     const idioma = cleanText(body.idioma || body.lang || 'pt-BR');
+    const requestKey = cleanText(body.requestKey);
     const brandName = cleanText(formData.marca);
     const contactName = cleanText(formData.nome);
 
@@ -272,7 +285,7 @@ export async function POST(req) {
     const { maxWords, maxCharacters } = calculateLimits(brandName);
     const validationContext = { idioma, brandName, contactName, maxWords, maxCharacters };
     const firstPrompt = buildPrompt({ formData, resultadoFinal, idioma, maxWords, maxCharacters });
-    const firstAttempt = await callOpenAI({ apiKey, model, prompt: firstPrompt, idioma });
+    const firstAttempt = await callOpenAI({ apiKey, model, prompt: firstPrompt, idioma, requestKey });
 
     if (firstAttempt.errorResponse) return firstAttempt.errorResponse;
 
@@ -293,7 +306,7 @@ export async function POST(req) {
         'A resposta anterior não passou na validação: pode haver idioma incorreto, limite excedido, repetição, uso do nome da marca ou tipo ausente.'
       ]
     });
-    const repairAttempt = await callOpenAI({ apiKey, model, prompt: repairPrompt, idioma });
+    const repairAttempt = await callOpenAI({ apiKey, model, prompt: repairPrompt, idioma, requestKey: `${requestKey}:repair` });
 
     if (repairAttempt.errorResponse) return repairAttempt.errorResponse;
 

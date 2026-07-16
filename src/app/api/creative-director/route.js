@@ -1,3 +1,5 @@
+import { acquireCreativeDirectorRequest } from './requestGuards.js';
+
 const REQUIRED_ARRAY_FIELDS = ['personalidade', 'objetivosEmocionais', 'expectativasPublico', 'riscosEvitar'];
 const REQUIRED_STRING_FIELDS = ['diagnostico', 'porqueEsseEstilo', 'direcaoVisual'];
 
@@ -86,6 +88,7 @@ function buildBriefing(formData = {}) {
 }
 
 export async function POST(req) {
+  let requestGuard;
   try {
     const apiKey = process.env.OPENAI_API_KEY ? process.env.OPENAI_API_KEY.replace(/["']/g, '') : '';
     const model = process.env.OPENAI_MODEL ? process.env.OPENAI_MODEL.trim() : '';
@@ -110,6 +113,11 @@ export async function POST(req) {
 
     if (!estiloId || !estiloNome || !mensagemGemini) {
       return Response.json({ error: 'invalid_creative_director_payload' }, { status: 400 });
+    }
+
+    requestGuard = acquireCreativeDirectorRequest(cleanText(body.requestKey));
+    if (!requestGuard.ok) {
+      return Response.json({ error: requestGuard.reason }, { status: 429 });
     }
 
     const openAIResponse = await fetch('https://api.openai.com/v1/responses', {
@@ -171,6 +179,7 @@ export async function POST(req) {
         error
       });
 
+      requestGuard.release({ completed: true });
       return Response.json({ error: 'creative_director_openai_error' }, { status: 502 });
     }
 
@@ -182,6 +191,7 @@ export async function POST(req) {
         status: openAIResponse.status
       });
 
+      requestGuard.release({ completed: true });
       return Response.json({ error: 'missing_creative_director_output' }, { status: 502 });
     }
 
@@ -194,6 +204,7 @@ export async function POST(req) {
         error: error.message
       });
 
+      requestGuard.release({ completed: true });
       return Response.json({ error: 'invalid_creative_director_json' }, { status: 502 });
     }
 
@@ -205,12 +216,16 @@ export async function POST(req) {
         receivedFields: Object.keys(parsed || {})
       });
 
+      requestGuard.release({ completed: true });
       return Response.json({ error: 'invalid_creative_director_response' }, { status: 502 });
     }
 
+    requestGuard.release({ completed: true });
     return Response.json(diagnostico);
   } catch (error) {
     console.error('Creative Director AI error:', error);
     return Response.json({ error: 'creative_director_failed' }, { status: 502 });
+  } finally {
+    requestGuard?.release?.();
   }
 }

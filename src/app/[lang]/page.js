@@ -64,6 +64,14 @@ export default function Home() {
   const [devTapCount, setDevTapCount] = useState(0);
   useEffect(() => {
     setDevMode(new URLSearchParams(window.location.search).get('dev') === '1');
+    const existingSessionId = localStorage.getItem('brandbox_ai_session_id');
+    if (existingSessionId) {
+      setAiSessionId(existingSessionId);
+      return;
+    }
+    const newSessionId = window.crypto?.randomUUID?.() || `ai-${Date.now()}-${Math.random().toString(36).slice(2)}`;
+    localStorage.setItem('brandbox_ai_session_id', newSessionId);
+    setAiSessionId(newSessionId);
   }, []);
   const handleDevTap = () => {
     const next = devTapCount + 1;
@@ -78,6 +86,7 @@ export default function Home() {
   const [resultadoFinal, setResultadoFinal] = useState(null);
   const [isCreativeDirectorLoading, setIsCreativeDirectorLoading] = useState(false);
   const [isTaglineLoading, setIsTaglineLoading] = useState(false);
+  const [aiSessionId, setAiSessionId] = useState('');
   const [selectedTagline, setSelectedTagline] = useState('');
   const [customTagline, setCustomTagline] = useState('');
   
@@ -620,6 +629,27 @@ export default function Home() {
 
   const isDifferentLanguage = (content) => Boolean(content?.language && content.language !== lang);
 
+  const getAiUsageKey = (contentType, targetLanguage = lang) => `${contentType}:${targetLanguage}`;
+
+  const hasAiUsage = (contentType, targetLanguage = lang) => {
+    const key = getAiUsageKey(contentType, targetLanguage);
+    return Boolean(resultadoFinal?.aiUsage?.[key]);
+  };
+
+  const markAiUsage = (contentType, targetLanguage = lang) => {
+    const key = getAiUsageKey(contentType, targetLanguage);
+    const timestamp = new Date().toISOString();
+    setResultadoFinal(prev => prev ? ({
+      ...prev,
+      aiUsage: {
+        ...(prev.aiUsage || {}),
+        [key]: timestamp
+      }
+    }) : prev);
+  };
+
+  const getRequestKey = (contentType, targetLanguage = lang) => `${aiSessionId || 'pending'}:${getAiUsageKey(contentType, targetLanguage)}`;
+
   const fetchCreativeDirectorDiagnostic = async (baseResult) => {
     const creativeResponse = await fetch('/api/creative-director', {
       method: 'POST',
@@ -629,19 +659,21 @@ export default function Home() {
         estiloId: baseResult.estiloId,
         estiloNome: baseResult.estiloNome,
         mensagem: baseResult.mensagem,
-        idioma: lang
+        idioma: lang,
+        requestKey: getRequestKey('diagnostic')
       })
     });
 
     if (!creativeResponse.ok) return null;
 
     const creativeDirector = await creativeResponse.json();
-    return { ...creativeDirector, language: lang };
+    return { ...creativeDirector, language: lang, generatedAt: new Date().toISOString() };
   };
 
   const regenerateCreativeDirector = async () => {
-    if (!resultadoFinal) return;
+    if (!resultadoFinal || isCreativeDirectorLoading || hasAiUsage('diagnostic_regeneration')) return;
 
+    markAiUsage('diagnostic_regeneration');
     setIsCreativeDirectorLoading(true);
     try {
       const creativeDirector = await fetchCreativeDirectorDiagnostic(resultadoFinal);
@@ -664,19 +696,21 @@ export default function Home() {
       body: JSON.stringify({
         formData,
         resultadoFinal,
-        idioma: lang
+        idioma: lang,
+        requestKey: getRequestKey('taglines')
       })
     });
 
     if (!response.ok) return null;
 
     const taglines = await response.json();
-    return { ...taglines, language: lang };
+    return { ...taglines, language: lang, generatedAt: new Date().toISOString() };
   };
 
   const generateCreativeTaglines = async () => {
-    if (!resultadoFinal || isTaglineLoading) return;
+    if (!resultadoFinal || isTaglineLoading || hasAiUsage('taglines')) return;
 
+    markAiUsage('taglines');
     setIsTaglineLoading(true);
     try {
       const taglines = await fetchCreativeTaglines();
@@ -693,6 +727,9 @@ export default function Home() {
               ...prev,
               taglineSuggestions: taglines
             }) : prev);
+        if (selectedTagline && !taglines.suggestions.some(suggestion => suggestion.text === selectedTagline)) {
+          setSelectedTagline('');
+        }
       }
     } catch (error) {
       console.warn('Sugestões de tagline indisponíveis; usando sugestões curadas.', error);
@@ -702,11 +739,24 @@ export default function Home() {
   };
 
   const startCreativeRefinement = async () => {
-    if (!resultadoFinal?.creativeDirector) return;
+    if (!resultadoFinal?.creativeDirector || isRefinementLoading) return;
 
     setShowRefinement(true);
+    const savedQuestion = resultadoFinal.creativeDirector.refinementQuestion;
+    if (savedQuestion?.language === lang) {
+      setRefinementQuestion(savedQuestion);
+      setRefinementStep('answer');
+      return;
+    }
+
+    if (hasAiUsage('refinement_question')) {
+      setRefinementStep('unavailable');
+      return;
+    }
+
     setRefinementStep('question');
     setIsRefinementLoading(true);
+    markAiUsage('refinement_question');
 
     try {
       const response = await fetch('/api/creative-director/refine', {
@@ -716,13 +766,22 @@ export default function Home() {
           phase: 'question',
           formData,
           resultadoFinal,
-          idioma: lang
+          idioma: lang,
+          requestKey: getRequestKey('refinement_question')
         })
       });
 
       if (response.ok) {
         const question = await response.json();
-        setRefinementQuestion({ ...question, language: lang });
+        const questionWithMeta = { ...question, language: lang, generatedAt: new Date().toISOString() };
+        setRefinementQuestion(questionWithMeta);
+        setResultadoFinal(prev => prev ? ({
+          ...prev,
+          creativeDirector: {
+            ...prev.creativeDirector,
+            refinementQuestion: questionWithMeta
+          }
+        }) : prev);
         setRefinementStep('answer');
       } else {
         setRefinementStep('unavailable');
@@ -737,9 +796,10 @@ export default function Home() {
 
   const submitCreativeRefinement = async () => {
     const respostaUsuario = refinementAnswer.trim();
-    if (!respostaUsuario || !refinementQuestion) return;
+    if (!respostaUsuario || !refinementQuestion || isRefinementLoading || hasAiUsage('refinement_resolution')) return;
 
     setIsRefinementLoading(true);
+    markAiUsage('refinement_resolution');
 
     try {
       const response = await fetch('/api/creative-director/refine', {
@@ -751,7 +811,8 @@ export default function Home() {
           resultadoFinal,
           pergunta: refinementQuestion.pergunta,
           respostaUsuario,
-          idioma: lang
+          idioma: lang,
+          requestKey: getRequestKey('refinement_resolution')
         })
       });
 
@@ -761,7 +822,8 @@ export default function Home() {
           ...resolution,
           pergunta: refinementQuestion.pergunta,
           respostaUsuario,
-          language: lang
+          language: lang,
+          generatedAt: new Date().toISOString()
         };
         setResultadoFinal(prev => prev ? ({
           ...prev,
@@ -784,10 +846,11 @@ export default function Home() {
 
   const regenerateRefinementResolution = async () => {
     const currentRefinement = resultadoFinal?.creativeDirector?.refinement;
-    if (!currentRefinement?.respostaUsuario || !currentRefinement?.pergunta) return;
+    if (!currentRefinement?.respostaUsuario || !currentRefinement?.pergunta || isRefinementLoading || hasAiUsage('refinement_resolution_regeneration')) return;
 
     setIsRefinementLoading(true);
     setRefinementStep('result');
+    markAiUsage('refinement_resolution_regeneration');
 
     try {
       const response = await fetch('/api/creative-director/refine', {
@@ -799,7 +862,8 @@ export default function Home() {
           resultadoFinal,
           pergunta: currentRefinement.pergunta,
           respostaUsuario: currentRefinement.respostaUsuario,
-          idioma: lang
+          idioma: lang,
+          requestKey: getRequestKey('refinement_resolution_regeneration')
         })
       });
 
@@ -813,7 +877,8 @@ export default function Home() {
               ...resolution,
               pergunta: currentRefinement.pergunta,
               respostaUsuario: currentRefinement.respostaUsuario,
-              language: lang
+              language: lang,
+              generatedAt: new Date().toISOString()
             }
           }
         }) : prev);
@@ -847,7 +912,12 @@ export default function Home() {
       
       if (data.estiloNome) {
         setIsCreativeDirectorLoading(true);
-        setResultadoFinal(data);
+        setResultadoFinal({
+          ...data,
+          aiUsage: {
+            [getAiUsageKey('diagnostic')]: new Date().toISOString()
+          }
+        });
         setStep(9); // Tela de Resultado Triunfal
 
         try {
@@ -1524,11 +1594,10 @@ export default function Home() {
               <div style={{ background: 'var(--bg-soft)', borderRadius: '16px', padding: '1.5rem', width: '100%', textAlign: 'left', marginBottom: '1.5rem' }}>
                  <p style={{ margin: '8px 0', fontSize: '1.1rem' }}>✅ <strong>{dictionary?.onboarding?.summary_audience || 'Público'}:</strong> {dictionary?.onboarding?.publicos_options?.[formData.publico] || formData.publico}</p>
                  <p style={{ margin: '8px 0', fontSize: '1.1rem' }}>✅ <strong>{dictionary?.onboarding?.summary_feelings || 'Sentimentos'}:</strong> {formData.sentimentos.length} selecionados</p>
-                 <p style={{ margin: '8px 0', fontSize: '1.1rem' }}>✅ <strong>{dictionary?.onboarding?.summary_style || 'Estilo'}:</strong> {dictionary?.onboarding?.primeiras_impressoes_options?.[formData.primeiraImpressao] || formData.primeiraImpressao}</p>
                  <p style={{ margin: '8px 0', fontSize: '1.1rem' }}>✅ <strong>{dictionary?.onboarding?.summary_goals || 'Objetivos'}:</strong> Alinhados</p>
               </div>
               <p style={{ fontSize: '1rem', color: 'var(--text-secondary)', marginBottom: '1.5rem' }}>{dictionary?.onboarding?.summary_text || 'Com base nisso, estou buscando as direções visuais que melhor se encaixam na sua marca.'}</p>
-              <button onClick={callMatchmaker} className="btn-primary" style={{ background: 'var(--accent-magenta)' }}>{dictionary?.onboarding?.step_7_8_btn || 'Gerando...'}</button>
+              <button onClick={callMatchmaker} className="btn-primary" style={{ background: 'var(--accent-magenta)' }}>{dictionary?.onboarding?.step_7_8_btn || 'Traduzir a essência da minha marca'}</button>
             </motion.div>
           )}
 
@@ -1542,7 +1611,7 @@ export default function Home() {
                 transition={{ duration: 3, repeat: Infinity, ease: 'linear' }}
                 style={{ fontSize: '3.5rem', marginBottom: '1.5rem' }}
               >✦</motion.div>
-              <h2 style={{ fontSize: '1.8rem', marginBottom: '0.8rem', color: 'var(--accent-turquoise)' }}>{dictionary?.postmatch?.step_8_title || 'Traduzindo sua essência em direção visual...'}</h2>
+              <h2 style={{ fontSize: '1.8rem', marginBottom: '0.8rem', color: 'var(--accent-turquoise)' }}>{dictionary?.postmatch?.step_8_title || 'Interpretando sua marca...'}</h2>
               <p style={{ fontSize: '1rem', color: 'var(--text-secondary)', lineHeight: 1.6, maxWidth: '320px' }}>{dictionary?.postmatch?.step_8_subtitle || 'Nosso motor criativo está analisando o seu perfil para encontrar a combinação perfeita para você.'}</p>
             </motion.div>
           )}
@@ -1588,7 +1657,7 @@ export default function Home() {
                   <p style={{ fontSize: '0.78rem', color: 'var(--accent-magenta)', textTransform: 'uppercase', letterSpacing: '1.8px', fontWeight: 700, marginBottom: '0.75rem', textAlign: 'center' }}>Diagnóstico Criativo</p>
                   {isDifferentLanguage(resultadoFinal.creativeDirector) && (
                     <div style={{ textAlign: 'center', marginBottom: '0.85rem' }}>
-                      <button type="button" onClick={regenerateCreativeDirector} className="btn-secondary" style={{ padding: '0.65rem 0.9rem', fontSize: '0.82rem' }}>
+                      <button type="button" onClick={regenerateCreativeDirector} disabled={isCreativeDirectorLoading || hasAiUsage('diagnostic_regeneration')} className="btn-secondary" style={{ padding: '0.65rem 0.9rem', fontSize: '0.82rem', opacity: isCreativeDirectorLoading || hasAiUsage('diagnostic_regeneration') ? 0.65 : 1 }}>
                         {isCreativeDirectorLoading ? refineCopy.regenerating : refineCopy.regenerate}
                       </button>
                     </div>
@@ -1629,8 +1698,9 @@ export default function Home() {
                     <button
                       type="button"
                       onClick={startCreativeRefinement}
+                      disabled={isRefinementLoading}
                       className="btn-secondary"
-                      style={{ padding: '0.85rem 1.2rem', fontSize: '0.9rem' }}
+                      style={{ padding: '0.85rem 1.2rem', fontSize: '0.9rem', opacity: isRefinementLoading ? 0.65 : 1 }}
                     >
                       {refineCopy.button}
                     </button>
@@ -1657,7 +1727,7 @@ export default function Home() {
                             <p style={{ color: 'var(--text-primary)', fontSize: '0.95rem', lineHeight: 1.5, marginTop: '0.25rem' }}>{refinementQuestion.pergunta}</p>
                             <p style={{ color: 'var(--text-secondary)', fontSize: '0.82rem', lineHeight: 1.5, marginTop: '0.35rem' }}>{refinementQuestion.porquePerguntar}</p>
                             {isDifferentLanguage(refinementQuestion) && (
-                              <button type="button" onClick={startCreativeRefinement} className="btn-secondary" style={{ marginTop: '0.65rem', padding: '0.65rem 0.9rem', fontSize: '0.82rem' }}>
+                              <button type="button" onClick={startCreativeRefinement} disabled={isRefinementLoading || hasAiUsage('refinement_question')} className="btn-secondary" style={{ marginTop: '0.65rem', padding: '0.65rem 0.9rem', fontSize: '0.82rem', opacity: isRefinementLoading || hasAiUsage('refinement_question') ? 0.65 : 1 }}>
                                 {refineCopy.regenerate}
                               </button>
                             )}
@@ -1673,9 +1743,9 @@ export default function Home() {
                             <button
                               type="button"
                               onClick={submitCreativeRefinement}
-                              disabled={!refinementAnswer.trim()}
+                              disabled={!refinementAnswer.trim() || isRefinementLoading}
                               className="btn-primary"
-                              style={{ padding: '0.8rem 1rem', opacity: refinementAnswer.trim() ? 1 : 0.55 }}
+                              style={{ padding: '0.8rem 1rem', opacity: refinementAnswer.trim() && !isRefinementLoading ? 1 : 0.55 }}
                             >
                               {refineCopy.analyze}
                             </button>
@@ -1696,7 +1766,7 @@ export default function Home() {
                             <strong style={{ color: 'var(--text-primary)', fontSize: '0.88rem' }}>{refineCopy.direction}</strong>
                             <p style={{ color: 'var(--text-secondary)', fontSize: '0.88rem', lineHeight: 1.5, marginTop: '0.25rem' }}>{resultadoFinal.creativeDirector.refinement.direcaoRefinada}</p>
                             {isDifferentLanguage(resultadoFinal.creativeDirector.refinement) && (
-                              <button type="button" onClick={regenerateRefinementResolution} className="btn-secondary" style={{ marginTop: '0.65rem', padding: '0.65rem 0.9rem', fontSize: '0.82rem' }}>
+                              <button type="button" onClick={regenerateRefinementResolution} disabled={isRefinementLoading || hasAiUsage('refinement_resolution_regeneration')} className="btn-secondary" style={{ marginTop: '0.65rem', padding: '0.65rem 0.9rem', fontSize: '0.82rem', opacity: isRefinementLoading || hasAiUsage('refinement_resolution_regeneration') ? 0.65 : 1 }}>
                                 {isRefinementLoading ? refineCopy.regenerating : refineCopy.regenerate}
                               </button>
                             )}
@@ -2071,7 +2141,7 @@ export default function Home() {
                     {dictionary?.postmatch?.step_115_suggestions || 'Sugestões para o estilo'} {resultadoFinal?.estiloNome}
                   </p>
                   {(resultadoFinal?.creativeDirector?.taglineSuggestions || resultadoFinal?.taglineSuggestions)?.language && (resultadoFinal?.creativeDirector?.taglineSuggestions || resultadoFinal?.taglineSuggestions).language !== lang && (
-                    <button type="button" onClick={generateCreativeTaglines} disabled={isTaglineLoading} className="btn-secondary" style={{ padding: '0.45rem 0.7rem', fontSize: '0.72rem', whiteSpace: 'nowrap', opacity: isTaglineLoading ? 0.6 : 1 }}>
+                    <button type="button" onClick={generateCreativeTaglines} disabled={isTaglineLoading || hasAiUsage('taglines')} className="btn-secondary" style={{ padding: '0.45rem 0.7rem', fontSize: '0.72rem', whiteSpace: 'nowrap', opacity: isTaglineLoading || hasAiUsage('taglines') ? 0.6 : 1 }}>
                       {isTaglineLoading
                         ? (dictionary?.postmatch?.step_115_regenerating || 'Gerando novamente em português...')
                         : (dictionary?.postmatch?.step_115_regenerate || 'Gerar novamente em português')}

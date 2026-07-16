@@ -1,4 +1,5 @@
 import { ESTILO_NOME_BY_ID } from '../../../../lib/styleIcons.js';
+import { acquireCreativeDirectorRequest } from '../requestGuards.js';
 
 const DECISOES = ['confirmar', 'ajustar', 'sugerir_alternativa'];
 
@@ -194,12 +195,17 @@ function buildResolutionPrompt({ formData, resultadoFinal, pergunta, respostaUsu
   });
 }
 
-async function callOpenAI({ schema, schemaName, prompt, idioma }) {
+async function callOpenAI({ schema, schemaName, prompt, idioma, requestKey }) {
   const apiKey = process.env.OPENAI_API_KEY ? process.env.OPENAI_API_KEY.replace(/["']/g, '') : '';
   const model = process.env.OPENAI_MODEL ? process.env.OPENAI_MODEL.trim() : '';
 
   if (!apiKey || !model) {
     return { errorResponse: Response.json({ error: 'creative_director_refine_unavailable' }, { status: 503 }) };
+  }
+
+  const requestGuard = acquireCreativeDirectorRequest(requestKey);
+  if (!requestGuard.ok) {
+    return { errorResponse: Response.json({ error: requestGuard.reason }, { status: 429 }) };
   }
 
   const openAIResponse = await fetch('https://api.openai.com/v1/responses', {
@@ -243,6 +249,7 @@ async function callOpenAI({ schema, schemaName, prompt, idioma }) {
       status: openAIResponse.status,
       error
     });
+    requestGuard.release({ completed: true });
     return { errorResponse: Response.json({ error: 'creative_director_refine_openai_error' }, { status: 502 }) };
   }
 
@@ -251,17 +258,21 @@ async function callOpenAI({ schema, schemaName, prompt, idioma }) {
 
   if (!outputText) {
     console.error('OpenAI Creative Director refinement missing output_text:', { phase: schemaName, status: openAIResponse.status });
+    requestGuard.release({ completed: true });
     return { errorResponse: Response.json({ error: 'missing_creative_director_refine_output' }, { status: 502 }) };
   }
 
   try {
-    return { payload: JSON.parse(outputText) };
+    const payload = JSON.parse(outputText);
+    requestGuard.release({ completed: true });
+    return { payload };
   } catch (error) {
     console.error('OpenAI Creative Director refinement returned invalid JSON:', {
       phase: schemaName,
       status: openAIResponse.status,
       error: error.message
     });
+    requestGuard.release({ completed: true });
     return { errorResponse: Response.json({ error: 'invalid_creative_director_refine_json' }, { status: 502 }) };
   }
 }
@@ -281,7 +292,8 @@ export async function POST(req) {
         schema: QUESTION_SCHEMA,
         schemaName: 'creative_director_refinement_question',
         prompt: buildQuestionPrompt({ formData: body.formData, resultadoFinal: body.resultadoFinal, idioma }),
-        idioma
+        idioma,
+        requestKey: cleanText(body.requestKey)
       });
       if (errorResponse) return errorResponse;
 
@@ -304,7 +316,8 @@ export async function POST(req) {
           respostaUsuario: cleanText(body.respostaUsuario),
           idioma
         }),
-        idioma
+        idioma,
+        requestKey: cleanText(body.requestKey)
       });
       if (errorResponse) return errorResponse;
 
