@@ -163,14 +163,15 @@ const BrandBoard = ({ data, palette, color, seloColor, seloTextColor, patternIma
         // Aplicar sizeBoost para fontes que renderizam menor (ex: Vellary)
         const sizeBoost = data.fontSizeBoost || 1;
         const fontSize = `${(baseFontSize * sizeBoost).toFixed(1)}rem`;
-        // Slogan: 40% do nome, letter-spacing em 'em' — igual ao LogoPreviewHTML
-        // Slogan dinâmico: quanto mais longo, menor a fonte e maior o espaçamento (tracking)
+        // Slogan proporcional ao logo: mantém a tagline como apoio visual, sem competir com a marca.
         const logoSizeRem = baseFontSize * sizeBoost;
-        const taglineSizeRem = logoSizeRem * 0.40;
-        const taglineLetterSpacing = '0.35em';
+        const taglineText = tagline || '';
+        const taglineRatio = words.length >= 2 ? 0.20 : 0.24;
+        const taglineLengthScale = taglineText.length > 32 ? 0.82 : (taglineText.length > 24 ? 0.9 : 1);
+        const taglineSizeRem = Math.max(0.42, logoSizeRem * taglineRatio * taglineLengthScale);
+        const taglineLetterSpacing = taglineText.length > 24 ? '0.26em' : '0.32em';
         
         // Slogan wrap e gap (respeitando editData)
-        const taglineText = tagline || '';
         const shouldWrap = data.taglineWrap !== undefined ? data.taglineWrap : (taglineText.length > 35);
         const displaySlogan = (taglineText && shouldWrap)
           ? (() => {
@@ -180,7 +181,7 @@ const BrandBoard = ({ data, palette, color, seloColor, seloTextColor, patternIma
             })()
           : [taglineText];
 
-        const gapMultiplier = data.taglineGap !== undefined ? data.taglineGap : (taglineText.length > 35 ? 0.6 : 0.35);
+        const gapMultiplier = data.taglineGap !== undefined ? data.taglineGap : (words.length >= 2 ? 0.5 : (taglineText.length > 35 ? 0.6 : 0.35));
         const taglineGapPx = Math.round(taglineSizeRem * 16 * gapMultiplier);
 
         return (
