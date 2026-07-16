@@ -77,6 +77,7 @@ export default function Home() {
   const [step, setStep] = useState(1);
   const [resultadoFinal, setResultadoFinal] = useState(null);
   const [isCreativeDirectorLoading, setIsCreativeDirectorLoading] = useState(false);
+  const [isTaglineLoading, setIsTaglineLoading] = useState(false);
   const [selectedTagline, setSelectedTagline] = useState('');
   const [customTagline, setCustomTagline] = useState('');
   
@@ -129,6 +130,18 @@ export default function Home() {
     };
     const key = idToKey[resultadoFinal?.estiloId] || 'Essência Atemporal';
     return dictionary?.postmatch?.taglines_by_estilo?.[key] || TAGLINES_BY_ESTILO[key] || TAGLINES_BY_ESTILO['Essência Atemporal'];
+  };
+
+  const getCreativeTaglineSuggestions = () => {
+    const suggestions = (resultadoFinal?.creativeDirector?.taglineSuggestions || resultadoFinal?.taglineSuggestions)?.suggestions;
+    return Array.isArray(suggestions) && suggestions.length === 3
+      ? suggestions.map(suggestion => suggestion.text).filter(Boolean)
+      : [];
+  };
+
+  const getVisibleTaglineSuggestions = () => {
+    const creativeSuggestions = getCreativeTaglineSuggestions();
+    return creativeSuggestions.length === 3 ? creativeSuggestions : getTaglineSuggestions();
   };
 
   const elementosDesc = [
@@ -290,6 +303,13 @@ export default function Home() {
       }
     }
   }, [step, formData, selectedTagline, customTagline, editData, generatedPatterns, selectedPattern, resultadoFinal]);
+
+  useEffect(() => {
+    if (step !== 11.5 || !resultadoFinal || resultadoFinal?.creativeDirector?.taglineSuggestions || resultadoFinal?.taglineSuggestions) return;
+    generateCreativeTaglines();
+    // Depend only on step so changing the interface language does not auto-regenerate AI content.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [step]);
 
   const downloadBrandBoard = async () => {
     if (brandBoardRef.current) {
@@ -632,6 +652,52 @@ export default function Home() {
       console.warn('Regeneração do Diagnóstico Criativo indisponível; mantendo conteúdo anterior.', error);
     } finally {
       setIsCreativeDirectorLoading(false);
+    }
+  };
+
+  const fetchCreativeTaglines = async () => {
+    if (!resultadoFinal) return null;
+
+    const response = await fetch('/api/creative-director/taglines', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        formData,
+        resultadoFinal,
+        idioma: lang
+      })
+    });
+
+    if (!response.ok) return null;
+
+    const taglines = await response.json();
+    return { ...taglines, language: lang };
+  };
+
+  const generateCreativeTaglines = async () => {
+    if (!resultadoFinal || isTaglineLoading) return;
+
+    setIsTaglineLoading(true);
+    try {
+      const taglines = await fetchCreativeTaglines();
+      if (taglines) {
+        setResultadoFinal(prev => prev ? (prev.creativeDirector
+          ? {
+              ...prev,
+              creativeDirector: {
+                ...prev.creativeDirector,
+                taglineSuggestions: taglines
+              }
+            }
+          : {
+              ...prev,
+              taglineSuggestions: taglines
+            }) : prev);
+      }
+    } catch (error) {
+      console.warn('Sugestões de tagline indisponíveis; usando sugestões curadas.', error);
+    } finally {
+      setIsTaglineLoading(false);
     }
   };
 
@@ -2000,11 +2066,26 @@ export default function Home() {
               </div>
 
               <div style={{ flex: 1, overflowY: 'auto', padding: '24px 20px', display: 'flex', flexDirection: 'column', gap: '12px' }}>
-                <p style={{ fontSize: '0.72rem', fontWeight: 700, letterSpacing: '2px', textTransform: 'uppercase', color: 'var(--text-secondary)', marginBottom: '4px' }}>
-                  {dictionary?.postmatch?.step_115_suggestions || 'Sugestões para o estilo'} {resultadoFinal?.estiloNome}
-                </p>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '10px', marginBottom: '4px' }}>
+                  <p style={{ fontSize: '0.72rem', fontWeight: 700, letterSpacing: '2px', textTransform: 'uppercase', color: 'var(--text-secondary)' }}>
+                    {dictionary?.postmatch?.step_115_suggestions || 'Sugestões para o estilo'} {resultadoFinal?.estiloNome}
+                  </p>
+                  {(resultadoFinal?.creativeDirector?.taglineSuggestions || resultadoFinal?.taglineSuggestions)?.language && (resultadoFinal?.creativeDirector?.taglineSuggestions || resultadoFinal?.taglineSuggestions).language !== lang && (
+                    <button type="button" onClick={generateCreativeTaglines} disabled={isTaglineLoading} className="btn-secondary" style={{ padding: '0.45rem 0.7rem', fontSize: '0.72rem', whiteSpace: 'nowrap', opacity: isTaglineLoading ? 0.6 : 1 }}>
+                      {isTaglineLoading
+                        ? (dictionary?.postmatch?.step_115_regenerating || 'Gerando novamente em português...')
+                        : (dictionary?.postmatch?.step_115_regenerate || 'Gerar novamente em português')}
+                    </button>
+                  )}
+                </div>
 
-                {getTaglineSuggestions().map((opt) => (
+                {isTaglineLoading && (
+                  <p style={{ fontSize: '0.78rem', color: 'var(--text-secondary)', lineHeight: 1.4, marginBottom: '2px' }}>
+                    {dictionary?.postmatch?.step_115_loading || 'Gerando sugestões personalizadas...'}
+                  </p>
+                )}
+
+                {getVisibleTaglineSuggestions().map((opt) => (
                   <button
                     key={opt}
                     onClick={() => { setSelectedTagline(opt); setCustomTagline(''); }}

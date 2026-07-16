@@ -30,3 +30,9 @@ A nova rota `/api/creative-director/refine` trabalha em duas fases:
 - `resolution`: analisa a resposta da usuária e retorna uma recomendação estruturada com impactos em paleta, tipografia, composição e estampa.
 
 Nesta etapa, nenhuma recomendação alternativa é aplicada automaticamente. O estilo atual continua preservado em `resultadoFinal.estiloId` e `resultadoFinal.estiloNome`; a recomendação fica registrada apenas em `resultadoFinal.creativeDirector.refinement` para revisão posterior.
+
+## Taglines personalizadas
+
+A etapa existente **Qual a sua tagline?** também passou a usar a AI Creative Director sem criar um fluxo paralelo. A rota server-side `/api/creative-director/taglines` recebe o briefing, o resultado atual, o diagnóstico criativo, o refinamento quando existir e o idioma atual para gerar 3 sugestões distintas: emocional, estratégica e direta.
+
+As sugestões respeitam limites adaptativos calculados pelo tamanho do nome público da marca, nunca pelo nome pessoal/de contato. O servidor valida idioma, quantidade, duplicidade, tamanho máximo, ausência do nome pessoal e ausência de repetição desnecessária do nome da marca. Se a OpenAI falhar ou a resposta não passar na validação, a tela mantém as sugestões curadas já existentes como fallback e preserva o campo manual “Ou escreva a sua”.
