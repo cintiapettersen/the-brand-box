@@ -55,8 +55,10 @@ import FolderPage4Dynamic from './FolderPage4Dynamic';
 import CadernetaPreview from './CadernetaPreview';
 import { useScaleToFit } from './useScaleToFit';
 import { createClient } from '@supabase/supabase-js';
+import CaixaPreview from './CaixaPreview';
 
 const ITEM_KEYS_MAP = {
+  'Caixa Gaveta (L 13,5 x P 18,5 cm)': 'caixa',
   'Cartão de Visita': 'cartao_visita',
   'Papel Timbrado': 'papel_timbrado',
   'Papel de Presente': 'papel_presente',
@@ -140,12 +142,13 @@ export const ITEM_CUSTOM_BASE_SCALES = {
   'Envelope Ofício': 2.0,
   'Orientações p/ Recém Nascidos': 2.0,
   'Sacola de Papel': 2.0,
+  'Caixa Gaveta (L 13,5 x P 18,5 cm)': 2.0,
   'T-Shirt': 2.0,
   'Pasta': 2.0,
   'Receituário': 2.0,
 };
 
-export function LogoPreviewHTML({ item = null, editData, color, layout = 'stacked', scaleFactor = 1, crm = null, hideTagline = false, customLogoSrc: customLogoSrcProp = null, customLogoScale: customLogoScaleProp = 100, maxWidth = null, maxHeight = null, withBackground = false, alignLeft = false, taglineColor = null, autoFit = true }) {
+export function LogoPreviewHTML({ item = null, editData, color, layout = 'stacked', scaleFactor = 1, crm = null, hideTagline = false, customLogoSrc: customLogoSrcProp = null, customLogoScale: customLogoScaleProp = 100, maxWidth = null, maxHeight = null, withBackground = false, withBackgroundPadding = '18px 14px 14px', alignLeft = false, taglineColor = null, autoFit = true }) {
   const { dictionary } = useTranslation();
   const _fitRef = React.useRef(null);
   const _rootRef = React.useRef(null);
@@ -275,15 +278,15 @@ export function LogoPreviewHTML({ item = null, editData, color, layout = 'stacke
       height: '100%'
     };
 
-    if (withBackground) {
-      return (
-        <div style={containerStyle}>
-          <div style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', background: 'rgba(255,255,255,0.92)', padding: '2px 4px', borderRadius: '4px', backdropFilter: 'blur(2px)', maxWidth: '100%' }}>
-            <img src={customLogoSrc} alt="logo" style={imgStyle} />
-          </div>
+  if (withBackground) {
+    return (
+      <div style={containerStyle}>
+        <div style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', background: 'rgba(255,255,255,0.92)', padding: withBackgroundPadding, borderRadius: '4px', backdropFilter: 'blur(2px)', maxWidth: '100%' }}>
+          <img src={customLogoSrc} alt="logo" style={imgStyle} />
         </div>
-      );
-    }
+      </div>
+    );
+  }
     return (
       <div style={containerStyle}>
         <img src={customLogoSrc} alt="logo" style={imgStyle} />
@@ -387,7 +390,7 @@ export function LogoPreviewHTML({ item = null, editData, color, layout = 'stacke
 
   if (withBackground) {
     return (
-      <div ref={_rootRef} style={{ display: 'inline-flex', alignItems: 'center', justifyContent: alignLeft ? 'flex-start' : 'center', background: 'rgba(255,255,255,0.92)', padding: '18px 14px 14px', borderRadius: '4px', backdropFilter: 'blur(2px)', maxWidth: '100%', maxHeight: '100%', boxSizing: 'border-box' }}>
+      <div ref={_rootRef} style={{ display: 'inline-flex', alignItems: 'center', justifyContent: alignLeft ? 'flex-start' : 'center', background: 'rgba(255,255,255,0.92)', padding: withBackgroundPadding, borderRadius: '4px', backdropFilter: 'blur(2px)', maxWidth: '100%', maxHeight: '100%', boxSizing: 'border-box' }}>
         {textContent}
       </div>
     );
@@ -5619,7 +5622,7 @@ function PapelariaStep({ brand, accentColor, paletteColors, estampaPatterns, est
   const PAPELARIA_GERAL = [
     "Cartão de Visita", "Papel Timbrado", "Tag para Sacola",
     "Etiqueta para Correios", "Envelope Ofício (23x11,5cm)", "Envelope Saco (24x34cm)", "Recibo",
-    "Pasta A4", "Caneca", "T-Shirt", "Cartão de Retorno", "Cartão de Agradecimento (10x15cm)", "Capa de Caderno / Agenda"
+    "Pasta A4", "Caneca", "T-Shirt", "Cartão de Retorno", "Cartão de Agradecimento (10x15cm)", "Capa de Caderno / Agenda", "Caixa Gaveta (L 13,5 x P 18,5 cm)"
   ];
   // Papelaria exclusiva para área médica
   const PAPELARIA_MEDICA = [
@@ -8803,6 +8806,75 @@ html, body { width:${RW}px; height:${RH}px; overflow:hidden; background:#fff; }
         return;
       }
 
+      if (item === 'Caixa Gaveta (L 13,5 x P 18,5 cm)') {
+        const svgLuva = '/Gabarito-illustrator_embalagem-gaveta-Luva-L135xA7xP185-cm-corte-vinco-externa.svg';
+        const svgGaveta = '/Gabarito-illustrator_embalagem-gaveta-Caixa-L134xA69xP183cm-corte-vinco-externa.svg';
+        
+        const effectiveSrc = comBorda ? patternSrc : null;
+        const solidColor = borderColor || paletteColors[0] || accentColor;
+        const _lColor = logoColor || '#fff';
+        const gavetaColor = paletteColors[1] || '#e5e5e5';
+
+        const logoHtmlLuva = genPDFLogoHtml({
+          brand,
+          editDataOverride: { ...editData, taglineSizeBoost: 1.0, taglineGap: 0.6 },
+          sloganSize: (parseFloat(_fontPt) * 3.15 * 0.18).toFixed(1) + 'pt',
+          color: comBorda && patternSrc ? _lColor : '#fff',
+          layout: logoLayout,
+          localSlogan,
+          crmLine: crmLine,
+          fontPt: (parseFloat(_fontPt) * 3.15).toFixed(1),
+          lineH: _lineH,
+          letterSp: _letterSp,
+          customLogoSrc,
+          customLogoScale: customLogoSrc ? getCustomLogoScale(item) * (ITEM_CUSTOM_BASE_SCALES[item] || 1) * 1.5 : 100,
+          maxWidth: '160mm',
+          maxHeight: '130mm',
+          withBackground: comBorda && !!patternSrc,
+          withBackgroundPadding: '11mm 16mm',
+          hideSlogan: false
+        });
+
+        const wMm = 500;
+        const hMm = 750;
+
+        const html = `<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Gabarito Caixa - ${marca}</title>
+<style>* { box-sizing:border-box; margin:0; padding:0; print-color-adjust:exact !important; -webkit-print-color-adjust:exact !important; }
+body { background:#fff; font-family:'Montserrat',sans-serif; }
+@media print { body { margin:0; } @page { size: ${wMm}mm ${hMm}mm; margin:0; } }
+</style></head><body>
+  <div style="position:relative; width:${wMm}mm; height:${hMm}mm; overflow:hidden; background:#fff;">
+    <div style="position:absolute; top:10mm; left:10mm; font-size:16pt; font-weight:bold; color:#333;">Gabarito Caixa Gaveta - ${marca}</div>
+    
+    <!-- LUVA -->
+    <div style="position:absolute; top:30mm; left:20mm; width:436.1mm; height:194.0mm;">
+       <div style="position:absolute; inset:0; ${effectiveSrc ? `background-image:url('${effectiveSrc}');background-size:${((patternScale || 100) * 3.5).toFixed(1)}mm;background-repeat:repeat;` : `background:${solidColor};`} z-index:1;"></div>
+       <img src="${window.location.origin}${svgLuva}" style="position:absolute; inset:0; width:100%; height:100%; z-index:10;" />
+       
+       <div style="position:absolute; left:67.821%; top:2.238%; width:30.963%; height:95.360%; z-index:5; display:flex; align-items:center; justify-content:center;">
+          <div style="transform:rotate(-90deg); width:185mm; height:135mm; display:flex; align-items:center; justify-content:center;">
+             ${logoHtmlLuva}
+          </div>
+       </div>
+    </div>
+    
+    <!-- GAVETA -->
+    <div style="position:absolute; top:240mm; left:20mm; width:443.0mm; height:492.0mm;">
+       <div style="position:absolute; inset:0; background:${gavetaColor}; z-index:1;"></div>
+       <img src="${window.location.origin}${svgGaveta}" style="position:absolute; inset:0; width:100%; height:100%; z-index:10;" />
+    </div>
+  </div>
+</body></html>`;
+
+        const iframe = document.createElement('iframe');
+        iframe.style.cssText = 'position:fixed;top:-9999px;left:-9999px;width:1000mm;height:1000mm;border:none;visibility:hidden;';
+        document.body.appendChild(iframe);
+        iframe.contentDocument.open(); iframe.contentDocument.write(html); iframe.contentDocument.close();
+        const prevT = document.title;
+        iframe.contentWindow.document.fonts.ready.then(() => { setTimeout(() => { document.title = pdfTitle(item); iframe.contentWindow.focus(); iframe.contentWindow.print(); setTimeout(() => { document.title = prevT; iframe.remove(); }, 3000); }, 1000); });
+        return;
+      }
+
       if (item === 'Papel Timbrado') {
         const BLEED = 3;
         const W = 210, H = 297;
@@ -9180,6 +9252,8 @@ ${fontImports2}
               ? <PapelPresentePreview accentColor={accentColor} paletteColors={paletteColors} comBorda={comBorda} setComBorda={setComBorda} patternSrc={patternSrc} patternScale={patternScale} setPatternScale={setPatternScale} borderColor={borderColor} setBorderColor={setBorderColor} sizeIdx={papelPresenteSizeIdx} setSizeIdx={setPapelPresenteSizeIdx} />
             : currentItem === 'Tag para Sacola'
               ? <TagSacolaPreview item={currentItem} accentColor={accentColor} patternSrc={patternSrc} editData={{ ...itemEditData, tagline: localSlogan }} logoColor={logoColor} logoLayout={logoLayout} cartaoContacts={cartaoContacts} crmLine={crmLine} clinicaNome={clinicaNome} comBorda={comBorda} setComBorda={setComBorda} paletteColors={paletteColors} borderColor={borderColor} setBorderColor={setBorderColor} patternScale={patternScale} setPatternScale={setPatternScale} sizeIdx={tagSacolaSizeIdx} setSizeIdx={setTagSacolaSizeIdx} />
+          : currentItem === 'Caixa Gaveta (L 13,5 x P 18,5 cm)'
+              ? <CaixaPreview accentColor={accentColor} patternSrc={patternSrc} editData={{ ...itemEditData, tagline: localSlogan }} logoColor={logoColor} logoLayout={logoLayout} cartaoContacts={cartaoContacts} crmLine={crmLine} clinicaNome={clinicaNome} comBorda={comBorda} setComBorda={setComBorda} paletteColors={paletteColors} borderColor={borderColor} setBorderColor={setBorderColor} patternScale={patternScale} setPatternScale={setPatternScale} />
             : currentItem === 'Sacola de Papel'
               ? <SacolaPapelPreview accentColor={accentColor} patternSrc={patternSrc} editData={{ ...itemEditData, tagline: localSlogan }} logoColor={logoColor} logoLayout={logoLayout} cartaoContacts={cartaoContacts} crmLine={crmLine} clinicaNome={clinicaNome} comBorda={comBorda} setComBorda={setComBorda} paletteColors={paletteColors} borderColor={borderColor} setBorderColor={setBorderColor} patternScale={patternScale} setPatternScale={setPatternScale} />
             : currentItem === 'Etiqueta para Correios'

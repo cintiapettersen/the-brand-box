@@ -118,6 +118,40 @@ export default function Home() {
     regenerating: dictionary?.postmatch?.creative_refine_regenerating || 'Gerando novamente em português...'
   };
 
+  const [source, setSource] = useState('Direct');
+  const lastStepRef = useRef('');
+
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    setSource(params.get('utm_source') || params.get('source') || 'Direct');
+  }, []);
+
+  useEffect(() => {
+    if (!formData.email) return;
+
+    let stepName = 'Started';
+    if (step >= 2 && step < 8) stepName = 'Brand Questions';
+    if (step >= 8 && step < 11.5) stepName = 'Creative Direction';
+    if (step >= 11.5 && step < 12.8) stepName = 'Moodboard';
+    if (step >= 12.8 && step < 13) stepName = 'Logo';
+    if (step >= 13) stepName = 'Checkout';
+
+    if (lastStepRef.current !== stepName) {
+      lastStepRef.current = stepName;
+      fetch('/api/leads', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ 
+          nome: formData.nome, 
+          email: formData.email, 
+          source: source,
+          last_step: stepName,
+          project_completed: step >= 13
+        })
+      }).catch(err => console.error('Erro ao atualizar lead:', err));
+    }
+  }, [step, formData.email, source, formData.nome]);
+
   // Sugestões de tagline agrupadas por categoria
   const TAGLINES_BY_ESTILO = {
     'Jardim Encantado':       ['Onde a imaginação encontra o cuidado', 'Criatividade que floresce todos os dias', 'O olhar lúdico e afetuoso da infância'],
@@ -644,13 +678,6 @@ export default function Home() {
 
   const handleStep2Submit = () => {
     nextStep();
-    if (formData.nome && formData.email) {
-      fetch('/api/leads', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ nome: formData.nome, email: formData.email })
-      }).catch(err => console.error('Erro ao salvar lead:', err));
-    }
   };
   
   const handleInput = (e) => {

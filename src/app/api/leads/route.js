@@ -3,24 +3,56 @@ import { supabase } from '@/lib/supabase';
 
 export async function POST(req) {
   try {
-    const { nome, email } = await req.json();
+    const body = await req.json();
+    const { nome, email, source, last_step, project_completed } = body;
 
-    if (!nome || !email) {
-      return NextResponse.json({ error: 'Nome e email são obrigatórios' }, { status: 400 });
+    if (!email) {
+      return NextResponse.json({ error: 'Email é obrigatório' }, { status: 400 });
     }
 
-    // Inserimos o lead usando upsert baseado no email, ou apenas insert
-    // Vamos fazer insert para registrar cada acesso, ou usar um upsert pra evitar dupes, mas se a pessoa acessar varias vezes pode ser util saber
-    // Para simplificar, insert básico
-    const { data, error } = await supabase
+    // Primeiro tentamos ver se o lead já existe
+    const { data: existing, error: searchError } = await supabase
       .from('leads')
-      .insert([
-        { nome, email }
-      ]);
+      .select('id')
+      .eq('email', email);
 
-    if (error) {
-      console.error('Erro ao salvar lead no Supabase:', error);
-      return NextResponse.json({ error: 'Erro ao salvar lead' }, { status: 500 });
+    if (searchError) {
+      console.error('Erro ao buscar lead no Supabase:', searchError);
+    }
+
+    if (existing && existing.length > 0) {
+      // Atualiza o lead existente
+      const updateData = {};
+      if (nome) updateData.nome = nome;
+      if (source) updateData.source = source;
+      if (last_step) updateData.last_step = last_step;
+      if (project_completed !== undefined) updateData.project_completed = project_completed;
+
+      const { error } = await supabase
+        .from('leads')
+        .update(updateData)
+        .eq('email', email);
+
+      if (error) {
+        console.error('Erro ao atualizar lead no Supabase:', error);
+        return NextResponse.json({ error: 'Erro ao atualizar lead' }, { status: 500 });
+      }
+    } else {
+      // Insere um novo lead
+      const { error } = await supabase
+        .from('leads')
+        .insert([{
+          nome: nome || '',
+          email,
+          source: source || 'Direct',
+          last_step: last_step || 'Started',
+          project_completed: project_completed || false
+        }]);
+
+      if (error) {
+        console.error('Erro ao salvar lead no Supabase:', error);
+        return NextResponse.json({ error: 'Erro ao salvar lead' }, { status: 500 });
+      }
     }
 
     return NextResponse.json({ success: true, message: 'Lead capturado com sucesso' }, { status: 200 });
