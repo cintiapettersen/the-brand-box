@@ -9798,9 +9798,9 @@ function EntregaContent({ brand, plano, setBrand }) {
       return;
     }
 
-    // Se for um nome NOVO e já atingiu o limite de 2 nomes (Original + 1 Alteração)
-    if (usedNames.length >= 2) {
-      alert("Atenção: Por questões de segurança, você só pode alterar o nome da sua marca 1 vez. O limite de alterações de nome para esta licença foi atingido.");
+    // Se for um nome NOVO e já atingiu o limite de 3 nomes (Original + 2 Alterações)
+    if (usedNames.length >= 3) {
+      alert("Atenção: Por questões de segurança, você só pode alterar o nome da sua marca 2 vezes. O limite de alterações de nome para esta licença foi atingido.");
       setTempMarca(marca); // Reverte o campo para o último nome válido
       return;
     }
