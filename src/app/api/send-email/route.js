@@ -2,7 +2,7 @@ import nodemailer from 'nodemailer'; // deployment verified clean
 
 export async function POST(request) {
   try {
-    const { email, marca, sessionId, plano, avulsoLink, lang = 'pt-BR' } = await request.json();
+    const { email, marca, sessionId, plano, avulsoLink, lang = 'pt-BR', type } = await request.json();
 
     if (!email || (!sessionId && !avulsoLink)) {
       return Response.json({ error: 'email e sessionId (ou avulsoLink) são obrigatórios.' }, { status: 400 });
@@ -21,6 +21,7 @@ export async function POST(request) {
     const marcaDisplay = marca || (lang === 'en' ? 'your brand' : 'sua marca');
     const isComplete = plano === 'complete' || plano === 'pro';
     const isAvulso = plano === 'avulso';
+    const isRename = type === 'rename';
 
     const htmlBody = `
 <!DOCTYPE html>
@@ -41,9 +42,11 @@ export async function POST(request) {
             <td style="background:#4EB0B5;padding:40px;border-radius:16px 16px 0 0;text-align:center;">
               <p style="color:rgba(255,255,255,0.8);font-size:11px;letter-spacing:4px;text-transform:uppercase;margin:0 0 12px;font-weight:700;">The Brand Box</p>
               <h1 style="color:#ffffff;font-size:28px;font-weight:700;margin:0;line-height:1.2;">
-                ${isAvulso 
-                    ? (lang === 'en' ? '🎨 Your link to access the print files!' : '🎨 Seu link de acesso aos impressos!') 
-                    : (lang === 'en' ? '🎉 Your visual identity is already coming to life!' : '🎉 Sua identidade visual já começou a ganhar vida!')}
+                ${isRename 
+                    ? (lang === 'en' ? '📝 Brand name updated!' : '📝 O nome da sua marca foi atualizado!') 
+                    : isAvulso 
+                      ? (lang === 'en' ? '🎨 Your link to access the print files!' : '🎨 Seu link de acesso aos impressos!') 
+                      : (lang === 'en' ? '🎉 Your visual identity is already coming to life!' : '🎉 Sua identidade visual já começou a ganhar vida!')}
               </h1>
             </td>
           </tr>
@@ -55,6 +58,14 @@ export async function POST(request) {
                 ${lang === 'en' ? 'Hello! This is Cíntia from <strong>The Brand Box</strong>. ✨' : 'Olá! Aqui é a Cíntia, da <strong>The Brand Box</strong>. ✨'}
               </p>
               
+              ${isRename ? `
+              <p style="color:#444;font-size:15px;line-height:1.7;margin:0 0 20px;">
+                ${lang === 'en' ? `The name of your brand has been changed to <strong>${marcaDisplay}</strong>.` : `O nome da sua marca foi alterado para <strong>${marcaDisplay}</strong>.`}
+              </p>
+              <p style="color:#555;font-size:15px;line-height:1.7;margin:0 0 20px;">
+                ${lang === 'en' ? 'Your access link remains exactly the same. You can click the button below to access your project:' : 'Seu link de acesso continua exatamente o mesmo. Você pode clicar no botão abaixo para acessar o seu projeto:'}
+              </p>
+              ` : `
               <p style="color:#444;font-size:15px;line-height:1.7;margin:0 0 20px;">
                 ${lang === 'en' ? 'Your payment has been confirmed and your creation experience has already begun.' : 'Seu pagamento foi confirmado e sua experiência de criação já começou.'}
               </p>
@@ -66,6 +77,7 @@ export async function POST(request) {
               <p style="color:#555;font-size:15px;line-height:1.7;margin:0 0 24px;">
                 ${lang === 'en' ? 'The Brand Box was developed to help you at every step, presenting styles, combinations, and applications that make sense for your brand, without complication and without needing to understand design.' : 'A Brand Box foi desenvolvida para ajudar você em cada etapa, apresentando estilos, combinações e aplicações que fazem sentido para a sua marca, sem complicação e sem precisar entender de design.'}
               </p>
+              `}
 
               <!-- Destaque do link -->
               <table width="100%" cellpadding="0" cellspacing="0" style="margin:32px 0;">
@@ -131,11 +143,13 @@ export async function POST(request) {
     await transporter.sendMail({
       from: `"The Brand Box" <${smtpEmail}>`,
       to: email,
-      subject: isAvulso
-        ? (lang === 'en' ? `Your access link — The Brand Box` : `Seu link de acesso — The Brand Box`)
-        : isComplete
-          ? (lang === 'en' ? `Your brand ${marcaDisplay} is being prepared!` : `Sua marca ${marcaDisplay} está sendo preparada!`)
-          : (lang === 'en' ? `Access to ${marcaDisplay} files` : `Acesso aos arquivos da marca ${marcaDisplay}`),
+      subject: isRename
+        ? (lang === 'en' ? `Brand name updated — The Brand Box` : `Nome da marca atualizado — The Brand Box`)
+        : isAvulso
+          ? (lang === 'en' ? `Your access link — The Brand Box` : `Seu link de acesso — The Brand Box`)
+          : isComplete
+            ? (lang === 'en' ? `Your brand ${marcaDisplay} is being prepared!` : `Sua marca ${marcaDisplay} está sendo preparada!`)
+            : (lang === 'en' ? `Access to ${marcaDisplay} files` : `Acesso aos arquivos da marca ${marcaDisplay}`),
       html: htmlBody,
     });
 

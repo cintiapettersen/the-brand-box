@@ -9793,8 +9793,12 @@ function EntregaContent({ brand, plano, setBrand }) {
     // Se o nome digitado já foi usado antes, permite trocar de volta sem problemas
     if (usedNames.some(n => n.toLowerCase() === cleaned.toLowerCase())) {
       const match = usedNames.find(n => n.toLowerCase() === cleaned.toLowerCase());
-      setMarcaState(match);
-      setTempMarca(match);
+      if (match !== marca) {
+        setMarcaState(match);
+        setTempMarca(match);
+        // Dispara e-mail de aviso de alteração de nome (background)
+        fetch('/api/send-email', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ email: brand.email || brand.formData?.email || '', marca: match, sessionId: brand.sessionId || brand.id, plano, lang, type: 'rename' }) }).catch(() => {});
+      }
       return;
     }
 
@@ -9813,6 +9817,11 @@ function EntregaContent({ brand, plano, setBrand }) {
 
     setMarcaState(cleaned);
     setTempMarca(cleaned);
+    
+    // Dispara e-mail de aviso de alteração de nome (background)
+    if (cleaned !== marca) {
+      fetch('/api/send-email', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ email: brand.email || brand.formData?.email || '', marca: cleaned, sessionId: brand.sessionId || brand.id, plano, lang, type: 'rename' }) }).catch(() => {});
+    }
   };
   const [tagline, setTaglineState] = useState(() => {
     try {
