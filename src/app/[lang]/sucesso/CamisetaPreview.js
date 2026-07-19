@@ -39,7 +39,7 @@ function BordaToggle({ comBorda, setComBorda, accentColor, paletteColors = [], b
                  onChange={(e) => setShowLogo(e.target.checked)} 
                  style={{ accentColor: accentColor, cursor: 'pointer' }}
                />
-               Selo
+               {dictionary?.nav?.submarca || 'Selo'}
              </label>
           </div>
         </>
@@ -117,7 +117,7 @@ export default function CamisetaPreview({
 }) {
   const solidColor = borderColor || accentColor;
   const hasCustomLogo = !!editData?.customLogoSrc;
-  const [showLogo, setShowLogo] = React.useState(true);
+  const [showLogo, setShowLogo] = React.useState(false);
 
   // Preview Area Dimensions
   const PREVIEW_W = 400;

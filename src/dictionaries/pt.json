@@ -1793,5 +1793,26 @@
     "pattern_liked": "♥️ Amei",
     "pattern_like": "🤍 Amei",
     "pattern_discard": "👎 Descartar"
+  },
+  "caixa_gaveta": {
+    "parte_externa": "Parte Externa (Luva)",
+    "cor_gaveta": "Cor da Gaveta (Interna)",
+    "tamanho_padrao": "Tamanho Padrão: L 13,5 cm × A 7,0 cm × P 18,5 cm",
+    "mockup_3d": "Mockup 3D Interativo",
+    "arte_flat_luva": "Arte Flat - Luva (Externa)",
+    "arte_luva_dim": "Arte Luva: 43,45 x 18,45 cm",
+    "arte_flat_gaveta": "Arte Flat - Gaveta (Interna)",
+    "arte_gaveta_dim": "Arte Gaveta: Aprox. 27,5 x 32,5 cm",
+    "fundo": "Fundo",
+    "lateral": "Lateral",
+    "tampa": "Tampa",
+    "cola": "Cola",
+    "mudar_cor": "Mudar Cor da Gaveta"
+  },
+  "add_modal": {
+    "titulo": "Adicionar à Caixa",
+    "descricao": "Escolha novos itens para complementar sua marca.",
+    "btn_add": "Adicionar +",
+    "msg_wpp": "Olá! Gostaria de adicionar o item \"{item}\" à minha Brand Box ({marca})."
   }
 }

@@ -3,7 +3,7 @@ import { LogoPreviewHTML, BordaToggle } from './page';
 import { useScaleToFit } from './useScaleToFit';
 
 export default function CaixaPreview({
-  accentColor, paletteColors = [], editData, logoColor, logoLayout,
+  dictionary, accentColor, paletteColors = [], editData, logoColor, logoLayout,
   comBorda, setComBorda, patternSrc, patternScale, setPatternScale, borderColor, setBorderColor
 }) {
   const solidColor = borderColor || accentColor;
@@ -114,7 +114,7 @@ export default function CaixaPreview({
         
         {/* Controle da Luva (Externa) */}
         <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '8px', width: '100%' }}>
-          <span style={{ fontSize: '10px', fontWeight: 800, color: '#999', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Parte Externa (Luva)</span>
+          <span style={{ fontSize: '10px', fontWeight: 800, color: '#999', textTransform: 'uppercase', letterSpacing: '0.5px' }}>{dictionary?.caixa_gaveta?.parte_externa || 'Parte Externa (Luva)'}</span>
           <BordaToggle 
             comBorda={comBorda} setComBorda={setComBorda} 
             accentColor={accentColor} paletteColors={paletteColors} 
@@ -127,7 +127,7 @@ export default function CaixaPreview({
 
         {/* Controle da Gaveta (Interna) */}
         <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '8px', width: '100%' }}>
-          <span style={{ fontSize: '10px', fontWeight: 800, color: '#999', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Cor da Gaveta (Interna)</span>
+          <span style={{ fontSize: '10px', fontWeight: 800, color: '#999', textTransform: 'uppercase', letterSpacing: '0.5px' }}>{dictionary?.caixa_gaveta?.cor_gaveta || 'Cor da Gaveta (Interna)'}</span>
           <div style={{ display: 'flex', gap: '8px', justifyContent: 'center' }}>
             {bgOptions.map((c, i) => (
               <button
@@ -139,7 +139,7 @@ export default function CaixaPreview({
                   cursor: 'pointer', padding: 0, transition: 'all 0.2s',
                   boxShadow: bgColor === c ? '0 0 0 3px #fff inset' : '0 2px 5px rgba(0,0,0,0.05)'
                 }}
-                title="Mudar Cor da Gaveta"
+                title={dictionary?.caixa_gaveta?.mudar_cor || 'Mudar Cor da Gaveta'}
               />
             ))}
           </div>
@@ -148,12 +148,12 @@ export default function CaixaPreview({
       </div>
 
       <div style={{ fontSize: '12px', color: '#888', fontFamily: 'Montserrat,sans-serif', fontWeight: 600, textAlign: 'center', marginBottom: '5px' }}>
-        Tamanho Padrão: L 13,5 cm × A 7,0 cm × P 18,5 cm
+        {dictionary?.caixa_gaveta?.tamanho_padrao || 'Tamanho Padrão: L 13,5 cm × A 7,0 cm × P 18,5 cm'}
       </div>
       
       {/* 3D Mockup */}
       <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '8px', width: '100%' }}>
-        <span style={{ fontSize: '10px', fontWeight: 800, color: '#999', textTransform: 'uppercase' }}>Mockup 3D Interativo</span>
+        <span style={{ fontSize: '10px', fontWeight: 800, color: '#999', textTransform: 'uppercase' }}>{dictionary?.caixa_gaveta?.mockup_3d || 'Mockup 3D Interativo'}</span>
         <div ref={scaleMockup.wrapperRef} style={scaleMockup.wrapperStyle}>
           <div style={scaleMockup.innerStyle}>
             <div ref={snapshotRef} style={{
@@ -277,7 +277,7 @@ export default function CaixaPreview({
 
       {/* Flat Arte - Luva */}
       <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '8px', width: '100%' }}>
-        <span style={{ fontSize: '10px', fontWeight: 800, color: '#999', textTransform: 'uppercase' }}>Arte Flat - Luva (Externa)</span>
+        <span style={{ fontSize: '10px', fontWeight: 800, color: '#999', textTransform: 'uppercase' }}>{dictionary?.caixa_gaveta?.arte_flat_luva || 'Arte Flat - Luva (Externa)'}</span>
         <div ref={scaleLuvaFlat.wrapperRef} style={scaleLuvaFlat.wrapperStyle}>
           <div style={scaleLuvaFlat.innerStyle}>
             <div style={{
@@ -300,34 +300,34 @@ export default function CaixaPreview({
 
               {/* Labels das partes */}
               <div style={{ position: 'absolute', left: 0, width: pCola, height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                <span style={{ fontSize: 8, color: 'rgba(0,0,0,0.4)', transform: 'rotate(-90deg)' }}>Cola</span>
+                <span style={{ fontSize: 8, color: 'rgba(0,0,0,0.4)', transform: 'rotate(-90deg)' }}>{dictionary?.caixa_gaveta?.cola || 'Cola'}</span>
               </div>
               <div style={{ position: 'absolute', left: pCola, width: pLat1, height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                <span style={{ fontSize: 10, color: comBorda ? '#333' : '#fff', opacity: 0.6, transform: 'rotate(-90deg)' }}>Lateral</span>
+                <span style={{ fontSize: 10, color: comBorda ? '#333' : '#fff', opacity: 0.6, transform: 'rotate(-90deg)' }}>{dictionary?.caixa_gaveta?.lateral || 'Lateral'}</span>
               </div>
               <div style={{ position: 'absolute', left: pCola + pLat1, width: pTampa, height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                 <div style={{ transform: 'rotate(-90deg)', width: FLAT_LUVA_H, height: pTampa, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                   <LogoPreviewHTML editData={editData} color={comBorda ? logoColor : '#fff'} layout={logoLayout} scaleFactor={0.45} maxWidth={160} hideTagline={false} withBackground={comBorda && !!patternSrc} />
                 </div>
-                <span style={{ position: 'absolute', bottom: 10, fontSize: 10, color: comBorda ? '#333' : '#fff', opacity: 0.6 }}>Tampa</span>
+                <span style={{ position: 'absolute', bottom: 10, fontSize: 10, color: comBorda ? '#333' : '#fff', opacity: 0.6 }}>{dictionary?.caixa_gaveta?.tampa || 'Tampa'}</span>
               </div>
               <div style={{ position: 'absolute', left: pCola + pLat1 + pTampa, width: pLat2, height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                <span style={{ fontSize: 10, color: comBorda ? '#333' : '#fff', opacity: 0.6, transform: 'rotate(-90deg)' }}>Lateral</span>
+                <span style={{ fontSize: 10, color: comBorda ? '#333' : '#fff', opacity: 0.6, transform: 'rotate(-90deg)' }}>{dictionary?.caixa_gaveta?.lateral || 'Lateral'}</span>
               </div>
               <div style={{ position: 'absolute', left: pCola + pLat1 + pTampa + pLat2, width: pFundo, height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                <span style={{ fontSize: 10, color: comBorda ? '#333' : '#fff', opacity: 0.6, transform: 'rotate(-90deg)' }}>Fundo</span>
+                <span style={{ fontSize: 10, color: comBorda ? '#333' : '#fff', opacity: 0.6, transform: 'rotate(-90deg)' }}>{dictionary?.caixa_gaveta?.fundo || 'Fundo'}</span>
               </div>
             </div>
           </div>
         </div>
         <div style={{ fontSize: '11px', color: '#999', fontFamily: 'Montserrat,sans-serif', fontWeight: 600 }}>
-          Arte Luva: 43,45 x 18,45 cm
+          {dictionary?.caixa_gaveta?.arte_luva_dim || 'Arte Luva: 43,45 x 18,45 cm'}
         </div>
       </div>
 
       {/* Flat Arte - Gaveta */}
       <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '8px', width: '100%', marginTop: '20px' }}>
-        <span style={{ fontSize: '10px', fontWeight: 800, color: '#999', textTransform: 'uppercase' }}>Arte Flat - Gaveta (Interna)</span>
+        <span style={{ fontSize: '10px', fontWeight: 800, color: '#999', textTransform: 'uppercase' }}>{dictionary?.caixa_gaveta?.arte_flat_gaveta || 'Arte Flat - Gaveta (Interna)'}</span>
         <div style={{
           width: '300px', height: '220px', position: 'relative',
           display: 'flex', alignItems: 'center', justifyContent: 'center',
@@ -344,11 +344,11 @@ export default function CaixaPreview({
             {/* Aba Direita (Lateral Direita) */}
             <div style={{ position: 'absolute', top: 0, right: '-70px', width: '70px', height: '185px', background: drawerColor, border: '1px dashed rgba(0,0,0,0.3)', borderLeft: 'none' }} />
             
-            <span style={{ position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%)', fontSize: 10, color: 'rgba(0,0,0,0.4)', fontWeight: 600 }}>Fundo</span>
+            <span style={{ position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%)', fontSize: 10, color: 'rgba(0,0,0,0.4)', fontWeight: 600 }}>{dictionary?.caixa_gaveta?.fundo || 'Fundo'}</span>
           </div>
         </div>
         <div style={{ fontSize: '11px', color: '#999', fontFamily: 'Montserrat,sans-serif', fontWeight: 600 }}>
-          Arte Gaveta: Aprox. 27,5 x 32,5 cm
+          {dictionary?.caixa_gaveta?.arte_gaveta_dim || 'Arte Gaveta: Aprox. 27,5 x 32,5 cm'}
         </div>
       </div>
 

@@ -5228,6 +5228,12 @@ function AssinaturaEmailPreview({ brand, editData, accentColor, logoColor, logoL
           <li dangerouslySetInnerHTML={{ __html: dictionary?.digital_tab?.install_step_3 || 'Procure pela seção de <b>Assinatura</b> e crie uma nova.' }}></li>
           <li dangerouslySetInnerHTML={{ __html: dictionary?.digital_tab?.install_step_4 || 'Clique na caixa de texto em branco e <b>Cole (Ctrl+V ou Cmd+V)</b>. Pronto, a arte vai aparecer lá dentro magicamente! ✨' }}></li>
         </ol>
+        <button
+          onClick={() => window.dispatchEvent(new CustomEvent('brandbox_checkout_upsell', { detail: { item: 'assinatura_email_premium' } }))}
+          style={{ marginTop: '12px', width: '100%', padding: '8px', background: accentColor, color: '#fff', border: 'none', borderRadius: '6px', fontSize: '0.8rem', fontWeight: 700, cursor: 'pointer' }}
+        >
+          {dictionary?.ui?.upgrade_assinatura || 'Obter Assinatura Premium'}
+        </button>
       </div>
       {(setCartaoContacts && setClinicaNome && setLocalSlogan) && (
         <div style={{ border: '1px solid #e8e8e8', borderRadius: '12px', overflow: 'hidden', width: '100%', maxWidth: '450px', background: '#fcfcfc', marginTop: '10px' }}>
@@ -5614,50 +5620,56 @@ const getPreviewTargetWidth = (item) => {
   return 595; // Default para folders A4, receituários, diários, Meu Pratinho, etc.
 };
 
+// Digitais: sempre inclusos no plano PRO
+const ITENS_DIGITAIS = []; // Pack Instagram e Assinatura ficam na aba Digital, não na Papelaria
+// Papelaria disponível para não-médicos
+export const PAPELARIA_GERAL = [
+  "Cartão de Visita", "Papel Timbrado", "Tag para Sacola",
+  "Etiqueta para Correios", "Envelope Ofício (23x11,5cm)", "Envelope Saco (24x34cm)", "Recibo",
+  "Pasta A4", "Caneca", "T-Shirt", "Cartão de Retorno", "Cartão de Agradecimento (10x15cm)", "Capa de Caderno / Agenda", "Caixa Gaveta (L 13,5 x P 18,5 cm)"
+];
+// Papelaria exclusiva para área médica
+export const PAPELARIA_MEDICA = [
+  "Receituário Padrão (A4 e A5)", "Atestado Médico (A4 e A5)",
+  "Receituário de Controle Especial", "Prontuário Médico", "Receita de Alta",
+  "Ficha de Cadastro",
+];
+// Digitais/clínicos médicos: sempre inclusos se isSaude
+export const DIGITAIS_MEDICOS = [
+  "Guia Alimentar", "Guia de Cuidados", "Guia de Desenvolvimento",
+  "Guia de Vacina c/ Calendário", "Cartão de Exame Pré-Natal",
+  "Gráfico de Crescimento", "Checklist Maternidade", "Guia do Sono",
+  "Orientações p/ Recém Nascidos", "Certificado de Coragem",
+  "Diário do Xixi", "Meu Pratinho", "Guia de Amamentação",
+];
+
+// Normaliza nomes legados para compatibilidade com dados salvos anteriormente
+export const LEGACY_NAMES = {
+  'Pasta A4 Exclusiva': 'Pasta A4',
+  'Papel Timbrado': 'Papel Timbrado', // Fix: keep full name to match PAPELARIA_GERAL!
+  'Arte para Caneca/Brindes': 'Caneca',
+  'Arte para Caneca': 'Caneca',
+  'Recibo Comercial': 'Recibo', // Map to general Recibo
+  'Cartão de Retorno/Fidelidade': 'Cartão de Retorno', // Map to general Cartão de Retorno
+  'Cartão de Agradecimento (10x15cm)': 'Cartão de Agradecimento (10x15cm)',
+  'Dicas de Introdução Alimentar': 'Guia Alimentar',
+  'Orientação Pré-Natal': 'Guia de Cuidados',
+  'Cartão de Exames': 'Cartão de Exame Pré-Natal',
+  'Cartão de Exames Pré-Natal': 'Cartão de Exame Pré-Natal',
+  'Quadro de Incentivo': 'Certificado de Coragem',
+  'Card de Orientação de Sono': 'Guia do Sono',
+  'Camiseta': 'T-Shirt',
+  'Caderno': 'Capa de Caderno / Agenda',
+  'Caderno (Capa e Contra-capa)': 'Capa de Caderno / Agenda',
+  'Adesivo': 'Etiqueta para Correios',
+  'Sacola': 'Tag para Sacola',
+};
+
 function PapelariaStep({ brand, accentColor, paletteColors, estampaPatterns, estampaSelectedIdx, cartaoContacts, setCartaoContacts, plano, isSaude, crmData, setCrmData, marca, editData, logoColor, logoLayout, setLayout, clinicaNome, setClinicaNome, onNavSync, navIdx, setNavIdx, customLogoSrc, getCustomLogoScale, setCustomLogoScale, getCustomLogoScaleMax, customLogoScaleMap, submarcaColor, submarcaTextColor, iconPath, avulsoParam }) {
   const { dictionary, lang } = useTranslation();
-  // Digitais: sempre inclusos no plano PRO
-  const ITENS_DIGITAIS = []; // Pack Instagram e Assinatura ficam na aba Digital, não na Papelaria
-  // Papelaria disponível para não-médicos
-  const PAPELARIA_GERAL = [
-    "Cartão de Visita", "Papel Timbrado", "Tag para Sacola",
-    "Etiqueta para Correios", "Envelope Ofício (23x11,5cm)", "Envelope Saco (24x34cm)", "Recibo",
-    "Pasta A4", "Caneca", "T-Shirt", "Cartão de Retorno", "Cartão de Agradecimento (10x15cm)", "Capa de Caderno / Agenda", "Caixa Gaveta (L 13,5 x P 18,5 cm)"
-  ];
-  // Papelaria exclusiva para área médica
-  const PAPELARIA_MEDICA = [
-    "Receituário Padrão (A4 e A5)", "Atestado Médico (A4 e A5)",
-    "Receituário de Controle Especial", "Prontuário Médico", "Receita de Alta",
-    "Ficha de Cadastro",
-  ];
-  // Digitais/clínicos médicos: sempre inclusos se isSaude
-  const DIGITAIS_MEDICOS = [
-    "Guia Alimentar", "Guia de Cuidados", "Guia de Desenvolvimento",
-    "Guia de Vacina c/ Calendário", "Cartão de Exame Pré-Natal",
-    "Gráfico de Crescimento", "Checklist Maternidade", "Guia do Sono",
-    "Orientações p/ Recém Nascidos", "Certificado de Coragem",
-    "Diário do Xixi", "Meu Pratinho", "Guia de Amamentação",
-  ];
   // Monta lista final: papelaria selecionada no checkout + digitais automáticos
   const papelariaSelecionada = brand?.papelariaSelecionada || [];
   const TODOS_DISPONIVEIS = [...PAPELARIA_GERAL, ...(isSaude ? PAPELARIA_MEDICA : []), ...(isSaude ? DIGITAIS_MEDICOS : [])];
-  // Normaliza nomes legados para compatibilidade com dados salvos anteriormente
-  const LEGACY_NAMES = {
-    'Pasta A4 Exclusiva': 'Pasta A4',
-    'Papel Timbrado': 'Papel Timbrado', // Fix: keep full name to match PAPELARIA_GERAL!
-    'Arte para Caneca/Brindes': 'Caneca',
-    'Arte para Caneca': 'Caneca',
-    'Recibo Comercial': 'Recibo', // Map to general Recibo
-    'Cartão de Retorno/Fidelidade': 'Cartão de Retorno', // Map to general Cartão de Retorno
-    'Cartão de Agradecimento (10x15cm)': 'Cartão de Agradecimento (10x15cm)',
-    'Dicas de Introdução Alimentar': 'Guia Alimentar',
-    'Orientação Pré-Natal': 'Guia de Cuidados',
-    'Cartão de Exames': 'Cartão de Exame Pré-Natal',
-    'Cartão de Exames Pré-Natal': 'Cartão de Exame Pré-Natal',
-    'Quadro de Incentivo': 'Certificado de Coragem',
-    'Card de Orientação de Sono': 'Guia do Sono',
-    'Camiseta': 'T-Shirt',
-  };
   const papelariaNorm = papelariaSelecionada.map(n => LEGACY_NAMES[n] || n);
   // Para médicos: PAPELARIA_GERAL sempre inclusa + itens comprados. Para não-médicos: só o que comprou.
   const _autoInclusos = (isSaude && plano !== 'avulso') ? PAPELARIA_GERAL : [];
@@ -5835,7 +5847,46 @@ function PapelariaStep({ brand, accentColor, paletteColors, estampaPatterns, est
       }
   };
 
-
+  // Listener para checkout direto via Modal
+  React.useEffect(() => {
+    const handler = async (e) => {
+      const itemStr = e.detail?.item;
+      if (itemStr) {
+        setUpsellLoading(true);
+        try {
+          const current = JSON.parse(localStorage.getItem('brandbox_pending_upsell') || '[]');
+          const next = current.includes(itemStr) ? current : [...current, itemStr];
+          localStorage.setItem('brandbox_pending_upsell', JSON.stringify(next));
+          setUpsellSelecionados(next);
+          
+          const res = await fetch('/api/stripe/checkout', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              items: next,
+              brandId: brand.id,
+              email: brand.email || brand.formData?.email || '',
+              marca: marca || '',
+              plano: plano || brand.plano || 'avulso',
+              returnUrl: window.location.href,
+              sessionId: brand.sessionId || brand.id
+            }),
+          });
+          const data = await res.json();
+          if (data.url) {
+            window.location.href = data.url;
+          } else {
+            setUpsellLoading(false);
+            alert('Erro ao iniciar checkout. Tente novamente.');
+          }
+        } catch (err) {
+          setUpsellLoading(false);
+        }
+      }
+    };
+    window.addEventListener('brandbox_checkout_upsell', handler);
+    return () => window.removeEventListener('brandbox_checkout_upsell', handler);
+  }, [brand, marca, plano]);
 
   const currentIdx = estampaSelectedIdx || 0;
   const currentItem = itens[Math.min(idx, itens.length - 1)];
@@ -9253,7 +9304,7 @@ ${fontImports2}
             : currentItem === 'Tag para Sacola'
               ? <TagSacolaPreview item={currentItem} accentColor={accentColor} patternSrc={patternSrc} editData={{ ...itemEditData, tagline: localSlogan }} logoColor={logoColor} logoLayout={logoLayout} cartaoContacts={cartaoContacts} crmLine={crmLine} clinicaNome={clinicaNome} comBorda={comBorda} setComBorda={setComBorda} paletteColors={paletteColors} borderColor={borderColor} setBorderColor={setBorderColor} patternScale={patternScale} setPatternScale={setPatternScale} sizeIdx={tagSacolaSizeIdx} setSizeIdx={setTagSacolaSizeIdx} />
           : currentItem === 'Caixa Gaveta (L 13,5 x P 18,5 cm)'
-              ? <CaixaPreview accentColor={accentColor} patternSrc={patternSrc} editData={{ ...itemEditData, tagline: localSlogan }} logoColor={logoColor} logoLayout={logoLayout} cartaoContacts={cartaoContacts} crmLine={crmLine} clinicaNome={clinicaNome} comBorda={comBorda} setComBorda={setComBorda} paletteColors={paletteColors} borderColor={borderColor} setBorderColor={setBorderColor} patternScale={patternScale} setPatternScale={setPatternScale} />
+              ? <CaixaPreview dictionary={dictionary} accentColor={accentColor} patternSrc={patternSrc} editData={{ ...itemEditData, tagline: localSlogan }} logoColor={logoColor} logoLayout={logoLayout} cartaoContacts={cartaoContacts} crmLine={crmLine} clinicaNome={clinicaNome} comBorda={comBorda} setComBorda={setComBorda} paletteColors={paletteColors} borderColor={borderColor} setBorderColor={setBorderColor} patternScale={patternScale} setPatternScale={setPatternScale} />
             : currentItem === 'Sacola de Papel'
               ? <SacolaPapelPreview accentColor={accentColor} patternSrc={patternSrc} editData={{ ...itemEditData, tagline: localSlogan }} logoColor={logoColor} logoLayout={logoLayout} cartaoContacts={cartaoContacts} crmLine={crmLine} clinicaNome={clinicaNome} comBorda={comBorda} setComBorda={setComBorda} paletteColors={paletteColors} borderColor={borderColor} setBorderColor={setBorderColor} patternScale={patternScale} setPatternScale={setPatternScale} />
             : currentItem === 'Etiqueta para Correios'
@@ -9305,8 +9356,8 @@ ${fontImports2}
         </span>
       </div>
 
-      {/* Editar contatos — acordeão (todos os itens exceto caneca e camiseta) */}
-      {currentItem !== 'Caneca' && currentItem !== 'Arte para Caneca' && currentItem !== 'T-Shirt' && <div style={{ border: '1px solid #e8e8e8', borderRadius: '12px', overflow: 'hidden' }}>
+      {/* Editar contatos — acordeão (todos os itens exceto caneca, camiseta e caixa gaveta) */}
+      {currentItem !== 'Caneca' && currentItem !== 'Arte para Caneca' && currentItem !== 'T-Shirt' && currentItem !== 'Caixa Gaveta (L 13,5 x P 18,5 cm)' && <div style={{ border: '1px solid #e8e8e8', borderRadius: '12px', overflow: 'hidden' }}>
           <button onClick={() => setContactOpen(o => !o)} style={{ width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '10px 14px', background: 'none', border: 'none', cursor: 'pointer' }}>
             <span style={{ fontWeight: 600, fontSize: '0.78rem', color: '#555' }}>{dictionary?.ui?.editar_dados || 'Editar dados'}</span>
             <span style={{ fontSize: '0.7rem', color: '#aaa' }}>{contactOpen ? '▲' : '▼'}</span>
@@ -9650,6 +9701,9 @@ ${fontImports2}
                 {upsellErro && <div style={{ marginTop: '6px', fontSize: '0.7rem', color: '#e55', fontFamily: 'Montserrat,sans-serif' }}>{upsellErro}</div>}
               </div>
             )}
+
+
+
           </div>
         );
       })()}
@@ -9684,6 +9738,7 @@ function EntregaContent({ brand, plano, setBrand }) {
   });
   const setLayout = (l) => { setLogoLayout(l); try { localStorage.setItem(`brandbox_logo_layout_${brand.id}`, l); } catch {} };
   const [downloading, setDownloading] = useState(false);
+  const [showAddItemsModal, setShowAddItemsModal] = useState(false);
   const [showEdit, setShowEdit] = useState(false);
   const [marca, setMarcaState] = useState(brand.editData?.marca || '');
   const [tempMarca, setTempMarca] = useState(brand.editData?.marca || '');
@@ -11705,6 +11760,29 @@ function EntregaContent({ brand, plano, setBrand }) {
 
         </div> {/* Fecha o div de padding das etapas */}
 
+        {/* BOTAO PARA ABRIR O MODAL DE ADICIONAR ITENS */}
+        <div style={{ marginTop: '2rem', textAlign: 'center' }}>
+          <button
+            onClick={() => setShowAddItemsModal(true)}
+            style={{
+              background: 'none', border: '1.5px solid #eaeaea', padding: '12px 24px', borderRadius: '30px',
+              fontSize: '0.85rem', color: '#555', cursor: 'pointer', fontFamily: 'Montserrat, sans-serif',
+              display: 'inline-flex', alignItems: 'center', gap: '8px', fontWeight: 700,
+              boxShadow: '0 4px 12px rgba(0,0,0,0.02)', transition: 'all 0.2s', backgroundColor: '#fff'
+            }}
+            onMouseEnter={e => { e.currentTarget.style.borderColor = accentColor; e.currentTarget.style.color = accentColor; e.currentTarget.style.transform = 'translateY(-2px)'; e.currentTarget.style.boxShadow = `0 6px 16px ${accentColor}22`; }}
+            onMouseLeave={e => { e.currentTarget.style.borderColor = '#eaeaea'; e.currentTarget.style.color = '#555'; e.currentTarget.style.transform = 'translateY(0)'; e.currentTarget.style.boxShadow = '0 4px 12px rgba(0,0,0,0.02)'; }}
+          >
+            <span style={{ display: 'flex', alignItems: 'center' }}>
+              <svg viewBox="0 0 24 24" width="18" height="18" stroke="currentColor" strokeWidth="2" fill="none" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"></path>
+                <line x1="3" y1="6" x2="21" y2="6"></line>
+                <path d="M16 10a4 4 0 0 1-8 0"></path>
+              </svg>
+            </span> {dictionary?.add_modal?.titulo || 'Adicionar à Caixa'}
+          </button>
+        </div>
+
         {/* Link de reset para testes */}
         <div style={{ marginTop: '3rem', textAlign: 'center' }}>
           <button
@@ -11723,6 +11801,129 @@ function EntregaContent({ brand, plano, setBrand }) {
         </div>
 
       </div>
+
+      {/* Modal de Adicionar Itens */}
+      {showAddItemsModal && (
+        <div style={{
+          position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, zIndex: 99999,
+          background: 'rgba(0,0,0,0.5)', backdropFilter: 'blur(5px)',
+          display: 'flex', alignItems: 'flex-end', justifyContent: 'center'
+        }} onClick={() => setShowAddItemsModal(false)}>
+          <div style={{
+            background: '#fcfcfc', width: '100%', maxWidth: '600px', height: '85vh',
+            borderRadius: '24px 24px 0 0', padding: '24px 20px',
+            boxShadow: '0 -10px 40px rgba(0,0,0,0.1)', display: 'flex', flexDirection: 'column',
+            animation: 'slideUp 0.3s cubic-bezier(0.16, 1, 0.3, 1)'
+          }} onClick={e => e.stopPropagation()}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
+              <div>
+                <h2 style={{ fontSize: '1.3rem', fontWeight: 800, color: '#1a1a1a', margin: '0 0 6px 0', fontFamily: 'Montserrat, sans-serif', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                  <svg viewBox="0 0 24 24" width="22" height="22" stroke="currentColor" strokeWidth="2.5" fill="none" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"></path>
+                    <line x1="3" y1="6" x2="21" y2="6"></line>
+                    <path d="M16 10a4 4 0 0 1-8 0"></path>
+                  </svg>
+                  {dictionary?.add_modal?.titulo || 'Adicionar à Caixa'}
+                </h2>
+                <p style={{ fontSize: '0.85rem', color: '#666', margin: 0, fontFamily: 'Montserrat, sans-serif' }}>{dictionary?.add_modal?.descricao || 'Escolha novos itens para complementar sua marca.'}</p>
+              </div>
+              <button onClick={() => setShowAddItemsModal(false)} style={{ background: '#eee', border: 'none', width: '36px', height: '36px', borderRadius: '18px', fontSize: '1.1rem', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#555', transition: 'background 0.2s' }} onMouseEnter={e => e.currentTarget.style.background = '#e0e0e0'} onMouseLeave={e => e.currentTarget.style.background = '#eee'}>✕</button>
+            </div>
+            
+            <div style={{ flex: 1, overflowY: 'auto', display: 'flex', flexDirection: 'column', gap: '8px', paddingBottom: '40px', paddingRight: '8px' }}>
+              {(() => {
+                const ALL_SYSTEM_ITEMS = [...PAPELARIA_GERAL, ...(isSaude ? PAPELARIA_MEDICA : []), ...(isSaude ? DIGITAIS_MEDICOS : [])];
+                
+                const dbSelecionada = brand?.papelariaSelecionada || [];
+                const papelariaNorm = dbSelecionada.map(n => LEGACY_NAMES[n] || n);
+                const autoInclusos = (isSaude && plano !== 'avulso') ? PAPELARIA_GERAL : [];
+                const ownedItems = ALL_SYSTEM_ITEMS.filter(i => papelariaNorm.includes(i) || autoInclusos.includes(i));
+                
+                let upsellSession = [];
+                try {
+                  const upsellStorage = typeof window !== 'undefined' ? localStorage.getItem('brandbox_pending_upsell') : null;
+                  if (upsellStorage) upsellSession = JSON.parse(upsellStorage);
+                } catch (e) {}
+                const purchased = [...ownedItems, ...upsellSession];
+                
+                const unpurchasedItems = [
+                  { id: 'cartao_visita', label: 'Cartão de Visita', matchStr: 'Cartão de Visita' },
+                  { id: 'papel_timbrado', label: 'Papel Timbrado', matchStr: 'Papel Timbrado' },
+                  { id: 'papel_presente', label: 'Papel de Presente', matchStr: 'Papel de Presente' },
+                  { id: 'tag_sacola', label: 'Tag para Sacola', matchStr: 'Tag para Sacola' },
+                  { id: 'etiqueta_correios', label: 'Etiqueta p/ Correios', matchStr: 'Etiqueta para Correios' },
+                  { id: 'envelope_oficio', label: 'Envelope Ofício', matchStr: 'Envelope Ofício' },
+                  { id: 'envelope_saco', label: 'Envelope Saco', matchStr: 'Envelope Saco' },
+                  { id: 'recibo', label: 'Recibo', matchStr: 'Recibo' },
+                  { id: 'pasta_a4', label: 'Pasta A4', matchStr: 'Pasta A4' },
+                  { id: 'caneca', label: 'Caneca', matchStr: 'Caneca' },
+                  { id: 'camiseta', label: 'T-Shirt', matchStr: 'T-Shirt' },
+                  { id: 'cartao_retorno', label: 'Cartão de Retorno', matchStr: 'Cartão de Retorno' },
+                  { id: 'cartao_agradecimento', label: 'Agradecimento', matchStr: 'Cartão de Agradecimento' },
+                  { id: 'caderno', label: 'Caderno / Agenda', matchStr: 'Capa de Caderno' },
+                  { id: 'receituario_padrao', label: 'Receituário Padrão', matchStr: 'Receituário Padrão' },
+                  { id: 'atestado_medico', label: 'Atestado Médico', matchStr: 'Atestado Médico' },
+                  { id: 'receituario_controle', label: 'Controle Especial', matchStr: 'Controle Especial' },
+                  { id: 'prontuario_medico', label: 'Prontuário Médico', matchStr: 'Prontuário Médico' },
+                  { id: 'checklist_maternidade', label: 'Checklist Maternidade', matchStr: 'Checklist Maternidade' },
+                  { id: 'orientacoes_rn', label: 'Orientações p/ RN', matchStr: 'Orientações p/ Recém Nascidos' },
+                  { id: 'guia_cuidados', label: 'Guia de Cuidados', matchStr: 'Guia de Cuidados' },
+                  { id: 'guia_alimentar', label: 'Guia Alimentar', matchStr: 'Guia Alimentar' },
+                  { id: 'guia_desenvolvimento', label: 'Guia Desenvolvimento', matchStr: 'Guia de Desenvolvimento' },
+                  { id: 'cartao_vacina', label: 'Cartão de Vacina', matchStr: 'Vacina' },
+                  { id: 'guia_sono', label: 'Guia do Sono', matchStr: 'Guia do Sono' },
+                  { id: 'caderneta_saude', label: 'Caderneta de Saúde', matchStr: 'Caderneta de Saúde' },
+                  { id: 'certificado_coragem', label: 'Cert. de Coragem', matchStr: 'Certificado de Coragem' },
+                  { id: 'diario_xixi', label: 'Diário do Xixi', matchStr: 'Diário do Xixi' },
+                  { id: 'meu_pratinho', label: 'Meu Pratinho', matchStr: 'Meu Pratinho' },
+                  { id: 'ficha_cadastro', label: 'Ficha de Cadastro', matchStr: 'Ficha de Cadastro' },
+                  { id: 'guia_amamentacao', label: 'Guia Amamentação', matchStr: 'Guia de Amamentação' }
+                ].filter(item => {
+                  // 1. O item deve estar disponível no sistema para o nicho atual
+                  const availableInSystem = ALL_SYSTEM_ITEMS.some(sys => sys.toLowerCase().includes(item.matchStr.toLowerCase()));
+                  if (!availableInSystem) return false;
+                  
+                  // 2. O item NÃO deve estar já comprado
+                  return !purchased.some(p => p.toLowerCase().includes(item.matchStr.toLowerCase()) || item.matchStr.toLowerCase().includes(p.toLowerCase()));
+                });
+
+                if (unpurchasedItems.length === 0) {
+                  return (
+                    <div style={{ textAlign: 'center', padding: '40px 20px', color: '#888', fontSize: '0.9rem', fontFamily: 'Montserrat, sans-serif', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '12px' }}>
+                      <div style={{ fontSize: '2rem' }}>🎉</div>
+                      <div style={{ fontWeight: 600, color: '#444' }}>{dictionary?.add_modal?.todos_selecionados || 'Incrível!'}</div>
+                      <div>{dictionary?.add_modal?.todos_selecionados_desc || 'Você já garantiu todos os itens disponíveis para complementar a sua marca.'}</div>
+                    </div>
+                  );
+                }
+
+                return unpurchasedItems.map((item, idx) => (
+                  <div key={idx} style={{ background: '#fff', border: '1px solid #eaeaea', borderRadius: '12px', padding: '12px 16px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', transition: 'background 0.2s' }} onMouseEnter={e => { e.currentTarget.style.background = '#fafafa'; }} onMouseLeave={e => { e.currentTarget.style.background = '#fff'; }}>
+                    <div style={{ fontSize: '0.85rem', fontWeight: 600, color: '#333', fontFamily: 'Montserrat, sans-serif' }}>{dictionary?.papelaria_itens?.[item.id] || item.label}</div>
+                    <button
+                      onClick={() => {
+                        window.dispatchEvent(new CustomEvent('brandbox_checkout_upsell', { detail: { item: item.matchStr } }));
+                      }}
+                      style={{ background: 'transparent', color: accentColor, border: `1px solid ${accentColor}`, borderRadius: '20px', padding: '6px 14px', fontSize: '0.7rem', fontWeight: 700, fontFamily: 'Montserrat, sans-serif', cursor: 'pointer', transition: 'all 0.2s' }}
+                      onMouseEnter={e => { e.currentTarget.style.background = accentColor; e.currentTarget.style.color = '#fff'; }}
+                      onMouseLeave={e => { e.currentTarget.style.background = 'transparent'; e.currentTarget.style.color = accentColor; }}
+                    >
+                      {dictionary?.add_modal?.btn_add || 'Adicionar +'}
+                    </button>
+                  </div>
+                ));
+              })()}
+            </div>
+            <style>{`
+              @keyframes slideUp {
+                from { transform: translateY(100%); }
+                to { transform: translateY(0); }
+              }
+            `}</style>
+          </div>
+        </div>
+      )}
+
     </div>
   );
 }

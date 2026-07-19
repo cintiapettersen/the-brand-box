@@ -1873,5 +1873,26 @@
     "pattern_liked": "♥️ Loved it",
     "pattern_like": "🤍 Love it",
     "pattern_discard": "👎 Discard"
+  },
+  "caixa_gaveta": {
+    "parte_externa": "Outer Part (Sleeve)",
+    "cor_gaveta": "Drawer Color (Inner)",
+    "tamanho_padrao": "Standard Size: W 13.5 cm × H 7.0 cm × D 18.5 cm",
+    "mockup_3d": "Interactive 3D Mockup",
+    "arte_flat_luva": "Flat Art - Sleeve (Outer)",
+    "arte_luva_dim": "Sleeve Art: 43.45 x 18.45 cm",
+    "arte_flat_gaveta": "Flat Art - Drawer (Inner)",
+    "arte_gaveta_dim": "Drawer Art: Approx. 27.5 x 32.5 cm",
+    "fundo": "Bottom",
+    "lateral": "Side",
+    "tampa": "Top",
+    "cola": "Glue",
+    "mudar_cor": "Change Drawer Color"
+  },
+  "add_modal": {
+    "titulo": "Add to Box",
+    "descricao": "Choose new items to complement your brand.",
+    "btn_add": "Add +",
+    "msg_wpp": "Hello! I would like to add the item \"{item}\" to my Brand Box ({marca})."
   }
 }
