@@ -124,8 +124,9 @@ export default function Home() {
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
     setSource(params.get('utm_source') || params.get('source') || 'Direct');
-    if (params.get('demo') === 'BUILDWEEK100') {
+    if (params.get('demo') === 'BUILDWEEK100' || localStorage.getItem('brandbox_demo_mode') === 'BUILDWEEK100') {
       localStorage.setItem('brandbox_demo_mode', 'BUILDWEEK100');
+      setFormData(prev => ({ ...prev, email: 'judge@demo.thebrandbox.com' }));
     }
   }, []);
 
