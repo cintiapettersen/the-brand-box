@@ -2675,53 +2675,58 @@ export default function Home() {
                         setLoadingCheckout('starter');
                         console.log('🚀 Iniciando checkout Starter...');
                         try {
-                          let finalPatternUrl = null;
                           const patternObj = selectedPattern !== null && generatedPatterns[selectedPattern] && !generatedPatterns[selectedPattern]._devPlaceholder
                             ? { mimeType: generatedPatterns[selectedPattern].mimeType, base64: generatedPatterns[selectedPattern].base64 }
                             : null;
-                          if (patternObj) {
+
+                          const brandState = {
+                            editData, formData, resultadoFinal,
+                            selectedPaleta, selectedIcon, selectedTipo,
+                            paletas, tipografias,
+                            activeColor: editData.corAtiva,
+                            pattern: patternObj,
+                            iconPath: getIconById(ESTILO_NOME_BY_ID[resultadoFinal?.estiloId] || resultadoFinal?.estiloNome, selectedIcon)?.path || null,
+                            patternGenerationCount,
+                            estampas,
+                          };
+
+                          ['brandbox_step', 'brandbox_cartao', 'brandbox_crm', 'brandbox_plano', 'brandbox_papelaria'].forEach(k => localStorage.removeItem(k));
+
+                          // Salvar no Supabase para link permanente + disparo de email
+                          let sessionIdExp = null;
+                          try {
+                            const cleanState = { ...brandState, estampas: null, generatedPatterns: null };
+                            cleanState.pattern = null; // Save pattern as null initially, will upload after we have sessionId
+                            const saveRes = await fetch('/api/salvar-entrega', {
+                              method: 'POST',
+                              headers: { 'Content-Type': 'application/json' },
+                              body: JSON.stringify({ brandState: cleanState, plano: 'starter', email: formData.email, marca: formData.marca }),
+                            });
+                            const saveData = await saveRes.json();
+                            if (saveData.sessionId) {
+                              sessionIdExp = saveData.sessionId;
+                              localStorage.setItem('brandbox_session', sessionIdExp);
+                            }
+                          } catch (e) {
+                            console.warn('Supabase save failed, continuando sem sessionId:', e);
+                          }
+
+                          let finalPatternUrl = null;
+                          if (patternObj && sessionIdExp) {
                             try {
                               const uploadRes = await fetch('/api/salvar-estampa', {
                                 method: 'POST',
                                 headers: { 'Content-Type': 'application/json' },
-                                body: JSON.stringify({ base64: patternObj.base64, marca: formData.marca, sessionId: 'temp' })
+                                body: JSON.stringify({ base64: patternObj.base64, marca: formData.marca, sessionId: sessionIdExp })
                               });
                               const uploadData = await uploadRes.json();
                               if (uploadData.url) finalPatternUrl = uploadData.url;
                             } catch (e) { console.warn('Pattern upload error:', e); }
                           }
 
-                          const brandState = {
-                          editData, formData, resultadoFinal,
-                          selectedPaleta, selectedIcon, selectedTipo,
-                          paletas, tipografias,
-                          activeColor: editData.corAtiva,
-                          pattern: finalPatternUrl ? { url: finalPatternUrl } : patternObj,
-                          iconPath: getIconById(ESTILO_NOME_BY_ID[resultadoFinal?.estiloId] || resultadoFinal?.estiloNome, selectedIcon)?.path || null,
-                          patternGenerationCount,
-                          estampas,
-                        };
-                        if (brandState.pattern && !finalPatternUrl) try { localStorage.setItem('brandbox_pattern', JSON.stringify(brandState.pattern)); } catch {}
-                        try { localStorage.setItem('brandbox_delivery', JSON.stringify({ ...brandState, pattern: finalPatternUrl ? brandState.pattern : null })); } catch {}
-                        ['brandbox_step', 'brandbox_cartao', 'brandbox_crm', 'brandbox_plano', 'brandbox_papelaria'].forEach(k => localStorage.removeItem(k));
-                        // Salvar no Supabase para link permanente + disparo de email
-                        let sessionIdExp = null;
-                        try {
-                          const cleanState = { ...brandState, estampas: null, generatedPatterns: null };
-                          if (!finalPatternUrl) cleanState.pattern = null;
-                          const saveRes = await fetch('/api/salvar-entrega', {
-                            method: 'POST',
-                            headers: { 'Content-Type': 'application/json' },
-                            body: JSON.stringify({ brandState: cleanState, plano: 'starter', email: formData.email, marca: formData.marca }),
-                          });
-                          const saveData = await saveRes.json();
-                          if (saveData.sessionId) {
-                            sessionIdExp = saveData.sessionId;
-                            localStorage.setItem('brandbox_session', sessionIdExp);
-                          }
-                        } catch (e) {
-                          console.warn('Supabase save failed, continuando sem sessionId:', e);
-                        }
+                          if (brandState.pattern && !finalPatternUrl) try { localStorage.setItem('brandbox_pattern', JSON.stringify(brandState.pattern)); } catch {}
+                          try { localStorage.setItem('brandbox_delivery', JSON.stringify({ ...brandState, pattern: finalPatternUrl ? { url: finalPatternUrl } : null })); } catch {}
+
                           const res = await fetch('/api/checkout', {
                             method: 'POST',
                             headers: { 'Content-Type': 'application/json' },
@@ -2814,21 +2819,9 @@ export default function Home() {
                           if (!confirmar) { setShowPediatriaModal(true); setLoadingCheckout(false); return; }
                         }
                         try {
-                          let finalPatternUrl = null;
                           const patternObj = selectedPattern !== null && generatedPatterns[selectedPattern] && !generatedPatterns[selectedPattern]._devPlaceholder
                             ? { mimeType: generatedPatterns[selectedPattern].mimeType, base64: generatedPatterns[selectedPattern].base64 }
                             : null;
-                          if (patternObj) {
-                            try {
-                              const uploadRes = await fetch('/api/salvar-estampa', {
-                                method: 'POST',
-                                headers: { 'Content-Type': 'application/json' },
-                                body: JSON.stringify({ base64: patternObj.base64, marca: formData.marca, sessionId: 'temp' })
-                              });
-                              const uploadData = await uploadRes.json();
-                              if (uploadData.url) finalPatternUrl = uploadData.url;
-                            } catch (e) { console.warn('Pattern upload error:', e); }
-                          }
 
                           const brandState = {
                             editData, formData, resultadoFinal,
@@ -2836,36 +2829,54 @@ export default function Home() {
                             currentPaletteColors: paletas?.find(p => p.id === selectedPaleta)?.paleta_hex || [],
                             paletas, tipografias,
                             activeColor: editData.corAtiva,
-                            pattern: finalPatternUrl ? { url: finalPatternUrl } : patternObj,
+                            pattern: patternObj,
                             iconPath: getIconById(ESTILO_NOME_BY_ID[resultadoFinal?.estiloId] || resultadoFinal?.estiloNome, selectedIcon)?.path || null,
                             patternGenerationCount,
                             estampas,
                             papelariaSelecionada,
                             plano: 'pro',
                           };
-                          if (brandState.pattern && !finalPatternUrl) try { localStorage.setItem('brandbox_pattern', JSON.stringify(brandState.pattern)); } catch {}
-                          try { localStorage.setItem('brandbox_delivery', JSON.stringify({ ...brandState, pattern: finalPatternUrl ? brandState.pattern : null })); } catch {}
+                          
                           ['brandbox_step', 'brandbox_cartao', 'brandbox_crm', 'brandbox_papelaria'].forEach(k => localStorage.removeItem(k));
                           localStorage.setItem('brandbox_plano', 'pro');
                           const extrasCount = Math.max(0, papelariaSelecionada.filter(item => item !== "Caderneta de Saúde").length - 5);
 
-                          let sessionId = null;
+                          let sessionIdPro = null;
                           try {
                             const cleanState = { ...brandState, estampas: null, generatedPatterns: null };
-                            if (!finalPatternUrl) cleanState.pattern = null;
+                            cleanState.pattern = null;
                             const saveRes = await fetch('/api/salvar-entrega', {
                               method: 'POST',
                               headers: { 'Content-Type': 'application/json' },
                               body: JSON.stringify({ brandState: cleanState, plano: 'pro', email: formData.email, marca: formData.marca }),
                             });
                             const saveData = await saveRes.json();
-                            if (saveData.sessionId) sessionId = saveData.sessionId;
+                            if (saveData.sessionId) {
+                              sessionIdPro = saveData.sessionId;
+                              localStorage.setItem('brandbox_session', sessionIdPro);
+                            }
                           } catch (e) { console.warn('Supabase save failed:', e); }
+
+                          let finalPatternUrl = null;
+                          if (patternObj && sessionIdPro) {
+                            try {
+                              const uploadRes = await fetch('/api/salvar-estampa', {
+                                method: 'POST',
+                                headers: { 'Content-Type': 'application/json' },
+                                body: JSON.stringify({ base64: patternObj.base64, marca: formData.marca, sessionId: sessionIdPro })
+                              });
+                              const uploadData = await uploadRes.json();
+                              if (uploadData.url) finalPatternUrl = uploadData.url;
+                            } catch (e) { console.warn('Pattern upload error:', e); }
+                          }
+
+                          if (brandState.pattern && !finalPatternUrl) try { localStorage.setItem('brandbox_pattern', JSON.stringify(brandState.pattern)); } catch {}
+                          try { localStorage.setItem('brandbox_delivery', JSON.stringify({ ...brandState, pattern: finalPatternUrl ? { url: finalPatternUrl } : null })); } catch {}
 
                           const res = await fetch('/api/checkout', {
                             method: 'POST',
                             headers: { 'Content-Type': 'application/json' },
-                            body: JSON.stringify({ plano: 'pro', marca: formData.marca, email: formData.email, extrasCount, papelaria: papelariaSelecionada, sessionId, lang }),
+                            body: JSON.stringify({ plano: 'pro', marca: formData.marca, email: formData.email, extrasCount, papelaria: papelariaSelecionada, sessionId: sessionIdPro, lang }),
                           });
                           const data = await res.json();
                           if (data.url) {
