@@ -12097,9 +12097,15 @@ function SucessoContent() {
         };
 
         const savedAvulso = localStorage.getItem('brandbox_avulso_' + avulsoParam);
-        if (savedAvulso) {
-          const saved = JSON.parse(savedAvulso);
-          if ((saved._v || 1) < AVULSO_VERSION) {
+        if (savedAvulso && savedAvulso !== 'undefined') {
+          let saved = null;
+          try {
+            saved = JSON.parse(savedAvulso);
+          } catch(e) {
+            console.error('Error parsing avulso JSON', e);
+            localStorage.removeItem('brandbox_avulso_' + avulsoParam);
+          }
+          if (saved && (saved._v || 1) < AVULSO_VERSION) {
             // Versão antiga: atualiza defaults mas preserva o que o cliente já personalizou
             const merged = {
               ...defaultAvulsoBrand,
@@ -12118,7 +12124,7 @@ function SucessoContent() {
             };
             setBrand(merged);
             localStorage.setItem('brandbox_avulso_' + avulsoParam, JSON.stringify(merged));
-          } else {
+          } else if (saved) {
             const _mergedItens = [...new Set([...(saved.papelariaSelecionada || []), ..._allPurchasedItems])];
             const savedMerged = { ...saved, papelariaSelecionada: _mergedItens };
             setBrand(savedMerged);

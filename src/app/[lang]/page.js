@@ -1556,8 +1556,8 @@ export default function Home() {
               className="wizard-step" style={{ position: 'absolute', width: '100%', height: '100%', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', textAlign: 'center', background: '#ffffff', borderRadius: '24px', border: '1px solid var(--border)' }}
             >
               <div style={{ position: 'absolute', top: '3rem', left: '3rem', right: '3rem', height: '4px', background: 'var(--border)', borderRadius: '4px' }}><div style={{ height: '100%', background: 'var(--accent-turquoise)', width: '70%', borderRadius: '4px', transition: 'width 0.5s' }} /></div>
-              <h2 style={{ fontSize: '2rem', marginBottom: '0.5rem' }}>{dictionary?.onboarding?.step_5_title || 'Como as pessoas devem se sentir após interagir com a sua marca?'}</h2>
-              <p style={{ fontSize: '1rem', color: 'var(--text-secondary)', marginBottom: '1.5rem' }}>{dictionary?.onboarding?.step_5_subtitle || 'Escolha até 3 opções.'}</p>
+              <h2 style={{ fontSize: '2rem', marginBottom: '0.5rem' }}>{dictionary?.onboarding?.step_6_title || 'Como as pessoas devem se sentir após interagir com a sua marca?'}</h2>
+              <p style={{ fontSize: '1rem', color: 'var(--text-secondary)', marginBottom: '1.5rem' }}>{dictionary?.onboarding?.step_6_subtitle || 'Escolha até 3 opções.'}</p>
               
               <div style={{ width: '100%', marginBottom: '1rem', overflowY: 'auto', maxHeight: '50vh', padding: '0 4px' }}>
                 <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '12px', padding: '4px' }}>
@@ -2694,6 +2694,9 @@ export default function Home() {
                     style={{ fontSize: '0.78rem', color: '#7a4a1e', opacity: 0.85, lineHeight: 1.5, borderTop: '1px dashed #ebd2b8', paddingTop: '8px' }}
                     dangerouslySetInnerHTML={{ __html: dictionary?.postmatch?.step_128_dont_worry || '💡 <strong>O que acontece agora?</strong> Após o pagamento, você terá acesso imediato à nossa plataforma de personalização. Nela, você poderá editar a sua marca e visualizar todas as aplicações e estampas em tempo real, sempre que quiser!' }}
                   />
+                  <div style={{ marginTop: '10px', borderRadius: '12px', overflow: 'hidden', border: '1px solid #f5d9b8', boxShadow: '0 4px 15px rgba(0,0,0,0.05)' }}>
+                    <img src="/img/plataforma_mockup.jpg" alt="Plataforma de Edição BrandBox" style={{ width: '100%', display: 'block', height: 'auto' }} />
+                  </div>
                 </div>
 
                 {/* Checkbox de aprovação */}
