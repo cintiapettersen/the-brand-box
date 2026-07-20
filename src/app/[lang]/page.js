@@ -124,6 +124,9 @@ export default function Home() {
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
     setSource(params.get('utm_source') || params.get('source') || 'Direct');
+    if (params.get('demo') === 'BUILDWEEK100') {
+      localStorage.setItem('brandbox_demo_mode', 'BUILDWEEK100');
+    }
   }, []);
 
   useEffect(() => {
@@ -2726,6 +2729,14 @@ export default function Home() {
 
                           if (brandState.pattern && !finalPatternUrl) try { localStorage.setItem('brandbox_pattern', JSON.stringify(brandState.pattern)); } catch {}
                           try { localStorage.setItem('brandbox_delivery', JSON.stringify({ ...brandState, pattern: finalPatternUrl ? { url: finalPatternUrl } : null })); } catch {}
+
+                          if (typeof window !== 'undefined' && localStorage.getItem('brandbox_demo_mode') === 'BUILDWEEK100') {
+                            const successUrl = sessionIdExp
+                              ? `/sucesso?session=${sessionIdExp}&plano=starter&lang=${lang}`
+                              : `/sucesso?plano=starter&lang=${lang}`;
+                            window.location.href = successUrl;
+                            return;
+                          }
 
                           const res = await fetch('/api/checkout', {
                             method: 'POST',

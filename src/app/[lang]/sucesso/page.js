@@ -5820,6 +5820,14 @@ function PapelariaStep({ brand, accentColor, paletteColors, estampaPatterns, est
         // O item principal já vem incluso em upsellSelecionados (pré-selecionado ao clicar em "Comprar")
         const itensParaCobrar = upsellSelecionados;
 
+        if (typeof window !== 'undefined' && localStorage.getItem('brandbox_demo_mode') === 'BUILDWEEK100') {
+          const successUrl = sessionId
+            ? `/sucesso?session=${sessionId}&plano=avulso&avulso=${avulsoParam || encodeURIComponent(itensParaCobrar[0]||'')}&upsell=1&lang=${lang}`
+            : `/sucesso?plano=avulso&upsell=1&lang=${lang}`;
+          window.location.href = successUrl;
+          return;
+        }
+
         const res = await fetch('/api/checkout', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
@@ -5859,6 +5867,13 @@ function PapelariaStep({ brand, accentColor, paletteColors, estampaPatterns, est
           localStorage.setItem('brandbox_pending_upsell', JSON.stringify(next));
           setUpsellSelecionados(next);
           
+          if (typeof window !== 'undefined' && localStorage.getItem('brandbox_demo_mode') === 'BUILDWEEK100') {
+             const url = new URL(window.location.href);
+             url.searchParams.set('upsell', '1');
+             window.location.href = url.toString();
+             return;
+          }
+
           const res = await fetch('/api/stripe/checkout', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
