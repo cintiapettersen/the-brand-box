@@ -2692,7 +2692,7 @@ export default function Home() {
                   />
                   <p 
                     style={{ fontSize: '0.78rem', color: '#7a4a1e', opacity: 0.85, lineHeight: 1.5, borderTop: '1px dashed #ebd2b8', paddingTop: '8px' }}
-                    dangerouslySetInnerHTML={{ __html: dictionary?.postmatch?.step_128_dont_worry || '💡 <strong>Não se preocupe:</strong> na sua Área de Entrega (pós-pagamento), você poderá editar a sua Tagline, ajustar a Cor de destaque e atualizar os seus Contatos sempre que quiser!' }}
+                    dangerouslySetInnerHTML={{ __html: dictionary?.postmatch?.step_128_dont_worry || '💡 <strong>O que acontece agora?</strong> Após o pagamento, você terá acesso imediato à nossa plataforma de personalização. Nela, você poderá editar a sua marca e visualizar todas as aplicações e estampas em tempo real, sempre que quiser!' }}
                   />
                 </div>
 
