@@ -2098,7 +2098,7 @@ export default function Home() {
             >
               <h2 style={{ fontSize: '1.8rem', marginBottom: '0.5rem', textAlign: 'center' }}>{dictionary?.postmatch?.step_10_title || 'Refinamento Visual'}</h2>
               <p style={{ fontSize: '1rem', color: 'var(--text-secondary)', marginBottom: '2rem', textAlign: 'center' }}>
-                {/* customStep === 'tipo' ? (dictionary?.postmatch?.step_10_subtitle_tipo || '1. Escolha a sua Tipografia ideal') : */ customStep === 'paleta' ? (dictionary?.postmatch?.step_10_subtitle_paleta || '1. Defina sua Paleta de Cores') : (dictionary?.postmatch?.step_10_subtitle_cor || '2. Qual cor será o destaque da sua marca?')}
+                {/* customStep === 'tipo' ? (dictionary?.postmatch?.step_10_subtitle_tipo || '1. Escolha a sua Tipografia ideal') : */ customStep === 'paleta' ? (dictionary?.postmatch?.step_10_subtitle_paleta || '1. Defina sua Paleta de Cores') : <span dangerouslySetInnerHTML={{ __html: dictionary?.postmatch?.step_10_subtitle_cor || (lang === 'en' ? '3. Which color will <strong>highlight</strong> your brand?' : '2. Qual cor será o <strong>destaque</strong> da sua marca?') }} />}
               </p>
               
               <div style={{ display: 'flex', gap: '8px', justifyContent: 'center', marginBottom: '20px' }}>
@@ -2240,7 +2240,11 @@ export default function Home() {
                                 <div
                                   key={i}
                                   onClick={() => {
-                                    if (!tooLight) setEditData(prev => ({ ...prev, corAtiva: hex }));
+                                    if (!tooLight) {
+                                      setEditData(prev => ({ ...prev, corAtiva: hex }));
+                                    } else {
+                                      alert(lang === 'en' ? 'This color is too light to be used as a highlight. Please choose a darker tone.' : 'Essa cor é muito clara para ser usada como destaque. Por favor, escolha um tom mais escuro.');
+                                    }
                                   }}
                                   title={tooLight ? (dictionary?.postmatch?.color_too_light || 'Cor muito clara para destaque principal') : ''}
                                   
