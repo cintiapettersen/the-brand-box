@@ -265,7 +265,7 @@ export default function Home() {
   
   const [selectedPaleta, setSelectedPaleta] = useState(null);
   const [selectedTipo, setSelectedTipo] = useState(null);
-  const [customStep, setCustomStep] = useState('tipo');
+  const [customStep, setCustomStep] = useState('paleta');
   const [editData, setEditData] = useState({
     marca: '',
     tagline: 'Design de Interiores',
