@@ -106,7 +106,7 @@ export async function POST(request) {
         });
       }
 
-      const payment_method_types = ['card'];
+      const payment_method_types = currency === 'brl' ? ['card', 'pix', 'boleto'] : ['card'];
 
       const session = await stripe.checkout.sessions.create({
         payment_method_types,
@@ -174,7 +174,7 @@ export async function POST(request) {
       }
     }
 
-    const payment_method_types = ['card'];
+    const payment_method_types = currency === 'brl' ? ['card', 'pix', 'boleto'] : ['card'];
 
     const successUrl = sessionId
       ? `${origin}/sucesso?session=${sessionId}&plano=${plano}&lang=${lang}`
