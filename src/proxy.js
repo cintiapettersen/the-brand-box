@@ -2,8 +2,8 @@ import { match } from '@formatjs/intl-localematcher'
 import Negotiator from 'negotiator'
 import { NextResponse } from 'next/server'
 
-let locales = ['pt-BR', 'en']
-let defaultLocale = 'pt-BR'
+let locales = ['pt', 'pt-BR', 'en']
+let defaultLocale = 'pt'
 
 function getLocale(request) {
   const cookieLocale = request.cookies.get('NEXT_LOCALE')?.value
