@@ -10575,7 +10575,7 @@ function EntregaContent({ brand, plano, setBrand }) {
 
         {/* NOVO MENU DE NAVEGAÇÃO CATEGORIZADA */}
         <div style={{ display: 'flex', justifyContent: 'flex-end', padding: '0 4px 8px 0' }}>
-          <LanguageSwitcher />
+          {/* <LanguageSwitcher /> */}
         </div>
         <BrandBoxNav step={step} setStep={setStep} plano={plano} papelariaItens={papelariaNavItens} papelariaIdx={papelariaNavIdx} setPapelariaIdx={setPapelariaNavIdx} />
 
