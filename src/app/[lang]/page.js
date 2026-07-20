@@ -1082,7 +1082,17 @@ export default function Home() {
     "Elegante / Clássica"
   ];
 
-  const nuncaPensarOpcoes = [
+  const nuncaPensarOpcoes = lang === 'en' ? [
+    "Childish / Amateur",
+    "Too Serious / Cold",
+    "Generic / Boring",
+    "Cluttered / Confusing",
+    "Too Simple / Basic",
+    "Overly Luxurious",
+    "Old-fashioned / Outdated",
+    "Untrustworthy",
+    "Other..."
+  ] : [
     "Infantil / Amadora",
     "Muito Séria / Fria",
     "Genérica / Sem Graça",
@@ -1258,7 +1268,7 @@ export default function Home() {
 
   return (
     <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '100vh', padding: '2rem', background: '#ffffff', position: 'relative' }}>
-      {/* <LanguageSwitcher style={{ position: 'absolute', top: '12px', right: '20px' }} /> */}
+      {devMode && <LanguageSwitcher style={{ position: 'absolute', top: '12px', right: '20px' }} />}
       {devMode && (
         <div style={{ position: 'fixed', top: 0, left: 0, right: 0, background: '#1a1a1a', color: '#f90', textAlign: 'center', fontSize: '0.7rem', fontWeight: 700, padding: '4px', zIndex: 9999, letterSpacing: '1px' }}>
           ⚡ MODO DEV ATIVO — estampas não consomem créditos
@@ -1772,7 +1782,7 @@ export default function Home() {
               </div>
 
               <AnimatePresence>
-                {(formData.nuncaPensarTags || []).includes('Outra...') && (
+                {( (formData.nuncaPensarTags || []).includes('Outra...') || (formData.nuncaPensarTags || []).includes('Other...') ) && (
                   <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: 'auto' }} exit={{ opacity: 0, height: 0 }} style={{ width: '100%', marginBottom: '1.5rem' }}>
                     <textarea name="nuncaPensar" value={formData.nuncaPensar} onChange={handleInput} placeholder={dictionary?.onboarding?.step_7_5_placeholder || "Ex: 'Não quero parecer infantil', 'Não quero parecer cara demais'."} style={{ width: '100%', padding: '12px 16px', borderRadius: '12px', border: '1px solid var(--border)', fontSize: '1rem', minHeight: '80px' }} autoFocus />
                   </motion.div>
