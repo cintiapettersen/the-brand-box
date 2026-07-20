@@ -3074,13 +3074,13 @@ export default function Home() {
                                 alignItems: 'center',
                                 gap: '10px',
                                 padding: '12px',
-                                background: selecionado ? '#fff0f8' : '#fff',
+                                background: selecionado ? '#f1f5f9' : '#fff',
                                 border: `1px solid ${selecionado ? 'var(--accent-magenta)' : 'var(--border)'}`,
                                 borderRadius: '8px',
                                 cursor: 'pointer',
                                 fontSize: '0.9rem',
                                 transition: 'all 0.2s',
-                                boxShadow: selecionado ? '0 2px 8px rgba(220,52,149,0.1)' : '0 2px 5px rgba(0,0,0,0.02)'
+                                boxShadow: selecionado ? '0 2px 8px rgba(195,206,219,0.4)' : '0 2px 5px rgba(0,0,0,0.02)'
                               };
                           return (
                             <label key={item} style={cardStyle}>
