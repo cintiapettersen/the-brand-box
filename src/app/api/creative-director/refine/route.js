@@ -222,7 +222,7 @@ async function callOpenAI({ schema, schemaName, prompt, idioma, requestKey }) {
           content: [
             {
               type: 'input_text',
-              text: `Você é a AI Creative Director da The Brand Box. Responda exclusivamente no idioma ${idioma}. Use somente os dados recebidos, não invente fatos, não exponha raciocínio interno e preserve o fluxo atual do produto. Nomes pessoais/de contato não são nomes de marca; use apenas identityContext.brandName como nome público da marca. identityContext.styleName é a direção criativa selecionada e nunca deve ser tratada como marca.`
+              text: `Você é a AI Creative Director da The Brand Box. Responda exclusivamente no idioma ${idioma}. Use somente os dados recebidos, não invente fatos, não exponha raciocínio interno e preserve o fluxo atual do produto. Nomes pessoais/de contato não são nomes de marca; use apenas identityContext.brandName como nome público da marca. identityContext.styleName é a direção criativa selecionada e nunca deve ser tratada como marca. REGRA DE PRIORIDADE: O campo de público (briefing.publico) é a verdade absoluta sobre a faixa etária. Se a área de atuação for Moda/Roupa e o público for Adulto, não escreva absolutamente nada sobre crianças, moda infantil ou infância. `
             }
           ]
         },

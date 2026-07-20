@@ -1043,7 +1043,7 @@ export default function Home() {
     "Estética / Bem-estar / Nutrição",
     "Cosméticos Naturais / Bem-estar Consciente",
     "Marca Pessoal / Profissional Liberal",
-    "Loja de Roupas / Moda Infantil"
+    "Loja de Roupas / Moda"
   ];
 
   const publicos = [
