@@ -12398,8 +12398,8 @@ function SucessoContent() {
           position: 'relative', overflow: 'hidden',
         }}>
           {/* Fundo decorativo */}
-          <div style={{ position: 'absolute', top: '-80px', right: '-80px', width: '320px', height: '320px', borderRadius: '50%', background: 'rgba(192,59,102,0.06)', pointerEvents: 'none' }} />
-          <div style={{ position: 'absolute', bottom: '-60px', left: '-60px', width: '240px', height: '240px', borderRadius: '50%', background: 'rgba(60,204,191,0.07)', pointerEvents: 'none' }} />
+          <div style={{ position: 'absolute', top: '-100px', right: '-50px', width: '300px', height: '300px', borderRadius: '50%', background: 'rgba(195,206,219,0.15)', pointerEvents: 'none' }} />
+          <div style={{ position: 'absolute', bottom: '-80px', left: '-80px', width: '250px', height: '250px', borderRadius: '50%', background: 'rgba(195,206,219,0.15)', pointerEvents: 'none' }} />
 
           <div style={{ maxWidth: '480px', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '1.5rem', width: '100%' }}>
             {/* Ícone */}
@@ -12407,7 +12407,7 @@ function SucessoContent() {
 
             {/* Título */}
             <div>
-              <p style={{ fontSize: '0.7rem', letterSpacing: '3px', textTransform: 'uppercase', color: '#C03B66', fontWeight: 700, marginBottom: '0.5rem' }}>
+              <p style={{ fontSize: '0.7rem', letterSpacing: '3px', textTransform: 'uppercase', color: '#C3CEDB', fontWeight: 700, marginBottom: '0.5rem' }}>
                 {dictionary?.sucesso?.instructions_subtitle || 'Instruções & Dicas'}
               </p>
               <h1 style={{ fontSize: '1.6rem', fontWeight: 800, color: '#1a1a1a', lineHeight: 1.3, margin: 0 }}>
@@ -12421,7 +12421,7 @@ function SucessoContent() {
               backdropFilter: 'blur(10px)',
               borderRadius: '20px',
               padding: '24px 20px',
-              boxShadow: '0 8px 32px rgba(192, 59, 102, 0.05)',
+              boxShadow: '0 8px 32px rgba(195, 206, 219, 0.15)',
               border: '1px solid rgba(255, 255, 255, 0.5)',
               width: '100%',
               display: 'flex',
@@ -12431,7 +12431,7 @@ function SucessoContent() {
             }}>
               {[
                 {
-                  color: '#C03B66',
+                  color: '#C3CEDB',
                   title: dictionary?.sucesso?.instructions_item1_title || 'Use um Computador',
                   desc: dictionary?.sucesso?.instructions_item1_desc || 'Para melhor aproveitamento visual e facilidade ao baixar as artes e arquivos em alta qualidade.'
                 },
@@ -12483,11 +12483,11 @@ function SucessoContent() {
                 setShowWelcome(false);
               }}
               style={{
-                background: 'linear-gradient(135deg, #C03B66, #a12d52)',
+                background: 'linear-gradient(135deg, #C3CEDB, #a1b3c8)',
                 color: '#fff', border: 'none', borderRadius: '50px',
                 padding: '1rem 2.5rem', fontSize: '1rem', fontWeight: 700,
                 cursor: 'pointer', letterSpacing: '0.3px',
-                boxShadow: '0 10px 30px rgba(192, 59, 102, 0.3)',
+                boxShadow: '0 10px 30px rgba(195, 206, 219, 0.3)',
                 transition: 'transform 0.2s ease',
                 width: '100%'
               }}
@@ -12510,7 +12510,7 @@ function SucessoContent() {
         position: 'relative', overflow: 'hidden',
       }}>
         {/* Fundo decorativo */}
-        <div style={{ position: 'absolute', top: '-80px', right: '-80px', width: '320px', height: '320px', borderRadius: '50%', background: 'rgba(192,59,102,0.06)', pointerEvents: 'none' }} />
+        <div style={{ position: 'absolute', top: '-80px', right: '-80px', width: '320px', height: '320px', borderRadius: '50%', background: 'rgba(195,206,219,0.15)', pointerEvents: 'none' }} />
         <div style={{ position: 'absolute', bottom: '-60px', left: '-60px', width: '240px', height: '240px', borderRadius: '50%', background: 'rgba(60,204,191,0.07)', pointerEvents: 'none' }} />
 
         <div style={{ maxWidth: '480px', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '1.5rem' }}>
@@ -12551,14 +12551,14 @@ function SucessoContent() {
               <p style={{ margin: 0 }}>
                 {dictionary?.sucesso?.welcome_desc_new_2 || 'A partir de agora, vamos te guiar por uma experiência criativa construída para transformar ideias, referências e essência em uma identidade visual completa.'}
               </p>
-              <p style={{ margin: 0, fontWeight: 600, color: '#C03B66', marginTop: '0.4rem' }}>
+              <p style={{ margin: 0, fontWeight: 600, color: '#C3CEDB', marginTop: '0.4rem' }}>
                 {dictionary?.sucesso?.welcome_desc_new_3 || 'Você faz as escolhas. Nós organizamos o caminho.'}
               </p>
             </div>
           )}
 
           {/* Separador */}
-          <div style={{ width: '40px', height: '2px', background: 'linear-gradient(90deg, #C03B66, #3cccbf)', borderRadius: '2px' }} />
+          <div style={{ width: '40px', height: '2px', background: 'linear-gradient(90deg, #C3CEDB, #3cccbf)', borderRadius: '2px' }} />
 
           {/* CTA */}
           <button
@@ -12566,11 +12566,11 @@ function SucessoContent() {
               setWelcomeStep(1);
             }}
             style={{
-              background: 'linear-gradient(135deg, #C03B66, #a12d52)',
+              background: '#C3CEDB',
               color: '#fff', border: 'none', borderRadius: '50px',
               padding: '1rem 2.5rem', fontSize: '1rem', fontWeight: 700,
               cursor: 'pointer', letterSpacing: '0.3px',
-              boxShadow: '0 10px 30px rgba(192, 59, 102, 0.3)',
+              boxShadow: '0 10px 30px rgba(195, 206, 219, 0.3)',
               transition: 'transform 0.2s ease',
             }}
             onMouseEnter={e => e.currentTarget.style.transform = 'translateY(-2px)'}
