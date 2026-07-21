@@ -300,10 +300,13 @@ export default function Home() {
   const [refinementAnswer, setRefinementAnswer] = useState('');
   const [isRefinementLoading, setIsRefinementLoading] = useState(false);
   const [refinementStep, setRefinementStep] = useState('idle');
+  const [paletteFeedback, setPaletteFeedback] = useState(null);
+  const [isPaletteFeedbackLoading, setIsPaletteFeedbackLoading] = useState(false);
 
 
   const brandBoardRef = useRef(null);
   const selectedVisualBrandRef = useRef({ optionId: '', fontFamily: '' });
+  const paletteFeedbackRequestRef = useRef('');
 
   // Restaura progresso salvo ao montar
   useEffect(() => {
@@ -743,6 +746,40 @@ export default function Home() {
   };
 
   const getRequestKey = (contentType, targetLanguage = lang) => `${aiSessionId || 'pending'}:${getAiUsageKey(contentType, targetLanguage)}`;
+
+  const requestPaletteFeedback = async (primaryColor, palette) => {
+    const requestId = `${selectedPaleta}:${primaryColor}:${Date.now()}`;
+    paletteFeedbackRequestRef.current = requestId;
+    setPaletteFeedback(null);
+    setIsPaletteFeedbackLoading(true);
+
+    try {
+      const response = await fetch('/api/creative-director/palette-feedback', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          formData,
+          resultadoFinal,
+          palette,
+          primaryColor,
+          idioma: lang,
+          requestKey: `${aiSessionId || 'pending'}:palette_feedback:${selectedPaleta}:${primaryColor}`
+        })
+      });
+
+      if (!response.ok || paletteFeedbackRequestRef.current !== requestId) return;
+      setPaletteFeedback(await response.json());
+    } catch (error) {
+      console.warn('Feedback de paleta indisponível; mantendo o fluxo de escolha.', error);
+    } finally {
+      if (paletteFeedbackRequestRef.current === requestId) setIsPaletteFeedbackLoading(false);
+    }
+  };
+
+  const handlePrimaryColorSelect = (hex, colors) => {
+    setEditData(prev => ({ ...prev, corAtiva: hex }));
+    requestPaletteFeedback(hex, colors);
+  };
 
   const fetchCreativeDirectorDiagnostic = async (baseResult) => {
     const creativeResponse = await fetch('/api/creative-director', {
@@ -2244,7 +2281,7 @@ export default function Home() {
                                   key={i}
                                   onClick={() => {
                                     if (!tooLight) {
-                                      setEditData(prev => ({ ...prev, corAtiva: hex }));
+                                      handlePrimaryColorSelect(hex, cores);
                                     } else {
                                       alert(lang === 'en' ? 'This color is too light to be used as a highlight. Please choose a darker tone.' : 'Essa cor é muito clara para ser usada como destaque. Por favor, escolha um tom mais escuro.');
                                     }
@@ -2288,6 +2325,21 @@ export default function Home() {
                           <p style={{ fontSize: '0.8rem', color: 'var(--text-secondary)', fontWeight: 600 }}>
                             {dictionary?.postmatch?.step_10_color_selected || 'Cor selecionada:'} <span style={{ color: editData.corAtiva, fontWeight: 800 }}>{editData.corAtiva}</span>
                           </p>
+                        )}
+                        {isPaletteFeedbackLoading && (
+                          <p style={{ fontSize: '0.78rem', color: 'var(--text-secondary)', textAlign: 'center', margin: 0 }}>
+                            {lang === 'en' ? 'The AI Creative Director is reading your palette...' : 'A AI Creative Director está lendo sua paleta...'}
+                          </p>
+                        )}
+                        {paletteFeedback && !isPaletteFeedbackLoading && (
+                          <div style={{ width: '100%', maxWidth: '420px', padding: '0.9rem 1rem', border: '1px solid var(--border)', borderRadius: '14px', background: '#fffafc', display: 'grid', gap: '0.45rem' }}>
+                            <p style={{ margin: 0, fontSize: '0.72rem', fontWeight: 800, letterSpacing: '0.08em', textTransform: 'uppercase', color: 'var(--accent-magenta)' }}>
+                              {lang === 'en' ? 'AI Creative Director' : 'AI Creative Director'}
+                            </p>
+                            <p style={{ margin: 0, fontSize: '0.84rem', color: 'var(--text-primary)', lineHeight: 1.45 }}>{paletteFeedback.summary}</p>
+                            <p style={{ margin: 0, fontSize: '0.8rem', color: 'var(--text-secondary)', lineHeight: 1.4 }}><strong>{lang === 'en' ? 'Strength:' : 'Ponto forte:'}</strong> {paletteFeedback.strength}</p>
+                            <p style={{ margin: 0, fontSize: '0.8rem', color: 'var(--text-secondary)', lineHeight: 1.4 }}><strong>{lang === 'en' ? 'Attention:' : 'Atenção:'}</strong> {paletteFeedback.caution}</p>
+                          </div>
                         )}
                      </motion.div>
                   )}
