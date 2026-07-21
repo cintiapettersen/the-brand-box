@@ -175,7 +175,7 @@ export default function CamisetaPreview({
                   inset: 0,
                   backgroundColor: solidColor,
                   backgroundImage: (comBorda && patternSrc) ? `url(${patternSrc})` : 'none',
-                  backgroundSize: `${patternScale * 0.8}px`,
+                  backgroundSize: `${(patternScale || 150) * 2.2}px`,
                   backgroundRepeat: 'repeat'
                 }} />
                 
