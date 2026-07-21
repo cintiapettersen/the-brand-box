@@ -3246,7 +3246,7 @@ function CartaoRetornoPreview({ accentColor, patternSrc, cartaoContacts, crmLine
           <p style={{ fontSize: '0.6rem', color: '#aaa', letterSpacing: '2px', textTransform: 'uppercase' }}>{dictionary?.geral?.frente || 'Frente'}</p>
           <div style={{ width: '184px', height: '320px', position: 'relative', background: '#fff', overflow: 'hidden', boxShadow: '0 4px 20px rgba(0,0,0,0.12)', borderRadius: '4px' }}>
             {comBorda && patternSrc
-              ? <div style={{ position: 'absolute', inset: 0, backgroundImage: `url(${patternSrc})`, backgroundSize: `${(patternScale || 150) / 1.5}px`, backgroundRepeat: 'repeat', zIndex: 0 }} />
+              ? <div style={{ position: 'absolute', inset: 0, backgroundImage: `url(${patternSrc})`, backgroundSize: `${(patternScale || 150) / 0.9}px`, backgroundRepeat: 'repeat', zIndex: 0 }} />
               : <div style={{ position: 'absolute', inset: 0, border: `14px solid ${solidColor}`, zIndex: 0 }} />}
             
             <div style={{ position: 'absolute', top: '14px', left: '14px', right: '14px', bottom: '14px', background: '#fff', zIndex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', padding: '12px 10px' }}>
@@ -3274,7 +3274,7 @@ function CartaoRetornoPreview({ accentColor, patternSrc, cartaoContacts, crmLine
           <p style={{ fontSize: '0.6rem', color: '#aaa', letterSpacing: '2px', textTransform: 'uppercase' }}>{dictionary?.geral?.verso || 'Verso'}</p>
           <div style={{ width: '184px', height: '320px', position: 'relative', background: '#fff', overflow: 'hidden', boxShadow: '0 4px 20px rgba(0,0,0,0.12)', borderRadius: '4px' }}>
             {comBorda && patternSrc
-              ? <div style={{ position: 'absolute', inset: 0, backgroundImage: `url(${patternSrc})`, backgroundSize: `${(patternScale || 150) / 1.5}px`, backgroundRepeat: 'repeat', zIndex: 0 }} />
+              ? <div style={{ position: 'absolute', inset: 0, backgroundImage: `url(${patternSrc})`, backgroundSize: `${(patternScale || 150) / 0.9}px`, backgroundRepeat: 'repeat', zIndex: 0 }} />
               : <div style={{ position: 'absolute', inset: 0, border: `14px solid ${solidColor}`, zIndex: 0 }} />}
             
             <div style={{ position: 'absolute', top: '14px', left: '14px', right: '14px', bottom: '14px', background: '#fff', zIndex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', padding: '10px 8px' }}>
@@ -3343,7 +3343,7 @@ function CartaoDeVisitaPreview({ accentColor, patternSrc, cartaoContacts, crmLin
       <p style={{ fontSize: '0.6rem', color: '#aaa', letterSpacing: '2px', textTransform: 'uppercase' }}>{dictionary?.geral?.frente || 'Frente'}</p>
       <div style={{ width: `${CW}px`, height: `${CH}px`, position: 'relative', background: '#fff', overflow: 'hidden', boxShadow: '0 4px 20px rgba(0,0,0,0.12)', borderRadius: '4px' }}>
         {comBorda && patternSrc && <>
-          <div style={{ position: 'absolute', inset: 0, backgroundImage: `url(${patternSrc})`, backgroundSize: `${(patternScale || 150) / 1.5}px`, backgroundRepeat: 'repeat', opacity: 0.9, zIndex: 0 }} />
+          <div style={{ position: 'absolute', inset: 0, backgroundImage: `url(${patternSrc})`, backgroundSize: `${(patternScale || 150) / 0.9}px`, backgroundRepeat: 'repeat', opacity: 0.9, zIndex: 0 }} />
           <div style={{ position: 'absolute', top: '16px', left: '16px', right: '16px', bottom: '16px', background: 'transparent', zIndex: 1 }} />
         </>}
         <div style={{ position: 'absolute', inset: 0, zIndex: 2, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
@@ -3376,7 +3376,7 @@ function CartaoDeVisitaPreview({ accentColor, patternSrc, cartaoContacts, crmLin
       <p style={{ fontSize: '0.6rem', color: '#aaa', letterSpacing: '2px', textTransform: 'uppercase' }}>{dictionary?.geral?.verso || 'Verso'}</p>
       <div style={{ width: `${CW}px`, height: `${CH}px`, position: 'relative', overflow: 'hidden', boxShadow: '0 4px 20px rgba(0,0,0,0.12)', borderRadius: '4px' }}>
         {comBorda && patternSrc
-          ? <div style={{ position: 'absolute', inset: 0, backgroundImage: `url(${patternSrc})`, backgroundSize: `${(patternScale || 150) / 1.5}px`, backgroundRepeat: 'repeat', zIndex: 0 }} />
+          ? <div style={{ position: 'absolute', inset: 0, backgroundImage: `url(${patternSrc})`, backgroundSize: `${(patternScale || 150) / 0.9}px`, backgroundRepeat: 'repeat', zIndex: 0 }} />
           : <div style={{ position: 'absolute', inset: 0, background: borderColor || accentColor, zIndex: 0 }} />}
         <div style={{ position: 'absolute', inset: 0, zIndex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
           {(clinicaNome || crmLine || endereco || whatsapp || telefone || instagram || email || site) ? (
@@ -3479,7 +3479,7 @@ function CertificadoCoragemPreview({ accentColor, patternSrc, editData, logoColo
         <div style={{
           position: 'absolute', top: 0, left: 0, right: 0, bottom: 0,
           backgroundImage: effectiveSrc ? `url(${effectiveSrc})` : 'none',
-          backgroundSize: `${patternScale / 4}px`,
+          backgroundSize: `${patternScale / 2.2}px`,
           backgroundColor: !effectiveSrc ? solidColor : 'transparent'
         }} />
 
@@ -3548,7 +3548,7 @@ function A5ItemPreview({ item, accentColor, patternSrc, editData, logoColor, log
     <div style={{ width: '226px', height: '320px', position: 'relative', boxShadow: '0 4px 20px rgba(0,0,0,0.12)', borderRadius: '4px', overflow: 'hidden', background: '#fff' }}>
       {/* Fundo — estampa ou cor sólida */}
       {effectiveSrc
-        ? <div style={{ position: 'absolute', inset: 0, backgroundImage: `url(${effectiveSrc})`, backgroundSize: `${(patternScale || 150) / 2}px`, backgroundRepeat: 'repeat' }} />
+        ? <div style={{ position: 'absolute', inset: 0, backgroundImage: `url(${effectiveSrc})`, backgroundSize: `${(patternScale || 150) / 1.1}px`, backgroundRepeat: 'repeat' }} />
         : <div style={{ position: 'absolute', inset: 0, background: solidColor }} />}
       {/* Área branca com recorte casinha (funciona em ambos os modos) */}
       <div style={{ position: 'absolute', top: BORDER, left: BORDER, right: BORDER, bottom: BORDER, background: '#fff', clipPath: roofClip }} />
@@ -3604,7 +3604,7 @@ function ProntuarioPreview({ accentColor, patternSrc, editData, logoColor, logoL
         {/* FRENTE */}
         <div style={{ width: '226px', height: '320px', position: 'relative', boxShadow: '0 6px 30px rgba(0,0,0,0.12)', borderRadius: '4px', overflow: 'hidden', background: '#fff' }}>
           {effectiveSrc
-            ? <div style={{ position: 'absolute', inset: 0, backgroundImage: `url(${effectiveSrc})`, backgroundSize: `${(patternScale || 150) / 2.5}px`, backgroundRepeat: 'repeat' }} />
+            ? <div style={{ position: 'absolute', inset: 0, backgroundImage: `url(${effectiveSrc})`, backgroundSize: `${(patternScale || 150) / 1.4}px`, backgroundRepeat: 'repeat' }} />
             : <div style={{ position: 'absolute', inset: 0, background: solidColor }} />}
           <div style={{ position: 'absolute', top: BORDER, left: BORDER, right: BORDER, bottom: BORDER, background: '#fff', padding: '12px 14px' }}>
             <div style={{ width: '100%', height: '80px', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', marginBottom: '10px', overflow: 'hidden' }}>
@@ -3628,7 +3628,7 @@ function ProntuarioPreview({ accentColor, patternSrc, editData, logoColor, logoL
         {/* VERSO */}
         <div style={{ width: '226px', height: '320px', position: 'relative', boxShadow: '0 6px 30px rgba(0,0,0,0.12)', borderRadius: '4px', overflow: 'hidden', background: '#fff' }}>
           {effectiveSrc
-            ? <div style={{ position: 'absolute', inset: 0, backgroundImage: `url(${effectiveSrc})`, backgroundSize: `${(patternScale || 150) / 2.5}px`, backgroundRepeat: 'repeat' }} />
+            ? <div style={{ position: 'absolute', inset: 0, backgroundImage: `url(${effectiveSrc})`, backgroundSize: `${(patternScale || 150) / 1.4}px`, backgroundRepeat: 'repeat' }} />
             : <div style={{ position: 'absolute', inset: 0, background: solidColor }} />}
           <div style={{ position: 'absolute', top: BORDER, left: BORDER, right: BORDER, bottom: BORDER, background: '#fff', padding: '12px 14px' }}>
             <div style={{ display: 'flex', flexDirection: 'column', gap: '8.5px', marginTop: '5px' }}>
@@ -3685,7 +3685,7 @@ function DiarioXixiPreview({ accentColor, patternSrc, editData, logoColor, logoL
       <div style={scaleXixi.innerStyle}>
       <div style={{ width: '453px', height: '320px', position: 'relative', boxShadow: '0 6px 30px rgba(0,0,0,0.12)', borderRadius: '4px', overflow: 'hidden', background: '#fff' }}>
         {effectiveSrc
-          ? <div style={{ position: 'absolute', inset: 0, backgroundImage: `url(${effectiveSrc})`, backgroundSize: `${(patternScale || 150) / 2}px`, backgroundRepeat: 'repeat' }} />
+          ? <div style={{ position: 'absolute', inset: 0, backgroundImage: `url(${effectiveSrc})`, backgroundSize: `${(patternScale || 150) / 1.1}px`, backgroundRepeat: 'repeat' }} />
           : <div style={{ position: 'absolute', inset: 0, background: solidColor }} />}
         
         <div style={{ position: 'absolute', top: BORDER, left: BORDER, right: BORDER, bottom: BORDER + 2, background: '#fff', padding: '10px 15px', display: 'flex', flexDirection: 'column' }}>
@@ -3788,7 +3788,7 @@ function FichaCadastroPreview({ accentColor, patternSrc, editData, logoColor, lo
       <BordaToggle comBorda={comBorda} setComBorda={setComBorda} accentColor={accentColor} paletteColors={paletteColors} borderColor={borderColor} setBorderColor={setBorderColor} patternScale={patternScale} setPatternScale={setPatternScale} />
       <div style={{ width: '320px', height: '453px', position: 'relative', boxShadow: '0 6px 30px rgba(0,0,0,0.12)', borderRadius: '4px', overflow: 'hidden', background: '#fff' }}>
         {effectiveSrc
-          ? <div style={{ position: 'absolute', inset: 0, backgroundImage: `url(${effectiveSrc})`, backgroundSize: `${(patternScale || 150) / 2.5}px`, backgroundRepeat: 'repeat' }} />
+          ? <div style={{ position: 'absolute', inset: 0, backgroundImage: `url(${effectiveSrc})`, backgroundSize: `${(patternScale || 150) / 1.4}px`, backgroundRepeat: 'repeat' }} />
           : <div style={{ position: 'absolute', inset: 0, background: solidColor }} />}
         
         <div style={{ position: 'absolute', top: BORDER, left: BORDER, right: BORDER, bottom: BORDER, background: '#fff' }} />
@@ -3906,7 +3906,7 @@ function ReciboPreview({ accentColor, patternSrc, editData, logoColor, logoLayou
       <div style={{ width: '226px', height: '320px', position: 'relative', boxShadow: '0 6px 30px rgba(0,0,0,0.12)', borderRadius: '4px', overflow: 'hidden', background: '#fff' }}>
         {/* Borda de estampa */}
         {effectiveSrc
-          ? <div style={{ position: 'absolute', inset: 0, backgroundImage: `url(${effectiveSrc})`, backgroundSize: `${(patternScale || 150) / 2}px`, backgroundRepeat: 'repeat' }} />
+          ? <div style={{ position: 'absolute', inset: 0, backgroundImage: `url(${effectiveSrc})`, backgroundSize: `${(patternScale || 150) / 1.1}px`, backgroundRepeat: 'repeat' }} />
           : <div style={{ position: 'absolute', inset: 0, background: solidColor }} />}
         
         {/* Área branca interna */}
@@ -3980,7 +3980,7 @@ function ControleEspecialPreview({ accentColor, patternSrc, editData, logoColor,
       <div style={{ width: '226px', height: '320px', position: 'relative', boxShadow: '0 6px 30px rgba(0,0,0,0.12)', borderRadius: '4px', overflow: 'hidden', background: '#fff' }}>
         {/* Borda de estampa */}
         {effectiveSrc
-          ? <div style={{ position: 'absolute', inset: 0, backgroundImage: `url(${effectiveSrc})`, backgroundSize: `${(patternScale || 150) / 2}px`, backgroundRepeat: 'repeat' }} />
+          ? <div style={{ position: 'absolute', inset: 0, backgroundImage: `url(${effectiveSrc})`, backgroundSize: `${(patternScale || 150) / 1.1}px`, backgroundRepeat: 'repeat' }} />
           : <div style={{ position: 'absolute', inset: 0, background: solidColor }} />}
         
         {/* Área branca interna */}
@@ -4095,7 +4095,7 @@ function ChecklistMaternidadePreview({ accentColor, patternSrc, editData, logoCo
       {/* A4 proporcional: 226×320 ≈ A5, A4 ≈ 226×320 → usar 226×320 para A5, A4 = 226×320 */}
       <div style={{ width: '226px', height: '320px', position: 'relative', boxShadow: '0 6px 30px rgba(0,0,0,0.12)', borderRadius: '4px', overflow: 'hidden', background: '#fff' }}>
         {comBorda && patternSrc
-          ? <div style={{ position: 'absolute', inset: 0, backgroundImage: `url(${patternSrc})`, backgroundSize: `${(patternScale || 150) / 2}px`, backgroundRepeat: 'repeat' }} />
+          ? <div style={{ position: 'absolute', inset: 0, backgroundImage: `url(${patternSrc})`, backgroundSize: `${(patternScale || 150) / 1.1}px`, backgroundRepeat: 'repeat' }} />
           : <div style={{ position: 'absolute', inset: 0, background: solidColor }} />}
         {/* Área branca interna */}
         <div style={{ position: 'absolute', top: BORDER, left: BORDER, right: BORDER, bottom: BORDER, background: '#fff', display: 'flex', overflow: 'hidden' }}>
@@ -4447,7 +4447,7 @@ function FolderTrifoldPreview({ brand, editData, logoColor, logoLayout, comBorda
     }}>
       {withPattern && (
         comBorda && patternSrc ? (
-          <div style={{ position: 'absolute', inset: 0, backgroundImage: `url(${patternSrc})`, backgroundSize: `${patternScale * 0.3}px`, backgroundRepeat: 'repeat', opacity: 0.1 }} />
+          <div style={{ position: 'absolute', inset: 0, backgroundImage: `url(${patternSrc})`, backgroundSize: `${patternScale * 0.55}px`, backgroundRepeat: 'repeat', opacity: 0.1 }} />
         ) : (
           <div style={{ position: 'absolute', inset: 0, background: borderColor || paletteColors[0] || accentColor, opacity: 0.12 }} />
         )
@@ -4558,7 +4558,7 @@ function FolderTrifoldPreview({ brand, editData, logoColor, logoLayout, comBorda
           <Page num={5} isSmall>
             <div style={{ position: 'absolute', inset: 0, overflow: 'hidden', background: !comBorda ? (borderColor || paletteColors[0] || accentColor) : 'transparent' }}>
                {comBorda && patternSrc && (
-                 <div style={{ position: 'absolute', inset: 0, backgroundImage: `url(${patternSrc})`, backgroundSize: `${patternScale * 0.3}px`, backgroundRepeat: 'repeat', opacity: 1 }} />
+                 <div style={{ position: 'absolute', inset: 0, backgroundImage: `url(${patternSrc})`, backgroundSize: `${patternScale * 0.55}px`, backgroundRepeat: 'repeat', opacity: 1 }} />
                )}
                <div style={{ position: 'absolute', inset: 0, background: !patternSrc && comBorda ? `${accentColor}10` : (!comBorda ? 'transparent' : 'transparent') }} />
             </div>
@@ -4574,7 +4574,7 @@ function FolderTrifoldPreview({ brand, editData, logoColor, logoLayout, comBorda
           <Page num={6}>
             <div style={{ position: 'absolute', inset: 0, overflow: 'hidden', background: !comBorda ? (borderColor || paletteColors[0] || accentColor) : 'transparent' }}>
               {comBorda && patternSrc && (
-                <div style={{ position: 'absolute', inset: 0, backgroundImage: `url(${patternSrc})`, backgroundSize: `${patternScale * 0.3}px`, backgroundRepeat: 'repeat', opacity: 1 }} />
+                <div style={{ position: 'absolute', inset: 0, backgroundImage: `url(${patternSrc})`, backgroundSize: `${patternScale * 0.55}px`, backgroundRepeat: 'repeat', opacity: 1 }} />
               )}
               <div style={{ position: 'absolute', inset: 0, background: !patternSrc && comBorda ? `${accentColor}10` : 'transparent' }} />
             </div>
@@ -4635,7 +4635,7 @@ function FolderTrifoldPreview({ brand, editData, logoColor, logoLayout, comBorda
           <Page num={1}>
             <div style={{ position: 'absolute', inset: 0, overflow: 'hidden', background: !comBorda ? (borderColor || paletteColors[0] || accentColor) : 'transparent' }}>
                {comBorda && patternSrc && (
-                 <div style={{ position: 'absolute', inset: 0, backgroundImage: `url(${patternSrc})`, backgroundSize: `${patternScale * 0.35}px`, backgroundRepeat: 'repeat', opacity: 1 }} />
+                 <div style={{ position: 'absolute', inset: 0, backgroundImage: `url(${patternSrc})`, backgroundSize: `${patternScale * 0.6}px`, backgroundRepeat: 'repeat', opacity: 1 }} />
                )}
                <div style={{ position: 'absolute', inset: 0, background: !patternSrc && comBorda ? `${accentColor}15` : 'transparent' }} />
             </div>
@@ -4773,7 +4773,7 @@ function FolderA5Preview({ brand, editData, logoColor, logoLayout, comBorda, set
     }}>
       {withPattern && (
         comBorda && patternSrc ? (
-          <div style={{ position: 'absolute', inset: 0, backgroundImage: `url(${patternSrc})`, backgroundSize: `${patternScale * 0.3}px`, backgroundRepeat: 'repeat', opacity: 0.1 }} />
+          <div style={{ position: 'absolute', inset: 0, backgroundImage: `url(${patternSrc})`, backgroundSize: `${patternScale * 0.55}px`, backgroundRepeat: 'repeat', opacity: 0.1 }} />
         ) : (
           <div style={{ position: 'absolute', inset: 0, background: borderColor || paletteColors[0] || accentColor, opacity: 0.12 }} />
         )
@@ -4856,7 +4856,7 @@ function AtestadoPreview({ accentColor, patternSrc, editData, logoColor, logoLay
       </div>
     <div style={{ width: '226px', height: '320px', position: 'relative', boxShadow: '0 4px 120px rgba(0,0,0,0.12)', borderRadius: '4px', overflow: 'hidden', background: '#fff' }}>
       {effectiveSrc
-        ? <div style={{ position: 'absolute', inset: 0, backgroundImage: `url(${effectiveSrc})`, backgroundSize: `${(patternScale || 150) / 2}px`, backgroundRepeat: 'repeat' }} />
+        ? <div style={{ position: 'absolute', inset: 0, backgroundImage: `url(${effectiveSrc})`, backgroundSize: `${(patternScale || 150) / 1.1}px`, backgroundRepeat: 'repeat' }} />
         : <div style={{ position: 'absolute', inset: 0, background: solidColor }} />}
       <div style={{ position: 'absolute', top: BORDER, left: BORDER, right: BORDER, bottom: BORDER, background: '#fff', clipPath: roofClip }} />
 
@@ -4978,7 +4978,7 @@ function GenericItemPreview({ item, marca, accentColor, patternSrc, editData, lo
     <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', alignItems: 'center' }}>
       <BordaToggle comBorda={comBorda} setComBorda={setComBorda} accentColor={accentColor} paletteColors={paletteColors} borderColor={borderColor} setBorderColor={setBorderColor} patternScale={patternScale} setPatternScale={setPatternScale} />
     <div style={{ width: '320px', height: '220px', position: 'relative', background: '#fff', overflow: 'hidden', boxShadow: '0 4px 20px rgba(0,0,0,0.12)', borderRadius: '8px', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: '12px' }}>
-      {effectiveSrc && <div style={{ position: 'absolute', inset: 0, backgroundImage: `url(${effectiveSrc})`, backgroundSize: `${(patternScale || 150) / 1.5}px`, backgroundRepeat: 'repeat', opacity: 0.1 }} />}
+      {effectiveSrc && <div style={{ position: 'absolute', inset: 0, backgroundImage: `url(${effectiveSrc})`, backgroundSize: `${(patternScale || 150) / 0.9}px`, backgroundRepeat: 'repeat', opacity: 0.1 }} />}
       <div style={{ position: 'relative', zIndex: 1, width: '60px', height: '60px', display: 'flex', alignItems: 'center', justifyContent: 'center', overflow: 'hidden' }}>
         <LogoPreviewHTML editData={{ ...editData, tagline: localSlogan }} color={logoColor} layout={logoLayout} hideTagline={hideTagline} maxWidth="60px" maxHeight="60px" />
       </div>
@@ -5010,7 +5010,7 @@ function PapelTimbradoPreview({ brand, editData, accentColor, patternSrc, logoCo
       )}
       <div style={{ width: '226px', height: '320px', position: 'relative', boxShadow: '0 4px 120px rgba(0,0,0,0.12)', borderRadius: '4px', overflow: 'hidden', background: '#fff' }}>
         {effectiveSrc
-          ? <div style={{ position: 'absolute', inset: 0, backgroundImage: `url(${effectiveSrc})`, backgroundSize: `${(patternScale || 150) / 2}px`, backgroundRepeat: 'repeat' }} />
+          ? <div style={{ position: 'absolute', inset: 0, backgroundImage: `url(${effectiveSrc})`, backgroundSize: `${(patternScale || 150) / 1.1}px`, backgroundRepeat: 'repeat' }} />
           : <div style={{ position: 'absolute', inset: 0, background: solidColor }} />}
         <div style={{ position: 'absolute', top: BORDER, left: BORDER, right: BORDER, bottom: BORDER, background: '#fff', clipPath: roofClip, transition: 'clip-path 0.3s ease' }} />
         
@@ -5087,7 +5087,7 @@ function FundoInstaPreview({ brand, editData, accentColor, patternSrc, logoColor
 
       <div id="insta-bg-preview" data-insta-preview style={{ width: `${fmt.pw}px`, height: `${fmt.ph}px`, position: 'relative', boxShadow: '0 4px 60px rgba(0,0,0,0.15)', borderRadius: fmt.id === 'story' ? '24px' : '12px', overflow: 'hidden', background: '#fff', transition: 'width 0.3s, height 0.3s' }}>
         <div style={{ position: 'absolute', inset: 0, overflow: 'hidden', zIndex: 1 }}>
-           {effectiveSrc && <div style={{ position: 'absolute', inset: 0, backgroundImage: `url(${effectiveSrc})`, backgroundSize: `${(patternScale || 150) / 1.5}px`, backgroundRepeat: 'repeat', opacity: 0.32 }} />}
+           {effectiveSrc && <div style={{ position: 'absolute', inset: 0, backgroundImage: `url(${effectiveSrc})`, backgroundSize: `${(patternScale || 150) / 0.9}px`, backgroundRepeat: 'repeat', opacity: 0.32 }} />}
            <div style={{ position: 'absolute', inset: 0, background: !effectiveSrc ? `${solidColor}10` : 'transparent' }} />
         </div>
         <div style={{ position: 'absolute', top: fmt.id === 'post' ? '18px' : '30px', left: '0', right: '0', display: 'flex', flexDirection: 'column', alignItems: 'center', zIndex: 3 }}>
@@ -9041,7 +9041,7 @@ body { width:${W + BLEED*2}mm; height:${H + BLEED*2}mm; position:relative; overf
   <div style="position:absolute;bottom:${BLEED}mm;right:0;width:${BLEED-0.5}mm;height:0.2mm;background:#000;z-index:100;"></div>
   <div style="position:absolute;bottom:0;right:${BLEED}mm;width:0.2mm;height:${BLEED-0.5}mm;background:#000;z-index:100;"></div>
     <!-- Background -->
-    <div style="position:absolute;inset:0;background-image:${effectiveSrc ? `url(${effectiveSrc})` : 'none'};background-size:${patternScale * 0.3}mm;background-color:${!effectiveSrc ? solidColor : 'transparent'};"></div>
+    <div style="position:absolute;inset:0;background-image:${effectiveSrc ? `url(${effectiveSrc})` : 'none'};background-size:${patternScale * 0.55}mm;background-color:${!effectiveSrc ? solidColor : 'transparent'};"></div>
     
     <!-- Casinha -->
     <div style="position:absolute;top:${BLEED + 6}mm;left:${BLEED + 6}mm;right:${BLEED + 6}mm;bottom:${BLEED + 6}mm;background:#fff;clip-path:polygon(0% 18%, 50% 0%, 100% 18%, 100% 100%, 0% 100%);-webkit-clip-path:polygon(0% 18%, 50% 0%, 100% 18%, 100% 100%, 0% 100%);display:flex;flex-direction:column;align-items:center;padding:12mm 10mm 10mm;">
