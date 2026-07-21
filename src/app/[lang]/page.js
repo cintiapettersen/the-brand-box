@@ -1244,9 +1244,11 @@ export default function Home() {
         if (sessionIdPro) localStorage.setItem(`brandbox_brand_${sessionIdPro}`, JSON.stringify(deliveryData));
       } catch {}
 
-      // BYPASS DE DEMO REMOVIDO: causava que qualquer usuário com brandbox_demo_mode no localStorage
-      // pulasse o Stripe e fosse direto para sucesso com dados incompletos, causando crash.
-      // O modo DEMO agora é tratado exclusivamente pela sucesso page via session ID fixo.
+      // DEMO mode: pula o Stripe e vai direto para a experência mock com session ID fixo
+      if (typeof window !== 'undefined' && localStorage.getItem('brandbox_demo_mode') === 'BUILDWEEK100') {
+        window.location.href = `/sucesso?session=0da0b9d0-f6f6-4743-a349-365e0cb16-demo&plano=pro&lang=${lang}`;
+        return;
+      }
 
       const res = await fetch('/api/checkout', {
         method: 'POST',
@@ -2831,8 +2833,11 @@ export default function Home() {
                           if (brandState.pattern && !finalPatternUrl) try { localStorage.setItem('brandbox_pattern', JSON.stringify(brandState.pattern)); } catch {}
                           try { localStorage.setItem('brandbox_delivery', JSON.stringify({ ...brandState, pattern: finalPatternUrl ? { url: finalPatternUrl } : null })); } catch {}
 
-                          // BYPASS DE DEMO REMOVIDO: causava que qualquer usuário com brandbox_demo_mode no localStorage
-                          // pulasse o Stripe e fosse direto para sucesso com dados incompletos, causando crash.
+                          // DEMO mode: pula o Stripe e vai direto para a experiência mock com session ID fixo
+                          if (typeof window !== 'undefined' && localStorage.getItem('brandbox_demo_mode') === 'BUILDWEEK100') {
+                            window.location.href = `/sucesso?session=0da0b9d0-f6f6-4743-a349-365e0cb16-demo&plano=starter&lang=${lang}`;
+                            return;
+                          }
 
                           const res = await fetch('/api/checkout', {
                             method: 'POST',
