@@ -12158,10 +12158,11 @@ function SucessoContent() {
         };
         setBrand(demoBrand);
         setPlano('avulso');
-        setShowWelcome(false);
+        setShowWelcome(true); // DEMO: mostra tela de boas-vindas antes de entrar no editor
         setLoading(false);
         return;
       }
+
 
       if (sessionParam) {
         localStorage.setItem('brandbox_session', sessionParam);
@@ -12221,7 +12222,8 @@ function SucessoContent() {
               const derivedPlano = (data.plano === 'complete' ? 'pro' : (data.plano || 'starter'));
               setPlano(derivedPlano);
 
-              if (planoParam) setShowWelcome(true);
+              // Tela de boas-vindas só para DEMO — clientes reais vão direto ao editor
+              // if (planoParam) setShowWelcome(true); 
               setLoading(false);
 
               // Background email dispatch
@@ -12265,7 +12267,8 @@ function SucessoContent() {
              localStorage.setItem('brandbox_delivery', JSON.stringify(updatedDelivery));
           }
           setPlano(savedPlano);
-          if (planoParam) setShowWelcome(true);
+          // Tela de boas-vindas só para DEMO — clientes reais vão direto ao editor
+          // if (planoParam) setShowWelcome(true);
         }
       } catch (e) { console.error('LocalStorage load failed:', e); }
       
