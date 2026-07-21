@@ -1066,7 +1066,7 @@ function EstampaStep({ brand, accentColor, marca, patterns, setPatterns, genCoun
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           paleta: paletteColors,
-          estiloNome: brand.resultadoFinal?.estiloNome || '',
+          estiloNome: ESTILO_NOME_BY_ID[brand.resultadoFinal?.estiloId] || brand.resultadoFinal?.estiloNome || '',
           marca: marca || brand.formData?.marca || '',
           descricao: brand.resultadoFinal?.mensagem || '',
           referenceUrls: refs,
