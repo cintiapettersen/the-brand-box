@@ -2,9 +2,10 @@
 import { useRef, useState, useEffect } from 'react';
 import { useTranslation } from '../../LanguageContext';
 
-const BB_MARCA = '#65BDB9';
-const BB_DIGITAL = '#dc3895'; // pink mais vibrante
-const BB_PAPELARIA = '#8DBD8E';
+const BB_MARCA = '#C3CEDB'; // Plein Air (Azul claro acinzentado)
+const BB_DIGITAL = '#C6B098'; // Porcini (Bege / Taupe)
+const BB_PAPELARIA = '#D1B875'; // Dourado
+
 
 function SubMenu({ items, activeId, onSelect, color, renderLabel }) {
   const scrollRef = useRef(null);

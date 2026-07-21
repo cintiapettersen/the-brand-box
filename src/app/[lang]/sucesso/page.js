@@ -834,7 +834,7 @@ function CartaoStep({ brand, accentColor, paletteColors, marca, estampaPatterns,
       {/* Seletor de Orientação */}
       <div style={{ display: 'flex', justifyContent: 'center', gap: '8px', marginBottom: '-0.5rem' }}>
         {['landscape', 'portrait'].map(o => (
-          <button key={o} onClick={() => setOrientation(o)} style={{ padding: '6px 16px', borderRadius: '20px', fontSize: '0.75rem', fontWeight: 700, border: '1px solid', borderColor: orientation === o ? '#363532' : '#eee', background: orientation === o ? 'rgba(192, 59, 102, 0.1)' : '#fff', color: orientation === o ? '#363532' : '#888', cursor: 'pointer', fontFamily: 'Montserrat, sans-serif' }}>
+          <button key={o} onClick={() => setOrientation(o)} style={{ padding: '6px 16px', borderRadius: '20px', fontSize: '0.75rem', fontWeight: 700, border: '1px solid', borderColor: orientation === o ? '#363532' : '#eee', background: orientation === o ? 'rgba(54, 53, 50, 0.1)' : '#fff', color: orientation === o ? '#363532' : '#888', cursor: 'pointer', fontFamily: 'Montserrat, sans-serif' }}>
             {o === 'landscape' ? (dictionary?.digital_tab?.horizontal_card || 'Horizontal (Cartão)') : (dictionary?.digital_tab?.portrait_screen || 'Retrato (Full Screen)')}
           </button>
         ))}
@@ -905,7 +905,7 @@ function CartaoStep({ brand, accentColor, paletteColors, marca, estampaPatterns,
               style={{
                 padding: '6px 14px', borderRadius: '20px', fontSize: '0.7rem', fontWeight: 600,
                 border: '1px solid', borderColor: logoLayout === l ? '#363532' : '#eee',
-                background: logoLayout === l ? 'rgba(192, 59, 102, 0.1)' : '#fff',
+                background: logoLayout === l ? 'rgba(54, 53, 50, 0.1)' : '#fff',
                 color: logoLayout === l ? '#363532' : '#888', cursor: 'pointer',
                 transition: 'all 0.2s'
               }}
@@ -1688,7 +1688,7 @@ function AvulsoUpgradeCard({ accentColor, titulo, desc }) {
         href="https://thebrandbox.sonhodepapel.com/"
         target="_blank"
         rel="noopener noreferrer"
-        style={{ display: 'inline-block', background: `linear-gradient(135deg, #363532, #a12d52)`, color: '#fff', borderRadius: '50px', padding: '12px 28px', fontSize: '0.85rem', fontWeight: 700, fontFamily: 'Montserrat,sans-serif', textDecoration: 'none', boxShadow: '0 6px 20px rgba(192,59,102,0.3)' }}
+        style={{ display: 'inline-block', background: `linear-gradient(135deg, #363532, #5a5855)`, color: '#fff', borderRadius: '50px', padding: '12px 28px', fontSize: '0.85rem', fontWeight: 700, fontFamily: 'Montserrat,sans-serif', textDecoration: 'none', boxShadow: '0 6px 20px rgba(54,53,50,0.3)' }}
       >
         Conhecer o Plano Completo →
       </a>
@@ -1780,13 +1780,13 @@ function AjudaStep({ brand, accentColor, onResendEmail, resendingEmail, resendSt
             onFocus={e => e.currentTarget.style.borderColor = '#363532'}
             onBlur={e => e.currentTarget.style.borderColor = '#e0e0e0'}
           />
-          <button type="submit" style={{ padding: '10px 20px', background: '#363532', color: '#fff', border: 'none', borderRadius: '10px', fontWeight: 700, fontSize: '0.82rem', cursor: 'pointer', boxShadow: '0 4px 10px rgba(192, 59, 102, 0.2)' }}>
+          <button type="submit" style={{ padding: '10px 20px', background: '#363532', color: '#fff', border: 'none', borderRadius: '10px', fontWeight: 700, fontSize: '0.82rem', cursor: 'pointer', boxShadow: '0 4px 10px rgba(54, 53, 50, 0.2)' }}>
             {t.busca_btn || 'Perguntar'}
           </button>
         </form>
 
         {searchResult && (
-          <div style={{ marginTop: '16px', padding: '14px 16px', background: 'rgba(192, 59, 102, 0.04)', borderLeft: '3px solid #363532', borderRadius: '0 8px 8px 0', animation: 'fadeIn 0.3s ease' }}>
+          <div style={{ marginTop: '16px', padding: '14px 16px', background: 'rgba(54, 53, 50, 0.04)', borderLeft: '3px solid #363532', borderRadius: '0 8px 8px 0', animation: 'fadeIn 0.3s ease' }}>
             <div style={{ fontSize: '0.66rem', fontWeight: 800, color: '#363532', letterSpacing: '0.5px', marginBottom: '6px' }}>
               {t.busca_resposta || '🔍 RESPOSTA PARA:'} {searchResult.topic}
             </div>
@@ -11785,7 +11785,7 @@ function EntregaContent({ brand, plano, setBrand }) {
             {!isLastStep && (
               <button
                 onClick={goNext}
-                style={{ flex: 1, padding: '14px', background: '#363532', color: '#fff', border: 'none', borderRadius: '30px', fontWeight: 700, fontSize: '0.95rem', cursor: 'pointer', boxShadow: '0 4px 15px rgba(192, 59, 102, 0.3)' }}
+                style={{ flex: 1, padding: '14px', background: '#363532', color: '#fff', border: 'none', borderRadius: '30px', fontWeight: 700, fontSize: '0.95rem', cursor: 'pointer', boxShadow: '0 4px 15px rgba(54, 53, 50, 0.3)' }}
               >
                 {step === 'guia' ? `${dictionary?.geral?.ir_digital || 'Ir para o Digital'} →` : step === 'assinatura-email' ? `${dictionary?.geral?.ir_papelaria || 'Ir para Papelaria'} →` : `${dictionary?.geral?.proxima_etapa || 'Próxima etapa'} →`}
               </button>
@@ -12621,7 +12621,7 @@ function SucessoContent() {
           <span dangerouslySetInnerHTML={{ __html: dictionary?.sucesso?.error_not_found_desc_2 || '<strong>💡 Dica:</strong> Verifique seu e-mail, procure pela mensagem de confirmação do <strong>The Brand Box</strong> e tente acessar o link exclusivo novamente.' }} />
         </p>
         <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap', justifyContent: 'center' }}>
-          <a href="/" style={{ padding: '14px 28px', background: '#C3CEDB', color: '#fff', borderRadius: '30px', fontWeight: 700, fontSize: '0.9rem', textDecoration: 'none', boxShadow: '0 8px 20px rgba(220,52,149,0.2)' }}>
+          <a href="/" style={{ padding: '14px 28px', background: '#C3CEDB', color: '#fff', borderRadius: '30px', fontWeight: 700, fontSize: '0.9rem', textDecoration: 'none', boxShadow: '0 8px 20px rgba(195,206,219,0.3)' }}>
             {dictionary?.sucesso?.error_btn_new || 'Criar nova marca'}
           </a>
           <button onClick={() => window.location.reload()} style={{ padding: '14px 28px', background: '#f5f5f5', color: '#333', border: 'none', borderRadius: '30px', fontWeight: 700, fontSize: '0.9rem', cursor: 'pointer' }}>
