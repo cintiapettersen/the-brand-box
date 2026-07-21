@@ -1237,7 +1237,11 @@ export default function Home() {
       }
 
       if (brandState.pattern && !finalPatternUrl) try { localStorage.setItem('brandbox_pattern', JSON.stringify(brandState.pattern)); } catch {}
-      try { localStorage.setItem('brandbox_delivery', JSON.stringify({ ...brandState, pattern: finalPatternUrl ? { url: finalPatternUrl } : null })); } catch {}
+      try { 
+        const deliveryData = { ...brandState, pattern: finalPatternUrl ? { url: finalPatternUrl } : null, id: sessionIdPro };
+        localStorage.setItem('brandbox_delivery', JSON.stringify(deliveryData)); 
+        if (sessionIdPro) localStorage.setItem(`brandbox_brand_${sessionIdPro}`, JSON.stringify(deliveryData));
+      } catch {}
 
       if (typeof window !== 'undefined' && localStorage.getItem('brandbox_demo_mode') === 'BUILDWEEK100') {
         const successUrl = sessionIdPro
