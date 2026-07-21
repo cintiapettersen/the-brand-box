@@ -12280,7 +12280,7 @@ function SucessoContent() {
           }
           setPlano(savedPlano);
           // Tela de boas-vindas só para DEMO — clientes reais vão direto ao editor
-          // if (planoParam) setShowWelcome(true);
+          if (params.get('demo') === '1') setShowWelcome(true);
         }
       } catch (e) { console.error('LocalStorage load failed:', e); }
       

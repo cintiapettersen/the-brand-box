@@ -1244,9 +1244,9 @@ export default function Home() {
         if (sessionIdPro) localStorage.setItem(`brandbox_brand_${sessionIdPro}`, JSON.stringify(deliveryData));
       } catch {}
 
-      // DEMO mode: pula o Stripe e vai direto para a experência mock com session ID fixo
+      // DEMO mode: pula o Stripe e vai direto para a experência mock com os DADOS REAIS GERADOS
       if (typeof window !== 'undefined' && localStorage.getItem('brandbox_demo_mode') === 'BUILDWEEK100') {
-        window.location.href = `/sucesso?session=0da0b9d0-f6f6-4743-a349-365e0cb16-demo&plano=pro&lang=${lang}`;
+        window.location.href = `/sucesso?demo=1&plano=pro&lang=${lang}`;
         return;
       }
 
@@ -2833,9 +2833,9 @@ export default function Home() {
                           if (brandState.pattern && !finalPatternUrl) try { localStorage.setItem('brandbox_pattern', JSON.stringify(brandState.pattern)); } catch {}
                           try { localStorage.setItem('brandbox_delivery', JSON.stringify({ ...brandState, pattern: finalPatternUrl ? { url: finalPatternUrl } : null })); } catch {}
 
-                          // DEMO mode: pula o Stripe e vai direto para a experiência mock com session ID fixo
+                          // DEMO mode: pula o Stripe e vai direto para a experiência mock com os DADOS REAIS GERADOS
                           if (typeof window !== 'undefined' && localStorage.getItem('brandbox_demo_mode') === 'BUILDWEEK100') {
-                            window.location.href = `/sucesso?session=0da0b9d0-f6f6-4743-a349-365e0cb16-demo&plano=starter&lang=${lang}`;
+                            window.location.href = `/sucesso?demo=1&plano=pro&lang=${lang}`;
                             return;
                           }
 
