@@ -313,7 +313,7 @@ export function LogoPreviewHTML({ item = null, editData, color, layout = 'stacke
   const taglineVisible = taglineSizeRem >= 0.08;
   
   // Gap customizável via taglineGap (fallback para o cálculo dinâmico)
-  const gapMultiplier = editData?.taglineGap !== undefined ? editData.taglineGap : (taglineLen > 40 ? 0.20 : 0.35);
+  const gapMultiplier = editData?.taglineGap !== undefined ? editData.taglineGap : (taglineLen > 40 ? 0.10 : 0.15);
   const taglineGapPx = Math.round(taglineSizeRem * 16 * gapMultiplier);
   
   // Tracking (letter-spacing) compensatório ou manual
@@ -536,7 +536,7 @@ function CoresSalvarButton({ colorOrder, accentColor }) {
     setTimeout(() => setSaved(false), 2500);
   };
   return (
-    <button onClick={handleSave} style={{ width: '100%', padding: '14px', background: saved ? '#4CAF50' : '#363532', color: '#fff', border: 'none', borderRadius: '30px', fontWeight: 700, fontSize: '0.95rem', cursor: 'pointer', transition: 'background 0.3s' }}>
+    <button onClick={handleSave} style={{ width: '100%', padding: '14px', background: saved ? '#4CAF50' : '#fff', color: saved ? '#fff' : '#555', border: '1.5px solid #eaeaea', borderRadius: '30px', fontWeight: 700, fontSize: '0.95rem', cursor: 'pointer', transition: 'all 0.3s' }}>
       {saved ? (dictionary?.color_tab?.order_saved || '✓ Ordem salva! Os impressos já foram atualizados.') : (dictionary?.color_tab?.save_order || 'Salvar ordem das cores →')}
     </button>
   );
@@ -2710,7 +2710,7 @@ function PlacaStep({ brand, accentColor, paletteColors, estampaPatterns, estampa
             patternImage={patternImage}
             iconPath={iconPath}
             customLogoSrc={customLogoSrc}
-            logoElement={<LogoPreviewHTML editData={editData} color={logoColor || accentColor} layout={logoLayout || 'stacked'} scaleFactor={0.82} maxWidth="400px" maxHeight="160px" />}
+            logoElement={<LogoPreviewHTML editData={editData} color={logoColor || accentColor} layout={logoLayout || 'stacked'} scaleFactor={0.65} maxWidth="400px" maxHeight="160px" />}
           />
         </div>
       </div>
@@ -10709,12 +10709,12 @@ function EntregaContent({ brand, plano, setBrand }) {
                   </div>
                   <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
                     <span style={{ fontSize: '0.68rem', color: '#888', fontWeight: 600, fontFamily: 'Montserrat,sans-serif', width: '100px' }}>{dictionary?.tagline_tab?.distance || 'Distância'}</span>
-                    <input type="range" min="0" max="1.5" step="0.05" value={taglineGap} onChange={e => setTaglineGap(parseFloat(e.target.value))} style={{ flex: 1, accentColor }} />
+                    <input type="range" min="-0.5" max="1.5" step="0.05" value={taglineGap} onChange={e => setTaglineGap(parseFloat(e.target.value))} style={{ flex: 1, accentColor }} />
                     <span style={{ fontSize: '0.68rem', color: '#aaa', width: '30px' }}>{taglineGap.toFixed(2)}</span>
                   </div>
                   <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
                     <span style={{ fontSize: '0.68rem', color: '#888', fontWeight: 600, fontFamily: 'Montserrat,sans-serif', width: '100px' }}>{dictionary?.tagline_tab?.spacing_slider || 'Espaçamento'}</span>
-                    <input type="range" min="0.05" max="1.2" step="0.05" value={taglineLetterSpacing} onChange={e => setTaglineLetterSpacing(parseFloat(e.target.value))} style={{ flex: 1, accentColor }} />
+                    <input type="range" min="-0.1" max="1.5" step="0.05" value={taglineLetterSpacing} onChange={e => setTaglineLetterSpacing(parseFloat(e.target.value))} style={{ flex: 1, accentColor }} />
                     <span style={{ fontSize: '0.68rem', color: '#aaa', width: '30px' }}>{taglineLetterSpacing.toFixed(2)}em</span>
                   </div>
                 </div>
@@ -11760,14 +11760,14 @@ function EntregaContent({ brand, plano, setBrand }) {
                 link.download = `Assinatura-Email_${marca || 'marca'}.png`;
                 link.href = canvas.toDataURL('image/png');
                 link.click();
-              }} style={{ flex: 1, padding: '14px 8px', background: '#fff', color: '#363532', border: '1.5px solid #363532', borderRadius: '30px', fontWeight: 700, fontSize: '0.85rem', cursor: 'pointer' }}>
+              }} style={{ flex: 1, padding: '14px 8px', background: '#fff', color: '#555', border: '1.5px solid #eaeaea', borderRadius: '30px', fontWeight: 700, fontSize: '0.85rem', cursor: 'pointer' }}>
                 {dictionary?.ui?.baixar_png || '⬇ Baixar PNG'}
               </button>
             </div>
           )}
 
           {step === 'paleta' && (
-            <button onClick={downloadCoresPNG} disabled={downloadingCores} style={{ width: '100%', padding: '14px', background: '#fff', color: '#363532', border: '1.5px solid #363532', borderRadius: '30px', fontWeight: 700, fontSize: '0.95rem', cursor: 'pointer', opacity: downloadingCores ? 0.6 : 1 }}>
+            <button onClick={downloadCoresPNG} disabled={downloadingCores} style={{ width: '100%', padding: '14px', background: '#fff', color: '#555', border: '1.5px solid #eaeaea', borderRadius: '30px', fontWeight: 700, fontSize: '0.95rem', cursor: 'pointer', opacity: downloadingCores ? 0.6 : 1 }}>
               {downloadingCores ? '...' : (dictionary?.guide_tab?.download_palette || '⬇ Baixar Paleta de Cores')}
             </button>
           )}
