@@ -3009,14 +3009,22 @@ function FonteStep({ brand, accentColor, logoColor, marca, tagline, editData, lo
     // Remove a fonte original da lista caso já exista, para podermos inseri-la no topo
     const filteredLista = lista.filter(f => f.fontFamily !== originalFont);
     
-    // Descobrir dados da fonte original no FONT_MAP
-    const found = Object.values(FONT_MAP).find(f => f.fontFamily === originalFont);
-    if (found) {
-      filteredLista.unshift({ labelId: 'suggested', labelDefault: 'Sugerida', ...found });
+    // Descobrir dados da fonte original no FONT_MAP ou criar um fallback
+    let found = Object.values(FONT_MAP).find(f => f.fontFamily === originalFont);
+    if (!found) {
+      found = { 
+        fontFamily: originalFont, 
+        googleFont: true, 
+        weight: 400, 
+        style: editData?.fontStyle || 'serif', 
+        sizeBoost: 1.0 
+      };
     }
     
+    filteredLista.unshift({ labelId: 'suggested', labelDefault: 'Sugerida', ...found });
+    
     return filteredLista.slice(0, 7);
-  }, [brand]);
+  }, [brand, editData]);
 
   const [preview, setPreview] = React.useState(
     () => opcoes.find(f => f.fontFamily === currentFont) || opcoes[0]
