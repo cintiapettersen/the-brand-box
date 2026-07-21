@@ -187,7 +187,7 @@ function CanecaPreviewComponent({
                   zIndex: 1,
                 }}>
                   {usePattern
-                    ? <div style={{ position: 'absolute', inset: 0, backgroundImage: `url(${patternSrc})`, backgroundSize: `${(patternScale || 150) * 0.65}px`, backgroundRepeat: 'repeat' }} />
+                    ? <div style={{ position: 'absolute', inset: 0, backgroundImage: `url(${patternSrc})`, backgroundSize: `${(patternScale || 150) * 1.5}px`, backgroundRepeat: 'repeat' }} />
                     : <div style={{ position: 'absolute', inset: 0, background: solidColor }} />
                   }
                   <div style={{ position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
@@ -246,7 +246,7 @@ function CanecaPreviewComponent({
               border: '0.5px solid #eee',
             }}>
               {usePattern
-                ? <div style={{ position: 'absolute', inset: 0, backgroundImage: `url(${patternSrc})`, backgroundSize: `${(patternScale || 150) * 0.75}px`, backgroundRepeat: 'repeat' }} />
+                ? <div style={{ position: 'absolute', inset: 0, backgroundImage: `url(${patternSrc})`, backgroundSize: `${(patternScale || 150) * 1.7}px`, backgroundRepeat: 'repeat' }} />
                 : <div style={{ position: 'absolute', inset: 0, background: solidColor }} />
               }
               {/* Selos repetidos 2× — frente e verso do wrap */}

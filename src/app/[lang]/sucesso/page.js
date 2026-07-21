@@ -7938,7 +7938,7 @@ html, body { width:${TW}mm; height:${TH}mm; overflow:hidden; }
           
       // Na caneca scale=150 significa 0.15mm (muito denso). Na camiseta scale=150 significa ~1.2mm
       const bgStyleT = comBorda && patternSrc
-        ? `background-image:url(${patternSrc});background-size:${(patternScale*0.65).toFixed(1)}mm;background-repeat:repeat;`
+        ? `background-image:url(${patternSrc});background-size:${(patternScale*1.5).toFixed(1)}mm;background-repeat:repeat;`
         : `background:${solidColor};`;
       
       const TW = 300, TH = 300; // 30x30 cm azulejo
