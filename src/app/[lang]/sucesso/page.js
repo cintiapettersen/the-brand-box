@@ -5,6 +5,7 @@ import BrandBoxNav from './BrandBoxNav';
 import LanguageSwitcher from '../../../components/LanguageSwitcher';
 import React, { Suspense, useState, useEffect, useRef } from 'react';
 import ReactDOMServer from 'react-dom/server';
+import dynamic from 'next/dynamic';
 import BrandTemplateSVG from '../../../components/BrandTemplateSVG';
 import BrandBoard from '../../../components/BrandBoard';
 import FolderPage2Art from './FolderPage2Art';
@@ -40,22 +41,25 @@ import FolderSonoPage4 from './FolderSonoPage4';
 import FolderSonoPage5 from './FolderSonoPage5';
 // FolderAmamentacaoPages defined locally below
 import html2canvas from 'html2canvas';
-import MeuPratinhoPreview from './MeuPratinhoPreview';
-import EtiquetaCorreiosPreview from './EtiquetaCorreiosPreview';
-import SacolaPapelPreview from './SacolaPapelPreview';
-import TagSacolaPreview from './TagSacolaPreview';
-import CartaoAgradecimentoPreview from './CartaoAgradecimentoPreview';
 import ReceitaAltaPreview, { buildReceitaAltaHTML } from './ReceitaAltaPreview';
-import CanecaPreview from './CanecaPreview';
-import CamisetaPreview from './CamisetaPreview';
-import PapelPresentePreview from './PapelPresentePreview';
-import GuiaAmamentacaoPreview from './GuiaAmamentacaoPreview';
-import GuiaAlimentarPreview from './GuiaAlimentarPreview';
-import FolderPage4Dynamic from './FolderPage4Dynamic';
-import CadernetaPreview from './CadernetaPreview';
 import { useScaleToFit } from './useScaleToFit';
 import { createClient } from '@supabase/supabase-js';
-import CaixaPreview from './CaixaPreview';
+
+// Dynamic imports — carregados sob demanda para reduzir bundle inicial e uso de memória no mobile
+const MeuPratinhoPreview = dynamic(() => import('./MeuPratinhoPreview'), { ssr: false });
+const EtiquetaCorreiosPreview = dynamic(() => import('./EtiquetaCorreiosPreview'), { ssr: false });
+const SacolaPapelPreview = dynamic(() => import('./SacolaPapelPreview'), { ssr: false });
+const TagSacolaPreview = dynamic(() => import('./TagSacolaPreview'), { ssr: false });
+const CartaoAgradecimentoPreview = dynamic(() => import('./CartaoAgradecimentoPreview'), { ssr: false });
+const CanecaPreview = dynamic(() => import('./CanecaPreview'), { ssr: false });
+const CamisetaPreview = dynamic(() => import('./CamisetaPreview'), { ssr: false });
+const PapelPresentePreview = dynamic(() => import('./PapelPresentePreview'), { ssr: false });
+const GuiaAmamentacaoPreview = dynamic(() => import('./GuiaAmamentacaoPreview'), { ssr: false });
+const GuiaAlimentarPreview = dynamic(() => import('./GuiaAlimentarPreview'), { ssr: false });
+const FolderPage4Dynamic = dynamic(() => import('./FolderPage4Dynamic'), { ssr: false });
+const CadernetaPreview = dynamic(() => import('./CadernetaPreview'), { ssr: false }); // 176KB — maior ganho
+const CaixaPreview = dynamic(() => import('./CaixaPreview'), { ssr: false });
+
 
 const ITEM_KEYS_MAP = {
   'Caixa Gaveta (L 13,5 x P 18,5 cm)': 'caixa',
@@ -12152,6 +12156,14 @@ function SucessoContent() {
             tagline: 'Experiência Criativa',
             colors: ['#D4C5B0', '#C3CEDB', '#C4A882', '#6B8CAE', '#E2894D'],
             fontStyle: 'serif'
+          },
+          // formData necessário para evitar null reference errors na sucesso page
+          formData: {
+            nome: 'The Brand Box',
+            marca: 'The Brand Box',
+            especialidade: '',
+            cr: '',
+            atuacao: 'Design / Moda'
           },
           activeColor: '#C3CEDB',
           currentPaletteColors: ['#D4C5B0', '#C3CEDB', '#C4A882', '#6B8CAE', '#E2894D']
