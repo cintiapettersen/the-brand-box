@@ -93,7 +93,7 @@ export default function CadernetaPreview({
     return (
       <div style={{ position: 'absolute', inset: 0, overflow: 'hidden', background: !comBorda ? mainColor : 'transparent' }}>
         {comBorda && patternSrc && (
-          <div style={{ position: 'absolute', inset: 0, backgroundImage: `url(${patternSrc})`, backgroundSize: `${patternScale * 0.7}px`, backgroundRepeat: 'repeat', opacity: 1 }} />
+          <div style={{ position: 'absolute', inset: 0, backgroundImage: `url(${patternSrc})`, backgroundSize: `${patternScale * 1.2}px`, backgroundRepeat: 'repeat', opacity: 1 }} />
         )}
         <div style={{ position: 'absolute', inset: 0, background: !patternSrc && comBorda ? `${mainColor}12` : 'transparent' }} />
         <div style={{ position: 'absolute', top: '10px', left: '10px', right: '10px', bottom: '10px', background: '#fff', borderRadius: '3px', boxShadow: '0 2px 10px rgba(0,0,0,0.1)', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', overflow: 'hidden', border: `0.5px solid ${mainColor}15` }}>
@@ -134,7 +134,7 @@ export default function CadernetaPreview({
     return (
       <div style={{ position: 'absolute', inset: 0, overflow: 'hidden', background: !comBorda ? mainColor : 'transparent' }}>
         {comBorda && patternSrc && (
-          <div style={{ position: 'absolute', inset: 0, backgroundImage: `url(${patternSrc})`, backgroundSize: `${patternScale * 0.7}px`, backgroundRepeat: 'repeat', opacity: 1 }} />
+          <div style={{ position: 'absolute', inset: 0, backgroundImage: `url(${patternSrc})`, backgroundSize: `${patternScale * 1.2}px`, backgroundRepeat: 'repeat', opacity: 1 }} />
         )}
         <div style={{ position: 'absolute', inset: 0, background: !patternSrc && comBorda ? `${mainColor}12` : 'transparent' }} />
         <div style={{ position: 'absolute', top: '10px', left: '10px', right: '10px', bottom: '10px', background: '#fff', borderRadius: '3px', boxShadow: '0 2px 10px rgba(0,0,0,0.1)', display: 'flex', flexDirection: 'column', alignItems: 'center', overflow: 'hidden', border: `0.5px solid ${mainColor}15` }}>
@@ -213,7 +213,7 @@ export default function CadernetaPreview({
             {activeSpread === 0 && (
               <div style={{ position: 'absolute', inset: 0, background: !comBorda ? mainColor : 'transparent', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                 {comBorda && patternSrc && (
-                  <div style={{ position: 'absolute', inset: 0, backgroundImage: `url(${patternSrc})`, backgroundSize: `${patternScale * 0.7}px`, backgroundRepeat: 'repeat', opacity: 0.25 }} />
+                  <div style={{ position: 'absolute', inset: 0, backgroundImage: `url(${patternSrc})`, backgroundSize: `${patternScale * 1.2}px`, backgroundRepeat: 'repeat', opacity: 0.25 }} />
                 )}
                 <div style={{ position: 'absolute', inset: 0, background: !patternSrc && comBorda ? `${mainColor}12` : 'transparent' }} />
               </div>
@@ -221,7 +221,7 @@ export default function CadernetaPreview({
             {activeSpread === 1 && (
               <div style={{ position: 'absolute', inset: 0, background: !comBorda ? mainColor : 'transparent', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                 {comBorda && patternSrc && (
-                  <div style={{ position: 'absolute', inset: 0, backgroundImage: `url(${patternSrc})`, backgroundSize: `${patternScale * 0.7}px`, backgroundRepeat: 'repeat', opacity: 0.25 }} />
+                  <div style={{ position: 'absolute', inset: 0, backgroundImage: `url(${patternSrc})`, backgroundSize: `${patternScale * 1.2}px`, backgroundRepeat: 'repeat', opacity: 0.25 }} />
                 )}
                 <div style={{ position: 'absolute', inset: 0, background: !patternSrc && comBorda ? `${mainColor}12` : 'transparent' }} />
               </div>
@@ -387,7 +387,7 @@ export default function CadernetaPreview({
               <div style={{ position: 'absolute', inset: 0, background: !comBorda ? mainColor : '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', overflow: 'hidden' }}>
                 {/* Brand pattern at low opacity */}
                 {comBorda && patternSrc && (
-                  <div style={{ position: 'absolute', inset: 0, backgroundImage: `url(${patternSrc})`, backgroundSize: `${patternScale * 0.7}px`, backgroundRepeat: 'repeat', opacity: 0.25 }} />
+                  <div style={{ position: 'absolute', inset: 0, backgroundImage: `url(${patternSrc})`, backgroundSize: `${patternScale * 1.2}px`, backgroundRepeat: 'repeat', opacity: 0.25 }} />
                 )}
                 {/* Solid color wash if no pattern */}
                 {comBorda && !patternSrc && (
@@ -1082,7 +1082,7 @@ export default function CadernetaPreview({
             {activeSpread === 2 && (
               <div style={{ padding: '12px 14px', height: '100%', boxSizing: 'border-box', display: 'flex', flexDirection: 'column', alignItems: 'center', background: '#fff', position: 'relative', overflow: 'hidden' }}>
                 {comBorda && patternSrc && (
-                  <div style={{ position: 'absolute', inset: 0, backgroundImage: `url(${patternSrc})`, backgroundSize: `${patternScale * 0.7}px`, backgroundRepeat: 'repeat', opacity: 0.05 }} />
+                  <div style={{ position: 'absolute', inset: 0, backgroundImage: `url(${patternSrc})`, backgroundSize: `${patternScale * 1.2}px`, backgroundRepeat: 'repeat', opacity: 0.05 }} />
                 )}
                 <div style={{ zIndex: 1, width: '100%', height: '100%', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'space-between' }}>
                   <div style={{

@@ -79,7 +79,7 @@ export default function SacolaPapelPreview({
               border: '0.5px solid #eee',
             }}>
               {comBorda && patternSrc
-                ? <div style={{ position: 'absolute', inset: 0, backgroundImage: `url(${patternSrc})`, backgroundSize: `${patternScale * 0.5}px`, backgroundRepeat: 'repeat' }} />
+                ? <div style={{ position: 'absolute', inset: 0, backgroundImage: `url(${patternSrc})`, backgroundSize: `${patternScale * 0.9}px`, backgroundRepeat: 'repeat' }} />
                 : <div style={{ position: 'absolute', inset: 0, background: solidColor }} />
               }
               <div style={{ position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%,-50%)', width: '60%' }}>
