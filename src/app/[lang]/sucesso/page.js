@@ -12149,7 +12149,7 @@ function SucessoContent() {
       if (sessionParam === '0da0b9d0-f6f6-4743-a349-365e0cb16-demo') {
         const demoBrand = {
           id: '0da0b9d0-f6f6-4743-a349-365e0cb16-demo',
-          plano: 'avulso', // Usando avulso para limitar a qtd de itens e não crachar memória no celular
+          plano: 'pro', // Mudado de 'avulso' para 'pro' para desbloquear todas as abas no DEMO. (Risco de OOM resolvido por dynamic imports)
           papelariaSelecionada: ['Cartão de Visita', 'Papel Timbrado', 'Tag para Sacola', 'Receituário Padrão (A4 e A5)', 'Cartão de Agradecimento (10x15cm)'],
           editData: {
             marca: 'The Brand Box',
@@ -12169,7 +12169,7 @@ function SucessoContent() {
           currentPaletteColors: ['#D4C5B0', '#C3CEDB', '#C4A882', '#6B8CAE', '#E2894D']
         };
         setBrand(demoBrand);
-        setPlano('avulso');
+        setPlano('pro');
         setShowWelcome(true); // DEMO: mostra tela de boas-vindas antes de entrar no editor
         setLoading(false);
         return;
