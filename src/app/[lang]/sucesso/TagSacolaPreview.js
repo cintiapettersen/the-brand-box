@@ -26,7 +26,7 @@ function TagCard({ size, solidColor, c0, c1, paletteColors, effectiveSrc, patter
   };
 
   const bgStyle = effectiveSrc
-    ? { position: 'absolute', inset: 0, backgroundImage: `url(${effectiveSrc})`, backgroundSize: `${(patternScale || 100) * size.scale / 100}px`, backgroundRepeat: 'repeat' }
+    ? { position: 'absolute', inset: 0, backgroundImage: `url(${effectiveSrc})`, backgroundSize: `${(patternScale || 100) * size.scale / 60}px`, backgroundRepeat: 'repeat' }
     : { position: 'absolute', inset: 0, background: solidColor };
 
   if (side === 'frente') {

@@ -22,7 +22,7 @@ export default function PapelPresentePreview({
   const size = SIZES[idx];
   const W = Math.round(size.w * size.scale);
   const H = Math.round(size.h * size.scale);
-  const bgSize = Math.round((patternScale || 150) / 1.5);
+  const bgSize = Math.round((patternScale || 150) / 1.0);
 
   const MOCKUP_W = 420;
   const MOCKUP_H = 340;
