@@ -1285,9 +1285,9 @@ export default function Home() {
       } catch {}
 
       // DEMO mode: pula o Stripe e vai direto para a experência mock com os DADOS REAIS GERADOS
-      if (typeof window !== 'undefined' && localStorage.getItem('brandbox_demo_mode') === 'BUILDWEEK100') {
-        window.location.href = `/sucesso?demo=1&plano=pro&lang=${lang}`;
-        return;
+                          if (typeof window !== 'undefined' && localStorage.getItem('brandbox_demo_mode') === 'BUILDWEEK100') {
+                            window.location.href = `/${lang}/sucesso?demo=1&plano=pro&lang=${lang}`;
+                            return;
       }
 
       const res = await fetch('/api/checkout', {
@@ -2895,7 +2895,7 @@ export default function Home() {
 
                           // DEMO mode: pula o Stripe e vai direto para a experiência mock com os DADOS REAIS GERADOS
                           if (typeof window !== 'undefined' && localStorage.getItem('brandbox_demo_mode') === 'BUILDWEEK100') {
-                            window.location.href = `/sucesso?demo=1&plano=pro&lang=${lang}`;
+                            window.location.href = `/${lang}/sucesso?demo=1&plano=pro&lang=${lang}`;
                             return;
                           }
 
