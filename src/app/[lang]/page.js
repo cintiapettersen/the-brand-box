@@ -1503,11 +1503,13 @@ export default function Home() {
               <p style={{ fontSize: '1rem', color: 'var(--text-secondary)', marginBottom: '1.5rem' }}>{dictionary?.onboarding?.step_4_subtitle || 'Escolha a que mais combina com o seu negócio.'}</p>
               <div style={{ width: '100%', marginBottom: '1rem', overflowY: 'auto', maxHeight: '50vh', padding: '0 4px' }}>
                 <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '12px', padding: '4px' }}>
-                  {[...areas, 'Other'].map(a => {
+                  {[...areas, 'Other'].map((a, i) => {
                     const isOther = a === 'Other';
                     const displayLabel = isOther ? (dictionary?.onboarding?.step_4_other_btn || 'Outra') : (dictionary?.onboarding?.areas_options?.[a] || a);
                     const value = isOther ? 'Outra' : a;
                     const isSelected = formData.atuacao === value;
+                    const PALETTE = ["#E8EAEB", "#F2E3D5", "#E3EBE6", "#C3CEDB", "#C6B098", "#D1B875", "#909887", "#EFEBE4"];
+                    const baseColor = PALETTE[i % PALETTE.length];
                     return (
                       <button
                         key={value}
@@ -1516,8 +1518,8 @@ export default function Home() {
                           padding: '12px 8px',
                           borderRadius: '12px',
                           border: isSelected ? '2px solid var(--text-primary)' : '1px solid var(--border)',
-                          background: isSelected ? 'var(--text-primary)' : '#F9F8F6', // Off-white/Beige chic
-                          color: isSelected ? '#FFFFFF' : 'var(--text-secondary)',
+                          background: isSelected ? baseColor : '#F9F8F6',
+                          color: isSelected ? 'var(--text-primary)' : 'var(--text-secondary)',
                           fontWeight: isSelected ? 600 : 400,
                           fontSize: '0.82rem',
                           lineHeight: 1.3,
@@ -1793,16 +1795,18 @@ export default function Home() {
               
               <div style={{ width: '100%', marginBottom: '1rem', overflowY: 'auto', maxHeight: '50vh', padding: '0 4px' }}>
                 <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '12px', padding: '4px' }}>
-                  {nuncaPensarOpcoes.map(s => {
+                  {nuncaPensarOpcoes.map((s, i) => {
                     const isSelected = (formData.nuncaPensarTags || []).includes(s);
+                    const PALETTE = ["#E8EAEB", "#F2E3D5", "#E3EBE6", "#C3CEDB", "#C6B098", "#D1B875", "#909887", "#EFEBE4"];
+                    const baseColor = PALETTE[i % PALETTE.length];
                     return (
                       <button 
                         key={s} 
                         onClick={() => toggleNuncaPensar(s)} 
                         style={{
-                          background: isSelected ? '#363532' : '#F9F8F6',
-                          color: isSelected ? '#fff' : 'var(--text-secondary)',
-                          border: isSelected ? '2px solid #363532' : '1px solid var(--border)', 
+                          background: isSelected ? baseColor : '#F9F8F6',
+                          color: isSelected ? 'var(--text-primary)' : 'var(--text-secondary)',
+                          border: isSelected ? '2px solid var(--text-primary)' : '1px solid var(--border)', 
                           padding: '16px 12px', 
                           borderRadius: '12px', 
                           cursor: 'pointer',
