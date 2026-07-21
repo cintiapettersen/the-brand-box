@@ -2908,14 +2908,15 @@ export default function Home() {
                             setLoadingCheckout(false);
                           }
                         } catch (err) {
-                        console.error('Checkout error:', err);
-                        setLoadingCheckout(false);
-                      }
-                    }}
-                  >
-                    {loadingCheckout === 'starter' ? (dictionary?.checkout?.btn_processing || 'Processando...') : (dictionary?.checkout?.plan_essence_btn || 'Começar minha marca')}
-                  </button>
+                          console.error('Checkout error:', err);
+                          setLoadingCheckout(false);
+                        }
+                      }}
+                    >
+                      {loadingCheckout === 'starter' ? (dictionary?.checkout?.btn_processing || 'Processando...') : (dictionary?.checkout?.plan_essence_btn || 'Começar minha marca')}
+                    </button>
                   </motion.div>
+                  )}
 
 
                   {/* PLANO 2 — Complete (DESTAQUE) */}
