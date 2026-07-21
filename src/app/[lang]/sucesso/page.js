@@ -8151,7 +8151,7 @@ ${SIZES_S.map(s => arteFlat(s.w, s.h, s.label)).join('')}
         
         const W = 148, H = 210;
         const BORDER = 10;
-        const _accent = brand.activeColor || '#dc3495';
+        const _accent = brand.activeColor || '#C3CEDB';
         const _bcCe = borderColor || _accent;
         
         const patternBorder = (comBorda && patternSrc) ? `
@@ -9006,7 +9006,7 @@ body { background:#eee; }
         const _lfCe = LOCAL_FONT_FACES[_ffCe];
         const fiCe = `<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;600;700;800&family=Great+Vibes&display=swap" rel="stylesheet">${_lfCe ? `<style>${_lfCe}</style>` : `<link href="https://fonts.googleapis.com/css2?family=${_ffCe.replace(/ /g,'+')}:wght@400;700&display=swap" rel="stylesheet">`}`;
 
-        const _accent = brand.activeColor || '#dc3495';
+        const _accent = brand.activeColor || '#C3CEDB';
         const _bcCe = borderColor || _accent;
         const solidColor = _bcCe;
         const effectiveSrc = comBorda ? patternSrc : null;
@@ -9744,7 +9744,7 @@ function EntregaContent({ brand, plano, setBrand }) {
   const setSubmarcaTextColor = (c) => { setSubmarcaTextColorState(c); try { localStorage.setItem(`brandbox_submarca_text_color_${brand.id}`, c); } catch {} };
   const [submarcaTextType, setSubmarcaTextTypeState] = useState(() => { try { return localStorage.getItem(`brandbox_submarca_text_type_${brand.id}`) || 'marca'; } catch { return 'marca'; } });
   const setSubmarcaTextType = (t) => { setSubmarcaTextTypeState(t); try { localStorage.setItem(`brandbox_submarca_text_type_${brand.id}`, t); } catch {} };
-  const [logoColor, setLogoColorState] = useState(() => { try { return localStorage.getItem(`brandbox_logo_color_${brand.id}`) || brand.activeColor || '#dc3495'; } catch { return brand.activeColor || '#dc3495'; } });
+  const [logoColor, setLogoColorState] = useState(() => { try { return localStorage.getItem(`brandbox_logo_color_${brand.id}`) || brand.activeColor || '#C3CEDB'; } catch { return brand.activeColor || '#C3CEDB'; } });
   const setLogoColor = (c) => { setLogoColorState(c); try { localStorage.setItem(`brandbox_logo_color_${brand.id}`, c); } catch {} };
   const [logoLayout, setLogoLayout] = useState(() => {
     const rawMarca = brand.editData?.marca || '';
@@ -10484,7 +10484,7 @@ function EntregaContent({ brand, plano, setBrand }) {
 
     // 3. Fallback de emergência: qualquer paleta carregada ou a cor ativa
     const any = paletas?.find(p => p.paleta_hex?.length > 0);
-    return any?.paleta_hex || [brand.activeColor || '#dc3495'];
+    return any?.paleta_hex || [brand.activeColor || '#C3CEDB'];
   })();
 
   // Aplica ordem de prioridade definida pelo usuário
@@ -10566,7 +10566,7 @@ function EntregaContent({ brand, plano, setBrand }) {
   };
 
   // accentColor = cor principal: respeita a ordem definida na aba Cores, senão usa logoColor
-  const accentColor = orderedPaletteColors[0] || logoColor || '#dc3495';
+  const accentColor = orderedPaletteColors[0] || logoColor || '#C3CEDB';
 
   return (
     <div style={{ minHeight: '100vh', background: '#faf9f7', fontFamily: 'Montserrat, sans-serif', paddingBottom: '3rem' }}>
@@ -12118,7 +12118,7 @@ function SucessoContent() {
                 colors: saved.editData?.colors || defaultAvulsoBrand.editData.colors,
               },
               // Mantém a cor só se o cliente já tinha escolhido algo diferente do pink padrão
-              activeColor: (saved.activeColor && saved.activeColor !== '#dc3495') ? saved.activeColor : defaultAvulsoBrand.activeColor,
+              activeColor: (saved.activeColor && saved.activeColor !== '#C3CEDB') ? saved.activeColor : defaultAvulsoBrand.activeColor,
               // Preserva paleta personalizada se o usuário já editou
               currentPaletteColors: saved.currentPaletteColors || defaultAvulsoBrand.currentPaletteColors,
             };
@@ -12577,7 +12577,7 @@ function SucessoContent() {
           <span dangerouslySetInnerHTML={{ __html: dictionary?.sucesso?.error_not_found_desc_2 || '<strong>💡 Dica:</strong> Verifique seu e-mail, procure pela mensagem de confirmação do <strong>The Brand Box</strong> e tente acessar o link exclusivo novamente.' }} />
         </p>
         <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap', justifyContent: 'center' }}>
-          <a href="/" style={{ padding: '14px 28px', background: '#dc3495', color: '#fff', borderRadius: '30px', fontWeight: 700, fontSize: '0.9rem', textDecoration: 'none', boxShadow: '0 8px 20px rgba(220,52,149,0.2)' }}>
+          <a href="/" style={{ padding: '14px 28px', background: '#C3CEDB', color: '#fff', borderRadius: '30px', fontWeight: 700, fontSize: '0.9rem', textDecoration: 'none', boxShadow: '0 8px 20px rgba(220,52,149,0.2)' }}>
             {dictionary?.sucesso?.error_btn_new || 'Criar nova marca'}
           </a>
           <button onClick={() => window.location.reload()} style={{ padding: '14px 28px', background: '#f5f5f5', color: '#333', border: 'none', borderRadius: '30px', fontWeight: 700, fontSize: '0.9rem', cursor: 'pointer' }}>

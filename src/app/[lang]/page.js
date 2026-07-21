@@ -1304,9 +1304,9 @@ export default function Home() {
               {/* Logo com fonte Golden Blast */}
               <Image src="/the-brand-box-logo.png" alt="the brand box." width={1024} height={225} priority={true} style={{ width: '80%', maxWidth: '380px', height: 'auto', marginBottom: '1.5rem', mixBlendMode: 'multiply', opacity: 0.9 }} />
               
-              <h1 style={{ fontSize: '1.05rem', color: 'var(--text-primary)', marginBottom: '1.5rem', lineHeight: 1.5, maxWidth: '85%', fontWeight: 400, letterSpacing: '0' }}>{dictionary?.landing?.marca_ja_existe || 'Sua marca já existe dentro de você.'}</h1>
+              <h1 style={{ fontSize: '1.4rem', color: 'var(--text-primary)', marginBottom: '1.2rem', lineHeight: 1.35, maxWidth: '90%', fontWeight: 700, letterSpacing: '-0.5px' }}>{dictionary?.landing?.marca_ja_existe || 'Sua marca já existe dentro de você.'}</h1>
               
-              <p style={{ fontSize: '0.95rem', color: 'var(--text-secondary)', marginBottom: '2.5rem', lineHeight: 1.6, maxWidth: '85%', fontWeight: 400 }}>
+              <p style={{ fontSize: '1.05rem', color: 'var(--text-secondary)', marginBottom: '2.5rem', lineHeight: 1.6, maxWidth: '90%', fontWeight: 400 }}>
                 {dictionary?.landing?.ajuda_aparecer || 'Nós apenas ajudamos a revelá-la ao mundo.'}
                 {dictionary?.landing?.experiencia_guiada && (
                   <><br/>{dictionary.landing.experiencia_guiada}</>

@@ -1,0 +1,11 @@
+
+> next-app@0.1.0 build
+> next build
+
+▲ Next.js 16.2.3 (Turbopack)
+- Environments: .env.local
+
+
+> Build error occurred
+Error: Both middleware file "./src/src/middleware.js" and proxy file "./src/src/proxy.js" are detected. Please use "./src/src/proxy.js" only. Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+    at ignore-listed frames

@@ -29,7 +29,7 @@ export function useScaleToFit(naturalWidth, naturalHeight = null) {
       const parentW = el.getBoundingClientRect().width;
       if (!parentW || !naturalWidth) return;
       const newScale = parentW < naturalWidth ? parentW / naturalWidth : 1;
-      setScale(newScale);
+      setScale(prev => Math.abs(prev - newScale) < 0.005 ? prev : newScale);
     };
 
     update();

@@ -115,7 +115,7 @@ const BrandBoard = ({ data, palette, color, seloColor, seloTextColor, patternIma
       if (!natW || !natH) return;
       const sx = 410 / natW; // 450px max width with safe margins
       const sy = 160 / natH; // 180px max height with safe margins
-      setScale(Math.min(1, sx, sy));
+      setScale(prev => Math.abs(prev - Math.min(1, sx, sy)) < 0.01 ? prev : Math.min(1, sx, sy));
     });
     obs.observe(el);
     return () => obs.disconnect();
