@@ -264,15 +264,15 @@ const BrandBoard = ({ data, palette, color, seloColor, seloTextColor, patternIma
       {/* TIPOGRAFIA */}
       <SectionHeader title={t.tipografia || "Tipografia"} />
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '30px', width: '100%', marginTop: '10px' }}>
-         <div style={{ display: 'flex', flexDirection: 'column', justifyContent: 'center', textAlign: 'center', borderRight: '1px solid #eee' }}>
-            <h5 style={{ fontFamily: `'${data.fontFamily || 'Playfair Display'}', serif`, fontSize: `${(1.4 * (data.fontSizeBoost || 1)).toFixed(1)}rem`, marginBottom: '10px', fontWeight: data.fontWeight || 400 }}>{data.fontFamily || 'Playfair Display'}</h5>
-            <p style={{ fontFamily: `'${data.fontFamily || 'Playfair Display'}', serif`, fontSize: `${(0.8 * (data.fontSizeBoost || 1)).toFixed(1)}rem`, lineHeight: '1.4', color: '#666', fontWeight: data.fontWeight || 400 }}>
+         <div style={{ display: 'flex', flexDirection: 'column', justifyContent: 'flex-start', textAlign: 'center', borderRight: '1px solid #eee' }}>
+            <h5 style={{ fontFamily: `'${data.fontFamily || 'Playfair Display'}', serif`, fontSize: `${(1.3 * (data.fontSizeBoost || 1)).toFixed(1)}rem`, marginBottom: '12px', fontWeight: data.fontWeight || 400 }}>{data.fontFamily || 'Playfair Display'}</h5>
+            <p style={{ fontFamily: `'${data.fontFamily || 'Playfair Display'}', serif`, fontSize: `${(0.85 * (data.fontSizeBoost || 1)).toFixed(1)}rem`, lineHeight: '1.8', color: '#666', fontWeight: data.fontWeight || 400 }}>
                Aa Bb Cc Dd<br/>Ee Ff Gg Hh<br/>1234567890
             </p>
          </div>
-         <div style={{ display: 'flex', flexDirection: 'column', justifyContent: 'center', textAlign: 'center' }}>
-            <h5 style={{ fontSize: '1.2rem', fontWeight: secondaryFontWeight, marginBottom: '10px', fontFamily: `'${secondaryFontFamily}', sans-serif` }}>{secondaryFontFamily}</h5>
-            <p style={{ fontSize: '0.85rem', lineHeight: '2.0', color: '#666', fontWeight: secondaryFontWeight, fontFamily: `'${secondaryFontFamily}', sans-serif` }}>
+         <div style={{ display: 'flex', flexDirection: 'column', justifyContent: 'flex-start', textAlign: 'center' }}>
+            <h5 style={{ fontSize: '1.3rem', fontWeight: secondaryFontWeight, marginBottom: '12px', fontFamily: `'${secondaryFontFamily}', sans-serif` }}>{secondaryFontFamily}</h5>
+            <p style={{ fontSize: '0.85rem', lineHeight: '1.8', color: '#666', fontWeight: secondaryFontWeight, fontFamily: `'${secondaryFontFamily}', sans-serif` }}>
                Aa Bb Cc Dd<br/>Ee Ff Gg Hh<br/>1234567890
             </p>
          </div>

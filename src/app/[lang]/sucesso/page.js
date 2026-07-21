@@ -536,7 +536,7 @@ function CoresSalvarButton({ colorOrder, accentColor }) {
     setTimeout(() => setSaved(false), 2500);
   };
   return (
-    <button onClick={handleSave} style={{ width: '100%', padding: '14px', background: saved ? '#4CAF50' : '#C03B66', color: '#fff', border: 'none', borderRadius: '30px', fontWeight: 700, fontSize: '0.95rem', cursor: 'pointer', transition: 'background 0.3s' }}>
+    <button onClick={handleSave} style={{ width: '100%', padding: '14px', background: saved ? '#4CAF50' : '#363532', color: '#fff', border: 'none', borderRadius: '30px', fontWeight: 700, fontSize: '0.95rem', cursor: 'pointer', transition: 'background 0.3s' }}>
       {saved ? (dictionary?.color_tab?.order_saved || '✓ Ordem salva! Os impressos já foram atualizados.') : (dictionary?.color_tab?.save_order || 'Salvar ordem das cores →')}
     </button>
   );
@@ -834,7 +834,7 @@ function CartaoStep({ brand, accentColor, paletteColors, marca, estampaPatterns,
       {/* Seletor de Orientação */}
       <div style={{ display: 'flex', justifyContent: 'center', gap: '8px', marginBottom: '-0.5rem' }}>
         {['landscape', 'portrait'].map(o => (
-          <button key={o} onClick={() => setOrientation(o)} style={{ padding: '6px 16px', borderRadius: '20px', fontSize: '0.75rem', fontWeight: 700, border: '1px solid', borderColor: orientation === o ? '#C03B66' : '#eee', background: orientation === o ? 'rgba(192, 59, 102, 0.1)' : '#fff', color: orientation === o ? '#C03B66' : '#888', cursor: 'pointer', fontFamily: 'Montserrat, sans-serif' }}>
+          <button key={o} onClick={() => setOrientation(o)} style={{ padding: '6px 16px', borderRadius: '20px', fontSize: '0.75rem', fontWeight: 700, border: '1px solid', borderColor: orientation === o ? '#363532' : '#eee', background: orientation === o ? 'rgba(192, 59, 102, 0.1)' : '#fff', color: orientation === o ? '#363532' : '#888', cursor: 'pointer', fontFamily: 'Montserrat, sans-serif' }}>
             {o === 'landscape' ? (dictionary?.digital_tab?.horizontal_card || 'Horizontal (Cartão)') : (dictionary?.digital_tab?.portrait_screen || 'Retrato (Full Screen)')}
           </button>
         ))}
@@ -904,9 +904,9 @@ function CartaoStep({ brand, accentColor, paletteColors, marca, estampaPatterns,
               onClick={() => setLayout(l)}
               style={{
                 padding: '6px 14px', borderRadius: '20px', fontSize: '0.7rem', fontWeight: 600,
-                border: '1px solid', borderColor: logoLayout === l ? '#C03B66' : '#eee',
+                border: '1px solid', borderColor: logoLayout === l ? '#363532' : '#eee',
                 background: logoLayout === l ? 'rgba(192, 59, 102, 0.1)' : '#fff',
-                color: logoLayout === l ? '#C03B66' : '#888', cursor: 'pointer',
+                color: logoLayout === l ? '#363532' : '#888', cursor: 'pointer',
                 transition: 'all 0.2s'
               }}
             >
@@ -925,7 +925,7 @@ function CartaoStep({ brand, accentColor, paletteColors, marca, estampaPatterns,
             return;
           }
           downloadHTML();
-        }} style={{ flex: 1, minWidth: '100px', padding: '13px 8px', background: '#C03B66', color: '#fff', border: 'none', borderRadius: '30px', fontWeight: 700, fontSize: '0.78rem', cursor: 'pointer', fontFamily: 'Montserrat, sans-serif', whiteSpace: 'nowrap' }}>
+        }} style={{ flex: 1, minWidth: '100px', padding: '13px 8px', background: '#363532', color: '#fff', border: 'none', borderRadius: '30px', fontWeight: 700, fontSize: '0.78rem', cursor: 'pointer', fontFamily: 'Montserrat, sans-serif', whiteSpace: 'nowrap' }}>
           {dictionary?.digital_tab?.share || '↑ Compartilhar'}
         </button>
         <a 
@@ -947,7 +947,7 @@ function CartaoStep({ brand, accentColor, paletteColors, marca, estampaPatterns,
           </svg>
           {dictionary?.digital_tab?.send_whatsapp || 'Enviar no Whats'}
         </a>
-        <button onClick={downloadHTML} style={{ flex: 1, minWidth: '100px', padding: '13px 8px', background: 'none', color: '#C03B66', border: '1.5px solid #C03B66', borderRadius: '30px', fontWeight: 700, fontSize: '0.78rem', cursor: 'pointer', fontFamily: 'Montserrat, sans-serif', whiteSpace: 'nowrap' }}>
+        <button onClick={downloadHTML} style={{ flex: 1, minWidth: '100px', padding: '13px 8px', background: 'none', color: '#363532', border: '1.5px solid #363532', borderRadius: '30px', fontWeight: 700, fontSize: '0.78rem', cursor: 'pointer', fontFamily: 'Montserrat, sans-serif', whiteSpace: 'nowrap' }}>
           {dictionary?.digital_tab?.download_html || '⬇ Baixar HTML'}
         </button>
       </div>
@@ -962,7 +962,7 @@ function CartaoStep({ brand, accentColor, paletteColors, marca, estampaPatterns,
           const tLabel = dictionary?.digital_tab?.contact_labels?.[f.key] || f.label;
           return <input key={f.key} value={contacts[f.key]} onChange={e => setContact(f.key, e.target.value)} placeholder={tLabel} style={inputStyle} />;
         })}
-        <button onClick={() => setShowQR(v => !v)} style={{ padding: '10px', background: showQR ? '#C03B66' : 'none', color: showQR ? '#fff' : '#C03B66', border: '1.5px solid #C03B66', borderRadius: '30px', fontWeight: 700, fontSize: '0.8rem', fontFamily: 'Montserrat, sans-serif', cursor: 'pointer' }}>
+        <button onClick={() => setShowQR(v => !v)} style={{ padding: '10px', background: showQR ? '#363532' : 'none', color: showQR ? '#fff' : '#363532', border: '1.5px solid #363532', borderRadius: '30px', fontWeight: 700, fontSize: '0.8rem', fontFamily: 'Montserrat, sans-serif', cursor: 'pointer' }}>
           {showQR ? (dictionary?.digital_tab?.qr_active || '✓ QR Code ativo') : (dictionary?.digital_tab?.add_qr || '+ QR Code')}
         </button>
         {showQR && (
@@ -1657,7 +1657,7 @@ function EstampaStep({ brand, accentColor, marca, patterns, setPatterns, genCoun
 
       <div style={{ display: 'flex', gap: '8px' }}>
         {patternSrc && (
-          <button onClick={download} style={{ flex: 1, padding: '13px 8px', background: '#fff', color: '#C03B66', border: '1.5px solid #C03B66', borderRadius: '30px', fontWeight: 700, fontSize: '0.82rem', cursor: 'pointer' }}>
+          <button onClick={download} style={{ flex: 1, padding: '13px 8px', background: '#fff', color: '#363532', border: '1.5px solid #363532', borderRadius: '30px', fontWeight: 700, fontSize: '0.82rem', cursor: 'pointer' }}>
             {dictionary?.pattern_tab?.download_pattern || '⬇ Baixar Estampa'}
           </button>
         )}
@@ -1665,7 +1665,7 @@ function EstampaStep({ brand, accentColor, marca, patterns, setPatterns, genCoun
           <button
             onClick={handleGenerateClick}
             disabled={generating}
-            style={{ flex: 1, padding: '13px 8px', background: 'none', color: '#C03B66', border: '1.5px solid #C03B66', borderRadius: '30px', fontWeight: 700, fontSize: '0.82rem', cursor: 'pointer', opacity: generating ? 0.6 : 1 }}
+            style={{ flex: 1, padding: '13px 8px', background: 'none', color: '#363532', border: '1.5px solid #363532', borderRadius: '30px', fontWeight: 700, fontSize: '0.82rem', cursor: 'pointer', opacity: generating ? 0.6 : 1 }}
           >
             {generating ? (dictionary?.pattern_tab?.generating_wait || '✨ Tecendo suas estampas... (isso leva uns 15s)') : (patternSrc ? (dictionary?.pattern_tab?.generate_new_options || '✨ Gerar novas opções') : (dictionary?.pattern_tab?.generate_pattern || '✨ Gerar estampa'))}
           </button>
@@ -1688,7 +1688,7 @@ function AvulsoUpgradeCard({ accentColor, titulo, desc }) {
         href="https://thebrandbox.sonhodepapel.com/"
         target="_blank"
         rel="noopener noreferrer"
-        style={{ display: 'inline-block', background: `linear-gradient(135deg, #C03B66, #a12d52)`, color: '#fff', borderRadius: '50px', padding: '12px 28px', fontSize: '0.85rem', fontWeight: 700, fontFamily: 'Montserrat,sans-serif', textDecoration: 'none', boxShadow: '0 6px 20px rgba(192,59,102,0.3)' }}
+        style={{ display: 'inline-block', background: `linear-gradient(135deg, #363532, #a12d52)`, color: '#fff', borderRadius: '50px', padding: '12px 28px', fontSize: '0.85rem', fontWeight: 700, fontFamily: 'Montserrat,sans-serif', textDecoration: 'none', boxShadow: '0 6px 20px rgba(192,59,102,0.3)' }}
       >
         Conhecer o Plano Completo →
       </a>
@@ -1777,17 +1777,17 @@ function AjudaStep({ brand, accentColor, onResendEmail, resendingEmail, resendSt
             value={searchQuery}
             onChange={e => setSearchQuery(e.target.value)}
             style={{ flex: 1, padding: '10px 14px', border: '1.5px solid #e0e0e0', borderRadius: '10px', fontSize: '0.82rem', fontFamily: 'Montserrat, sans-serif', outline: 'none', transition: 'border-color 0.2s' }}
-            onFocus={e => e.currentTarget.style.borderColor = '#C03B66'}
+            onFocus={e => e.currentTarget.style.borderColor = '#363532'}
             onBlur={e => e.currentTarget.style.borderColor = '#e0e0e0'}
           />
-          <button type="submit" style={{ padding: '10px 20px', background: '#C03B66', color: '#fff', border: 'none', borderRadius: '10px', fontWeight: 700, fontSize: '0.82rem', cursor: 'pointer', boxShadow: '0 4px 10px rgba(192, 59, 102, 0.2)' }}>
+          <button type="submit" style={{ padding: '10px 20px', background: '#363532', color: '#fff', border: 'none', borderRadius: '10px', fontWeight: 700, fontSize: '0.82rem', cursor: 'pointer', boxShadow: '0 4px 10px rgba(192, 59, 102, 0.2)' }}>
             {t.busca_btn || 'Perguntar'}
           </button>
         </form>
 
         {searchResult && (
-          <div style={{ marginTop: '16px', padding: '14px 16px', background: 'rgba(192, 59, 102, 0.04)', borderLeft: '3px solid #C03B66', borderRadius: '0 8px 8px 0', animation: 'fadeIn 0.3s ease' }}>
-            <div style={{ fontSize: '0.66rem', fontWeight: 800, color: '#C03B66', letterSpacing: '0.5px', marginBottom: '6px' }}>
+          <div style={{ marginTop: '16px', padding: '14px 16px', background: 'rgba(192, 59, 102, 0.04)', borderLeft: '3px solid #363532', borderRadius: '0 8px 8px 0', animation: 'fadeIn 0.3s ease' }}>
+            <div style={{ fontSize: '0.66rem', fontWeight: 800, color: '#363532', letterSpacing: '0.5px', marginBottom: '6px' }}>
               {t.busca_resposta || '🔍 RESPOSTA PARA:'} {searchResult.topic}
             </div>
             <div style={{ fontSize: '0.78rem', color: '#555', lineHeight: 1.6 }}>
@@ -1950,7 +1950,7 @@ function UpsellStep({ brand, accentColor, marca }) {
         <div style={{
           display: 'inline-block',
           background: 'linear-gradient(135deg, #FFF0F5, #F5E6EE)',
-          color: '#C03B66',
+          color: '#363532',
           fontSize: '0.68rem',
           fontWeight: 800,
           letterSpacing: '2px',
@@ -2437,14 +2437,14 @@ function ManifestoQuiz({ accentColor, marca, tagline, estiloNome, atuacao, conte
       {/* Barra de progresso */}
       <div style={{ display: 'flex', gap: '4px' }}>
         {QUIZ_PERGUNTAS.map((_, i) => (
-          <div key={i} style={{ flex: 1, height: '4px', borderRadius: '2px', background: i < atual ? '#C03B66' : i === atual ? '#C03B6655' : '#eee', transition: 'background 0.3s' }} />
+          <div key={i} style={{ flex: 1, height: '4px', borderRadius: '2px', background: i < atual ? '#363532' : i === atual ? '#36353255' : '#eee', transition: 'background 0.3s' }} />
         ))}
       </div>
 
       {/* Pergunta atual */}
       <div style={{ background: '#fff', borderRadius: '16px', padding: '22px 18px', boxShadow: '0 4px 16px rgba(0,0,0,0.07)', minHeight: '260px', display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
         <div>
-          <p style={{ fontSize: '0.6rem', fontWeight: 700, letterSpacing: '2px', textTransform: 'uppercase', color: '#C03B66aa', marginBottom: '14px' }}>{atual + 1} {tQuiz.de || 'de'} {QUIZ_PERGUNTAS.length}</p>
+          <p style={{ fontSize: '0.6rem', fontWeight: 700, letterSpacing: '2px', textTransform: 'uppercase', color: '#363532aa', marginBottom: '14px' }}>{atual + 1} {tQuiz.de || 'de'} {QUIZ_PERGUNTAS.length}</p>
           <p style={{ fontSize: '0.9rem', fontWeight: 700, color: '#222', marginBottom: '18px', lineHeight: 1.4 }}>{QUIZ_PERGUNTAS[atual].pergunta}</p>
           <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
             {QUIZ_PERGUNTAS[atual].opcoes.map(opcao => {
@@ -2461,10 +2461,10 @@ function ManifestoQuiz({ accentColor, marca, tagline, estiloNome, atuacao, conte
                   }}
                   style={{
                     textAlign: 'left', padding: '12px 16px', borderRadius: '12px',
-                    border: `1.5px solid ${selected ? '#C03B66' : '#eee'}`,
-                    background: selected ? '#C03B6618' : '#fafafa', cursor: 'pointer',
+                    border: `1.5px solid ${selected ? '#363532' : '#eee'}`,
+                    background: selected ? '#36353218' : '#fafafa', cursor: 'pointer',
                     fontSize: '0.78rem', fontFamily: 'Montserrat, sans-serif', fontWeight: selected ? 700 : 500,
-                    color: selected ? '#C03B66' : '#555', transition: 'all 0.15s',
+                    color: selected ? '#363532' : '#555', transition: 'all 0.15s',
                   }}
                 >
                   {opcao}
@@ -2486,7 +2486,7 @@ function ManifestoQuiz({ accentColor, marca, tagline, estiloNome, atuacao, conte
           <button
             onClick={() => setAtual(a => a + 1)}
             disabled={!respostas[QUIZ_PERGUNTAS[atual].id]}
-            style={{ flex: 1, padding: '12px', borderRadius: '20px', border: 'none', background: respostas[QUIZ_PERGUNTAS[atual].id] ? '#C03B66' : '#ddd', color: '#fff', fontWeight: 700, fontSize: '0.78rem', cursor: respostas[QUIZ_PERGUNTAS[atual].id] ? 'pointer' : 'not-allowed', fontFamily: 'Montserrat, sans-serif', transition: 'all 0.2s' }}
+            style={{ flex: 1, padding: '12px', borderRadius: '20px', border: 'none', background: respostas[QUIZ_PERGUNTAS[atual].id] ? '#363532' : '#ddd', color: '#fff', fontWeight: 700, fontSize: '0.78rem', cursor: respostas[QUIZ_PERGUNTAS[atual].id] ? 'pointer' : 'not-allowed', fontFamily: 'Montserrat, sans-serif', transition: 'all 0.2s' }}
           >
             {tQuiz.proxima || 'Próxima →'}
           </button>
@@ -2494,7 +2494,7 @@ function ManifestoQuiz({ accentColor, marca, tagline, estiloNome, atuacao, conte
           <button
             onClick={handleGerar}
             disabled={!completo || loading}
-            style={{ flex: 1, padding: '13px', borderRadius: '20px', border: 'none', background: completo ? '#C03B66' : '#ddd', color: '#fff', fontWeight: 700, fontSize: '0.82rem', cursor: completo ? 'pointer' : 'not-allowed', fontFamily: 'Montserrat, sans-serif', opacity: loading ? 0.7 : 1, transition: 'all 0.2s' }}
+            style={{ flex: 1, padding: '13px', borderRadius: '20px', border: 'none', background: completo ? '#363532' : '#ddd', color: '#fff', fontWeight: 700, fontSize: '0.82rem', cursor: completo ? 'pointer' : 'not-allowed', fontFamily: 'Montserrat, sans-serif', opacity: loading ? 0.7 : 1, transition: 'all 0.2s' }}
           >
             {loading ? (tMan.btn_creating || '✨ Criando manifesto...') : (tMan.btn_generate || '✨ Gerar Manifesto')}
           </button>
@@ -2576,10 +2576,10 @@ function ManifestoDisplay({ manifesto, accentColor, marca, tagline, fontFamily, 
       </div>
 
       <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
-        <button onClick={handleBaixarPlaca} style={{ flex: 1, padding: '12px', borderRadius: '20px', background: '#fff', color: '#C03B66', border: '1.5px solid #C03B66', fontWeight: 700, fontSize: '0.75rem', cursor: 'pointer', fontFamily: 'Montserrat, sans-serif' }}>
+        <button onClick={handleBaixarPlaca} style={{ flex: 1, padding: '12px', borderRadius: '20px', background: '#fff', color: '#363532', border: '1.5px solid #363532', fontWeight: 700, fontSize: '0.75rem', cursor: 'pointer', fontFamily: 'Montserrat, sans-serif' }}>
           {tMan.btn_download || '⬇ Baixar PNG'}
         </button>
-        <button onClick={handleCopiar} style={{ flex: 1, padding: '12px', borderRadius: '20px', border: '1.5px solid #C03B66', background: copiado ? '#C03B66' : 'transparent', color: copiado ? '#fff' : '#C03B66', fontWeight: 700, fontSize: '0.75rem', cursor: 'pointer', fontFamily: 'Montserrat, sans-serif', transition: 'all 0.2s' }}>
+        <button onClick={handleCopiar} style={{ flex: 1, padding: '12px', borderRadius: '20px', border: '1.5px solid #363532', background: copiado ? '#363532' : 'transparent', color: copiado ? '#fff' : '#363532', fontWeight: 700, fontSize: '0.75rem', cursor: 'pointer', fontFamily: 'Montserrat, sans-serif', transition: 'all 0.2s' }}>
           {copiado ? (tMan.btn_copied || '✓ Copiado!') : (tMan.btn_copy || '📋 Copiar')}
         </button>
         <button onClick={() => setEditando(e => !e)} style={{ flex: 1, padding: '12px', borderRadius: '20px', border: '1.5px solid #ddd', background: editando ? '#333' : 'transparent', color: editando ? '#fff' : '#888', fontWeight: 700, fontSize: '0.75rem', cursor: 'pointer', fontFamily: 'Montserrat, sans-serif', transition: 'all 0.2s' }}>
@@ -2648,7 +2648,7 @@ function ManifestoStep({ accentColor, marca, tagline, brand, isSaude, editData }
       </div>
       <button
         onClick={() => setShowQuiz(true)}
-        style={{ padding: '16px', borderRadius: '30px', border: 'none', background: '#C03B66', color: '#fff', fontWeight: 700, fontSize: '0.9rem', cursor: 'pointer', fontFamily: 'Montserrat, sans-serif' }}
+        style={{ padding: '16px', borderRadius: '30px', border: 'none', background: '#363532', color: '#fff', fontWeight: 700, fontSize: '0.9rem', cursor: 'pointer', fontFamily: 'Montserrat, sans-serif' }}
       >
         {tMan.btn_create || '✨ Criar Manifesto com IA'}
       </button>
@@ -2716,7 +2716,7 @@ function PlacaStep({ brand, accentColor, paletteColors, estampaPatterns, estampa
       </div>
       <button
         onClick={handleBaixar}
-        style={{ width: '100%', padding: '14px', background: '#fff', color: '#C03B66', border: '1.5px solid #C03B66', borderRadius: '30px', fontWeight: 700, fontSize: '0.88rem', cursor: 'pointer', fontFamily: 'Montserrat, sans-serif' }}
+        style={{ width: '100%', padding: '14px', background: '#fff', color: '#363532', border: '1.5px solid #363532', borderRadius: '30px', fontWeight: 700, fontSize: '0.88rem', cursor: 'pointer', fontFamily: 'Montserrat, sans-serif' }}
       >
         {t.baixar || '⬇ Baixar Placa da Marca'}
       </button>
@@ -2787,12 +2787,12 @@ function TomDeVozQuiz({ accentColor, marca, tagline, estiloNome, atuacao, contex
     <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
       <div style={{ display: 'flex', gap: '4px' }}>
         {PERGUNTAS.map((_, i) => (
-          <div key={i} style={{ flex: 1, height: '4px', borderRadius: '2px', background: i < atual ? '#C03B66' : i === atual ? '#C03B6655' : '#eee', transition: 'background 0.3s' }} />
+          <div key={i} style={{ flex: 1, height: '4px', borderRadius: '2px', background: i < atual ? '#363532' : i === atual ? '#36353255' : '#eee', transition: 'background 0.3s' }} />
         ))}
       </div>
       <div style={{ background: '#fff', borderRadius: '16px', padding: '22px 18px', boxShadow: '0 4px 16px rgba(0,0,0,0.07)', minHeight: '260px', display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
         <div>
-          <p style={{ fontSize: '0.6rem', fontWeight: 700, letterSpacing: '2px', textTransform: 'uppercase', color: '#C03B66aa', marginBottom: '14px' }}>{atual + 1} {tQuiz.de || 'de'} {PERGUNTAS.length}</p>
+          <p style={{ fontSize: '0.6rem', fontWeight: 700, letterSpacing: '2px', textTransform: 'uppercase', color: '#363532aa', marginBottom: '14px' }}>{atual + 1} {tQuiz.de || 'de'} {PERGUNTAS.length}</p>
           <p style={{ fontSize: '0.9rem', fontWeight: 700, color: '#222', marginBottom: '18px', lineHeight: 1.4 }}>{PERGUNTAS[atual].pergunta}</p>
           <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
             {PERGUNTAS[atual].opcoes.map(opcao => {
@@ -2809,10 +2809,10 @@ function TomDeVozQuiz({ accentColor, marca, tagline, estiloNome, atuacao, contex
                   }}
                   style={{
                     textAlign: 'left', padding: '12px 16px', borderRadius: '12px',
-                    border: `1.5px solid ${selected ? '#C03B66' : '#eee'}`,
-                    background: selected ? '#C03B6618' : '#fafafa', cursor: 'pointer',
+                    border: `1.5px solid ${selected ? '#363532' : '#eee'}`,
+                    background: selected ? '#36353218' : '#fafafa', cursor: 'pointer',
                     fontSize: '0.78rem', fontFamily: 'Montserrat, sans-serif', fontWeight: selected ? 700 : 500,
-                    color: selected ? '#C03B66' : '#555', transition: 'all 0.15s',
+                    color: selected ? '#363532' : '#555', transition: 'all 0.15s',
                   }}
                 >
                   {opcao}
@@ -2832,7 +2832,7 @@ function TomDeVozQuiz({ accentColor, marca, tagline, estiloNome, atuacao, contex
           <button
             onClick={() => setAtual(a => a + 1)}
             disabled={!respostas[PERGUNTAS[atual].id]}
-            style={{ flex: 1, padding: '12px', borderRadius: '20px', border: 'none', background: respostas[PERGUNTAS[atual].id] ? '#C03B66' : '#ddd', color: '#fff', fontWeight: 700, fontSize: '0.78rem', cursor: respostas[PERGUNTAS[atual].id] ? 'pointer' : 'not-allowed', fontFamily: 'Montserrat, sans-serif', transition: 'all 0.2s' }}
+            style={{ flex: 1, padding: '12px', borderRadius: '20px', border: 'none', background: respostas[PERGUNTAS[atual].id] ? '#363532' : '#ddd', color: '#fff', fontWeight: 700, fontSize: '0.78rem', cursor: respostas[PERGUNTAS[atual].id] ? 'pointer' : 'not-allowed', fontFamily: 'Montserrat, sans-serif', transition: 'all 0.2s' }}
           >
             {tQuiz.proxima || 'Próxima →'}
           </button>
@@ -2840,7 +2840,7 @@ function TomDeVozQuiz({ accentColor, marca, tagline, estiloNome, atuacao, contex
           <button
             onClick={handleGerar}
             disabled={!completo || loading}
-            style={{ flex: 1, padding: '13px', borderRadius: '20px', border: 'none', background: completo ? '#C03B66' : '#ddd', color: '#fff', fontWeight: 700, fontSize: '0.82rem', cursor: completo ? 'pointer' : 'not-allowed', fontFamily: 'Montserrat, sans-serif', opacity: loading ? 0.7 : 1, transition: 'all 0.2s' }}
+            style={{ flex: 1, padding: '13px', borderRadius: '20px', border: 'none', background: completo ? '#363532' : '#ddd', color: '#fff', fontWeight: 700, fontSize: '0.82rem', cursor: completo ? 'pointer' : 'not-allowed', fontFamily: 'Montserrat, sans-serif', opacity: loading ? 0.7 : 1, transition: 'all 0.2s' }}
           >
             {loading ? (tTom.btn_creating || '✨ Criando tom de voz...') : (tTom.btn_generate || '✨ Gerar Tom de Voz')}
           </button>
@@ -2908,7 +2908,7 @@ function TomDeVozDisplay({ tomDeVoz, accentColor, marca, onRegerar, podeRefazer,
         </div>
       )}
       <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
-        <button onClick={handleCopiar} style={{ flex: 1, padding: '12px', borderRadius: '20px', border: '1.5px solid #C03B66', background: copiado ? '#C03B66' : 'transparent', color: copiado ? '#fff' : '#C03B66', fontWeight: 700, fontSize: '0.75rem', cursor: 'pointer', fontFamily: 'Montserrat, sans-serif', transition: 'all 0.2s' }}>
+        <button onClick={handleCopiar} style={{ flex: 1, padding: '12px', borderRadius: '20px', border: '1.5px solid #363532', background: copiado ? '#363532' : 'transparent', color: copiado ? '#fff' : '#363532', fontWeight: 700, fontSize: '0.75rem', cursor: 'pointer', fontFamily: 'Montserrat, sans-serif', transition: 'all 0.2s' }}>
           {copiado ? (tMan.btn_copied || '✓ Copiado!') : (tMan.btn_copy || '📋 Copiar')}
         </button>
         <button onClick={() => setEditando(e => !e)} style={{ flex: 1, padding: '12px', borderRadius: '20px', border: '1.5px solid #ddd', background: editando ? '#333' : 'transparent', color: editando ? '#fff' : '#888', fontWeight: 700, fontSize: '0.75rem', cursor: 'pointer', fontFamily: 'Montserrat, sans-serif', transition: 'all 0.2s' }}>
@@ -2976,7 +2976,7 @@ function TomDeVozStep({ accentColor, marca, tagline, brand, editData }) {
       </div>
       <button
         onClick={() => setShowQuiz(true)}
-        style={{ padding: '16px', borderRadius: '30px', border: 'none', background: '#C03B66', color: '#fff', fontWeight: 700, fontSize: '0.9rem', cursor: 'pointer', fontFamily: 'Montserrat, sans-serif' }}
+        style={{ padding: '16px', borderRadius: '30px', border: 'none', background: '#363532', color: '#fff', fontWeight: 700, fontSize: '0.9rem', cursor: 'pointer', fontFamily: 'Montserrat, sans-serif' }}
       >
         {tTom.btn_create || '✨ Criar Tom de Voz com IA'}
       </button>
@@ -3074,7 +3074,7 @@ function FonteStep({ brand, accentColor, logoColor, marca, tagline, editData, lo
       </div>
 
       {editData?.customLogoSrc ? (
-        <div style={{ padding: '16px', background: '#fff0f5', borderRadius: '12px', border: '1.5px solid #ffb3c6', color: '#c03b66', fontSize: '0.82rem', fontFamily: 'Montserrat, sans-serif', textAlign: 'center', fontWeight: 600 }}>
+        <div style={{ padding: '16px', background: '#F8F5F1', borderRadius: '12px', border: '1.5px solid #E5E0D8', color: '#363532', fontSize: '0.82rem', fontFamily: 'Montserrat, sans-serif', textAlign: 'center', fontWeight: 600 }}>
           {tFont.custom_logo_msg || 'Você enviou sua própria logo, então a fonte já faz parte da sua imagem!'}<br/><br/>
           <span style={{ fontSize: '0.72rem', fontWeight: 500, opacity: 0.8 }}>{tFont.custom_logo_sub || 'Para testar outras fontes ou usar as opções desta aba, volte à aba "Sua Logo" e selecione a "Logo sugerida".'}</span>
         </div>
@@ -9614,7 +9614,7 @@ ${fontImports2}
 
               <div style={{ display: 'flex', gap: '10px' }}>
                 <button onClick={() => setShowPrintModal(false)} style={{ flex: 1, padding: '11px', background: 'none', border: '1px solid #e0e0e0', borderRadius: '30px', fontWeight: 600, fontSize: '0.82rem', cursor: 'pointer', color: '#888' }}>{dictionary?.ui?.cancelar || 'Cancelar'}</button>
-                <button onClick={() => { setShowPrintModal(false); openGabarito(pendingItem); }} style={{ flex: 2, padding: '11px', background: '#C03B66', color: '#fff', border: 'none', borderRadius: '30px', fontWeight: 700, fontSize: '0.82rem', cursor: 'pointer' }}>{dictionary?.ui?.entendi_baixar || 'Entendi, baixar PDF →'}</button>
+                <button onClick={() => { setShowPrintModal(false); openGabarito(pendingItem); }} style={{ flex: 2, padding: '11px', background: '#363532', color: '#fff', border: 'none', borderRadius: '30px', fontWeight: 700, fontSize: '0.82rem', cursor: 'pointer' }}>{dictionary?.ui?.entendi_baixar || 'Entendi, baixar PDF →'}</button>
               </div>
             </div>
           </div>
@@ -9632,7 +9632,7 @@ ${fontImports2}
                 setShowUpsell(true);
               }}
               disabled={upsellLoading}
-              style={{ width: '100%', padding: '10px', background: '#C03B66', color: '#fff', border: '1.5px solid #C03B66', borderRadius: '30px', fontWeight: 700, fontSize: '0.8rem', cursor: upsellLoading ? 'wait' : 'pointer', marginBottom: '8px', opacity: upsellLoading ? 0.7 : 1, transition: 'all 0.2s' }}
+              style={{ width: '100%', padding: '10px', background: '#363532', color: '#fff', border: '1.5px solid #363532', borderRadius: '30px', fontWeight: 700, fontSize: '0.8rem', cursor: upsellLoading ? 'wait' : 'pointer', marginBottom: '8px', opacity: upsellLoading ? 0.7 : 1, transition: 'all 0.2s' }}
             >
               {upsellLoading ? 'Aguarde...' : `🔒 Comprar Arquivo - R$ ${currentItem === 'Caderneta de Saúde' ? '180,00' : '30,00'}`}
             </button>
@@ -9641,7 +9641,7 @@ ${fontImports2}
           return (
             <button
               onClick={() => { if (currentItem === 'Pack Digital para Instagram' || currentItem === 'Assinatura de E-mail') { openGabarito(currentItem); } else { setPendingItem(currentItem); setShowPrintModal(true); } }}
-              style={{ width: '100%', padding: '10px', background: '#fff', color: '#C03B66', border: '1.5px solid #C03B66', borderRadius: '30px', fontWeight: 700, fontSize: '0.8rem', cursor: 'pointer', marginBottom: '8px', transition: 'all 0.2s' }}
+              style={{ width: '100%', padding: '10px', background: '#fff', color: '#363532', border: '1.5px solid #363532', borderRadius: '30px', fontWeight: 700, fontSize: '0.8rem', cursor: 'pointer', marginBottom: '8px', transition: 'all 0.2s' }}
             >
               {currentItem === 'Pack Digital para Instagram' ? (dictionary?.ui?.baixar_png || '⬇ Baixar PNG / JPG') : currentItem === 'Assinatura de E-mail' ? (dictionary?.ui?.baixar_assinatura || '⬇ Baixar Assinatura') : (dictionary?.ui?.baixar_pdf || '⬇ Baixar PDF Padrão Gráfica')}
             </button>
@@ -9693,8 +9693,8 @@ ${fontImports2}
                     const btnStyle = {
                       padding: '5px 12px',
                       borderRadius: '20px',
-                      border: `1.5px solid ${isCurrent ? '#C03B66' : sel ? (isCaderneta ? '#e6af2e' : accentColor) : (isCaderneta ? '#f0d38d' : '#ddd')}`,
-                      background: isCurrent ? '#C03B66' : sel ? (isCaderneta ? '#fffcf0' : `${accentColor}12`) : '#fff',
+                      border: `1.5px solid ${isCurrent ? '#363532' : sel ? (isCaderneta ? '#e6af2e' : accentColor) : (isCaderneta ? '#f0d38d' : '#ddd')}`,
+                      background: isCurrent ? '#363532' : sel ? (isCaderneta ? '#fffcf0' : `${accentColor}12`) : '#fff',
                       fontSize: '0.72rem',
                       fontWeight: 600,
                       color: isCurrent ? '#fff' : sel ? (isCaderneta ? '#b5891b' : accentColor) : (isCaderneta ? '#b5891b' : '#888'),
@@ -10675,7 +10675,7 @@ function EntregaContent({ brand, plano, setBrand }) {
 
             {/* Controles da tagline */}
             {editDataWithLogo?.customLogoSrc ? (
-              <div style={{ padding: '16px', background: '#fff0f5', borderRadius: '12px', border: '1.5px solid #ffb3c6', color: '#c03b66', fontSize: '0.82rem', fontFamily: 'Montserrat, sans-serif', textAlign: 'center', fontWeight: 600 }}>
+              <div style={{ padding: '16px', background: '#F8F5F1', borderRadius: '12px', border: '1.5px solid #E5E0D8', color: '#363532', fontSize: '0.82rem', fontFamily: 'Montserrat, sans-serif', textAlign: 'center', fontWeight: 600 }}>
                 {dictionary?.tagline_tab?.custom_logo_msg || 'Você enviou sua própria logo, então a tagline (slogan) já faz parte da sua imagem!'}<br/><br/>
                 <span style={{ fontSize: '0.72rem', fontWeight: 500, opacity: 0.8 }}>{dictionary?.tagline_tab?.custom_logo_sub || 'Para alterar a tagline ou usar as opções desta aba, volte à aba "Sua Logo" e selecione a "Logo sugerida".'}</span>
               </div>
@@ -11606,7 +11606,7 @@ function EntregaContent({ brand, plano, setBrand }) {
                   <input type="range" min="0.2" max="2.5" step="0.05" 
                     value={taglineSizeBoost}
                     onChange={e => setTaglineSizeBoost(parseFloat(e.target.value))}
-                    style={{ flex: 1, accentColor: '#C03B66' }} />
+                    style={{ flex: 1, accentColor: '#363532' }} />
                   <span style={{ fontSize: '0.68rem', color: '#aaa', width: '30px' }}>{taglineSizeBoost.toFixed(2)}×</span>
                 </div>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
@@ -11614,7 +11614,7 @@ function EntregaContent({ brand, plano, setBrand }) {
                   <input type="range" min="0" max="1.5" step="0.05" 
                     value={taglineGap}
                     onChange={e => setTaglineGap(parseFloat(e.target.value))}
-                    style={{ flex: 1, accentColor: '#C03B66' }} />
+                    style={{ flex: 1, accentColor: '#363532' }} />
                   <span style={{ fontSize: '0.68rem', color: '#aaa', width: '30px' }}>{taglineGap.toFixed(2)}</span>
                 </div>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
@@ -11622,7 +11622,7 @@ function EntregaContent({ brand, plano, setBrand }) {
                   <input type="range" min="0.05" max="1.2" step="0.05" 
                     value={taglineLetterSpacing}
                     onChange={e => setTaglineLetterSpacing(parseFloat(e.target.value))}
-                    style={{ flex: 1, accentColor: '#C03B66' }} />
+                    style={{ flex: 1, accentColor: '#363532' }} />
                   <span style={{ fontSize: '0.68rem', color: '#aaa', width: '30px' }}>{taglineLetterSpacing.toFixed(2)}em</span>
                 </div>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
@@ -11630,7 +11630,7 @@ function EntregaContent({ brand, plano, setBrand }) {
                   <input type="range" min="0.5" max="2" step="0.05" 
                     value={fontLineHeight}
                     onChange={e => setFontLineHeight(parseFloat(e.target.value))}
-                    style={{ flex: 1, accentColor: '#C03B66' }} />
+                    style={{ flex: 1, accentColor: '#363532' }} />
                   <span style={{ fontSize: '0.68rem', color: '#aaa', width: '30px' }}>{fontLineHeight.toFixed(2)}</span>
                 </div>
               </div>
@@ -11688,14 +11688,14 @@ function EntregaContent({ brand, plano, setBrand }) {
                 <button
                   onClick={downloadTransparent}
                   disabled={!!downloading}
-                  style={{ flex: 1, padding: '10px 8px', background: '#fff', color: '#C03B66', border: '1.5px solid #C03B66', borderRadius: '30px', fontWeight: 700, fontSize: '0.78rem', cursor: 'pointer', opacity: downloading === 'png' ? 0.6 : 1 }}
+                  style={{ flex: 1, padding: '10px 8px', background: '#fff', color: '#363532', border: '1.5px solid #363532', borderRadius: '30px', fontWeight: 700, fontSize: '0.78rem', cursor: 'pointer', opacity: downloading === 'png' ? 0.6 : 1 }}
                 >
                   {downloading === 'png' ? '...' : (dictionary?.seal_tab?.png_transparent || 'PNG Transparente')}
                 </button>
                 <button
                   onClick={downloadComFundo}
                   disabled={!!downloading}
-                  style={{ flex: 1, padding: '10px 8px', background: '#fff', color: '#C03B66', border: '1.5px solid #C03B66', borderRadius: '30px', fontWeight: 700, fontSize: '0.78rem', cursor: 'pointer', opacity: downloading === 'fundo' ? 0.6 : 1 }}
+                  style={{ flex: 1, padding: '10px 8px', background: '#fff', color: '#363532', border: '1.5px solid #363532', borderRadius: '30px', fontWeight: 700, fontSize: '0.78rem', cursor: 'pointer', opacity: downloading === 'fundo' ? 0.6 : 1 }}
                 >
                   {downloading === 'fundo' ? '...' : (dictionary?.seal_tab?.seal_bg || 'Selo com Fundo')}
                 </button>
@@ -11722,7 +11722,7 @@ function EntregaContent({ brand, plano, setBrand }) {
               link.download = `Pack-Instagram_${marca || 'marca'}.png`;
               link.href = canvas.toDataURL('image/png');
               link.click();
-            }} style={{ width: '100%', padding: '14px', background: '#fff', color: '#C03B66', border: '1.5px solid #C03B66', borderRadius: '30px', fontWeight: 700, fontSize: '0.95rem', cursor: 'pointer' }}>
+            }} style={{ width: '100%', padding: '14px', background: '#fff', color: '#363532', border: '1.5px solid #363532', borderRadius: '30px', fontWeight: 700, fontSize: '0.95rem', cursor: 'pointer' }}>
               {dictionary?.ui?.baixar_png || '⬇ Baixar PNG'}
             </button>
           )}
@@ -11760,14 +11760,14 @@ function EntregaContent({ brand, plano, setBrand }) {
                 link.download = `Assinatura-Email_${marca || 'marca'}.png`;
                 link.href = canvas.toDataURL('image/png');
                 link.click();
-              }} style={{ flex: 1, padding: '14px 8px', background: '#fff', color: '#C03B66', border: '1.5px solid #C03B66', borderRadius: '30px', fontWeight: 700, fontSize: '0.85rem', cursor: 'pointer' }}>
+              }} style={{ flex: 1, padding: '14px 8px', background: '#fff', color: '#363532', border: '1.5px solid #363532', borderRadius: '30px', fontWeight: 700, fontSize: '0.85rem', cursor: 'pointer' }}>
                 {dictionary?.ui?.baixar_png || '⬇ Baixar PNG'}
               </button>
             </div>
           )}
 
           {step === 'paleta' && (
-            <button onClick={downloadCoresPNG} disabled={downloadingCores} style={{ width: '100%', padding: '14px', background: '#fff', color: '#C03B66', border: '1.5px solid #C03B66', borderRadius: '30px', fontWeight: 700, fontSize: '0.95rem', cursor: 'pointer', opacity: downloadingCores ? 0.6 : 1 }}>
+            <button onClick={downloadCoresPNG} disabled={downloadingCores} style={{ width: '100%', padding: '14px', background: '#fff', color: '#363532', border: '1.5px solid #363532', borderRadius: '30px', fontWeight: 700, fontSize: '0.95rem', cursor: 'pointer', opacity: downloadingCores ? 0.6 : 1 }}>
               {downloadingCores ? '...' : (dictionary?.guide_tab?.download_palette || '⬇ Baixar Paleta de Cores')}
             </button>
           )}
@@ -11785,7 +11785,7 @@ function EntregaContent({ brand, plano, setBrand }) {
             {!isLastStep && (
               <button
                 onClick={goNext}
-                style={{ flex: 1, padding: '14px', background: '#C03B66', color: '#fff', border: 'none', borderRadius: '30px', fontWeight: 700, fontSize: '0.95rem', cursor: 'pointer', boxShadow: '0 4px 15px rgba(192, 59, 102, 0.3)' }}
+                style={{ flex: 1, padding: '14px', background: '#363532', color: '#fff', border: 'none', borderRadius: '30px', fontWeight: 700, fontSize: '0.95rem', cursor: 'pointer', boxShadow: '0 4px 15px rgba(192, 59, 102, 0.3)' }}
               >
                 {step === 'guia' ? `${dictionary?.geral?.ir_digital || 'Ir para o Digital'} →` : step === 'assinatura-email' ? `${dictionary?.geral?.ir_papelaria || 'Ir para Papelaria'} →` : `${dictionary?.geral?.proxima_etapa || 'Próxima etapa'} →`}
               </button>
@@ -12417,7 +12417,7 @@ function SucessoContent() {
         <div style={{
           minHeight: '100vh', display: 'flex', flexDirection: 'column',
           alignItems: 'center', justifyContent: 'center',
-          background: 'linear-gradient(160deg, #fff5fb 0%, #f0f9ff 100%)',
+          background: 'linear-gradient(160deg, #F8F5F1 0%, #f0f9ff 100%)',
           padding: '2rem', textAlign: 'center', fontFamily: 'Montserrat, sans-serif',
           position: 'relative', overflow: 'hidden',
         }}>
@@ -12529,7 +12529,7 @@ function SucessoContent() {
       <div style={{
         minHeight: '100vh', display: 'flex', flexDirection: 'column',
         alignItems: 'center', justifyContent: 'center',
-        background: 'linear-gradient(160deg, #fff5fb 0%, #f0f9ff 100%)',
+        background: 'linear-gradient(160deg, #F8F5F1 0%, #f0f9ff 100%)',
         padding: '2rem', textAlign: 'center', fontFamily: 'Montserrat, sans-serif',
         position: 'relative', overflow: 'hidden',
       }}>
@@ -12543,7 +12543,7 @@ function SucessoContent() {
 
           {/* Título */}
           <div>
-            <p style={{ fontSize: '0.7rem', letterSpacing: '3px', textTransform: 'uppercase', color: '#C03B66', fontWeight: 700, marginBottom: '0.75rem' }}>
+            <p style={{ fontSize: '0.7rem', letterSpacing: '3px', textTransform: 'uppercase', color: '#363532', fontWeight: 700, marginBottom: '0.75rem' }}>
               BRAND BOX
             </p>
             <h1 style={{ fontSize: '2rem', fontWeight: 800, color: '#1a1a1a', lineHeight: 1.3, margin: 0 }}>
@@ -12907,7 +12907,7 @@ export function FolderAmamentacaoPage6({ accentColor, borderColor, palette = [] 
           <div style={{ fontWeight: 800, color: mainColor, marginBottom: '4px', textAlign: 'center', fontSize: '4.8px' }}>{d?.certo || 'Certo:'}</div>
           <div style={{ fontSize: '3.6px', lineHeight: 1.25 }}>{d?.certo_desc || 'Boca bem aberta, lábios para fora, queixo na mama.'}</div>
         </div>
-        <div style={{ flex: 1, background: '#fff5f5', padding: '8px 5px', borderRadius: '5px', border: '0.3px solid #feb2b2' }}>
+        <div style={{ flex: 1, background: '#F8F5F1', padding: '8px 5px', borderRadius: '5px', border: '0.3px solid #E5E0D8' }}>
           <div style={{ fontWeight: 800, color: '#c53030', marginBottom: '4px', textAlign: 'center', fontSize: '4.8px' }}>{d?.errado || 'Errado:'}</div>
           <div style={{ fontSize: '3.6px', lineHeight: 1.25 }}>{d?.errado_desc || 'Boca pouco aberta, bochechas encovadas, dor.'}</div>
         </div>

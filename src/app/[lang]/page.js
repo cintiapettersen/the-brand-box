@@ -119,6 +119,7 @@ export default function Home() {
   };
 
   const [source, setSource] = useState('Direct');
+  const [isDemoMode, setIsDemoMode] = useState(false);
   const lastStepRef = useRef('');
 
   useEffect(() => {
@@ -126,6 +127,7 @@ export default function Home() {
     setSource(params.get('utm_source') || params.get('source') || 'Direct');
     if (params.get('demo') === 'BUILDWEEK100' || localStorage.getItem('brandbox_demo_mode') === 'BUILDWEEK100') {
       localStorage.setItem('brandbox_demo_mode', 'BUILDWEEK100');
+      setIsDemoMode(true);
       // E-mail de demo removido: não deve vazar para sessões reais do Stripe
     }
   }, []);
@@ -199,7 +201,7 @@ export default function Home() {
     if (primaryStyle === 'display') {
       return { secondaryFontFamily: 'Inter', secondaryFontWeight: 500, secondaryFontStyle: 'sans' };
     }
-    return { secondaryFontFamily: 'Raleway', secondaryFontWeight: 500, secondaryFontStyle: 'sans' };
+    return { secondaryFontFamily: primaryFamily === 'Raleway' ? 'Inter' : 'Raleway', secondaryFontWeight: 500, secondaryFontStyle: 'sans' };
   };
 
   const buildFontEditProps = (fontInfo = {}) => ({
@@ -2801,9 +2803,10 @@ export default function Home() {
 
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
 
-                  {/* PLANO 1 — Experience */}
-                  <motion.div whileHover={{ scale: 1.01 }} style={{ background: '#ffffff', borderRadius: '16px', padding: '20px', border: '1px solid var(--border)', boxShadow: '0 2px 10px rgba(0,0,0,0.04)' }}>
-                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '8px' }}>
+                  {/* PLANO 1 — Experience (Oculto no DEMO) */}
+                  {!isDemoMode && (
+                    <motion.div whileHover={{ scale: 1.01 }} style={{ background: '#ffffff', borderRadius: '16px', padding: '20px', border: '1px solid var(--border)', boxShadow: '0 2px 10px rgba(0,0,0,0.04)' }}>
+                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '8px' }}>
                       <div>
                         <p style={{ fontSize: '0.7rem', color: 'var(--text-secondary)', letterSpacing: '2px', textTransform: 'uppercase', fontWeight: 600, marginBottom: '2px' }}>brand box</p>
                         <h3 style={{ color: 'var(--text-primary)', fontSize: '1.2rem', fontWeight: 700 }}>{dictionary?.checkout?.plan_essence_title || 'ESSENCE'}</h3>
