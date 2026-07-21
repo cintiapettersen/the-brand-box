@@ -6206,7 +6206,7 @@ function PapelariaStep({ brand, accentColor, paletteColors, estampaPatterns, est
 * { box-sizing:border-box; margin:0; padding:0; print-color-adjust:exact !important; -webkit-print-color-adjust:exact !important; }
 body { font-family:'Montserrat',sans-serif; background:#fff; }
 .page { width:216mm; height:303mm; position:relative; overflow:hidden; background:#fff; page-break-after:always; }
-@media print { body{margin:0;} @page{size:216mm 303mm;margin:0;} .page{page-break-after:always;} }
+@page{size:216mm 303mm;margin:0;} @media print { body{margin:0;} .page{page-break-after:always;} }
 </style></head><body>
 ${renderPage('menina','frente')}
 ${renderPage('menina','verso')}
@@ -6260,7 +6260,7 @@ ${renderPage('menino','verso')}
 <style>* { box-sizing:border-box; margin:0; padding:0; print-color-adjust:exact !important; -webkit-print-color-adjust:exact !important; }
 body { font-family:'Montserrat',sans-serif; background:#fff; }
 .page { width:${210 + BLEED*2}mm; height:${297 + BLEED*2}mm; position:relative; overflow:hidden; background:#fff; display:flex; flex-direction:column; }
-@media print { body { margin:0; } @page { size: ${210 + BLEED*2}mm ${297 + BLEED*2}mm; margin:0; } }
+@page { size: ${210 + BLEED*2}mm ${297 + BLEED*2}mm; margin:0; } @media print { body { margin:0; } }
 </style></head><body>
 <div class="page" style="position:relative;">
   <div style="position:absolute;top:${BLEED}mm;left:0;width:${BLEED-0.5}mm;height:0.2mm;background:#000;z-index:100;"></div>
@@ -6400,7 +6400,7 @@ body { width: 485.775mm; height: 385.233mm; position: relative; overflow: hidden
 .fold { position: absolute; opacity: 0.3; pointer-events: none; border-color: #000; }
 .fold-v { top: 0; bottom: 0; left: 242.888mm; border-left: 0.1mm dashed; height: 100%; }
 .fold-h { left: 0; right: 0; bottom: 75mm; border-top: 0.1mm dashed; width: 100%; }
-@media print { body { margin:0; } @page { size: 485.775mm 385.233mm; margin: 0; } }
+@page { size: 485.775mm 385.233mm; margin: 0; } @media print { body { margin:0; } }
 </style></head><body>
 <div class="page">
     ${genBgP()}
@@ -6457,7 +6457,7 @@ body { width: 485.775mm; height: 385.233mm; position: relative; overflow: hidden
   * { box-sizing:border-box; margin:0; padding:0; print-color-adjust:exact !important; -webkit-print-color-adjust:exact !important; }
   body { width: ${totalW}mm; height: ${totalH}mm; position: relative; overflow: hidden; background: #fff; }
   .page { width: ${totalW}mm; height: ${totalH}mm; position: relative; overflow: hidden; page-break-after: always; }
-  @media print { body { margin:0; } @page { size: ${totalW}mm ${totalH}mm; margin: 0; } }
+@page { size: ${totalW}mm ${totalH}mm; margin: 0; } @media print { body { margin:0; } }
   .cm-tl-h { position:absolute; top:${BLEED}mm; left:0; width:${BLEED-0.5}mm; height:0.2mm; background:#000; z-index:100; }
   .cm-tl-v { position:absolute; top:0; left:${BLEED}mm; width:0.2mm; height:${BLEED-0.5}mm; background:#000; z-index:100; }
   .cm-tr-h { position:absolute; top:${BLEED}mm; right:0; width:${BLEED-0.5}mm; height:0.2mm; background:#000; z-index:100; }
@@ -6620,7 +6620,7 @@ body { width: 485.775mm; height: 385.233mm; position: relative; overflow: hidden
 .cm-tr { top: ${BLEED}mm; right: ${BLEED}mm; border-top: 0.3px solid rgba(0,0,0,0.4); border-right: 0.3px solid rgba(0,0,0,0.4); }
 .cm-bl { bottom: ${BLEED}mm; left: ${BLEED}mm; border-bottom: 0.3px solid rgba(0,0,0,0.4); border-left: 0.3px solid rgba(0,0,0,0.4); }
 .cm-br { bottom: ${BLEED}mm; right: ${BLEED}mm; border-bottom: 0.3px solid rgba(0,0,0,0.4); border-right: 0.3px solid rgba(0,0,0,0.4); }
-@media print { body { margin:0; } .card { page-break-after: always; } @page { size: ${totalW}mm ${totalH}mm; margin: 0; } }
+@page { size: ${totalW}mm ${totalH}mm; margin: 0; } @media print { body { margin:0; } .card { page-break-after: always; } }
 </style></head><body>${frenteA}${versoA}</body></html>`;
 
       const ex = document.getElementById('_gabarito_iframe'); if (ex) ex.remove();
@@ -6711,7 +6711,7 @@ body { width: 485.775mm; height: 385.233mm; position: relative; overflow: hidden
 .cm-tr { top: ${BLEED}mm; right: ${BLEED}mm; border-top: 0.3px solid rgba(0,0,0,0.4); border-right: 0.3px solid rgba(0,0,0,0.4); }
 .cm-bl { bottom: ${BLEED}mm; left: ${BLEED}mm; border-bottom: 0.3px solid rgba(0,0,0,0.4); border-left: 0.3px solid rgba(0,0,0,0.4); }
 .cm-br { bottom: ${BLEED}mm; right: ${BLEED}mm; border-bottom: 0.3px solid rgba(0,0,0,0.4); border-right: 0.3px solid rgba(0,0,0,0.4); }
-@media print { body { margin:0; } .card { page-break-after: always; } @page { size: 56mm 96mm; margin: 0; } }
+@page { size: 56mm 96mm; margin: 0; } @media print { body { margin:0; } .card { page-break-after: always; } }
 </style></head><body>${frenteR}${versoR}</body></html>`;
 
       const ex = document.getElementById('_gabarito_iframe'); if (ex) ex.remove();
@@ -6828,7 +6828,7 @@ ${fontImports}
   .cm-bl { bottom: ${BLEED}mm; left: ${BLEED}mm; border-bottom: 0.3px solid rgba(0,0,0,0.4); border-left: 0.3px solid rgba(0,0,0,0.4); }
   .cm-br { bottom: ${BLEED}mm; right: ${BLEED}mm; border-bottom: 0.3px solid rgba(0,0,0,0.4); border-right: 0.3px solid rgba(0,0,0,0.4); }
   * { print-color-adjust: exact !important; -webkit-print-color-adjust: exact !important; }
-  @media print { body { margin: 0; } .card { page-break-after: always; } @page { size: ${_cW} ${_cH}; margin: 0; } }
+@page { size: ${_cW} ${_cH}; margin: 0; } @media print { body { margin: 0; } .card { page-break-after: always; } }
 </style>
 </head>
 <body>
@@ -6919,7 +6919,7 @@ ${versoHtml}
       const html = `<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Envelope Saco Gabarito - ${marca}</title>${_fiSac}
 <style>* { box-sizing:border-box; margin:0; padding:0; print-color-adjust:exact !important; -webkit-print-color-adjust:exact !important; }
 body { width:${totalW}mm; height:${totalH}mm; position:relative; overflow:hidden; background:#fff; }
-@media print { body { margin:0; } @page { size: ${totalW}mm ${totalH}mm; margin:0; } }
+@page { size: ${totalW}mm ${totalH}mm; margin:0; } @media print { body { margin:0; } }
 </style></head><body><div style="width:${totalW}mm; height:${totalH}mm; position:relative;">${abaSupHtml}${abaInfHtml}${abaLatHtml}${frenteHtml}${versoHtml}${cmsSac}</div></body></html>`;
 
       const ex = document.getElementById('_gabarito_iframe'); if (ex) ex.remove();
@@ -6988,7 +6988,7 @@ body { width:${totalW}mm; height:${totalH}mm; position:relative; overflow:hidden
       const html = `<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Envelope Ofício - ${marca}</title>${_fiEnv}
 <style>* { box-sizing:border-box; margin:0; padding:0; print-color-adjust:exact !important; -webkit-print-color-adjust:exact !important; }
 body { width:${totalW}mm; height:${totalH}mm; position:relative; overflow:hidden; background:#fff; }
-@media print { body { margin:0; } @page { size: ${totalW}mm ${totalH}mm; margin:0; } }
+@page { size: ${totalW}mm ${totalH}mm; margin:0; } @media print { body { margin:0; } }
 </style></head><body><div style="width:${totalW}mm; height:${totalH}mm; position:relative;">${abaHtml}${frenteHtml}${versoHtml}${cmsEnv}</div></body></html>`;
 
       const ex = document.getElementById('_gabarito_iframe'); if (ex) ex.remove();
@@ -7135,7 +7135,7 @@ body { width: 220mm; height: 307mm; position: relative; overflow: hidden; backgr
 .cm-tr { top:${BLEED}mm; right:${BLEED}mm; border-top:0.2mm solid; border-right:0.2mm solid; }
 .cm-bl { bottom:${BLEED}mm; left:${BLEED}mm; border-bottom:0.2mm solid; border-left:0.2mm solid; }
 .cm-br { bottom:${BLEED}mm; right:${BLEED}mm; border-bottom:0.2mm solid; border-right:0.2mm solid; }
-@media print { body { margin:0; } @page { size: 220mm 307mm; margin: 0; } }
+@page { size: 220mm 307mm; margin: 0; } @media print { body { margin:0; } }
 </style></head><body>${pageHtml}</body></html>`;
 
       const ex = document.getElementById('_gabarito_v2'); if (ex) ex.remove();
@@ -7231,7 +7231,7 @@ body { width: 220mm; height: 307mm; background: #fff; }
 .cm-tr-h { top:${BLEED}mm; right:0; } .cm-tr-v { top:0; right:${BLEED}mm; }
 .cm-bl-h { bottom:${BLEED}mm; left:0; } .cm-bl-v { bottom:0; left:${BLEED}mm; }
 .cm-br-h { bottom:${BLEED}mm; right:0; } .cm-br-v { bottom:0; right:${BLEED}mm; }
-@media print { body { margin:0; } @page { size: 220mm 307mm; margin: 0; } }
+@page { size: 220mm 307mm; margin: 0; } @media print { body { margin:0; } }
 </style></head><body>${frenteHtml}${versoHtml}</body></html>`;
 
       const ex = document.getElementById('_gabarito_v2'); if (ex) ex.remove();
@@ -7304,7 +7304,7 @@ body { width: 220mm; height: 307mm; background: #fff; }
         <div style="position:absolute;bottom:0;left:${BLEED}mm;width:0.2mm;height:${BLEED-0.5}mm;background:#000;z-index:100;"></div>
         <div style="position:absolute;bottom:${BLEED}mm;right:0;width:${BLEED-0.5}mm;height:0.2mm;background:#000;z-index:100;"></div>
         <div style="position:absolute;bottom:0;right:${BLEED}mm;width:0.2mm;height:${BLEED-0.5}mm;background:#000;z-index:100;"></div>`;
-      const htmlCk = `<!DOCTYPE html><html><head><meta charset="UTF-8"><link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;700;900&display=swap" rel="stylesheet">${_fiCk}<style>*{margin:0;padding:0;box-sizing:border-box;}body{width:220mm;height:307mm;}@media print{body{margin:0;}@page{size:220mm 307mm;margin:0;}}</style></head><body><div style="position:relative;width:220mm;height:307mm;${_patCk}">${_cmCk}<div style="position:absolute;top:${BLEED + 8}mm;left:${BLEED + 8}mm;right:${BLEED + 8}mm;bottom:${BLEED + 8}mm;background:#fff;display:flex;overflow:hidden;"><div style="width:16mm;flex-shrink:0;display:flex;align-items:center;justify-content:center;background:${accentColor}15;"><div style="transform:rotate(-90deg);white-space:nowrap;font-family:'Montserrat',sans-serif;font-size:15pt;font-weight:900;color:${accentColor};letter-spacing:4pt;text-transform:uppercase;">${dictionary?.checklist_maternidade?.titulo || 'CHECKLIST MATERNIDADE'}</div></div><div style="flex:1;display:flex;flex-direction:column;padding:12mm 8mm 10mm 8mm;gap:4mm;overflow:hidden;"><div style="display:flex;justify-content:center;padding-bottom:5mm;border-bottom:0.2mm solid ${accentColor}25;">${_logoCk}</div><div style="flex:1;display:grid;grid-template-columns:1fr 1fr;gap:4mm;">${SECOES_CK.map((s, idx) => secaoHtmlCk(s, idx)).join('')}</div>${footerHtml}</div></div></div></body></html>`;
+@page{size:220mm 307mm;margin:0;} const htmlCk = `<!DOCTYPE html><html><head><meta charset="UTF-8"><link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;700;900&display=swap" rel="stylesheet">${_fiCk}<style>*{margin:0;padding:0;box-sizing:border-box;}body{width:220mm;height:307mm;}@media print{body{margin:0;}}</style></head><body><div style="position:relative;width:220mm;height:307mm;${_patCk}">${_cmCk}<div style="position:absolute;top:${BLEED + 8}mm;left:${BLEED + 8}mm;right:${BLEED + 8}mm;bottom:${BLEED + 8}mm;background:#fff;display:flex;overflow:hidden;"><div style="width:16mm;flex-shrink:0;display:flex;align-items:center;justify-content:center;background:${accentColor}15;"><div style="transform:rotate(-90deg);white-space:nowrap;font-family:'Montserrat',sans-serif;font-size:15pt;font-weight:900;color:${accentColor};letter-spacing:4pt;text-transform:uppercase;">${dictionary?.checklist_maternidade?.titulo || 'CHECKLIST MATERNIDADE'}</div></div><div style="flex:1;display:flex;flex-direction:column;padding:12mm 8mm 10mm 8mm;gap:4mm;overflow:hidden;"><div style="display:flex;justify-content:center;padding-bottom:5mm;border-bottom:0.2mm solid ${accentColor}25;">${_logoCk}</div><div style="flex:1;display:grid;grid-template-columns:1fr 1fr;gap:4mm;">${SECOES_CK.map((s, idx) => secaoHtmlCk(s, idx)).join('')}</div>${footerHtml}</div></div></div></body></html>`;
       const exCk = document.getElementById('_gabarito_iframe'); if (exCk) exCk.remove();
       const blobCk = new Blob([htmlCk], { type: 'text/html;charset=utf-8' });
       const blobUrlCk = URL.createObjectURL(blobCk);
@@ -7345,7 +7345,7 @@ body { width: 220mm; height: 307mm; background: #fff; }
       const _atBottom = _hasFooter ? `${7 + _footerH + 2}mm` : _bw;
       const _atHtml = `<!DOCTYPE html><html lang="pt-BR"><head><meta charset="UTF-8"><title>Atestado Médico - ${marca}</title>${fi2}
 <style>* { box-sizing:border-box; margin:0; padding:0; print-color-adjust:exact !important; -webkit-print-color-adjust:exact !important; }
-body { margin:0; } @media print { @page { size: ${_pw}mm ${_ph}mm; margin:0; } }
+@page { size: ${_pw}mm ${_ph}mm; margin:0; } body { margin:0; } @media print { }
 .blank { display:inline-block; border-bottom:0.8px solid #555; vertical-align:bottom; }
 </style></head><body>
 <div style="position:relative;width:${_pw}mm;height:${_ph}mm;overflow:hidden;">
@@ -7489,7 +7489,7 @@ body { margin:0; } @media print { @page { size: ${_pw}mm ${_ph}mm; margin:0; } }
 <style>* { box-sizing:border-box; margin:0; padding:0; print-color-adjust:exact !important; -webkit-print-color-adjust:exact !important; }
 body { width: 303mm; height: 216mm; position: relative; overflow: hidden; background: #fff; }
 .page { width: 303mm; height: 216mm; position: relative; overflow: hidden; }
-@media print { body { margin:0; } @page { size: 303mm 216mm; margin: 0; } }
+@page { size: 303mm 216mm; margin: 0; } @media print { body { margin:0; } }
 </style></head><body>
 <div class="page">
     ${genBg(10)}
@@ -7608,7 +7608,7 @@ body { width: 303mm; height: 216mm; position: relative; overflow: hidden; backgr
 <style>* { box-sizing:border-box; margin:0; padding:0; print-color-adjust:exact !important; -webkit-print-color-adjust:exact !important; color-adjust:exact !important; }
 body { background:#fff; }
 .page { width:${W + BLEED*2}mm; height:${H + BLEED*2}mm; position:relative; overflow:hidden; page-break-after:always; }
-@media print { body { margin:0; } @page { size: ${W + BLEED*2}mm ${H + BLEED*2}mm; margin: 0; } }
+@page { size: ${W + BLEED*2}mm ${H + BLEED*2}mm; margin: 0; } @media print { body { margin:0; } }
 </style></head><body>
 
 <!-- FRENTE -->
@@ -8101,7 +8101,7 @@ html, body { width:${totalW}mm; height:${totalH}mm; overflow:hidden; }
 <style>
 * { box-sizing:border-box; margin:0; padding:0; print-color-adjust:exact !important; -webkit-print-color-adjust:exact !important; }
 .page { width:${totalW_T}mm; height:${totalH_T}mm; display:flex; align-items:center; justify-content:center; page-break-after:always; }
-@media print { @page { size:${totalW_T}mm ${totalH_T}mm; margin:0; } }
+@page { size:${totalW_T}mm ${totalH_T}mm; margin:0; } @media print { }
 </style></head><body>
 <div class="page">${frentePageT}</div>
 <div class="page">${versoPageT}</div>
@@ -8183,7 +8183,7 @@ body { width:${W + BLEED*2}mm; height:${H + BLEED*2}mm; position:relative; overf
 .cm-tr { top:${BLEED}mm; right:${BLEED}mm; border-top:0.2mm solid; border-right:0.2mm solid; }
 .cm-bl { bottom:${BLEED}mm; left:${BLEED}mm; border-bottom:0.2mm solid; border-left:0.2mm solid; }
 .cm-br { bottom:${BLEED}mm; right:${BLEED}mm; border-bottom:0.2mm solid; border-right:0.2mm solid; }
-@media print { body { margin:0; } @page { size: ${W + BLEED*2}mm ${H + BLEED*2}mm; margin:0; } }
+@page { size: ${W + BLEED*2}mm ${H + BLEED*2}mm; margin:0; } @media print { body { margin:0; } }
 </style></head><body>
 <div style="position:relative;width:${W + BLEED*2}mm;height:${H + BLEED*2}mm;overflow:hidden;">
     ${patternBorder}
@@ -8282,7 +8282,7 @@ body { width:${W + BLEED*2}mm; height:${H + BLEED*2}mm; position:relative; overf
 table { width: 100%; border-collapse: collapse; margin-top: 6mm; }
 th { background: #f5f5f5; color: #1a1a1a; font-size: 5pt; text-transform: uppercase; padding: 2mm; text-align: left; border: 0.2mm solid #eee; }
 td { padding: 2.5mm 2mm; border: 0.2mm solid #eee; font-size: 6pt; color: #555; }
-@media print { body { margin:0; } @page { size: ${W + BLEED*2}mm ${H + BLEED*2}mm; margin:0; } }
+@page { size: ${W + BLEED*2}mm ${H + BLEED*2}mm; margin:0; } @media print { body { margin:0; } }
 </style></head><body>
 <div style="position:relative;width:${W + BLEED*2}mm;height:${H + BLEED*2}mm;overflow:hidden;">
     ${patternBorder}
@@ -8410,7 +8410,7 @@ body { font-family:'Montserrat',sans-serif; }
 .page { width:${totalW}mm; height:${totalH}mm; position:relative; overflow:hidden; background:#fff; border: 1px solid #eee; }
 .face { display:flex; width:100%; height:100%; position:relative; }
 .panel { flex:1; height:100%; position:relative; overflow:hidden; }
-@media print { body { margin:0; } @page { size: ${totalW}mm ${totalH}mm; margin:0; } .page { page-break-after:always; border:none; } }
+@page { size: ${totalW}mm ${totalH}mm; margin:0; } @media print { body { margin:0; } .page { page-break-after:always; border:none; } }
 </style></head><body>
 <!-- FACE 1: Pág 4 | Pág 3 | Pág 2 | Pág 1 -->
 ${renderSide([3, 2, 1, 0])}
@@ -8477,7 +8477,7 @@ ${renderSide([4, 5, 6, 7])}
 body { font-family:'Montserrat',sans-serif; }
 .page { width:${totalW}mm; height:${totalH}mm; position:relative; overflow:hidden; display:flex; }
 .panel { width:50%; height:100%; position:relative; overflow:hidden; flex-shrink:0; }
-@media print { body { margin:0; } @page { size: ${totalW}mm ${totalH}mm; margin:0; } .page { page-break-after:always; } }
+@page { size: ${totalW}mm ${totalH}mm; margin:0; } @media print { body { margin:0; } .page { page-break-after:always; } }
 </style></head><body>
 <!-- FACE 1: Pág 4 (verso capa) | Pág 1 (capa) -->
 <div style="position:relative;width:${totalW}mm;height:${totalH}mm;">
@@ -8741,7 +8741,7 @@ body { background:#eee; }
 .cm-tr-h { top:${BLEED}mm; right:0; } .cm-tr-v { top:0; right:${BLEED}mm; }
 .cm-bl-h { bottom:${BLEED}mm; left:0; } .cm-bl-v { bottom:0; left:${BLEED}mm; }
 .cm-br-h { bottom:${BLEED}mm; right:0; } .cm-br-v { bottom:0; right:${BLEED}mm; }
-@media print { body { background:none; } .page { margin:0; } @page { size: ${totalW}mm ${totalH}mm; margin:0; } }
+@page { size: ${totalW}mm ${totalH}mm; margin:0; } @media print { body { background:none; } .page { margin:0; } }
 </style></head><body>${page1}${page2}</body></html>`;
 
         const _launchTrifoldPrint = (finalHtml) => {
@@ -8778,7 +8778,7 @@ body { background:#eee; }
 <style>* { box-sizing:border-box; margin:0; padding:0; print-color-adjust:exact !important; -webkit-print-color-adjust:exact !important; }
 body { background:#eee; }
 .page { width:${totalW}mm; height:${totalH}mm; background:#fff; position:relative; overflow:hidden; margin:0 auto; display:flex; align-items:center; padding:10mm 15mm; gap:12mm; }
-@media print { body { background:none; } .page { margin:0; } @page { size: ${totalW}mm ${totalH}mm; margin:0; } }
+@page { size: ${totalW}mm ${totalH}mm; margin:0; } @media print { body { background:none; } .page { margin:0; } }
 </style></head><body><div class="page">
   <div style="position:absolute; top:0; right:0; width:25mm; height:25mm; background:${accentColor}10; border-radius:0 0 0 25mm;"></div>
   
@@ -8919,7 +8919,7 @@ html, body { width:${RW}px; height:${RH}px; overflow:hidden; background:#fff; }
         const html = `<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Gabarito Caixa - ${marca}</title>
 <style>* { box-sizing:border-box; margin:0; padding:0; print-color-adjust:exact !important; -webkit-print-color-adjust:exact !important; }
 body { background:#fff; font-family:'Montserrat',sans-serif; }
-@media print { body { margin:0; } @page { size: ${wMm}mm ${hMm}mm; margin:0; } }
+@page { size: ${wMm}mm ${hMm}mm; margin:0; } @media print { body { margin:0; } }
 </style></head><body>
   <div style="position:relative; width:${wMm}mm; height:${hMm}mm; overflow:hidden; background:#fff;">
     <div style="position:absolute; top:10mm; left:10mm; font-size:16pt; font-weight:bold; color:#333;">Gabarito Caixa Gaveta - ${marca}</div>
@@ -8972,7 +8972,7 @@ body { background:#eee; }
 .cm-tr { top:${BLEED}mm; right:${BLEED}mm; border-top:0.2mm solid; border-right:0.2mm solid; }
 .cm-bl { bottom:${BLEED}mm; left:${BLEED}mm; border-bottom:0.2mm solid; border-left:0.2mm solid; }
 .cm-br { bottom:${BLEED}mm; right:${BLEED}mm; border-bottom:0.2mm solid; border-right:0.2mm solid; }
-@media print { body { background:none; } .page { margin:0; box-shadow:none; } @page { size: ${totalW}mm ${totalH}mm; margin:0; } }
+@page { size: ${totalW}mm ${totalH}mm; margin:0; } @media print { body { background:none; } .page { margin:0; box-shadow:none; } }
 </style></head><body><div class="page">
 <div style="position:absolute; inset:0; overflow:hidden;">
   ${effectiveSrc
@@ -9029,7 +9029,7 @@ body { background:#eee; }
         const html = `<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Certificado de Coragem - ${marca}</title>${fiCe}
 <style>* { box-sizing:border-box; margin:0; padding:0; print-color-adjust:exact !important; -webkit-print-color-adjust:exact !important; }
 body { width:${W + BLEED*2}mm; height:${H + BLEED*2}mm; position:relative; overflow:hidden; background:#fff; font-family:'Montserrat',sans-serif; }
-@media print { body { margin:0; } @page { size: ${W + BLEED*2}mm ${H + BLEED*2}mm; margin:0; } }
+@page { size: ${W + BLEED*2}mm ${H + BLEED*2}mm; margin:0; } @media print { body { margin:0; } }
 </style></head><body>
 <div style="position:relative;width:${W + BLEED*2}mm;height:${H + BLEED*2}mm;overflow:hidden;display:flex;align-items:center;justify-content:center;background:#fff;">
   <div style="position:absolute;top:${BLEED}mm;left:0;width:${BLEED-0.5}mm;height:0.2mm;background:#000;z-index:100;"></div>
@@ -9158,7 +9158,7 @@ ${fontImports2}
 <style>
   * { box-sizing: border-box; margin: 0; padding: 0; print-color-adjust: exact !important; -webkit-print-color-adjust: exact !important; }
   body { margin: 0; }
-  @media print { @page { size: ${totalW_gen}mm ${totalH_gen}mm; margin: 0; } }
+@page { size: ${totalW_gen}mm ${totalH_gen}mm; margin: 0; } @media print { }
   .cm-tl-h { position:absolute; top:${bleed_gen}mm; left:0; width:${bleed_gen-0.5}mm; height:0.2mm; background:#000; z-index:100; }
   .cm-tl-v { position:absolute; top:0; left:${bleed_gen}mm; width:0.2mm; height:${bleed_gen-0.5}mm; background:#000; z-index:100; }
   .cm-tr-h { position:absolute; top:${bleed_gen}mm; right:0; width:${bleed_gen-0.5}mm; height:0.2mm; background:#000; z-index:100; }
