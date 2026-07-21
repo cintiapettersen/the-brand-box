@@ -1448,6 +1448,7 @@
     "frase_final": "\"Breast milk is the best food for your baby.\""
   },
   "onboarding": {
+    "alert_select_brand": "Please select a brand that inspires you to define your initial font.",
     "step_2_title": "Before we start...",
     "step_2_subtitle": "How would you like to be called?",
     "step_2_name_placeholder": "Your name",

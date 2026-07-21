@@ -89,6 +89,7 @@ export default function Home() {
   const [aiSessionId, setAiSessionId] = useState('');
   const [selectedTagline, setSelectedTagline] = useState('');
   const [customTagline, setCustomTagline] = useState('');
+  const [alertMessage, setAlertMessage] = useState(null);
   
   const [formData, setFormData] = useState({
     nome: '', email: '', marca: '', atuacao: '', atuacaoOutra: '', contextoExtra: '', publico: '', sentimentos: [], elementosVisuais: [], personalidade: '', primeiraImpressao: '', locais: [], inspiracoes: '', inspiracoesTags: [], nuncaPensar: '', nuncaPensarTags: []
@@ -590,7 +591,7 @@ export default function Home() {
       setMoodboards(data.moodboard || []);
     } catch (err) {
       console.error('ERRO FATAL NO DIAGNÓSTICO:', err.message);
-      alert(`Erro ao carregar estilos: ${err.message}. Verifique a conexão com o banco.`);
+      setAlertMessage(`Erro ao carregar estilos: ${err.message}. Verifique a conexão com o banco.`);
     } finally {
       setLoadingVariacoes(false);
       setSelectedTipo(null);
@@ -641,7 +642,7 @@ export default function Home() {
       return;
     }
     if (patternGenerationCount >= MAX_PATTERN_GENERATIONS) {
-      alert('Você atingiu o limite de 3 gerações de estampa. Tente novamente amanhã!');
+      setAlertMessage('Você atingiu o limite de 3 gerações de estampa. Tente novamente amanhã!');
       return;
     }
     setPatternGenerationCount(c => c + 1);
@@ -675,11 +676,11 @@ export default function Home() {
         setSelectedPattern(0);
       } else {
         console.error('Erro na geração:', data.error);
-        alert('Ops! Não conseguimos gerar as estampas. Tente novamente.');
+        setAlertMessage('Ops! Não conseguimos gerar as estampas. Tente novamente.');
       }
     } catch (err) {
       console.error('Erro chamando API:', err);
-      alert('Erro de conexão. Verifique se o servidor está rodando.');
+      setAlertMessage('Erro de conexão. Verifique se o servidor está rodando.');
     }
     setPatternLoading(false);
   };
@@ -1065,12 +1066,12 @@ export default function Home() {
           setIsCreativeDirectorLoading(false);
         }
       } else {
-        alert("Ops, deu um pequeno tilt na IA. Refaça por favor!");
+        setAlertMessage("Ops, deu um pequeno tilt na IA. Refaça por favor!");
         setStep(7);
       }
     } catch (error) {
       console.error(error);
-      alert("Erro na conexão com o servidor mágico.");
+      setAlertMessage("Erro na conexão com o servidor mágico.");
       setStep(7);
     }
   };
@@ -1299,7 +1300,7 @@ export default function Home() {
         window.location.href = data.url;
       } else {
         console.error('Checkout error:', data.error);
-        alert('Houve um problema ao iniciar o pagamento: ' + (data.error || 'Erro desconhecido'));
+        setAlertMessage('Houve um problema ao iniciar o pagamento: ' + (data.error || 'Erro desconhecido'));
         setLoadingCheckout(false);
       }
     } catch (err) {
@@ -1565,7 +1566,7 @@ export default function Home() {
                 if (formData.atuacao !== '' && (formData.atuacao !== 'Outra' || formData.atuacaoOutra !== '')) {
                   setStep(5);
                 } else {
-                  alert(dictionary?.onboarding?.step_4_alert || 'Por favor, selecione uma área de atuação antes de avançar.');
+                  setAlertMessage(dictionary?.onboarding?.step_4_alert || 'Por favor, selecione uma área de atuação antes de avançar.');
                 }
               }} className="btn-secondary" style={{ opacity: (formData.atuacao !== '' && (formData.atuacao !== 'Outra' || formData.atuacaoOutra !== '')) ? 1 : 0.5 }}>{dictionary?.onboarding?.btn_next || 'Avançar'}</button>
             </motion.div>
@@ -1588,7 +1589,7 @@ export default function Home() {
               <div style={{ width: '100%', marginBottom: '2rem', display: 'flex', flexDirection: 'column', gap: '10px', alignItems: 'center' }}>
                 {publicos.map(p => (<button key={p} onClick={() => setSingleChoice('publico', p)} style={chipStyle(formData.publico === p)}>{dictionary?.onboarding?.publicos_options?.[p] || p}</button>))}
               </div>
-              <button onClick={() => { if (formData.publico) setStep(6); else alert(dictionary?.onboarding?.alert_select_option || 'Por favor, selecione uma opção antes de avançar.'); }} className="btn-secondary" style={{ opacity: formData.publico ? 1 : 0.5 }}>{dictionary?.onboarding?.btn_next || 'Avançar'}</button>
+              <button onClick={() => { if (formData.publico) setStep(6); else setAlertMessage(dictionary?.onboarding?.alert_select_option || 'Por favor, selecione uma opção antes de avançar.'); }} className="btn-secondary" style={{ opacity: formData.publico ? 1 : 0.5 }}>{dictionary?.onboarding?.btn_next || 'Avançar'}</button>
             </motion.div>
           )}
 
@@ -1651,7 +1652,7 @@ export default function Home() {
                 </div>
               </div>
               <p style={{fontSize: '0.9rem', color: 'var(--text-secondary)', marginBottom: '1.5rem', fontWeight: 500}}>{dictionary?.onboarding?.step_6_selected?.replace('{count}', formData.sentimentos.length) || `Selecionadas: ${formData.sentimentos.length}/3`}</p>
-              <button onClick={() => { if (formData.sentimentos.length > 0) setStep(6.5); else alert(dictionary?.onboarding?.alert_select_option || 'Por favor, selecione uma opção antes de avançar.'); }} className="btn-primary" style={{ opacity: formData.sentimentos.length > 0 ? 1 : 0.5 }}>{dictionary?.onboarding?.btn_next || 'Avançar'}</button>
+              <button onClick={() => { if (formData.sentimentos.length > 0) setStep(6.5); else setAlertMessage(dictionary?.onboarding?.alert_select_option || 'Por favor, selecione uma opção antes de avançar.'); }} className="btn-primary" style={{ opacity: formData.sentimentos.length > 0 ? 1 : 0.5 }}>{dictionary?.onboarding?.btn_next || 'Avançar'}</button>
             </motion.div>
           )}
 
@@ -1671,7 +1672,7 @@ export default function Home() {
                   )
                 })}
               </div>
-              <button onClick={() => { if (formData.locais.length > 0) setStep(7); else alert(dictionary?.onboarding?.alert_select_option || 'Por favor, selecione uma opção antes de avançar.'); }} className="btn-primary" style={{ opacity: formData.locais.length > 0 ? 1 : 0.5 }}>{dictionary?.onboarding?.btn_next || 'Avançar'}</button>
+              <button onClick={() => { if (formData.locais.length > 0) setStep(7); else setAlertMessage(dictionary?.onboarding?.alert_select_option || 'Por favor, selecione uma opção antes de avançar.'); }} className="btn-primary" style={{ opacity: formData.locais.length > 0 ? 1 : 0.5 }}>{dictionary?.onboarding?.btn_next || 'Avançar'}</button>
             </motion.div>
           )}
 
@@ -1728,7 +1729,7 @@ export default function Home() {
                   })()}
                 </div>
               </div>
-              <button onClick={() => { if (formData.elementosVisuais.length > 0) setStep(7.2); else alert(dictionary?.onboarding?.alert_select_option || 'Por favor, selecione uma opção antes de avançar.'); }} className="btn-primary" style={{ opacity: formData.elementosVisuais.length > 0 ? 1 : 0.5 }}>{dictionary?.onboarding?.btn_next || 'Avançar'}</button>
+              <button onClick={() => { if (formData.elementosVisuais.length > 0) setStep(7.2); else setAlertMessage(dictionary?.onboarding?.alert_select_option || 'Por favor, selecione uma opção antes de avançar.'); }} className="btn-primary" style={{ opacity: formData.elementosVisuais.length > 0 ? 1 : 0.5 }}>{dictionary?.onboarding?.btn_next || 'Avançar'}</button>
             </motion.div>
           )}
 
@@ -1771,7 +1772,7 @@ export default function Home() {
               <button 
                 onClick={() => { 
                   if (formData.inspiracoesVisual) setStep(7.5); 
-                  else alert(dictionary?.onboarding?.alert_select_brand || 'Por favor, selecione uma marca que te inspira para definirmos a sua fonte inicial.'); 
+                  else setAlertMessage(dictionary?.onboarding?.alert_select_brand || 'Por favor, selecione uma marca que te inspira para definirmos a sua fonte inicial.'); 
                 }} 
                 className="btn-primary" 
                 style={{ opacity: formData.inspiracoesVisual ? 1 : 0.5 }}
@@ -2285,7 +2286,7 @@ export default function Home() {
                                     if (!tooLight) {
                                       handlePrimaryColorSelect(hex, cores);
                                     } else {
-                                      alert(lang === 'en' ? 'This color is too light to be used as a highlight. Please choose a darker tone.' : 'Essa cor é muito clara para ser usada como destaque. Por favor, escolha um tom mais escuro.');
+                                      setAlertMessage(lang === 'en' ? 'This color is too light to be used as a highlight. Please choose a darker tone.' : 'Essa cor é muito clara para ser usada como destaque. Por favor, escolha um tom mais escuro.');
                                     }
                                   }}
                                   title={tooLight ? (dictionary?.postmatch?.color_too_light || 'Cor muito clara para destaque principal') : ''}
@@ -2904,7 +2905,7 @@ export default function Home() {
                             window.location.href = data.url;
                           } else {
                             console.error('Checkout error:', data.error);
-                            alert('Houve um problema ao iniciar o pagamento: ' + (data.error || 'Erro desconhecido'));
+                            setAlertMessage('Houve um problema ao iniciar o pagamento: ' + (data.error || 'Erro desconhecido'));
                             setLoadingCheckout(false);
                           }
                         } catch (err) {
@@ -3198,6 +3199,78 @@ export default function Home() {
                  </motion.div>
               </motion.div>
            )}
+        </AnimatePresence>
+
+        {/* Custom Alert Modal */}
+        <AnimatePresence>
+          {alertMessage && (
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              style={{
+                position: 'fixed',
+                top: 0, left: 0, right: 0, bottom: 0,
+                background: 'rgba(54, 53, 50, 0.4)',
+                backdropFilter: 'blur(4px)',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                zIndex: 999999,
+                padding: '20px'
+              }}
+              onClick={() => setAlertMessage(null)}
+            >
+              <motion.div
+                initial={{ opacity: 0, scale: 0.95, y: 20 }}
+                animate={{ opacity: 1, scale: 1, y: 0 }}
+                exit={{ opacity: 0, scale: 0.95, y: 20 }}
+                transition={{ type: 'spring', damping: 25, stiffness: 300 }}
+                style={{
+                  background: '#fff',
+                  borderRadius: '20px',
+                  padding: '30px',
+                  maxWidth: '400px',
+                  width: '100%',
+                  boxShadow: '0 20px 40px rgba(0,0,0,0.1)',
+                  textAlign: 'center',
+                  fontFamily: 'Montserrat, sans-serif'
+                }}
+                onClick={(e) => e.stopPropagation()}
+              >
+                <div style={{ fontSize: '2.5rem', marginBottom: '15px' }}>✨</div>
+                <p style={{
+                  fontSize: '1rem',
+                  color: 'var(--text-primary)',
+                  fontWeight: 600,
+                  lineHeight: 1.5,
+                  marginBottom: '24px'
+                }}>
+                  {alertMessage}
+                </p>
+                <button
+                  onClick={() => setAlertMessage(null)}
+                  style={{
+                    background: 'var(--text-primary)',
+                    color: '#fff',
+                    border: 'none',
+                    borderRadius: '30px',
+                    padding: '12px 30px',
+                    fontSize: '0.9rem',
+                    fontWeight: 700,
+                    cursor: 'pointer',
+                    boxShadow: '0 4px 15px rgba(54, 53, 50, 0.2)',
+                    transition: 'transform 0.2s ease',
+                    width: '100%'
+                  }}
+                  onMouseEnter={e => e.currentTarget.style.transform = 'translateY(-2px)'}
+                  onMouseLeave={e => e.currentTarget.style.transform = 'translateY(0)'}
+                >
+                  OK
+                </button>
+              </motion.div>
+            </motion.div>
+          )}
         </AnimatePresence>
 
       </div>

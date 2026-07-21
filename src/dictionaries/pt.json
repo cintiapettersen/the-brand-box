@@ -1368,6 +1368,7 @@
     "frase_final": "\"O leite materno é o melhor alimento para o seu bebê.\""
   },
   "onboarding": {
+    "alert_select_brand": "Por favor, selecione uma marca que te inspira para definirmos a sua fonte inicial.",
     "step_2_title": "Antes de começarmos...",
     "step_2_subtitle": "Como você gostaria de ser chamada(o)?",
     "step_2_name_placeholder": "Seu nome",
