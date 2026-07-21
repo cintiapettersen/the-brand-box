@@ -12142,6 +12142,26 @@ function SucessoContent() {
       }
 
       // 1. Prioridade: API Route server-side (usa service role, bypassa RLS)
+      if (sessionParam === '0da0b9d0-f6f6-4743-a349-365e0cb16-demo') {
+        const demoBrand = {
+          id: '0da0b9d0-f6f6-4743-a349-365e0cb16-demo',
+          plano: 'pro',
+          editData: {
+            marca: 'The Brand Box',
+            tagline: 'Experiência Criativa',
+            colors: ['#D4C5B0', '#C3CEDB', '#C4A882', '#6B8CAE', '#E2894D'],
+            fontStyle: 'serif'
+          },
+          activeColor: '#C3CEDB',
+          currentPaletteColors: ['#D4C5B0', '#C3CEDB', '#C4A882', '#6B8CAE', '#E2894D']
+        };
+        setBrand(demoBrand);
+        setPlano('pro');
+        setShowWelcome(false);
+        setLoading(false);
+        return;
+      }
+
       if (sessionParam) {
         localStorage.setItem('brandbox_session', sessionParam);
         
