@@ -1243,13 +1243,9 @@ export default function Home() {
         if (sessionIdPro) localStorage.setItem(`brandbox_brand_${sessionIdPro}`, JSON.stringify(deliveryData));
       } catch {}
 
-      if (typeof window !== 'undefined' && localStorage.getItem('brandbox_demo_mode') === 'BUILDWEEK100') {
-        const successUrl = sessionIdPro
-          ? `/sucesso?session=${sessionIdPro}&plano=pro&lang=${lang}`
-          : `/sucesso?plano=pro&lang=${lang}`;
-        window.location.href = successUrl;
-        return;
-      }
+      // BYPASS DE DEMO REMOVIDO: causava que qualquer usuário com brandbox_demo_mode no localStorage
+      // pulasse o Stripe e fosse direto para sucesso com dados incompletos, causando crash.
+      // O modo DEMO agora é tratado exclusivamente pela sucesso page via session ID fixo.
 
       const res = await fetch('/api/checkout', {
         method: 'POST',
@@ -2834,13 +2830,8 @@ export default function Home() {
                           if (brandState.pattern && !finalPatternUrl) try { localStorage.setItem('brandbox_pattern', JSON.stringify(brandState.pattern)); } catch {}
                           try { localStorage.setItem('brandbox_delivery', JSON.stringify({ ...brandState, pattern: finalPatternUrl ? { url: finalPatternUrl } : null })); } catch {}
 
-                          if (typeof window !== 'undefined' && localStorage.getItem('brandbox_demo_mode') === 'BUILDWEEK100') {
-                            const successUrl = sessionIdExp
-                              ? `/sucesso?session=${sessionIdExp}&plano=starter&lang=${lang}`
-                              : `/sucesso?plano=starter&lang=${lang}`;
-                            window.location.href = successUrl;
-                            return;
-                          }
+                          // BYPASS DE DEMO REMOVIDO: causava que qualquer usuário com brandbox_demo_mode no localStorage
+                          // pulasse o Stripe e fosse direto para sucesso com dados incompletos, causando crash.
 
                           const res = await fetch('/api/checkout', {
                             method: 'POST',
