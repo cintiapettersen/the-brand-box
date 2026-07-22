@@ -2,8 +2,8 @@ import { createClient } from '@supabase/supabase-js';
 
 // Usa service role — roda só no servidor, bypassa o RLS
 const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL,
-  (process.env.SUPABASE_SERVICE_ROLE_KEY ? process.env.SUPABASE_SERVICE_ROLE_KEY.replace(/['"]/g, '') : undefined)
+  process.env.NEXT_PUBLIC_SUPABASE_URL || 'https://dummy.supabase.co',
+  (process.env.SUPABASE_SERVICE_ROLE_KEY ? process.env.SUPABASE_SERVICE_ROLE_KEY.replace(/['"]/g, '') : undefined) || 'dummy_key'
 );
 
 export async function GET(request) {
@@ -17,12 +17,26 @@ export async function GET(request) {
 
     const { data, error } = await supabase
       .from('entregas')
-      .select('brand_data, plano, email, marca, email_enviado')
+      .select('brand_data, plano, email, marca, email_enviado, paid, payment_status')
       .eq('id', sessionId)
       .single();
 
     if (error || !data) {
       return Response.json({ error: 'Entrega não encontrada.' }, { status: 404 });
+    }
+
+    // Regra estrita de autorização (Whitelist):
+    // 1. Permitir apenas registros antigos pré-existentes (legados onde payment_status é null/undefined)
+    // 2. Permitir registros onde pagamento foi confirmado no servidor (payment_status === 'paid' e paid === true)
+    // 3. Negar qualquer outro estado ('pending', 'unpaid', 'failed', desautorizados ou desconhecidos)
+    const isLegacyRecord = data.payment_status === null || data.payment_status === undefined;
+    const isConfirmedPaid = data.payment_status === 'paid' && data.paid === true;
+
+    if (!isLegacyRecord && !isConfirmedPaid) {
+      return Response.json({
+        error: 'Acesso não autorizado ou pagamento pendente/não confirmado.',
+        payment_status: data.payment_status || 'unauthorized'
+      }, { status: 402 });
     }
 
     return Response.json({ data });

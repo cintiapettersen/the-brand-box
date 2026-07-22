@@ -14,15 +14,15 @@ export async function POST(request) {
       starter: {
         name: isEn ? 'Brand Box Starter' : 'Brand Box Starter',
         description: isEn 
-          ? 'Typographic logo + variations, custom pattern, color palette, typography, brand guidelines, and interactive digital card. Files delivered by email immediately.' 
-          : 'Logo tipográfica + variações, estampa personalizada, paleta de cores, tipografia, guia de uso da marca e cartão de visita interativo. Arquivos entregues por e-mail imediatamente após o pagamento.',
+          ? 'Logo and variations, color palette, typography, pattern, brand guidelines and interactive business card. Files delivered by email immediately after payment.' 
+          : 'Logo + variações, paleta de cores, tipografia, estampa, guia de uso da marca e cartão de visita interativo. Arquivos entregues por e-mail imediatamente após o pagamento.',
         amount: isEn ? 9800 : 49700,
       },
       pro: {
         name: isEn ? 'Brand Box Studio' : 'Brand Box Pro',
         description: isEn 
-          ? 'Everything in Starter + custom stationery, Instagram templates, mockups, icons, avatars, exclusive pattern, brand manifesto and tone of voice. Delivered immediately.' 
-          : 'Tudo do Starter + impressos personalizados, templates para Instagram, mockups, ícones, avatares, estampa exclusiva, manifesto e tom de voz da marca. Arquivos entregues por e-mail imediatamente.',
+          ? 'Everything in the Experience package, plus personalized stationery, Instagram templates, mockups, icons, avatars, brand manifesto and tone of voice. Files delivered by email immediately after payment.' 
+          : 'Tudo do pacote Experience + papelaria personalizada, templates para Instagram, mockups, ícones, avatares, manifesto e tom de voz da marca. Arquivos entregues por e-mail imediatamente após o pagamento.',
         amount: isEn ? 17376 : 89700,
       },
     };
@@ -106,10 +106,9 @@ export async function POST(request) {
         });
       }
 
-      const payment_method_types = ['card']; // PIX/boleto removidos: conta Stripe baseada na Noruega não suporta métodos brasileiros
-
       const session = await stripe.checkout.sessions.create({
-        payment_method_types,
+        automatic_payment_methods: { enabled: true },
+        allow_promotion_codes: true,
         line_items,
         mode: 'payment',
         locale,
@@ -174,14 +173,13 @@ export async function POST(request) {
       }
     }
 
-    const payment_method_types = ['card']; // PIX/boleto removidos: conta Stripe baseada na Noruega não suporta métodos brasileiros
-
     const successUrl = sessionId
       ? `${origin}/sucesso?session=${sessionId}&plano=${plano}&lang=${lang}`
       : `${origin}/sucesso?plano=${plano}&lang=${lang}`;
 
     const session = await stripe.checkout.sessions.create({
-      payment_method_types,
+      automatic_payment_methods: { enabled: true },
+      allow_promotion_codes: true,
       line_items,
       mode: 'payment',
       locale,
