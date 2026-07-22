@@ -153,6 +153,13 @@ The application includes:
 
 The user is never blocked from continuing solely because an AI request fails.
 
+## Demo video
+
+Watch the full OpenAI Build Week demo:
+ https://www.youtube.com/watch?v=yjlXtn0lKes&t=13s
+
+ 
+
 ## Technology stack
 
 - Next.js
@@ -172,3 +179,4 @@ Clone the repository:
 ```bash
 git clone https://github.com/cintiapettersen/the-brand-box.git
 cd the-brand-box
+
