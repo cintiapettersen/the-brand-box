@@ -107,7 +107,6 @@ export async function POST(request) {
       }
 
       const session = await stripe.checkout.sessions.create({
-        automatic_payment_methods: { enabled: true },
         allow_promotion_codes: true,
         line_items,
         mode: 'payment',
@@ -178,7 +177,6 @@ export async function POST(request) {
       : `${origin}/sucesso?plano=${plano}&lang=${lang}`;
 
     const session = await stripe.checkout.sessions.create({
-      automatic_payment_methods: { enabled: true },
       allow_promotion_codes: true,
       line_items,
       mode: 'payment',
