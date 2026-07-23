@@ -793,7 +793,7 @@ function CartaoStep({ brand, accentColor, paletteColors, marca, estampaPatterns,
       </a>`;
     }).join('');
     const qrHtml = showQR && qrLink ? `<img src="https://api.qrserver.com/v1/create-qr-code/?size=120x120&data=${encodeURIComponent(qrLink)}&bgcolor=ffffff" width="100" height="100" style="border-radius:8px;margin-top:8px;" />` : '';
-    const patternStyle = patternSrc ? `background-image:url(${patternSrc});background-size:22%;background-repeat:repeat;` : 'background:#f5f5f5;';
+    const patternStyle = patternSrc ? `background-image:url(${patternSrc});background-size:60%;background-repeat:repeat;` : 'background:#f5f5f5;';
     const fontUrl = `https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700&family=${encodeURIComponent(editData.fontFamily || 'Playfair Display')}:ital,wght@0,400;1,400&display=swap`;
 
     const isPortrait = orientation === 'portrait';
@@ -904,7 +904,7 @@ function CartaoStep({ brand, accentColor, paletteColors, marca, estampaPatterns,
         overflow: 'hidden',
         boxShadow: '0 8px 40px rgba(0,0,0,0.13)',
         backgroundImage: patternSrc ? `url(${patternSrc})` : undefined,
-        backgroundSize: '22%', backgroundPosition: 'center', backgroundRepeat: 'repeat',
+        backgroundSize: '60%', backgroundPosition: 'center', backgroundRepeat: 'repeat',
         padding: orientation === 'portrait' ? '40px 14px' : '14px',
         width: orientation === 'portrait' ? '300px' : '100%',
         height: orientation === 'portrait' ? '533px' : 'auto',
