@@ -1487,7 +1487,7 @@ export default function Home() {
                 <h2 style={{ fontSize: '1.8rem', margin: 0 }}>{dictionary?.onboarding?.step_3_title || 'Qual nome vai aparecer na sua identidade visual?'}</h2>
                 <div className="hint-tooltip">
                   <LightbulbIcon size={20} />
-                  <span className="tooltiptext">{dictionary?.onboarding?.step_3_hint || 'Não se preocupe: você poderá alterar o nome da sua marca a qualquer momento dentro da plataforma após o acesso. Pode testar sem medo! ✨'}</span>
+                  <span className="tooltiptext">{dictionary?.onboarding?.step_3_hint || 'Não se preocupe: você poderá alterar o nome da sua marca depois dentro da plataforma. Pode testar sem medo! ✨'}</span>
                 </div>
               </div>
               <p style={{ fontSize: '0.95rem', color: 'var(--text-secondary)', marginBottom: '2rem', maxWidth: '450px' }}>
