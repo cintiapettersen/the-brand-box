@@ -1675,24 +1675,24 @@ export default function Home() {
               <h2 style={{ fontSize: '2rem', marginBottom: '0.5rem' }}>{dictionary?.onboarding?.step_6_title || 'Como as pessoas devem se sentir após interagir com a sua marca?'}</h2>
               <p style={{ fontSize: '1rem', color: 'var(--text-secondary)', marginBottom: '1.5rem' }}>{dictionary?.onboarding?.step_6_subtitle || 'Escolha até 3 opções.'}</p>
               
-              <div style={{ width: '100%', marginBottom: '1rem', overflowY: 'auto', maxHeight: '50vh', padding: '0 4px' }}>
-                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '12px', padding: '4px' }}>
+              <div style={{ width: '100%', marginBottom: '1rem', overflowY: 'auto', maxHeight: '52vh', padding: '14px 10px 18px 10px' }}>
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '12px', padding: '4px 2px' }}>
                   {(() => {
                     const SENSACOES_PALETTE = {
                       "Sofisticada / Premium": {
-                        bg: "#4E4656",
+                        bg: "#4A4252",
                         color: "#FFFFFF",
                         border: "#3B3442"
                       },
                       "Minimalista / Moderna": {
-                        bg: "#5A6D7C",
-                        color: "#FFFFFF",
-                        border: "#465663"
+                        bg: "#EBF0F5", // Tom Gelo Ice Blue/Grey
+                        color: "#223140",
+                        border: "#D0DCE6"
                       },
                       "Acolhedora / Humana": {
-                        bg: "#D6A185",
-                        color: "#FFFFFF",
-                        border: "#C08A6E"
+                        bg: "#DFB09A", // Tom Quente Acolhedor Peach Almond
+                        color: "#3A2317",
+                        border: "#C89882"
                       },
                       "Ousada / Inovadora": {
                         bg: "#CA7D74",
@@ -1740,15 +1740,19 @@ export default function Home() {
                           onClick={() => toggleSentimento(s)} 
                           style={{
                             position: 'relative',
+                            overflow: 'hidden',
                             background: config.bg,
                             color: config.color,
-                            border: isSelected ? '3px solid var(--accent-turquoise)' : `1.5px solid ${config.border}`, 
+                            fontFamily: "'Plus Jakarta Sans', 'Inter', -apple-system, BlinkMacSystemFont, sans-serif",
+                            border: isSelected ? '2.5px solid rgba(255, 255, 255, 0.85)' : `1.5px solid ${config.border}`, 
+                            borderTop: isSelected ? '3.5px solid rgba(255, 255, 255, 0.95)' : `1.5px solid ${config.border}`,
                             padding: '16px 12px', 
                             borderRadius: '16px', 
                             cursor: 'pointer',
-                            transition: 'all 0.22s cubic-bezier(0.2, 0.8, 0.2, 1)', 
-                            fontSize: '0.85rem', 
+                            transition: 'all 0.25s cubic-bezier(0.2, 0.8, 0.2, 1)', 
+                            fontSize: '0.86rem', 
                             fontWeight: isSelected ? 700 : 600,
+                            letterSpacing: '0.01em',
                             display: 'flex',
                             flexDirection: 'column',
                             alignItems: 'center',
@@ -1756,32 +1760,46 @@ export default function Home() {
                             textAlign: 'center',
                             minHeight: '105px',
                             boxShadow: isSelected 
-                              ? '0 12px 28px rgba(0, 0, 0, 0.22), 0 0 0 4px rgba(42, 137, 127, 0.3)' 
-                              : '0 4px 14px rgba(0, 0, 0, 0.09), 0 1px 3px rgba(0, 0, 0, 0.04)',
+                              ? 'inset 0 2px 4px rgba(255, 255, 255, 0.6), inset 0 -2px 6px rgba(0, 0, 0, 0.2), 0 12px 28px rgba(0, 0, 0, 0.22), 0 0 0 3.5px rgba(255, 255, 255, 0.4)' 
+                              : '0 4px 14px rgba(0, 0, 0, 0.08), 0 1px 3px rgba(0, 0, 0, 0.04)',
                             transform: isSelected ? 'translateY(-4px) scale(1.03)' : 'translateY(0) scale(1)'
                           }}
                         >
+                          {/* Reflexo Espelhado Glassmorphic */}
+                          {isSelected && (
+                            <div style={{
+                              position: 'absolute',
+                              top: 0,
+                              left: 0,
+                              right: 0,
+                              height: '45%',
+                              background: 'linear-gradient(180deg, rgba(255, 255, 255, 0.35) 0%, rgba(255, 255, 255, 0.02) 100%)',
+                              pointerEvents: 'none',
+                              borderRadius: '14px 14px 0 0'
+                            }} />
+                          )}
                           {isSelected && (
                             <span style={{
                               position: 'absolute',
                               top: '8px',
                               right: '8px',
-                              background: 'var(--accent-turquoise)',
-                              color: '#fff',
+                              background: 'rgba(255, 255, 255, 0.95)',
+                              color: '#1E293B',
                               borderRadius: '50%',
                               width: '20px',
                               height: '20px',
                               display: 'flex',
                               alignItems: 'center',
                               justifyContent: 'center',
-                              fontSize: '0.7rem',
+                              fontSize: '0.75rem',
                               fontWeight: 'bold',
-                              boxShadow: '0 2px 6px rgba(0,0,0,0.3)'
+                              boxShadow: '0 2px 6px rgba(0,0,0,0.3)',
+                              zIndex: 2
                             }}>
                               ✓
                             </span>
                           )}
-                          <span>{dictionary?.onboarding?.sensacoes_options?.[s] || s}</span>
+                          <span style={{ position: 'relative', zIndex: 1 }}>{dictionary?.onboarding?.sensacoes_options?.[s] || s}</span>
                         </button>
                       );
                     });
