@@ -2544,7 +2544,7 @@ function ManifestoQuiz({ accentColor, marca, tagline, estiloNome, atuacao, conte
           <button
             onClick={() => setAtual(a => a + 1)}
             disabled={!respostas[QUIZ_PERGUNTAS[atual].id]}
-            style={{ flex: 1, padding: '12px', borderRadius: '20px', border: 'none', background: respostas[QUIZ_PERGUNTAS[atual].id] ? '#363532' : '#ddd', color: '#fff', fontWeight: 700, fontSize: '0.78rem', cursor: respostas[QUIZ_PERGUNTAS[atual].id] ? 'pointer' : 'not-allowed', fontFamily: 'Montserrat, sans-serif', transition: 'all 0.2s' }}
+            style={{ flex: 1, padding: '12px', borderRadius: '20px', border: 'none', background: respostas[QUIZ_PERGUNTAS[atual].id] ? accentColor : '#ddd', color: '#fff', fontWeight: 700, fontSize: '0.78rem', cursor: respostas[QUIZ_PERGUNTAS[atual].id] ? 'pointer' : 'not-allowed', fontFamily: 'Montserrat, sans-serif', transition: 'all 0.2s' }}
           >
             {tQuiz.proxima || 'Próxima →'}
           </button>
@@ -2552,7 +2552,7 @@ function ManifestoQuiz({ accentColor, marca, tagline, estiloNome, atuacao, conte
           <button
             onClick={handleGerar}
             disabled={!completo || loading}
-            style={{ flex: 1, padding: '13px', borderRadius: '20px', border: 'none', background: completo ? '#363532' : '#ddd', color: '#fff', fontWeight: 700, fontSize: '0.82rem', cursor: completo ? 'pointer' : 'not-allowed', fontFamily: 'Montserrat, sans-serif', opacity: loading ? 0.7 : 1, transition: 'all 0.2s' }}
+            style={{ flex: 1, padding: '13px', borderRadius: '20px', border: 'none', background: completo ? accentColor : '#ddd', color: '#fff', fontWeight: 700, fontSize: '0.82rem', cursor: completo ? 'pointer' : 'not-allowed', fontFamily: 'Montserrat, sans-serif', opacity: loading ? 0.7 : 1, transition: 'all 0.2s' }}
           >
             {loading ? (tMan.btn_creating || '✨ Criando manifesto...') : (tMan.btn_generate || '✨ Gerar Manifesto')}
           </button>
@@ -2890,7 +2890,7 @@ function TomDeVozQuiz({ accentColor, marca, tagline, estiloNome, atuacao, contex
           <button
             onClick={() => setAtual(a => a + 1)}
             disabled={!respostas[PERGUNTAS[atual].id]}
-            style={{ flex: 1, padding: '12px', borderRadius: '20px', border: 'none', background: respostas[PERGUNTAS[atual].id] ? '#363532' : '#ddd', color: '#fff', fontWeight: 700, fontSize: '0.78rem', cursor: respostas[PERGUNTAS[atual].id] ? 'pointer' : 'not-allowed', fontFamily: 'Montserrat, sans-serif', transition: 'all 0.2s' }}
+            style={{ flex: 1, padding: '12px', borderRadius: '20px', border: 'none', background: respostas[PERGUNTAS[atual].id] ? accentColor : '#ddd', color: '#fff', fontWeight: 700, fontSize: '0.78rem', cursor: respostas[PERGUNTAS[atual].id] ? 'pointer' : 'not-allowed', fontFamily: 'Montserrat, sans-serif', transition: 'all 0.2s' }}
           >
             {tQuiz.proxima || 'Próxima →'}
           </button>
@@ -2898,7 +2898,7 @@ function TomDeVozQuiz({ accentColor, marca, tagline, estiloNome, atuacao, contex
           <button
             onClick={handleGerar}
             disabled={!completo || loading}
-            style={{ flex: 1, padding: '13px', borderRadius: '20px', border: 'none', background: completo ? '#363532' : '#ddd', color: '#fff', fontWeight: 700, fontSize: '0.82rem', cursor: completo ? 'pointer' : 'not-allowed', fontFamily: 'Montserrat, sans-serif', opacity: loading ? 0.7 : 1, transition: 'all 0.2s' }}
+            style={{ flex: 1, padding: '13px', borderRadius: '20px', border: 'none', background: completo ? accentColor : '#ddd', color: '#fff', fontWeight: 700, fontSize: '0.82rem', cursor: completo ? 'pointer' : 'not-allowed', fontFamily: 'Montserrat, sans-serif', opacity: loading ? 0.7 : 1, transition: 'all 0.2s' }}
           >
             {loading ? (tTom.btn_creating || '✨ Criando tom de voz...') : (tTom.btn_generate || '✨ Gerar Tom de Voz')}
           </button>
@@ -3034,7 +3034,7 @@ function TomDeVozStep({ accentColor, marca, tagline, brand, editData }) {
       </div>
       <button
         onClick={() => setShowQuiz(true)}
-        style={{ padding: '16px', borderRadius: '30px', border: 'none', background: '#363532', color: '#fff', fontWeight: 700, fontSize: '0.9rem', cursor: 'pointer', fontFamily: 'Montserrat, sans-serif' }}
+        style={{ padding: '16px', borderRadius: '30px', border: 'none', background: accentColor, color: '#fff', fontWeight: 700, fontSize: '0.9rem', cursor: 'pointer', fontFamily: 'Montserrat, sans-serif', boxShadow: '0 4px 15px rgba(0,0,0,0.1)' }}
       >
         {tTom.btn_create || '✨ Criar Tom de Voz com IA'}
       </button>
