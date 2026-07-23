@@ -1572,55 +1572,19 @@ export default function Home() {
               <div style={{ position: 'absolute', top: '3rem', left: '3rem', right: '3rem', height: '4px', background: 'var(--border)', borderRadius: '4px' }}><div style={{ height: '100%', background: 'var(--accent-turquoise)', width: '50%', borderRadius: '4px', transition: 'width 0.5s' }} /></div>
               <h2 style={{ fontSize: '2rem', marginBottom: '0.5rem' }}>{dictionary?.onboarding?.step_4_title || 'Qual é a sua área de atuação?'}</h2>
               <p style={{ fontSize: '1rem', color: 'var(--text-secondary)', marginBottom: '1.5rem' }}>{dictionary?.onboarding?.step_4_subtitle || 'Escolha a que mais combina com o seu negócio.'}</p>
-              <div style={{ width: '100%', marginBottom: '1rem', overflowY: 'auto', maxHeight: '52vh', padding: '14px 10px 18px 10px' }}>
-                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '12px', padding: '4px 2px' }}>
+              <div style={{ width: '100%', marginBottom: '1rem', overflowY: 'auto', maxHeight: '52vh', padding: '16px 12px 22px 12px' }}>
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '14px', padding: '4px 2px' }}>
                   {(() => {
                     const AREA_PALETTE = {
-                      "Pediatria / Saúde infantil": {
-                        bg: "#6B5B95",
-                        color: "#FFFFFF",
-                        border: "#57487F"
-                      },
-                      "Obstetrícia / Saúde da mulher": {
-                        bg: "#C98CA7",
-                        color: "#FFFFFF",
-                        border: "#B27691"
-                      },
-                      "Clínica / Saúde geral adulta": {
-                        bg: "#496880",
-                        color: "#FFFFFF",
-                        border: "#365167"
-                      },
-                      "Terapia / Saúde mental": {
-                        bg: "#8AB5A3",
-                        color: "#FFFFFF",
-                        border: "#739E8C"
-                      },
-                      "Estética / Bem-estar / Nutrição": {
-                        bg: "#D6A185",
-                        color: "#FFFFFF",
-                        border: "#C08A6E"
-                      },
-                      "Cosméticos Naturais / Bem-estar Consciente": {
-                        bg: "#8F9F7F",
-                        color: "#FFFFFF",
-                        border: "#788868"
-                      },
-                      "Marca Pessoal / Profissional Liberal": {
-                        bg: "#B59E87",
-                        color: "#FFFFFF",
-                        border: "#9E8771"
-                      },
-                      "Loja de Roupas / Moda": {
-                        bg: "#CA7D74",
-                        color: "#FFFFFF",
-                        border: "#B3675E"
-                      },
-                      "Outra": {
-                        bg: "#EBF0F5", // Tom Gelo Ice Blue/Grey
-                        color: "#223140",
-                        border: "#D0DCE6"
-                      }
+                      "Pediatria / Saúde infantil": { bg: "#9B8B9B", color: "#FFFFFF" },
+                      "Obstetrícia / Saúde da mulher": { bg: "#F4E8DC", color: "#4A3A30" },
+                      "Clínica / Saúde geral adulta": { bg: "#C9D7E5", color: "#1E2D3B" },
+                      "Terapia / Saúde mental": { bg: "#E1EDE7", color: "#203830" },
+                      "Estética / Bem-estar / Nutrição": { bg: "#C7B49F", color: "#FFFFFF" },
+                      "Cosméticos Naturais / Bem-estar Consciente": { bg: "#8D9A87", color: "#FFFFFF" },
+                      "Marca Pessoal / Profissional Liberal": { bg: "#EFECE3", color: "#383630" },
+                      "Loja de Roupas / Moda": { bg: "#515361", color: "#FFFFFF" },
+                      "Outra": { bg: "#FAFAFA", color: "#2A2A2A" }
                     };
 
                     return [...areas, 'Other'].map(a => {
@@ -1628,11 +1592,7 @@ export default function Home() {
                       const displayLabel = isOther ? (dictionary?.onboarding?.step_4_other_btn || 'Outra') : (dictionary?.onboarding?.areas_options?.[a] || a);
                       const value = isOther ? 'Outra' : a;
                       const isSelected = formData.atuacao === value;
-                      const config = AREA_PALETTE[value] || {
-                        bg: "#F5F5F5",
-                        color: "var(--text-primary)",
-                        border: "var(--border)"
-                      };
+                      const config = AREA_PALETTE[value] || { bg: "#FAFAFA", color: "#2A2A2A" };
 
                       return (
                         <button
@@ -1642,25 +1602,27 @@ export default function Home() {
                             position: 'relative',
                             background: config.bg,
                             color: config.color,
-                            fontFamily: "'Plus Jakarta Sans', 'Inter', -apple-system, BlinkMacSystemFont, sans-serif",
-                            border: isSelected ? '3px solid var(--accent-turquoise)' : `1.5px solid ${config.border}`, 
-                            padding: '16px 12px', 
-                            borderRadius: '16px', 
+                            fontFamily: "'Cinzel', 'Montserrat', -apple-system, BlinkMacSystemFont, sans-serif",
+                            border: isSelected ? '3px solid var(--accent-turquoise)' : '1px solid rgba(0, 0, 0, 0.04)', 
+                            padding: '18px 12px', 
+                            borderRadius: '20px', 
                             cursor: 'pointer',
-                            transition: 'all 0.2s ease', 
-                            fontSize: '0.86rem', 
-                            fontWeight: isSelected ? 700 : 600,
-                            letterSpacing: '0.01em',
+                            transition: 'all 0.22s cubic-bezier(0.2, 0.8, 0.2, 1)', 
+                            fontSize: '0.73rem', 
+                            fontWeight: 600,
+                            letterSpacing: '0.12em',
+                            textTransform: 'uppercase',
+                            lineHeight: 1.45,
                             display: 'flex',
                             flexDirection: 'column',
                             alignItems: 'center',
                             justifyContent: 'center',
                             textAlign: 'center',
-                            minHeight: '105px',
+                            minHeight: '110px',
                             boxShadow: isSelected 
-                              ? '0 4px 14px rgba(42, 137, 127, 0.25)' 
-                              : '0 2px 8px rgba(0, 0, 0, 0.04)',
-                            transform: isSelected ? 'translateY(-2px)' : 'translateY(0)'
+                              ? '0 12px 28px rgba(42, 137, 127, 0.35), 0 4px 10px rgba(0, 0, 0, 0.1)' 
+                              : '0 8px 24px rgba(0, 0, 0, 0.1), 0 2px 6px rgba(0, 0, 0, 0.04)',
+                            transform: isSelected ? 'translateY(-4px) scale(1.02)' : 'translateY(0) scale(1)'
                           }}
                         >
                           {isSelected && (
@@ -1678,7 +1640,7 @@ export default function Home() {
                               justifyContent: 'center',
                               fontSize: '0.75rem',
                               fontWeight: 'bold',
-                              boxShadow: '0 2px 4px rgba(0,0,0,0.15)'
+                              boxShadow: '0 2px 5px rgba(0,0,0,0.15)'
                             }}>
                               ✓
                             </span>
@@ -1755,64 +1717,24 @@ export default function Home() {
               <h2 style={{ fontSize: '2rem', marginBottom: '0.5rem' }}>{dictionary?.onboarding?.step_6_title || 'Como as pessoas devem se sentir após interagir com a sua marca?'}</h2>
               <p style={{ fontSize: '1rem', color: 'var(--text-secondary)', marginBottom: '1.5rem' }}>{dictionary?.onboarding?.step_6_subtitle || 'Escolha até 3 opções.'}</p>
               
-              <div style={{ width: '100%', marginBottom: '1rem', overflowY: 'auto', maxHeight: '52vh', padding: '14px 10px 18px 10px' }}>
-                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '12px', padding: '4px 2px' }}>
+              <div style={{ width: '100%', marginBottom: '1rem', overflowY: 'auto', maxHeight: '52vh', padding: '16px 12px 22px 12px' }}>
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '14px', padding: '4px 2px' }}>
                   {(() => {
                     const SENSACOES_PALETTE = {
-                      "Sofisticada / Premium": {
-                        bg: "#4A4252",
-                        color: "#FFFFFF",
-                        border: "#3B3442"
-                      },
-                      "Minimalista / Moderna": {
-                        bg: "#EBF0F5", // Tom Gelo Ice Blue/Grey
-                        color: "#223140",
-                        border: "#D0DCE6"
-                      },
-                      "Acolhedora / Humana": {
-                        bg: "#DFB09A", // Tom Quente Acolhedor Peach Almond
-                        color: "#3A2317",
-                        border: "#C89882"
-                      },
-                      "Ousada / Inovadora": {
-                        bg: "#CA7D74",
-                        color: "#FFFFFF",
-                        border: "#B3675E"
-                      },
-                      "Criativa / Divertida": {
-                        bg: "#D6B579",
-                        color: "#FFFFFF",
-                        border: "#BF9F63"
-                      },
-                      "Leve / Delicada": {
-                        bg: "#8AB5A3",
-                        color: "#FFFFFF",
-                        border: "#739E8C"
-                      },
-                      "Natural / Orgânica": {
-                        bg: "#8F9F7F",
-                        color: "#FFFFFF",
-                        border: "#788868"
-                      },
-                      "Profissional / Confiável": {
-                        bg: "#496880",
-                        color: "#FFFFFF",
-                        border: "#365167"
-                      },
-                      "Elegante / Clássica": {
-                        bg: "#B59E87",
-                        color: "#FFFFFF",
-                        border: "#9E8771"
-                      }
+                      "Sofisticada / Premium": { bg: "#515361", color: "#FFFFFF" },
+                      "Minimalista / Moderna": { bg: "#FAFAFA", color: "#2A2A2A" },
+                      "Acolhedora / Humana": { bg: "#F4E8DC", color: "#4A3A30" },
+                      "Ousada / Inovadora": { bg: "#9B8B9B", color: "#FFFFFF" },
+                      "Criativa / Divertida": { bg: "#C7B49F", color: "#FFFFFF" },
+                      "Leve / Delicada": { bg: "#E1EDE7", color: "#203830" },
+                      "Natural / Orgânica": { bg: "#8D9A87", color: "#FFFFFF" },
+                      "Profissional / Confiável": { bg: "#C9D7E5", color: "#1E2D3B" },
+                      "Elegante / Clássica": { bg: "#EFECE3", color: "#383630" }
                     };
 
                     return sensacoes.map(s => {
                       const isSelected = formData.sentimentos.includes(s);
-                      const config = SENSACOES_PALETTE[s] || {
-                        bg: "#F5F5F5",
-                        color: "var(--text-primary)",
-                        border: "var(--border)"
-                      };
+                      const config = SENSACOES_PALETTE[s] || { bg: "#FAFAFA", color: "#2A2A2A" };
                       
                       return (
                         <button 
@@ -1822,25 +1744,27 @@ export default function Home() {
                             position: 'relative',
                             background: config.bg,
                             color: config.color,
-                            fontFamily: "'Plus Jakarta Sans', 'Inter', -apple-system, BlinkMacSystemFont, sans-serif",
-                            border: isSelected ? '3px solid var(--accent-turquoise)' : `1.5px solid ${config.border}`, 
-                            padding: '16px 12px', 
-                            borderRadius: '16px', 
+                            fontFamily: "'Cinzel', 'Montserrat', -apple-system, BlinkMacSystemFont, sans-serif",
+                            border: isSelected ? '3px solid var(--accent-turquoise)' : '1px solid rgba(0, 0, 0, 0.04)', 
+                            padding: '18px 12px', 
+                            borderRadius: '20px', 
                             cursor: 'pointer',
-                            transition: 'all 0.2s ease', 
-                            fontSize: '0.86rem', 
-                            fontWeight: isSelected ? 700 : 600,
-                            letterSpacing: '0.01em',
+                            transition: 'all 0.22s cubic-bezier(0.2, 0.8, 0.2, 1)', 
+                            fontSize: '0.73rem', 
+                            fontWeight: 600,
+                            letterSpacing: '0.12em',
+                            textTransform: 'uppercase',
+                            lineHeight: 1.45,
                             display: 'flex',
                             flexDirection: 'column',
                             alignItems: 'center',
                             justifyContent: 'center',
                             textAlign: 'center',
-                            minHeight: '105px',
+                            minHeight: '110px',
                             boxShadow: isSelected 
-                              ? '0 4px 14px rgba(42, 137, 127, 0.25)' 
-                              : '0 2px 8px rgba(0, 0, 0, 0.04)',
-                            transform: isSelected ? 'translateY(-2px)' : 'translateY(0)'
+                              ? '0 12px 28px rgba(42, 137, 127, 0.35), 0 4px 10px rgba(0, 0, 0, 0.1)' 
+                              : '0 8px 24px rgba(0, 0, 0, 0.1), 0 2px 6px rgba(0, 0, 0, 0.04)',
+                            transform: isSelected ? 'translateY(-4px) scale(1.02)' : 'translateY(0) scale(1)'
                           }}
                         >
                           {isSelected && (
@@ -1858,7 +1782,7 @@ export default function Home() {
                               justifyContent: 'center',
                               fontSize: '0.75rem',
                               fontWeight: 'bold',
-                              boxShadow: '0 2px 4px rgba(0,0,0,0.15)'
+                              boxShadow: '0 2px 5px rgba(0,0,0,0.15)'
                             }}>
                               ✓
                             </span>
@@ -1903,49 +1827,21 @@ export default function Home() {
               <div style={{ position: 'absolute', top: '3rem', left: '3rem', right: '3rem', height: '4px', background: 'var(--border)', borderRadius: '4px' }}><div style={{ height: '100%', background: 'var(--accent-turquoise)', width: '94%', borderRadius: '4px', transition: 'width 0.5s' }} /></div>
               <h2 style={{ fontSize: '2rem', marginBottom: '0.5rem' }}>{dictionary?.onboarding?.step_7_title || 'O que não pode faltar no layout?'}</h2>
               <p style={{ fontSize: '1rem', color: 'var(--text-secondary)', marginBottom: '1.5rem' }}>{dictionary?.onboarding?.step_7_subtitle || 'Quais elementos visuais e temáticos são vitais para você? (Escolha 1 opção)'}</p>
-              <div style={{ width: '100%', marginBottom: '1rem', overflowY: 'auto', maxHeight: '52vh', padding: '14px 10px 18px 10px' }}>
-                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '12px', padding: '4px 2px' }}>
+              <div style={{ width: '100%', marginBottom: '1rem', overflowY: 'auto', maxHeight: '52vh', padding: '16px 12px 22px 12px' }}>
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '14px', padding: '4px 2px' }}>
                   {(() => {
                     const ELEMENTO_PALETTE = {
-                      "Toque Lúdico / Elementos Mágicos": {
-                        bg: "#6B5B95",
-                        color: "#FFFFFF",
-                        border: "#57487F"
-                      },
-                      "Mascotes / Ícones Divertidos": {
-                        bg: "#D6B579",
-                        color: "#FFFFFF",
-                        border: "#BF9F63"
-                      },
-                      "Minimalismo / Linhas Retas": {
-                        bg: "#EBF0F5", // Tom Gelo Ice Blue/Grey
-                        color: "#223140",
-                        border: "#D0DCE6"
-                      },
-                      "Aquarela Clássica": {
-                        bg: "#C98CA7",
-                        color: "#FFFFFF",
-                        border: "#B27691"
-                      },
-                      "Formas Orgânicas / Tons Terrosos": {
-                        bg: "#B59E87",
-                        color: "#FFFFFF",
-                        border: "#9E8771"
-                      },
-                      "Tipografia Pura / Editorial": {
-                        bg: "#496880",
-                        color: "#FFFFFF",
-                        border: "#365167"
-                      }
+                      "Toque Lúdico / Elementos Mágicos": { bg: "#9B8B9B", color: "#FFFFFF" },
+                      "Mascotes / Ícones Divertidos": { bg: "#C7B49F", color: "#FFFFFF" },
+                      "Minimalismo / Linhas Retas": { bg: "#FAFAFA", color: "#2A2A2A" },
+                      "Aquarela Clássica": { bg: "#F4E8DC", color: "#4A3A30" },
+                      "Formas Orgânicas / Tons Terrosos": { bg: "#8D9A87", color: "#FFFFFF" },
+                      "Tipografia Pura / Editorial": { bg: "#C9D7E5", color: "#1E2D3B" }
                     };
 
                     return elementosDesc.map(s => {
                       const isSelected = formData.elementosVisuais.includes(s);
-                      const config = ELEMENTO_PALETTE[s] || {
-                        bg: "#F5F5F5",
-                        color: "var(--text-primary)",
-                        border: "var(--border)"
-                      };
+                      const config = ELEMENTO_PALETTE[s] || { bg: "#FAFAFA", color: "#2A2A2A" };
 
                       return (
                         <button 
@@ -1955,25 +1851,27 @@ export default function Home() {
                             position: 'relative',
                             background: config.bg,
                             color: config.color,
-                            fontFamily: "'Plus Jakarta Sans', 'Inter', -apple-system, BlinkMacSystemFont, sans-serif",
-                            border: isSelected ? '3px solid var(--accent-turquoise)' : `1.5px solid ${config.border}`, 
-                            padding: '16px 12px', 
-                            borderRadius: '16px', 
+                            fontFamily: "'Cinzel', 'Montserrat', -apple-system, BlinkMacSystemFont, sans-serif",
+                            border: isSelected ? '3px solid var(--accent-turquoise)' : '1px solid rgba(0, 0, 0, 0.04)', 
+                            padding: '18px 12px', 
+                            borderRadius: '20px', 
                             cursor: 'pointer',
-                            transition: 'all 0.2s ease', 
-                            fontSize: '0.86rem', 
-                            fontWeight: isSelected ? 700 : 600,
-                            letterSpacing: '0.01em',
+                            transition: 'all 0.22s cubic-bezier(0.2, 0.8, 0.2, 1)', 
+                            fontSize: '0.73rem', 
+                            fontWeight: 600,
+                            letterSpacing: '0.12em',
+                            textTransform: 'uppercase',
+                            lineHeight: 1.45,
                             display: 'flex',
                             flexDirection: 'column',
                             alignItems: 'center',
                             justifyContent: 'center',
                             textAlign: 'center',
-                            minHeight: '105px',
+                            minHeight: '110px',
                             boxShadow: isSelected 
-                              ? '0 4px 14px rgba(42, 137, 127, 0.25)' 
-                              : '0 2px 8px rgba(0, 0, 0, 0.04)',
-                            transform: isSelected ? 'translateY(-2px)' : 'translateY(0)'
+                              ? '0 12px 28px rgba(42, 137, 127, 0.35), 0 4px 10px rgba(0, 0, 0, 0.1)' 
+                              : '0 8px 24px rgba(0, 0, 0, 0.1), 0 2px 6px rgba(0, 0, 0, 0.04)',
+                            transform: isSelected ? 'translateY(-4px) scale(1.02)' : 'translateY(0) scale(1)'
                           }}
                         >
                           {isSelected && (
@@ -1991,7 +1889,7 @@ export default function Home() {
                               justifyContent: 'center',
                               fontSize: '0.75rem',
                               fontWeight: 'bold',
-                              boxShadow: '0 2px 4px rgba(0,0,0,0.15)'
+                              boxShadow: '0 2px 5px rgba(0,0,0,0.15)'
                             }}>
                               ✓
                             </span>
