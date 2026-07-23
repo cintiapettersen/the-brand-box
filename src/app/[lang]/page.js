@@ -86,6 +86,7 @@ export default function Home() {
   const [resultadoFinal, setResultadoFinal] = useState(null);
   const [isCreativeDirectorLoading, setIsCreativeDirectorLoading] = useState(false);
   const [creativeDirectorStatus, setCreativeDirectorStatus] = useState('idle');
+  const effectiveCreativeDirectorStatus = creativeDirectorStatus === 'idle' ? resultadoFinal?.creativeDirectorStatus || 'idle' : creativeDirectorStatus;
   const creativeDirectorRequestRef = useRef(null);
   const diagnosticScrollRef = useRef(null);
   const [isTaglineLoading, setIsTaglineLoading] = useState(false);
@@ -852,7 +853,14 @@ export default function Home() {
     const request = fetchCreativeDirectorDiagnostic(baseResult).then((creativeDirector) => {
       setResultadoFinal(prev => prev ? ({ ...prev, creativeDirector, creativeDirectorStatus: 'ready' }) : prev);
       setCreativeDirectorStatus('ready');
-      requestAnimationFrame(() => diagnosticScrollRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' }));
+      requestAnimationFrame(() => {
+        const target = diagnosticScrollRef.current;
+        if (!target) return;
+        const scrollParent = target.closest('.creative-diagnosis-step');
+        const headerOffset = 112; // fixed header + mobile browser chrome breathing room
+        if (scrollParent) scrollParent.scrollTo({ top: Math.max(0, target.offsetTop - headerOffset), behavior: 'smooth' });
+        else target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      });
       return creativeDirector;
     }).catch((error) => {
       console.warn('Creative Director unavailable:', error.code);
@@ -2152,7 +2160,7 @@ export default function Home() {
           {step === 9 && resultadoFinal && (
             <motion.div 
               key="step9" variants={variants} initial="initial" animate="animate" exit="exit" transition={{ duration: 0.5 }}
-              className="wizard-step creative-diagnosis-step" aria-busy={isCreativeDirectorLoading} style={{ position: 'absolute', width: '100%', height: '100%', display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center', background: 'var(--bg-color)', borderRadius: '24px', border: 'none', boxShadow: 'none' }}
+              className="wizard-step creative-diagnosis-step" aria-busy={isCreativeDirectorLoading} style={{ position: 'absolute', width: '100%', minHeight: '100%', height: 'auto', display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center', background: 'var(--bg-color)', borderRadius: '24px', border: 'none', boxShadow: 'none' }}
             >
               <p style={{ fontSize: '0.9rem', color: 'var(--text-secondary)', marginBottom: '0.5rem', textTransform: 'uppercase', letterSpacing: '2px', fontWeight: 600 }}>{dictionary?.postmatch?.step_9_perfect_match || 'O MATCH PERFEITO PARA'} {formData.marca || 'SUA MARCA'}</p>
               {(() => {
@@ -2179,7 +2187,7 @@ export default function Home() {
               )}
 
               {isCreativeDirectorLoading && (<p role="status" aria-live="polite" style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', marginBottom: '1.25rem' }}>{lang === 'en' ? 'Preparing your creative diagnosis…' : 'Preparando seu diagnóstico criativo…'}</p>)}
-              {creativeDirectorStatus === 'fallback' && (<div role="status" style={{ marginBottom: '1.25rem' }}><p>{lang === 'en' ? 'The Creative Director is temporarily unavailable. Your Gemini match remains available.' : 'A Creative Director está temporariamente indisponível. Seu match Gemini continua disponível.'}</p><button type="button" className="btn-secondary" onClick={() => runCreativeDirectorDiagnostic(resultadoFinal)} disabled={isCreativeDirectorLoading}>{lang === 'en' ? 'Try again' : 'Tentar novamente'}</button></div>)}
+              {effectiveCreativeDirectorStatus === 'fallback' && (<div role="status" style={{ marginBottom: '1.25rem' }}><p>{lang === 'en' ? 'The Creative Director is temporarily unavailable. Your Gemini match remains available.' : 'A Creative Director está temporariamente indisponível. Seu match Gemini continua disponível.'}</p><button type="button" className="btn-secondary" onClick={() => runCreativeDirectorDiagnostic(resultadoFinal)} disabled={isCreativeDirectorLoading}>{lang === 'en' ? 'Try again' : 'Tentar novamente'}</button></div>)}
 
               {resultadoFinal.creativeDirector && (
                 <div ref={diagnosticScrollRef} className="creative-diagnosis-anchor"><div style={{ width: '100%', maxWidth: '620px', background: '#ffffff', padding: '1.5rem', borderRadius: '18px', marginBottom: '2rem', boxShadow: '0 4px 15px rgba(0,0,0,0.03)', textAlign: 'left' }}>
@@ -2347,7 +2355,7 @@ export default function Home() {
                 </div></div>
               )}
 
-              {creativeDirectorStatus === 'ready' && (<button onClick={fetchVariacoes} className="btn-primary" style={{ background: 'var(--accent-magenta)', color: 'var(--text-primary)', boxShadow: 'none' }}>{dictionary?.postmatch?.step_9_btn_customize || 'Personalizar minha Identidade'}</button>)}
+              {effectiveCreativeDirectorStatus === 'ready' && (<button onClick={fetchVariacoes} className="btn-primary" style={{ background: 'var(--accent-magenta)', color: 'var(--text-primary)', boxShadow: 'none' }}>{dictionary?.postmatch?.step_9_btn_customize || 'Personalizar minha Identidade'}</button>)}
 
               {false && <button onClick={fetchVariacoes} className="btn-primary">{dictionary?.postmatch?.step_9_btn_customize || 'Personalizar minha Identidade'}</button>}
 
