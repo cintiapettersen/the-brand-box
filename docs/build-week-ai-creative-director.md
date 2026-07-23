@@ -14,7 +14,7 @@ O Gemini continua sendo o responsável pela decisão de match criativo na rota `
 
 A OpenAI entra depois do match feito pelo Gemini. Ela atua como uma diretora criativa complementar, transformando o briefing e o estilo selecionado em um diagnóstico estratégico mais organizado e acionável para a usuária.
 
-A chamada acontece somente no servidor, usando as variáveis de ambiente `OPENAI_API_KEY` e `OPENAI_MODEL`. Se a chave, o modelo ou a resposta estruturada falharem, o fluxo antigo permanece válido e a usuária continua vendo o estilo escolhido pelo Gemini.
+A chamada acontece somente no servidor, usando as variáveis de ambiente `OPENAI_API_KEY` e `OPENAI_MODEL`. Para o ambiente local, copie `.env.example` para `.env.local`, preencha as duas variáveis e reinicie o servidor; no deploy, configure os mesmos nomes nas variáveis de ambiente da plataforma. Elas não podem usar o prefixo `NEXT_PUBLIC_`, pois a chave precisa permanecer no servidor. Se a chave, o modelo ou a resposta estruturada falharem, o fluxo antigo permanece válido e a usuária continua vendo o estilo escolhido pelo Gemini. Nesse caso, o cartão de diagnóstico e os controles de refinamento não são renderizados, pois dependem da resposta estruturada da OpenAI.
 
 ## Papel do Codex
 
