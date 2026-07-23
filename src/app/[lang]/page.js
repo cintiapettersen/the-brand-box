@@ -1740,16 +1740,14 @@ export default function Home() {
                           onClick={() => toggleSentimento(s)} 
                           style={{
                             position: 'relative',
-                            overflow: 'hidden',
                             background: config.bg,
                             color: config.color,
                             fontFamily: "'Plus Jakarta Sans', 'Inter', -apple-system, BlinkMacSystemFont, sans-serif",
-                            border: isSelected ? '2.5px solid rgba(255, 255, 255, 0.85)' : `1.5px solid ${config.border}`, 
-                            borderTop: isSelected ? '3.5px solid rgba(255, 255, 255, 0.95)' : `1.5px solid ${config.border}`,
+                            border: isSelected ? '3px solid var(--accent-turquoise)' : `1.5px solid ${config.border}`, 
                             padding: '16px 12px', 
                             borderRadius: '16px', 
                             cursor: 'pointer',
-                            transition: 'all 0.25s cubic-bezier(0.2, 0.8, 0.2, 1)', 
+                            transition: 'all 0.2s ease', 
                             fontSize: '0.86rem', 
                             fontWeight: isSelected ? 700 : 600,
                             letterSpacing: '0.01em',
@@ -1760,30 +1758,17 @@ export default function Home() {
                             textAlign: 'center',
                             minHeight: '105px',
                             boxShadow: isSelected 
-                              ? 'inset 0 2px 4px rgba(255, 255, 255, 0.6), inset 0 -2px 6px rgba(0, 0, 0, 0.2), 0 12px 28px rgba(0, 0, 0, 0.22), 0 0 0 3.5px rgba(255, 255, 255, 0.4)' 
-                              : '0 4px 14px rgba(0, 0, 0, 0.08), 0 1px 3px rgba(0, 0, 0, 0.04)',
-                            transform: isSelected ? 'translateY(-4px) scale(1.03)' : 'translateY(0) scale(1)'
+                              ? '0 4px 14px rgba(42, 137, 127, 0.25)' 
+                              : '0 2px 8px rgba(0, 0, 0, 0.04)',
+                            transform: isSelected ? 'translateY(-2px)' : 'translateY(0)'
                           }}
                         >
-                          {/* Reflexo Espelhado Glassmorphic */}
-                          {isSelected && (
-                            <div style={{
-                              position: 'absolute',
-                              top: 0,
-                              left: 0,
-                              right: 0,
-                              height: '45%',
-                              background: 'linear-gradient(180deg, rgba(255, 255, 255, 0.35) 0%, rgba(255, 255, 255, 0.02) 100%)',
-                              pointerEvents: 'none',
-                              borderRadius: '14px 14px 0 0'
-                            }} />
-                          )}
                           {isSelected && (
                             <span style={{
                               position: 'absolute',
                               top: '8px',
                               right: '8px',
-                              background: 'rgba(255, 255, 255, 0.95)',
+                              background: '#ffffff',
                               color: '#1E293B',
                               borderRadius: '50%',
                               width: '20px',
@@ -1793,13 +1778,12 @@ export default function Home() {
                               justifyContent: 'center',
                               fontSize: '0.75rem',
                               fontWeight: 'bold',
-                              boxShadow: '0 2px 6px rgba(0,0,0,0.3)',
-                              zIndex: 2
+                              boxShadow: '0 2px 4px rgba(0,0,0,0.15)'
                             }}>
                               ✓
                             </span>
                           )}
-                          <span style={{ position: 'relative', zIndex: 1 }}>{dictionary?.onboarding?.sensacoes_options?.[s] || s}</span>
+                          <span>{dictionary?.onboarding?.sensacoes_options?.[s] || s}</span>
                         </button>
                       );
                     });
