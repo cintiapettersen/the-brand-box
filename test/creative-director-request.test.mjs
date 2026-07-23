@@ -9,6 +9,7 @@ async function loadModule(relativePath) {
 
 const { createCreativeDirectorProjectId, createDiagnosticRequestKey } = await loadModule('../src/lib/creativeDirectorRequest.js');
 const { acquireCreativeDirectorRequest, getCreativeDirectorResult, storeCreativeDirectorResult } = await loadModule('../src/app/api/creative-director/requestGuards.js');
+const { getCreativeDirectorNavigationState, getCreativeDirectorScrollMargin } = await loadModule('../src/lib/creativeDirectorUiState.js');
 
 test('first diagnosis has a unique stable request key', () => {
   const projectId = createCreativeDirectorProjectId();
@@ -53,4 +54,23 @@ test('real failures leave no completed cache entry so a retry is possible', () =
   guard.release();
   assert.equal(getCreativeDirectorResult(key), null);
   assert.equal(acquireCreativeDirectorRequest(key).ok, true);
+});
+
+test('navigation remains blocked while the Creative Director loads', () => {
+  assert.equal(getCreativeDirectorNavigationState({ isLoading: true, creativeDirector: null, error: null }), 'loading');
+});
+
+test('a received diagnosis unlocks continuation, including a fast cached response', () => {
+  assert.equal(getCreativeDirectorNavigationState({ isLoading: false, creativeDirector: { diagnostico: 'Pronto' }, error: null }), 'ready');
+});
+
+test('a real failure exposes retry and a deliberate fallback continuation', () => {
+  assert.equal(getCreativeDirectorNavigationState({ isLoading: false, creativeDirector: null, error: { id: 'creative_director_openai_error' } }), 'fallback');
+});
+
+test('the diagnosis scroll target reserves a responsive top margin', () => {
+  for (const width of [320, 375, 390, 430]) {
+    assert.equal(getCreativeDirectorScrollMargin(width), 'calc(6.5rem + env(safe-area-inset-top, 0px))');
+  }
+  assert.equal(getCreativeDirectorScrollMargin(1024), '5rem');
 });

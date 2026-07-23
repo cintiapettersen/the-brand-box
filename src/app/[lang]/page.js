@@ -12,6 +12,7 @@ import FONT_MAP from '../../lib/fontMap';
 import { STYLE_ICONS, getIconById, ESTILO_NOME_BY_ID } from '../../lib/styleIcons';
 import Image from 'next/image';
 import { createCreativeDirectorProjectId, createDiagnosticRequestKey } from '../../lib/creativeDirectorRequest';
+import { getCreativeDirectorNavigationState, getCreativeDirectorScrollMargin } from '../../lib/creativeDirectorUiState';
 
 const PAPELARIA_CLINICA = [
   "Cartão de Visita", "Papel Timbrado", "Receituário Padrão (A4 e A5)", "Atestado Médico (A4 e A5)", "Cartão de Retorno", "Pasta A4 Exclusiva",
@@ -310,8 +311,25 @@ export default function Home() {
 
 
   const brandBoardRef = useRef(null);
+  const creativeDirectorCardRef = useRef(null);
   const selectedVisualBrandRef = useRef({ optionId: '', fontFamily: '' });
   const paletteFeedbackRequestRef = useRef('');
+
+  useEffect(() => {
+    if (!resultadoFinal?.creativeDirector || isCreativeDirectorLoading || !creativeDirectorCardRef.current) return;
+
+    const card = creativeDirectorCardRef.current;
+    const scrollToDiagnosis = () => {
+      const topInset = window.innerWidth <= 767 ? 104 : 80;
+      const cardTop = card.getBoundingClientRect().top;
+      if (window.innerWidth <= 767 || cardTop < topInset) {
+        card.scrollIntoView({ behavior: 'smooth', block: 'start', inline: 'nearest' });
+      }
+    };
+
+    const frame = window.requestAnimationFrame(scrollToDiagnosis);
+    return () => window.cancelAnimationFrame(frame);
+  }, [resultadoFinal?.creativeDirector, isCreativeDirectorLoading]);
 
   // Restaura progresso salvo ao montar
   useEffect(() => {
@@ -751,6 +769,17 @@ export default function Home() {
   };
 
   const getRequestKey = (contentType, targetLanguage = lang) => `${aiSessionId || createCreativeDirectorProjectId()}:${contentType}:${targetLanguage}`;
+
+  const creativeDirectorNavigationState = getCreativeDirectorNavigationState({
+    isLoading: isCreativeDirectorLoading,
+    creativeDirector: resultadoFinal?.creativeDirector,
+    error: creativeDirectorError
+  });
+
+  const continueFromCreativeDirector = () => {
+    if (creativeDirectorNavigationState === 'loading' || creativeDirectorNavigationState === 'waiting') return;
+    fetchVariacoes();
+  };
 
   const requestPaletteFeedback = async (primaryColor, palette) => {
     const requestId = `${selectedPaleta}:${primaryColor}:${Date.now()}`;
@@ -1891,7 +1920,7 @@ export default function Home() {
           {step === 9 && resultadoFinal && (
             <motion.div 
               key="step9" variants={variants} initial="initial" animate="animate" exit="exit" transition={{ duration: 0.5 }}
-              className="wizard-step" style={{ position: 'absolute', width: '100%', height: '100%', display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center', background: 'var(--bg-color)', borderRadius: '24px', border: 'none', boxShadow: 'none' }}
+              className="wizard-step" aria-busy={isCreativeDirectorLoading} style={{ position: 'absolute', width: '100%', height: '100%', display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center', background: 'var(--bg-color)', borderRadius: '24px', border: 'none', boxShadow: 'none' }}
             >
               <p style={{ fontSize: '0.9rem', color: 'var(--text-secondary)', marginBottom: '0.5rem', textTransform: 'uppercase', letterSpacing: '2px', fontWeight: 600 }}>{dictionary?.postmatch?.step_9_perfect_match || 'O MATCH PERFEITO PARA'} {formData.marca || 'SUA MARCA'}</p>
               {(() => {
@@ -1925,13 +1954,14 @@ export default function Home() {
               )}
 
               {isCreativeDirectorLoading && (
-                <p style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', marginTop: '-1rem', marginBottom: '1.25rem' }}>
-                  Preparando seu diagnóstico criativo...
-                </p>
+                <div role="status" aria-live="polite" style={{ display: 'grid', justifyItems: 'center', gap: '0.55rem', fontSize: '0.9rem', color: 'var(--text-secondary)', marginTop: '-1rem', marginBottom: '1.25rem' }}>
+                  <motion.span aria-hidden="true" animate={{ rotate: 360 }} transition={{ duration: 1.2, repeat: Infinity, ease: 'linear' }} style={{ display: 'inline-block', fontSize: '1.25rem' }}>✦</motion.span>
+                  <span>{lang === 'en' ? 'Your Creative Director is preparing your diagnosis…' : 'Sua Diretora Criativa está preparando o diagnóstico…'}</span>
+                </div>
               )}
 
               {resultadoFinal.creativeDirector && (
-                <div style={{ width: '100%', maxWidth: '620px', background: '#ffffff', padding: '1.5rem', borderRadius: '18px', marginBottom: '2rem', boxShadow: '0 4px 15px rgba(0,0,0,0.03)', textAlign: 'left' }}>
+                <div ref={creativeDirectorCardRef} tabIndex={-1} style={{ width: '100%', maxWidth: '620px', background: '#ffffff', padding: '1.5rem', borderRadius: '18px', marginBottom: '2rem', boxShadow: '0 4px 15px rgba(0,0,0,0.03)', textAlign: 'left', scrollMarginTop: getCreativeDirectorScrollMargin(typeof window === 'undefined' ? 1024 : window.innerWidth) }}>
                   <p style={{ fontSize: '0.78rem', color: 'var(--accent-magenta)', textTransform: 'uppercase', letterSpacing: '1.8px', fontWeight: 700, marginBottom: '0.75rem', textAlign: 'center' }}>Diagnóstico Criativo</p>
                   {isDifferentLanguage(resultadoFinal.creativeDirector) && (
                     <div style={{ textAlign: 'center', marginBottom: '0.85rem' }}>
@@ -2096,7 +2126,15 @@ export default function Home() {
                 </div>
               )}
 
-              <button onClick={fetchVariacoes} className="btn-primary" style={{ background: 'var(--accent-magenta)', color: 'var(--text-primary)', boxShadow: 'none' }}>{dictionary?.postmatch?.step_9_btn_customize || 'Personalizar minha Identidade'}</button>
+              {creativeDirectorNavigationState === 'ready' && (
+                <button onClick={continueFromCreativeDirector} className="btn-primary" style={{ background: 'var(--accent-magenta)', color: 'var(--text-primary)', boxShadow: 'none' }}>{dictionary?.postmatch?.step_9_btn_customize || 'Personalizar minha Identidade'}</button>
+              )}
+
+              {creativeDirectorNavigationState === 'fallback' && (
+                <button type="button" onClick={continueFromCreativeDirector} className="btn-secondary" style={{ marginTop: '0.25rem', padding: '0.8rem 1rem' }}>
+                  {lang === 'en' ? 'Continue without Creative Director diagnosis' : 'Continuar sem o diagnóstico da Diretora Criativa'}
+                </button>
+              )}
 
               {refazerAttempts < 2 ? (
                 <button
