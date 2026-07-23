@@ -85,6 +85,9 @@ export default function Home() {
   const [step, setStep] = useState(1);
   const [resultadoFinal, setResultadoFinal] = useState(null);
   const [isCreativeDirectorLoading, setIsCreativeDirectorLoading] = useState(false);
+  const [creativeDirectorStatus, setCreativeDirectorStatus] = useState('idle');
+  const creativeDirectorRequestRef = useRef(null);
+  const diagnosticScrollRef = useRef(null);
   const [isTaglineLoading, setIsTaglineLoading] = useState(false);
   const [aiSessionId, setAiSessionId] = useState('');
   const [selectedTagline, setSelectedTagline] = useState('');
@@ -793,7 +796,10 @@ export default function Home() {
     }) : prev);
   };
 
-  const getRequestKey = (contentType, targetLanguage = lang) => `${aiSessionId || 'pending'}:${getAiUsageKey(contentType, targetLanguage)}`;
+  const getRequestKey = (contentType, targetLanguage = lang) => {
+    const journeyId = resultadoFinal?.creativeDirectorJourneyId;
+    return journeyId ? `journey:${journeyId}:${contentType}:${targetLanguage}` : '';
+  };
 
   const requestPaletteFeedback = async (primaryColor, palette) => {
     const requestId = `${selectedPaleta}:${primaryColor}:${Date.now()}`;
@@ -830,23 +836,32 @@ export default function Home() {
   };
 
   const fetchCreativeDirectorDiagnostic = async (baseResult) => {
-    const creativeResponse = await fetch('/api/creative-director', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        formData,
-        estiloId: baseResult.estiloId,
-        estiloNome: baseResult.estiloNome,
-        mensagem: baseResult.mensagem,
-        idioma: lang,
-        requestKey: getRequestKey('diagnostic')
-      })
-    });
-
-    if (!creativeResponse.ok) return null;
-
+    const requestKey = `journey:${baseResult.creativeDirectorJourneyId}:diagnostic:${lang}`;
+    const creativeResponse = await fetch('/api/creative-director', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ formData, estiloId: baseResult.estiloId, estiloNome: baseResult.estiloNome, mensagem: baseResult.mensagem, idioma: lang, requestKey }) });
+    if (!creativeResponse.ok) {
+      const payload = await creativeResponse.json().catch(() => ({}));
+      throw Object.assign(new Error(payload.error || 'creative_director_failed'), { code: payload.error || 'creative_director_failed' });
+    }
     const creativeDirector = await creativeResponse.json();
     return { ...creativeDirector, language: lang, generatedAt: new Date().toISOString() };
+  };
+
+  const runCreativeDirectorDiagnostic = async (baseResult) => {
+    if (creativeDirectorRequestRef.current) return creativeDirectorRequestRef.current;
+    setIsCreativeDirectorLoading(true); setCreativeDirectorStatus('loading');
+    const request = fetchCreativeDirectorDiagnostic(baseResult).then((creativeDirector) => {
+      setResultadoFinal(prev => prev ? ({ ...prev, creativeDirector, creativeDirectorStatus: 'ready' }) : prev);
+      setCreativeDirectorStatus('ready');
+      requestAnimationFrame(() => diagnosticScrollRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' }));
+      return creativeDirector;
+    }).catch((error) => {
+      console.warn('Creative Director unavailable:', error.code);
+      setResultadoFinal(prev => prev ? ({ ...prev, creativeDirectorStatus: 'fallback', creativeDirectorError: error.code }) : prev);
+      setCreativeDirectorStatus('fallback');
+      return null;
+    }).finally(() => { creativeDirectorRequestRef.current = null; setIsCreativeDirectorLoading(false); });
+    creativeDirectorRequestRef.current = request;
+    return request;
   };
 
   const regenerateCreativeDirector = async () => {
@@ -855,7 +870,7 @@ export default function Home() {
     markAiUsage('diagnostic_regeneration');
     setIsCreativeDirectorLoading(true);
     try {
-      const creativeDirector = await fetchCreativeDirectorDiagnostic(resultadoFinal);
+      const creativeDirector = await runCreativeDirectorDiagnostic(resultadoFinal);
       if (creativeDirector) {
         setResultadoFinal(prev => prev ? ({ ...prev, creativeDirector: { ...creativeDirector, refinement: prev.creativeDirector?.refinement } }) : prev);
       }
@@ -1090,26 +1105,11 @@ export default function Home() {
       const data = await response.json();
       
       if (data.estiloNome) {
-        setIsCreativeDirectorLoading(true);
-        setResultadoFinal({
-          ...data,
-          aiUsage: {
-            [getAiUsageKey('diagnostic')]: new Date().toISOString()
-          }
-        });
+        const journeyId = window.crypto?.randomUUID?.() || `journey-${Date.now()}-${Math.random().toString(36).slice(2)}`;
+        const matchResult = { ...data, creativeDirectorJourneyId: journeyId, creativeDirectorStatus: 'loading' };
+        setResultadoFinal(matchResult);
         setStep(9); // Tela de Resultado Triunfal
-
-        try {
-          const creativeDirector = await fetchCreativeDirectorDiagnostic(data);
-
-          if (creativeDirector) {
-            setResultadoFinal(prev => prev ? ({ ...prev, creativeDirector }) : prev);
-          }
-        } catch (creativeError) {
-          console.warn('Creative Director indisponível; mantendo o fluxo antigo.', creativeError);
-        } finally {
-          setIsCreativeDirectorLoading(false);
-        }
+        await runCreativeDirectorDiagnostic(matchResult);
       } else {
         setAlertMessage("Ops, deu um pequeno tilt na IA. Refaça por favor!");
         setStep(7);
@@ -2152,7 +2152,7 @@ export default function Home() {
           {step === 9 && resultadoFinal && (
             <motion.div 
               key="step9" variants={variants} initial="initial" animate="animate" exit="exit" transition={{ duration: 0.5 }}
-              className="wizard-step" style={{ position: 'absolute', width: '100%', height: '100%', display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center', background: 'var(--bg-color)', borderRadius: '24px', border: 'none', boxShadow: 'none' }}
+              className="wizard-step creative-diagnosis-step" aria-busy={isCreativeDirectorLoading} style={{ position: 'absolute', width: '100%', height: '100%', display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center', background: 'var(--bg-color)', borderRadius: '24px', border: 'none', boxShadow: 'none' }}
             >
               <p style={{ fontSize: '0.9rem', color: 'var(--text-secondary)', marginBottom: '0.5rem', textTransform: 'uppercase', letterSpacing: '2px', fontWeight: 600 }}>{dictionary?.postmatch?.step_9_perfect_match || 'O MATCH PERFEITO PARA'} {formData.marca || 'SUA MARCA'}</p>
               {(() => {
@@ -2178,15 +2178,12 @@ export default function Home() {
                 </div>
               )}
 
-              {isCreativeDirectorLoading && (
-                <p style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', marginTop: '-1rem', marginBottom: '1.25rem' }}>
-                  Preparando seu diagnóstico criativo...
-                </p>
-              )}
+              {isCreativeDirectorLoading && (<p role="status" aria-live="polite" style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', marginBottom: '1.25rem' }}>{lang === 'en' ? 'Preparing your creative diagnosis…' : 'Preparando seu diagnóstico criativo…'}</p>)}
+              {creativeDirectorStatus === 'fallback' && (<div role="status" style={{ marginBottom: '1.25rem' }}><p>{lang === 'en' ? 'The Creative Director is temporarily unavailable. Your Gemini match remains available.' : 'A Creative Director está temporariamente indisponível. Seu match Gemini continua disponível.'}</p><button type="button" className="btn-secondary" onClick={() => runCreativeDirectorDiagnostic(resultadoFinal)} disabled={isCreativeDirectorLoading}>{lang === 'en' ? 'Try again' : 'Tentar novamente'}</button></div>)}
 
               {resultadoFinal.creativeDirector && (
-                <div style={{ width: '100%', maxWidth: '620px', background: '#ffffff', padding: '1.5rem', borderRadius: '18px', marginBottom: '2rem', boxShadow: '0 4px 15px rgba(0,0,0,0.03)', textAlign: 'left' }}>
-                  <p style={{ fontSize: '0.78rem', color: 'var(--accent-magenta)', textTransform: 'uppercase', letterSpacing: '1.8px', fontWeight: 700, marginBottom: '0.75rem', textAlign: 'center' }}>Diagnóstico Criativo</p>
+                <div ref={diagnosticScrollRef} className="creative-diagnosis-anchor"><div style={{ width: '100%', maxWidth: '620px', background: '#ffffff', padding: '1.5rem', borderRadius: '18px', marginBottom: '2rem', boxShadow: '0 4px 15px rgba(0,0,0,0.03)', textAlign: 'left' }}>
+                  <p style={{ fontSize: '0.78rem', color: 'var(--accent-magenta)', textTransform: 'uppercase', letterSpacing: '1.8px', fontWeight: 700, marginBottom: '0.75rem', textAlign: 'center' }}>{lang === 'en' ? 'CREATIVE DIAGNOSIS' : 'DIAGNÓSTICO CRIATIVO'}</p>
                   {isDifferentLanguage(resultadoFinal.creativeDirector) && (
                     <div style={{ textAlign: 'center', marginBottom: '0.85rem' }}>
                       <button type="button" onClick={regenerateCreativeDirector} disabled={isCreativeDirectorLoading || hasAiUsage('diagnostic_regeneration')} className="btn-secondary" style={{ padding: '0.65rem 0.9rem', fontSize: '0.82rem', opacity: isCreativeDirectorLoading || hasAiUsage('diagnostic_regeneration') ? 0.65 : 1 }}>
@@ -2347,10 +2344,12 @@ export default function Home() {
                       )}
                     </div>
                   )}
-                </div>
+                </div></div>
               )}
 
-              <button onClick={fetchVariacoes} className="btn-primary" style={{ background: 'var(--accent-magenta)', color: 'var(--text-primary)', boxShadow: 'none' }}>{dictionary?.postmatch?.step_9_btn_customize || 'Personalizar minha Identidade'}</button>
+              {creativeDirectorStatus === 'ready' && (<button onClick={fetchVariacoes} className="btn-primary" style={{ background: 'var(--accent-magenta)', color: 'var(--text-primary)', boxShadow: 'none' }}>{dictionary?.postmatch?.step_9_btn_customize || 'Personalizar minha Identidade'}</button>)}
+
+              {false && <button onClick={fetchVariacoes} className="btn-primary">{dictionary?.postmatch?.step_9_btn_customize || 'Personalizar minha Identidade'}</button>}
 
               {refazerAttempts < 2 ? (
                 <button
@@ -3335,6 +3334,7 @@ export default function Home() {
                       setFormData({ nome: '', email: '', marca: '', atuacao: '', atuacaoOutra: '', contextoExtra: '', publico: '', sentimentos: [], elementosVisuais: [], personalidade: '', primeiraImpressao: '', locais: [], inspiracoes: '', nuncaPensar: '', nuncaPensarTags: [] });
                       setShowContext(false);
                       setResultadoFinal(null);
+                      setCreativeDirectorStatus('idle');
                       setSelectedTagline('');
                       setCustomTagline('');
                     }}
