@@ -1,4 +1,4 @@
-import { acquireCreativeDirectorRequest } from './requestGuards.js';
+import { acquireCreativeDirectorRequest, getCreativeDirectorResult, storeCreativeDirectorResult } from './requestGuards.js';
 
 const REQUIRED_ARRAY_FIELDS = ['personalidade', 'objetivosEmocionais', 'expectativasPublico', 'riscosEvitar'];
 const REQUIRED_STRING_FIELDS = ['diagnostico', 'porqueEsseEstilo', 'direcaoVisual'];
@@ -115,7 +115,13 @@ export async function POST(req) {
       return Response.json({ error: 'invalid_creative_director_payload' }, { status: 400 });
     }
 
-    requestGuard = acquireCreativeDirectorRequest(cleanText(body.requestKey));
+    const requestKey = cleanText(body.requestKey);
+    const cachedDiagnostic = getCreativeDirectorResult(requestKey);
+    if (cachedDiagnostic) {
+      return Response.json(cachedDiagnostic);
+    }
+
+    requestGuard = acquireCreativeDirectorRequest(requestKey);
     if (!requestGuard.ok) {
       return Response.json({ error: requestGuard.reason }, { status: 429 });
     }
@@ -179,7 +185,7 @@ export async function POST(req) {
         error
       });
 
-      requestGuard.release({ completed: true });
+      requestGuard.release();
       return Response.json({ error: 'creative_director_openai_error' }, { status: 502 });
     }
 
@@ -191,7 +197,7 @@ export async function POST(req) {
         status: openAIResponse.status
       });
 
-      requestGuard.release({ completed: true });
+      requestGuard.release();
       return Response.json({ error: 'missing_creative_director_output' }, { status: 502 });
     }
 
@@ -204,7 +210,7 @@ export async function POST(req) {
         error: error.message
       });
 
-      requestGuard.release({ completed: true });
+      requestGuard.release();
       return Response.json({ error: 'invalid_creative_director_json' }, { status: 502 });
     }
 
@@ -216,10 +222,11 @@ export async function POST(req) {
         receivedFields: Object.keys(parsed || {})
       });
 
-      requestGuard.release({ completed: true });
+      requestGuard.release();
       return Response.json({ error: 'invalid_creative_director_response' }, { status: 502 });
     }
 
+    storeCreativeDirectorResult(requestKey, diagnostico);
     requestGuard.release({ completed: true });
     return Response.json(diagnostico);
   } catch (error) {

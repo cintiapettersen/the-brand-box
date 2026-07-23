@@ -11,6 +11,7 @@ import { createClient } from '@supabase/supabase-js';
 import FONT_MAP from '../../lib/fontMap';
 import { STYLE_ICONS, getIconById, ESTILO_NOME_BY_ID } from '../../lib/styleIcons';
 import Image from 'next/image';
+import { createCreativeDirectorProjectId, createDiagnosticRequestKey } from '../../lib/creativeDirectorRequest';
 
 const PAPELARIA_CLINICA = [
   "Cartão de Visita", "Papel Timbrado", "Receituário Padrão (A4 e A5)", "Atestado Médico (A4 e A5)", "Cartão de Retorno", "Pasta A4 Exclusiva",
@@ -85,6 +86,7 @@ export default function Home() {
   const [step, setStep] = useState(1);
   const [resultadoFinal, setResultadoFinal] = useState(null);
   const [isCreativeDirectorLoading, setIsCreativeDirectorLoading] = useState(false);
+  const [creativeDirectorError, setCreativeDirectorError] = useState(null);
   const [isTaglineLoading, setIsTaglineLoading] = useState(false);
   const [aiSessionId, setAiSessionId] = useState('');
   const [selectedTagline, setSelectedTagline] = useState('');
@@ -748,7 +750,7 @@ export default function Home() {
     }) : prev);
   };
 
-  const getRequestKey = (contentType, targetLanguage = lang) => `${aiSessionId || 'pending'}:${getAiUsageKey(contentType, targetLanguage)}`;
+  const getRequestKey = (contentType, targetLanguage = lang) => `${aiSessionId || createCreativeDirectorProjectId()}:${contentType}:${targetLanguage}`;
 
   const requestPaletteFeedback = async (primaryColor, palette) => {
     const requestId = `${selectedPaleta}:${primaryColor}:${Date.now()}`;
@@ -785,6 +787,8 @@ export default function Home() {
   };
 
   const fetchCreativeDirectorDiagnostic = async (baseResult) => {
+    const projectId = baseResult.creativeDirectorProjectId || createCreativeDirectorProjectId();
+    const requestKey = createDiagnosticRequestKey(projectId, lang);
     const creativeResponse = await fetch('/api/creative-director', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -794,20 +798,26 @@ export default function Home() {
         estiloNome: baseResult.estiloNome,
         mensagem: baseResult.mensagem,
         idioma: lang,
-        requestKey: getRequestKey('diagnostic')
+        requestKey
       })
     });
 
-    if (!creativeResponse.ok) return null;
+    if (!creativeResponse.ok) {
+      const body = await creativeResponse.json().catch(() => ({}));
+      const errorId = typeof body?.error === 'string' ? body.error.replace(/[^a-z0-9_:-]/gi, '').slice(0, 80) : 'creative_director_request_failed';
+      const error = new Error(errorId);
+      error.status = creativeResponse.status;
+      throw error;
+    }
 
     const creativeDirector = await creativeResponse.json();
-    return { ...creativeDirector, language: lang, generatedAt: new Date().toISOString() };
+    return { ...creativeDirector, language: lang, generatedAt: new Date().toISOString(), projectId };
   };
 
   const regenerateCreativeDirector = async () => {
-    if (!resultadoFinal || isCreativeDirectorLoading || hasAiUsage('diagnostic_regeneration')) return;
+    if (!resultadoFinal || isCreativeDirectorLoading) return;
 
-    markAiUsage('diagnostic_regeneration');
+    setCreativeDirectorError(null);
     setIsCreativeDirectorLoading(true);
     try {
       const creativeDirector = await fetchCreativeDirectorDiagnostic(resultadoFinal);
@@ -815,7 +825,8 @@ export default function Home() {
         setResultadoFinal(prev => prev ? ({ ...prev, creativeDirector: { ...creativeDirector, refinement: prev.creativeDirector?.refinement } }) : prev);
       }
     } catch (error) {
-      console.warn('Regeneração do Diagnóstico Criativo indisponível; mantendo conteúdo anterior.', error);
+      console.warn('Creative Director retry failed.', { status: error.status || null, error: error.message || 'creative_director_request_failed' });
+      setCreativeDirectorError({ status: error.status || null, id: error.message || 'creative_director_request_failed' });
     } finally {
       setIsCreativeDirectorLoading(false);
     }
@@ -1045,9 +1056,12 @@ export default function Home() {
       const data = await response.json();
       
       if (data.estiloNome) {
+        const creativeDirectorProjectId = createCreativeDirectorProjectId();
         setIsCreativeDirectorLoading(true);
+        setCreativeDirectorError(null);
         setResultadoFinal({
           ...data,
+          creativeDirectorProjectId,
           aiUsage: {
             [getAiUsageKey('diagnostic')]: new Date().toISOString()
           }
@@ -1055,13 +1069,14 @@ export default function Home() {
         setStep(9); // Tela de Resultado Triunfal
 
         try {
-          const creativeDirector = await fetchCreativeDirectorDiagnostic(data);
+          const creativeDirector = await fetchCreativeDirectorDiagnostic({ ...data, creativeDirectorProjectId });
 
           if (creativeDirector) {
             setResultadoFinal(prev => prev ? ({ ...prev, creativeDirector }) : prev);
           }
         } catch (creativeError) {
-          console.warn('Creative Director indisponível; mantendo o fluxo antigo.', creativeError);
+          console.warn('Creative Director request failed.', { status: creativeError.status || null, error: creativeError.message || 'creative_director_request_failed' });
+          setCreativeDirectorError({ status: creativeError.status || null, id: creativeError.message || 'creative_director_request_failed' });
         } finally {
           setIsCreativeDirectorLoading(false);
         }
@@ -1899,6 +1914,13 @@ export default function Home() {
                   <p className="mobile-font-sm" style={{ fontSize: '1.05rem', color: 'var(--text-primary)', lineHeight: 1.6, fontWeight: 400, letterSpacing: '0.2px' }}>
                     &quot;{resultadoFinal.mensagem}&quot;
                   </p>
+                  {creativeDirectorError && (
+                    <div style={{ marginTop: '1rem', textAlign: 'center' }}>
+                      <button type="button" onClick={regenerateCreativeDirector} disabled={isCreativeDirectorLoading} className="btn-secondary" style={{ padding: '0.65rem 0.9rem', fontSize: '0.82rem' }}>
+                        Tentar novamente
+                      </button>
+                    </div>
+                  )}
                 </div>
               )}
 

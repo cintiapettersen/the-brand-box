@@ -92,10 +92,11 @@ To keep the Creative Director diagnosis visible after the Gemini match, set both
 
 ```dotenv
 OPENAI_API_KEY=your_openai_api_key
+# Example only: the application uses the value configured in this environment.
 OPENAI_MODEL=gpt-4.1-mini
 ```
 
-Restart the development server after changing `.env.local`. Do not use a `NEXT_PUBLIC_` prefix and never commit `.env.local`; the key must remain available only to the server. If either variable is absent, the application intentionally preserves the original Gemini message as its fallback, so the diagnosis card and its refinement controls are not rendered.
+Restart the development server after changing `.env.local`. Do not use a `NEXT_PUBLIC_` prefix and never commit `.env.local`; the key must remain available only to the server. `OPENAI_MODEL` is required: there is no automatic runtime model fallback, and the application uses exactly the model configured in the environment. If either variable is absent, the application intentionally preserves the original Gemini message as its fallback, so the diagnosis card and its refinement controls are not rendered.
 
 ## How Codex was used
 
