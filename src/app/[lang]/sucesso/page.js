@@ -12022,7 +12022,7 @@ function SucessoContent() {
     return 'starter';
   });
 
-  const sessionParam = params.get('session');
+  const sessionParam = params.get('session') || params.get('id') || params.get('session_id') || params.get('project') || params.get('b') || params.get('entrega') || params.get('p');
   const planoParam = params.get('plano');
   const devMode = params.get('dev') === '1';
   const avulsoParam = params.has('avulso') ? (params.get('avulso') || 'inicio') : null;
@@ -12096,11 +12096,8 @@ function SucessoContent() {
         };
         const itemName = AVULSO_PARAM_MAP[avulsoParam] || null;
 
-        // Une os itens comprados em todas as compras avulso anteriores (cada compra fica salva
-        // sob sua própria chave brandbox_avulso_<param>), para que o cliente continue tendo
-        // acesso a tudo que já comprou ao acessar um novo item.
+        // Une os itens comprados em todas as compras avulso anteriores
         const _allPurchasedItems = new Set(itemName ? [itemName] : []);
-        // Itens recém-comprados, retornados pelo Stripe na URL (podem ser diferentes do item principal)
         try {
           const _itensComprados = JSON.parse(decodeURIComponent(params.get('itens') || '[]'));
           _itensComprados.forEach(it => _allPurchasedItems.add(it));
@@ -12116,7 +12113,6 @@ function SucessoContent() {
         } catch {}
 
         const AVULSO_VERSION = 7;
-        // Paleta padrão BrandBox para clientes avulso
         const AVULSO_PALETTE = ['#D4C5B0', '#D4A0B0', '#C4A882', '#6B8CAE', '#E2894D'];
         const defaultAvulsoBrand = {
           _v: AVULSO_VERSION,
@@ -12138,20 +12134,15 @@ function SucessoContent() {
             localStorage.removeItem('brandbox_avulso_' + avulsoParam);
           }
           if (saved && (saved._v || 1) < AVULSO_VERSION) {
-            // Versão antiga: atualiza defaults mas preserva o que o cliente já personalizou
             const merged = {
               ...defaultAvulsoBrand,
               editData: {
                 ...defaultAvulsoBrand.editData,
-                // Mantém a marca se o cliente já digitou algo diferente dos placeholders antigos
                 marca: (saved.editData?.marca && !['SUA MARCA', 'SUA LOGO', ''].includes(saved.editData.marca)) ? saved.editData.marca : '',
                 fontSizeBoost: defaultAvulsoBrand.editData.fontSizeBoost,
-                // Preserva cores personalizadas se o usuário já editou
                 colors: saved.editData?.colors || defaultAvulsoBrand.editData.colors,
               },
-              // Mantém a cor só se o cliente já tinha escolhido algo diferente do pink padrão
               activeColor: (saved.activeColor && saved.activeColor !== '#C3CEDB') ? saved.activeColor : defaultAvulsoBrand.activeColor,
-              // Preserva paleta personalizada se o usuário já editou
               currentPaletteColors: saved.currentPaletteColors || defaultAvulsoBrand.currentPaletteColors,
             };
             setBrand(merged);
@@ -12165,7 +12156,6 @@ function SucessoContent() {
         } else {
            setBrand(defaultAvulsoBrand);
            localStorage.setItem('brandbox_avulso_' + avulsoParam, JSON.stringify(defaultAvulsoBrand));
-           // Sobrescreve o brandbox_delivery para que as edições locais funcionem na mesma estrutura
            localStorage.setItem('brandbox_delivery', JSON.stringify(defaultAvulsoBrand));
         }
         setPlano('avulso');
@@ -12177,7 +12167,7 @@ function SucessoContent() {
       if (sessionParam === '0da0b9d0-f6f6-4743-a349-365e0cb16-demo') {
         const demoBrand = {
           id: '0da0b9d0-f6f6-4743-a349-365e0cb16-demo',
-          plano: 'pro', // Mudado de 'avulso' para 'pro' para desbloquear todas as abas no DEMO. (Risco de OOM resolvido por dynamic imports)
+          plano: 'pro',
           papelariaSelecionada: ['Cartão de Visita', 'Papel Timbrado', 'Tag para Sacola', 'Receituário Padrão (A4 e A5)', 'Cartão de Agradecimento (10x15cm)'],
           editData: {
             marca: 'The Brand Box',
@@ -12185,7 +12175,6 @@ function SucessoContent() {
             colors: ['#D4C5B0', '#C3CEDB', '#C4A882', '#6B8CAE', '#E2894D'],
             fontStyle: 'serif'
           },
-          // formData necessário para evitar null reference errors na sucesso page
           formData: {
             nome: 'The Brand Box',
             marca: 'The Brand Box',
@@ -12198,11 +12187,10 @@ function SucessoContent() {
         };
         setBrand(demoBrand);
         setPlano('pro');
-        setShowWelcome(true); // DEMO: mostra tela de boas-vindas antes de entrar no editor
+        setShowWelcome(true);
         setLoading(false);
         return;
       }
-
 
       if (sessionParam) {
         localStorage.setItem('brandbox_session', sessionParam);
@@ -12219,7 +12207,26 @@ function SucessoContent() {
             const data = json.data;
 
             if (res.ok && data && data.brand_data) {
-              let brandFromDb = data.brand_data;
+              let brandFromDb = typeof data.brand_data === 'string' ? (() => { try { return JSON.parse(data.brand_data); } catch { return data.brand_data; } })() : data.brand_data;
+
+              // Garante fallback seguro de objetos internos para evitar runtime crashes em marcas legadas
+              brandFromDb = {
+                id: data.id || sessionParam,
+                plano: data.plano || brandFromDb?.plano || 'pro',
+                ...brandFromDb,
+                editData: {
+                  marca: data.marca || brandFromDb?.marca || brandFromDb?.editData?.marca || 'Sua Marca',
+                  tagline: brandFromDb?.editData?.tagline || '',
+                  colors: brandFromDb?.editData?.colors || ['#D4C5B0', '#C3CEDB', '#C4A882', '#6B8CAE', '#E2894D'],
+                  ...(brandFromDb?.editData || {})
+                },
+                formData: {
+                  nome: data.marca || brandFromDb?.marca || brandFromDb?.formData?.nome || '',
+                  marca: data.marca || brandFromDb?.marca || brandFromDb?.formData?.marca || '',
+                  email: data.email || brandFromDb?.email || brandFromDb?.formData?.email || '',
+                  ...(brandFromDb?.formData || {})
+                }
+              };
 
               // Se voltou do Stripe após upsell OU ainda tem pending não salvo, mescla ao brand_data
               const _pendingRaw = localStorage.getItem('brandbox_pending_upsell');

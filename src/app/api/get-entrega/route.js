@@ -9,37 +9,46 @@ const supabase = createClient(
 export async function GET(request) {
   try {
     const { searchParams } = new URL(request.url);
-    const sessionId = searchParams.get('id');
+    const rawId = searchParams.get('id') || searchParams.get('session') || searchParams.get('session_id') || searchParams.get('project');
 
-    if (!sessionId) {
+    if (!rawId) {
       return Response.json({ error: 'Session ID ausente.' }, { status: 400 });
     }
 
+    const sessionId = rawId.trim();
+
+    // Busca por id ou session_id em entregas
     const { data, error } = await supabase
       .from('entregas')
-      .select('brand_data, plano, email, marca, email_enviado, paid, payment_status')
-      .eq('id', sessionId)
-      .single();
+      .select('id, brand_data, plano, email, marca, email_enviado, paid, payment_status')
+      .or(`id.eq.${sessionId},session_id.eq.${sessionId}`)
+      .limit(1)
+      .maybeSingle();
 
     if (error || !data) {
       return Response.json({ error: 'Entrega não encontrada.' }, { status: 404 });
     }
 
-    // Regra estrita de autorização (Whitelist):
-    // 1. Permitir apenas registros antigos pré-existentes (legados onde payment_status é null/undefined)
-    // 2. Permitir registros onde pagamento foi confirmado no servidor (payment_status === 'paid' e paid === true)
-    // 3. Negar qualquer outro estado ('pending', 'unpaid', 'failed', desautorizados ou desconhecidos)
-    const isLegacyRecord = data.payment_status === null || data.payment_status === undefined;
-    const isConfirmedPaid = data.payment_status === 'paid' && data.paid === true;
+    // Regra flexível de autorização (Compatibilidade legada):
+    // Permite se payment_status for paid/complete/succeeded ou null/undefined (antigos), ou se paid != false
+    const status = (data.payment_status || '').toLowerCase();
+    const isPaidStatus = !status || status === 'paid' || status === 'complete' || status === 'completed' || status === 'succeeded';
+    const isNotExplicitlyFailed = data.paid !== false && status !== 'failed' && status !== 'unpaid';
 
-    if (!isLegacyRecord && !isConfirmedPaid) {
+    if (!isPaidStatus && !isNotExplicitlyFailed) {
       return Response.json({
         error: 'Acesso não autorizado ou pagamento pendente/não confirmado.',
         payment_status: data.payment_status || 'unauthorized'
       }, { status: 402 });
     }
 
-    return Response.json({ data });
+    // Parse brand_data se for string JSON
+    let brand_data = data.brand_data;
+    if (typeof brand_data === 'string') {
+      try { brand_data = JSON.parse(brand_data); } catch (e) { console.error('Failed to parse brand_data JSON in API:', e); }
+    }
+
+    return Response.json({ data: { ...data, brand_data } });
   } catch (err) {
     console.error('get-entrega error:', err);
     return Response.json({ error: err.message }, { status: 500 });
@@ -68,8 +77,6 @@ export async function PATCH(request) {
       updates.marca = marca;
     }
 
-    // Compatibilidade reversa: se nenhuma propriedade de atualização específica for passada,
-    // assume que é a chamada antiga de disparo de e-mail e atualiza email_enviado para true.
     if (Object.keys(updates).length === 0) {
       updates.email_enviado = true;
     }
