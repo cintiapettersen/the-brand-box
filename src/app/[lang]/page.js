@@ -1678,46 +1678,130 @@ export default function Home() {
               <div style={{ width: '100%', marginBottom: '1rem', overflowY: 'auto', maxHeight: '50vh', padding: '0 4px' }}>
                 <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '12px', padding: '4px' }}>
                   {(() => {
-                    const SENSACOES_COLORS = {
-                      "Sofisticada / Premium": "#363532", // Obsidian
-                      "Minimalista / Moderna": "#E8EAEB", // Light Cool Grey
-                      "Acolhedora / Humana": "#F2E3D5", // Warm Peach/Taupe
-                      "Ousada / Inovadora": "#D95D5D", // Muted Red
-                      "Criativa / Divertida": "#E3C878", // Muted Mustard
-                      "Leve / Delicada": "#E3EBE6", // Pale Sage
-                      "Natural / Orgânica": "#A2AD91", // Olive
-                      "Profissional / Confiável": "#4A6274", // Slate Blue
-                      "Elegante / Clássica": "#C6B098" // Porcini
+                    const SENSACOES_PALETTE = {
+                      "Sofisticada / Premium": {
+                        unselectedBg: "#EDE8F2",
+                        selectedBg: "#4E4656",
+                        color: "#302838",
+                        selectedColor: "#FFFFFF",
+                        border: "#D2C5DF"
+                      },
+                      "Minimalista / Moderna": {
+                        unselectedBg: "#E8EDF2",
+                        selectedBg: "#5A6D7C",
+                        color: "#2C3945",
+                        selectedColor: "#FFFFFF",
+                        border: "#C7D4E0"
+                      },
+                      "Acolhedora / Humana": {
+                        unselectedBg: "#F7ECE4",
+                        selectedBg: "#D6A185",
+                        color: "#473023",
+                        selectedColor: "#FFFFFF",
+                        border: "#E9D2C3"
+                      },
+                      "Ousada / Inovadora": {
+                        unselectedBg: "#F7E9E8",
+                        selectedBg: "#CA7D74",
+                        color: "#542723",
+                        selectedColor: "#FFFFFF",
+                        border: "#ECC7C3"
+                      },
+                      "Criativa / Divertida": {
+                        unselectedBg: "#F7EEDD",
+                        selectedBg: "#D6B579",
+                        color: "#523E17",
+                        selectedColor: "#FFFFFF",
+                        border: "#EBD5AB"
+                      },
+                      "Leve / Delicada": {
+                        unselectedBg: "#E9F2EE",
+                        selectedBg: "#8AB5A3",
+                        color: "#223E33",
+                        selectedColor: "#FFFFFF",
+                        border: "#C7E0D5"
+                      },
+                      "Natural / Orgânica": {
+                        unselectedBg: "#EDF2E8",
+                        selectedBg: "#8F9F7F",
+                        color: "#2E3B21",
+                        selectedColor: "#FFFFFF",
+                        border: "#CBDBC2"
+                      },
+                      "Profissional / Confiável": {
+                        unselectedBg: "#E8EFF5",
+                        selectedBg: "#496880",
+                        color: "#1F3345",
+                        selectedColor: "#FFFFFF",
+                        border: "#C4D6E5"
+                      },
+                      "Elegante / Clássica": {
+                        unselectedBg: "#F5EDE5",
+                        selectedBg: "#B59E87",
+                        color: "#453629",
+                        selectedColor: "#FFFFFF",
+                        border: "#E2D3C4"
+                      }
                     };
+
                     return sensacoes.map(s => {
                       const isSelected = formData.sentimentos.includes(s);
-                      const baseColor = SENSACOES_COLORS[s] || '#F9F8F6';
-                      // Se for escuro (Obsidian, Red, Olive, Slate), o texto base tem que ser branco
-                      const isDark = ["Sofisticada / Premium", "Ousada / Inovadora", "Natural / Orgânica", "Profissional / Confiável"].includes(s);
+                      const config = SENSACOES_PALETTE[s] || {
+                        unselectedBg: "#F5F5F5",
+                        selectedBg: "var(--accent-turquoise)",
+                        color: "var(--text-primary)",
+                        selectedColor: "#FFFFFF",
+                        border: "var(--border)"
+                      };
                       
                       return (
                         <button 
                           key={s} 
                           onClick={() => toggleSentimento(s)} 
                           style={{
-                            background: isSelected ? baseColor : '#F9F8F6',
-                            color: isSelected ? (isDark ? '#fff' : 'var(--text-primary)') : 'var(--text-secondary)',
-                            border: isSelected ? `2px solid ${isDark ? baseColor : 'var(--text-primary)'}` : '1px solid var(--border)', 
+                            position: 'relative',
+                            background: isSelected ? config.selectedBg : config.unselectedBg,
+                            color: isSelected ? config.selectedColor : config.color,
+                            border: isSelected ? '2.5px solid var(--accent-turquoise)' : `1.5px solid ${config.border}`, 
                             padding: '16px 12px', 
-                            borderRadius: '12px', 
+                            borderRadius: '16px', 
                             cursor: 'pointer',
-                            transition: 'all 0.2s ease', 
-                            fontSize: '0.82rem', 
-                            fontWeight: isSelected ? 600 : 400,
+                            transition: 'all 0.25s cubic-bezier(0.2, 0.8, 0.2, 1)', 
+                            fontSize: '0.85rem', 
+                            fontWeight: isSelected ? 700 : 600,
                             display: 'flex',
+                            flexDirection: 'column',
                             alignItems: 'center',
                             justifyContent: 'center',
                             textAlign: 'center',
-                            minHeight: '100px',
-                            boxShadow: isSelected ? '0 6px 15px rgba(0,0,0,0.1)' : '0 2px 5px rgba(0,0,0,0.02)'
+                            minHeight: '105px',
+                            boxShadow: isSelected 
+                              ? '0 10px 24px rgba(42, 137, 127, 0.25), 0 0 0 3px rgba(42, 137, 127, 0.2)' 
+                              : '0 4px 14px rgba(0, 0, 0, 0.05), 0 1px 3px rgba(0, 0, 0, 0.03)',
+                            transform: isSelected ? 'translateY(-3px) scale(1.02)' : 'translateY(0) scale(1)'
                           }}
                         >
-                          {dictionary?.onboarding?.sensacoes_options?.[s] || s}
+                          {isSelected && (
+                            <span style={{
+                              position: 'absolute',
+                              top: '8px',
+                              right: '8px',
+                              background: 'var(--accent-turquoise)',
+                              color: '#fff',
+                              borderRadius: '50%',
+                              width: '18px',
+                              height: '18px',
+                              display: 'flex',
+                              alignItems: 'center',
+                              justifyContent: 'center',
+                              fontSize: '0.65rem',
+                              fontWeight: 'bold',
+                              boxShadow: '0 2px 5px rgba(0,0,0,0.2)'
+                            }}>
+                              ✓
+                            </span>
+                          )}
+                          <span>{dictionary?.onboarding?.sensacoes_options?.[s] || s}</span>
                         </button>
                       );
                     });
