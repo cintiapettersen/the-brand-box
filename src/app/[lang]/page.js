@@ -1963,38 +1963,81 @@ export default function Home() {
               <h2 style={{ fontSize: '2rem', marginBottom: '0.5rem' }}>{dictionary?.onboarding?.step_7_5_title || 'O que as pessoas NUNCA devem pensar da sua marca?'}</h2>
               <p style={{ fontSize: '1rem', color: 'var(--text-secondary)', marginBottom: '1.5rem' }}>{dictionary?.onboarding?.step_7_5_subtitle || 'Escolha até 3 opções.'}</p>
               
-              <div style={{ width: '100%', marginBottom: '1rem', overflowY: 'auto', maxHeight: '50vh', padding: '0 4px' }}>
-                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '12px', padding: '4px' }}>
-                  {nuncaPensarOpcoes.map((s, i) => {
-                    const isSelected = (formData.nuncaPensarTags || []).includes(s);
-                    const PALETTE = ["#E8EAEB", "#F2E3D5", "#E3EBE6", "#C3CEDB", "#C6B098", "#D1B875", "#909887", "#EFEBE4"];
-                    const baseColor = PALETTE[i % PALETTE.length];
-                    return (
-                      <button 
-                        key={s} 
-                        onClick={() => toggleNuncaPensar(s)} 
-                        style={{
-                          background: isSelected ? baseColor : '#F9F8F6',
-                          color: isSelected ? 'var(--text-primary)' : 'var(--text-secondary)',
-                          border: isSelected ? '2px solid var(--text-primary)' : '1px solid var(--border)', 
-                          padding: '16px 12px', 
-                          borderRadius: '12px', 
-                          cursor: 'pointer',
-                          transition: 'all 0.2s ease', 
-                          fontSize: '0.82rem', 
-                          fontWeight: isSelected ? 600 : 400,
-                          display: 'flex',
-                          alignItems: 'center',
-                          justifyContent: 'center',
-                          textAlign: 'center',
-                          minHeight: '100px',
-                          boxShadow: isSelected ? '0 6px 15px rgba(0,0,0,0.1)' : '0 2px 5px rgba(0,0,0,0.02)'
-                        }}
-                      >
-                        {dictionary?.onboarding?.nunca_pensar_options?.[s] || s}
-                      </button>
-                    )
-                  })}
+              <div style={{ width: '100%', marginBottom: '1rem', overflowY: 'auto', maxHeight: '52vh', padding: '16px 12px 22px 12px' }}>
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '14px', padding: '4px 2px' }}>
+                  {(() => {
+                    const NUNCA_PALETTE = {
+                      "Infantil / Amadora": { bg: "#FAFAFA", color: "#2A2A2A" },
+                      "Muito Séria / Fria": { bg: "#F4E8DC", color: "#4A3A30" },
+                      "Genérica / Sem Graça": { bg: "#E1EDE7", color: "#203830" },
+                      "Poluída / Confusa": { bg: "#C9D7E5", color: "#1E2D3B" },
+                      "Muito Simples / Básica": { bg: "#C7B49F", color: "#FFFFFF" },
+                      "Exageradamente Luxuosa": { bg: "#9B8B9B", color: "#FFFFFF" },
+                      "Antiquada / Ultrapassada": { bg: "#8D9A87", color: "#FFFFFF" },
+                      "Pouco Confiável": { bg: "#EFECE3", color: "#383630" },
+                      "Outra...": { bg: "#515361", color: "#FFFFFF" }
+                    };
+
+                    return nuncaPensarOpcoes.map(s => {
+                      const isSelected = (formData.nuncaPensarTags || []).includes(s);
+                      const config = NUNCA_PALETTE[s] || { bg: "#FAFAFA", color: "#2A2A2A" };
+                      
+                      return (
+                        <button 
+                          key={s} 
+                          onClick={() => toggleNuncaPensar(s)} 
+                          style={{
+                            position: 'relative',
+                            background: config.bg,
+                            color: config.color,
+                            fontFamily: "'Cinzel', 'Montserrat', -apple-system, BlinkMacSystemFont, sans-serif",
+                            border: isSelected ? '3px solid var(--accent-turquoise)' : '1px solid rgba(0, 0, 0, 0.04)', 
+                            padding: '18px 12px', 
+                            borderRadius: '20px', 
+                            cursor: 'pointer',
+                            transition: 'all 0.22s cubic-bezier(0.2, 0.8, 0.2, 1)', 
+                            fontSize: '0.73rem', 
+                            fontWeight: 600,
+                            letterSpacing: '0.12em',
+                            textTransform: 'uppercase',
+                            lineHeight: 1.45,
+                            display: 'flex',
+                            flexDirection: 'column',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            textAlign: 'center',
+                            minHeight: '110px',
+                            boxShadow: isSelected 
+                              ? '0 12px 28px rgba(42, 137, 127, 0.35), 0 4px 10px rgba(0, 0, 0, 0.1)' 
+                              : '0 8px 24px rgba(0, 0, 0, 0.1), 0 2px 6px rgba(0, 0, 0, 0.04)',
+                            transform: isSelected ? 'translateY(-4px) scale(1.02)' : 'translateY(0) scale(1)'
+                          }}
+                        >
+                          {isSelected && (
+                            <span style={{
+                              position: 'absolute',
+                              top: '8px',
+                              right: '8px',
+                              background: '#ffffff',
+                              color: '#1E293B',
+                              borderRadius: '50%',
+                              width: '20px',
+                              height: '20px',
+                              display: 'flex',
+                              alignItems: 'center',
+                              justifyContent: 'center',
+                              fontSize: '0.75rem',
+                              fontWeight: 'bold',
+                              boxShadow: '0 2px 5px rgba(0,0,0,0.15)'
+                            }}>
+                              ✓
+                            </span>
+                          )}
+                          <span>{dictionary?.onboarding?.nunca_pensar_options?.[s] || s}</span>
+                        </button>
+                      );
+                    });
+                  })()}
                 </div>
               </div>
 
