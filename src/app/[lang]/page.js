@@ -654,7 +654,7 @@ export default function Home() {
     }
   };
 
-  const MAX_PATTERN_GENERATIONS = 3;
+  const MAX_PATTERN_GENERATIONS = 5;
 
   const generatePatterns = async () => {
     if (devMode) {
@@ -666,7 +666,7 @@ export default function Home() {
       return;
     }
     if (patternGenerationCount >= MAX_PATTERN_GENERATIONS) {
-      setAlertMessage('Você atingiu o limite de 3 gerações de estampa. Tente novamente amanhã!');
+      setAlertMessage('Você atingiu o limite de 5 gerações de estampa na demonstração.');
       return;
     }
     setPatternGenerationCount(c => c + 1);

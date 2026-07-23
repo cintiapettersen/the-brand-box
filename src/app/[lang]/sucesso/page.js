@@ -485,7 +485,10 @@ function SectionLabel({ children }) {
   );
 }
 
-const MAX_GENERATIONS = 20;
+export function getMaxPatternGenerations(brand) {
+  const isDemo = brand?.isDemo || brand?.id?.includes('demo') || (typeof window !== 'undefined' && (localStorage.getItem('brandbox_demo_mode') === 'BUILDWEEK100' || new URLSearchParams(window.location.search).get('demo') === '1' || new URLSearchParams(window.location.search).get('session') === '0da0b9d0-f6f6-4743-a349-365e0cb16-demo'));
+  return isDemo ? 5 : 3;
+}
 
 function hexToRgb(hex) {
   const h = hex.replace('#', '');
@@ -1084,7 +1087,8 @@ function EstampaStep({ brand, accentColor, marca, patterns, setPatterns, genCoun
     return () => clearInterval(interval);
   }, [generating]);
 
-  const remaining = MAX_GENERATIONS - genCount;
+  const maxGenerations = getMaxPatternGenerations(brand);
+  const remaining = Math.max(0, maxGenerations - genCount);
   const patternSrc = patterns[selectedIdx]
     ? (patterns[selectedIdx].url || `data:${patterns[selectedIdx].mimeType};base64,${patterns[selectedIdx].base64}`)
     : null;
@@ -1098,7 +1102,7 @@ function EstampaStep({ brand, accentColor, marca, patterns, setPatterns, genCoun
   };
 
   const generate = async (replaceIdx = null) => {
-    if (genCount >= MAX_GENERATIONS) return;
+    if (genCount >= maxGenerations) return;
     setGenerating(true);
     setShowSlotModal(false);
     try {
