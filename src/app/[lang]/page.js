@@ -1680,77 +1680,57 @@ export default function Home() {
                   {(() => {
                     const SENSACOES_PALETTE = {
                       "Sofisticada / Premium": {
-                        unselectedBg: "#EDE8F2",
-                        selectedBg: "#4E4656",
-                        color: "#302838",
-                        selectedColor: "#FFFFFF",
-                        border: "#D2C5DF"
+                        bg: "#363532",
+                        color: "#FFFFFF",
+                        border: "#262523"
                       },
                       "Minimalista / Moderna": {
-                        unselectedBg: "#E8EDF2",
-                        selectedBg: "#5A6D7C",
-                        color: "#2C3945",
-                        selectedColor: "#FFFFFF",
-                        border: "#C7D4E0"
+                        bg: "#E3E7EA",
+                        color: "#1F2937",
+                        border: "#CBD3D8"
                       },
                       "Acolhedora / Humana": {
-                        unselectedBg: "#F7ECE4",
-                        selectedBg: "#D6A185",
-                        color: "#473023",
-                        selectedColor: "#FFFFFF",
-                        border: "#E9D2C3"
+                        bg: "#EEDECF",
+                        color: "#3D271D",
+                        border: "#DFC7B3"
                       },
                       "Ousada / Inovadora": {
-                        unselectedBg: "#F7E9E8",
-                        selectedBg: "#CA7D74",
-                        color: "#542723",
-                        selectedColor: "#FFFFFF",
-                        border: "#ECC7C3"
+                        bg: "#D46A60",
+                        color: "#FFFFFF",
+                        border: "#B8544A"
                       },
                       "Criativa / Divertida": {
-                        unselectedBg: "#F7EEDD",
-                        selectedBg: "#D6B579",
-                        color: "#523E17",
-                        selectedColor: "#FFFFFF",
-                        border: "#EBD5AB"
+                        bg: "#E5C469",
+                        color: "#3B2E0A",
+                        border: "#CEAB4E"
                       },
                       "Leve / Delicada": {
-                        unselectedBg: "#E9F2EE",
-                        selectedBg: "#8AB5A3",
-                        color: "#223E33",
-                        selectedColor: "#FFFFFF",
-                        border: "#C7E0D5"
+                        bg: "#D9E8E0",
+                        color: "#1C3B30",
+                        border: "#B8D4C6"
                       },
                       "Natural / Orgânica": {
-                        unselectedBg: "#EDF2E8",
-                        selectedBg: "#8F9F7F",
-                        color: "#2E3B21",
-                        selectedColor: "#FFFFFF",
-                        border: "#CBDBC2"
+                        bg: "#94A482",
+                        color: "#FFFFFF",
+                        border: "#7C8D6B"
                       },
                       "Profissional / Confiável": {
-                        unselectedBg: "#E8EFF5",
-                        selectedBg: "#496880",
-                        color: "#1F3345",
-                        selectedColor: "#FFFFFF",
-                        border: "#C4D6E5"
+                        bg: "#45637B",
+                        color: "#FFFFFF",
+                        border: "#334B5E"
                       },
                       "Elegante / Clássica": {
-                        unselectedBg: "#F5EDE5",
-                        selectedBg: "#B59E87",
-                        color: "#453629",
-                        selectedColor: "#FFFFFF",
-                        border: "#E2D3C4"
+                        bg: "#C4B097",
+                        color: "#302318",
+                        border: "#AA957C"
                       }
                     };
 
                     return sensacoes.map(s => {
                       const isSelected = formData.sentimentos.includes(s);
                       const config = SENSACOES_PALETTE[s] || {
-                        unselectedBg: "#F5F5F5",
-                        selectedBg: "var(--accent-turquoise)",
+                        bg: "#F5F5F5",
                         color: "var(--text-primary)",
-                        selectedColor: "#FFFFFF",
                         border: "var(--border)"
                       };
                       
@@ -1760,13 +1740,13 @@ export default function Home() {
                           onClick={() => toggleSentimento(s)} 
                           style={{
                             position: 'relative',
-                            background: isSelected ? config.selectedBg : config.unselectedBg,
-                            color: isSelected ? config.selectedColor : config.color,
-                            border: isSelected ? '2.5px solid var(--accent-turquoise)' : `1.5px solid ${config.border}`, 
+                            background: config.bg,
+                            color: config.color,
+                            border: isSelected ? '3px solid var(--accent-turquoise)' : `1.5px solid ${config.border}`, 
                             padding: '16px 12px', 
                             borderRadius: '16px', 
                             cursor: 'pointer',
-                            transition: 'all 0.25s cubic-bezier(0.2, 0.8, 0.2, 1)', 
+                            transition: 'all 0.22s cubic-bezier(0.2, 0.8, 0.2, 1)', 
                             fontSize: '0.85rem', 
                             fontWeight: isSelected ? 700 : 600,
                             display: 'flex',
@@ -1776,9 +1756,9 @@ export default function Home() {
                             textAlign: 'center',
                             minHeight: '105px',
                             boxShadow: isSelected 
-                              ? '0 10px 24px rgba(42, 137, 127, 0.25), 0 0 0 3px rgba(42, 137, 127, 0.2)' 
-                              : '0 4px 14px rgba(0, 0, 0, 0.05), 0 1px 3px rgba(0, 0, 0, 0.03)',
-                            transform: isSelected ? 'translateY(-3px) scale(1.02)' : 'translateY(0) scale(1)'
+                              ? '0 12px 28px rgba(0, 0, 0, 0.22), 0 0 0 4px rgba(42, 137, 127, 0.3)' 
+                              : '0 4px 14px rgba(0, 0, 0, 0.09), 0 1px 3px rgba(0, 0, 0, 0.04)',
+                            transform: isSelected ? 'translateY(-4px) scale(1.03)' : 'translateY(0) scale(1)'
                           }}
                         >
                           {isSelected && (
@@ -1789,14 +1769,14 @@ export default function Home() {
                               background: 'var(--accent-turquoise)',
                               color: '#fff',
                               borderRadius: '50%',
-                              width: '18px',
-                              height: '18px',
+                              width: '20px',
+                              height: '20px',
                               display: 'flex',
                               alignItems: 'center',
                               justifyContent: 'center',
-                              fontSize: '0.65rem',
+                              fontSize: '0.7rem',
                               fontWeight: 'bold',
-                              boxShadow: '0 2px 5px rgba(0,0,0,0.2)'
+                              boxShadow: '0 2px 6px rgba(0,0,0,0.3)'
                             }}>
                               ✓
                             </span>
