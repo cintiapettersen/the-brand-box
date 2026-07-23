@@ -1596,12 +1596,24 @@ export default function Home() {
                       "Outra": { bg: "#FAFAFA", color: "#2A2A2A" }
                     };
 
-                    return [...areas, 'Other'].map(a => {
+                    const AREA_PALETTE_LIST = [
+                      { bg: "#9B8B9B", color: "#FFFFFF" },
+                      { bg: "#F4E8DC", color: "#4A3A30" },
+                      { bg: "#C9D7E5", color: "#1E2D3B" },
+                      { bg: "#E1EDE7", color: "#203830" },
+                      { bg: "#C7B49F", color: "#FFFFFF" },
+                      { bg: "#8D9A87", color: "#FFFFFF" },
+                      { bg: "#EFECE3", color: "#383630" },
+                      { bg: "#515361", color: "#FFFFFF" },
+                      { bg: "#FAFAFA", color: "#2A2A2A" }
+                    ];
+
+                    return [...areas, 'Other'].map((a, idx) => {
                       const isOther = a === 'Other';
                       const displayLabel = isOther ? (dictionary?.onboarding?.step_4_other_btn || 'Outra') : (dictionary?.onboarding?.areas_options?.[a] || a);
                       const value = isOther ? 'Outra' : a;
                       const isSelected = formData.atuacao === value;
-                      const config = AREA_PALETTE[value] || { bg: "#FAFAFA", color: "#2A2A2A" };
+                      const config = AREA_PALETTE[value] || AREA_PALETTE_LIST[idx % AREA_PALETTE_LIST.length];
 
                       return (
                         <button
@@ -1741,9 +1753,21 @@ export default function Home() {
                       "Elegante / Clássica": { bg: "#EFECE3", color: "#383630" }
                     };
 
-                    return sensacoes.map(s => {
+                    const SENSACOES_PALETTE_LIST = [
+                      { bg: "#515361", color: "#FFFFFF" },
+                      { bg: "#FAFAFA", color: "#2A2A2A" },
+                      { bg: "#F4E8DC", color: "#4A3A30" },
+                      { bg: "#9B8B9B", color: "#FFFFFF" },
+                      { bg: "#C7B49F", color: "#FFFFFF" },
+                      { bg: "#E1EDE7", color: "#203830" },
+                      { bg: "#8D9A87", color: "#FFFFFF" },
+                      { bg: "#C9D7E5", color: "#1E2D3B" },
+                      { bg: "#EFECE3", color: "#383630" }
+                    ];
+
+                    return sensacoes.map((s, idx) => {
                       const isSelected = formData.sentimentos.includes(s);
-                      const config = SENSACOES_PALETTE[s] || { bg: "#FAFAFA", color: "#2A2A2A" };
+                      const config = SENSACOES_PALETTE[s] || SENSACOES_PALETTE_LIST[idx % SENSACOES_PALETTE_LIST.length];
                       
                       return (
                         <button 
@@ -1848,9 +1872,18 @@ export default function Home() {
                       "Tipografia Pura / Editorial": { bg: "#C9D7E5", color: "#1E2D3B" }
                     };
 
-                    return elementosDesc.map(s => {
+                    const ELEMENTO_PALETTE_LIST = [
+                      { bg: "#9B8B9B", color: "#FFFFFF" },
+                      { bg: "#C7B49F", color: "#FFFFFF" },
+                      { bg: "#FAFAFA", color: "#2A2A2A" },
+                      { bg: "#F4E8DC", color: "#4A3A30" },
+                      { bg: "#8D9A87", color: "#FFFFFF" },
+                      { bg: "#C9D7E5", color: "#1E2D3B" }
+                    ];
+
+                    return elementosDesc.map((s, idx) => {
                       const isSelected = formData.elementosVisuais.includes(s);
-                      const config = ELEMENTO_PALETTE[s] || { bg: "#FAFAFA", color: "#2A2A2A" };
+                      const config = ELEMENTO_PALETTE[s] || ELEMENTO_PALETTE_LIST[idx % ELEMENTO_PALETTE_LIST.length];
 
                       return (
                         <button 
@@ -1984,12 +2017,33 @@ export default function Home() {
                       "Exageradamente Luxuosa": { bg: "#9B8B9B", color: "#FFFFFF" },
                       "Antiquada / Ultrapassada": { bg: "#8D9A87", color: "#FFFFFF" },
                       "Pouco Confiável": { bg: "#EFECE3", color: "#383630" },
-                      "Outra...": { bg: "#515361", color: "#FFFFFF" }
+                      "Outra...": { bg: "#515361", color: "#FFFFFF" },
+                      "Childish / Amateur": { bg: "#FAFAFA", color: "#2A2A2A" },
+                      "Too Serious / Cold": { bg: "#F4E8DC", color: "#4A3A30" },
+                      "Generic / Boring": { bg: "#E1EDE7", color: "#203830" },
+                      "Cluttered / Confusing": { bg: "#C9D7E5", color: "#1E2D3B" },
+                      "Too Simple / Basic": { bg: "#C7B49F", color: "#FFFFFF" },
+                      "Overly Luxurious": { bg: "#9B8B9B", color: "#FFFFFF" },
+                      "Old-fashioned / Outdated": { bg: "#8D9A87", color: "#FFFFFF" },
+                      "Untrustworthy": { bg: "#EFECE3", color: "#383630" },
+                      "Other...": { bg: "#515361", color: "#FFFFFF" }
                     };
 
-                    return nuncaPensarOpcoes.map(s => {
+                    const NUNCA_PALETTE_LIST = [
+                      { bg: "#FAFAFA", color: "#2A2A2A" },
+                      { bg: "#F4E8DC", color: "#4A3A30" },
+                      { bg: "#E1EDE7", color: "#203830" },
+                      { bg: "#C9D7E5", color: "#1E2D3B" },
+                      { bg: "#C7B49F", color: "#FFFFFF" },
+                      { bg: "#9B8B9B", color: "#FFFFFF" },
+                      { bg: "#8D9A87", color: "#FFFFFF" },
+                      { bg: "#EFECE3", color: "#383630" },
+                      { bg: "#515361", color: "#FFFFFF" }
+                    ];
+
+                    return nuncaPensarOpcoes.map((s, idx) => {
                       const isSelected = (formData.nuncaPensarTags || []).includes(s);
-                      const config = NUNCA_PALETTE[s] || { bg: "#FAFAFA", color: "#2A2A2A" };
+                      const config = NUNCA_PALETTE[s] || NUNCA_PALETTE_LIST[idx % NUNCA_PALETTE_LIST.length];
                       
                       return (
                         <button 
