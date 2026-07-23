@@ -20,13 +20,13 @@ const PAPELARIA_CLINICA = [
   "Prontuário Médico", "Receita de Alta", "Ficha de Cadastro",
   "Certificado de Coragem", "Quadro de Incentivo",
   "Arte para Caneca/Brindes", "Gráfico de Crescimento", "Diário do Xixi", "Card de Orientação de Sono",
-  "Meu Pratinho", "Guia de Amamentação", "T-Shirt", "Cartão de Agradecimento (10x15cm)", "Tag para Sacola"
+  "Meu Pratinho", "Guia de Amamentação", "T-Shirt", "Cartão de Agradecimento (10x15cm)", "Tag para Sacola", "Caixa Gaveta (L 13,5 x P 18,5 cm)"
 ];
 
 const PAPELARIA_INSTITUCIONAL = [
   "Cartão de Visita", "Pasta A4 Exclusiva", "Envelope Ofício (23x11,5cm)", "Envelope Saco (24x34cm)", "Papel Timbrado", 
   "Cartão de Agradecimento (10x15cm)", "Etiqueta para Correios", "Recibo Comercial",
-  "Cartão de Retorno/Fidelidade", "Tag para Sacola", "Arte para Caneca/Brindes", "Ficha de Cadastro", "T-Shirt"
+  "Cartão de Retorno/Fidelidade", "Tag para Sacola", "Arte para Caneca/Brindes", "Ficha de Cadastro", "T-Shirt", "Caixa Gaveta (L 13,5 x P 18,5 cm)"
 ];
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
