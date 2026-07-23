@@ -1680,49 +1680,49 @@ export default function Home() {
                   {(() => {
                     const SENSACOES_PALETTE = {
                       "Sofisticada / Premium": {
-                        bg: "#363532",
+                        bg: "#4E4656",
                         color: "#FFFFFF",
-                        border: "#262523"
+                        border: "#3B3442"
                       },
                       "Minimalista / Moderna": {
-                        bg: "#E3E7EA",
-                        color: "#1F2937",
-                        border: "#CBD3D8"
+                        bg: "#5A6D7C",
+                        color: "#FFFFFF",
+                        border: "#465663"
                       },
                       "Acolhedora / Humana": {
-                        bg: "#EEDECF",
-                        color: "#3D271D",
-                        border: "#DFC7B3"
+                        bg: "#D6A185",
+                        color: "#FFFFFF",
+                        border: "#C08A6E"
                       },
                       "Ousada / Inovadora": {
-                        bg: "#D46A60",
+                        bg: "#CA7D74",
                         color: "#FFFFFF",
-                        border: "#B8544A"
+                        border: "#B3675E"
                       },
                       "Criativa / Divertida": {
-                        bg: "#E5C469",
-                        color: "#3B2E0A",
-                        border: "#CEAB4E"
+                        bg: "#D6B579",
+                        color: "#FFFFFF",
+                        border: "#BF9F63"
                       },
                       "Leve / Delicada": {
-                        bg: "#D9E8E0",
-                        color: "#1C3B30",
-                        border: "#B8D4C6"
+                        bg: "#8AB5A3",
+                        color: "#FFFFFF",
+                        border: "#739E8C"
                       },
                       "Natural / Orgânica": {
-                        bg: "#94A482",
+                        bg: "#8F9F7F",
                         color: "#FFFFFF",
-                        border: "#7C8D6B"
+                        border: "#788868"
                       },
                       "Profissional / Confiável": {
-                        bg: "#45637B",
+                        bg: "#496880",
                         color: "#FFFFFF",
-                        border: "#334B5E"
+                        border: "#365167"
                       },
                       "Elegante / Clássica": {
-                        bg: "#C4B097",
-                        color: "#302318",
-                        border: "#AA957C"
+                        bg: "#B59E87",
+                        color: "#FFFFFF",
+                        border: "#9E8771"
                       }
                     };
 
