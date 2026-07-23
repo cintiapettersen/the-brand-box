@@ -486,7 +486,7 @@ function SectionLabel({ children }) {
 }
 
 export function getMaxPatternGenerations(brand) {
-  const isDemo = brand?.isDemo || brand?.id?.includes('demo') || (typeof window !== 'undefined' && (localStorage.getItem('brandbox_demo_mode') === 'BUILDWEEK100' || new URLSearchParams(window.location.search).get('demo') === '1' || new URLSearchParams(window.location.search).get('session') === '0da0b9d0-f6f6-4743-a349-365e0cb16-demo'));
+  const isDemo = brand?.isDemo || brand?.id?.includes('demo') || (typeof window !== 'undefined' && (new URLSearchParams(window.location.search).get('demo') === '1' || new URLSearchParams(window.location.search).get('demo') === 'BUILDWEEK100' || new URLSearchParams(window.location.search).get('session') === '0da0b9d0-f6f6-4743-a349-365e0cb16-demo'));
   return isDemo ? 5 : 3;
 }
 
@@ -5938,7 +5938,7 @@ function PapelariaStep({ brand, accentColor, paletteColors, estampaPatterns, est
         // O item principal já vem incluso em upsellSelecionados (pré-selecionado ao clicar em "Comprar")
         const itensParaCobrar = upsellSelecionados;
 
-        if (typeof window !== 'undefined' && localStorage.getItem('brandbox_demo_mode') === 'BUILDWEEK100') {
+        if (typeof window !== 'undefined' && (new URLSearchParams(window.location.search).get('demo') === '1' || new URLSearchParams(window.location.search).get('demo') === 'BUILDWEEK100')) {
           const successUrl = sessionId
             ? `/sucesso?session=${sessionId}&plano=avulso&avulso=${avulsoParam || encodeURIComponent(itensParaCobrar[0]||'')}&upsell=1&lang=${lang}`
             : `/sucesso?plano=avulso&upsell=1&lang=${lang}`;
@@ -5992,7 +5992,7 @@ function PapelariaStep({ brand, accentColor, paletteColors, estampaPatterns, est
           localStorage.setItem('brandbox_pending_upsell', JSON.stringify(next));
           setUpsellSelecionados(next);
           
-          if (typeof window !== 'undefined' && localStorage.getItem('brandbox_demo_mode') === 'BUILDWEEK100') {
+          if (typeof window !== 'undefined' && (new URLSearchParams(window.location.search).get('demo') === '1' || new URLSearchParams(window.location.search).get('demo') === 'BUILDWEEK100')) {
              const url = new URL(window.location.href);
              url.searchParams.set('upsell', '1');
              window.location.href = url.toString();

@@ -126,10 +126,12 @@ export default function Home() {
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
     setSource(params.get('utm_source') || params.get('source') || 'Direct');
-    if (params.get('demo') === 'BUILDWEEK100' || localStorage.getItem('brandbox_demo_mode') === 'BUILDWEEK100') {
+    if (params.get('demo') === 'BUILDWEEK100') {
       localStorage.setItem('brandbox_demo_mode', 'BUILDWEEK100');
       setIsDemoMode(true);
-      // E-mail de demo removido: não deve vazar para sessões reais do Stripe
+    } else {
+      localStorage.removeItem('brandbox_demo_mode');
+      setIsDemoMode(false);
     }
   }, []);
 
@@ -1329,9 +1331,9 @@ export default function Home() {
       } catch {}
 
       // DEMO mode: pula o Stripe e vai direto para a experência mock com os DADOS REAIS GERADOS
-                          if (typeof window !== 'undefined' && localStorage.getItem('brandbox_demo_mode') === 'BUILDWEEK100') {
-                            window.location.href = `/${lang}/sucesso?demo=1&plano=pro&lang=${lang}`;
-                            return;
+      if (isDemoMode) {
+        window.location.href = `/${lang}/sucesso?demo=1&plano=pro&lang=${lang}`;
+        return;
       }
 
       const res = await fetch('/api/checkout', {
@@ -3136,7 +3138,7 @@ export default function Home() {
                           try { localStorage.setItem('brandbox_delivery', JSON.stringify({ ...brandState, pattern: finalPatternUrl ? { url: finalPatternUrl } : null })); } catch {}
 
                           // DEMO mode: pula o Stripe e vai direto para a experiência mock com os DADOS REAIS GERADOS
-                          if (typeof window !== 'undefined' && localStorage.getItem('brandbox_demo_mode') === 'BUILDWEEK100') {
+                          if (isDemoMode) {
                             window.location.href = `/${lang}/sucesso?demo=1&plano=pro&lang=${lang}`;
                             return;
                           }
