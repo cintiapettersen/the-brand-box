@@ -172,7 +172,7 @@ export default function Home() {
 
   const FONT_PRESETS_BY_FAMILY = {
     'Playfair Display': { fontFamily: 'Playfair Display', weight: 600, style: 'serif', sizeBoost: 1 },
-    'Borel': { fontFamily: 'Borel', weight: 400, style: 'script', sizeBoost: 1.15, lineHeight: 0.9 },
+    'Borel': { fontFamily: 'Borel', weight: 400, style: 'script', sizeBoost: 1.15, lineHeight: 1.25, marginTop: '2px' },
     'Abril Fatface': { fontFamily: 'Abril Fatface', weight: 400, style: 'display', sizeBoost: 0.95, letterSpacing: '1px' },
     'DM Sans': { fontFamily: 'DM Sans', weight: 500, style: 'sans', sizeBoost: 1 },
     'Julius Sans One': { fontFamily: 'Julius Sans One', weight: 400, style: 'sans', sizeBoost: 0.95, letterSpacing: '2px' },
@@ -896,10 +896,10 @@ export default function Home() {
   };
 
   const startCreativeRefinement = async () => {
-    if (!resultadoFinal?.creativeDirector || isRefinementLoading) return;
+    if (isRefinementLoading) return;
 
     setShowRefinement(true);
-    const savedQuestion = resultadoFinal.creativeDirector.refinementQuestion;
+    const savedQuestion = resultadoFinal?.creativeDirector?.refinementQuestion;
     if (savedQuestion?.language === lang) {
       setRefinementQuestion(savedQuestion);
       setRefinementStep('answer');
@@ -2232,50 +2232,70 @@ export default function Home() {
                   )}
 
                   {customStep === 'paleta' && (
-                     <motion.div key="cpaleta" variants={slideVariants} initial="initial" animate="animate" exit="exit" transition={{ duration: 0.3 }} style={{ position: 'absolute', width: '100%', height: '100%', display: 'grid', gridTemplateColumns: 'minmax(0, 1fr) minmax(0, 1fr)', gap: '12px', overflowY: 'auto', paddingBottom: '2rem' }}>
-                        {paletas.map((p, pi) => {
-                          const cores = p.paleta_hex || p.cores_hex || [];
-                          const isSelected = selectedPaleta === p.id;
-                          const isAiPalette = p.source === 'openai' || p.origem === 'OPENAI' || p.isAiGenerated;
-                          const paletteLabel = isAiPalette
-                            ? (dictionary?.postmatch?.creative_palette_suggested || 'Paleta sugerida {count}').replace('{count}', pi + 1)
-                            : (dictionary?.postmatch?.creative_palette_curated || 'Paleta curada');
-                          return (
-                            <div key={p.id} onClick={() => { setSelectedPaleta(p.id); setTimeout(() => setCustomStep('cor'), 300); }} style={{
-                              border: isSelected ? '2px solid var(--accent-magenta)' : '1px solid rgba(0,0,0,0.06)',
-                              borderRadius: '18px', padding: '0', cursor: 'pointer',
-                              display: 'flex', flexDirection: 'column', alignItems: 'stretch', justifyContent: 'stretch',
-                              background: '#fff',
-                              transition: 'transform 0.22s ease, box-shadow 0.22s ease, border-color 0.22s ease',
-                              boxShadow: isSelected ? '0 16px 34px rgba(0,0,0,0.12)' : '0 8px 24px rgba(0,0,0,0.05)',
-                              overflow: 'hidden',
-                              transform: isSelected ? 'translateY(-2px) scale(1.015)' : 'translateY(0)',
-                              minHeight: '158px',
-                              outline: isSelected ? '3px solid rgba(217, 74, 138, 0.12)' : 'none'
-                            }}>
-                              {cores.length > 0 ? (
-                                <div title={cores.map(c => c.toUpperCase()).join(' · ')} style={{ display: 'flex', flexDirection: 'column', flex: 1, width: '100%', height: '100%' }}>
-                                  <div style={{ display: 'grid', gridTemplateColumns: `repeat(${cores.length}, minmax(0, 1fr))`, width: '100%', flex: 1, minHeight: '128px' }}>
-                                    {cores.map((hex, ci) => (
-                                      <div key={`${hex}-${ci}`} style={{
-                                        backgroundColor: hex,
-                                        minHeight: '128px'
-                                      }} />
-                                    ))}
+                     <motion.div key="cpaleta" variants={slideVariants} initial="initial" animate="animate" exit="exit" transition={{ duration: 0.3 }} style={{ position: 'absolute', width: '100%', height: '100%', display: 'flex', flexDirection: 'column', gap: '12px', overflowY: 'auto', paddingBottom: '2rem' }}>
+                        <div style={{ display: 'grid', gridTemplateColumns: 'minmax(0, 1fr) minmax(0, 1fr)', gap: '12px' }}>
+                          {paletas.map((p, pi) => {
+                            const cores = p.paleta_hex || p.cores_hex || [];
+                            const isSelected = selectedPaleta === p.id;
+                            const isAiPalette = p.source === 'openai' || p.origem === 'OPENAI' || p.isAiGenerated;
+                            const paletteLabel = isAiPalette
+                              ? (dictionary?.postmatch?.creative_palette_suggested || 'Paleta sugerida {count}').replace('{count}', pi + 1)
+                              : (dictionary?.postmatch?.creative_palette_curated || 'Paleta curada');
+                            return (
+                              <div key={p.id} onClick={() => { setSelectedPaleta(p.id); setTimeout(() => setCustomStep('cor'), 300); }} style={{
+                                border: isSelected ? '2px solid var(--accent-magenta)' : '1px solid rgba(0,0,0,0.06)',
+                                borderRadius: '18px', padding: '0', cursor: 'pointer',
+                                display: 'flex', flexDirection: 'column', alignItems: 'stretch', justifyContent: 'stretch',
+                                background: '#fff',
+                                transition: 'transform 0.22s ease, box-shadow 0.22s ease, border-color 0.22s ease',
+                                boxShadow: isSelected ? '0 16px 34px rgba(0,0,0,0.12)' : '0 8px 24px rgba(0,0,0,0.05)',
+                                overflow: 'hidden',
+                                transform: isSelected ? 'translateY(-2px) scale(1.015)' : 'translateY(0)',
+                                minHeight: '158px',
+                                outline: isSelected ? '3px solid rgba(217, 74, 138, 0.12)' : 'none'
+                              }}>
+                                {cores.length > 0 ? (
+                                  <div title={cores.map(c => c.toUpperCase()).join(' · ')} style={{ display: 'flex', flexDirection: 'column', flex: 1, width: '100%', height: '100%' }}>
+                                    <div style={{ display: 'grid', gridTemplateColumns: `repeat(${cores.length}, minmax(0, 1fr))`, width: '100%', flex: 1, minHeight: '128px' }}>
+                                      {cores.map((hex, ci) => (
+                                        <div key={`${hex}-${ci}`} style={{
+                                          backgroundColor: hex,
+                                          minHeight: '128px'
+                                        }} />
+                                      ))}
+                                    </div>
+                                    <div style={{ padding: '8px 10px', background: 'rgba(255,255,255,0.92)', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '8px' }}>
+                                      <p style={{ fontSize: '0.58rem', fontWeight: 800, letterSpacing: '1.4px', textTransform: 'uppercase', color: 'var(--text-secondary)', margin: 0 }}>
+                                        {paletteLabel}
+                                      </p>
+                                      {isSelected && <span style={{ width: '7px', height: '7px', borderRadius: '999px', background: 'var(--accent-magenta)', flexShrink: 0 }} />}
+                                    </div>
                                   </div>
-                                  <div style={{ padding: '8px 10px', background: 'rgba(255,255,255,0.92)', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '8px' }}>
-                                    <p style={{ fontSize: '0.58rem', fontWeight: 800, letterSpacing: '1.4px', textTransform: 'uppercase', color: 'var(--text-secondary)', margin: 0 }}>
-                                      {paletteLabel}
-                                    </p>
-                                    {isSelected && <span style={{ width: '7px', height: '7px', borderRadius: '999px', background: 'var(--accent-magenta)', flexShrink: 0 }} />}
-                                  </div>
-                                </div>
-                              ) : (
-                                <img src={`${p.image_url}?t=${Date.now()}`} alt={p.nome_variacao} style={{ width: '100%', height: '158px', objectFit: 'cover' }} />
-                              )}
-                            </div>
-                          );
-                        })}
+                                ) : (
+                                  <img src={`${p.image_url}?t=${Date.now()}`} alt={p.nome_variacao} style={{ width: '100%', height: '158px', objectFit: 'cover' }} />
+                                )}
+                              </div>
+                            );
+                          })}
+                        </div>
+
+                        {/* Bloco de garantia de personalização + Chamada para o Consultor IA (Gemini) */}
+                        <div style={{ marginTop: '6px', padding: '12px 14px', background: '#fafafa', borderRadius: '16px', border: '1px solid #eee', display: 'flex', flexDirection: 'column', gap: '8px', textAlign: 'center' }}>
+                          <p style={{ fontSize: '0.7rem', color: '#777', lineHeight: 1.4, margin: 0 }}>
+                            💡 {lang === 'en' 
+                              ? 'These color palettes were curated for your project based on your unique answers, never randomly.' 
+                              : 'Estas paletas foram criadas especialmente para o seu projeto com base nas suas respostas, nunca aleatoriamente.'}
+                          </p>
+                          <button 
+                            onClick={() => {
+                              setShowContext(true);
+                              startCreativeRefinement();
+                            }}
+                            style={{ padding: '9px 15px', background: 'transparent', color: 'var(--accent-turquoise)', border: '1.5px solid var(--accent-turquoise)', borderRadius: '20px', fontSize: '0.73rem', fontWeight: 700, cursor: 'pointer', fontFamily: 'Montserrat, sans-serif', transition: 'all 0.2s', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: '6px' }}
+                          >
+                            ✨ {lang === 'en' ? 'Did not like any? Talk to AI Creative Director' : 'Não gostou de nenhuma? Consultar a Diretora IA'}
+                          </button>
+                        </div>
                      </motion.div>
                   )}
 
@@ -2380,7 +2400,7 @@ export default function Home() {
               <div style={{ marginTop: 'auto', display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '10px' }}>
                  {customStep === 'paleta' && <button onClick={() => setStep(9)} className="btn-secondary" style={{ padding: '12px 20px', borderRadius: '14px', fontSize: '0.92rem', fontWeight: 600, flex: '0 0 auto', height: '46px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>{dictionary?.onboarding?.btn_back || 'Voltar'}</button>}
                  {customStep === 'cor' && <button onClick={() => setCustomStep('paleta')} className="btn-secondary" style={{ padding: '12px 20px', borderRadius: '14px', fontSize: '0.92rem', fontWeight: 600, flex: '0 0 auto', height: '46px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>{dictionary?.onboarding?.btn_back || 'Voltar'}</button>}
-                 <button onClick={() => setStep(11)} className="btn-primary" style={{ flex: 1, background: (selectedPaleta && editData.corAtiva) ? 'var(--accent-magenta)' : '#ccc', color: (selectedPaleta && editData.corAtiva) ? 'var(--text-primary)' : '#666', pointerEvents: (selectedPaleta && editData.corAtiva) ? 'auto' : 'none', padding: '12px 20px', borderRadius: '14px', fontSize: '0.92rem', fontWeight: 600, height: '46px', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: 'none' }}>{dictionary?.postmatch?.step_10_btn_inspiration || 'Ver Inspiração ✨'}</button>
+                 <button onClick={() => setStep(11)} className="btn-primary" style={{ flex: 1, background: (selectedPaleta && editData.corAtiva) ? 'var(--accent-turquoise)' : '#cbd5e1', color: (selectedPaleta && editData.corAtiva) ? '#fff' : '#64748b', pointerEvents: (selectedPaleta && editData.corAtiva) ? 'auto' : 'none', padding: '12px 20px', borderRadius: '14px', fontSize: '0.92rem', fontWeight: 600, height: '46px', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: 'none', transition: 'all 0.2s ease' }}>{dictionary?.postmatch?.step_10_btn_next || (lang === 'en' ? 'Continue ✨' : 'Continuar ✨')}</button>
               </div>
             </motion.div>
           )}
@@ -2602,15 +2622,16 @@ export default function Home() {
                               const name = isScript 
                                 ? raw.split(' ').map(w => w.charAt(0).toUpperCase() + w.slice(1).toLowerCase()).join(' ')
                                 : raw.toUpperCase();
+                              const fontLineHeight = editData.fontFamily === 'Borel' ? 1.35 : (editData.fontLineHeight || 1.2);
                               return (
-                                <p style={{ fontSize: '1.1rem', fontWeight: 800, letterSpacing: editData.fontLetterSpacing || '1px', color: editData.corAtiva || '#333', lineHeight: editData.fontLineHeight || 1.2, fontFamily: editData.fontFamily ? `'${editData.fontFamily}', serif` : 'inherit' }}>
+                                <p style={{ fontSize: '1.1rem', fontWeight: 800, letterSpacing: editData.fontLetterSpacing || '1px', color: editData.corAtiva || '#333', lineHeight: fontLineHeight, fontFamily: editData.fontFamily ? `'${editData.fontFamily}', serif` : 'inherit', marginBottom: editData.fontFamily === 'Borel' ? '2px' : '0' }}>
                                   {editData.fontFeatureSettings ? (
                                     <><span style={{ fontFeatureSettings: editData.fontFeatureSettings }}>{name[0]}</span><span style={{ fontFeatureSettings: 'normal' }}>{name.slice(1)}</span></>
                                   ) : name}
                                 </p>
                               );
                             })()}
-                            <p style={{ fontSize: '0.36rem', color: '#736E6A', marginTop: '4px', letterSpacing: '0.5px', textTransform: 'uppercase', lineHeight: 1.3, maxWidth: '100%', wordBreak: 'keep-all', overflowWrap: 'break-word' }}>
+                            <p style={{ fontSize: '0.36rem', color: '#736E6A', marginTop: editData.fontFamily === 'Borel' ? '6px' : '4px', letterSpacing: '0.5px', textTransform: 'uppercase', lineHeight: 1.3, maxWidth: '100%', wordBreak: 'keep-all', overflowWrap: 'break-word' }}>
                               {editData.tagline || ''}
                             </p>
                           </div>
@@ -2627,7 +2648,7 @@ export default function Home() {
                 <button 
                   onClick={() => setStep(12)} 
                   className="btn-primary" 
-                  style={{ flex: 1, background: selectedPattern !== null ? 'var(--accent-magenta)' : '#ccc', pointerEvents: selectedPattern !== null ? 'auto' : 'none', padding: '12px 20px', borderRadius: '14px', fontSize: '0.92rem', fontWeight: 600, height: '46px', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: 'none' }}
+                  style={{ flex: 1, background: selectedPattern !== null ? 'var(--accent-turquoise)' : '#cbd5e1', color: selectedPattern !== null ? '#fff' : '#64748b', pointerEvents: selectedPattern !== null ? 'auto' : 'none', padding: '12px 20px', borderRadius: '14px', fontSize: '0.92rem', fontWeight: 600, height: '46px', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: 'none', transition: 'all 0.2s ease' }}
                 >{dictionary?.postmatch?.step_117_btn_board || 'Ver Minha Placa ✨'}</button>
               </div>
             </motion.div>
@@ -2714,7 +2735,7 @@ export default function Home() {
                         fontSize: '0.55rem', color: selectedIcon === null ? '#fff' : '#aaa', fontWeight: 700, letterSpacing: '0.5px'
                       }}
                     >—</div>
-                    {styleIcons.map(icon => (
+                    {styleIcons.slice(0, 5).map(icon => (
                       <div
                         key={icon.id}
                         onClick={() => setSelectedIcon(icon.id)}

@@ -11514,7 +11514,7 @@ function EntregaContent({ brand, plano, setBrand }) {
                     transform: selectedIcon === null ? 'scale(1.15)' : 'scale(1)',
                   }}
                 >—</div>
-                {styleIcons.map(icon => (
+                {styleIcons.slice(0, 5).map(icon => (
                   <div
                     key={icon.id}
                     onClick={() => setSelectedIcon(icon.id)}
