@@ -16,14 +16,33 @@ export async function GET(request) {
     }
 
     const sessionId = rawId.trim();
+    const isUUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(sessionId);
 
-    // Busca por id ou session_id em entregas
-    const { data, error } = await supabase
-      .from('entregas')
-      .select('id, brand_data, plano, email, marca, email_enviado, paid, payment_status')
-      .or(`id.eq.${sessionId},session_id.eq.${sessionId}`)
-      .limit(1)
-      .maybeSingle();
+    let data = null;
+    let error = null;
+
+    if (isUUID) {
+      const res = await supabase
+        .from('entregas')
+        .select('id, brand_data, plano, email, marca, email_enviado, paid, payment_status')
+        .eq('id', sessionId)
+        .maybeSingle();
+      data = res.data;
+      error = res.error;
+    }
+
+    if (!data) {
+      const res = await supabase
+        .from('entregas')
+        .select('id, brand_data, plano, email, marca, email_enviado, paid, payment_status')
+        .or(`session_id.eq.${sessionId},email.eq.${sessionId}`)
+        .limit(1)
+        .maybeSingle();
+      if (res.data) {
+        data = res.data;
+        error = null;
+      }
+    }
 
     if (error || !data) {
       return Response.json({ error: 'Entrega não encontrada.' }, { status: 404 });

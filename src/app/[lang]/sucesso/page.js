@@ -9740,31 +9740,31 @@ function EntregaContent({ brand, plano, setBrand }) {
   const _params = useSearchParams();
   const avulsoParam = _params.has('avulso') ? (_params.get('avulso') || 'inicio') : null;
   const [step, setStepState] = useState('placa');
-  const setStep = (s) => { setStepState(s); try { localStorage.setItem(`brandbox_step_${brand.id}`, s); } catch {} };
+  const setStep = (s) => { setStepState(s); try { if (brand?.id) localStorage.setItem(`brandbox_step_${brand.id}`, s); } catch {} };
   // Avulso começa nos impressos, não no brand board
-  React.useEffect(() => { if (brand.plano === 'avulso') setStepState('papelaria'); }, []);
+  React.useEffect(() => { if (brand?.plano === 'avulso') setStepState('papelaria'); }, []);
 
   const [bgColor, setBgColor] = useState('#ffffff');
   const [submarcaBg, setSubmarcaBg] = useState(null); // null = usa accentColor como padrão
-  const [submarcaColor, setSubmarcaColorState] = useState(() => { try { return localStorage.getItem(`brandbox_submarca_color_${brand.id}`) || null; } catch { return null; } });
-  const setSubmarcaColor = (c) => { setSubmarcaColorState(c); try { localStorage.setItem(`brandbox_submarca_color_${brand.id}`, c); } catch {} };
-  const [submarcaTextColor, setSubmarcaTextColorState] = useState(() => { try { return localStorage.getItem(`brandbox_submarca_text_color_${brand.id}`) || '#ffffff'; } catch { return '#ffffff'; } });
-  const setSubmarcaTextColor = (c) => { setSubmarcaTextColorState(c); try { localStorage.setItem(`brandbox_submarca_text_color_${brand.id}`, c); } catch {} };
-  const [submarcaTextType, setSubmarcaTextTypeState] = useState(() => { try { return localStorage.getItem(`brandbox_submarca_text_type_${brand.id}`) || 'marca'; } catch { return 'marca'; } });
-  const setSubmarcaTextType = (t) => { setSubmarcaTextTypeState(t); try { localStorage.setItem(`brandbox_submarca_text_type_${brand.id}`, t); } catch {} };
-  const [logoColor, setLogoColorState] = useState(() => { try { return localStorage.getItem(`brandbox_logo_color_${brand.id}`) || brand.activeColor || '#C3CEDB'; } catch { return brand.activeColor || '#C3CEDB'; } });
-  const setLogoColor = (c) => { setLogoColorState(c); try { localStorage.setItem(`brandbox_logo_color_${brand.id}`, c); } catch {} };
+  const [submarcaColor, setSubmarcaColorState] = useState(() => { try { return localStorage.getItem(`brandbox_submarca_color_${brand?.id}`) || null; } catch { return null; } });
+  const setSubmarcaColor = (c) => { setSubmarcaColorState(c); try { if (brand?.id) localStorage.setItem(`brandbox_submarca_color_${brand.id}`, c); } catch {} };
+  const [submarcaTextColor, setSubmarcaTextColorState] = useState(() => { try { return localStorage.getItem(`brandbox_submarca_text_color_${brand?.id}`) || '#ffffff'; } catch { return '#ffffff'; } });
+  const setSubmarcaTextColor = (c) => { setSubmarcaTextColorState(c); try { if (brand?.id) localStorage.setItem(`brandbox_submarca_text_color_${brand.id}`, c); } catch {} };
+  const [submarcaTextType, setSubmarcaTextTypeState] = useState(() => { try { return localStorage.getItem(`brandbox_submarca_text_type_${brand?.id}`) || 'marca'; } catch { return 'marca'; } });
+  const setSubmarcaTextType = (t) => { setSubmarcaTextTypeState(t); try { if (brand?.id) localStorage.setItem(`brandbox_submarca_text_type_${brand.id}`, t); } catch {} };
+  const [logoColor, setLogoColorState] = useState(() => { try { return localStorage.getItem(`brandbox_logo_color_${brand?.id}`) || brand?.activeColor || '#C3CEDB'; } catch { return brand?.activeColor || '#C3CEDB'; } });
+  const setLogoColor = (c) => { setLogoColorState(c); try { if (brand?.id) localStorage.setItem(`brandbox_logo_color_${brand.id}`, c); } catch {} };
   const [logoLayout, setLogoLayout] = useState(() => {
-    const rawMarca = brand.editData?.marca || '';
+    const rawMarca = brand?.editData?.marca || '';
     const defaultLayout = rawMarca.includes(',') ? 'balanced' : 'horizontal';
-    try { return localStorage.getItem(`brandbox_logo_layout_${brand.id}`) || defaultLayout; } catch { return defaultLayout; }
+    try { return localStorage.getItem(`brandbox_logo_layout_${brand?.id}`) || defaultLayout; } catch { return defaultLayout; }
   });
-  const setLayout = (l) => { setLogoLayout(l); try { localStorage.setItem(`brandbox_logo_layout_${brand.id}`, l); } catch {} };
+  const setLayout = (l) => { setLogoLayout(l); try { if (brand?.id) localStorage.setItem(`brandbox_logo_layout_${brand.id}`, l); } catch {} };
   const [downloading, setDownloading] = useState(false);
   const [showAddItemsModal, setShowAddItemsModal] = useState(false);
   const [showEdit, setShowEdit] = useState(false);
-  const [marca, setMarcaState] = useState(brand.editData?.marca || '');
-  const [tempMarca, setTempMarca] = useState(brand.editData?.marca || '');
+  const [marca, setMarcaState] = useState(brand?.editData?.marca || '');
+  const [tempMarca, setTempMarca] = useState(brand?.editData?.marca || '');
 
   // Sincroniza marca state quando brand carrega do localStorage (brand começa null)
   React.useEffect(() => {
@@ -10462,7 +10462,8 @@ function EntregaContent({ brand, plano, setBrand }) {
     if (LOCAL_FONTS.includes(fontName)) {
       document.fonts.ready.then(loadFont);
     } else {
-      const selector = `link[data-font="${CSS.escape(fontName)}"]`;
+      const safeFontAttr = typeof CSS !== 'undefined' && CSS.escape ? CSS.escape(fontName) : fontName.replace(/["\\]/g, '\\$&');
+      const selector = `link[data-font="${safeFontAttr}"]`;
       const existing = document.querySelector(selector);
       if (existing) {
         loadFont();
