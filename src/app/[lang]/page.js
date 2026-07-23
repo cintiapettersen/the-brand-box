@@ -1572,42 +1572,122 @@ export default function Home() {
               <div style={{ position: 'absolute', top: '3rem', left: '3rem', right: '3rem', height: '4px', background: 'var(--border)', borderRadius: '4px' }}><div style={{ height: '100%', background: 'var(--accent-turquoise)', width: '50%', borderRadius: '4px', transition: 'width 0.5s' }} /></div>
               <h2 style={{ fontSize: '2rem', marginBottom: '0.5rem' }}>{dictionary?.onboarding?.step_4_title || 'Qual é a sua área de atuação?'}</h2>
               <p style={{ fontSize: '1rem', color: 'var(--text-secondary)', marginBottom: '1.5rem' }}>{dictionary?.onboarding?.step_4_subtitle || 'Escolha a que mais combina com o seu negócio.'}</p>
-              <div style={{ width: '100%', marginBottom: '1rem', overflowY: 'auto', maxHeight: '50vh', padding: '0 4px' }}>
-                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '12px', padding: '4px' }}>
-                  {[...areas, 'Other'].map((a, i) => {
-                    const isOther = a === 'Other';
-                    const displayLabel = isOther ? (dictionary?.onboarding?.step_4_other_btn || 'Outra') : (dictionary?.onboarding?.areas_options?.[a] || a);
-                    const value = isOther ? 'Outra' : a;
-                    const isSelected = formData.atuacao === value;
-                    const PALETTE = ["#E8EAEB", "#F2E3D5", "#E3EBE6", "#C3CEDB", "#C6B098", "#D1B875", "#909887", "#EFEBE4"];
-                    const baseColor = PALETTE[i % PALETTE.length];
-                    return (
-                      <button
-                        key={value}
-                        onClick={() => setSingleChoice('atuacao', value)}
-                        style={{
-                          padding: '12px 8px',
-                          borderRadius: '12px',
-                          border: isSelected ? '2px solid var(--text-primary)' : '1px solid var(--border)',
-                          background: isSelected ? baseColor : '#F9F8F6',
-                          color: isSelected ? 'var(--text-primary)' : 'var(--text-secondary)',
-                          fontWeight: isSelected ? 600 : 400,
-                          fontSize: '0.82rem',
-                          lineHeight: 1.3,
-                          cursor: 'pointer',
-                          transition: 'all 0.2s ease',
-                          textAlign: 'center',
-                          display: 'flex',
-                          alignItems: 'center',
-                          justifyContent: 'center',
-                          minHeight: '110px',
-                          boxShadow: isSelected ? '0 6px 15px rgba(0,0,0,0.1)' : '0 2px 5px rgba(0,0,0,0.02)'
-                        }}
-                      >
-                        {displayLabel}
-                      </button>
-                    );
-                  })}
+              <div style={{ width: '100%', marginBottom: '1rem', overflowY: 'auto', maxHeight: '52vh', padding: '14px 10px 18px 10px' }}>
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '12px', padding: '4px 2px' }}>
+                  {(() => {
+                    const AREA_PALETTE = {
+                      "Pediatria / Saúde infantil": {
+                        bg: "#6B5B95",
+                        color: "#FFFFFF",
+                        border: "#57487F"
+                      },
+                      "Obstetrícia / Saúde da mulher": {
+                        bg: "#C98CA7",
+                        color: "#FFFFFF",
+                        border: "#B27691"
+                      },
+                      "Clínica / Saúde geral adulta": {
+                        bg: "#496880",
+                        color: "#FFFFFF",
+                        border: "#365167"
+                      },
+                      "Terapia / Saúde mental": {
+                        bg: "#8AB5A3",
+                        color: "#FFFFFF",
+                        border: "#739E8C"
+                      },
+                      "Estética / Bem-estar / Nutrição": {
+                        bg: "#D6A185",
+                        color: "#FFFFFF",
+                        border: "#C08A6E"
+                      },
+                      "Cosméticos Naturais / Bem-estar Consciente": {
+                        bg: "#8F9F7F",
+                        color: "#FFFFFF",
+                        border: "#788868"
+                      },
+                      "Marca Pessoal / Profissional Liberal": {
+                        bg: "#B59E87",
+                        color: "#FFFFFF",
+                        border: "#9E8771"
+                      },
+                      "Loja de Roupas / Moda": {
+                        bg: "#CA7D74",
+                        color: "#FFFFFF",
+                        border: "#B3675E"
+                      },
+                      "Outra": {
+                        bg: "#EBF0F5", // Tom Gelo Ice Blue/Grey
+                        color: "#223140",
+                        border: "#D0DCE6"
+                      }
+                    };
+
+                    return [...areas, 'Other'].map(a => {
+                      const isOther = a === 'Other';
+                      const displayLabel = isOther ? (dictionary?.onboarding?.step_4_other_btn || 'Outra') : (dictionary?.onboarding?.areas_options?.[a] || a);
+                      const value = isOther ? 'Outra' : a;
+                      const isSelected = formData.atuacao === value;
+                      const config = AREA_PALETTE[value] || {
+                        bg: "#F5F5F5",
+                        color: "var(--text-primary)",
+                        border: "var(--border)"
+                      };
+
+                      return (
+                        <button
+                          key={value}
+                          onClick={() => setSingleChoice('atuacao', value)}
+                          style={{
+                            position: 'relative',
+                            background: config.bg,
+                            color: config.color,
+                            fontFamily: "'Plus Jakarta Sans', 'Inter', -apple-system, BlinkMacSystemFont, sans-serif",
+                            border: isSelected ? '3px solid var(--accent-turquoise)' : `1.5px solid ${config.border}`, 
+                            padding: '16px 12px', 
+                            borderRadius: '16px', 
+                            cursor: 'pointer',
+                            transition: 'all 0.2s ease', 
+                            fontSize: '0.86rem', 
+                            fontWeight: isSelected ? 700 : 600,
+                            letterSpacing: '0.01em',
+                            display: 'flex',
+                            flexDirection: 'column',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            textAlign: 'center',
+                            minHeight: '105px',
+                            boxShadow: isSelected 
+                              ? '0 4px 14px rgba(42, 137, 127, 0.25)' 
+                              : '0 2px 8px rgba(0, 0, 0, 0.04)',
+                            transform: isSelected ? 'translateY(-2px)' : 'translateY(0)'
+                          }}
+                        >
+                          {isSelected && (
+                            <span style={{
+                              position: 'absolute',
+                              top: '8px',
+                              right: '8px',
+                              background: '#ffffff',
+                              color: '#1E293B',
+                              borderRadius: '50%',
+                              width: '20px',
+                              height: '20px',
+                              display: 'flex',
+                              alignItems: 'center',
+                              justifyContent: 'center',
+                              fontSize: '0.75rem',
+                              fontWeight: 'bold',
+                              boxShadow: '0 2px 4px rgba(0,0,0,0.15)'
+                            }}>
+                              ✓
+                            </span>
+                          )}
+                          <span>{displayLabel}</span>
+                        </button>
+                      );
+                    });
+                  })()}
                 </div>
               </div>
               
