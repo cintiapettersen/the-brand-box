@@ -5963,11 +5963,18 @@ function PapelariaStep({ brand, accentColor, paletteColors, estampaPatterns, est
         if (data.url) {
           window.location.href = data.url;
         } else {
-          setUpsellErro(data.error || 'Erro ao iniciar pagamento. Tente novamente.');
+          console.error('Checkout error:', data.error);
+          const userMsg = lang === 'en'
+            ? 'We couldn’t start the payment right now. Please try again in a moment.'
+            : 'Não foi possível iniciar o pagamento agora. Tente novamente em alguns instantes.';
+          setUpsellErro(userMsg);
         }
       } catch (e) {
-        console.error(e);
-        setUpsellErro('Erro de conexão. Tente novamente.');
+        console.error('Checkout error:', e);
+        const userMsg = lang === 'en'
+          ? 'We couldn’t start the payment right now. Please try again in a moment.'
+          : 'Não foi possível iniciar o pagamento agora. Tente novamente em alguns instantes.';
+        setUpsellErro(userMsg);
       } finally {
         setUpsellLoading(false);
       }
@@ -6010,10 +6017,19 @@ function PapelariaStep({ brand, accentColor, paletteColors, estampaPatterns, est
             window.location.href = data.url;
           } else {
             setUpsellLoading(false);
-            alert('Erro ao iniciar checkout. Tente novamente.');
+            console.error('Checkout error:', data.error);
+            const userMsg = lang === 'en'
+              ? 'We couldn’t start the payment right now. Please try again in a moment.'
+              : 'Não foi possível iniciar o pagamento agora. Tente novamente em alguns instantes.';
+            setUpsellErro(userMsg);
           }
         } catch (err) {
           setUpsellLoading(false);
+          console.error('Checkout error:', err);
+          const userMsg = lang === 'en'
+            ? 'We couldn’t start the payment right now. Please try again in a moment.'
+            : 'Não foi possível iniciar o pagamento agora. Tente novamente em alguns instantes.';
+          setUpsellErro(userMsg);
         }
       }
     };

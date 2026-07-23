@@ -2,8 +2,18 @@ import Stripe from 'stripe';
 
 export async function POST(request) {
   try {
+    const stripeSecretKey = process.env.STRIPE_SECRET_KEY
+      ? process.env.STRIPE_SECRET_KEY.replace(/['"]/g, '')
+      : undefined;
+
+    if (!stripeSecretKey) {
+      console.error('STRIPE_SECRET_KEY missing in runtime environment');
+      return Response.json({ error: 'payment_configuration_error' }, { status: 503 });
+    }
+
+    const stripe = new Stripe(stripeSecretKey);
+
     const { plano, marca, email, extrasCount = 0, sessionId, avulsoParam, itensSelecionados, papelaria, lang = 'pt' } = await request.json();
-    const stripe = new Stripe((process.env.STRIPE_SECRET_KEY ? process.env.STRIPE_SECRET_KEY.replace(/['"]/g, '') : undefined) || 'dummy_key_for_build');
 
     const origin = request.headers.get('origin') || 'http://localhost:3000';
     const isEn = lang === 'en';
@@ -190,6 +200,6 @@ export async function POST(request) {
     return Response.json({ url: session.url });
   } catch (err) {
     console.error('Stripe error:', err);
-    return Response.json({ error: err.message }, { status: 500 });
+    return Response.json({ error: 'payment_configuration_error' }, { status: 500 });
   }
 }

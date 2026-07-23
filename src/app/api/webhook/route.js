@@ -84,7 +84,11 @@ export async function POST(request) {
     return Response.json({ error: 'Missing stripe-signature header.' }, { status: 400 });
   }
 
-  const stripeSecretKey = (process.env.STRIPE_SECRET_KEY ? process.env.STRIPE_SECRET_KEY.replace(/['"]/g, '') : undefined) || 'dummy_key_for_build';
+  const stripeSecretKey = process.env.STRIPE_SECRET_KEY ? process.env.STRIPE_SECRET_KEY.replace(/['"]/g, '') : undefined;
+  if (!stripeSecretKey) {
+    console.error('STRIPE_SECRET_KEY missing in runtime environment');
+    return Response.json({ error: 'payment_configuration_error' }, { status: 503 });
+  }
   const stripe = new Stripe(stripeSecretKey);
 
   const body = await request.text();

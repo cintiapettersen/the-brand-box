@@ -1344,11 +1344,18 @@ export default function Home() {
         window.location.href = data.url;
       } else {
         console.error('Checkout error:', data.error);
-        setAlertMessage('Houve um problema ao iniciar o pagamento: ' + (data.error || 'Erro desconhecido'));
+        const userMsg = lang === 'en'
+          ? 'We couldn’t start the payment right now. Please try again in a moment.'
+          : 'Não foi possível iniciar o pagamento agora. Tente novamente em alguns instantes.';
+        setAlertMessage(userMsg);
         setLoadingCheckout(false);
       }
     } catch (err) {
       console.error('Checkout error:', err);
+      const userMsg = lang === 'en'
+        ? 'We couldn’t start the payment right now. Please try again in a moment.'
+        : 'Não foi possível iniciar o pagamento agora. Tente novamente em alguns instantes.';
+      setAlertMessage(userMsg);
       setLoadingCheckout(false);
     }
   };
@@ -3144,11 +3151,18 @@ export default function Home() {
                             window.location.href = data.url;
                           } else {
                             console.error('Checkout error:', data.error);
-                            setAlertMessage('Houve um problema ao iniciar o pagamento: ' + (data.error || 'Erro desconhecido'));
+                            const userMsg = lang === 'en'
+                              ? 'We couldn’t start the payment right now. Please try again in a moment.'
+                              : 'Não foi possível iniciar o pagamento agora. Tente novamente em alguns instantes.';
+                            setAlertMessage(userMsg);
                             setLoadingCheckout(false);
                           }
                         } catch (err) {
                           console.error('Checkout error:', err);
+                          const userMsg = lang === 'en'
+                            ? 'We couldn’t start the payment right now. Please try again in a moment.'
+                            : 'Não foi possível iniciar o pagamento agora. Tente novamente em alguns instantes.';
+                          setAlertMessage(userMsg);
                           setLoadingCheckout(false);
                         }
                       }}
