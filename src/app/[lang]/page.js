@@ -135,7 +135,8 @@ export default function Home() {
 
 
   useEffect(() => {
-    if (!formData.email) return;
+    const emailTrimmed = formData.email ? formData.email.trim() : '';
+    if (!emailTrimmed || step <= 2) return;
 
     let stepName = 'Started';
     if (step >= 2 && step < 8) stepName = 'Brand Questions';
@@ -151,14 +152,14 @@ export default function Home() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ 
           nome: formData.nome, 
-          email: formData.email, 
+          email: emailTrimmed, 
           source: source,
           last_step: stepName,
           project_completed: step >= 13
         })
       }).catch(err => console.error('Erro ao atualizar lead:', err));
     }
-  }, [step, formData.email, source, formData.nome]);
+  }, [step, source, formData.nome]);
 
   // Sugestões de tagline agrupadas por categoria
   const TAGLINES_BY_ESTILO = {
@@ -711,6 +712,25 @@ export default function Home() {
   const nextStep = () => setStep((s) => s + 1);
 
   const handleStep2Submit = () => {
+    const emailTrimmed = formData.email ? formData.email.trim() : '';
+    if (emailTrimmed) {
+      lastStepRef.current = 'Brand Questions';
+      fetch('/api/leads', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ 
+          nome: formData.nome, 
+          email: emailTrimmed, 
+          source: source,
+          last_step: 'Brand Questions',
+          project_completed: false
+        })
+      }).catch(err => console.error('Erro ao salvar lead:', err));
+    } else if (typeof window !== 'undefined' && window.gtag) {
+      try {
+        window.gtag('event', 'demo_access_anonymous', { source });
+      } catch (e) {}
+    }
     nextStep();
   };
   
@@ -1422,11 +1442,38 @@ export default function Home() {
                   <span className="tooltiptext">{dictionary?.onboarding?.step_2_hint || 'Seu nome de contato, como você se chama, e não a sua marca...'}</span>
                 </div>
               </div>
-              <div style={{ width: '100%', marginBottom: '3rem', display: 'flex', flexDirection: 'column', gap: '24px' }}>
+              <div style={{ width: '100%', marginBottom: '2.5rem', display: 'flex', flexDirection: 'column', gap: '20px' }}>
                 <input name="nome" value={formData.nome} onChange={handleInput} placeholder={dictionary?.onboarding?.step_2_name_placeholder || 'Seu nome ou apelido'} />
-                <input name="email" value={formData.email} onChange={handleInput} type="email" placeholder={dictionary?.onboarding?.step_2_email_placeholder || 'O seu melhor e-mail'} />
+                {isDemoMode ? (
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '6px', textAlign: 'left', width: '100%' }}>
+                    <label style={{ fontSize: '0.85rem', fontWeight: 600, color: 'var(--text-secondary)', marginLeft: '4px' }}>
+                      {dictionary?.onboarding?.step_2_email_label_demo || (lang === 'en' ? 'Email (optional)' : 'E-mail (opcional)')}
+                    </label>
+                    <input 
+                      name="email" 
+                      value={formData.email} 
+                      onChange={handleInput} 
+                      type="email" 
+                      placeholder={dictionary?.onboarding?.step_2_email_placeholder_demo || (lang === 'en' ? 'Want to say hello? Leave your email ✨' : 'Quer se apresentar? Deixe seu e-mail ✨')} 
+                    />
+                    <span style={{ fontSize: '0.8rem', color: '#666', marginTop: '2px', marginLeft: '4px' }}>
+                      {dictionary?.onboarding?.step_2_email_support_demo || (lang === 'en' ? 'You can continue the demo without signing up.' : 'Você pode continuar a demonstração sem preencher.')}
+                    </span>
+                  </div>
+                ) : (
+                  <input name="email" value={formData.email} onChange={handleInput} type="email" placeholder={dictionary?.onboarding?.step_2_email_placeholder || 'O seu melhor e-mail'} />
+                )}
               </div>
-              <button onClick={handleStep2Submit} className="btn-secondary" style={{ opacity: (formData.nome && formData.email && formData.email.includes('@')) ? 1 : 0.5, pointerEvents: (formData.nome && formData.email && formData.email.includes('@')) ? 'auto' : 'none' }}>{dictionary?.onboarding?.btn_continue || 'Continuar'}</button>
+              <button 
+                onClick={handleStep2Submit} 
+                className="btn-secondary" 
+                style={{ 
+                  opacity: isDemoMode ? (formData.nome && formData.nome.trim() ? 1 : 0.5) : (formData.nome && formData.email && formData.email.includes('@') ? 1 : 0.5), 
+                  pointerEvents: isDemoMode ? (formData.nome && formData.nome.trim() ? 'auto' : 'none') : (formData.nome && formData.email && formData.email.includes('@') ? 'auto' : 'none') 
+                }}
+              >
+                {isDemoMode ? (dictionary?.onboarding?.btn_continue_demo || (lang === 'en' ? 'Continue demo' : 'Continuar demonstração')) : (dictionary?.onboarding?.btn_continue || 'Continuar')}
+              </button>
             </motion.div>
           )}
 
