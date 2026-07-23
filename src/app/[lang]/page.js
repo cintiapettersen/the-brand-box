@@ -89,6 +89,8 @@ export default function Home() {
   const effectiveCreativeDirectorStatus = creativeDirectorStatus === 'idle' ? resultadoFinal?.creativeDirectorStatus || 'idle' : creativeDirectorStatus;
   const creativeDirectorRequestRef = useRef(null);
   const diagnosticScrollRef = useRef(null);
+  const didScrollDiagnosticRef = useRef('');
+  const [isMatchmakerLoading, setIsMatchmakerLoading] = useState(false);
   const [isTaglineLoading, setIsTaglineLoading] = useState(false);
   const [aiSessionId, setAiSessionId] = useState('');
   const [selectedTagline, setSelectedTagline] = useState('');
@@ -98,6 +100,8 @@ export default function Home() {
   const [formData, setFormData] = useState({
     nome: '', email: '', marca: '', atuacao: '', atuacaoOutra: '', contextoExtra: '', publico: '', sentimentos: [], elementosVisuais: [], personalidade: '', primeiraImpressao: '', locais: [], inspiracoes: '', inspiracoesTags: [], nuncaPensar: '', nuncaPensarTags: []
   });
+
+  const creativeDiagnosisCopy = lang === 'en' ? { personality: 'Brand personality', audience: 'What the audience needs to feel', goals: 'Emotional goals', why: 'Why this direction fits', risks: 'Creative risks to avoid', loading: 'Preparing your creative diagnosis…', fallback: 'The Creative Director is temporarily unavailable. Your Gemini match remains available.', retry: 'Try again' } : { personality: 'Personalidade da marca', audience: 'O que o público precisa sentir', goals: 'Objetivos emocionais', why: 'Por que essa direção combina', risks: 'Riscos criativos a evitar', loading: 'Preparando seu diagnóstico criativo…', fallback: 'A Creative Director está temporariamente indisponível. Seu match Gemini continua disponível.', retry: 'Tentar novamente' };
 
   const refineCopy = {
     button: dictionary?.postmatch?.creative_refine_button || 'Refinar esta direção',
@@ -853,14 +857,7 @@ export default function Home() {
     const request = fetchCreativeDirectorDiagnostic(baseResult).then((creativeDirector) => {
       setResultadoFinal(prev => prev ? ({ ...prev, creativeDirector, creativeDirectorStatus: 'ready' }) : prev);
       setCreativeDirectorStatus('ready');
-      requestAnimationFrame(() => {
-        const target = diagnosticScrollRef.current;
-        if (!target) return;
-        const scrollParent = target.closest('.creative-diagnosis-step');
-        const headerOffset = 112; // fixed header + mobile browser chrome breathing room
-        if (scrollParent) scrollParent.scrollTo({ top: Math.max(0, target.offsetTop - headerOffset), behavior: 'smooth' });
-        else target.scrollIntoView({ behavior: 'smooth', block: 'start' });
-      });
+
       return creativeDirector;
     }).catch((error) => {
       console.warn('Creative Director unavailable:', error.code);
@@ -871,6 +868,18 @@ export default function Home() {
     creativeDirectorRequestRef.current = request;
     return request;
   };
+
+  useEffect(() => {
+    const journeyId = resultadoFinal?.creativeDirectorJourneyId;
+    if (step !== 9 || effectiveCreativeDirectorStatus !== 'ready' || !journeyId || didScrollDiagnosticRef.current === journeyId) return;
+    const timer = window.setTimeout(() => requestAnimationFrame(() => requestAnimationFrame(() => {
+      const target = diagnosticScrollRef.current;
+      if (!target) return;
+      didScrollDiagnosticRef.current = journeyId;
+      window.scrollTo({ top: Math.max(0, target.getBoundingClientRect().top + window.scrollY - 160), behavior: 'smooth' });
+    })), 180);
+    return () => window.clearTimeout(timer);
+  }, [step, effectiveCreativeDirectorStatus, resultadoFinal?.creativeDirectorJourneyId]);
 
   const regenerateCreativeDirector = async () => {
     if (!resultadoFinal || isCreativeDirectorLoading || hasAiUsage('diagnostic_regeneration')) return;
@@ -1101,6 +1110,8 @@ export default function Home() {
 
   // Aqui é onde ativamos a Mágica
   const callMatchmaker = async () => {
+    if (isMatchmakerLoading) return;
+    setIsMatchmakerLoading(true);
     setStep(8); // Vai para a tela de loading automático
     
     try {
@@ -1126,6 +1137,8 @@ export default function Home() {
       console.error(error);
       setAlertMessage("Erro na conexão com o servidor mágico.");
       setStep(7);
+    } finally {
+      setIsMatchmakerLoading(false);
     }
   };
 
@@ -1378,7 +1391,7 @@ export default function Home() {
           ⚡ MODO DEV ATIVO — estampas não consomem créditos
         </div>
       )}
-      <div style={{ width: '100%', maxWidth: '700px', position: 'relative', height: '85vh', marginTop: devMode ? '22px' : 0 }}>
+      <div style={{ width: '100%', maxWidth: '700px', position: 'relative', height: step === 9 ? 'auto' : '85vh', minHeight: step === 9 ? '85vh' : undefined, marginTop: devMode ? '22px' : 0 }}>
 
         {step > 1 && step < 8 && (
            <button onClick={() => {
@@ -2137,7 +2150,7 @@ export default function Home() {
                  <p style={{ margin: '8px 0', fontSize: '1.1rem' }}>✅ <strong>{dictionary?.onboarding?.summary_goals || 'Objetivos'}:</strong> Alinhados</p>
               </div>
               <p style={{ fontSize: '1rem', color: 'var(--text-secondary)', marginBottom: '1.5rem' }}>{dictionary?.onboarding?.summary_text || 'Com base nisso, estou buscando as direções visuais que melhor se encaixam na sua marca.'}</p>
-              <button onClick={callMatchmaker} className="btn-primary" style={{ background: 'var(--accent-magenta)' }}>{dictionary?.onboarding?.step_7_8_btn || 'Traduzir a essência da minha marca'}</button>
+              <button onClick={callMatchmaker} disabled={isMatchmakerLoading} className="btn-primary" style={{ background: 'var(--accent-magenta)', opacity: isMatchmakerLoading ? 0.6 : 1 }}>{dictionary?.onboarding?.step_7_8_btn || 'Traduzir a essência da minha marca'}</button>
             </motion.div>
           )}
 
@@ -2160,7 +2173,7 @@ export default function Home() {
           {step === 9 && resultadoFinal && (
             <motion.div 
               key="step9" variants={variants} initial="initial" animate="animate" exit="exit" transition={{ duration: 0.5 }}
-              className="wizard-step creative-diagnosis-step" aria-busy={isCreativeDirectorLoading} style={{ position: 'absolute', width: '100%', minHeight: '100%', height: 'auto', display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center', background: 'var(--bg-color)', borderRadius: '24px', border: 'none', boxShadow: 'none' }}
+              className="wizard-step creative-diagnosis-step" aria-busy={isCreativeDirectorLoading} style={{ position: 'relative', width: '100%', minHeight: '100%', height: 'auto', display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center', background: 'var(--bg-color)', borderRadius: '24px', border: 'none', boxShadow: 'none' }}
             >
               <p style={{ fontSize: '0.9rem', color: 'var(--text-secondary)', marginBottom: '0.5rem', textTransform: 'uppercase', letterSpacing: '2px', fontWeight: 600 }}>{dictionary?.postmatch?.step_9_perfect_match || 'O MATCH PERFEITO PARA'} {formData.marca || 'SUA MARCA'}</p>
               {(() => {
@@ -2186,8 +2199,8 @@ export default function Home() {
                 </div>
               )}
 
-              {isCreativeDirectorLoading && (<p role="status" aria-live="polite" style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', marginBottom: '1.25rem' }}>{lang === 'en' ? 'Preparing your creative diagnosis…' : 'Preparando seu diagnóstico criativo…'}</p>)}
-              {effectiveCreativeDirectorStatus === 'fallback' && (<div role="status" style={{ marginBottom: '1.25rem' }}><p>{lang === 'en' ? 'The Creative Director is temporarily unavailable. Your Gemini match remains available.' : 'A Creative Director está temporariamente indisponível. Seu match Gemini continua disponível.'}</p><button type="button" className="btn-secondary" onClick={() => runCreativeDirectorDiagnostic(resultadoFinal)} disabled={isCreativeDirectorLoading}>{lang === 'en' ? 'Try again' : 'Tentar novamente'}</button></div>)}
+              {isCreativeDirectorLoading && (<p role="status" aria-live="polite" style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', marginBottom: '1.25rem' }}>{creativeDiagnosisCopy.loading}</p>)}
+              {effectiveCreativeDirectorStatus === 'fallback' && (<div role="status" style={{ marginBottom: '1.25rem' }}><p>{creativeDiagnosisCopy.fallback}</p><button type="button" className="btn-secondary" onClick={() => runCreativeDirectorDiagnostic(resultadoFinal)} disabled={isCreativeDirectorLoading}>{creativeDiagnosisCopy.retry}</button></div>)}
 
               {resultadoFinal.creativeDirector && (
                 <div ref={diagnosticScrollRef} className="creative-diagnosis-anchor"><div style={{ width: '100%', maxWidth: '620px', background: '#ffffff', padding: '1.5rem', borderRadius: '18px', marginBottom: '2rem', boxShadow: '0 4px 15px rgba(0,0,0,0.03)', textAlign: 'left' }}>
@@ -2203,28 +2216,28 @@ export default function Home() {
 
                   <div style={{ display: 'grid', gap: '0.9rem' }}>
                     <div>
-                      <strong style={{ color: 'var(--text-primary)', fontSize: '0.9rem' }}>Personalidade da marca</strong>
+                      <strong style={{ color: 'var(--text-primary)', fontSize: '0.9rem' }}>{creativeDiagnosisCopy.personality}</strong>
                       <p style={{ color: 'var(--text-secondary)', fontSize: '0.9rem', lineHeight: 1.5, marginTop: '0.25rem' }}>{resultadoFinal.creativeDirector.personalidade.join(' • ')}</p>
                     </div>
                     <div>
-                      <strong style={{ color: 'var(--text-primary)', fontSize: '0.9rem' }}>O que o público precisa sentir</strong>
+                      <strong style={{ color: 'var(--text-primary)', fontSize: '0.9rem' }}>{creativeDiagnosisCopy.audience}</strong>
                       <ul style={{ color: 'var(--text-secondary)', fontSize: '0.9rem', lineHeight: 1.5, marginTop: '0.35rem', paddingLeft: '1.1rem' }}>
                         {resultadoFinal.creativeDirector.expectativasPublico.map((item, index) => <li key={`expectativa-${index}`}>{item}</li>)}
                       </ul>
                     </div>
                     <div>
-                      <strong style={{ color: 'var(--text-primary)', fontSize: '0.9rem' }}>Objetivos emocionais</strong>
+                      <strong style={{ color: 'var(--text-primary)', fontSize: '0.9rem' }}>{creativeDiagnosisCopy.goals}</strong>
                       <ul style={{ color: 'var(--text-secondary)', fontSize: '0.9rem', lineHeight: 1.5, marginTop: '0.35rem', paddingLeft: '1.1rem' }}>
                         {resultadoFinal.creativeDirector.objetivosEmocionais.map((item, index) => <li key={`objetivo-${index}`}>{item}</li>)}
                       </ul>
                     </div>
                     <div>
-                      <strong style={{ color: 'var(--text-primary)', fontSize: '0.9rem' }}>Por que essa direção combina</strong>
+                      <strong style={{ color: 'var(--text-primary)', fontSize: '0.9rem' }}>{creativeDiagnosisCopy.why}</strong>
                       <p style={{ color: 'var(--text-secondary)', fontSize: '0.9rem', lineHeight: 1.5, marginTop: '0.25rem' }}>{resultadoFinal.creativeDirector.porqueEsseEstilo}</p>
                       <p style={{ color: 'var(--text-secondary)', fontSize: '0.9rem', lineHeight: 1.5, marginTop: '0.35rem' }}>{resultadoFinal.creativeDirector.direcaoVisual}</p>
                     </div>
                     <div>
-                      <strong style={{ color: 'var(--text-primary)', fontSize: '0.9rem' }}>Riscos criativos a evitar</strong>
+                      <strong style={{ color: 'var(--text-primary)', fontSize: '0.9rem' }}>{creativeDiagnosisCopy.risks}</strong>
                       <ul style={{ color: 'var(--text-secondary)', fontSize: '0.9rem', lineHeight: 1.5, marginTop: '0.35rem', paddingLeft: '1.1rem' }}>
                         {resultadoFinal.creativeDirector.riscosEvitar.map((item, index) => <li key={`risco-${index}`}>{item}</li>)}
                       </ul>

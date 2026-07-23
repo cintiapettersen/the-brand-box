@@ -284,3 +284,5 @@ button {
 .creative-diagnosis-step { align-content: flex-start; padding-bottom: calc(env(safe-area-inset-bottom) + 48px) !important; }
 .creative-diagnosis-anchor { scroll-margin-top: calc(var(--fixed-header-height, 72px) + env(safe-area-inset-top) + 56px); }
 @media (max-width: 768px) { .creative-diagnosis-step { padding-top: calc(var(--fixed-header-height, 64px) + env(safe-area-inset-top) + 56px) !important; } .creative-diagnosis-anchor { scroll-margin-top: calc(var(--fixed-header-height, 64px) + env(safe-area-inset-top) + 56px); } }
+/* Step 9 participates in normal document flow: the page, never the diagnosis card, owns scrolling. */
+.creative-diagnosis-step { overflow: visible !important; max-height: none !important; }
