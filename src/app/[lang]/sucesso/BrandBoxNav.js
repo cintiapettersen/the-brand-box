@@ -2,10 +2,11 @@
 import { useRef, useState, useEffect } from 'react';
 import { useTranslation } from '../../LanguageContext';
 
-const BB_MARCA = '#C3CEDB'; // Plein Air (Azul claro acinzentado)
-const BB_DIGITAL = '#C6B098'; // Porcini (Bege / Taupe)
-const BB_PAPELARIA = '#D1B875'; // Dourado
-
+// Official Briefing Palette Categories
+const BB_MARCA = '#C9D7E5';    // Powder Blue Mist
+const BB_DIGITAL = '#C7B49F';  // Cashmere Taupe
+const BB_PAPELARIA = '#9B8B9B';// Dusty Lilac Mauve
+const BB_AJUDA = '#515361';    // Obsidian Slate Charcoal
 
 function SubMenu({ items, activeId, onSelect, color, renderLabel }) {
   const scrollRef = useRef(null);
@@ -21,7 +22,6 @@ function SubMenu({ items, activeId, onSelect, color, renderLabel }) {
     return () => obs.disconnect();
   }, [items.map(i => (i.id ?? i)).join(',')]);
 
-  // Scroll ativo para visível ao montar/mudar
   useEffect(() => {
     const el = scrollRef.current;
     if (!el) return;
@@ -30,27 +30,52 @@ function SubMenu({ items, activeId, onSelect, color, renderLabel }) {
   }, [activeId]);
 
   return (
-    <div style={{ position: 'relative', background: color + '14', borderRadius: '0 0 10px 10px' }}>
-      <div ref={scrollRef} style={{ padding: '6px 10px', display: 'flex', gap: '4px', overflowX: 'auto', scrollbarWidth: 'none', paddingRight: showArrow ? '28px' : '10px' }}>
+    <div style={{ 
+      position: 'relative', 
+      background: color, 
+      borderRadius: '0 0 16px 16px',
+      boxShadow: '0 6px 18px rgba(0,0,0,0.08)',
+      transition: 'background 0.3s ease'
+    }}>
+      <div 
+        ref={scrollRef} 
+        style={{ 
+          padding: '8px 12px', 
+          display: 'flex', 
+          gap: '6px', 
+          overflowX: 'auto', 
+          scrollbarWidth: 'none', 
+          paddingRight: showArrow ? '30px' : '12px',
+          alignItems: 'center' 
+        }}
+      >
         {items.map((item, i) => {
           const active = (item.id !== undefined ? item.id === activeId : i === activeId);
           const locked = item.locked;
           const label = renderLabel ? renderLabel(item) : item.label ?? item;
+          
           return (
             <button
               key={item.id ?? i}
               data-active={active ? 'true' : 'false'}
               onClick={() => onSelect(item.id ?? i)}
               style={{
-                whiteSpace: 'nowrap', padding: active ? '6px 16px' : '5px 12px',
-                borderRadius: '20px', fontSize: active ? '0.7rem' : '0.66rem',
-                fontWeight: 700, borderWidth: '1.5px', borderStyle: 'solid',
-                borderColor: active ? color : locked ? '#e0dbd5' : 'transparent',
-                cursor: 'pointer', transition: 'all 0.15s',
-                background: active ? color : locked ? '#f5f3f0' : 'transparent',
-                color: active ? '#fff' : locked ? '#bbb' : '#555',
-                boxShadow: active ? `0 2px 8px ${color}55` : 'none',
-                transform: active ? 'scale(1.05)' : 'scale(1)',
+                whiteSpace: 'nowrap',
+                padding: active ? '7px 18px' : '6px 14px',
+                borderRadius: '20px',
+                fontSize: active ? '0.72rem' : '0.68rem',
+                fontWeight: active ? 700 : 600,
+                fontFamily: "'Cinzel', 'Montserrat', sans-serif",
+                letterSpacing: '0.08em',
+                textTransform: 'uppercase',
+                border: 'none',
+                cursor: locked ? 'default' : 'pointer',
+                transition: 'all 0.2s cubic-bezier(0.2, 0.8, 0.2, 1)',
+                background: active ? '#C7B49F' : 'transparent', // Cashmere Taupe active pill as shown in mockup
+                color: active ? '#FFFFFF' : (color === '#C9D7E5' ? '#1E2D3B' : '#FFFFFF'),
+                boxShadow: active ? '0 4px 12px rgba(0, 0, 0, 0.15)' : 'none',
+                transform: active ? 'scale(1.03)' : 'scale(1)',
+                opacity: locked ? 0.5 : (active ? 1 : 0.88)
               }}
             >
               {locked ? `🔒 ${label}` : label}
@@ -60,19 +85,17 @@ function SubMenu({ items, activeId, onSelect, color, renderLabel }) {
       </div>
       {showArrow && (
         <div style={{
-          position: 'absolute', right: 0, top: 0, bottom: 0, width: '28px',
-          background: `linear-gradient(to right, transparent, ${color}22 40%, ${color}55)`,
-          borderRadius: '0 0 10px 0', pointerEvents: 'none',
-          display: 'flex', alignItems: 'center', justifyContent: 'flex-end', paddingRight: '4px',
+          position: 'absolute', right: 0, top: 0, bottom: 0, width: '30px',
+          background: `linear-gradient(to right, transparent, ${color})`,
+          borderRadius: '0 0 16px 0', pointerEvents: 'none',
+          display: 'flex', alignItems: 'center', justifyContent: 'flex-end', paddingRight: '6px',
         }}>
-          <span style={{ color, fontSize: '0.65rem', fontWeight: 900 }}>›</span>
+          <span style={{ color: color === '#C9D7E5' ? '#1E2D3B' : '#FFFFFF', fontSize: '0.75rem', fontWeight: 900 }}>›</span>
         </div>
       )}
     </div>
   );
 }
-
-const BB_AJUDA = '#8a7b6e';
 
 const MARCA_STEPS = ['placa', 'manifesto', 'tomdevoz', 'fonte', 'logo', 'slogan', 'submarca', 'cores', 'paleta', 'estampa', 'guia'];
 const DIGITAL_STEPS = ['cartao', 'pack-instagram', 'assinatura-email'];
@@ -169,17 +192,15 @@ export default function BrandBoxNav({ step, setStep, plano, papelariaItens = [],
     { id: 'upsell', label: dictionary?.nav?.upsell || 'Quer ir além? ✨' },
   ];
 
-  const subColor = isMarca ? BB_MARCA : isDigital ? BB_DIGITAL : isPapelaria ? BB_PAPELARIA : BB_AJUDA;
-
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: '0', marginBottom: '1.2rem', position: 'relative' }}>
+    <div style={{ display: 'flex', flexDirection: 'column', gap: '0', marginBottom: '1.4rem', position: 'relative' }}>
       {/* Tabs principais */}
-      <div style={{ display: 'flex', gap: '3px' }}>
+      <div style={{ display: 'flex', gap: '4px' }}>
         {[
-          { id: 'marca', label: dictionary?.nav?.marca || 'A Marca', color: BB_MARCA, radius: '12px 0 0 0', action: () => setStep('placa') },
-          { id: 'digital', label: dictionary?.nav?.digital || 'O Digital', color: BB_DIGITAL, radius: '0', action: () => { if (!isDigital) setStep('cartao'); } },
-          { id: 'papelaria', label: dictionary?.nav?.papelaria || 'Os Impressos', color: BB_PAPELARIA, radius: '0', action: () => setStep('papelaria') },
-          { id: 'ajuda', label: dictionary?.nav?.ajuda || 'Ajuda ✨', color: BB_AJUDA, radius: '0 12px 0 0', action: () => { if (!isAjuda) setStep('ajuda'); } },
+          { id: 'marca', label: dictionary?.nav?.marca || 'THE BRAND', color: BB_MARCA, textColor: '#1E2D3B', radius: '16px 16px 0 0', action: () => setStep('placa') },
+          { id: 'digital', label: dictionary?.nav?.digital || 'THE DIGITAL', color: BB_DIGITAL, textColor: '#FFFFFF', radius: '16px 16px 0 0', action: () => { if (!isDigital) setStep('cartao'); } },
+          { id: 'papelaria', label: dictionary?.nav?.papelaria || 'STATIONERY', color: BB_PAPELARIA, textColor: '#FFFFFF', radius: '16px 16px 0 0', action: () => setStep('papelaria') },
+          { id: 'ajuda', label: dictionary?.nav?.ajuda || 'HELP ✨', color: BB_AJUDA, textColor: '#FFFFFF', radius: '16px 16px 0 0', action: () => { if (!isAjuda) setStep('ajuda'); } },
         ].map(tab => {
           const active = activeCat === tab.id;
           const locked = tab.lockedOnAvulso && plano === 'avulso';
@@ -188,15 +209,21 @@ export default function BrandBoxNav({ step, setStep, plano, papelariaItens = [],
               key={tab.id}
               onClick={locked ? undefined : tab.action}
               style={{
-                flex: 1, padding: active ? '13px 4px' : '11px 4px', border: 'none',
+                flex: 1,
+                padding: active ? '14px 6px' : '12px 6px',
+                border: 'none',
                 cursor: locked ? 'default' : 'pointer',
-                fontSize: active ? '0.76rem' : '0.7rem', fontWeight: 800, textTransform: 'uppercase',
-                letterSpacing: '0.8px', fontFamily: 'Montserrat,sans-serif',
-                background: active ? tab.color : locked ? '#f0ede8' : '#ece9e4',
-                color: active ? '#fff' : locked ? '#ccc' : '#555',
+                fontSize: active ? '0.78rem' : '0.72rem',
+                fontWeight: 700,
+                textTransform: 'uppercase',
+                letterSpacing: '0.1em',
+                fontFamily: "'Cinzel', 'Montserrat', sans-serif",
+                background: active ? tab.color : locked ? '#EFECE3' : '#E5E2DA',
+                color: active ? tab.textColor : (locked ? '#AAAAAA' : '#555555'),
                 borderRadius: tab.radius,
-                boxShadow: active ? `0 3px 12px ${tab.color}55` : 'none',
-                transition: 'all 0.2s',
+                boxShadow: active ? `0 4px 16px ${tab.color}66` : 'none',
+                transition: 'all 0.22s cubic-bezier(0.2, 0.8, 0.2, 1)',
+                transform: active ? 'translateY(-2px)' : 'translateY(0)'
               }}
             >
               {locked ? `🔒 ${tab.label}` : tab.label}

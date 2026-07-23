@@ -10589,15 +10589,39 @@ function EntregaContent({ brand, plano, setBrand }) {
 
         <div style={{ padding: '0.5rem 1.4rem 0' }}>
 
-          {/* Header (Simplificado) */}
-        <div style={{ display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between', marginBottom: '1.2rem' }}>
-          <div>
-            <h1 style={{ fontSize: '1.4rem', fontWeight: 700, color: '#1a1a1a', lineHeight: 1.2 }}>
-              {step === 'placa' ? (dictionary?.nav?.placa || 'Placa da Marca') : step === 'manifesto' ? (dictionary?.nav?.manifesto || 'Manifesto da Marca') : step === 'tomdevoz' ? (dictionary?.nav?.tomdevoz || 'Tom de Voz') : step === 'fonte' ? (dictionary?.nav?.fonte || 'Fonte da Marca') : step === 'slogan' ? (dictionary?.nav?.slogan || 'Tagline da Marca') : step === 'logo' ? (dictionary?.nav?.logo || 'Sua Logo') : step === 'submarca' ? (dictionary?.nav?.submarca || 'Sua Submarca') : step === 'estampa' ? (dictionary?.nav?.estampa || 'Sua Estampa') : step === 'cores' ? (dictionary?.nav?.cores || 'Suas Cores') : step === 'paleta' ? (dictionary?.nav?.paleta || 'Sua Paleta') : step === 'cartao' ? (dictionary?.nav?.cartao || 'Cartão Digital') : step === 'pack-instagram' ? (dictionary?.nav?.pack_instagram || 'Pack Digital para Instagram') : step === 'assinatura-email' ? (dictionary?.nav?.assinatura_email || 'Assinatura de E-mail') : step === 'guia' ? (dictionary?.nav?.guia || 'Guia da Marca') : step === 'ajuda' ? (dictionary?.nav?.ajuda_inspiracao || 'Ajuda & Inspiração ✨') : step === 'upsell' ? (dictionary?.nav?.upsell || 'Quer ir além? ✨') : (dictionary?.nav?.papelaria || 'Sua Papelaria')}
-            </h1>
-          </div>
-          <div />
-        </div>
+          {/* Header Banner estilo Mockup */}
+          {(() => {
+            const isMarcaStep = ['placa', 'manifesto', 'tomdevoz', 'fonte', 'slogan', 'logo', 'submarca', 'cores', 'paleta', 'estampa', 'guia'].includes(step);
+            const isDigitalStep = ['cartao', 'pack-instagram', 'assinatura-email'].includes(step);
+            const isPapelariaStep = step === 'papelaria';
+            const catColor = isMarcaStep ? '#C9D7E5' : isDigitalStep ? '#C7B49F' : isPapelariaStep ? '#9B8B9B' : '#515361';
+
+            return (
+              <div style={{ 
+                borderTop: `2px solid ${catColor}`,
+                borderBottom: `2px solid ${catColor}`,
+                padding: '10px 16px',
+                marginBottom: '1.4rem',
+                background: 'rgba(255,255,255,0.7)',
+                borderRadius: '4px',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'space-between'
+              }}>
+                <h1 style={{ 
+                  fontSize: '1.25rem', 
+                  fontWeight: 700, 
+                  color: '#1E2D3B', 
+                  fontFamily: "'Cinzel', 'Montserrat', sans-serif",
+                  letterSpacing: '0.12em',
+                  textTransform: 'uppercase',
+                  margin: 0 
+                }}>
+                  {step === 'placa' ? (dictionary?.nav?.placa || 'Placa da Marca') : step === 'manifesto' ? (dictionary?.nav?.manifesto || 'Manifesto da Marca') : step === 'tomdevoz' ? (dictionary?.nav?.tomdevoz || 'Tom de Voz') : step === 'fonte' ? (dictionary?.nav?.fonte || 'Fonte da Marca') : step === 'slogan' ? (dictionary?.nav?.slogan || 'Tagline da Marca') : step === 'logo' ? (dictionary?.nav?.logo || 'Sua Logo') : step === 'submarca' ? (dictionary?.nav?.submarca || 'Sua Submarca') : step === 'estampa' ? (dictionary?.nav?.estampa || 'Sua Estampa') : step === 'cores' ? (dictionary?.nav?.cores || 'Suas Cores') : step === 'paleta' ? (dictionary?.nav?.paleta || 'Sua Paleta') : step === 'cartao' ? (dictionary?.nav?.cartao || 'Cartão Digital') : step === 'pack-instagram' ? (dictionary?.nav?.pack_instagram || 'Pack Digital para Instagram') : step === 'assinatura-email' ? (dictionary?.nav?.assinatura_email || 'Assinatura de E-mail') : step === 'guia' ? (dictionary?.nav?.guia || 'Guia da Marca') : step === 'ajuda' ? (dictionary?.nav?.ajuda_inspiracao || 'Ajuda & Inspiração ✨') : step === 'upsell' ? (dictionary?.nav?.upsell || 'Quer ir além? ✨') : (dictionary?.nav?.papelaria || 'Sua Papelaria')}
+                </h1>
+              </div>
+            );
+          })()}
 
         {/* Banner de upsell para steps exclusivos do pacote de identidade */}
         {plano === 'avulso' && ['placa', 'estampa', 'manifesto', 'tomdevoz', 'paleta', 'guia'].includes(step) && (
