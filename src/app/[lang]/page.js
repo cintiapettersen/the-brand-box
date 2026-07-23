@@ -1823,45 +1823,100 @@ export default function Home() {
               <div style={{ position: 'absolute', top: '3rem', left: '3rem', right: '3rem', height: '4px', background: 'var(--border)', borderRadius: '4px' }}><div style={{ height: '100%', background: 'var(--accent-turquoise)', width: '94%', borderRadius: '4px', transition: 'width 0.5s' }} /></div>
               <h2 style={{ fontSize: '2rem', marginBottom: '0.5rem' }}>{dictionary?.onboarding?.step_7_title || 'O que não pode faltar no layout?'}</h2>
               <p style={{ fontSize: '1rem', color: 'var(--text-secondary)', marginBottom: '1.5rem' }}>{dictionary?.onboarding?.step_7_subtitle || 'Quais elementos visuais e temáticos são vitais para você? (Escolha 1 opção)'}</p>
-              <div style={{ width: '100%', marginBottom: '1.5rem', overflowY: 'auto', maxHeight: '50vh', padding: '0 4px' }}>
-                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '12px', padding: '4px' }}>
+              <div style={{ width: '100%', marginBottom: '1rem', overflowY: 'auto', maxHeight: '52vh', padding: '14px 10px 18px 10px' }}>
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '12px', padding: '4px 2px' }}>
                   {(() => {
-                    const ELEMENTO_COLORS = {
-                      "Toque Lúdico / Elementos Mágicos": "#E6DDF2", // Lilac
-                      "Mascotes / Ícones Divertidos": "#F2E8D5", // Warm yellow/beige
-                      "Minimalismo / Linhas Retas": "#E8EAEB", // Cool grey
-                      "Aquarela Clássica": "#F2E3E9", // Soft pink
-                      "Formas Orgânicas / Tons Terrosos": "#C6B098", // Porcini / Taupe
-                      "Tipografia Pura / Editorial": "#C3CEDB" // Plein Air (Azul acinzentado chique)
+                    const ELEMENTO_PALETTE = {
+                      "Toque Lúdico / Elementos Mágicos": {
+                        bg: "#6B5B95",
+                        color: "#FFFFFF",
+                        border: "#57487F"
+                      },
+                      "Mascotes / Ícones Divertidos": {
+                        bg: "#D6B579",
+                        color: "#FFFFFF",
+                        border: "#BF9F63"
+                      },
+                      "Minimalismo / Linhas Retas": {
+                        bg: "#EBF0F5", // Tom Gelo Ice Blue/Grey
+                        color: "#223140",
+                        border: "#D0DCE6"
+                      },
+                      "Aquarela Clássica": {
+                        bg: "#C98CA7",
+                        color: "#FFFFFF",
+                        border: "#B27691"
+                      },
+                      "Formas Orgânicas / Tons Terrosos": {
+                        bg: "#B59E87",
+                        color: "#FFFFFF",
+                        border: "#9E8771"
+                      },
+                      "Tipografia Pura / Editorial": {
+                        bg: "#496880",
+                        color: "#FFFFFF",
+                        border: "#365167"
+                      }
                     };
+
                     return elementosDesc.map(s => {
                       const isSelected = formData.elementosVisuais.includes(s);
-                      const baseColor = ELEMENTO_COLORS[s] || '#F9F8F6';
-                      const isDark = ["Formas Orgânicas / Tons Terrosos", "Tipografia Pura / Editorial"].includes(s);
+                      const config = ELEMENTO_PALETTE[s] || {
+                        bg: "#F5F5F5",
+                        color: "var(--text-primary)",
+                        border: "var(--border)"
+                      };
 
                       return (
                         <button 
                           key={s} 
                           onClick={() => toggleElemento(s)} 
                           style={{
-                            background: isSelected ? baseColor : '#F9F8F6',
-                            color: isSelected ? (isDark ? '#fff' : 'var(--text-primary)') : 'var(--text-secondary)',
-                            border: isSelected ? `2px solid ${isDark ? baseColor : 'var(--text-primary)'}` : '1px solid var(--border)', 
+                            position: 'relative',
+                            background: config.bg,
+                            color: config.color,
+                            fontFamily: "'Plus Jakarta Sans', 'Inter', -apple-system, BlinkMacSystemFont, sans-serif",
+                            border: isSelected ? '3px solid var(--accent-turquoise)' : `1.5px solid ${config.border}`, 
                             padding: '16px 12px', 
-                            borderRadius: '12px', 
+                            borderRadius: '16px', 
                             cursor: 'pointer',
                             transition: 'all 0.2s ease', 
-                            fontSize: '0.82rem', 
-                            fontWeight: isSelected ? 600 : 400,
+                            fontSize: '0.86rem', 
+                            fontWeight: isSelected ? 700 : 600,
+                            letterSpacing: '0.01em',
                             display: 'flex',
+                            flexDirection: 'column',
                             alignItems: 'center',
                             justifyContent: 'center',
                             textAlign: 'center',
-                            minHeight: '100px',
-                            boxShadow: isSelected ? '0 6px 15px rgba(0,0,0,0.1)' : '0 2px 5px rgba(0,0,0,0.02)'
+                            minHeight: '105px',
+                            boxShadow: isSelected 
+                              ? '0 4px 14px rgba(42, 137, 127, 0.25)' 
+                              : '0 2px 8px rgba(0, 0, 0, 0.04)',
+                            transform: isSelected ? 'translateY(-2px)' : 'translateY(0)'
                           }}
                         >
-                          {dictionary?.onboarding?.elementos_options?.[s] || s}
+                          {isSelected && (
+                            <span style={{
+                              position: 'absolute',
+                              top: '8px',
+                              right: '8px',
+                              background: '#ffffff',
+                              color: '#1E293B',
+                              borderRadius: '50%',
+                              width: '20px',
+                              height: '20px',
+                              display: 'flex',
+                              alignItems: 'center',
+                              justifyContent: 'center',
+                              fontSize: '0.75rem',
+                              fontWeight: 'bold',
+                              boxShadow: '0 2px 4px rgba(0,0,0,0.15)'
+                            }}>
+                              ✓
+                            </span>
+                          )}
+                          <span>{dictionary?.onboarding?.elementos_options?.[s] || s}</span>
                         </button>
                       )
                     });
