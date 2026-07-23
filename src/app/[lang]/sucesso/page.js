@@ -117,6 +117,61 @@ const supabase = createClient(
   (process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY ? process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY.replace(/['"]/g, '') : undefined)
 );
 
+// Pattern scale calibration helpers — unified formula for preview and PDF
+// tileMm = scale × 0.25 mm  (physical size of one pattern tile in millimeters)
+export const getPatternTileMm = (scale, minMm = 0) => Math.max((parseFloat(scale) || 120) * 0.25, minMm);
+// tilePx = tileMm × (previewWidthPx / itemWidthMm)  (pixel size for screen preview)
+export const getPatternTilePx = (scale, previewWidthPx = 300, itemWidthMm = 210, minMm = 0) => {
+  const tileMm = getPatternTileMm(scale, minMm);
+  const pxPerMm = previewWidthPx / itemWidthMm;
+  return Math.round(tileMm * pxPerMm);
+};
+export const getPatternPosition = (offset = 0) => `${(offset || 0) * 5}px center`;
+
+// Default patternScale por item: tile = itemWidthMm -> zero repeticao visivel de costuras
+// Formula: scale = itemWidthMm / 0.25  (tile cobriria o item inteiro sem repetir)
+export const ITEM_DEFAULT_PATTERN_SCALE = {
+  // Cards (56-96mm)
+  'Cartão de Retorno': 384,
+  'Cartão de Visita': 384,
+  'Cartão de Agradecimento (10x15cm)': 480,
+  // A5 items (154mm)
+  'Receituário Padrão': 640,
+  'Receituário Padrão (A4 e A5)': 640,
+  'Receituário de Controle Especial': 640,
+  'Recibo': 640,
+  // A4 items (216mm)
+  'Prontuário Médico': 880,
+  'Diário do Xixi e do Cocô': 880,
+  'Ficha de Cadastro': 880,
+  'Checklist Maternidade': 880,
+  'Orientações p/ Recém Nascidos': 880,
+  'Papel Timbrado': 880,
+  'Atestado Médico': 880,
+  'Atestado Médico (A4 e A5)': 880,
+  'Certificado de Coragem': 1240,
+  'Gráfico de Crescimento': 880,
+  // Envelopes
+  'Envelope Saco': 920,
+  'Envelope Saco (24x34cm)': 920,
+  'Envelope Ofício': 980,
+  // Pasta
+  'Pasta A4': 960,
+  // Caderno
+  'Capa de Caderno / Agenda': 800,
+  'Caderneta de Saúde': 800,
+  // Folder
+  'Folder Trifold': 420,
+  'Folder A5': 640,
+  // T-Shirt
+  'T-Shirt': 1100,
+  // Caneca e Brindes
+  'Caneca': 180,
+  'Arte para Caneca': 180,
+  // Tag para Sacola
+  'Tag para Sacola': 240,
+};
+
 export const ITEM_CUSTOM_BASE_SCALES = {
   'Envelope Saco (24x34cm)': 2.0,
   'Envelope Saco': 2.0,
@@ -846,8 +901,7 @@ function CartaoStep({ brand, accentColor, paletteColors, marca, estampaPatterns,
         overflow: 'hidden',
         boxShadow: '0 8px 40px rgba(0,0,0,0.13)',
         backgroundImage: patternSrc ? `url(${patternSrc})` : undefined,
-        background: patternSrc ? undefined : '#f5f5f5',
-        backgroundSize: '22%', backgroundRepeat: 'repeat',
+        backgroundSize: '22%', backgroundPosition: 'center', backgroundRepeat: 'repeat',
         padding: orientation === 'portrait' ? '40px 14px' : '14px',
         width: orientation === 'portrait' ? '300px' : '100%',
         height: orientation === 'portrait' ? '533px' : 'auto',
@@ -916,7 +970,7 @@ function CartaoStep({ brand, accentColor, paletteColors, marca, estampaPatterns,
         </div>
       )}
 
-      <div style={{ display: 'flex', gap: '6px', marginTop: '1rem', width: '100%', flexWrap: 'wrap' }}>
+      <div style={{ display: 'flex', gap: '8px', marginTop: '1rem', width: '100%', flexWrap: 'wrap', justifyContent: 'center' }}>
         <button onClick={async () => {
           const html = downloadHTML(true);
           const file = new File([new Blob([html], { type: 'text/html' })], `${marca || 'marca'}-cartao-digital.html`, { type: 'text/html' });
@@ -925,7 +979,7 @@ function CartaoStep({ brand, accentColor, paletteColors, marca, estampaPatterns,
             return;
           }
           downloadHTML();
-        }} style={{ flex: 1, minWidth: '100px', padding: '13px 8px', background: '#363532', color: '#fff', border: 'none', borderRadius: '30px', fontWeight: 700, fontSize: '0.78rem', cursor: 'pointer', fontFamily: 'Montserrat, sans-serif', whiteSpace: 'nowrap' }}>
+        }} style={{ flex: '1 1 120px', minWidth: '0', padding: '10px 10px', background: '#363532', color: '#fff', border: 'none', borderRadius: '30px', fontWeight: 700, fontSize: '0.72rem', cursor: 'pointer', fontFamily: 'Montserrat, sans-serif', textAlign: 'center', boxSizing: 'border-box' }}>
           {dictionary?.digital_tab?.share || '↑ Compartilhar'}
         </button>
         <a 
@@ -940,14 +994,14 @@ function CartaoStep({ brand, accentColor, paletteColors, marca, estampaPatterns,
               alert('Pronto! O arquivo HTML do seu cartão foi baixado. 📥\n\nLembre-se de clicar no "clip de papel" ou "+" 📎 na tela do WhatsApp e anexar o arquivo HTML que baixamos junto com a mensagem!');
             }, 800);
           }} 
-          style={{ flex: 1, minWidth: '100px', padding: '13px 8px', background: '#25D366', color: '#fff', border: 'none', borderRadius: '30px', fontWeight: 700, fontSize: '0.78rem', cursor: 'pointer', fontFamily: 'Montserrat, sans-serif', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: '6px', whiteSpace: 'nowrap', textDecoration: 'none' }}
+          style={{ flex: '1 1 120px', minWidth: '0', padding: '10px 10px', background: '#25D366', color: '#fff', border: 'none', borderRadius: '30px', fontWeight: 700, fontSize: '0.72rem', cursor: 'pointer', fontFamily: 'Montserrat, sans-serif', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: '4px', textDecoration: 'none', boxSizing: 'border-box' }}
         >
-          <svg viewBox="0 0 24 24" width="15" height="15" fill="white" style={{ display: 'block' }}>
+          <svg viewBox="0 0 24 24" width="14" height="14" fill="white" style={{ display: 'block', flexShrink: 0 }}>
             <path d="M.057 24l1.687-6.163c-1.041-1.804-1.588-3.849-1.587-5.946C.003 5.27 5.28.005 11.792.005c3.16.001 6.129 1.233 8.359 3.468s3.461 5.197 3.461 8.353c-.004 6.523-5.28 11.785-11.793 11.785-1.996-.002-3.957-.5-5.744-1.44L0 24zm5.824-2.871l.328.193c1.674.993 3.593 1.517 5.637 1.518 5.728 0 10.387-4.647 10.39-10.354.002-2.766-1.077-5.366-3.038-7.329s-4.564-3.04-7.33-3.04c-5.73 0-10.39 4.65-10.393 10.358 0 2.11.55 4.17 1.59 5.973l.21.36-1.002 3.658 3.73-.978zm13.125-7.794c-.315-.158-1.86-.918-2.175-1.033-.315-.115-.545-.172-.773.172-.228.345-.885 1.114-1.085 1.343-.2.228-.4.258-.715.1-.315-.158-1.33-.49-2.532-1.562-.936-.83-1.568-1.856-1.75-2.172-.182-.315-.02-.485.138-.642.142-.142.315-.368.473-.553.158-.185.21-.315.315-.525.105-.21.053-.394-.026-.552-.079-.158-.773-1.86-1.06-2.553-.28-.673-.562-.58-.773-.59-.2-.01-.428-.01-.657-.01-.228 0-.6.085-.914.428-.315.345-1.202 1.176-1.202 2.87 0 1.693 1.233 3.325 1.405 3.555.172.228 2.428 3.708 5.882 5.197.82.353 1.46.564 1.96.723.824.263 1.575.225 2.167.137.66-.098 1.86-.76 2.124-1.458.263-.697.263-1.3.185-1.428-.079-.128-.288-.208-.604-.366z"/>
           </svg>
           {dictionary?.digital_tab?.send_whatsapp || 'Enviar no Whats'}
         </a>
-        <button onClick={downloadHTML} style={{ flex: 1, minWidth: '100px', padding: '13px 8px', background: 'none', color: '#363532', border: '1.5px solid #363532', borderRadius: '30px', fontWeight: 700, fontSize: '0.78rem', cursor: 'pointer', fontFamily: 'Montserrat, sans-serif', whiteSpace: 'nowrap' }}>
+        <button onClick={downloadHTML} style={{ flex: '1 1 120px', minWidth: '0', padding: '10px 10px', background: 'none', color: '#363532', border: '1.5px solid #363532', borderRadius: '30px', fontWeight: 700, fontSize: '0.72rem', cursor: 'pointer', fontFamily: 'Montserrat, sans-serif', textAlign: 'center', boxSizing: 'border-box' }}>
           {dictionary?.digital_tab?.download_html || '⬇ Baixar HTML'}
         </button>
       </div>
@@ -1360,7 +1414,7 @@ function EstampaStep({ brand, accentColor, marca, patterns, setPatterns, genCoun
               <div style={{
                 position: 'absolute', inset: 0,
                 backgroundImage: `url(${patternSrc})`,
-                backgroundSize: '28%', backgroundRepeat: 'repeat',
+                backgroundSize: '28%', backgroundPosition: 'center', backgroundRepeat: 'repeat',
                 mixBlendMode: 'normal',
                 opacity: 0.52,
                 WebkitMaskImage: 'url(/mockups/clinica-mask.svg)',
@@ -2648,7 +2702,7 @@ function ManifestoStep({ accentColor, marca, tagline, brand, isSaude, editData }
       </div>
       <button
         onClick={() => setShowQuiz(true)}
-        style={{ padding: '16px', borderRadius: '30px', border: 'none', background: '#363532', color: '#fff', fontWeight: 700, fontSize: '0.9rem', cursor: 'pointer', fontFamily: 'Montserrat, sans-serif' }}
+        style={{ padding: '16px', borderRadius: '30px', border: 'none', background: accentColor, color: '#fff', fontWeight: 700, fontSize: '0.9rem', cursor: 'pointer', fontFamily: 'Montserrat, sans-serif', boxShadow: '0 4px 15px rgba(0,0,0,0.1)' }}
       >
         {tMan.btn_create || '✨ Criar Manifesto com IA'}
       </button>
@@ -3222,7 +3276,7 @@ function GuiaStep({ brand, accentColor, paletteColors, marca, tagline, estampaPa
   );
 }
 
-function CartaoRetornoPreview({ accentColor, patternSrc, cartaoContacts, crmLine, editData, logoColor, comBorda, setComBorda, clinicaNome, setClinicaNome, logoLayout, paletteColors, borderColor, setBorderColor, patternScale, setPatternScale }) {
+function CartaoRetornoPreview({ accentColor, patternSrc, cartaoContacts, crmLine, editData, logoColor, comBorda, setComBorda, clinicaNome, setClinicaNome, logoLayout, paletteColors, borderColor, setBorderColor, patternScale, setPatternScale , patternOffset, setPatternOffset}) {
   const { dictionary } = useTranslation();
   const brandFont = `'${editData?.fontFamily || 'Playfair Display'}', serif`;
   const { endereco, whatsapp, telefone, telefone2, instagram, site } = cartaoContacts || {};
@@ -3238,7 +3292,7 @@ function CartaoRetornoPreview({ accentColor, patternSrc, cartaoContacts, crmLine
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', alignItems: 'center', width: '100%' }}>
-      <BordaToggle comBorda={comBorda} setComBorda={setComBorda} accentColor={accentColor} paletteColors={paletteColors} borderColor={borderColor} setBorderColor={setBorderColor} patternScale={patternScale} setPatternScale={setPatternScale} />
+      <BordaToggle patternOffset={patternOffset} setPatternOffset={setPatternOffset} setPatternOffset={typeof setPatternOffset !== "undefined" ? setPatternOffset : undefined} comBorda={comBorda} setComBorda={setComBorda} accentColor={accentColor} paletteColors={paletteColors} borderColor={borderColor} setBorderColor={setBorderColor} patternScale={patternScale} setPatternScale={setPatternScale} patternOffset={patternOffset} setPatternOffset={setPatternOffset} setPatternOffset={typeof setPatternOffset !== "undefined" ? setPatternOffset : undefined} />
 
       <div style={{ display: 'flex', gap: '20px', justifyContent: 'center', flexWrap: 'wrap' }}>
         {/* FRENTE */}
@@ -3246,7 +3300,7 @@ function CartaoRetornoPreview({ accentColor, patternSrc, cartaoContacts, crmLine
           <p style={{ fontSize: '0.6rem', color: '#aaa', letterSpacing: '2px', textTransform: 'uppercase' }}>{dictionary?.geral?.frente || 'Frente'}</p>
           <div style={{ width: '184px', height: '320px', position: 'relative', background: '#fff', overflow: 'hidden', boxShadow: '0 4px 20px rgba(0,0,0,0.12)', borderRadius: '4px' }}>
             {comBorda && patternSrc
-              ? <div style={{ position: 'absolute', inset: 0, backgroundImage: `url(${patternSrc})`, backgroundSize: `${(patternScale || 150) / 0.5}px`, backgroundRepeat: 'repeat', zIndex: 0 }} />
+              ? <div style={{ position: 'absolute', inset: 0, backgroundImage: `url(${patternSrc})`, backgroundSize: `${getPatternTilePx(patternScale, 220, 56)}px`, backgroundPosition: 'center', backgroundRepeat: 'repeat', zIndex: 0 }} />
               : <div style={{ position: 'absolute', inset: 0, border: `14px solid ${solidColor}`, zIndex: 0 }} />}
             
             <div style={{ position: 'absolute', top: '14px', left: '14px', right: '14px', bottom: '14px', background: '#fff', zIndex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', padding: '12px 10px' }}>
@@ -3274,7 +3328,7 @@ function CartaoRetornoPreview({ accentColor, patternSrc, cartaoContacts, crmLine
           <p style={{ fontSize: '0.6rem', color: '#aaa', letterSpacing: '2px', textTransform: 'uppercase' }}>{dictionary?.geral?.verso || 'Verso'}</p>
           <div style={{ width: '184px', height: '320px', position: 'relative', background: '#fff', overflow: 'hidden', boxShadow: '0 4px 20px rgba(0,0,0,0.12)', borderRadius: '4px' }}>
             {comBorda && patternSrc
-              ? <div style={{ position: 'absolute', inset: 0, backgroundImage: `url(${patternSrc})`, backgroundSize: `${(patternScale || 150) / 0.5}px`, backgroundRepeat: 'repeat', zIndex: 0 }} />
+              ? <div style={{ position: 'absolute', inset: 0, backgroundImage: `url(${patternSrc})`, backgroundSize: `${getPatternTilePx(patternScale, 220, 56)}px`, backgroundPosition: 'center', backgroundRepeat: 'repeat', zIndex: 0 }} />
               : <div style={{ position: 'absolute', inset: 0, border: `14px solid ${solidColor}`, zIndex: 0 }} />}
             
             <div style={{ position: 'absolute', top: '14px', left: '14px', right: '14px', bottom: '14px', background: '#fff', zIndex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', padding: '10px 8px' }}>
@@ -3313,7 +3367,7 @@ function CartaoRetornoPreview({ accentColor, patternSrc, cartaoContacts, crmLine
   );
 }
 
-function CartaoDeVisitaPreview({ accentColor, patternSrc, cartaoContacts, crmLine, editData, logoColor, comBorda, setComBorda, clinicaNome, setClinicaNome, logoLayout, paletteColors, borderColor, setBorderColor, patternScale, setPatternScale, hideTagline, retrato: retratoExterno, setRetrato: setRetratoExterno }) {
+function CartaoDeVisitaPreview({ accentColor, patternSrc, cartaoContacts, crmLine, editData, logoColor, comBorda, setComBorda, clinicaNome, setClinicaNome, logoLayout, paletteColors, borderColor, setBorderColor, patternScale, setPatternScale, hideTagline, retrato: retratoExterno, setRetrato: setRetratoExterno , patternOffset, setPatternOffset}) {
   const { dictionary } = useTranslation();
   const [retratoLocal, setRetratoLocal] = React.useState(false);
   const retrato = retratoExterno !== undefined ? retratoExterno : retratoLocal;
@@ -3331,7 +3385,7 @@ function CartaoDeVisitaPreview({ accentColor, patternSrc, cartaoContacts, crmLin
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', alignItems: 'center', width: '100%' }}>
-      <BordaToggle comBorda={comBorda} setComBorda={setComBorda} accentColor={accentColor} paletteColors={paletteColors} borderColor={borderColor} setBorderColor={setBorderColor} patternScale={patternScale} setPatternScale={setPatternScale} />
+      <BordaToggle patternOffset={patternOffset} setPatternOffset={setPatternOffset} setPatternOffset={typeof setPatternOffset !== "undefined" ? setPatternOffset : undefined} comBorda={comBorda} setComBorda={setComBorda} accentColor={accentColor} paletteColors={paletteColors} borderColor={borderColor} setBorderColor={setBorderColor} patternScale={patternScale} setPatternScale={setPatternScale} patternOffset={patternOffset} setPatternOffset={setPatternOffset} />
 
       {/* Toggle retrato/paisagem */}
       <div style={{ display: 'flex', gap: '8px', background: '#f0f0f0', borderRadius: '20px', padding: '4px' }}>
@@ -3343,7 +3397,7 @@ function CartaoDeVisitaPreview({ accentColor, patternSrc, cartaoContacts, crmLin
       <p style={{ fontSize: '0.6rem', color: '#aaa', letterSpacing: '2px', textTransform: 'uppercase' }}>{dictionary?.geral?.frente || 'Frente'}</p>
       <div style={{ width: `${CW}px`, height: `${CH}px`, position: 'relative', background: '#fff', overflow: 'hidden', boxShadow: '0 4px 20px rgba(0,0,0,0.12)', borderRadius: '4px' }}>
         {comBorda && patternSrc && <>
-          <div style={{ position: 'absolute', inset: 0, backgroundImage: `url(${patternSrc})`, backgroundSize: `${(patternScale || 150) / 0.5}px`, backgroundRepeat: 'repeat', opacity: 0.9, zIndex: 0 }} />
+          <div style={{ position: 'absolute', inset: 0, backgroundImage: `url(${patternSrc})`, backgroundSize: `${getPatternTilePx(patternScale, CW, retrato ? 61 : 96)}px`, backgroundPosition: 'center', backgroundRepeat: 'repeat', opacity: 0.9, zIndex: 0 }} />
           <div style={{ position: 'absolute', top: '16px', left: '16px', right: '16px', bottom: '16px', background: 'transparent', zIndex: 1 }} />
         </>}
         <div style={{ position: 'absolute', inset: 0, zIndex: 2, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
@@ -3376,7 +3430,7 @@ function CartaoDeVisitaPreview({ accentColor, patternSrc, cartaoContacts, crmLin
       <p style={{ fontSize: '0.6rem', color: '#aaa', letterSpacing: '2px', textTransform: 'uppercase' }}>{dictionary?.geral?.verso || 'Verso'}</p>
       <div style={{ width: `${CW}px`, height: `${CH}px`, position: 'relative', overflow: 'hidden', boxShadow: '0 4px 20px rgba(0,0,0,0.12)', borderRadius: '4px' }}>
         {comBorda && patternSrc
-          ? <div style={{ position: 'absolute', inset: 0, backgroundImage: `url(${patternSrc})`, backgroundSize: `${(patternScale || 150) / 0.5}px`, backgroundRepeat: 'repeat', zIndex: 0 }} />
+          ? <div style={{ position: 'absolute', inset: 0, backgroundImage: `url(${patternSrc})`, backgroundSize: `${getPatternTilePx(patternScale, CW, retrato ? 61 : 96)}px`, backgroundPosition: 'center', backgroundRepeat: 'repeat', zIndex: 0 }} />
           : <div style={{ position: 'absolute', inset: 0, background: borderColor || accentColor, zIndex: 0 }} />}
         <div style={{ position: 'absolute', inset: 0, zIndex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
           {(clinicaNome || crmLine || endereco || whatsapp || telefone || instagram || email || site) ? (
@@ -3408,7 +3462,7 @@ function CartaoDeVisitaPreview({ accentColor, patternSrc, cartaoContacts, crmLin
 }
 
 // Toggle compartilhado: Com/Sem estampa + bolinhas clicáveis de cor da paleta + Slider de Escala
-export function BordaToggle({ comBorda, setComBorda, accentColor, paletteColors, borderColor, setBorderColor, patternScale, setPatternScale }) {
+export function BordaToggle({ comBorda, setComBorda, accentColor, paletteColors, borderColor, setBorderColor, patternScale, setPatternScale, patternOffset, setPatternOffset }) {
   const { dictionary } = useTranslation();
   const btn = (active) => ({
     padding: '6px 16px', borderRadius: '20px', fontSize: '0.72rem', fontWeight: 700,
@@ -3424,14 +3478,18 @@ export function BordaToggle({ comBorda, setComBorda, accentColor, paletteColors,
       </div>
 
       {comBorda && setPatternScale && (
-        <div style={{ display: 'flex', alignItems: 'center', gap: '8px', borderLeft: '1px solid #eee', paddingLeft: '12px', marginLeft: '4px' }}>
-          <span style={{ fontSize: '0.62rem', color: '#999', textTransform: 'uppercase', letterSpacing: '1px', fontWeight: 600 }}>{dictionary?.geral?.tamanho || 'Tamanho:'}</span>
-          <input 
-            type="range" min="50" max="600" step="10"
-            value={patternScale || 120} 
-            onChange={(e) => setPatternScale(parseInt(e.target.value))}
-            style={{ width: '80px', height: '4px', cursor: 'pointer', accentColor: accentColor }}
-          />
+        <div style={{ display: 'flex', alignItems: 'center', gap: '12px', borderLeft: '1px solid #eee', paddingLeft: '12px', marginLeft: '4px' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+            <span style={{ fontSize: '0.62rem', color: '#999', textTransform: 'uppercase', letterSpacing: '1px', fontWeight: 600 }}>{dictionary?.geral?.tamanho || 'Tamanho:'}</span>
+            <input 
+              type="range" min="50" max="1500" step="10"
+              value={patternScale || 120} 
+              onChange={(e) => setPatternScale(parseInt(e.target.value))}
+              style={{ width: '70px', height: '4px', cursor: 'pointer', accentColor: accentColor }}
+            />
+          </div>
+
+          
         </div>
       )}
 
@@ -3462,7 +3520,7 @@ export function BordaToggle({ comBorda, setComBorda, accentColor, paletteColors,
 }
 
 // Preview do Certificado de Coragem (A4 Horizontal, casinha branca e borda estampada)
-function CertificadoCoragemPreview({ accentColor, patternSrc, editData, logoColor, logoLayout, cartaoContacts, crmLine, clinicaNome, comBorda, setComBorda, paletteColors, borderColor, setBorderColor, patternScale, setPatternScale, hideTagline }) {
+function CertificadoCoragemPreview({ accentColor, patternSrc, editData, logoColor, logoLayout, cartaoContacts, crmLine, clinicaNome, comBorda, setComBorda, paletteColors, borderColor, setBorderColor, patternScale, setPatternScale, hideTagline , patternOffset, setPatternOffset}) {
   const { dictionary } = useTranslation();
   const effectiveSrc = comBorda ? patternSrc : null;
   const solidColor = borderColor || accentColor;
@@ -3472,14 +3530,15 @@ function CertificadoCoragemPreview({ accentColor, patternSrc, editData, logoColo
     <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', alignItems: 'center' }}>
       <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Great+Vibes&display=swap" />
       
-      <BordaToggle comBorda={comBorda} setComBorda={setComBorda} accentColor={accentColor} paletteColors={paletteColors} borderColor={borderColor} setBorderColor={setBorderColor} patternScale={patternScale} setPatternScale={setPatternScale} />
+      <BordaToggle patternOffset={patternOffset} setPatternOffset={setPatternOffset} setPatternOffset={typeof setPatternOffset !== "undefined" ? setPatternOffset : undefined} comBorda={comBorda} setComBorda={setComBorda} accentColor={accentColor} paletteColors={paletteColors} borderColor={borderColor} setBorderColor={setBorderColor} patternScale={patternScale} setPatternScale={setPatternScale} patternOffset={patternOffset} setPatternOffset={setPatternOffset} />
       
       <div style={{ width: '360px', height: '254px', position: 'relative', boxShadow: '0 4px 20px rgba(0,0,0,0.12)', borderRadius: '4px', overflow: 'hidden', background: '#fff' }}>
         {/* Background com estampa */}
         <div style={{
           position: 'absolute', top: 0, left: 0, right: 0, bottom: 0,
           backgroundImage: effectiveSrc ? `url(${effectiveSrc})` : 'none',
-          backgroundSize: `${patternScale / 1.1}px`,
+          backgroundSize: `${getPatternTilePx(patternScale, 420, 303)}px`,
+          backgroundPosition: getPatternPosition(patternOffset),
           backgroundColor: !effectiveSrc ? solidColor : 'transparent'
         }} />
 
@@ -3514,7 +3573,7 @@ function CertificadoCoragemPreview({ accentColor, patternSrc, editData, logoColo
 }
 
 // Preview proporcional A5 — usado por receituário, timbrado, etc.
-function A5ItemPreview({ item, accentColor, patternSrc, editData, logoColor, logoLayout, cartaoContacts, crmLine, clinicaNome, comBorda, setComBorda, paletteColors, borderColor, setBorderColor, patternScale, setPatternScale, hideTagline, folderRoof, setFolderRoof, paperSize, setPaperSize }) {
+function A5ItemPreview({ item, accentColor, patternSrc, editData, logoColor, logoLayout, cartaoContacts, crmLine, clinicaNome, comBorda, setComBorda, paletteColors, borderColor, setBorderColor, patternScale, setPatternScale, hideTagline, folderRoof, setFolderRoof, paperSize, setPaperSize , patternOffset, setPatternOffset}) {
   const { dictionary } = useTranslation();
   const BORDER = 14;
   const { whatsapp, telefone, telefone2, email, instagram, site, endereco } = cartaoContacts || {};
@@ -3526,7 +3585,7 @@ function A5ItemPreview({ item, accentColor, patternSrc, editData, logoColor, log
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', alignItems: 'center' }}>
-      <BordaToggle comBorda={comBorda} setComBorda={setComBorda} accentColor={accentColor} paletteColors={paletteColors} borderColor={borderColor} setBorderColor={setBorderColor} patternScale={patternScale} setPatternScale={setPatternScale} />
+      <BordaToggle patternOffset={patternOffset} setPatternOffset={setPatternOffset} setPatternOffset={typeof setPatternOffset !== "undefined" ? setPatternOffset : undefined} comBorda={comBorda} setComBorda={setComBorda} accentColor={accentColor} paletteColors={paletteColors} borderColor={borderColor} setBorderColor={setBorderColor} patternScale={patternScale} setPatternScale={setPatternScale} patternOffset={patternOffset} setPatternOffset={setPatternOffset} />
       <div style={{ display: 'flex', gap: '6px', alignItems: 'center', flexWrap: 'wrap', justifyContent: 'center' }}>
         {setFolderRoof && (
           <button onClick={() => setFolderRoof(v => !v)} style={{ fontSize: '0.7rem', padding: '4px 12px', borderRadius: '20px', border: `1px solid ${folderRoof ? accentColor : '#eee'}`, background: folderRoof ? `${accentColor}10` : '#fff', color: folderRoof ? accentColor : '#aaa', cursor: 'pointer', fontFamily: 'Montserrat,sans-serif', fontWeight: folderRoof ? 700 : 400 }}>
@@ -3548,7 +3607,7 @@ function A5ItemPreview({ item, accentColor, patternSrc, editData, logoColor, log
     <div style={{ width: '226px', height: '320px', position: 'relative', boxShadow: '0 4px 20px rgba(0,0,0,0.12)', borderRadius: '4px', overflow: 'hidden', background: '#fff' }}>
       {/* Fundo — estampa ou cor sólida */}
       {effectiveSrc
-        ? <div style={{ position: 'absolute', inset: 0, backgroundImage: `url(${effectiveSrc})`, backgroundSize: `${(patternScale || 150) / 0.6}px`, backgroundRepeat: 'repeat' }} />
+        ? <div style={{ position: 'absolute', inset: 0, backgroundImage: `url(${effectiveSrc})`, backgroundSize: `${getPatternTilePx(patternScale, 280, 154)}px`, backgroundPosition: getPatternPosition(patternOffset), backgroundRepeat: 'repeat' }} />
         : <div style={{ position: 'absolute', inset: 0, background: solidColor }} />}
       {/* Área branca com recorte casinha (funciona em ambos os modos) */}
       <div style={{ position: 'absolute', top: BORDER, left: BORDER, right: BORDER, bottom: BORDER, background: '#fff', clipPath: roofClip }} />
@@ -3576,7 +3635,7 @@ function A5ItemPreview({ item, accentColor, patternSrc, editData, logoColor, log
   );
 }
 
-function ProntuarioPreview({ accentColor, patternSrc, editData, logoColor, logoLayout, cartaoContacts, crmLine, clinicaNome, comBorda, setComBorda, paletteColors, borderColor, setBorderColor, patternScale, setPatternScale, hideTagline }) {
+function ProntuarioPreview({ accentColor, patternSrc, editData, logoColor, logoLayout, cartaoContacts, crmLine, clinicaNome, comBorda, setComBorda, paletteColors, borderColor, setBorderColor, patternScale, setPatternScale, hideTagline , patternOffset, setPatternOffset}) {
   const { dictionary } = useTranslation();
   const BORDER = 10;
   const effectiveSrc = comBorda ? patternSrc : null;
@@ -3599,12 +3658,12 @@ function ProntuarioPreview({ accentColor, patternSrc, editData, logoColor, logoL
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', alignItems: 'center' }}>
-      <BordaToggle comBorda={comBorda} setComBorda={setComBorda} accentColor={accentColor} paletteColors={paletteColors} borderColor={borderColor} setBorderColor={setBorderColor} patternScale={patternScale} setPatternScale={setPatternScale} />
+      <BordaToggle patternOffset={patternOffset} setPatternOffset={setPatternOffset} setPatternOffset={typeof setPatternOffset !== "undefined" ? setPatternOffset : undefined} comBorda={comBorda} setComBorda={setComBorda} accentColor={accentColor} paletteColors={paletteColors} borderColor={borderColor} setBorderColor={setBorderColor} patternScale={patternScale} setPatternScale={setPatternScale} patternOffset={patternOffset} setPatternOffset={setPatternOffset} />
       <div style={{ display: 'flex', gap: '15px' }}>
         {/* FRENTE */}
         <div style={{ width: '226px', height: '320px', position: 'relative', boxShadow: '0 6px 30px rgba(0,0,0,0.12)', borderRadius: '4px', overflow: 'hidden', background: '#fff' }}>
           {effectiveSrc
-            ? <div style={{ position: 'absolute', inset: 0, backgroundImage: `url(${effectiveSrc})`, backgroundSize: `${(patternScale || 150) / 0.7}px`, backgroundRepeat: 'repeat' }} />
+            ? <div style={{ position: 'absolute', inset: 0, backgroundImage: `url(${effectiveSrc})`, backgroundSize: `${getPatternTilePx(patternScale, 350, 216)}px`, backgroundPosition: `${patternOffset || 0}% center`, backgroundRepeat: 'repeat' }} />
             : <div style={{ position: 'absolute', inset: 0, background: solidColor }} />}
           <div style={{ position: 'absolute', top: BORDER, left: BORDER, right: BORDER, bottom: BORDER, background: '#fff', padding: '12px 14px' }}>
             <div style={{ width: '100%', height: '80px', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', marginBottom: '10px', overflow: 'hidden' }}>
@@ -3628,7 +3687,7 @@ function ProntuarioPreview({ accentColor, patternSrc, editData, logoColor, logoL
         {/* VERSO */}
         <div style={{ width: '226px', height: '320px', position: 'relative', boxShadow: '0 6px 30px rgba(0,0,0,0.12)', borderRadius: '4px', overflow: 'hidden', background: '#fff' }}>
           {effectiveSrc
-            ? <div style={{ position: 'absolute', inset: 0, backgroundImage: `url(${effectiveSrc})`, backgroundSize: `${(patternScale || 150) / 0.7}px`, backgroundRepeat: 'repeat' }} />
+            ? <div style={{ position: 'absolute', inset: 0, backgroundImage: `url(${effectiveSrc})`, backgroundSize: `${getPatternTilePx(patternScale, 350, 216)}px`, backgroundPosition: `${patternOffset || 0}% center`, backgroundRepeat: 'repeat' }} />
             : <div style={{ position: 'absolute', inset: 0, background: solidColor }} />}
           <div style={{ position: 'absolute', top: BORDER, left: BORDER, right: BORDER, bottom: BORDER, background: '#fff', padding: '12px 14px' }}>
             <div style={{ display: 'flex', flexDirection: 'column', gap: '8.5px', marginTop: '5px' }}>
@@ -3645,7 +3704,7 @@ function ProntuarioPreview({ accentColor, patternSrc, editData, logoColor, logoL
     </div>
   );
 }
-function DiarioXixiPreview({ accentColor, patternSrc, editData, logoColor, logoLayout, cartaoContacts, crmLine, clinicaNome, comBorda, setComBorda, paletteColors, borderColor, setBorderColor, patternScale, setPatternScale, hideTagline }) {
+function DiarioXixiPreview({ accentColor, patternSrc, editData, logoColor, logoLayout, cartaoContacts, crmLine, clinicaNome, comBorda, setComBorda, paletteColors, borderColor, setBorderColor, patternScale, setPatternScale, hideTagline , patternOffset, setPatternOffset}) {
   const { dictionary } = useTranslation();
   const scaleXixi = useScaleToFit(453, 320 + 12);
   const BORDER = 10;
@@ -3680,12 +3739,12 @@ function DiarioXixiPreview({ accentColor, patternSrc, editData, logoColor, logoL
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', alignItems: 'center', width: '100%' }}>
-      <BordaToggle comBorda={comBorda} setComBorda={setComBorda} accentColor={accentColor} paletteColors={paletteColors} borderColor={borderColor} setBorderColor={setBorderColor} patternScale={patternScale} setPatternScale={setPatternScale} />
+      <BordaToggle patternOffset={patternOffset} setPatternOffset={setPatternOffset} setPatternOffset={typeof setPatternOffset !== "undefined" ? setPatternOffset : undefined} comBorda={comBorda} setComBorda={setComBorda} accentColor={accentColor} paletteColors={paletteColors} borderColor={borderColor} setBorderColor={setBorderColor} patternScale={patternScale} setPatternScale={setPatternScale} patternOffset={patternOffset} setPatternOffset={setPatternOffset} />
       <div ref={scaleXixi.wrapperRef} style={scaleXixi.wrapperStyle}>
       <div style={scaleXixi.innerStyle}>
       <div style={{ width: '453px', height: '320px', position: 'relative', boxShadow: '0 6px 30px rgba(0,0,0,0.12)', borderRadius: '4px', overflow: 'hidden', background: '#fff' }}>
         {effectiveSrc
-          ? <div style={{ position: 'absolute', inset: 0, backgroundImage: `url(${effectiveSrc})`, backgroundSize: `${(patternScale || 150) / 0.6}px`, backgroundRepeat: 'repeat' }} />
+          ? <div style={{ position: 'absolute', inset: 0, backgroundImage: `url(${effectiveSrc})`, backgroundSize: `${getPatternTilePx(patternScale, 350, 216)}px`, backgroundPosition: 'center', backgroundRepeat: 'repeat' }} />
           : <div style={{ position: 'absolute', inset: 0, background: solidColor }} />}
         
         <div style={{ position: 'absolute', top: BORDER, left: BORDER, right: BORDER, bottom: BORDER + 2, background: '#fff', padding: '10px 15px', display: 'flex', flexDirection: 'column' }}>
@@ -3752,7 +3811,7 @@ function DiarioXixiPreview({ accentColor, patternSrc, editData, logoColor, logoL
 }
 
 
-function FichaCadastroPreview({ accentColor, patternSrc, editData, logoColor, logoLayout, cartaoContacts, crmLine, clinicaNome, comBorda, setComBorda, paletteColors, borderColor, setBorderColor, patternScale, setPatternScale, hideTagline, fichaAdulto, setFichaAdulto }) {
+function FichaCadastroPreview({ accentColor, patternSrc, editData, logoColor, logoLayout, cartaoContacts, crmLine, clinicaNome, comBorda, setComBorda, paletteColors, borderColor, setBorderColor, patternScale, setPatternScale, hideTagline, fichaAdulto, setFichaAdulto , patternOffset, setPatternOffset}) {
   const { dictionary } = useTranslation();
   const BORDER = 10;
   const effectiveSrc = comBorda ? patternSrc : null;
@@ -3785,10 +3844,10 @@ function FichaCadastroPreview({ accentColor, patternSrc, editData, logoColor, lo
           return <button key={label} onClick={() => setFichaAdulto(i === 1)} style={{ padding: '6px 18px', borderRadius: '16px', border: 'none', cursor: 'pointer', fontFamily: 'Montserrat,sans-serif', fontSize: '11px', fontWeight: 700, background: active ? solidColor : 'transparent', color: active ? '#fff' : '#888', transition: 'all 0.2s' }}>{label}</button>;
         })}
       </div>
-      <BordaToggle comBorda={comBorda} setComBorda={setComBorda} accentColor={accentColor} paletteColors={paletteColors} borderColor={borderColor} setBorderColor={setBorderColor} patternScale={patternScale} setPatternScale={setPatternScale} />
+      <BordaToggle patternOffset={patternOffset} setPatternOffset={setPatternOffset} setPatternOffset={typeof setPatternOffset !== "undefined" ? setPatternOffset : undefined} comBorda={comBorda} setComBorda={setComBorda} accentColor={accentColor} paletteColors={paletteColors} borderColor={borderColor} setBorderColor={setBorderColor} patternScale={patternScale} setPatternScale={setPatternScale} patternOffset={patternOffset} setPatternOffset={setPatternOffset} />
       <div style={{ width: '320px', height: '453px', position: 'relative', boxShadow: '0 6px 30px rgba(0,0,0,0.12)', borderRadius: '4px', overflow: 'hidden', background: '#fff' }}>
         {effectiveSrc
-          ? <div style={{ position: 'absolute', inset: 0, backgroundImage: `url(${effectiveSrc})`, backgroundSize: `${(patternScale || 150) / 0.7}px`, backgroundRepeat: 'repeat' }} />
+          ? <div style={{ position: 'absolute', inset: 0, backgroundImage: `url(${effectiveSrc})`, backgroundSize: `${getPatternTilePx(patternScale, 350, 216)}px`, backgroundPosition: 'center', backgroundRepeat: 'repeat' }} />
           : <div style={{ position: 'absolute', inset: 0, background: solidColor }} />}
         
         <div style={{ position: 'absolute', top: BORDER, left: BORDER, right: BORDER, bottom: BORDER, background: '#fff' }} />
@@ -3892,7 +3951,7 @@ function FichaCadastroPreview({ accentColor, patternSrc, editData, logoColor, lo
   );
 }
 
-function ReciboPreview({ accentColor, patternSrc, editData, logoColor, logoLayout, cartaoContacts, crmLine, clinicaNome, comBorda, setComBorda, paletteColors, borderColor, setBorderColor, patternScale, setPatternScale, hideTagline, marca }) {
+function ReciboPreview({ accentColor, patternSrc, editData, logoColor, logoLayout, cartaoContacts, crmLine, clinicaNome, comBorda, setComBorda, paletteColors, borderColor, setBorderColor, patternScale, setPatternScale, hideTagline, marca , patternOffset, setPatternOffset}) {
   const { dictionary } = useTranslation();
   const BORDER = 10;
   const { whatsapp, telefone, telefone2, instagram, site, endereco } = cartaoContacts || {};
@@ -3902,11 +3961,11 @@ function ReciboPreview({ accentColor, patternSrc, editData, logoColor, logoLayou
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', alignItems: 'center' }}>
-      <BordaToggle comBorda={comBorda} setComBorda={setComBorda} accentColor={accentColor} paletteColors={paletteColors} borderColor={borderColor} setBorderColor={setBorderColor} patternScale={patternScale} setPatternScale={setPatternScale} />
+      <BordaToggle patternOffset={patternOffset} setPatternOffset={setPatternOffset} setPatternOffset={typeof setPatternOffset !== "undefined" ? setPatternOffset : undefined} comBorda={comBorda} setComBorda={setComBorda} accentColor={accentColor} paletteColors={paletteColors} borderColor={borderColor} setBorderColor={setBorderColor} patternScale={patternScale} setPatternScale={setPatternScale} patternOffset={patternOffset} setPatternOffset={setPatternOffset} />
       <div style={{ width: '226px', height: '320px', position: 'relative', boxShadow: '0 6px 30px rgba(0,0,0,0.12)', borderRadius: '4px', overflow: 'hidden', background: '#fff' }}>
         {/* Borda de estampa */}
         {effectiveSrc
-          ? <div style={{ position: 'absolute', inset: 0, backgroundImage: `url(${effectiveSrc})`, backgroundSize: `${(patternScale || 150) / 0.6}px`, backgroundRepeat: 'repeat' }} />
+          ? <div style={{ position: 'absolute', inset: 0, backgroundImage: `url(${effectiveSrc})`, backgroundSize: `${getPatternTilePx(patternScale, 280, 154)}px`, backgroundPosition: 'center', backgroundRepeat: 'repeat' }} />
           : <div style={{ position: 'absolute', inset: 0, background: solidColor }} />}
         
         {/* Área branca interna */}
@@ -3966,7 +4025,7 @@ function ReciboPreview({ accentColor, patternSrc, editData, logoColor, logoLayou
   );
 }
 
-function ControleEspecialPreview({ accentColor, patternSrc, editData, logoColor, logoLayout, cartaoContacts, crmLine, clinicaNome, comBorda, setComBorda, paletteColors, borderColor, setBorderColor, patternScale, setPatternScale, hideTagline, marca }) {
+function ControleEspecialPreview({ accentColor, patternSrc, editData, logoColor, logoLayout, cartaoContacts, crmLine, clinicaNome, comBorda, setComBorda, paletteColors, borderColor, setBorderColor, patternScale, setPatternScale, hideTagline, marca , patternOffset, setPatternOffset}) {
   const { dictionary } = useTranslation();
   const BORDER = 10;
   const { whatsapp, telefone, telefone2, instagram, site, endereco } = cartaoContacts || {};
@@ -3976,11 +4035,11 @@ function ControleEspecialPreview({ accentColor, patternSrc, editData, logoColor,
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', alignItems: 'center' }}>
-      <BordaToggle comBorda={comBorda} setComBorda={setComBorda} accentColor={accentColor} paletteColors={paletteColors} borderColor={borderColor} setBorderColor={setBorderColor} patternScale={patternScale} setPatternScale={setPatternScale} />
+      <BordaToggle patternOffset={patternOffset} setPatternOffset={setPatternOffset} setPatternOffset={typeof setPatternOffset !== "undefined" ? setPatternOffset : undefined} comBorda={comBorda} setComBorda={setComBorda} accentColor={accentColor} paletteColors={paletteColors} borderColor={borderColor} setBorderColor={setBorderColor} patternScale={patternScale} setPatternScale={setPatternScale} patternOffset={patternOffset} setPatternOffset={setPatternOffset} />
       <div style={{ width: '226px', height: '320px', position: 'relative', boxShadow: '0 6px 30px rgba(0,0,0,0.12)', borderRadius: '4px', overflow: 'hidden', background: '#fff' }}>
         {/* Borda de estampa */}
         {effectiveSrc
-          ? <div style={{ position: 'absolute', inset: 0, backgroundImage: `url(${effectiveSrc})`, backgroundSize: `${(patternScale || 150) / 0.6}px`, backgroundRepeat: 'repeat' }} />
+          ? <div style={{ position: 'absolute', inset: 0, backgroundImage: `url(${effectiveSrc})`, backgroundSize: `${getPatternTilePx(patternScale, 280, 154)}px`, backgroundPosition: 'center', backgroundRepeat: 'repeat' }} />
           : <div style={{ position: 'absolute', inset: 0, background: solidColor }} />}
         
         {/* Área branca interna */}
@@ -4061,7 +4120,7 @@ function ControleEspecialPreview({ accentColor, patternSrc, editData, logoColor,
   );
 }
 
-function ChecklistMaternidadePreview({ accentColor, patternSrc, editData, logoColor, logoLayout, cartaoContacts, crmLine, clinicaNome, comBorda, setComBorda, paletteColors, borderColor, setBorderColor, patternScale, setPatternScale }) {
+function ChecklistMaternidadePreview({ accentColor, patternSrc, editData, logoColor, logoLayout, cartaoContacts, crmLine, clinicaNome, comBorda, setComBorda, paletteColors, borderColor, setBorderColor, patternScale, setPatternScale , patternOffset, setPatternOffset}) {
   const { dictionary } = useTranslation();
   const BORDER = 10;
   const solidColor = borderColor || accentColor;
@@ -4091,11 +4150,11 @@ function ChecklistMaternidadePreview({ accentColor, patternSrc, editData, logoCo
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', alignItems: 'center' }}>
-      <BordaToggle comBorda={comBorda} setComBorda={setComBorda} accentColor={accentColor} paletteColors={paletteColors} borderColor={borderColor} setBorderColor={setBorderColor} patternScale={patternScale} setPatternScale={setPatternScale} />
+      <BordaToggle patternOffset={patternOffset} setPatternOffset={setPatternOffset} setPatternOffset={typeof setPatternOffset !== "undefined" ? setPatternOffset : undefined} comBorda={comBorda} setComBorda={setComBorda} accentColor={accentColor} paletteColors={paletteColors} borderColor={borderColor} setBorderColor={setBorderColor} patternScale={patternScale} setPatternScale={setPatternScale} patternOffset={patternOffset} setPatternOffset={setPatternOffset} />
       {/* A4 proporcional: 226×320 ≈ A5, A4 ≈ 226×320 → usar 226×320 para A5, A4 = 226×320 */}
       <div style={{ width: '226px', height: '320px', position: 'relative', boxShadow: '0 6px 30px rgba(0,0,0,0.12)', borderRadius: '4px', overflow: 'hidden', background: '#fff' }}>
         {comBorda && patternSrc
-          ? <div style={{ position: 'absolute', inset: 0, backgroundImage: `url(${patternSrc})`, backgroundSize: `${(patternScale || 150) / 0.6}px`, backgroundRepeat: 'repeat' }} />
+          ? <div style={{ position: 'absolute', inset: 0, backgroundImage: `url(${patternSrc})`, backgroundSize: `${getPatternTilePx(patternScale, 350, 216)}px`, backgroundPosition: 'center', backgroundRepeat: 'repeat' }} />
           : <div style={{ position: 'absolute', inset: 0, background: solidColor }} />}
         {/* Área branca interna */}
         <div style={{ position: 'absolute', top: BORDER, left: BORDER, right: BORDER, bottom: BORDER, background: '#fff', display: 'flex', overflow: 'hidden' }}>
@@ -4197,10 +4256,10 @@ function OrientacoesRNPreview({ accentColor, patternSrc, editData, logoColor, lo
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', alignItems: 'center' }}>
-      <BordaToggle comBorda={comBorda} setComBorda={setComBorda} accentColor={accentColor} paletteColors={paletteColors} borderColor={borderColor} setBorderColor={setBorderColor} patternScale={patternScale} setPatternScale={setPatternScale} />
+      <BordaToggle patternOffset={patternOffset} setPatternOffset={setPatternOffset} setPatternOffset={typeof setPatternOffset !== "undefined" ? setPatternOffset : undefined} comBorda={comBorda} setComBorda={setComBorda} accentColor={accentColor} paletteColors={paletteColors} borderColor={borderColor} setBorderColor={setBorderColor} patternScale={patternScale} setPatternScale={setPatternScale} patternOffset={patternOffset} setPatternOffset={setPatternOffset} />
       <div style={{ width: '226px', height: '320px', position: 'relative', boxShadow: '0 6px 30px rgba(0,0,0,0.12)', borderRadius: '4px', overflow: 'hidden', background: '#fff' }}>
         {comBorda && patternSrc
-          ? <div style={{ position: 'absolute', inset: 0, backgroundImage: `url(${patternSrc})`, backgroundSize: `${(patternScale||150)/2.5}px`, backgroundRepeat: 'repeat', zIndex: 0 }} />
+          ? <div style={{ position: 'absolute', inset: 0, backgroundImage: `url(${patternSrc})`, backgroundSize: `${getPatternTilePx(patternScale, 350, 216)}px`, backgroundPosition: 'center', backgroundRepeat: 'repeat', zIndex: 0 }} />
           : <div style={{ position: 'absolute', inset: 0, background: solidColor, zIndex: 0 }} />
         }
         <div style={{ position: 'absolute', top: BORDER, left: BORDER, right: BORDER, bottom: BORDER, background: '#fff', display: 'flex', flexDirection: 'column', overflow: 'hidden', zIndex: 1, isolation: 'isolate' }}>
@@ -4319,7 +4378,7 @@ function OrientacoesRNPreview({ accentColor, patternSrc, editData, logoColor, lo
   );
 }
 
-function GuiaCuidadosPreview({ brand, logoColor, logoLayout, comBorda, setComBorda, patternSrc, patternScale, setPatternScale, accentColor, borderColor, setBorderColor, paletteColors, cartaoContacts, crmLine, clinicaNome, editData, localSlogan }) {
+function GuiaCuidadosPreview({ brand, logoColor, logoLayout, comBorda, setComBorda, patternSrc, patternScale, setPatternScale, accentColor, borderColor, setBorderColor, paletteColors, cartaoContacts, crmLine, clinicaNome, editData, localSlogan , patternOffset, setPatternOffset}) {
   const { dictionary } = useTranslation();
   const [svgContent, setSvgContent] = React.useState('');
   const color1 = paletteColors[0] || accentColor;
@@ -4413,7 +4472,7 @@ function GuiaCuidadosPreview({ brand, logoColor, logoLayout, comBorda, setComBor
 
   return (
     <div style={{ display:'flex', flexDirection:'column', gap:'16px', alignItems:'center' }}>
-      <BordaToggle comBorda={comBorda} setComBorda={setComBorda} accentColor={accentColor} paletteColors={paletteColors} borderColor={borderColor} setBorderColor={setBorderColor} patternScale={patternScale} setPatternScale={setPatternScale} />
+      <BordaToggle patternOffset={patternOffset} setPatternOffset={setPatternOffset} setPatternOffset={typeof setPatternOffset !== "undefined" ? setPatternOffset : undefined} comBorda={comBorda} setComBorda={setComBorda} accentColor={accentColor} paletteColors={paletteColors} borderColor={borderColor} setBorderColor={setBorderColor} patternScale={patternScale} setPatternScale={setPatternScale} patternOffset={patternOffset} setPatternOffset={setPatternOffset} />
       {svgInner ? <>
         {face('Lado Externo (Face 1)', '10 10 1262 616', capaOverlay)}
         {face('Lado Interno (Face 2)', '10 646 1262 616', null)}
@@ -4422,7 +4481,7 @@ function GuiaCuidadosPreview({ brand, logoColor, logoLayout, comBorda, setComBor
   );
 }
 
-function FolderTrifoldPreview({ brand, editData, logoColor, logoLayout, comBorda, setComBorda, patternSrc, patternScale, setPatternScale, accentColor, borderColor, setBorderColor, paletteColors, title, subtitle, cartaoContacts, folderRoof, setFolderRoof, crmLine }) {
+function FolderTrifoldPreview({ brand, editData, logoColor, logoLayout, comBorda, setComBorda, patternSrc, patternScale, setPatternScale, accentColor, borderColor, setBorderColor, paletteColors, title, subtitle, cartaoContacts, folderRoof, setFolderRoof, crmLine , patternOffset, setPatternOffset}) {
   const { dictionary, lang } = useTranslation();
   const mainColor = paletteColors?.[0] || accentColor;
   const _brandData = editData || brand.editData || {};
@@ -4447,7 +4506,7 @@ function FolderTrifoldPreview({ brand, editData, logoColor, logoLayout, comBorda
     }}>
       {withPattern && (
         comBorda && patternSrc ? (
-          <div style={{ position: 'absolute', inset: 0, backgroundImage: `url(${patternSrc})`, backgroundSize: `${patternScale * 0.95}px`, backgroundRepeat: 'repeat', opacity: 0.1 }} />
+          <div style={{ position: 'absolute', inset: 0, backgroundImage: `url(${patternSrc})`, backgroundSize: `${getPatternTilePx(patternScale, 300, 99)}px`, backgroundPosition: 'center', backgroundRepeat: 'repeat', opacity: 0.1 }} />
         ) : (
           <div style={{ position: 'absolute', inset: 0, background: borderColor || paletteColors[0] || accentColor, opacity: 0.12 }} />
         )
@@ -4539,7 +4598,7 @@ function FolderTrifoldPreview({ brand, editData, logoColor, logoLayout, comBorda
     <div id="folder-trifold-preview" style={{ display: 'flex', flexDirection: 'column', gap: '30px', width: '100%', alignItems: 'center', paddingBottom: '40px' }}>
       <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Great+Vibes&display=swap" />
       
-      <BordaToggle comBorda={comBorda} setComBorda={setComBorda} accentColor={accentColor} paletteColors={paletteColors} borderColor={borderColor} setBorderColor={setBorderColor} patternScale={patternScale} setPatternScale={setPatternScale} />
+      <BordaToggle patternOffset={patternOffset} setPatternOffset={setPatternOffset} setPatternOffset={typeof setPatternOffset !== "undefined" ? setPatternOffset : undefined} comBorda={comBorda} setComBorda={setComBorda} accentColor={accentColor} paletteColors={paletteColors} borderColor={borderColor} setBorderColor={setBorderColor} patternScale={patternScale} setPatternScale={setPatternScale} patternOffset={patternOffset} setPatternOffset={setPatternOffset} />
       {setFolderRoof && (
         <button onClick={() => setFolderRoof(v => !v)} style={{ fontSize: '0.7rem', padding: '4px 12px', borderRadius: '20px', border: `1px solid ${folderRoof ? accentColor : '#eee'}`, background: folderRoof ? `${accentColor}10` : '#fff', color: folderRoof ? accentColor : '#aaa', cursor: 'pointer', fontFamily: 'Montserrat,sans-serif', fontWeight: folderRoof ? 700 : 400 }}>
           {folderRoof ? (lang === 'en' ? '🏠 House Cutout ACTIVE' : '🏠 Recorte Casinha ATIVO') : (lang === 'en' ? '⬜️ Straight Cutout ACTIVE' : '⬜️ Recorte Reto ATIVO')}
@@ -4558,7 +4617,7 @@ function FolderTrifoldPreview({ brand, editData, logoColor, logoLayout, comBorda
           <Page num={5} isSmall>
             <div style={{ position: 'absolute', inset: 0, overflow: 'hidden', background: !comBorda ? (borderColor || paletteColors[0] || accentColor) : 'transparent' }}>
                {comBorda && patternSrc && (
-                 <div style={{ position: 'absolute', inset: 0, backgroundImage: `url(${patternSrc})`, backgroundSize: `${patternScale * 0.95}px`, backgroundRepeat: 'repeat', opacity: 1 }} />
+                 <div style={{ position: 'absolute', inset: 0, backgroundImage: `url(${patternSrc})`, backgroundSize: `${getPatternTilePx(patternScale, 300, 99)}px`, backgroundPosition: 'center', backgroundRepeat: 'repeat', opacity: 1 }} />
                )}
                <div style={{ position: 'absolute', inset: 0, background: !patternSrc && comBorda ? `${accentColor}10` : (!comBorda ? 'transparent' : 'transparent') }} />
             </div>
@@ -4574,7 +4633,7 @@ function FolderTrifoldPreview({ brand, editData, logoColor, logoLayout, comBorda
           <Page num={6}>
             <div style={{ position: 'absolute', inset: 0, overflow: 'hidden', background: !comBorda ? (borderColor || paletteColors[0] || accentColor) : 'transparent' }}>
               {comBorda && patternSrc && (
-                <div style={{ position: 'absolute', inset: 0, backgroundImage: `url(${patternSrc})`, backgroundSize: `${patternScale * 0.95}px`, backgroundRepeat: 'repeat', opacity: 1 }} />
+                <div style={{ position: 'absolute', inset: 0, backgroundImage: `url(${patternSrc})`, backgroundSize: `${getPatternTilePx(patternScale, 300, 99)}px`, backgroundPosition: 'center', backgroundRepeat: 'repeat', opacity: 1 }} />
               )}
               <div style={{ position: 'absolute', inset: 0, background: !patternSrc && comBorda ? `${accentColor}10` : 'transparent' }} />
             </div>
@@ -4635,7 +4694,7 @@ function FolderTrifoldPreview({ brand, editData, logoColor, logoLayout, comBorda
           <Page num={1}>
             <div style={{ position: 'absolute', inset: 0, overflow: 'hidden', background: !comBorda ? (borderColor || paletteColors[0] || accentColor) : 'transparent' }}>
                {comBorda && patternSrc && (
-                 <div style={{ position: 'absolute', inset: 0, backgroundImage: `url(${patternSrc})`, backgroundSize: `${patternScale * 1.0}px`, backgroundRepeat: 'repeat', opacity: 1 }} />
+                 <div style={{ position: 'absolute', inset: 0, backgroundImage: `url(${patternSrc})`, backgroundSize: `${getPatternTilePx(patternScale, 300, 99)}px`, backgroundPosition: 'center', backgroundRepeat: 'repeat', opacity: 1 }} />
                )}
                <div style={{ position: 'absolute', inset: 0, background: !patternSrc && comBorda ? `${accentColor}15` : 'transparent' }} />
             </div>
@@ -4704,7 +4763,7 @@ function FolderTrifoldPreview({ brand, editData, logoColor, logoLayout, comBorda
   );
 }
 
-function FolderA5Preview({ brand, editData, logoColor, logoLayout, comBorda, setComBorda, patternSrc, patternScale, setPatternScale, accentColor, borderColor, setBorderColor, paletteColors, title, cartaoContacts, crmLine, folderRoof }) {
+function FolderA5Preview({ brand, editData, logoColor, logoLayout, comBorda, setComBorda, patternSrc, patternScale, setPatternScale, accentColor, borderColor, setBorderColor, paletteColors, title, cartaoContacts, crmLine, folderRoof , patternOffset, setPatternOffset}) {
   const { dictionary, lang } = useTranslation();
   const mainColor = paletteColors?.[0] || accentColor;
   const _brandData = editData || brand.editData || {};
@@ -4773,7 +4832,7 @@ function FolderA5Preview({ brand, editData, logoColor, logoLayout, comBorda, set
     }}>
       {withPattern && (
         comBorda && patternSrc ? (
-          <div style={{ position: 'absolute', inset: 0, backgroundImage: `url(${patternSrc})`, backgroundSize: `${patternScale * 0.95}px`, backgroundRepeat: 'repeat', opacity: 0.1 }} />
+          <div style={{ position: 'absolute', inset: 0, backgroundImage: `url(${patternSrc})`, backgroundSize: `${getPatternTilePx(patternScale, 300, 154)}px`, backgroundPosition: 'center', backgroundRepeat: 'repeat', opacity: 0.1 }} />
         ) : (
           <div style={{ position: 'absolute', inset: 0, background: borderColor || paletteColors[0] || accentColor, opacity: 0.12 }} />
         )
@@ -4787,7 +4846,7 @@ function FolderA5Preview({ brand, editData, logoColor, logoLayout, comBorda, set
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '30px', width: '100%', alignItems: 'center', paddingBottom: '40px' }}>
-      <BordaToggle comBorda={comBorda} setComBorda={setComBorda} accentColor={accentColor} paletteColors={paletteColors} borderColor={borderColor} setBorderColor={setBorderColor} patternScale={patternScale} setPatternScale={setPatternScale} />
+      <BordaToggle patternOffset={patternOffset} setPatternOffset={setPatternOffset} setPatternOffset={typeof setPatternOffset !== "undefined" ? setPatternOffset : undefined} comBorda={comBorda} setComBorda={setComBorda} accentColor={accentColor} paletteColors={paletteColors} borderColor={borderColor} setBorderColor={setBorderColor} patternScale={patternScale} setPatternScale={setPatternScale} patternOffset={patternOffset} setPatternOffset={setPatternOffset} />
 
       {/* FACE 1: Pág 4 (Verso) | Pág 1 (Capa) */}
       <div style={{ textAlign: 'center' }}>
@@ -4814,7 +4873,7 @@ function FolderA5Preview({ brand, editData, logoColor, logoLayout, comBorda, set
   );
 }
 
-function AtestadoPreview({ accentColor, patternSrc, editData, logoColor, logoLayout, crmLine, clinicaNome, marca, cartaoContacts, comBorda, setComBorda, paletteColors, borderColor, setBorderColor, patternScale, setPatternScale, hideTagline, folderRoof, setFolderRoof, paperSize, setPaperSize, atestadoModelo = 1, setAtestadoModelo }) {
+function AtestadoPreview({ accentColor, patternSrc, editData, logoColor, logoLayout, crmLine, clinicaNome, marca, cartaoContacts, comBorda, setComBorda, paletteColors, borderColor, setBorderColor, patternScale, setPatternScale, hideTagline, folderRoof, setFolderRoof, paperSize, setPaperSize, atestadoModelo = 1, setAtestadoModelo , patternOffset, setPatternOffset}) {
   const { dictionary } = useTranslation();
   const BORDER = 14;
   const { whatsapp, telefone, telefone2, email, instagram, site, endereco } = cartaoContacts || {};
@@ -4828,7 +4887,7 @@ function AtestadoPreview({ accentColor, patternSrc, editData, logoColor, logoLay
   const roofClip = folderRoof ? 'polygon(0% 8%, 50% 0%, 100% 8%, 100% 100%, 0% 100%)' : 'none';
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', alignItems: 'center' }}>
-      <BordaToggle comBorda={comBorda} setComBorda={setComBorda} accentColor={accentColor} paletteColors={paletteColors} borderColor={borderColor} setBorderColor={setBorderColor} patternScale={patternScale} setPatternScale={setPatternScale} />
+      <BordaToggle patternOffset={patternOffset} setPatternOffset={setPatternOffset} setPatternOffset={typeof setPatternOffset !== "undefined" ? setPatternOffset : undefined} comBorda={comBorda} setComBorda={setComBorda} accentColor={accentColor} paletteColors={paletteColors} borderColor={borderColor} setBorderColor={setBorderColor} patternScale={patternScale} setPatternScale={setPatternScale} patternOffset={patternOffset} setPatternOffset={setPatternOffset} />
       {setAtestadoModelo && (
         <div style={{ display: 'flex', background: '#f0f0f0', borderRadius: '20px', padding: '3px' }}>
           {[1, 2].map(m => (
@@ -4856,7 +4915,7 @@ function AtestadoPreview({ accentColor, patternSrc, editData, logoColor, logoLay
       </div>
     <div style={{ width: '226px', height: '320px', position: 'relative', boxShadow: '0 4px 120px rgba(0,0,0,0.12)', borderRadius: '4px', overflow: 'hidden', background: '#fff' }}>
       {effectiveSrc
-        ? <div style={{ position: 'absolute', inset: 0, backgroundImage: `url(${effectiveSrc})`, backgroundSize: `${(patternScale || 150) / 0.6}px`, backgroundRepeat: 'repeat' }} />
+        ? <div style={{ position: 'absolute', inset: 0, backgroundImage: `url(${effectiveSrc})`, backgroundSize: `${getPatternTilePx(patternScale, 350, 216)}px`, backgroundPosition: 'center', backgroundRepeat: 'repeat' }} />
         : <div style={{ position: 'absolute', inset: 0, background: solidColor }} />}
       <div style={{ position: 'absolute', top: BORDER, left: BORDER, right: BORDER, bottom: BORDER, background: '#fff', clipPath: roofClip }} />
 
@@ -4971,14 +5030,14 @@ function AtestadoPreview({ accentColor, patternSrc, editData, logoColor, logoLay
   );
 }
 
-function GenericItemPreview({ item, marca, accentColor, patternSrc, editData, logoColor, logoLayout, comBorda, setComBorda, paletteColors, borderColor, setBorderColor, patternScale, setPatternScale, hideTagline, localSlogan }) {
+function GenericItemPreview({ item, marca, accentColor, patternSrc, editData, logoColor, logoLayout, comBorda, setComBorda, paletteColors, borderColor, setBorderColor, patternScale, setPatternScale, hideTagline, localSlogan , patternOffset, setPatternOffset}) {
   const { dictionary } = useTranslation();
   const effectiveSrc = comBorda ? patternSrc : null;
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', alignItems: 'center' }}>
-      <BordaToggle comBorda={comBorda} setComBorda={setComBorda} accentColor={accentColor} paletteColors={paletteColors} borderColor={borderColor} setBorderColor={setBorderColor} patternScale={patternScale} setPatternScale={setPatternScale} />
+      <BordaToggle patternOffset={patternOffset} setPatternOffset={setPatternOffset} setPatternOffset={typeof setPatternOffset !== "undefined" ? setPatternOffset : undefined} comBorda={comBorda} setComBorda={setComBorda} accentColor={accentColor} paletteColors={paletteColors} borderColor={borderColor} setBorderColor={setBorderColor} patternScale={patternScale} setPatternScale={setPatternScale} patternOffset={patternOffset} setPatternOffset={setPatternOffset} />
     <div style={{ width: '320px', height: '220px', position: 'relative', background: '#fff', overflow: 'hidden', boxShadow: '0 4px 20px rgba(0,0,0,0.12)', borderRadius: '8px', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: '12px' }}>
-      {effectiveSrc && <div style={{ position: 'absolute', inset: 0, backgroundImage: `url(${effectiveSrc})`, backgroundSize: `${(patternScale || 150) / 0.5}px`, backgroundRepeat: 'repeat', opacity: 0.1 }} />}
+      {effectiveSrc && <div style={{ position: 'absolute', inset: 0, backgroundImage: `url(${effectiveSrc})`, backgroundSize: `${getPatternTilePx(patternScale, 350, 216)}px`, backgroundPosition: 'center', backgroundRepeat: 'repeat', opacity: 0.1 }} />}
       <div style={{ position: 'relative', zIndex: 1, width: '60px', height: '60px', display: 'flex', alignItems: 'center', justifyContent: 'center', overflow: 'hidden' }}>
         <LogoPreviewHTML editData={{ ...editData, tagline: localSlogan }} color={logoColor} layout={logoLayout} hideTagline={hideTagline} maxWidth="60px" maxHeight="60px" />
       </div>
@@ -4991,7 +5050,7 @@ function GenericItemPreview({ item, marca, accentColor, patternSrc, editData, lo
   );
 }
 
-function PapelTimbradoPreview({ brand, editData, accentColor, patternSrc, logoColor, logoLayout, comBorda, setComBorda, paletteColors, borderColor, setBorderColor, patternScale, setPatternScale, cartaoContacts, crmLine, localSlogan, clinicaNome, folderRoof, setFolderRoof }) {
+function PapelTimbradoPreview({ brand, editData, accentColor, patternSrc, logoColor, logoLayout, comBorda, setComBorda, paletteColors, borderColor, setBorderColor, patternScale, setPatternScale, cartaoContacts, crmLine, localSlogan, clinicaNome, folderRoof, setFolderRoof , patternOffset, setPatternOffset}) {
   const { dictionary } = useTranslation();
   const BORDER = 12;
   const effectiveSrc = comBorda ? patternSrc : null;
@@ -5000,7 +5059,7 @@ function PapelTimbradoPreview({ brand, editData, accentColor, patternSrc, logoCo
   
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', alignItems: 'center' }}>
-      <BordaToggle comBorda={comBorda} setComBorda={setComBorda} accentColor={accentColor} paletteColors={paletteColors} borderColor={borderColor} setBorderColor={setBorderColor} patternScale={patternScale} setPatternScale={setPatternScale} />
+      <BordaToggle patternOffset={patternOffset} setPatternOffset={setPatternOffset} setPatternOffset={typeof setPatternOffset !== "undefined" ? setPatternOffset : undefined} comBorda={comBorda} setComBorda={setComBorda} accentColor={accentColor} paletteColors={paletteColors} borderColor={borderColor} setBorderColor={setBorderColor} patternScale={patternScale} setPatternScale={setPatternScale} patternOffset={patternOffset} setPatternOffset={setPatternOffset} />
       {setFolderRoof && (
         <div style={{ display: 'flex', gap: '6px', alignItems: 'center', flexWrap: 'wrap', justifyContent: 'center' }}>
           <button onClick={() => setFolderRoof(v => !v)} style={{ fontSize: '0.7rem', padding: '4px 12px', borderRadius: '20px', border: `1px solid ${folderRoof ? accentColor : '#eee'}`, background: folderRoof ? `${accentColor}10` : '#fff', color: folderRoof ? accentColor : '#aaa', cursor: 'pointer', fontFamily: 'Montserrat,sans-serif', fontWeight: folderRoof ? 700 : 400 }}>
@@ -5010,7 +5069,7 @@ function PapelTimbradoPreview({ brand, editData, accentColor, patternSrc, logoCo
       )}
       <div style={{ width: '226px', height: '320px', position: 'relative', boxShadow: '0 4px 120px rgba(0,0,0,0.12)', borderRadius: '4px', overflow: 'hidden', background: '#fff' }}>
         {effectiveSrc
-          ? <div style={{ position: 'absolute', inset: 0, backgroundImage: `url(${effectiveSrc})`, backgroundSize: `${(patternScale || 150) / 0.6}px`, backgroundRepeat: 'repeat' }} />
+          ? <div style={{ position: 'absolute', inset: 0, backgroundImage: `url(${effectiveSrc})`, backgroundSize: `${getPatternTilePx(patternScale, 350, 216)}px`, backgroundPosition: 'center', backgroundRepeat: 'repeat' }} />
           : <div style={{ position: 'absolute', inset: 0, background: solidColor }} />}
         <div style={{ position: 'absolute', top: BORDER, left: BORDER, right: BORDER, bottom: BORDER, background: '#fff', clipPath: roofClip, transition: 'clip-path 0.3s ease' }} />
         
@@ -5052,7 +5111,7 @@ const INSTA_FORMATS = [
   { id: 'post',  label: 'Post 1:1',   pw: 280, ph: 280, rw: 1080, rh: 1080, logoSF: 0.55, titleTop: '80px', boxTop: '105px', boxH: '80px',  footerBottom: '18px', titleSize: '11px', subSize: '7px' },
 ];
 
-function FundoInstaPreview({ brand, editData, accentColor, patternSrc, logoColor, logoLayout, comBorda, setComBorda, paletteColors, borderColor, setBorderColor, patternScale, setPatternScale, cartaoContacts, crmLine, localSlogan, clinicaNome, storyTemplateIdx, setStoryTemplateIdx, storyFormatIdx, setStoryFormatIdx }) {
+function FundoInstaPreview({ brand, editData, accentColor, patternSrc, logoColor, logoLayout, comBorda, setComBorda, paletteColors, borderColor, setBorderColor, patternScale, setPatternScale, cartaoContacts, crmLine, localSlogan, clinicaNome, storyTemplateIdx, setStoryTemplateIdx, storyFormatIdx, setStoryFormatIdx , patternOffset, setPatternOffset}) {
   const { dictionary } = useTranslation();
   const effectiveSrc = comBorda ? patternSrc : null;
   const solidColor = borderColor || paletteColors?.[0] || accentColor;
@@ -5065,7 +5124,7 @@ function FundoInstaPreview({ brand, editData, accentColor, patternSrc, logoColor
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', alignItems: 'center' }}>
-      <BordaToggle comBorda={comBorda} setComBorda={setComBorda} accentColor={accentColor} paletteColors={paletteColors} borderColor={borderColor} setBorderColor={setBorderColor} patternScale={patternScale} setPatternScale={setPatternScale} />
+      <BordaToggle patternOffset={patternOffset} setPatternOffset={setPatternOffset} setPatternOffset={typeof setPatternOffset !== "undefined" ? setPatternOffset : undefined} comBorda={comBorda} setComBorda={setComBorda} accentColor={accentColor} paletteColors={paletteColors} borderColor={borderColor} setBorderColor={setBorderColor} patternScale={patternScale} setPatternScale={setPatternScale} patternOffset={patternOffset} setPatternOffset={setPatternOffset} />
 
       {/* Seletor de formato */}
       <div style={{ display: 'flex', gap: '8px', background: '#f0f0f0', borderRadius: '20px', padding: '4px' }}>
@@ -5087,7 +5146,7 @@ function FundoInstaPreview({ brand, editData, accentColor, patternSrc, logoColor
 
       <div id="insta-bg-preview" data-insta-preview style={{ width: `${fmt.pw}px`, height: `${fmt.ph}px`, position: 'relative', boxShadow: '0 4px 60px rgba(0,0,0,0.15)', borderRadius: fmt.id === 'story' ? '24px' : '12px', overflow: 'hidden', background: '#fff', transition: 'width 0.3s, height 0.3s' }}>
         <div style={{ position: 'absolute', inset: 0, overflow: 'hidden', zIndex: 1 }}>
-           {effectiveSrc && <div style={{ position: 'absolute', inset: 0, backgroundImage: `url(${effectiveSrc})`, backgroundSize: `${(patternScale || 150) / 0.5}px`, backgroundRepeat: 'repeat', opacity: 0.32 }} />}
+           {effectiveSrc && <div style={{ position: 'absolute', inset: 0, backgroundImage: `url(${effectiveSrc})`, backgroundSize: `${getPatternTilePx(patternScale, 300, 300)}px`, backgroundPosition: 'center', backgroundRepeat: 'repeat', opacity: 0.32 }} />}
            <div style={{ position: 'absolute', inset: 0, background: !effectiveSrc ? `${solidColor}10` : 'transparent' }} />
         </div>
         <div style={{ position: 'absolute', top: fmt.id === 'post' ? '18px' : '30px', left: '0', right: '0', display: 'flex', flexDirection: 'column', alignItems: 'center', zIndex: 3 }}>
@@ -5298,7 +5357,7 @@ function AssinaturaEmailPreview({ brand, editData, accentColor, logoColor, logoL
   );
 }
 
-function EnvelopeSacoPreview({ brand, editData, accentColor, patternSrc, logoColor, logoLayout, comBorda, setComBorda, paletteColors, borderColor, setBorderColor, patternScale, setPatternScale, cartaoContacts, crmLine, localSlogan, clinicaNome }) {
+function EnvelopeSacoPreview({ brand, editData, accentColor, patternSrc, logoColor, logoLayout, comBorda, setComBorda, paletteColors, borderColor, setBorderColor, patternScale, setPatternScale, cartaoContacts, crmLine, localSlogan, clinicaNome , patternOffset, setPatternOffset}) {
   const { dictionary } = useTranslation();
   const { endereco, instagram, site, whatsapp, telefone, email } = cartaoContacts || {};
   const mainPhone = whatsapp || telefone || '';
@@ -5309,12 +5368,12 @@ function EnvelopeSacoPreview({ brand, editData, accentColor, patternSrc, logoCol
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', alignItems: 'center' }}>
-      <BordaToggle comBorda={comBorda} setComBorda={setComBorda} accentColor={accentColor} paletteColors={paletteColors} borderColor={borderColor} setBorderColor={setBorderColor} patternScale={patternScale} setPatternScale={setPatternScale} />
+      <BordaToggle patternOffset={patternOffset} setPatternOffset={setPatternOffset} setPatternOffset={typeof setPatternOffset !== "undefined" ? setPatternOffset : undefined} comBorda={comBorda} setComBorda={setComBorda} accentColor={accentColor} paletteColors={paletteColors} borderColor={borderColor} setBorderColor={setBorderColor} patternScale={patternScale} setPatternScale={setPatternScale} patternOffset={patternOffset} setPatternOffset={setPatternOffset} />
       <div style={{ display: 'flex', gap: '20px', alignItems: 'center', flexWrap: 'wrap', justifyContent: 'center' }}>
         {/* FRENTE */}
         <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '8px' }}>
           <span style={{ fontSize: '0.65rem', color: '#aaa', textTransform: 'uppercase', letterSpacing: '1px' }}>{dictionary?.geral?.frente || 'Frente'}</span>
-          <div style={{ width: '220px', height: '300px', position: 'relative', backgroundColor: comBorda && patternSrc ? 'transparent' : '#fff', backgroundImage: comBorda && patternSrc ? `url(${patternSrc})` : 'none', backgroundSize: `${(patternScale || 150) * 2.2}px`, boxShadow: '0 4px 20px rgba(0,0,0,0.1)', borderRadius: '4px', overflow: 'hidden' }}>
+          <div style={{ width: '220px', height: '300px', position: 'relative', backgroundColor: comBorda && patternSrc ? 'transparent' : '#fff', backgroundImage: comBorda && patternSrc ? `url(${patternSrc})` : 'none', backgroundSize: `${getPatternTilePx(patternScale, 220, 225)}px`, boxShadow: '0 4px 20px rgba(0,0,0,0.1)', borderRadius: '4px', overflow: 'hidden' }}>
             {/* Aba superior */}
             <div style={{ position: 'absolute', top: 0, left: 0, right: 0, height: '45px', background: abaColor, opacity: 0.9, zIndex: 5 }} />
             {/* Etiqueta com logo — centralizada na área abaixo da aba */}
@@ -5327,7 +5386,7 @@ function EnvelopeSacoPreview({ brand, editData, accentColor, patternSrc, logoCol
         {/* VERSO (com aba e estampa) */}
         <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '8px' }}>
           <span style={{ fontSize: '0.65rem', color: '#aaa', textTransform: 'uppercase', letterSpacing: '1px' }}>{dictionary?.geral?.verso || 'Verso'}</span>
-          <div style={{ width: '220px', height: '300px', position: 'relative', backgroundColor: comBorda && patternSrc ? 'transparent' : '#fff', backgroundImage: comBorda && patternSrc ? `url(${patternSrc})` : 'none', backgroundSize: `${(patternScale || 150) * 2.2}px`, boxShadow: '0 4px 20px rgba(0,0,0,0.1)', borderRadius: '4px', overflow: 'hidden' }}>
+          <div style={{ width: '220px', height: '300px', position: 'relative', backgroundColor: comBorda && patternSrc ? 'transparent' : '#fff', backgroundImage: comBorda && patternSrc ? `url(${patternSrc})` : 'none', backgroundSize: `${getPatternTilePx(patternScale, 220, 225)}px`, boxShadow: '0 4px 20px rgba(0,0,0,0.1)', borderRadius: '4px', overflow: 'hidden' }}>
             {/* Aba superior simulada */}
             <div style={{ position: 'absolute', top: 0, left: 0, right: 0, height: '45px', background: abaColor, zIndex: 5 }} />
             
@@ -5353,7 +5412,7 @@ function EnvelopeSacoPreview({ brand, editData, accentColor, patternSrc, logoCol
   );
 }
 
-function EnvelopeOficioPreview({ brand, editData, accentColor, patternSrc, logoColor, logoLayout, comBorda, setComBorda, paletteColors, borderColor, setBorderColor, patternScale, setPatternScale, cartaoContacts, crmLine, localSlogan, clinicaNome }) {
+function EnvelopeOficioPreview({ brand, editData, accentColor, patternSrc, logoColor, logoLayout, comBorda, setComBorda, paletteColors, borderColor, setBorderColor, patternScale, setPatternScale, cartaoContacts, crmLine, localSlogan, clinicaNome , patternOffset, setPatternOffset}) {
   const { dictionary } = useTranslation();
   const BORDER = 15;
   const { endereco, instagram, site, whatsapp, telefone, email } = cartaoContacts || {};
@@ -5365,13 +5424,13 @@ function EnvelopeOficioPreview({ brand, editData, accentColor, patternSrc, logoC
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', alignItems: 'center' }}>
-      <BordaToggle comBorda={comBorda} setComBorda={setComBorda} accentColor={accentColor} paletteColors={paletteColors} borderColor={borderColor} setBorderColor={setBorderColor} patternScale={patternScale} setPatternScale={setPatternScale} />
+      <BordaToggle patternOffset={patternOffset} setPatternOffset={setPatternOffset} setPatternOffset={typeof setPatternOffset !== "undefined" ? setPatternOffset : undefined} comBorda={comBorda} setComBorda={setComBorda} accentColor={accentColor} paletteColors={paletteColors} borderColor={borderColor} setBorderColor={setBorderColor} patternScale={patternScale} setPatternScale={setPatternScale} patternOffset={patternOffset} setPatternOffset={setPatternOffset} />
       
       <div style={{ display: 'flex', gap: '20px', alignItems: 'center', flexWrap: 'wrap', justifyContent: 'center' }}>
         {/* FRENTE */}
         <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '8px' }}>
           <span style={{ fontSize: '0.65rem', color: '#aaa', textTransform: 'uppercase', letterSpacing: '1px' }}>{dictionary?.geral?.frente || 'Frente'}</span>
-          <div style={{ width: '310px', height: '160px', position: 'relative', backgroundColor: comBorda && patternSrc ? 'transparent' : '#fff', backgroundImage: comBorda && patternSrc ? `url(${patternSrc})` : 'none', backgroundSize: `${(patternScale || 150) * 2.2}px`, boxShadow: '0 4px 20px rgba(0,0,0,0.1)', borderRadius: '4px', overflow: 'hidden' }}>
+          <div style={{ width: '310px', height: '160px', position: 'relative', backgroundColor: comBorda && patternSrc ? 'transparent' : '#fff', backgroundImage: comBorda && patternSrc ? `url(${patternSrc})` : 'none', backgroundSize: `${getPatternTilePx(patternScale, 310, 240)}px`, boxShadow: '0 4px 20px rgba(0,0,0,0.1)', borderRadius: '4px', overflow: 'hidden' }}>
             {/* Aba sólida no preview frontal */}
             <div style={{ position: 'absolute', top: 0, left: 0, right: 0, height: '35px', background: abaColor, opacity: 0.9, zIndex: 2 }} />
             <div style={{ position: 'absolute', bottom: '8px', right: '10px', width: '110px', height: '50px', zIndex: 10, borderRadius: '3px' }}>
@@ -5387,7 +5446,7 @@ function EnvelopeOficioPreview({ brand, editData, accentColor, patternSrc, logoC
         {/* VERSO (com aba e estampa) */}
         <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '8px' }}>
           <span style={{ fontSize: '0.65rem', color: '#aaa', textTransform: 'uppercase', letterSpacing: '1px' }}>{dictionary?.geral?.verso || 'Verso'}</span>
-          <div style={{ width: '310px', height: '160px', position: 'relative', backgroundColor: comBorda && patternSrc ? 'transparent' : '#fff', backgroundImage: comBorda && patternSrc ? `url(${patternSrc})` : 'none', backgroundSize: `${(patternScale || 150) * 2.2}px`, boxShadow: '0 4px 20px rgba(0,0,0,0.1)', borderRadius: '4px', overflow: 'hidden' }}>
+          <div style={{ width: '310px', height: '160px', position: 'relative', backgroundColor: comBorda && patternSrc ? 'transparent' : '#fff', backgroundImage: comBorda && patternSrc ? `url(${patternSrc})` : 'none', backgroundSize: `${getPatternTilePx(patternScale, 310, 240)}px`, boxShadow: '0 4px 20px rgba(0,0,0,0.1)', borderRadius: '4px', overflow: 'hidden' }}>
             {/* Aba superior simulada */}
             <div style={{ position: 'absolute', top: 0, left: 0, right: 0, height: '35px', background: abaColor, zIndex: 5 }} />
             
@@ -5413,13 +5472,25 @@ function EnvelopeOficioPreview({ brand, editData, accentColor, patternSrc, logoC
   );
 }
 
-function CadernoPreview({ editData, accentColor, solidColor, logoColor, logoLayout, comBorda, setComBorda, patternSrc, paletteColors, borderColor, setBorderColor, patternScale, setPatternScale, hideTagline, paperSize, setPaperSize, cartaoContacts, clinicaNome }) {
+function CadernoPreview({ editData, accentColor, solidColor, logoColor, logoLayout, comBorda, setComBorda, patternSrc, paletteColors, borderColor, setBorderColor, patternScale, setPatternScale, patternOffset, setPatternOffset, hideTagline, paperSize, setPaperSize, cartaoContacts, clinicaNome }) {
   const { dictionary } = useTranslation();
   const scaleCaderno = useScaleToFit(480, 310 + 36);
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '15px', alignItems: 'center', width: '100%' }}>
       <BordaToggle comBorda={comBorda} setComBorda={setComBorda} accentColor={accentColor} paletteColors={paletteColors} borderColor={borderColor} setBorderColor={setBorderColor} patternScale={patternScale} setPatternScale={setPatternScale} />
+      
+      {comBorda && setPatternOffset && (
+        <div style={{ display: 'flex', alignItems: 'center', gap: '8px', background: '#fcfcfc', padding: '6px 14px', borderRadius: '20px', border: '1px solid #f0f0f0', marginTop: '-5px' }}>
+          <span style={{ fontSize: '0.65rem', color: '#888', textTransform: 'uppercase', letterSpacing: '1px', fontWeight: 700 }}>↔️ Mover Estampa:</span>
+          <input 
+            type="range" min="0" max="100" step="1"
+            value={patternOffset || 0} 
+            onChange={(e) => setPatternOffset(parseInt(e.target.value))}
+            style={{ width: '100px', height: '4px', cursor: 'pointer', accentColor: accentColor }}
+          />
+        </div>
+      )}
       
       {setPaperSize && (
         <div style={{ display: 'flex', background: '#f0f0f0', borderRadius: '20px', padding: '3px' }}>
@@ -5442,7 +5513,7 @@ function CadernoPreview({ editData, accentColor, solidColor, logoColor, logoLayo
             
             {/* Camada de Fundo (Pega os dois lados) */}
             {comBorda && patternSrc ? (
-              <div style={{ position: 'absolute', inset: 0, backgroundImage: `url(${patternSrc})`, backgroundSize: patternScale ? `${patternScale * 1.05}px` : '100%', opacity: 0.9 }} />
+              <div style={{ position: 'absolute', inset: 0, backgroundImage: `url(${patternSrc})`, backgroundSize: `${getPatternTilePx(patternScale, 220, 200)}px`, backgroundPosition: `${patternOffset || 0}% center`, opacity: 0.9 }} />
             ) : (
               <div style={{ position: 'absolute', inset: 0, background: borderColor || paletteColors?.[0] || accentColor }} />
             )}
@@ -5484,7 +5555,7 @@ function CadernoPreview({ editData, accentColor, solidColor, logoColor, logoLayo
   );
 }
 
-function PastaPreview({ brand, editData, accentColor, solidColor, logoColor, logoLayout, isSaude, crmData, comBorda, setComBorda, patternSrc, cartaoContacts, crmLine, paletteColors, borderColor, setBorderColor, patternScale, setBorderColorState, patternScaleState, setPatternScaleState, setPatternScale, hideTagline, folderRoof, setFolderRoof, clinicaNome: clinicaNomeProp }) {
+function PastaPreview({ brand, editData, accentColor, solidColor, logoColor, logoLayout, isSaude, crmData, comBorda, setComBorda, patternSrc, cartaoContacts, crmLine, paletteColors, borderColor, setBorderColor, patternScale, setBorderColorState, patternScaleState, setPatternScaleState, setPatternScale, hideTagline, folderRoof, setFolderRoof, clinicaNome: clinicaNomeProp , patternOffset, setPatternOffset}) {
   const { dictionary } = useTranslation();
   const brandFont = editData?.fontFamily || 'Playfair Display';
   const marca = editData?.marca || '';
@@ -5495,7 +5566,7 @@ function PastaPreview({ brand, editData, accentColor, solidColor, logoColor, log
   const hasPastaContacts = !!(clinicaNome || endereco || whatsapp || telefone || telefone2 || site || instagram);
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '15px', alignItems: 'center', width: '100%' }}>
-      <BordaToggle comBorda={comBorda} setComBorda={setComBorda} accentColor={accentColor} paletteColors={paletteColors} borderColor={borderColor} setBorderColor={setBorderColor} patternScale={patternScale} setPatternScale={setPatternScale} />
+      <BordaToggle patternOffset={patternOffset} setPatternOffset={setPatternOffset} setPatternOffset={typeof setPatternOffset !== "undefined" ? setPatternOffset : undefined} comBorda={comBorda} setComBorda={setComBorda} accentColor={accentColor} paletteColors={paletteColors} borderColor={borderColor} setBorderColor={setBorderColor} patternScale={patternScale} setPatternScale={setPatternScale} patternOffset={patternOffset} setPatternOffset={setPatternOffset} />
       {setFolderRoof && (
         <button onClick={() => setFolderRoof(v => !v)} style={{ fontSize: '0.7rem', padding: '4px 12px', borderRadius: '20px', border: `1px solid ${folderRoof ? accentColor : '#eee'}`, background: folderRoof ? `${accentColor}10` : '#fff', color: folderRoof ? accentColor : '#aaa', cursor: 'pointer', fontFamily: 'Montserrat,sans-serif', fontWeight: folderRoof ? 700 : 400 }}>
           {folderRoof ? (dictionary?.geral?.recorte_casinha || '🏠 Recorte Casinha ATIVO') : (dictionary?.geral?.recorte_reto || '⬜️ Recorte Reto ATIVO')}
@@ -5508,7 +5579,7 @@ function PastaPreview({ brand, editData, accentColor, solidColor, logoColor, log
         
         {/* Camada de Fundo */}
         {comBorda && patternSrc ? (
-          <div style={{ position: 'absolute', inset: 0, backgroundImage: `url(${patternSrc})`, backgroundSize: `${(patternScale || 150) * 2.5}px`, opacity: 0.9 }} />
+          <div style={{ position: 'absolute', inset: 0, backgroundImage: `url(${patternSrc})`, backgroundSize: `${getPatternTilePx(patternScale, 480, 242)}px`, opacity: 0.9 }} />
         ) : (
           <div style={{ position: 'absolute', inset: 0, background: borderColor || solidColor }} />
         )}
@@ -5723,9 +5794,40 @@ function PapelariaStep({ brand, accentColor, paletteColors, estampaPatterns, est
   const [paperSize, setPaperSize] = useState('a5'); // 'a5' | 'a4'
   const [atestadoModelo, setAtestadoModelo] = useState(1); // 1 | 2
   const persistPapelaria = (updates) => { try { const cur = JSON.parse(localStorage.getItem('brandbox_papelaria') || '{}'); localStorage.setItem('brandbox_papelaria', JSON.stringify({ ...cur, ...updates })); } catch {} };
+  const [patternOffset, setPatternOffsetState] = useState(() => {
+    try {
+      const cur = JSON.parse(localStorage.getItem('brandbox_papelaria') || '{}');
+      return cur.patternOffset !== undefined ? cur.patternOffset : 0;
+    } catch {
+      return 0;
+    }
+  });
+  const setPatternOffset = (v) => { setPatternOffsetState(v); persistPapelaria({ patternOffset: v }); };
   const setComBorda = (v) => { setComBordaState(v); persistPapelaria({ comBorda: v }); };
-  const setPatternScale = (v) => { setPatternScaleState(v); persistPapelaria({ patternScale: v }); };
   const setBorderColor = (v) => { setBorderColorState(v); persistPapelaria({ borderColor: v }); };
+  // Per-item patternScale overrides (tracks when user manually adjusts scale for each item)
+  const [patternScaleOverrides, setPatternScaleOverrides] = React.useState({});
+  // Auto-apply per-item default patternScale when switching items
+  React.useEffect(() => {
+    const item = itens[Math.min(idx, itens.length - 1)];
+    if (!item) return;
+    if (patternScaleOverrides[item] !== undefined) {
+      setPatternScaleState(patternScaleOverrides[item]);
+      return;
+    }
+    const entry = Object.entries(ITEM_DEFAULT_PATTERN_SCALE).find(([k]) =>
+      item === k || item.includes(k) || k.includes(item.split('(')[0].trim())
+    );
+    if (entry) setPatternScaleState(entry[1]);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [idx]);
+  // setPatternScale also records per-item customization
+  const setPatternScale = (v) => {
+    const item = itens[Math.min(idx, itens.length - 1)];
+    setPatternScaleState(v);
+    persistPapelaria({ patternScale: v });
+    if (item) setPatternScaleOverrides(prev => ({ ...prev, [item]: v }));
+  };
   const [showPrintModal, setShowPrintModal] = useState(false);
   const [pendingItem, setPendingItem] = useState(null);
   // Estado editável do Orientações RN
@@ -5958,7 +6060,111 @@ function PapelariaStep({ brand, accentColor, paletteColors, estampaPatterns, est
     return size ? `${item}_${size}_${slug}` : `${item}_${slug}`;
   };
 
-  const openGabarito = async (item) => {
+  const exportHTMLAsPDF = async (html, item, mode = 'download', wMm = null, hMm = null) => {
+    if (mode === 'print') {
+      const existing = document.getElementById('_gabarito_iframe');
+      if (existing) existing.remove();
+      const iframe = document.createElement('iframe');
+      iframe.id = '_gabarito_iframe';
+      iframe.style.cssText = 'position:fixed;top:-9999px;left:-9999px;width:300mm;height:400mm;border:none;visibility:hidden;';
+      document.body.appendChild(iframe);
+      iframe.contentDocument.open();
+      iframe.contentDocument.write(html);
+      iframe.contentDocument.close();
+      const _dt = pdfTitle(item);
+      iframe.contentDocument.title = _dt;
+      const prevT = document.title;
+      iframe.contentWindow.document.fonts.ready.then(() => {
+        setTimeout(() => {
+          document.title = _dt;
+          iframe.contentWindow.focus();
+          iframe.contentWindow.print();
+          setTimeout(() => { document.title = prevT; iframe.remove(); }, 3000);
+        }, 500);
+      });
+      return;
+    }
+
+    // Extract dimensions from HTML
+    let width = wMm;
+    let height = hMm;
+    if (!width || !height) {
+      const pageMatch = html.match(/@page\s*\{[^}]*size:\s*([\d\.]+)(?:mm)?\s+([\d\.]+)(?:mm)?/i);
+      if (pageMatch) { width = parseFloat(pageMatch[1]); height = parseFloat(pageMatch[2]); }
+    }
+    if (!width || !height) {
+      const wMatch = html.match(/\.(?:card|page)\s*\{[^}]*width:\s*([\d\.]+)mm/i);
+      const hMatch = html.match(/\.(?:card|page)\s*\{[^}]*height:\s*([\d\.]+)mm/i);
+      if (wMatch) width = parseFloat(wMatch[1]);
+      if (hMatch) height = parseFloat(hMatch[1]);
+    }
+    if (!width || isNaN(width)) width = 210;
+    if (!height || isNaN(height)) height = 297;
+
+    const MM_PER_IN = 25.4;
+    const pxW = Math.round((width / MM_PER_IN) * 96);
+    const pxH = Math.round((height / MM_PER_IN) * 96);
+
+    // Use an iframe at opacity:0 so html2canvas can capture it (off-screen divs fail)
+    const iframeEl = document.createElement('iframe');
+    iframeEl.style.cssText = `position:fixed;top:0;left:0;width:${pxW}px;height:${pxH}px;border:none;opacity:0;pointer-events:none;z-index:-1;`;
+    document.body.appendChild(iframeEl);
+
+    try {
+      await new Promise((resolve) => {
+        iframeEl.onload = resolve;
+        iframeEl.contentDocument.open();
+        iframeEl.contentDocument.write(html);
+        iframeEl.contentDocument.close();
+      });
+      await iframeEl.contentDocument.fonts.ready;
+      await new Promise(r => setTimeout(r, 800));
+
+      const { jsPDF } = await import('jspdf');
+      const html2canvas = (await import('html2canvas')).default;
+
+      const cards = Array.from(iframeEl.contentDocument.querySelectorAll('.card, .page'));
+      const targetElements = cards.length > 0 ? cards : [iframeEl.contentDocument.body];
+
+      const isLandscape = width > height;
+      const doc = new jsPDF({
+        orientation: isLandscape ? 'landscape' : 'portrait',
+        unit: 'mm',
+        format: [width, height]
+      });
+
+      for (let i = 0; i < targetElements.length; i++) {
+        const el = targetElements[i];
+        const canvas = await html2canvas(el, {
+          scale: 3,
+          useCORS: true,
+          allowTaint: true,
+          logging: false,
+          backgroundColor: '#ffffff',
+          windowWidth: pxW,
+          windowHeight: pxH,
+        });
+        const imgData = canvas.toDataURL('image/png');
+        if (i > 0) {
+          doc.addPage([width, height], isLandscape ? 'landscape' : 'portrait');
+        }
+        doc.addImage(imgData, 'PNG', 0, 0, width, height, undefined, 'FAST');
+      }
+
+      const filename = `${pdfTitle(item)}.pdf`;
+      doc.save(filename);
+    } catch (err) {
+      console.error('Erro na exportacao direta de PDF — fallback print:', err);
+      iframeEl.style.cssText = 'position:fixed;top:-9999px;left:-9999px;width:300mm;height:400mm;border:none;visibility:hidden;';
+      iframeEl.contentWindow.focus();
+      iframeEl.contentWindow.print();
+      setTimeout(() => iframeEl.remove(), 3000);
+      return;
+    }
+    iframeEl.remove();
+  };
+
+  const openGabarito = async (item, mode = 'download') => {
     if (item === 'Caderneta de Saúde') {
       try {
         const response = await fetch('/api/generate-caderneta', {
@@ -6140,7 +6346,7 @@ function PapelariaStep({ brand, accentColor, paletteColors, estampaPatterns, est
           : renderChartSVG(d.altura, MONTHS, 40, 130, 5, dictionary?.graficos_crescimento?.altura_label || 'Altura (cm)', dictionary?.graficos_crescimento?.altura_por_idade || 'Altura por Idade', gColor);
 
         const borderBg = comBorda && patternSrc
-          ? `background-image:url(${patternSrc});background-size:${(patternScale*0.83).toFixed(1)}mm;background-repeat:repeat;`
+          ? `background-image:url(${patternSrc});background-size:${getPatternTileMm(patternScale).toFixed(1)}mm;background-repeat:repeat;`
           : `background:${borderColor || paletteColors[0] || accentColor};`;
         const BLEED = 6;
 
@@ -6214,19 +6420,7 @@ ${renderPage('menino','frente')}
 ${renderPage('menino','verso')}
 </body></html>`;
 
-      const iframe = document.createElement('iframe');
-      iframe.style.cssText = 'position:fixed;top:-9999px;left:-9999px;width:216mm;height:303mm;border:none;visibility:hidden;';
-      document.body.appendChild(iframe);
-      iframe.contentDocument.open(); iframe.contentDocument.write(html); iframe.contentDocument.close();
-      const prevT = document.title;
-      iframe.contentWindow.document.fonts.ready.then(() => {
-        setTimeout(() => {
-          document.title = pdfTitle('Gráfico de Crescimento');
-          iframe.contentWindow.focus(); iframe.contentWindow.print();
-          setTimeout(() => { document.title = prevT; iframe.remove(); }, 4000);
-        }, 2000);
-      });
-      return;
+      return exportHTMLAsPDF(html, item, mode);
     }
 
     // ── ORIENTAÇÕES RECÉM NASCIDO ──────────────────────────────────
@@ -6273,7 +6467,7 @@ body { font-family:'Montserrat',sans-serif; background:#fff; }
   <div style="position:absolute;bottom:0;right:${BLEED}mm;width:0.2mm;height:${BLEED-0.5}mm;background:#000;z-index:100;"></div>
   <!-- BACKGROUND / BORDER -->
   ${comBorda && patternSrc 
-    ? `<div style="position:absolute;inset:0;background-image:url(${patternSrc});background-size:${(patternScale*0.4).toFixed(1)}mm;background-repeat:repeat;"></div>`
+    ? `<div style="position:absolute;inset:0;background-image:url(${patternSrc});background-size:${getPatternTileMm(patternScale).toFixed(1)}mm;background-repeat:repeat;"></div>`
     : `<div style="position:absolute;inset:0;background:${solidColor};"></div>`}
   
   <div style="position:absolute;top:${BLEED + BORDER_RN}mm;left:${BLEED + BORDER_RN}mm;right:${BLEED + BORDER_RN}mm;bottom:${BLEED + BORDER_RN}mm;background:#fff;display:flex;flex-direction:column;overflow:hidden;">
@@ -6356,13 +6550,7 @@ body { font-family:'Montserrat',sans-serif; background:#fff; }
 </div>
 </body></html>`;
 
-      const iframe = document.createElement('iframe');
-      iframe.style.cssText = 'position:fixed;top:-9999px;left:-9999px;width:210mm;height:297mm;border:none;visibility:hidden;';
-      document.body.appendChild(iframe);
-      iframe.contentDocument.open(); iframe.contentDocument.write(html); iframe.contentDocument.close();
-      const prevT = document.title;
-      iframe.contentWindow.document.fonts.ready.then(() => { setTimeout(() => { document.title = pdfTitle(dictionary?.orientacoes_rn?.titulo?.replace('\n', ' ') || 'Orientações RN'); iframe.contentWindow.focus(); iframe.contentWindow.print(); setTimeout(() => { document.title = prevT; iframe.remove(); }, 3000); }, 1500); });
-      return;
+      return exportHTMLAsPDF(html, item, mode);
     }
 
     // ── PASTA ──────────────────────────────────────────────────────
@@ -6373,7 +6561,7 @@ body { font-family:'Montserrat',sans-serif; background:#fff; }
       const fiP = `<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;600;700&display=swap" rel="stylesheet">${_lfP ? `<style>${_lfP}</style>` : `<link href="https://fonts.googleapis.com/css2?family=${encodeURIComponent(_ffP)}:wght@400;700&display=swap" rel="stylesheet">`}`;
       
       const genBgP = () => comBorda && patternSrc
-        ? `<div style="position:absolute;inset:0;background-image:url(${patternSrc});background-size:${(patternScale * 0.83).toFixed(1)}mm;opacity:1;"></div>`
+        ? `<div style="position:absolute;inset:0;background-image:url(${patternSrc});background-size:${getPatternTileMm(patternScale).toFixed(1)}mm;opacity:1;"></div>`
         : `<div style="position:absolute;inset:0;background:${borderColor || accentColor};"></div>`;
 
       const allPhones = [mainPhone, telefone2].filter(Boolean).join(' / ');
@@ -6427,13 +6615,7 @@ body { width: 485.775mm; height: 385.233mm; position: relative; overflow: hidden
 </body></html>`;
 
       const ex = document.getElementById('_gabarito_v2'); if (ex) ex.remove();
-      const iframe = document.createElement('iframe');
-      iframe.id = '_gabarito_v2';
-      iframe.style.cssText = 'position:fixed;top:-9999px;left:-9999px;width:1000mm;height:1000mm;border:none;visibility:hidden;';
-      document.body.appendChild(iframe);
-      iframe.contentDocument.open(); iframe.contentDocument.write(html); iframe.contentDocument.close();
-      iframe.contentWindow.document.fonts.ready.then(() => { setTimeout(() => { iframe.contentWindow.focus(); iframe.contentWindow.print(); setTimeout(() => { iframe.remove(); }, 3000); }, 1000); });
-      return;
+      return exportHTMLAsPDF(html, item, mode);
     }
 
     // ── CADERNO ──────────────────────────────────────────────
@@ -6444,7 +6626,7 @@ body { width: 485.775mm; height: 385.233mm; position: relative; overflow: hidden
       const fiC = `<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;600;700&display=swap" rel="stylesheet">${_lfC ? `<style>${_lfC}</style>` : `<link href="https://fonts.googleapis.com/css2?family=${encodeURIComponent(_ffC)}:wght@400;700&display=swap" rel="stylesheet">`}`;
       
       const genBgC = () => comBorda && patternSrc
-        ? `<div style="position:absolute;inset:0;background-image:url(${patternSrc});background-size:${patternScale ? ((patternScale * 0.95).toFixed(1) + 'mm') : '100%'};opacity:1;"></div>`
+        ? `<div style="position:absolute;inset:0;background-image:url(${patternSrc});background-size:${getPatternTileMm(patternScale).toFixed(1)}mm;opacity:1;"></div>`
         : `<div style="position:absolute;inset:0;background:${borderColor || paletteColors?.[0] || accentColor};"></div>`;
 
       const w_mm = paperSize === 'a5' ? 170 : 210;
@@ -6512,13 +6694,7 @@ body { width: 485.775mm; height: 385.233mm; position: relative; overflow: hidden
 </body></html>`;
 
       const ex = document.getElementById('_gabarito_v2'); if (ex) ex.remove();
-      const iframe = document.createElement('iframe');
-      iframe.id = '_gabarito_v2';
-      iframe.style.cssText = 'position:fixed;top:-9999px;left:-9999px;width:1000mm;height:1000mm;border:none;visibility:hidden;';
-      document.body.appendChild(iframe);
-      iframe.contentDocument.open(); iframe.contentDocument.write(html); iframe.contentDocument.close();
-      iframe.contentWindow.document.fonts.ready.then(() => { setTimeout(() => { iframe.contentWindow.focus(); iframe.contentWindow.print(); setTimeout(() => { iframe.remove(); }, 3000); }, 1000); });
-      return;
+      return exportHTMLAsPDF(html, item, mode);
     }
 
     // ── CARTÃO DE AGRADECIMENTO ──────────────────────────────────────
@@ -6568,7 +6744,7 @@ body { width: 485.775mm; height: 385.233mm; position: relative; overflow: hidden
       const selectedMessageText = MESSAGES_A[agradecimentoMsgIdx] || MESSAGES_A[0];
 
       const frenteBgHtml = comBorda && patternSrc
-        ? `<div style="position:absolute;inset:0;background-image:url(${patternSrc});background-size:${((patternScale || 150) * 0.22).toFixed(1)}mm;background-repeat:repeat;opacity:0.9;"></div>`
+        ? `<div style="position:absolute;inset:0;background-image:url(${patternSrc});background-size:${getPatternTileMm(patternScale).toFixed(1)}mm;background-repeat:repeat;opacity:0.9;"></div>`
         : `<div style="position:absolute;inset:0;background:${solidColor};"></div>`;
 
       const frenteA = `
@@ -6624,22 +6800,7 @@ body { width: 485.775mm; height: 385.233mm; position: relative; overflow: hidden
 </style></head><body>${frenteA}${versoA}</body></html>`;
 
       const ex = document.getElementById('_gabarito_iframe'); if (ex) ex.remove();
-      const iframe = document.createElement('iframe');
-      iframe.id = '_gabarito_iframe';
-      iframe.style.cssText = 'position:fixed;top:-9999px;left:-9999px;width:300mm;height:300mm;border:none;visibility:hidden;';
-      document.body.appendChild(iframe);
-      iframe.contentDocument.open(); iframe.contentDocument.write(html); iframe.contentDocument.close();
-      const _docTitle = pdfTitle('Cartão de Agradecimento');
-      iframe.contentDocument.title = _docTitle;
-      const prevT = document.title;
-      iframe.contentWindow.document.fonts.ready.then(() => {
-        setTimeout(() => {
-          document.title = _docTitle;
-          iframe.contentWindow.focus(); iframe.contentWindow.print();
-          setTimeout(() => { document.title = prevT; iframe.remove(); }, 3000);
-        }, 400);
-      });
-      return;
+      return exportHTMLAsPDF(html, item, mode);
     }
 
     // ── CARTÃO DE RETORNO ──────────────────────────────────────────
@@ -6651,7 +6812,7 @@ body { width: 485.775mm; height: 385.233mm; position: relative; overflow: hidden
       
       const _bcR = borderColor || accentColor;
       const genBg = (innerPad = 5) => comBorda && patternSrc
-        ? `<div style="position:absolute;inset:0;background-image:url(${patternSrc});background-size:${(patternScale * 0.2).toFixed(1)}mm;background-repeat:repeat;opacity:0.9;"></div>
+        ? `<div style="position:absolute;inset:0;background-image:url(${patternSrc});background-size:${getPatternTileMm(patternScale).toFixed(1)}mm;background-repeat:repeat;opacity:0.9;"></div>
            <div style="position:absolute;top:${BLEED + innerPad}mm;left:${BLEED + innerPad}mm;right:${BLEED + innerPad}mm;bottom:${BLEED + innerPad}mm;background:#fff;"></div>`
         : comBorda ? `<div style="position:absolute;inset:0;background:#fff;"></div>` : `<div style="position:absolute;inset:0;background:#fff;border:${BLEED + innerPad}mm solid ${_bcR};"></div>`;
 
@@ -6715,15 +6876,7 @@ body { width: 485.775mm; height: 385.233mm; position: relative; overflow: hidden
 </style></head><body>${frenteR}${versoR}</body></html>`;
 
       const ex = document.getElementById('_gabarito_iframe'); if (ex) ex.remove();
-      const iframe = document.createElement('iframe');
-      iframe.id = '_gabarito_iframe';
-      iframe.style.cssText = 'position:fixed;top:-9999px;left:-9999px;width:100mm;height:120mm;border:none;visibility:hidden;';
-      document.body.appendChild(iframe);
-      iframe.contentDocument.open(); iframe.contentDocument.write(html); iframe.contentDocument.close();
-      iframe.contentDocument.title = `Cartão de Retorno - ${marca}`;
-      const prevT = document.title;
-      iframe.contentWindow.document.fonts.ready.then(() => { setTimeout(() => { document.title = pdfTitle('Cartão de Retorno'); iframe.contentWindow.focus(); iframe.contentWindow.print(); setTimeout(() => { document.title = prevT; iframe.remove(); }, 3000); }, 400); });
-      return;
+      return exportHTMLAsPDF(html, item, mode);
     }
 
     // ── CARTÃO DE VISITA ────────────────────────────────────────────
@@ -6743,7 +6896,7 @@ body { width: 485.775mm; height: 385.233mm; position: relative; overflow: hidden
       `;
 
       const frenteBgHtml = comBorda && patternSrc
-        ? `<div style="position:absolute;inset:0;background-image:url(${patternSrc});background-size:${((patternScale || 150) * 0.22).toFixed(1)}mm;background-repeat:repeat;opacity:0.9;"></div>`
+        ? `<div style="position:absolute;inset:0;background-image:url(${patternSrc});background-size:${getPatternTileMm(patternScale).toFixed(1)}mm;background-repeat:repeat;opacity:0.9;"></div>`
         : `<div style="position:absolute;inset:0;background:#fff;"></div>`;
 
       const _logoWPct = logoLayout === 'horizontal' ? 0.90 : (_isRetrato ? 0.78 : 0.85);
@@ -6795,7 +6948,7 @@ body { width: 485.775mm; height: 385.233mm; position: relative; overflow: hidden
 
       const _bc = borderColor || accentColor;
       const versoBgHtml = comBorda && patternSrc
-        ? `<div style="position:absolute;inset:0;background-image:url(${patternSrc});background-size:${((patternScale || 150) * 0.22).toFixed(1)}mm;background-repeat:repeat;"></div>`
+        ? `<div style="position:absolute;inset:0;background-image:url(${patternSrc});background-size:${getPatternTileMm(patternScale).toFixed(1)}mm;background-repeat:repeat;"></div>`
         : `<div style="position:absolute;inset:0;background:${_bc};"></div>`;
 
       const versoInnerHtml = contactLines
@@ -6839,25 +6992,7 @@ ${versoHtml}
 
       const existing2 = document.getElementById('_gabarito_iframe');
       if (existing2) existing2.remove();
-      const iframe2 = document.createElement('iframe');
-      iframe2.id = '_gabarito_iframe';
-      iframe2.style.cssText = 'position:fixed;top:-9999px;left:-9999px;width:200mm;height:150mm;border:none;visibility:hidden;';
-      document.body.appendChild(iframe2);
-      iframe2.contentDocument.open();
-      iframe2.contentDocument.write(html);
-      iframe2.contentDocument.close();
-      const _docTitle = pdfTitle('Cartão de Visita');
-      iframe2.contentDocument.title = _docTitle;
-      const _prevTitle = document.title;
-      iframe2.contentWindow.document.fonts.ready.then(() => {
-        setTimeout(() => {
-          document.title = _docTitle;
-          iframe2.contentWindow.focus();
-          iframe2.contentWindow.print();
-          setTimeout(() => { document.title = _prevTitle; iframe2.remove(); }, 3000);
-        }, 300);
-      });
-      return;
+      return exportHTMLAsPDF(html, item, mode);
     }
 
     if (item.includes('Envelope Saco')) {
@@ -6868,7 +7003,7 @@ ${versoHtml}
       const totalH = (BLEED * 2) + ABA_S + H + ABA_I;
 
       const solidColor = borderColor || accentColor;
-      const genPattern = (scaleMul = 1, offX = 0, offY = 0) => (comBorda && patternSrc) ? `<div style="position:absolute;inset:0;background-image:url(${patternSrc});background-size:${(patternScale * 1.022 * scaleMul).toFixed(1)}mm;background-repeat:repeat;background-position:${offX}mm ${offY}mm;opacity:1;"></div>` : '';
+      const genPattern = (scaleMul = 1, offX = 0, offY = 0) => (comBorda && patternSrc) ? `<div style="position:absolute;inset:0;background-image:url(${patternSrc});background-size:${(getPatternTileMm(patternScale) * scaleMul).toFixed(1)}mm;background-repeat:repeat;background-position:${offX}mm ${offY}mm;opacity:1;"></div>` : '';
       const _sacPhones = [mainPhone, telefone].filter(Boolean).join(' / ');
       const _ffSac = editData?.fontFamily || brand.editData?.fontFamily || 'Playfair Display';
       const _lfSac = LOCAL_FONT_FACES[_ffSac];
@@ -6923,14 +7058,7 @@ body { width:${totalW}mm; height:${totalH}mm; position:relative; overflow:hidden
 </style></head><body><div style="width:${totalW}mm; height:${totalH}mm; position:relative;">${abaSupHtml}${abaInfHtml}${abaLatHtml}${frenteHtml}${versoHtml}${cmsSac}</div></body></html>`;
 
       const ex = document.getElementById('_gabarito_iframe'); if (ex) ex.remove();
-      const iframe = document.createElement('iframe');
-      iframe.id = '_gabarito_iframe';
-      iframe.style.cssText = 'position:fixed;top:-9999px;left:-9999px;width:500mm;height:400mm;border:none;visibility:hidden;';
-      document.body.appendChild(iframe);
-      iframe.contentDocument.open(); iframe.contentDocument.write(html); iframe.contentDocument.close();
-      const _pT_4882 = document.title; document.title = pdfTitle('Envelope Saco');
-      iframe.contentWindow.document.fonts.ready.then(() => { setTimeout(() => { iframe.contentWindow.focus(); iframe.contentWindow.print(); setTimeout(() => { iframe.remove(); }, 3000); }, 500); });
-      return;
+      return exportHTMLAsPDF(html, item, mode);
     }
 
     if (item.includes('Envelope Ofício')) {
@@ -6992,14 +7120,7 @@ body { width:${totalW}mm; height:${totalH}mm; position:relative; overflow:hidden
 </style></head><body><div style="width:${totalW}mm; height:${totalH}mm; position:relative;">${abaHtml}${frenteHtml}${versoHtml}${cmsEnv}</div></body></html>`;
 
       const ex = document.getElementById('_gabarito_iframe'); if (ex) ex.remove();
-      const iframe = document.createElement('iframe');
-      iframe.id = '_gabarito_iframe';
-      iframe.style.cssText = 'position:fixed;top:-9999px;left:-9999px;width:300mm;height:300mm;border:none;visibility:hidden;';
-      document.body.appendChild(iframe);
-      iframe.contentDocument.open(); iframe.contentDocument.write(html); iframe.contentDocument.close();
-      const _pT_4945 = document.title; document.title = pdfTitle('Envelope Ofício');
-      iframe.contentWindow.document.fonts.ready.then(() => { setTimeout(() => { iframe.contentWindow.focus(); iframe.contentWindow.print(); setTimeout(() => { iframe.remove(); }, 3000); }, 500); });
-      return;
+      return exportHTMLAsPDF(html, item, mode);
     }
 
     if (item === 'Ficha de Cadastro') {
@@ -7012,7 +7133,7 @@ body { width:${totalW}mm; height:${totalH}mm; position:relative; overflow:hidden
       const fiC = `<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700;800&display=swap" rel="stylesheet">${_lfC ? `<style>${_lfC}</style>` : `<link href="https://fonts.googleapis.com/css2?family=${encodeURIComponent(_ffC)}:wght@400;700&display=swap" rel="stylesheet">`}`;
 
       const genBg = (innerPad = 8) => comBorda && patternSrc
-        ? `<div style="position:absolute;inset:0;background-image:url(${patternSrc});background-size:${(patternScale * 0.4).toFixed(1)}mm;background-repeat:repeat;opacity:0.9;"></div>
+        ? `<div style="position:absolute;inset:0;background-image:url(${patternSrc});background-size:${getPatternTileMm(patternScale).toFixed(1)}mm;background-repeat:repeat;opacity:0.9;"></div>
            <div style="position:absolute;top:${BLEED + innerPad}mm;left:${BLEED + innerPad}mm;right:${BLEED + innerPad}mm;bottom:${BLEED + innerPad}mm;background:#fff;"></div>`
         : comBorda ? `<div style="position:absolute;inset:0;background:#fff;"></div>` : `<div style="position:absolute;inset:0;background:#fff;border:${BLEED + innerPad}mm solid ${borderColor || accentColor};box-sizing:border-box;"></div>`;
 
@@ -7139,14 +7260,7 @@ body { width: 220mm; height: 307mm; position: relative; overflow: hidden; backgr
 </style></head><body>${pageHtml}</body></html>`;
 
       const ex = document.getElementById('_gabarito_v2'); if (ex) ex.remove();
-      const iframe = document.createElement('iframe');
-      iframe.id = '_gabarito_v2';
-      iframe.style.cssText = 'position:fixed;top:-9999px;left:-9999px;width:1000mm;height:1000mm;border:none;visibility:hidden;';
-      document.body.appendChild(iframe);
-      iframe.contentDocument.open(); iframe.contentDocument.write(html); iframe.contentDocument.close();
-      const _pT_5091 = document.title; document.title = pdfTitle('Ficha de Cadastro');
-      iframe.contentWindow.document.fonts.ready.then(() => { setTimeout(() => { iframe.contentWindow.focus(); iframe.contentWindow.print(); setTimeout(() => { iframe.remove(); }, 3000); }, 1000); });
-      return;
+      return exportHTMLAsPDF(html, item, mode);
     }
 
     if (item === 'Prontuário Médico') {
@@ -7156,7 +7270,7 @@ body { width: 220mm; height: 307mm; position: relative; overflow: hidden; backgr
       const fiPr = `<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700;800&display=swap" rel="stylesheet">${_lfPr ? `<style>${_lfPr}</style>` : `<link href="https://fonts.googleapis.com/css2?family=${_ffPr.replace(/ /g,'+')}:wght@400;700&display=swap" rel="stylesheet">`}`;
       
       const genBg = (innerPad = 8) => comBorda && patternSrc
-        ? `<div style="position:absolute;inset:0;background-image:url(${patternSrc});background-size:${(patternScale * 0.4).toFixed(1)}mm;background-repeat:repeat;opacity:0.9;"></div>
+        ? `<div style="position:absolute;inset:0;background-image:url(${patternSrc});background-size:${getPatternTileMm(patternScale).toFixed(1)}mm;background-repeat:repeat;opacity:0.9;"></div>
            <div style="position:absolute;top:${BLEED + innerPad}mm;left:${BLEED + innerPad}mm;right:${BLEED + innerPad}mm;bottom:${BLEED + innerPad}mm;background:#fff;"></div>`
         : comBorda ? `<div style="position:absolute;inset:0;background:#fff;"></div>` : `<div style="position:absolute;inset:0;background:#fff;border:${BLEED + innerPad}mm solid ${borderColor || accentColor};"></div>`;
 
@@ -7235,14 +7349,7 @@ body { width: 220mm; height: 307mm; background: #fff; }
 </style></head><body>${frenteHtml}${versoHtml}</body></html>`;
 
       const ex = document.getElementById('_gabarito_v2'); if (ex) ex.remove();
-      const iframe = document.createElement('iframe');
-      iframe.id = '_gabarito_v2';
-      iframe.style.cssText = 'position:fixed;top:-9999px;left:-9999px;width:1000mm;height:1000mm;border:none;visibility:hidden;';
-      document.body.appendChild(iframe);
-      iframe.contentDocument.open(); iframe.contentDocument.write(html); iframe.contentDocument.close();
-      const _pT_5186 = document.title; document.title = pdfTitle('Prontuário Médico');
-      iframe.contentWindow.document.fonts.ready.then(() => { setTimeout(() => { iframe.contentWindow.focus(); iframe.contentWindow.print(); setTimeout(() => { iframe.remove(); }, 3000); }, 1000); });
-      return;
+      return exportHTMLAsPDF(html, item, mode);
     }
 
     if (item === 'Checklist Maternidade') {
@@ -7250,7 +7357,7 @@ body { width: 220mm; height: 307mm; background: #fff; }
       const _bc = borderColor || accentColor;
       const _bwCk = '8mm';
       const _patCk = (comBorda && patternSrc)
-        ? `background-image:url(${patternSrc});background-size:${((patternScale || 150) * 0.35).toFixed(1)}mm;background-repeat:repeat;`
+        ? `background-image:url(${patternSrc});background-size:${getPatternTileMm(patternScale).toFixed(1)}mm;background-repeat:repeat;`
         : `background:${_bc};`;
       const SECOES_CK = dictionary?.checklist_maternidade?.secoes || [
         { titulo: 'check list bebê', itens: ['4 mudas para troca de roupas','1 saída de maternidade','4 pares de meia','Fraldinhas de boca','2 mantas','1 pacote de fralda descartável (RN P dependendo do tamanho do bebê)','1 toalha fralda','Sabonete líquido de glicerina','Algodão','Frasco de álcool','Pomada para prevenção de assadura','1 sacolinha para roupas sujas','Pente para cabelo','Almofada de amamentação','1 Coeiro','Cadeirinha ou bebê conforto para o carro'] },
@@ -7308,14 +7415,7 @@ body { width: 220mm; height: 307mm; background: #fff; }
       const exCk = document.getElementById('_gabarito_iframe'); if (exCk) exCk.remove();
       const blobCk = new Blob([htmlCk], { type: 'text/html;charset=utf-8' });
       const blobUrlCk = URL.createObjectURL(blobCk);
-      const iframeCk = document.createElement('iframe');
-      iframeCk.id = '_gabarito_iframe';
-      iframeCk.style.cssText = 'position:fixed;top:-9999px;left:-9999px;width:210mm;height:297mm;border:none;visibility:hidden;';
-      document.body.appendChild(iframeCk);
-      iframeCk.src = blobUrlCk;
-      const _pT_5241 = document.title; document.title = pdfTitle('Checklist Maternidade');
-      iframeCk.onload = () => setTimeout(() => { iframeCk.contentWindow.focus(); iframeCk.contentWindow.print(); setTimeout(() => { iframeCk.remove(); URL.revokeObjectURL(blobUrlCk); }, 2000); }, 800);
-      return;
+      return exportHTMLAsPDF(html, item, mode);
     }
 
     if (item.includes('Atestado Médico')) {
@@ -7330,7 +7430,7 @@ body { width: 220mm; height: 307mm; background: #fff; }
       const _bc2 = borderColor || accentColor;
       const _clipAt = folderRoof ? 'polygon(0% 8%, 50% 0%, 100% 8%, 100% 100%, 0% 100%)' : 'none';
       const _pat2 = (comBorda && patternSrc)
-        ? `<div style="position:absolute;inset:0;background-image:url(${patternSrc});background-size:${((patternScale || 150) * 0.35).toFixed(1)}mm;background-repeat:repeat;"></div><div style="position:absolute;top:${_bw};left:${_bw};right:${_bw};bottom:${_bw};background:#fff;clip-path:${_clipAt};"></div>`
+        ? `<div style="position:absolute;inset:0;background-image:url(${patternSrc});background-size:${getPatternTileMm(patternScale).toFixed(1)}mm;background-repeat:repeat;"></div><div style="position:absolute;top:${_bw};left:${_bw};right:${_bw};bottom:${_bw};background:#fff;clip-path:${_clipAt};"></div>`
         : `<div style="position:absolute;inset:0;background:${_bc2};"></div><div style="position:absolute;top:${_bw};left:${_bw};right:${_bw};bottom:${_bw};background:#fff;clip-path:${_clipAt};"></div>`;
       const _atFooter1 = [clinicaNome, mainPhone].filter(Boolean).join(' · ');
       const _atFooter2 = [instagram ? `@${instagram}` : '', site, endereco].filter(Boolean).join(' · ');
@@ -7455,15 +7555,7 @@ body { width: 220mm; height: 307mm; background: #fff; }
 </div></body></html>`;
       const _dt = pdfTitle('Atestado Médico');
       const _ex = document.getElementById('_gabarito_iframe'); if (_ex) _ex.remove();
-      const _if = document.createElement('iframe');
-      _if.id = '_gabarito_iframe';
-      _if.style.cssText = 'position:fixed;top:-9999px;left:-9999px;width:200mm;height:280mm;border:none;visibility:hidden;';
-      document.body.appendChild(_if);
-      _if.contentDocument.open(); _if.contentDocument.write(_atHtml); _if.contentDocument.close();
-      _if.contentDocument.title = _dt;
-      const _pv = document.title;
-      _if.contentWindow.document.fonts.ready.then(() => { setTimeout(() => { document.title = _dt; _if.contentWindow.focus(); _if.contentWindow.print(); setTimeout(() => { document.title = _pv; _if.remove(); }, 3000); }, 400); });
-      return;
+      return exportHTMLAsPDF(_atHtml, item, mode);
     }
 
     // ── DIÁRIO DO XIXI ───────────────────────────────────────────
@@ -7474,7 +7566,7 @@ body { width: 220mm; height: 307mm; background: #fff; }
       const fiD = `<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;600;700;800&display=swap" rel="stylesheet">${_lfD ? `<style>${_lfD}</style>` : `<link href="https://fonts.googleapis.com/css2?family=${_ffD.replace(/ /g,'+')}:wght@400;700&display=swap" rel="stylesheet">`}`;
       
       const genBg = (innerPad = 5) => comBorda && patternSrc
-        ? `<div style="position:absolute;inset:0;background-image:url(${patternSrc});background-size:${(patternScale * 0.4).toFixed(1)}mm;background-repeat:repeat;opacity:1;"></div>
+        ? `<div style="position:absolute;inset:0;background-image:url(${patternSrc});background-size:${getPatternTileMm(patternScale).toFixed(1)}mm;background-repeat:repeat;opacity:1;"></div>
            <div style="position:absolute;top:${BLEED + innerPad}mm;left:${BLEED + innerPad}mm;right:${BLEED + innerPad}mm;bottom:${BLEED + innerPad}mm;background:#fff;"></div>`
         : `<div style="position:absolute;inset:0;background:${borderColor || accentColor};"></div>
            <div style="position:absolute;top:${BLEED + innerPad}mm;left:${BLEED + innerPad}mm;right:${BLEED + innerPad}mm;bottom:${BLEED + innerPad}mm;background:#fff;"></div>`;
@@ -7556,14 +7648,7 @@ body { width: 303mm; height: 216mm; position: relative; overflow: hidden; backgr
 </body></html>`;
 
       const exD = document.getElementById('_gabarito_v2'); if (exD) exD.remove();
-      const iframeD = document.createElement('iframe');
-      iframeD.id = '_gabarito_v2';
-      iframeD.style.cssText = 'position:fixed;top:-9999px;left:-9999px;width:1000mm;height:1000mm;border:none;visibility:hidden;';
-      document.body.appendChild(iframeD);
-      iframeD.contentDocument.open(); iframeD.contentDocument.write(html); iframeD.contentDocument.close();
-      const _pT_5440 = document.title; document.title = pdfTitle('Diário do Xixi');
-      iframeD.contentWindow.document.fonts.ready.then(() => { setTimeout(() => { iframeD.contentWindow.focus(); iframeD.contentWindow.print(); setTimeout(() => { iframeD.remove(); }, 3000); }, 1000); });
-      return;
+      return exportHTMLAsPDF(html, item, mode);
     }
 
     if (item === 'Meu Pratinho') {
@@ -7577,7 +7662,7 @@ body { width: 303mm; height: 216mm; position: relative; overflow: hidden; backgr
       const fiP = `<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700;800;900&display=swap" rel="stylesheet">${_lfP ? `<style>${_lfP}</style>` : `<link href="https://fonts.googleapis.com/css2?family=${_ffP.replace(/ /g,'+')}:wght@400;700&display=swap" rel="stylesheet">`}`;
       
       const patternBorder = (comBorda && patternSrc) ? `
-        <div style="position:absolute;inset:0;background-image:url(${patternSrc});background-size:${(patternScale * 0.4).toFixed(1)}mm;background-repeat:repeat;z-index:1;"></div>
+        <div style="position:absolute;inset:0;background-image:url(${patternSrc});background-size:${getPatternTileMm(patternScale).toFixed(1)}mm;background-repeat:repeat;z-index:1;"></div>
         <div style="position:absolute;top:${BORDER}mm;left:${BORDER}mm;right:${BORDER}mm;bottom:${BORDER}mm;background:#fff;z-index:2;"></div>
       ` : comBorda ? `<div style="position:absolute;inset:0;background:#fff;z-index:1;"></div>` : `<div style="position:absolute;inset:0;background:#fff;border:${BORDER}mm solid ${solidColor};box-sizing:border-box;z-index:1;"></div>`;
 
@@ -7737,23 +7822,7 @@ body { background:#fff; }
 </body></html>`;
 
       const exP = document.getElementById('_gabarito_v2'); if (exP) exP.remove();
-      const iframeP = document.createElement('iframe');
-      iframeP.id = '_gabarito_v2';
-      iframeP.style.cssText = 'position:fixed;top:-9999px;left:-9999px;width:1000mm;height:1000mm;border:none;visibility:hidden;';
-      document.body.appendChild(iframeP);
-      iframeP.contentDocument.open(); iframeP.contentDocument.write(html); iframeP.contentDocument.close();
-      const _pT_5593 = document.title; document.title = pdfTitle('Meu Pratinho');
-      iframeP.contentWindow.document.fonts.ready.then(() => {
-        const imgs = Array.from(iframeP.contentDocument.images);
-        const waitImgs = imgs.map(img => img.complete ? Promise.resolve() : new Promise(r => { img.onload = r; img.onerror = r; }));
-        Promise.all(waitImgs).then(() => {
-          setTimeout(() => {
-            iframeP.contentWindow.focus(); iframeP.contentWindow.print();
-            setTimeout(() => { if (pratinhoBlob) URL.revokeObjectURL(pratinhoDataUrl); iframeP.remove(); }, 3000);
-          }, 400);
-        });
-      });
-      return;
+      return exportHTMLAsPDF(html, item, mode);
     }
 
     if (item === 'Etiqueta para Correios') {
@@ -7764,7 +7833,7 @@ body { background:#fff; }
       const { instagram, telefone, whatsapp } = cartaoContacts || {};
       const mainPhone = whatsapp || telefone || '';
       const bgEt = comBorda && patternSrc
-        ? `background-image:url(${patternSrc});background-size:${(patternScale*0.2).toFixed(1)}mm;background-repeat:repeat;`
+        ? `background-image:url(${patternSrc});background-size:${getPatternTileMm(patternScale).toFixed(1)}mm;background-repeat:repeat;`
         : `background:${solidColor};`;
       const igIcon = `<svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="${solidColor}" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="2" width="20" height="20" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.5" cy="6.5" r="1" fill="${solidColor}" stroke="none"/></svg>`;
       const waIcon = `<svg width="11" height="11" viewBox="0 0 24 24" fill="${solidColor}"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>`;
@@ -7822,14 +7891,7 @@ html, body { width:${totalW}mm; height:${totalH}mm; overflow:hidden; }
 <div style="position:relative;width:${totalW}mm;height:${totalH}mm;">${etiquetaBlock}</div>
 </body></html>`;
       const exE = document.getElementById('_gabarito_etiq'); if (exE) exE.remove();
-      const iframeE = document.createElement('iframe');
-      iframeE.id = '_gabarito_etiq';
-      iframeE.style.cssText = 'position:fixed;top:-9999px;left:-9999px;width:600mm;height:400mm;border:none;visibility:hidden;';
-      document.body.appendChild(iframeE);
-      iframeE.contentDocument.open(); iframeE.contentDocument.write(html); iframeE.contentDocument.close();
-      const _pT_5665 = document.title; document.title = pdfTitle('Etiqueta para Correios');
-      iframeE.contentWindow.document.fonts.ready.then(() => { setTimeout(() => { iframeE.contentWindow.focus(); iframeE.contentWindow.print(); setTimeout(() => { iframeE.remove(); }, 3000); }, 1000); });
-      return;
+      return exportHTMLAsPDF(html, item, mode);
     }
 
         if (item === 'Receita de Alta') {
@@ -7842,14 +7904,7 @@ html, body { width:${totalW}mm; height:${totalH}mm; overflow:hidden; }
       const html = buildReceitaAltaHTML({ logoHtml: logoHtmlRA, solidColor, paletteColors, clinicaNome, cartaoContacts, crmLine, marca, fields: receitaFields, comBorda, patternSrc, patternScale, dictionary, lang });
       const htmlFinal = html.replace('<head>', `<head>${fiRA.replace(/<link[^>]*>/, '')}`);
       const exRA = document.getElementById('_gabarito_receita_alta'); if (exRA) exRA.remove();
-      const iframeRA = document.createElement('iframe');
-      iframeRA.id = '_gabarito_receita_alta';
-      iframeRA.style.cssText = 'position:fixed;top:-9999px;left:-9999px;width:210mm;height:297mm;border:none;visibility:hidden;';
-      document.body.appendChild(iframeRA);
-      iframeRA.contentDocument.open(); iframeRA.contentDocument.write(htmlFinal); iframeRA.contentDocument.close();
-      const _pT_5684 = document.title; document.title = pdfTitle('Receita de Alta');
-      iframeRA.contentWindow.document.fonts.ready.then(() => { setTimeout(() => { iframeRA.contentWindow.focus(); iframeRA.contentWindow.print(); setTimeout(() => { iframeRA.remove(); }, 3000); }, 1000); });
-      return;
+      return exportHTMLAsPDF(htmlFinal, item, mode);
     }
 
     if (item === 'Caneca' || item === 'Arte para Caneca') {
@@ -7874,7 +7929,7 @@ html, body { width:${totalW}mm; height:${totalH}mm; overflow:hidden; }
             </div>
           );
       const bgStyleC = comBorda && patternSrc
-        ? `background-image:url(${patternSrc});background-size:${(patternScale*0.15).toFixed(1)}mm;background-repeat:repeat;`
+        ? `background-image:url(${patternSrc});background-size:${getPatternTileMm(patternScale).toFixed(1)}mm;background-repeat:repeat;`
         : `background:${solidColor};`;
       const BC = 3; // bleed 3mm
       const TW = 200 + BC*2, TH = 80 + BC*2;
@@ -7903,14 +7958,7 @@ html, body { width:${TW}mm; height:${TH}mm; overflow:hidden; }
 </div>
 </body></html>`;
       const exC = document.getElementById('_gabarito_caneca'); if (exC) exC.remove();
-      const iframeC = document.createElement('iframe');
-      iframeC.id = '_gabarito_caneca';
-      iframeC.style.cssText = 'position:fixed;top:-9999px;left:-9999px;width:400mm;height:200mm;border:none;visibility:hidden;';
-      document.body.appendChild(iframeC);
-      iframeC.contentDocument.open(); iframeC.contentDocument.write(html); iframeC.contentDocument.close();
-      const _pT_5734 = document.title; document.title = pdfTitle('Arte para Caneca');
-      iframeC.contentWindow.document.fonts.ready.then(() => { setTimeout(() => { iframeC.contentWindow.focus(); iframeC.contentWindow.print(); setTimeout(() => { iframeC.remove(); }, 3000); }, 1000); });
-      return;
+      return exportHTMLAsPDF(html, item, mode);
     }
 
     if (item === 'T-Shirt') {
@@ -7919,11 +7967,11 @@ html, body { width:${TW}mm; height:${TH}mm; overflow:hidden; }
       const _lfT = LOCAL_FONT_FACES[_ffT];
       const fiT = `<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700;800;900&display=swap" rel="stylesheet">${_lfT ? `<style>${_lfT}</style>` : `<link href="https://fonts.googleapis.com/css2?family=${encodeURIComponent(_ffT)}:wght@400;700&display=swap" rel="stylesheet">`}`;
       const hasCustomLogoT = !!itemEditData?.customLogoSrc;
-      const seloSizeT = 65; // mm (tamanho exato do mockup para o peito)
+      const seloSizeT = 65; // mm — tamanho do selo do peito
       const seloDataT = itemEditData?.fontStyle === 'script'
         ? { ...itemEditData, fontFamily: 'Montserrat', fontWeight: 700, fontStyle: 'display' }
         : { ...itemEditData };
-      
+
       const logoHtmlT = hasCustomLogoT
         ? ReactDOMServer.renderToString(
             <div style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', background: 'rgba(255,255,255,0.92)', padding: '2mm 3mm', borderRadius: '4px' }}>
@@ -7935,40 +7983,58 @@ html, body { width:${TW}mm; height:${TH}mm; overflow:hidden; }
               <BrandTemplateSVG data={seloDataT} color={submarcaColor || solidColor} textColor={submarcaTextColor || '#ffffff'} side="verso" hideBackground={true} iconPath={iconPath || null} />
             </div>
           );
-          
-      // Na caneca scale=150 significa 0.15mm (muito denso). Na camiseta scale=150 significa ~1.2mm
+
+      // Tile size = exact pattern repeat unit (page size matches tile so gráfica sees a clean module)
+      const tileMm = Math.round(getPatternTileMm(patternScale));
+      // Full shirt layout: standard adult all-over print area ~70x80cm
+      const SHIRT_W = 700, SHIRT_H = 800; // mm
+
       const bgStyleT = comBorda && patternSrc
-        ? `background-image:url(${patternSrc});background-size:${(patternScale*1.5).toFixed(1)}mm;background-repeat:repeat;`
+        ? `background-image:url(${patternSrc});background-size:${tileMm}mm;background-repeat:repeat;`
         : `background:${solidColor};`;
-      
-      const TW = 300, TH = 300; // 30x30 cm azulejo
+
       const html = `<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Estampa Camiseta - ${marca}</title>${fiT}
 <style>
 * { box-sizing:border-box; margin:0; padding:0; print-color-adjust:exact !important; -webkit-print-color-adjust:exact !important; }
-@page {  size:${TW }mm ${TH}mm; margin:0; }
-.page { width:${TW}mm; height:${TH}mm; position:relative; overflow:hidden; page-break-after:always; }
+@page tile { size:${tileMm}mm ${tileMm}mm; margin:0; }
+@page shirt { size:${SHIRT_W}mm ${SHIRT_H}mm; margin:0; }
+@page selo { size:200mm 200mm; margin:0; }
+.tile-page  { page: tile;  width:${tileMm}mm; height:${tileMm}mm; position:relative; overflow:hidden; page-break-after:always; }
+.shirt-page { page: shirt; width:${SHIRT_W}mm; height:${SHIRT_H}mm; position:relative; overflow:hidden; page-break-after:always; }
+.selo-page  { page: selo;  width:200mm; height:200mm; position:relative; overflow:hidden; }
 </style></head><body>
-<!-- Pagina 1: Módulo de Repetição / Cor Sólida -->
-<div class="page" style="${bgStyleT}"></div>
-<!-- Pagina 2: Selo do Peito -->
-<div class="page" style="background:#fff;">
+
+<!-- PAG 1: MODULO DE REPETICAO — tile exato que a graffica deve repetir no tecido -->
+<div class="tile-page" style="${bgStyleT}">
+  <div style="position:absolute;bottom:3mm;right:4mm;font-family:Montserrat,sans-serif;font-size:6pt;color:rgba(0,0,0,0.3);font-weight:700;letter-spacing:0.5px;">
+    MODULO ${tileMm}x${tileMm}mm — REPETIR EM GRADE
+  </div>
+</div>
+
+<!-- PAG 2: LAYOUT COMPLETO DA CAMISETA (70x80cm) -->
+<div class="shirt-page" style="${bgStyleT}">
+  <!-- Selo do peito -->
+  <div style="position:absolute;top:180mm;left:50%;transform:translateX(-50%);width:${seloSizeT}mm;height:${seloSizeT}mm;display:flex;align-items:center;justify-content:center;">
+    ${logoHtmlT}
+  </div>
+  <div style="position:absolute;bottom:8mm;left:0;right:0;text-align:center;font-family:Montserrat,sans-serif;font-size:7pt;color:rgba(0,0,0,0.35);font-weight:700;">
+    LAYOUT CAMISETA ADULTO — ${SHIRT_W/10}x${SHIRT_H/10}cm | ESTAMPA: ${marca}
+  </div>
+</div>
+
+<!-- PAG 3: SELO DO PEITO ISOLADO (tamanho real) -->
+<div class="selo-page" style="background:#fff;">
   <div style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);">
     ${logoHtmlT}
   </div>
-  <div style="position:absolute;bottom:10mm;left:0;right:0;text-align:center;font-family:Montserrat,sans-serif;font-size:10pt;color:#888;font-weight:700;">
-    SELO DO PEITO: ${seloSizeT} x ${seloSizeT} mm (Tamanho Real)
+  <div style="position:absolute;bottom:10mm;left:0;right:0;text-align:center;font-family:Montserrat,sans-serif;font-size:9pt;color:#888;font-weight:700;">
+    SELO DO PEITO: ${seloSizeT}x${seloSizeT}mm (TAMANHO REAL)
   </div>
 </div>
+
 </body></html>`;
       const exT = document.getElementById('_gabarito_camiseta'); if (exT) exT.remove();
-      const iframeT = document.createElement('iframe');
-      iframeT.id = '_gabarito_camiseta';
-      iframeT.style.cssText = 'position:fixed;top:-9999px;left:-9999px;width:400mm;height:400mm;border:none;visibility:hidden;';
-      document.body.appendChild(iframeT);
-      iframeT.contentDocument.open(); iframeT.contentDocument.write(html); iframeT.contentDocument.close();
-      const _pT_cam = document.title; document.title = pdfTitle('Gabarito Camiseta');
-      iframeT.contentWindow.document.fonts.ready.then(() => { setTimeout(() => { iframeT.contentWindow.focus(); iframeT.contentWindow.print(); setTimeout(() => { iframeT.remove(); document.title = _pT_cam; }, 3000); }, 1000); });
-      return;
+      return exportHTMLAsPDF(html, item, mode, SHIRT_W, SHIRT_H);
     }
 
 
@@ -7983,7 +8049,7 @@ html, body { width:${TW}mm; height:${TH}mm; overflow:hidden; }
       const selPP = SIZES_PP[papelPresenteSizeIdx] || SIZES_PP[1];
       const totalW = selPP.w + BLEED*2, totalH = selPP.h + BLEED*2;
       const bgPP = comBorda && patternSrc
-        ? `background-image:url(${patternSrc});background-size:${(patternScale*0.93).toFixed(1)}mm;background-repeat:repeat;`
+        ? `background-image:url(${patternSrc});background-size:${getPatternTileMm(patternScale).toFixed(1)}mm;background-repeat:repeat;`
         : `background:${solidColor};`;
       const html = `<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Papel de Presente - ${marca}</title>
 <style>* { box-sizing:border-box; margin:0; padding:0; print-color-adjust:exact !important; -webkit-print-color-adjust:exact !important; }
@@ -8000,14 +8066,7 @@ html, body { width:${totalW}mm; height:${totalH}mm; overflow:hidden; }
 </div>
 </body></html>`;
       const exPP = document.getElementById('_gabarito_pp'); if (exPP) exPP.remove();
-      const iframePP = document.createElement('iframe');
-      iframePP.id = '_gabarito_pp';
-      iframePP.style.cssText = `position:fixed;top:-9999px;left:-9999px;width:${totalW+10}mm;height:${totalH+10}mm;border:none;visibility:hidden;`;
-      document.body.appendChild(iframePP);
-      iframePP.contentDocument.open(); iframePP.contentDocument.write(html); iframePP.contentDocument.close();
-      const _pT_5772 = document.title; document.title = pdfTitle('Papel de Presente');
-      iframePP.contentWindow.document.fonts.ready.then(() => { setTimeout(() => { iframePP.contentWindow.focus(); iframePP.contentWindow.print(); setTimeout(() => { iframePP.remove(); }, 3000); }, 800); });
-      return;
+      return exportHTMLAsPDF(html, item, mode);
     }
 
         if (item === 'Tag para Sacola') {
@@ -8108,14 +8167,7 @@ html, body { width:${totalW}mm; height:${totalH}mm; overflow:hidden; }
 </body></html>`;
 
       const exT = document.getElementById('_gabarito_tag'); if (exT) exT.remove();
-      const iframeT = document.createElement('iframe');
-      iframeT.id = '_gabarito_tag';
-      iframeT.style.cssText = `position:fixed;top:-9999px;left:-9999px;width:${totalW_T+10}mm;height:${totalH_T*2+20}mm;border:none;visibility:hidden;`;
-      document.body.appendChild(iframeT);
-      iframeT.contentDocument.open(); iframeT.contentDocument.write(html); iframeT.contentDocument.close();
-      const _pT = document.title; document.title = pdfTitle('Tag para Sacola');
-      iframeT.contentWindow.document.fonts.ready.then(() => { setTimeout(() => { iframeT.contentWindow.focus(); iframeT.contentWindow.print(); setTimeout(() => { document.title = _pT; iframeT.remove(); }, 3000); }, 800); });
-      return;
+      return exportHTMLAsPDF(html, item, mode);
     }
 
         if (item === 'Sacola de Papel') {
@@ -8128,7 +8180,7 @@ html, body { width:${totalW}mm; height:${totalH}mm; overflow:hidden; }
       const arteFlat = (w, h, label) => `
         <div style="display:flex;flex-direction:column;align-items:center;gap:4mm;">
           <div style="font-family:'Montserrat',sans-serif;font-size:9pt;color:#999;font-weight:700;">${label}</div>
-          <div style="width:${w}mm;height:${h}mm;position:relative;overflow:hidden;${comBorda && patternSrc ? `background-image:url(${patternSrc});background-size:${(patternScale*0.4).toFixed(1)}mm;background-repeat:repeat;` : `background:${solidColor};`}">
+          <div style="width:${w}mm;height:${h}mm;position:relative;overflow:hidden;${comBorda && patternSrc ? `background-image:url(${patternSrc});background-size:${getPatternTileMm(patternScale).toFixed(1)}mm;background-repeat:repeat;` : `background:${solidColor};`}">
             <div style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%) rotate(-5deg);width:60%;text-align:center;">
               ${logoHtml}
             </div>
@@ -8144,14 +8196,7 @@ ${SIZES_S.map(s => arteFlat(s.w, s.h, s.label)).join('')}
 </body></html>`;
 
       const exS = document.getElementById('_gabarito_sacola'); if (exS) exS.remove();
-      const iframeS = document.createElement('iframe');
-      iframeS.id = '_gabarito_sacola';
-      iframeS.style.cssText = 'position:fixed;top:-9999px;left:-9999px;width:1200mm;height:1000mm;border:none;visibility:hidden;';
-      document.body.appendChild(iframeS);
-      iframeS.contentDocument.open(); iframeS.contentDocument.write(html); iframeS.contentDocument.close();
-      const _pT_5896 = document.title; document.title = pdfTitle('Sacola de Papel');
-      iframeS.contentWindow.document.fonts.ready.then(() => { setTimeout(() => { iframeS.contentWindow.focus(); iframeS.contentWindow.print(); setTimeout(() => { iframeS.remove(); }, 3000); }, 1000); });
-      return;
+      return exportHTMLAsPDF(html, item, mode);
     }
 
       if (item.includes('Controle Especial')) {
@@ -8167,7 +8212,7 @@ ${SIZES_S.map(s => arteFlat(s.w, s.h, s.label)).join('')}
         const _bcCe = borderColor || _accent;
         
         const patternBorder = (comBorda && patternSrc) ? `
-          <div style="position:absolute;inset:0;background-image:url(${patternSrc});background-size:${(patternScale * 0.42).toFixed(1)}mm;background-repeat:repeat;z-index:1;"></div>
+          <div style="position:absolute;inset:0;background-image:url(${patternSrc});background-size:${getPatternTileMm(patternScale).toFixed(1)}mm;background-repeat:repeat;z-index:1;"></div>
           <div style="position:absolute;top:${BORDER}mm;left:${BORDER}mm;right:${BORDER}mm;bottom:${BORDER}mm;background:#fff;z-index:2;"></div>
         ` : comBorda ? `<div style="position:absolute;inset:0;background:#fff;z-index:1;"></div>` : `<div style="position:absolute;inset:0;background:#fff;border:${BORDER}mm solid ${_bcCe};box-sizing:border-box;z-index:1;"></div>`;
 
@@ -8246,13 +8291,7 @@ body { width:${W + BLEED*2}mm; height:${H + BLEED*2}mm; position:relative; overf
 </div>
 </body></html>`;
 
-        const iframe = document.createElement('iframe');
-        iframe.style.cssText = 'position:fixed;top:-9999px;left:-9999px;width:300mm;height:400mm;border:none;visibility:hidden;';
-        document.body.appendChild(iframe);
-        iframe.contentDocument.open(); iframe.contentDocument.write(html); iframe.contentDocument.close();
-        const prevT = document.title;
-        iframe.contentWindow.document.fonts.ready.then(() => { setTimeout(() => { document.title = pdfTitle('Receituário de Controle Especial'); iframe.contentWindow.focus(); iframe.contentWindow.print(); setTimeout(() => { document.title = prevT; iframe.remove(); }, 3000); }, 1000); });
-        return;
+        return exportHTMLAsPDF(html, item, mode);
       }
       if (item === 'Recibo') {
         const BLEED = 3;
@@ -8265,7 +8304,7 @@ body { width:${W + BLEED*2}mm; height:${H + BLEED*2}mm; position:relative; overf
         const _bcRec = borderColor || accentColor;
         
         const patternBorder = (comBorda && patternSrc) ? `
-          <div style="position:absolute;inset:0;background-image:url(${patternSrc});background-size:${(patternScale * 0.45).toFixed(1)}mm;background-repeat:repeat;"></div>
+          <div style="position:absolute;inset:0;background-image:url(${patternSrc});background-size:${getPatternTileMm(patternScale).toFixed(1)}mm;background-repeat:repeat;"></div>
           <div style="position:absolute;top:${BORDER}mm;left:${BORDER}mm;right:${BORDER}mm;bottom:${BORDER}mm;background:#fff;"></div>
         ` : comBorda ? `<div style="position:absolute;inset:0;background:#fff;"></div>` : `<div style="position:absolute;inset:0;background:#fff;border:${BORDER}mm solid ${_bcRec};box-sizing:border-box;"></div>`;
 
@@ -8322,13 +8361,7 @@ td { padding: 2.5mm 2mm; border: 0.2mm solid #eee; font-size: 6pt; color: #555; 
 </div>
 </body></html>`;
 
-        const iframe = document.createElement('iframe');
-        iframe.style.cssText = 'position:fixed;top:-9999px;left:-9999px;width:300mm;height:400mm;border:none;visibility:hidden;';
-        document.body.appendChild(iframe);
-        iframe.contentDocument.open(); iframe.contentDocument.write(html); iframe.contentDocument.close();
-        const prevT = document.title;
-        iframe.contentWindow.document.fonts.ready.then(() => { setTimeout(() => { document.title = pdfTitle('Recibo'); iframe.contentWindow.focus(); iframe.contentWindow.print(); setTimeout(() => { document.title = prevT; iframe.remove(); }, 3000); }, 1000); });
-        return;
+        return exportHTMLAsPDF(html, item, mode);
       }
 
       if (['Guia Alimentar', 'Guia de Cuidados', 'Guia de Desenvolvimento', 'Guia de Vacina c/ Calendário', 'Cartão de Vacina', 'Cartão de Exame Pré-Natal', 'Cartão de Exames Pré-Natal', 'Guia de Amamentação', 'Guia do Sono'].includes(item)) {
@@ -8378,7 +8411,7 @@ td { padding: 2.5mm 2mm; border: 0.2mm solid #eee; font-size: 6pt; color: #555; 
           ];
 
           const _amamBg = comBorda && patternSrc
-            ? `background-image:url(${patternSrc});background-size:${((patternScale || 100) * 0.35).toFixed(1)}mm;background-repeat:repeat;`
+            ? `background-image:url(${patternSrc});background-size:${getPatternTileMm(patternScale).toFixed(1)}mm;background-repeat:repeat;`
             : `background:${borderColor || paletteColors[0] || accentColor};`;
           const renderSide = (pageIndices) => `
             <div class="page">
@@ -8418,13 +8451,7 @@ ${renderSide([3, 2, 1, 0])}
 ${renderSide([4, 5, 6, 7])}
 </body></html>`;
 
-          const iframe = document.createElement('iframe');
-          iframe.style.cssText = 'position:fixed;top:-9999px;left:-9999px;width:1000mm;height:1000mm;border:none;visibility:hidden;';
-          document.body.appendChild(iframe);
-          iframe.contentDocument.open(); iframe.contentDocument.write(html); iframe.contentDocument.close();
-          const prevT = document.title;
-          iframe.contentWindow.document.fonts.ready.then(() => { setTimeout(() => { document.title = pdfTitle(item); iframe.contentWindow.focus(); iframe.contentWindow.print(); setTimeout(() => { document.title = prevT; iframe.remove(); }, 3000); }, 1000); });
-          return;
+          return exportHTMLAsPDF(html, item, mode);
         }
 
         if (isPrenatal) {
@@ -8469,7 +8496,7 @@ ${renderSide([4, 5, 6, 7])}
           const sY = PX.toFixed(4);
           const prenatalBg = borderColor || paletteColors[0] || accentColor;
           const prenatalBgStyle = (comBorda && patternSrc)
-            ? `background-image:url(${patternSrc});background-size:${((patternScale || 100) * 0.35).toFixed(1)}mm;background-repeat:repeat;`
+            ? `background-image:url(${patternSrc});background-size:${getPatternTileMm(patternScale).toFixed(1)}mm;background-repeat:repeat;`
             : `background:${prenatalBg};`;
 
           const html = `<!DOCTYPE html><html><head><meta charset="UTF-8"><title>${item} - ${marca}</title>${fiPrenatal}
@@ -8527,13 +8554,7 @@ body { font-family:'Montserrat',sans-serif; }
 </div>
 </body></html>`;
 
-          const iframe = document.createElement('iframe');
-          iframe.style.cssText = 'position:fixed;top:-9999px;left:-9999px;width:1000mm;height:1000mm;border:none;visibility:hidden;';
-          document.body.appendChild(iframe);
-          iframe.contentDocument.open(); iframe.contentDocument.write(html); iframe.contentDocument.close();
-          const prevT = document.title;
-          iframe.contentWindow.document.fonts.ready.then(() => { setTimeout(() => { document.title = pdfTitle(item); iframe.contentWindow.focus(); iframe.contentWindow.print(); setTimeout(() => { document.title = prevT; iframe.remove(); }, 3000); }, 1000); });
-          return;
+          return exportHTMLAsPDF(html, item, mode);
         }
 
         const _darkenHex = (hex, factor = 0.55) => { const h = (hex||'').replace('#',''); if(h.length<6) return hex; const r=Math.round(parseInt(h.substring(0,2),16)*factor); const g=Math.round(parseInt(h.substring(2,4),16)*factor); const b=Math.round(parseInt(h.substring(4,6),16)*factor); return `rgb(${r},${g},${b})`; };
@@ -8745,13 +8766,7 @@ body { background:#eee; }
 </style></head><body>${page1}${page2}</body></html>`;
 
         const _launchTrifoldPrint = (finalHtml) => {
-          const iframe = document.createElement('iframe');
-          iframe.id = '_gabarito_trifold';
-          iframe.style.cssText = 'position:fixed;top:-9999px;left:-9999px;width:1000mm;height:1000mm;border:none;visibility:hidden;';
-          document.body.appendChild(iframe);
-          iframe.contentDocument.open(); iframe.contentDocument.write(finalHtml); iframe.contentDocument.close();
-          const prevT = document.title;
-          iframe.contentWindow.document.fonts.ready.then(() => { setTimeout(() => { document.title = pdfTitle(item); iframe.contentWindow.focus(); iframe.contentWindow.print(); setTimeout(() => { document.title = prevT; iframe.remove(); }, 5000); }, 1500); });
+          return exportHTMLAsPDF(finalHtml, item, mode);
         };
         try {
           const cssResp = await fetch('https://fonts.googleapis.com/css2?family=Great+Vibes&display=swap');
@@ -8926,7 +8941,7 @@ body { background:#fff; font-family:'Montserrat',sans-serif; }
     
     <!-- LUVA -->
     <div style="position:absolute; top:30mm; left:20mm; width:436.1mm; height:194.0mm;">
-       <div style="position:absolute; inset:0; ${effectiveSrc ? `background-image:url('${effectiveSrc}');background-size:${((patternScale || 100) * 3.5).toFixed(1)}mm;background-repeat:repeat;` : `background:${solidColor};`} z-index:1;"></div>
+       <div style="position:absolute; inset:0; ${effectiveSrc ? `background-image:url('${effectiveSrc}');background-size:${getPatternTileMm(patternScale).toFixed(1)}mm;background-repeat:repeat;` : `background:${solidColor};`} z-index:1;"></div>
        <img src="${window.location.origin}${svgLuva}" style="position:absolute; inset:0; width:100%; height:100%; z-index:10;" />
        
        <div style="position:absolute; left:67.821%; top:2.238%; width:30.963%; height:95.360%; z-index:5; display:flex; align-items:center; justify-content:center;">
@@ -8944,13 +8959,7 @@ body { background:#fff; font-family:'Montserrat',sans-serif; }
   </div>
 </body></html>`;
 
-        const iframe = document.createElement('iframe');
-        iframe.style.cssText = 'position:fixed;top:-9999px;left:-9999px;width:1000mm;height:1000mm;border:none;visibility:hidden;';
-        document.body.appendChild(iframe);
-        iframe.contentDocument.open(); iframe.contentDocument.write(html); iframe.contentDocument.close();
-        const prevT = document.title;
-        iframe.contentWindow.document.fonts.ready.then(() => { setTimeout(() => { document.title = pdfTitle(item); iframe.contentWindow.focus(); iframe.contentWindow.print(); setTimeout(() => { document.title = prevT; iframe.remove(); }, 3000); }, 1000); });
-        return;
+        return exportHTMLAsPDF(html, item, mode);
       }
 
       if (item === 'Papel Timbrado') {
@@ -8976,7 +8985,7 @@ body { background:#eee; }
 </style></head><body><div class="page">
 <div style="position:absolute; inset:0; overflow:hidden;">
   ${effectiveSrc
-    ? `<div style="position:absolute; inset:0; background-image:url(${effectiveSrc}); background-size:${((patternScale || 100) * 0.5).toFixed(1)}mm; background-repeat:repeat;"></div>`
+    ? `<div style="position:absolute; inset:0; background-image:url(${effectiveSrc}); background-size:${getPatternTileMm(patternScale).toFixed(1)}mm; background-repeat:repeat;"></div>`
     : `<div style="position:absolute; inset:0; background:${solidColor};"></div>`}
   <div style="position:absolute; top:${BLEED + BORDER}mm; left:${BLEED + BORDER}mm; right:${BLEED + BORDER}mm; bottom:${BLEED + BORDER}mm; background:#fff; clip-path:${_clipRoof}; -webkit-clip-path:${_clipRoof};"></div>
 
@@ -9002,13 +9011,7 @@ body { background:#eee; }
 <div class="cm cm-tl"></div><div class="cm cm-tr"></div><div class="cm cm-bl"></div><div class="cm cm-br"></div>
 </div></body></html>`;
 
-        const iframe = document.createElement('iframe');
-        iframe.style.cssText = 'position:fixed;top:-9999px;left:-9999px;width:1000mm;height:1000mm;border:none;visibility:hidden;';
-        document.body.appendChild(iframe);
-        iframe.contentDocument.open(); iframe.contentDocument.write(html); iframe.contentDocument.close();
-        const prevT = document.title;
-        iframe.contentWindow.document.fonts.ready.then(() => { setTimeout(() => { document.title = pdfTitle(item); iframe.contentWindow.focus(); iframe.contentWindow.print(); setTimeout(() => { document.title = prevT; iframe.remove(); }, 3000); }, 1000); });
-        return;
+        return exportHTMLAsPDF(html, item, mode);
       }
 
       if (item.includes('Certificado')) {
@@ -9041,7 +9044,7 @@ body { width:${W + BLEED*2}mm; height:${H + BLEED*2}mm; position:relative; overf
   <div style="position:absolute;bottom:${BLEED}mm;right:0;width:${BLEED-0.5}mm;height:0.2mm;background:#000;z-index:100;"></div>
   <div style="position:absolute;bottom:0;right:${BLEED}mm;width:0.2mm;height:${BLEED-0.5}mm;background:#000;z-index:100;"></div>
     <!-- Background -->
-    <div style="position:absolute;inset:0;background-image:${effectiveSrc ? `url(${effectiveSrc})` : 'none'};background-size:${patternScale * 0.95}mm;background-color:${!effectiveSrc ? solidColor : 'transparent'};"></div>
+    <div style="position:absolute;inset:0;background-image:${effectiveSrc ? `url(${effectiveSrc})` : 'none'};background-size:${getPatternTileMm(patternScale).toFixed(1)}mm;background-color:${!effectiveSrc ? solidColor : 'transparent'};"></div>
     
     <!-- Casinha -->
     <div style="position:absolute;top:${BLEED + 6}mm;left:${BLEED + 6}mm;right:${BLEED + 6}mm;bottom:${BLEED + 6}mm;background:#fff;clip-path:polygon(0% 18%, 50% 0%, 100% 18%, 100% 100%, 0% 100%);-webkit-clip-path:polygon(0% 18%, 50% 0%, 100% 18%, 100% 100%, 0% 100%);display:flex;flex-direction:column;align-items:center;padding:12mm 10mm 10mm;">
@@ -9065,15 +9068,7 @@ body { width:${W + BLEED*2}mm; height:${H + BLEED*2}mm; position:relative; overf
 
         const _dt = pdfTitle('Certificado de Coragem');
         const _ex = document.getElementById('_gabarito_iframe'); if (_ex) _ex.remove();
-        const _if = document.createElement('iframe');
-        _if.id = '_gabarito_iframe';
-        _if.style.cssText = `position:fixed;top:-9999px;left:-9999px;width:${W + BLEED*2}mm;height:${H + BLEED*2}mm;border:none;visibility:hidden;`;
-        document.body.appendChild(_if);
-        _if.contentDocument.open(); _if.contentDocument.write(html); _if.contentDocument.close();
-        _if.contentDocument.title = _dt;
-        const _pv = document.title;
-        _if.contentWindow.document.fonts.ready.then(() => { setTimeout(() => { document.title = _dt; _if.contentWindow.focus(); _if.contentWindow.print(); setTimeout(() => { document.title = _pv; _if.remove(); }, 3000); }, 400); });
-        return;
+        return exportHTMLAsPDF(html, item, mode);
       }
 
     // ── OUTROS ITENS ────────────────────────────────────────────────
@@ -9110,7 +9105,7 @@ body { width:${W + BLEED*2}mm; height:${H + BLEED*2}mm; position:relative; overf
     const _bc3 = borderColor || accentColor;
     const _clipRoof = folderRoof ? 'polygon(0% 8%, 50% 0%, 100% 8%, 100% 100%, 0% 100%)' : 'none';
     const patternBorder = (comBorda && patternSrc)
-      ? `<div style="position:absolute;inset:0;background-image:url(${patternSrc});background-size:${((patternScale || 150) * 0.4).toFixed(1)}mm;background-repeat:repeat;"></div>
+      ? `<div style="position:absolute;inset:0;background-image:url(${patternSrc});background-size:${getPatternTileMm(patternScale).toFixed(1)}mm;background-repeat:repeat;"></div>
          <div style="position:absolute;top:${BORDER_W};left:${BORDER_W};right:${BORDER_W};bottom:${BORDER_W};background:#fff;clip-path:${_clipRoof};"></div>`
       : `<div style="position:absolute;inset:0;background:${_bc3};"></div>
          <div style="position:absolute;top:${BORDER_W};left:${BORDER_W};right:${BORDER_W};bottom:${BORDER_W};background:#fff;clip-path:${_clipRoof};"></div>`;
@@ -9294,84 +9289,84 @@ ${fontImports2}
       <div style={{ display: 'flex', justifyContent: 'center', paddingTop: '4px', paddingBottom: '8px', width: '100%' }}>
         <UniversalPreviewScaler targetWidth={getPreviewTargetWidth(currentItem)}>
           {currentItem.includes('Cartão de Visita')
-            ? <CartaoDeVisitaPreview accentColor={accentColor} patternSrc={patternSrc} cartaoContacts={cartaoContacts} crmLine={crmLine} editData={{ ...itemEditData, tagline: localSlogan }} logoColor={logoColor} comBorda={comBorda} setComBorda={setComBorda} clinicaNome={clinicaNome} setClinicaNome={setClinicaNome} logoLayout={logoLayout} paletteColors={paletteColors} borderColor={borderColor} setBorderColor={setBorderColor} patternScale={patternScale} setPatternScale={setPatternScale} retrato={cartaoRetrato} setRetrato={setCartaoRetrato} />
+            ? <CartaoDeVisitaPreview accentColor={accentColor} patternSrc={patternSrc} cartaoContacts={cartaoContacts} crmLine={crmLine} editData={{ ...itemEditData, tagline: localSlogan }} logoColor={logoColor} comBorda={comBorda} setComBorda={setComBorda} clinicaNome={clinicaNome} setClinicaNome={setClinicaNome} logoLayout={logoLayout} paletteColors={paletteColors} borderColor={borderColor} setBorderColor={setBorderColor} patternScale={patternScale} setPatternScale={setPatternScale} patternOffset={patternOffset} setPatternOffset={setPatternOffset} retrato={cartaoRetrato} setRetrato={setCartaoRetrato} />
             : currentItem.includes('Envelope Ofício')
-              ? <EnvelopeOficioPreview accentColor={accentColor} patternSrc={patternSrc} logoColor={logoColor} logoLayout={logoLayout} comBorda={comBorda} setComBorda={setComBorda} paletteColors={paletteColors} borderColor={borderColor} setBorderColor={setBorderColor} patternScale={patternScale} setPatternScale={setPatternScale} cartaoContacts={cartaoContacts} crmLine={crmLine} localSlogan={localSlogan} brand={brand} editData={itemEditData} clinicaNome={clinicaNome} storyTemplateIdx={storyTemplateIdx} setStoryTemplateIdx={setStoryTemplateIdx} storyFormatIdx={storyFormatIdx} setStoryFormatIdx={setStoryFormatIdx} />
+              ? <EnvelopeOficioPreview accentColor={accentColor} patternSrc={patternSrc} logoColor={logoColor} logoLayout={logoLayout} comBorda={comBorda} setComBorda={setComBorda} paletteColors={paletteColors} borderColor={borderColor} setBorderColor={setBorderColor} patternScale={patternScale} setPatternScale={setPatternScale} patternOffset={patternOffset} setPatternOffset={setPatternOffset} cartaoContacts={cartaoContacts} crmLine={crmLine} localSlogan={localSlogan} brand={brand} editData={itemEditData} clinicaNome={clinicaNome} storyTemplateIdx={storyTemplateIdx} setStoryTemplateIdx={setStoryTemplateIdx} storyFormatIdx={storyFormatIdx} setStoryFormatIdx={setStoryFormatIdx} />
             : currentItem.includes('Envelope Saco')
-              ? <EnvelopeSacoPreview accentColor={accentColor} patternSrc={patternSrc} logoColor={logoColor} logoLayout={logoLayout} comBorda={comBorda} setComBorda={setComBorda} paletteColors={paletteColors} borderColor={borderColor} setBorderColor={setBorderColor} patternScale={patternScale} setPatternScale={setPatternScale} cartaoContacts={cartaoContacts} crmLine={crmLine} localSlogan={localSlogan} brand={brand} editData={itemEditData} clinicaNome={clinicaNome} storyTemplateIdx={storyTemplateIdx} setStoryTemplateIdx={setStoryTemplateIdx} storyFormatIdx={storyFormatIdx} setStoryFormatIdx={setStoryFormatIdx} />
+              ? <EnvelopeSacoPreview accentColor={accentColor} patternSrc={patternSrc} logoColor={logoColor} logoLayout={logoLayout} comBorda={comBorda} setComBorda={setComBorda} paletteColors={paletteColors} borderColor={borderColor} setBorderColor={setBorderColor} patternScale={patternScale} setPatternScale={setPatternScale} patternOffset={patternOffset} setPatternOffset={setPatternOffset} cartaoContacts={cartaoContacts} crmLine={crmLine} localSlogan={localSlogan} brand={brand} editData={itemEditData} clinicaNome={clinicaNome} storyTemplateIdx={storyTemplateIdx} setStoryTemplateIdx={setStoryTemplateIdx} storyFormatIdx={storyFormatIdx} setStoryFormatIdx={setStoryFormatIdx} />
             : currentItem === 'Recibo'
-              ? <ReciboPreview accentColor={accentColor} patternSrc={patternSrc} cartaoContacts={cartaoContacts} crmLine={crmLine} editData={{ ...itemEditData, tagline: localSlogan }} logoColor={logoColor} comBorda={comBorda} setComBorda={setComBorda} clinicaNome={clinicaNome} setClinicaNome={setClinicaNome} logoLayout={logoLayout} paletteColors={paletteColors} borderColor={borderColor} setBorderColor={setBorderColor} patternScale={patternScale} setPatternScale={setPatternScale} marca={marca} />
+              ? <ReciboPreview accentColor={accentColor} patternSrc={patternSrc} cartaoContacts={cartaoContacts} crmLine={crmLine} editData={{ ...itemEditData, tagline: localSlogan }} logoColor={logoColor} comBorda={comBorda} setComBorda={setComBorda} clinicaNome={clinicaNome} setClinicaNome={setClinicaNome} logoLayout={logoLayout} paletteColors={paletteColors} borderColor={borderColor} setBorderColor={setBorderColor} patternScale={patternScale} setPatternScale={setPatternScale} patternOffset={patternOffset} setPatternOffset={setPatternOffset} marca={marca} />
             : currentItem.includes('Cartão de Retorno')
-              ? <CartaoRetornoPreview accentColor={accentColor} patternSrc={patternSrc} cartaoContacts={cartaoContacts} crmLine={crmLine} editData={{ ...itemEditData, tagline: localSlogan }} logoColor={logoColor} comBorda={comBorda} setComBorda={setComBorda} clinicaNome={clinicaNome} setClinicaNome={setClinicaNome} logoLayout={logoLayout} paletteColors={paletteColors} borderColor={borderColor} setBorderColor={setBorderColor} patternScale={patternScale} setPatternScale={setPatternScale} />
+              ? <CartaoRetornoPreview accentColor={accentColor} patternSrc={patternSrc} cartaoContacts={cartaoContacts} crmLine={crmLine} editData={{ ...itemEditData, tagline: localSlogan }} logoColor={logoColor} comBorda={comBorda} setComBorda={setComBorda} clinicaNome={clinicaNome} setClinicaNome={setClinicaNome} logoLayout={logoLayout} paletteColors={paletteColors} borderColor={borderColor} setBorderColor={setBorderColor} patternScale={patternScale} setPatternScale={setPatternScale} patternOffset={patternOffset} setPatternOffset={setPatternOffset} />
             : currentItem.includes('Agradecimento')
-              ? <CartaoAgradecimentoPreview accentColor={accentColor} patternSrc={patternSrc} editData={{ ...itemEditData, tagline: localSlogan }} logoColor={logoColor} logoLayout={logoLayout} cartaoContacts={cartaoContacts} crmLine={crmLine} clinicaNome={clinicaNome} comBorda={comBorda} setComBorda={setComBorda} paletteColors={paletteColors} borderColor={borderColor} setBorderColor={setBorderColor} patternScale={patternScale} setPatternScale={setPatternScale} sizeIdx={agradecimentoSizeIdx} setSizeIdx={setAgradecimentoSizeIdx} msgIdx={agradecimentoMsgIdx} setMsgIdx={setAgradecimentoMsgIdx} />
+              ? <CartaoAgradecimentoPreview accentColor={accentColor} patternSrc={patternSrc} editData={{ ...itemEditData, tagline: localSlogan }} logoColor={logoColor} logoLayout={logoLayout} cartaoContacts={cartaoContacts} crmLine={crmLine} clinicaNome={clinicaNome} comBorda={comBorda} setComBorda={setComBorda} paletteColors={paletteColors} borderColor={borderColor} setBorderColor={setBorderColor} patternScale={patternScale} setPatternScale={setPatternScale} patternOffset={patternOffset} setPatternOffset={setPatternOffset} sizeIdx={agradecimentoSizeIdx} setSizeIdx={setAgradecimentoSizeIdx} msgIdx={agradecimentoMsgIdx} setMsgIdx={setAgradecimentoMsgIdx} />
             : currentItem === 'Ficha de Cadastro'
-              ? <FichaCadastroPreview accentColor={accentColor} patternSrc={patternSrc} editData={{ ...itemEditData, tagline: localSlogan }} logoColor={logoColor} logoLayout={logoLayout} cartaoContacts={cartaoContacts} crmLine={crmLine} clinicaNome={clinicaNome} comBorda={comBorda} setComBorda={setComBorda} paletteColors={paletteColors} borderColor={borderColor} setBorderColor={setBorderColor} patternScale={patternScale} setPatternScale={setPatternScale} fichaAdulto={fichaAdulto} setFichaAdulto={setFichaAdulto} />
+              ? <FichaCadastroPreview accentColor={accentColor} patternSrc={patternSrc} editData={{ ...itemEditData, tagline: localSlogan }} logoColor={logoColor} logoLayout={logoLayout} cartaoContacts={cartaoContacts} crmLine={crmLine} clinicaNome={clinicaNome} comBorda={comBorda} setComBorda={setComBorda} paletteColors={paletteColors} borderColor={borderColor} setBorderColor={setBorderColor} patternScale={patternScale} setPatternScale={setPatternScale} patternOffset={patternOffset} setPatternOffset={setPatternOffset} fichaAdulto={fichaAdulto} setFichaAdulto={setFichaAdulto} />
             : currentItem === 'Prontuário Médico'
-              ? <ProntuarioPreview accentColor={accentColor} patternSrc={patternSrc} editData={{ ...itemEditData, tagline: localSlogan }} logoColor={logoColor} logoLayout={logoLayout} cartaoContacts={cartaoContacts} crmLine={crmLine} clinicaNome={clinicaNome} comBorda={comBorda} setComBorda={setComBorda} paletteColors={paletteColors} borderColor={borderColor} setBorderColor={setBorderColor} patternScale={patternScale} setPatternScale={setPatternScale} />
+              ? <ProntuarioPreview accentColor={accentColor} patternSrc={patternSrc} editData={{ ...itemEditData, tagline: localSlogan }} logoColor={logoColor} logoLayout={logoLayout} cartaoContacts={cartaoContacts} crmLine={crmLine} clinicaNome={clinicaNome} comBorda={comBorda} setComBorda={setComBorda} paletteColors={paletteColors} borderColor={borderColor} setBorderColor={setBorderColor} patternScale={patternScale} setPatternScale={setPatternScale} patternOffset={patternOffset} setPatternOffset={setPatternOffset} />
             : currentItem === 'Checklist Maternidade'
-              ? <ChecklistMaternidadePreview accentColor={accentColor} patternSrc={patternSrc} editData={{ ...itemEditData, tagline: localSlogan }} logoColor={logoColor} logoLayout={logoLayout} cartaoContacts={cartaoContacts} crmLine={crmLine} clinicaNome={clinicaNome} comBorda={comBorda} setComBorda={setComBorda} paletteColors={paletteColors} borderColor={borderColor} setBorderColor={setBorderColor} patternScale={patternScale} setPatternScale={setPatternScale} />
+              ? <ChecklistMaternidadePreview accentColor={accentColor} patternSrc={patternSrc} editData={{ ...itemEditData, tagline: localSlogan }} logoColor={logoColor} logoLayout={logoLayout} cartaoContacts={cartaoContacts} crmLine={crmLine} clinicaNome={clinicaNome} comBorda={comBorda} setComBorda={setComBorda} paletteColors={paletteColors} borderColor={borderColor} setBorderColor={setBorderColor} patternScale={patternScale} setPatternScale={setPatternScale} patternOffset={patternOffset} setPatternOffset={setPatternOffset} />
             : currentItem.includes('Controle Especial')
-              ? <ControleEspecialPreview accentColor={accentColor} patternSrc={patternSrc} cartaoContacts={cartaoContacts} crmLine={crmLine} editData={{ ...itemEditData, tagline: localSlogan }} logoColor={logoColor} comBorda={comBorda} setComBorda={setComBorda} clinicaNome={clinicaNome} setClinicaNome={setClinicaNome} logoLayout={logoLayout} paletteColors={paletteColors} borderColor={borderColor} setBorderColor={setBorderColor} patternScale={patternScale} setPatternScale={setPatternScale} marca={marca} />
+              ? <ControleEspecialPreview accentColor={accentColor} patternSrc={patternSrc} cartaoContacts={cartaoContacts} crmLine={crmLine} editData={{ ...itemEditData, tagline: localSlogan }} logoColor={logoColor} comBorda={comBorda} setComBorda={setComBorda} clinicaNome={clinicaNome} setClinicaNome={setClinicaNome} logoLayout={logoLayout} paletteColors={paletteColors} borderColor={borderColor} setBorderColor={setBorderColor} patternScale={patternScale} setPatternScale={setPatternScale} patternOffset={patternOffset} setPatternOffset={setPatternOffset} marca={marca} />
             : currentItem === 'Gráfico de Crescimento'
               ? <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', alignItems: 'center' }}>
-                  <BordaToggle comBorda={comBorda} setComBorda={setComBorda} accentColor={accentColor} paletteColors={paletteColors} borderColor={borderColor} setBorderColor={setBorderColor} patternScale={patternScale} setPatternScale={setPatternScale} />
-                  <GraficoCrescimentoPreview accentColor={accentColor} paletteColors={paletteColors} editData={itemEditData} logoColor={logoColor} logoLayout={logoLayout} cartaoContacts={cartaoContacts} crmLine={crmLine} clinicaNome={clinicaNome} comBorda={comBorda} setComBorda={setComBorda} borderColor={borderColor} setBorderColor={setBorderColor} patternSrc={patternSrc} patternScale={patternScale} setPatternScale={setPatternScale} />
+                  <BordaToggle patternOffset={patternOffset} setPatternOffset={setPatternOffset} setPatternOffset={typeof setPatternOffset !== "undefined" ? setPatternOffset : undefined} comBorda={comBorda} setComBorda={setComBorda} accentColor={accentColor} paletteColors={paletteColors} borderColor={borderColor} setBorderColor={setBorderColor} patternScale={patternScale} setPatternScale={setPatternScale} patternOffset={patternOffset} setPatternOffset={setPatternOffset} />
+                  <GraficoCrescimentoPreview accentColor={accentColor} paletteColors={paletteColors} editData={itemEditData} logoColor={logoColor} logoLayout={logoLayout} cartaoContacts={cartaoContacts} crmLine={crmLine} clinicaNome={clinicaNome} comBorda={comBorda} setComBorda={setComBorda} borderColor={borderColor} setBorderColor={setBorderColor} patternSrc={patternSrc} patternScale={patternScale} setPatternScale={setPatternScale} patternOffset={patternOffset} setPatternOffset={setPatternOffset} />
                 </div>
             : currentItem === 'Diário do Xixi'
-              ? <DiarioXixiPreview accentColor={accentColor} patternSrc={patternSrc} editData={{ ...itemEditData, tagline: localSlogan }} logoColor={logoColor} logoLayout={logoLayout} cartaoContacts={cartaoContacts} crmLine={crmLine} clinicaNome={clinicaNome} comBorda={comBorda} setComBorda={setComBorda} paletteColors={paletteColors} borderColor={borderColor} setBorderColor={setBorderColor} patternScale={patternScale} setPatternScale={setPatternScale} />
+              ? <DiarioXixiPreview accentColor={accentColor} patternSrc={patternSrc} editData={{ ...itemEditData, tagline: localSlogan }} logoColor={logoColor} logoLayout={logoLayout} cartaoContacts={cartaoContacts} crmLine={crmLine} clinicaNome={clinicaNome} comBorda={comBorda} setComBorda={setComBorda} paletteColors={paletteColors} borderColor={borderColor} setBorderColor={setBorderColor} patternScale={patternScale} setPatternScale={setPatternScale} patternOffset={patternOffset} setPatternOffset={setPatternOffset} />
             : currentItem === 'Receita de Alta'
-              ? <ReceitaAltaPreview accentColor={accentColor} patternSrc={patternSrc} editData={{ ...itemEditData, tagline: localSlogan }} logoColor={logoColor} logoLayout={logoLayout} cartaoContacts={cartaoContacts} crmLine={crmLine} clinicaNome={clinicaNome} comBorda={comBorda} setComBorda={setComBorda} paletteColors={paletteColors} borderColor={borderColor} setBorderColor={setBorderColor} patternScale={patternScale} setPatternScale={setPatternScale} receitaFields={receitaFields} setReceitaFields={setReceitaFields} />
+              ? <ReceitaAltaPreview accentColor={accentColor} patternSrc={patternSrc} editData={{ ...itemEditData, tagline: localSlogan }} logoColor={logoColor} logoLayout={logoLayout} cartaoContacts={cartaoContacts} crmLine={crmLine} clinicaNome={clinicaNome} comBorda={comBorda} setComBorda={setComBorda} paletteColors={paletteColors} borderColor={borderColor} setBorderColor={setBorderColor} patternScale={patternScale} setPatternScale={setPatternScale} patternOffset={patternOffset} setPatternOffset={setPatternOffset} receitaFields={receitaFields} setReceitaFields={setReceitaFields} />
             : currentItem === 'Caneca' || currentItem === 'Arte para Caneca'
-              ? <CanecaPreview accentColor={accentColor} patternSrc={patternSrc} editData={{ ...itemEditData, tagline: localSlogan }} logoColor={logoColor} logoLayout={logoLayout} cartaoContacts={cartaoContacts} crmLine={crmLine} clinicaNome={clinicaNome} comBorda={comBorda} setComBorda={setComBorda} paletteColors={paletteColors} borderColor={borderColor} setBorderColor={setBorderColor} patternScale={patternScale} setPatternScale={setPatternScale} submarcaColor={submarcaColor} submarcaTextColor={submarcaTextColor} iconPath={iconPath} />
+              ? <CanecaPreview accentColor={accentColor} patternSrc={patternSrc} editData={{ ...itemEditData, tagline: localSlogan }} logoColor={logoColor} logoLayout={logoLayout} cartaoContacts={cartaoContacts} crmLine={crmLine} clinicaNome={clinicaNome} comBorda={comBorda} setComBorda={setComBorda} paletteColors={paletteColors} borderColor={borderColor} setBorderColor={setBorderColor} patternScale={patternScale} setPatternScale={setPatternScale} patternOffset={patternOffset} setPatternOffset={setPatternOffset} submarcaColor={submarcaColor} submarcaTextColor={submarcaTextColor} iconPath={iconPath} />
             : currentItem === 'T-Shirt'
-              ? <CamisetaPreview accentColor={accentColor} patternSrc={patternSrc} editData={{ ...itemEditData, tagline: localSlogan }} logoColor={logoColor} logoLayout={logoLayout} cartaoContacts={cartaoContacts} crmLine={crmLine} clinicaNome={clinicaNome} comBorda={comBorda} setComBorda={setComBorda} paletteColors={paletteColors} borderColor={borderColor} setBorderColor={setBorderColor} patternScale={patternScale} setPatternScale={setPatternScale} submarcaColor={submarcaColor} submarcaTextColor={submarcaTextColor} iconPath={iconPath} />
+              ? <CamisetaPreview accentColor={accentColor} patternSrc={patternSrc} editData={{ ...itemEditData, tagline: localSlogan }} logoColor={logoColor} logoLayout={logoLayout} cartaoContacts={cartaoContacts} crmLine={crmLine} clinicaNome={clinicaNome} comBorda={comBorda} setComBorda={setComBorda} paletteColors={paletteColors} borderColor={borderColor} setBorderColor={setBorderColor} patternScale={patternScale} setPatternScale={setPatternScale} patternOffset={patternOffset} setPatternOffset={setPatternOffset} submarcaColor={submarcaColor} submarcaTextColor={submarcaTextColor} iconPath={iconPath} />
             : currentItem === 'Papel de Presente'
-              ? <PapelPresentePreview accentColor={accentColor} paletteColors={paletteColors} comBorda={comBorda} setComBorda={setComBorda} patternSrc={patternSrc} patternScale={patternScale} setPatternScale={setPatternScale} borderColor={borderColor} setBorderColor={setBorderColor} sizeIdx={papelPresenteSizeIdx} setSizeIdx={setPapelPresenteSizeIdx} />
+              ? <PapelPresentePreview accentColor={accentColor} paletteColors={paletteColors} comBorda={comBorda} setComBorda={setComBorda} patternSrc={patternSrc} patternScale={patternScale} setPatternScale={setPatternScale} patternOffset={patternOffset} setPatternOffset={setPatternOffset} borderColor={borderColor} setBorderColor={setBorderColor} sizeIdx={papelPresenteSizeIdx} setSizeIdx={setPapelPresenteSizeIdx} />
             : currentItem === 'Tag para Sacola'
-              ? <TagSacolaPreview item={currentItem} accentColor={accentColor} patternSrc={patternSrc} editData={{ ...itemEditData, tagline: localSlogan }} logoColor={logoColor} logoLayout={logoLayout} cartaoContacts={cartaoContacts} crmLine={crmLine} clinicaNome={clinicaNome} comBorda={comBorda} setComBorda={setComBorda} paletteColors={paletteColors} borderColor={borderColor} setBorderColor={setBorderColor} patternScale={patternScale} setPatternScale={setPatternScale} sizeIdx={tagSacolaSizeIdx} setSizeIdx={setTagSacolaSizeIdx} />
+              ? <TagSacolaPreview item={currentItem} accentColor={accentColor} patternSrc={patternSrc} editData={{ ...itemEditData, tagline: localSlogan }} logoColor={logoColor} logoLayout={logoLayout} cartaoContacts={cartaoContacts} crmLine={crmLine} clinicaNome={clinicaNome} comBorda={comBorda} setComBorda={setComBorda} paletteColors={paletteColors} borderColor={borderColor} setBorderColor={setBorderColor} patternScale={patternScale} setPatternScale={setPatternScale} patternOffset={patternOffset} setPatternOffset={setPatternOffset} sizeIdx={tagSacolaSizeIdx} setSizeIdx={setTagSacolaSizeIdx} />
           : currentItem === 'Caixa Gaveta (L 13,5 x P 18,5 cm)'
-              ? <CaixaPreview dictionary={dictionary} accentColor={accentColor} patternSrc={patternSrc} editData={{ ...itemEditData, tagline: localSlogan }} logoColor={logoColor} logoLayout={logoLayout} cartaoContacts={cartaoContacts} crmLine={crmLine} clinicaNome={clinicaNome} comBorda={comBorda} setComBorda={setComBorda} paletteColors={paletteColors} borderColor={borderColor} setBorderColor={setBorderColor} patternScale={patternScale} setPatternScale={setPatternScale} />
+              ? <CaixaPreview dictionary={dictionary} accentColor={accentColor} patternSrc={patternSrc} editData={{ ...itemEditData, tagline: localSlogan }} logoColor={logoColor} logoLayout={logoLayout} cartaoContacts={cartaoContacts} crmLine={crmLine} clinicaNome={clinicaNome} comBorda={comBorda} setComBorda={setComBorda} paletteColors={paletteColors} borderColor={borderColor} setBorderColor={setBorderColor} patternScale={patternScale} setPatternScale={setPatternScale} patternOffset={patternOffset} setPatternOffset={setPatternOffset} />
             : currentItem === 'Sacola de Papel'
-              ? <SacolaPapelPreview accentColor={accentColor} patternSrc={patternSrc} editData={{ ...itemEditData, tagline: localSlogan }} logoColor={logoColor} logoLayout={logoLayout} cartaoContacts={cartaoContacts} crmLine={crmLine} clinicaNome={clinicaNome} comBorda={comBorda} setComBorda={setComBorda} paletteColors={paletteColors} borderColor={borderColor} setBorderColor={setBorderColor} patternScale={patternScale} setPatternScale={setPatternScale} />
+              ? <SacolaPapelPreview accentColor={accentColor} patternSrc={patternSrc} editData={{ ...itemEditData, tagline: localSlogan }} logoColor={logoColor} logoLayout={logoLayout} cartaoContacts={cartaoContacts} crmLine={crmLine} clinicaNome={clinicaNome} comBorda={comBorda} setComBorda={setComBorda} paletteColors={paletteColors} borderColor={borderColor} setBorderColor={setBorderColor} patternScale={patternScale} setPatternScale={setPatternScale} patternOffset={patternOffset} setPatternOffset={setPatternOffset} />
             : currentItem === 'Etiqueta para Correios'
-              ? <EtiquetaCorreiosPreview accentColor={accentColor} patternSrc={patternSrc} editData={{ ...itemEditData, tagline: localSlogan }} logoColor={logoColor} logoLayout={logoLayout} cartaoContacts={cartaoContacts} crmLine={crmLine} clinicaNome={clinicaNome} comBorda={comBorda} setComBorda={setComBorda} paletteColors={paletteColors} borderColor={borderColor} setBorderColor={setBorderColor} patternScale={patternScale} setPatternScale={setPatternScale} sizeIdx={etiquetaSizeIdx} setSizeIdx={setEtiquetaSizeIdx} fraseIdx={etiquetaFraseIdx} setFraseIdx={setEtiquetaFraseIdx} />
+              ? <EtiquetaCorreiosPreview accentColor={accentColor} patternSrc={patternSrc} editData={{ ...itemEditData, tagline: localSlogan }} logoColor={logoColor} logoLayout={logoLayout} cartaoContacts={cartaoContacts} crmLine={crmLine} clinicaNome={clinicaNome} comBorda={comBorda} setComBorda={setComBorda} paletteColors={paletteColors} borderColor={borderColor} setBorderColor={setBorderColor} patternScale={patternScale} setPatternScale={setPatternScale} patternOffset={patternOffset} setPatternOffset={setPatternOffset} sizeIdx={etiquetaSizeIdx} setSizeIdx={setEtiquetaSizeIdx} fraseIdx={etiquetaFraseIdx} setFraseIdx={setEtiquetaFraseIdx} />
             : currentItem === 'Meu Pratinho'
-              ? <MeuPratinhoPreview accentColor={accentColor} patternSrc={patternSrc} editData={{ ...itemEditData, tagline: localSlogan }} logoColor={logoColor} logoLayout={logoLayout} cartaoContacts={cartaoContacts} crmLine={crmLine} clinicaNome={clinicaNome} comBorda={comBorda} setComBorda={setComBorda} paletteColors={paletteColors} borderColor={borderColor} setBorderColor={setBorderColor} patternScale={patternScale} setPatternScale={setPatternScale} />
+              ? <MeuPratinhoPreview accentColor={accentColor} patternSrc={patternSrc} editData={{ ...itemEditData, tagline: localSlogan }} logoColor={logoColor} logoLayout={logoLayout} cartaoContacts={cartaoContacts} crmLine={crmLine} clinicaNome={clinicaNome} comBorda={comBorda} setComBorda={setComBorda} paletteColors={paletteColors} borderColor={borderColor} setBorderColor={setBorderColor} patternScale={patternScale} setPatternScale={setPatternScale} patternOffset={patternOffset} setPatternOffset={setPatternOffset} />
             : currentItem === 'Guia de Amamentação'
-              ? <GuiaAmamentacaoPreview brand={brand} editData={itemEditData} logoColor={logoColor} logoLayout={logoLayout} comBorda={comBorda} setComBorda={setComBorda} patternSrc={patternSrc} patternScale={patternScale} setPatternScale={setPatternScale} accentColor={accentColor} borderColor={borderColor} setBorderColor={setBorderColor} paletteColors={paletteColors} cartaoContacts={cartaoContacts} crmLine={crmLine} illustrationsSrc="/breastfeeding-guide.png" folderRoof={folderRoof} setFolderRoof={setFolderRoof} />
+              ? <GuiaAmamentacaoPreview brand={brand} editData={itemEditData} logoColor={logoColor} logoLayout={logoLayout} comBorda={comBorda} setComBorda={setComBorda} patternSrc={patternSrc} patternScale={patternScale} setPatternScale={setPatternScale} patternOffset={patternOffset} setPatternOffset={setPatternOffset} accentColor={accentColor} borderColor={borderColor} setBorderColor={setBorderColor} paletteColors={paletteColors} cartaoContacts={cartaoContacts} crmLine={crmLine} illustrationsSrc="/breastfeeding-guide.png" folderRoof={folderRoof} setFolderRoof={setFolderRoof} />
             : currentItem === 'Guia de Cuidados'
-              ? <FolderTrifoldPreview brand={brand} editData={itemEditData} logoColor={logoColor} logoLayout={logoLayout} comBorda={comBorda} setComBorda={setComBorda} patternSrc={patternSrc} patternScale={patternScale} setPatternScale={setPatternScale} accentColor={accentColor} borderColor={borderColor} setBorderColor={setBorderColor} paletteColors={paletteColors} title={currentItem} cartaoContacts={cartaoContacts} folderRoof={folderRoof} setFolderRoof={setFolderRoof} crmLine={crmLine} />
+              ? <FolderTrifoldPreview brand={brand} editData={itemEditData} logoColor={logoColor} logoLayout={logoLayout} comBorda={comBorda} setComBorda={setComBorda} patternSrc={patternSrc} patternScale={patternScale} setPatternScale={setPatternScale} patternOffset={patternOffset} setPatternOffset={setPatternOffset} accentColor={accentColor} borderColor={borderColor} setBorderColor={setBorderColor} paletteColors={paletteColors} title={currentItem} cartaoContacts={cartaoContacts} folderRoof={folderRoof} setFolderRoof={setFolderRoof} crmLine={crmLine} />
             : currentItem === 'Orientações p/ Recém Nascidos'
-              ? <OrientacoesRNPreview accentColor={accentColor} patternSrc={patternSrc} editData={itemEditData} logoColor={logoColor} logoLayout={logoLayout} cartaoContacts={cartaoContacts} crmLine={crmLine} clinicaNome={clinicaNome} comBorda={comBorda} setComBorda={setComBorda} paletteColors={paletteColors} borderColor={borderColor} setBorderColor={setBorderColor} patternScale={patternScale} setPatternScale={setPatternScale}
+              ? <OrientacoesRNPreview accentColor={accentColor} patternSrc={patternSrc} editData={itemEditData} logoColor={logoColor} logoLayout={logoLayout} cartaoContacts={cartaoContacts} crmLine={crmLine} clinicaNome={clinicaNome} comBorda={comBorda} setComBorda={setComBorda} paletteColors={paletteColors} borderColor={borderColor} setBorderColor={setBorderColor} patternScale={patternScale} setPatternScale={setPatternScale} patternOffset={patternOffset} setPatternOffset={setPatternOffset}
                   rnFields={{ nomeBebe: rnNomeBebe, dataNasc: rnDataNasc, peso: rnPeso, altura: rnAltura, umbigo: rnUmbigo, soro: rnSoro, med1: rnMed1, dose1: rnDose1, int1: rnInt1, med2: rnMed2, dose2: rnDose2, int2: rnInt2, pomada: rnPomada, vitDMed: rnVitDMed, vitDDose: rnVitDDose, bcgData: rnBcgData, hepBData: rnHepBData, consultaData: rnConsultaData, consultaHora: rnConsultaHora, urgencia: rnUrgencia }}
                   setRnFields={{ setNomeBebe: setRnNomeBebe, setDataNasc: setRnDataNasc, setPeso: setRnPeso, setAltura: setRnAltura, setUmbigo: setRnUmbigo, setSoro: setRnSoro, setMed1: setRnMed1, setDose1: setRnDose1, setInt1: setRnInt1, setMed2: setRnMed2, setDose2: setRnDose2, setInt2: setRnInt2, setPomada: setRnPomada, setVitDMed: setRnVitDMed, setVitDDose: setRnVitDDose, setBcgData: setRnBcgData, setHepBData: setRnHepBData, setConsultaData: setRnConsultaData, setConsultaHora: setRnConsultaHora, setUrgencia: setRnUrgencia }}
                 />
             : currentItem.includes('Pré-Natal')
-              ? <FolderA5Preview brand={brand} editData={itemEditData} logoColor={logoColor} logoLayout={logoLayout} comBorda={comBorda} setComBorda={setComBorda} patternSrc={patternSrc} patternScale={patternScale} setPatternScale={setPatternScale} accentColor={accentColor} borderColor={borderColor} setBorderColor={setBorderColor} paletteColors={paletteColors} title={currentItem} cartaoContacts={cartaoContacts} crmLine={crmLine} folderRoof={folderRoof} />
+              ? <FolderA5Preview brand={brand} editData={itemEditData} logoColor={logoColor} logoLayout={logoLayout} comBorda={comBorda} setComBorda={setComBorda} patternSrc={patternSrc} patternScale={patternScale} setPatternScale={setPatternScale} patternOffset={patternOffset} setPatternOffset={setPatternOffset} accentColor={accentColor} borderColor={borderColor} setBorderColor={setBorderColor} paletteColors={paletteColors} title={currentItem} cartaoContacts={cartaoContacts} crmLine={crmLine} folderRoof={folderRoof} />
             : currentItem === 'Guia Alimentar'
-              ? <GuiaAlimentarPreview brand={brand} editData={itemEditData} logoColor={logoColor} logoLayout={logoLayout} comBorda={comBorda} setComBorda={setComBorda} patternSrc={patternSrc} patternScale={patternScale} setPatternScale={setPatternScale} accentColor={accentColor} borderColor={borderColor} setBorderColor={setBorderColor} paletteColors={paletteColors} cartaoContacts={cartaoContacts} folderRoof={folderRoof} setFolderRoof={setFolderRoof} crmLine={crmLine} horarios={guiaHorarios} setHorarios={setGuiaHorarios} introducao={guiaIntroducao} setIntroducao={setGuiaIntroducao} localSlogan={localSlogan} />
+              ? <GuiaAlimentarPreview brand={brand} editData={itemEditData} logoColor={logoColor} logoLayout={logoLayout} comBorda={comBorda} setComBorda={setComBorda} patternSrc={patternSrc} patternScale={patternScale} setPatternScale={setPatternScale} patternOffset={patternOffset} setPatternOffset={setPatternOffset} accentColor={accentColor} borderColor={borderColor} setBorderColor={setBorderColor} paletteColors={paletteColors} cartaoContacts={cartaoContacts} folderRoof={folderRoof} setFolderRoof={setFolderRoof} crmLine={crmLine} horarios={guiaHorarios} setHorarios={setGuiaHorarios} introducao={guiaIntroducao} setIntroducao={setGuiaIntroducao} localSlogan={localSlogan} />
             : currentItem === 'Caderneta de Saúde'
-              ? <CadernetaPreview brand={brand} editData={itemEditData} logoColor={logoColor} logoLayout={logoLayout} comBorda={comBorda} setComBorda={setComBorda} patternSrc={patternSrc} patternScale={patternScale} setPatternScale={setPatternScale} accentColor={accentColor} borderColor={borderColor} setBorderColor={setBorderColor} paletteColors={paletteColors} cartaoContacts={cartaoContacts} crmLine={crmLine} localSlogan={localSlogan} setLocalSlogan={setLocalSlogan} clinicaNome={clinicaNome} setClinicaNome={setClinicaNome} crmData={crmData} setCrmData={setCrmData} setCartaoContacts={setCartaoContacts} isSaude={isSaude} />
+              ? <CadernetaPreview brand={brand} editData={itemEditData} logoColor={logoColor} logoLayout={logoLayout} comBorda={comBorda} setComBorda={setComBorda} patternSrc={patternSrc} patternScale={patternScale} setPatternScale={setPatternScale} patternOffset={patternOffset} setPatternOffset={setPatternOffset} accentColor={accentColor} borderColor={borderColor} setBorderColor={setBorderColor} paletteColors={paletteColors} cartaoContacts={cartaoContacts} crmLine={crmLine} localSlogan={localSlogan} setLocalSlogan={setLocalSlogan} clinicaNome={clinicaNome} setClinicaNome={setClinicaNome} crmData={crmData} setCrmData={setCrmData} setCartaoContacts={setCartaoContacts} isSaude={isSaude} />
             : ['Guia de Desenvolvimento', 'Guia de Vacina c/ Calendário', 'Cartão de Vacina', 'Guia do Sono'].some(n => currentItem === n)
-              ? <FolderTrifoldPreview brand={brand} editData={itemEditData} logoColor={logoColor} logoLayout={logoLayout} comBorda={comBorda} setComBorda={setComBorda} patternSrc={patternSrc} patternScale={patternScale} setPatternScale={setPatternScale} accentColor={accentColor} borderColor={borderColor} setBorderColor={setBorderColor} paletteColors={paletteColors} title={currentItem} cartaoContacts={cartaoContacts} folderRoof={folderRoof} setFolderRoof={setFolderRoof} crmLine={crmLine} />
+              ? <FolderTrifoldPreview brand={brand} editData={itemEditData} logoColor={logoColor} logoLayout={logoLayout} comBorda={comBorda} setComBorda={setComBorda} patternSrc={patternSrc} patternScale={patternScale} setPatternScale={setPatternScale} patternOffset={patternOffset} setPatternOffset={setPatternOffset} accentColor={accentColor} borderColor={borderColor} setBorderColor={setBorderColor} paletteColors={paletteColors} title={currentItem} cartaoContacts={cartaoContacts} folderRoof={folderRoof} setFolderRoof={setFolderRoof} crmLine={crmLine} />
             : currentItem.includes('Atestado Médico')
-              ? <AtestadoPreview accentColor={accentColor} patternSrc={patternSrc} editData={{ ...itemEditData, tagline: localSlogan }} logoColor={logoColor} logoLayout={logoLayout} crmLine={crmLine} clinicaNome={clinicaNome} marca={marca} cartaoContacts={cartaoContacts} comBorda={comBorda} setComBorda={setComBorda} paletteColors={paletteColors} borderColor={borderColor} setBorderColor={setBorderColor} patternScale={patternScale} setPatternScale={setPatternScale} folderRoof={folderRoof} setFolderRoof={setFolderRoof} paperSize={paperSize} setPaperSize={setPaperSize} atestadoModelo={atestadoModelo} setAtestadoModelo={setAtestadoModelo} />
+              ? <AtestadoPreview accentColor={accentColor} patternSrc={patternSrc} editData={{ ...itemEditData, tagline: localSlogan }} logoColor={logoColor} logoLayout={logoLayout} crmLine={crmLine} clinicaNome={clinicaNome} marca={marca} cartaoContacts={cartaoContacts} comBorda={comBorda} setComBorda={setComBorda} paletteColors={paletteColors} borderColor={borderColor} setBorderColor={setBorderColor} patternScale={patternScale} setPatternScale={setPatternScale} patternOffset={patternOffset} setPatternOffset={setPatternOffset} folderRoof={folderRoof} setFolderRoof={setFolderRoof} paperSize={paperSize} setPaperSize={setPaperSize} atestadoModelo={atestadoModelo} setAtestadoModelo={setAtestadoModelo} />
             : currentItem.includes('Pasta')
-              ? <PastaPreview brand={brand} editData={{ ...itemEditData, tagline: localSlogan }} accentColor={accentColor} solidColor={paletteColors[0]} logoColor={logoColor} logoLayout={logoLayout} isSaude={isSaude} crmLine={crmLine} clinicaNome={clinicaNome} cartaoContacts={cartaoContacts} comBorda={comBorda} setComBorda={setComBorda} patternSrc={patternSrc} paletteColors={paletteColors} borderColor={borderColor} setBorderColor={setBorderColor} patternScale={patternScale} setPatternScale={setPatternScale} folderRoof={folderRoof} setFolderRoof={setFolderRoof} />
+              ? <PastaPreview brand={brand} editData={{ ...itemEditData, tagline: localSlogan }} accentColor={accentColor} solidColor={paletteColors[0]} logoColor={logoColor} logoLayout={logoLayout} isSaude={isSaude} crmLine={crmLine} clinicaNome={clinicaNome} cartaoContacts={cartaoContacts} comBorda={comBorda} setComBorda={setComBorda} patternSrc={patternSrc} paletteColors={paletteColors} borderColor={borderColor} setBorderColor={setBorderColor} patternScale={patternScale} setPatternScale={setPatternScale} patternOffset={patternOffset} setPatternOffset={setPatternOffset} folderRoof={folderRoof} setFolderRoof={setFolderRoof} />
             : currentItem === 'Papel Timbrado'
-              ? <PapelTimbradoPreview brand={brand} editData={itemEditData} accentColor={accentColor} patternSrc={patternSrc} logoColor={logoColor} logoLayout={logoLayout} comBorda={comBorda} setComBorda={setComBorda} paletteColors={paletteColors} borderColor={borderColor} setBorderColor={setBorderColor} patternScale={patternScale} setPatternScale={setPatternScale} cartaoContacts={cartaoContacts} crmLine={crmLine} localSlogan={localSlogan} clinicaNome={clinicaNome} storyTemplateIdx={storyTemplateIdx} setStoryTemplateIdx={setStoryTemplateIdx} storyFormatIdx={storyFormatIdx} setStoryFormatIdx={setStoryFormatIdx} folderRoof={folderRoof} setFolderRoof={setFolderRoof} />
+              ? <PapelTimbradoPreview brand={brand} editData={itemEditData} accentColor={accentColor} patternSrc={patternSrc} logoColor={logoColor} logoLayout={logoLayout} comBorda={comBorda} setComBorda={setComBorda} paletteColors={paletteColors} borderColor={borderColor} setBorderColor={setBorderColor} patternScale={patternScale} setPatternScale={setPatternScale} patternOffset={patternOffset} setPatternOffset={setPatternOffset} cartaoContacts={cartaoContacts} crmLine={crmLine} localSlogan={localSlogan} clinicaNome={clinicaNome} storyTemplateIdx={storyTemplateIdx} setStoryTemplateIdx={setStoryTemplateIdx} storyFormatIdx={storyFormatIdx} setStoryFormatIdx={setStoryFormatIdx} folderRoof={folderRoof} setFolderRoof={setFolderRoof} />
             : currentItem === 'Pack Digital para Instagram'
-              ? <FundoInstaPreview brand={brand} editData={itemEditData} accentColor={accentColor} patternSrc={patternSrc} logoColor={logoColor} logoLayout={logoLayout} comBorda={comBorda} setComBorda={setComBorda} paletteColors={paletteColors} borderColor={borderColor} setBorderColor={setBorderColor} patternScale={patternScale} setPatternScale={setPatternScale} cartaoContacts={cartaoContacts} crmLine={crmLine} localSlogan={localSlogan} clinicaNome={clinicaNome} storyTemplateIdx={storyTemplateIdx} setStoryTemplateIdx={setStoryTemplateIdx} storyFormatIdx={storyFormatIdx} setStoryFormatIdx={setStoryFormatIdx} />
+              ? <FundoInstaPreview brand={brand} editData={itemEditData} accentColor={accentColor} patternSrc={patternSrc} logoColor={logoColor} logoLayout={logoLayout} comBorda={comBorda} setComBorda={setComBorda} paletteColors={paletteColors} borderColor={borderColor} setBorderColor={setBorderColor} patternScale={patternScale} setPatternScale={setPatternScale} patternOffset={patternOffset} setPatternOffset={setPatternOffset} cartaoContacts={cartaoContacts} crmLine={crmLine} localSlogan={localSlogan} clinicaNome={clinicaNome} storyTemplateIdx={storyTemplateIdx} setStoryTemplateIdx={setStoryTemplateIdx} storyFormatIdx={storyFormatIdx} setStoryFormatIdx={setStoryFormatIdx} />
             : currentItem === 'Assinatura de E-mail'
               ? <AssinaturaEmailPreview brand={brand} editData={itemEditData} accentColor={accentColor} logoColor={logoColor} logoLayout={logoLayout} cartaoContacts={cartaoContacts} crmLine={crmLine} localSlogan={localSlogan} clinicaNome={clinicaNome} storyTemplateIdx={storyTemplateIdx} setStoryTemplateIdx={setStoryTemplateIdx} storyFormatIdx={storyFormatIdx} setStoryFormatIdx={setStoryFormatIdx} setCartaoContacts={setCartaoContacts} setClinicaNome={setClinicaNome} setLocalSlogan={setLocalSlogan} />
             : currentItem.includes('Certificado')
-              ? <CertificadoCoragemPreview accentColor={accentColor} patternSrc={patternSrc} editData={{ ...itemEditData, tagline: localSlogan }} logoColor={logoColor} logoLayout={logoLayout} cartaoContacts={cartaoContacts} crmLine={crmLine} clinicaNome={clinicaNome} comBorda={comBorda} setComBorda={setComBorda} paletteColors={paletteColors} borderColor={borderColor} setBorderColor={setBorderColor} patternScale={patternScale} setPatternScale={setPatternScale} />
+              ? <CertificadoCoragemPreview accentColor={accentColor} patternSrc={patternSrc} editData={{ ...itemEditData, tagline: localSlogan }} logoColor={logoColor} logoLayout={logoLayout} cartaoContacts={cartaoContacts} crmLine={crmLine} clinicaNome={clinicaNome} comBorda={comBorda} setComBorda={setComBorda} paletteColors={paletteColors} borderColor={borderColor} setBorderColor={setBorderColor} patternScale={patternScale} setPatternScale={setPatternScale} patternOffset={patternOffset} setPatternOffset={setPatternOffset} />
             : currentItem.includes('Caderno')
-              ? <CadernoPreview editData={{ ...itemEditData, tagline: localSlogan }} accentColor={accentColor} solidColor={paletteColors[0]} logoColor={logoColor} logoLayout={logoLayout} comBorda={comBorda} setComBorda={setComBorda} patternSrc={patternSrc} paletteColors={paletteColors} borderColor={borderColor} setBorderColor={setBorderColor} patternScale={patternScale} setPatternScale={setPatternScale} paperSize={paperSize} setPaperSize={setPaperSize} cartaoContacts={cartaoContacts} clinicaNome={clinicaNome} />
+              ? <CadernoPreview editData={{ ...itemEditData, tagline: localSlogan }} accentColor={accentColor} solidColor={paletteColors[0]} logoColor={logoColor} logoLayout={logoLayout} comBorda={comBorda} setComBorda={setComBorda} patternSrc={patternSrc} paletteColors={paletteColors} borderColor={borderColor} setBorderColor={setBorderColor} patternScale={patternScale} setPatternScale={setPatternScale} patternOffset={patternOffset} setPatternOffset={setPatternOffset} setPatternOffset={typeof setPatternOffset !== "undefined" ? setPatternOffset : undefined} paperSize={paperSize} setPaperSize={setPaperSize} cartaoContacts={cartaoContacts} clinicaNome={clinicaNome} />
             : ['Receituário','Timbrado','Cartão','Guia','Calendário','Atestado','Dicas','Ficha','Orientação','Checklist','Prontuário','Receita','Quadro','Gráfico','Diário','Card','Pratinho','Fundo','Arte','Etiqueta','Assinatura','Tag'].some(n => currentItem.includes(n))
-              ? <A5ItemPreview item={currentItem} accentColor={accentColor} patternSrc={patternSrc} editData={{ ...itemEditData, tagline: localSlogan }} logoColor={logoColor} logoLayout={logoLayout} cartaoContacts={cartaoContacts} crmLine={crmLine} clinicaNome={clinicaNome} comBorda={comBorda} setComBorda={setComBorda} paletteColors={paletteColors} borderColor={borderColor} setBorderColor={setBorderColor} patternScale={patternScale} setPatternScale={setPatternScale} folderRoof={folderRoof} setFolderRoof={['Receituário','Atestado','Recibo','Ficha','Prontuário','Certificado','Checklist'].some(n => currentItem.includes(n)) ? setFolderRoof : undefined} paperSize={['Receituário','Recibo','Ficha','Prontuário','Certificado','Checklist'].some(n => currentItem.includes(n)) ? paperSize : undefined} setPaperSize={['Receituário','Recibo','Ficha','Prontuário','Certificado','Checklist'].some(n => currentItem.includes(n)) ? setPaperSize : undefined} />
-            : <GenericItemPreview item={currentItem} marca={marca} accentColor={accentColor} patternSrc={patternSrc} editData={{ ...itemEditData, tagline: localSlogan }} logoColor={logoColor} logoLayout={logoLayout} comBorda={comBorda} setComBorda={setComBorda} paletteColors={paletteColors} borderColor={borderColor} setBorderColor={setBorderColor} patternScale={patternScale} setPatternScale={setPatternScale} />
+              ? <A5ItemPreview item={currentItem} accentColor={accentColor} patternSrc={patternSrc} editData={{ ...itemEditData, tagline: localSlogan }} logoColor={logoColor} logoLayout={logoLayout} cartaoContacts={cartaoContacts} crmLine={crmLine} clinicaNome={clinicaNome} comBorda={comBorda} setComBorda={setComBorda} paletteColors={paletteColors} borderColor={borderColor} setBorderColor={setBorderColor} patternScale={patternScale} setPatternScale={setPatternScale} patternOffset={patternOffset} setPatternOffset={setPatternOffset} folderRoof={folderRoof} setFolderRoof={['Receituário','Atestado','Recibo','Ficha','Prontuário','Certificado','Checklist'].some(n => currentItem.includes(n)) ? setFolderRoof : undefined} paperSize={['Receituário','Recibo','Ficha','Prontuário','Certificado','Checklist'].some(n => currentItem.includes(n)) ? paperSize : undefined} setPaperSize={['Receituário','Recibo','Ficha','Prontuário','Certificado','Checklist'].some(n => currentItem.includes(n)) ? setPaperSize : undefined} />
+            : <GenericItemPreview item={currentItem} marca={marca} accentColor={accentColor} patternSrc={patternSrc} editData={{ ...itemEditData, tagline: localSlogan }} logoColor={logoColor} logoLayout={logoLayout} comBorda={comBorda} setComBorda={setComBorda} paletteColors={paletteColors} borderColor={borderColor} setBorderColor={setBorderColor} patternScale={patternScale} setPatternScale={setPatternScale} patternOffset={patternOffset} setPatternOffset={setPatternOffset} />
           }
         </UniversalPreviewScaler>
       </div>
@@ -9612,9 +9607,10 @@ ${fontImports2}
                 </div>
               )}
 
-              <div style={{ display: 'flex', gap: '10px' }}>
-                <button onClick={() => setShowPrintModal(false)} style={{ flex: 1, padding: '11px', background: 'none', border: '1px solid #e0e0e0', borderRadius: '30px', fontWeight: 600, fontSize: '0.82rem', cursor: 'pointer', color: '#888' }}>{dictionary?.ui?.cancelar || 'Cancelar'}</button>
-                <button onClick={() => { setShowPrintModal(false); openGabarito(pendingItem); }} style={{ flex: 2, padding: '11px', background: '#363532', color: '#fff', border: 'none', borderRadius: '30px', fontWeight: 700, fontSize: '0.82rem', cursor: 'pointer' }}>{dictionary?.ui?.entendi_baixar || 'Entendi, baixar PDF →'}</button>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                <button onClick={() => { setShowPrintModal(false); openGabarito(pendingItem, 'print'); }} style={{ width: '100%', padding: '12px', background: 'none', border: '1.5px solid #363532', color: '#363532', borderRadius: '30px', fontWeight: 700, fontSize: '0.84rem', cursor: 'pointer' }}>{dictionary?.ui?.imprimir_navegador || '🖨️ Imprimir no Navegador (Folha A4)'}</button>
+                <button onClick={() => { setShowPrintModal(false); openGabarito(pendingItem, 'download'); }} style={{ width: '100%', padding: '10px', background: '#363532', color: '#fff', border: 'none', borderRadius: '30px', fontWeight: 600, fontSize: '0.8rem', cursor: 'pointer' }}>{dictionary?.ui?.entendi_baixar || '⬇ Baixar Arquivo PDF (Padrão Gráfica)'}</button>
+                <button onClick={() => setShowPrintModal(false)} style={{ width: '100%', padding: '8px', background: 'none', border: 'none', borderRadius: '30px', fontWeight: 500, fontSize: '0.78rem', cursor: 'pointer', color: '#888' }}>{dictionary?.ui?.cancelar || 'Cancelar'}</button>
               </div>
             </div>
           </div>
@@ -10617,7 +10613,7 @@ function EntregaContent({ brand, plano, setBrand }) {
         )}
 
         {/* Área da estampa */}
-        {step === 'estampa' && plano !== 'avulso' && <EstampaStep brand={brand} accentColor={accentColor} marca={marca} patterns={estampaPatterns} setPatterns={setEstampaPatterns} genCount={estampaGenCount} setGenCount={setEstampaGenCount} selectedIdx={estampaSelectedIdx} setSelectedIdx={setEstampaSelectedIdx} paletteColors={paletteColors} patternScale={patternScale} setPatternScale={setPatternScale} estampasRef={estampasRef} originalPattern={estampaOriginalPattern} setOriginalPattern={setEstampaOriginalPattern} />}
+        {step === 'estampa' && plano !== 'avulso' && <EstampaStep brand={brand} accentColor={accentColor} marca={marca} patterns={estampaPatterns} setPatterns={setEstampaPatterns} genCount={estampaGenCount} setGenCount={setEstampaGenCount} selectedIdx={estampaSelectedIdx} setSelectedIdx={setEstampaSelectedIdx} paletteColors={paletteColors} patternScale={patternScale} setPatternScale={setPatternScale} patternOffset={patternOffset} setPatternOffset={setPatternOffset} estampasRef={estampasRef} originalPattern={estampaOriginalPattern} setOriginalPattern={setEstampaOriginalPattern} />}
 
         {/* Cores — prioridade/ordem */}
         {step === 'cores' && plano === 'avulso' && (
@@ -10641,7 +10637,7 @@ function EntregaContent({ brand, plano, setBrand }) {
 
         {/* Cartão digital */}
         {step === 'cartao' && (plano === 'avulso' ? <AvulsoUpgradeCard accentColor={accentColor} titulo="Cartão Digital" desc="Crie seu cartão digital interativo com QR code, link para redes sociais e muito mais. Disponível no Plano Completo." /> : <CartaoStep brand={brand} accentColor={accentColor} paletteColors={paletteColors} marca={marca} estampaPatterns={estampaPatterns} estampaSelectedIdx={estampaSelectedIdx} contacts={cartaoContacts} setContacts={setCartaoContacts} qrLink={cartaoQrLink} setQrLink={setCartaoQrLink} showQR={cartaoShowQR} setShowQR={setCartaoShowQR} logoLayout={logoLayout} editData={editDataWithLogo} logoColor={logoColor} setLayout={setLayout} />)}
-        {step === 'pack-instagram' && (plano === 'avulso' ? <AvulsoUpgradeCard accentColor={accentColor} titulo="Pack Digital para Instagram" desc="Templates prontos para Stories e Feed com a sua identidade visual aplicada. Disponível no Plano Completo." /> : <FundoInstaPreview brand={brand} editData={editDataWithLogo} accentColor={accentColor} patternSrc={patternSrc} logoColor={logoColor} logoLayout={logoLayout} comBorda={comBorda} setComBorda={setComBorda} paletteColors={paletteColors} borderColor={borderColor} setBorderColor={setBorderColor} patternScale={patternScale} setPatternScale={setPatternScale} cartaoContacts={cartaoContacts} crmLine={crmLine} localSlogan={localSlogan} clinicaNome={clinicaNome} storyTemplateIdx={storyTemplateIdx} setStoryTemplateIdx={setStoryTemplateIdx} storyFormatIdx={storyFormatIdx} setStoryFormatIdx={setStoryFormatIdx} />)}
+        {step === 'pack-instagram' && (plano === 'avulso' ? <AvulsoUpgradeCard accentColor={accentColor} titulo="Pack Digital para Instagram" desc="Templates prontos para Stories e Feed com a sua identidade visual aplicada. Disponível no Plano Completo." /> : <FundoInstaPreview brand={brand} editData={editDataWithLogo} accentColor={accentColor} patternSrc={patternSrc} logoColor={logoColor} logoLayout={logoLayout} comBorda={comBorda} setComBorda={setComBorda} paletteColors={paletteColors} borderColor={borderColor} setBorderColor={setBorderColor} patternScale={patternScale} setPatternScale={setPatternScale} patternOffset={patternOffset} setPatternOffset={setPatternOffset} cartaoContacts={cartaoContacts} crmLine={crmLine} localSlogan={localSlogan} clinicaNome={clinicaNome} storyTemplateIdx={storyTemplateIdx} setStoryTemplateIdx={setStoryTemplateIdx} storyFormatIdx={storyFormatIdx} setStoryFormatIdx={setStoryFormatIdx} />)}
         {step === 'assinatura-email' && (plano === 'avulso' ? <AvulsoUpgradeCard accentColor={accentColor} titulo="Assinatura de E-mail" desc="Assinatura profissional com sua logo, dados de contato e links para usar no Gmail ou Outlook. Disponível no Plano Completo." /> : <AssinaturaEmailPreview brand={brand} editData={editDataWithLogo} accentColor={accentColor} logoColor={logoColor} logoLayout={logoLayout} cartaoContacts={cartaoContacts} crmLine={crmLine} localSlogan={localSlogan} clinicaNome={clinicaNome} storyTemplateIdx={storyTemplateIdx} setStoryTemplateIdx={setStoryTemplateIdx} storyFormatIdx={storyFormatIdx} setStoryFormatIdx={setStoryFormatIdx} setCartaoContacts={setCartaoContacts} setClinicaNome={setClinicaNome} setLocalSlogan={setLocalSlogan} />)}
 
         {/* Placa da marca */}

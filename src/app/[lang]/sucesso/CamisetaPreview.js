@@ -1,11 +1,15 @@
 'use client';
+// Inline pattern tile helper to avoid circular import from page.js
+// tilePx = (scale * 0.25mm) * (previewPx / itemMm)
+const _tilePx = (scale, previewPx, itemMm) => Math.round((parseFloat(scale) || 120) * 0.25 * (previewPx / itemMm));
+
 import React from 'react';
 import { useScaleToFit } from './useScaleToFit';
 import BrandTemplateSVG from '../../../components/BrandTemplateSVG';
 import { useTranslation } from '../../LanguageContext';
 
 // BordaToggle local (Estampa vs Sólida + Slider)
-function BordaToggle({ comBorda, setComBorda, accentColor, paletteColors = [], borderColor, setBorderColor, patternScale, setPatternScale, showLogo, setShowLogo }) {
+function BordaToggle({ comBorda, setComBorda, accentColor, paletteColors = [], borderColor, setBorderColor, patternScale, setPatternScale, patternOffset, setPatternOffset, showLogo, setShowLogo }) {
   const { dictionary } = useTranslation();
   const btn = (active) => ({
     padding: '6px 16px', borderRadius: '20px', fontSize: '0.72rem', fontWeight: 700,
@@ -42,6 +46,7 @@ function BordaToggle({ comBorda, setComBorda, accentColor, paletteColors = [], b
                {dictionary?.nav?.submarca || 'Selo'}
              </label>
           </div>
+          
         </>
       )}
 
@@ -112,7 +117,7 @@ function SeloCamiseta({ editData, solidColor, size, hasCustomLogo, scaleFactor, 
 export default function CamisetaPreview({
   accentColor, paletteColors = [], editData, logoColor, logoLayout,
   cartaoContacts, crmLine, clinicaNome, comBorda, setComBorda,
-  patternSrc, patternScale, setPatternScale, borderColor, setBorderColor,
+  patternSrc, patternScale, setPatternScale, patternOffset, setPatternOffset, borderColor, setBorderColor,
   submarcaColor, submarcaTextColor, iconPath
 }) {
   const solidColor = borderColor || accentColor;
@@ -139,6 +144,8 @@ export default function CamisetaPreview({
         setBorderColor={setBorderColor} 
         patternScale={patternScale} 
         setPatternScale={setPatternScale} 
+        patternOffset={patternOffset} 
+        setPatternOffset={setPatternOffset} 
         showLogo={showLogo}
         setShowLogo={setShowLogo}
       />
@@ -175,7 +182,8 @@ export default function CamisetaPreview({
                   inset: 0,
                   backgroundColor: solidColor,
                   backgroundImage: (comBorda && patternSrc) ? `url(${patternSrc})` : 'none',
-                  backgroundSize: `${(patternScale || 150) * 2.2}px`,
+                  backgroundPosition: `${patternOffset || 0}% center`,
+                  backgroundSize: `${_tilePx(patternScale, 320, 300)}px`,
                   backgroundRepeat: 'repeat'
                 }} />
                 

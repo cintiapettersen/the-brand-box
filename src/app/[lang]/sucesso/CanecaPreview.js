@@ -17,7 +17,7 @@ const LOGO_SF_BASE   = 0.36;  // fundo sólido (sem círculo)
 const LOGO_SF_F_BASE = 0.44;  // fundo sólido — arte flat
 
 // BordaToggle local para evitar dependência circular com o arquivo page.js
-function BordaToggle({ comBorda, setComBorda, accentColor, paletteColors = [], borderColor, setBorderColor, patternScale, setPatternScale }) {
+function BordaToggle({ comBorda, setComBorda, accentColor, paletteColors = [], borderColor, setBorderColor, patternScale, setPatternScale, patternOffset, setPatternOffset }) {
   const { dictionary } = useTranslation();
   const btn = (active) => ({
     padding: '6px 16px', borderRadius: '20px', fontSize: '0.72rem', fontWeight: 700,
@@ -33,15 +33,18 @@ function BordaToggle({ comBorda, setComBorda, accentColor, paletteColors = [], b
       </div>
 
       {comBorda && setPatternScale && (
-        <div style={{ display: 'flex', alignItems: 'center', gap: '8px', borderLeft: '1px solid #eee', paddingLeft: '12px', marginLeft: '4px' }}>
-          <span style={{ fontSize: '0.62rem', color: '#999', textTransform: 'uppercase', letterSpacing: '1px', fontWeight: 600 }}>{dictionary?.geral?.tamanho || 'Tamanho:'}</span>
-          <input 
-            type="range" min="50" max="600" step="10"
-            value={patternScale || 120} 
-            onChange={(e) => setPatternScale(parseInt(e.target.value))}
-            style={{ width: '80px', height: '4px', cursor: 'pointer', accentColor: accentColor }}
-          />
-        </div>
+        <>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '8px', borderLeft: '1px solid #eee', paddingLeft: '12px', marginLeft: '4px' }}>
+            <span style={{ fontSize: '0.62rem', color: '#999', textTransform: 'uppercase', letterSpacing: '1px', fontWeight: 600 }}>{dictionary?.geral?.tamanho || 'Tamanho:'}</span>
+            <input 
+              type="range" min="50" max="600" step="10"
+              value={patternScale || 120} 
+              onChange={(e) => setPatternScale(parseInt(e.target.value))}
+              style={{ width: '70px', height: '4px', cursor: 'pointer', accentColor: accentColor }}
+            />
+          </div>
+          
+        </>
       )}
 
       {!comBorda && paletteColors?.length > 0 && (
@@ -126,7 +129,7 @@ function SeloCaneca({ editData, solidColor, size, usePattern, hasCustomLogo, log
 function CanecaPreviewComponent({
   accentColor, paletteColors = [], editData, logoColor, logoLayout,
   cartaoContacts, crmLine, clinicaNome, comBorda, setComBorda,
-  patternSrc, patternScale, setPatternScale, borderColor, setBorderColor,
+  patternSrc, patternScale, setPatternScale, patternOffset, setPatternOffset, borderColor, setBorderColor,
   submarcaColor, submarcaTextColor, iconPath
 }) {
   const { lang } = useTranslation();
@@ -187,7 +190,7 @@ function CanecaPreviewComponent({
                   zIndex: 1,
                 }}>
                   {usePattern
-                    ? <div style={{ position: 'absolute', inset: 0, backgroundImage: `url(${patternSrc})`, backgroundSize: `${(patternScale || 150) * 1.5}px`, backgroundRepeat: 'repeat' }} />
+                    ? <div style={{ position: 'absolute', inset: 0, backgroundImage: `url(${patternSrc})`, backgroundPosition: `${patternOffset || 0}% center`, backgroundSize: `${(patternScale || 150) * 1.5}px`, backgroundRepeat: 'repeat' }} />
                     : <div style={{ position: 'absolute', inset: 0, background: solidColor }} />
                   }
                   <div style={{ position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
@@ -246,7 +249,7 @@ function CanecaPreviewComponent({
               border: '0.5px solid #eee',
             }}>
               {usePattern
-                ? <div style={{ position: 'absolute', inset: 0, backgroundImage: `url(${patternSrc})`, backgroundSize: `${(patternScale || 150) * 1.7}px`, backgroundRepeat: 'repeat' }} />
+                ? <div style={{ position: 'absolute', inset: 0, backgroundImage: `url(${patternSrc})`, backgroundPosition: `${patternOffset || 0}% center`, backgroundSize: `${(patternScale || 150) * 1.7}px`, backgroundRepeat: 'repeat' }} />
                 : <div style={{ position: 'absolute', inset: 0, background: solidColor }} />
               }
               {/* Selos repetidos 2× — frente e verso do wrap */}

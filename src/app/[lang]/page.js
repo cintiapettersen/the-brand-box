@@ -311,23 +311,36 @@ export default function Home() {
   const selectedVisualBrandRef = useRef({ optionId: '', fontFamily: '' });
   const paletteFeedbackRequestRef = useRef('');
 
+  const [isHydrated, setIsHydrated] = useState(false);
+
   // Restaura progresso salvo ao montar
   useEffect(() => {
     console.log('🔍 Verificando progresso salvo...');
     try {
+      const params = typeof window !== 'undefined' ? new URLSearchParams(window.location.search) : new URLSearchParams();
+      const isCanceled = params.get('canceled') === '1';
+
       const saved = localStorage.getItem('brandbox_progress');
       if (saved) {
         const parsed = JSON.parse(saved);
         console.log('✨ Progresso encontrado:', parsed.formData?.marca || 'Sem nome');
         if (parsed.step && parsed.step > 1) {
           setSavedProgress(parsed);
-          setShowResumePrompt(true);
+          // Se o usuário está retornando do Stripe após cancelar o pagamento, restaura diretamente
+          if (isCanceled) {
+            restoreProgress(parsed);
+            if (parsed.step >= 12) setStep(13);
+          } else {
+            setShowResumePrompt(true);
+          }
         }
       } else {
         console.log('ℹ️ Nenhum progresso anterior encontrado no localStorage.');
       }
     } catch(e) { 
       console.error('❌ Erro ao ler progresso:', e);
+    } finally {
+      setIsHydrated(true);
     }
   }, []);
 
@@ -359,6 +372,11 @@ export default function Home() {
     if (parsed.resultadoFinal) setResultadoFinal(parsed.resultadoFinal);
     if (parsed.generatedPatterns) setGeneratedPatterns(parsed.generatedPatterns);
     if (parsed.selectedPattern !== undefined) setSelectedPattern(parsed.selectedPattern);
+    if (parsed.papelariaSelecionada) setPapelariaSelecionada(parsed.papelariaSelecionada);
+
+    if (parsed.sessionId) {
+      try { localStorage.setItem('brandbox_session', parsed.sessionId); } catch {}
+    }
 
     // Re-busca paletas/tipografias do Supabase se estava em etapa avançada
     if (parsed.resultadoFinal?.estiloId && parsed.step >= 10) {
@@ -385,8 +403,12 @@ export default function Home() {
     if (parsed.selectedIcon) setSelectedIcon(parsed.selectedIcon);
   };
 
-  // Salva progresso automaticamente
+  // Salva progresso automaticamente APÓS a hidratação inicial ser concluída
   useEffect(() => {
+    if (!isHydrated) return;
+
+    const activeSessionId = typeof window !== 'undefined' ? localStorage.getItem('brandbox_session') : null;
+
     const dataToSave = {
       step, formData, selectedTagline, customTagline,
       editData: {
@@ -398,7 +420,8 @@ export default function Home() {
       },
       patternGenerationCount, refazerAttempts,
       resultadoFinal, selectedPaleta, selectedTipo, selectedIcon,
-      generatedPatterns, selectedPattern
+      generatedPatterns, selectedPattern, papelariaSelecionada,
+      sessionId: activeSessionId || undefined
     };
     try {
       localStorage.setItem('brandbox_progress', JSON.stringify(dataToSave));
@@ -418,7 +441,7 @@ export default function Home() {
         }
       }
     }
-  }, [step, formData, selectedTagline, customTagline, editData, generatedPatterns, selectedPattern, resultadoFinal]);
+  }, [isHydrated, step, formData, selectedTagline, customTagline, editData, generatedPatterns, selectedPattern, resultadoFinal, papelariaSelecionada]);
 
   useEffect(() => {
     if (step !== 11.5 || !resultadoFinal || resultadoFinal?.creativeDirector?.taglineSuggestions || resultadoFinal?.taglineSuggestions) return;
@@ -1250,12 +1273,13 @@ export default function Home() {
 
       let sessionIdPro = null;
       try {
+        const existingSessionId = typeof window !== 'undefined' ? localStorage.getItem('brandbox_session') : null;
         const cleanState = { ...brandState, estampas: null, generatedPatterns: null };
         cleanState.pattern = null;
         const saveRes = await fetch('/api/salvar-entrega', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ brandState: cleanState, plano: 'pro', email: formData.email, marca: formData.marca }),
+          body: JSON.stringify({ brandState: cleanState, plano: 'pro', email: formData.email, marca: formData.marca, sessionId: existingSessionId || undefined }),
         });
         const saveData = await saveRes.json();
         if (saveData.sessionId) {
@@ -2861,12 +2885,13 @@ export default function Home() {
                           // Salvar no Supabase para link permanente + disparo de email
                           let sessionIdExp = null;
                           try {
+                            const existingSessionId = typeof window !== 'undefined' ? localStorage.getItem('brandbox_session') : null;
                             const cleanState = { ...brandState, estampas: null, generatedPatterns: null };
                             cleanState.pattern = null; // Save pattern as null initially, will upload after we have sessionId
                             const saveRes = await fetch('/api/salvar-entrega', {
                               method: 'POST',
                               headers: { 'Content-Type': 'application/json' },
-                              body: JSON.stringify({ brandState: cleanState, plano: 'starter', email: formData.email, marca: formData.marca }),
+                              body: JSON.stringify({ brandState: cleanState, plano: 'starter', email: formData.email, marca: formData.marca, sessionId: existingSessionId || undefined }),
                             });
                             const saveData = await saveRes.json();
                             if (saveData.sessionId) {
