@@ -159,6 +159,9 @@ export default function BrandBoxNav({ step, setStep, plano, papelariaItens = [],
       'Meu Pratinho': 'meu_pratinho',
       'Guia de Amamentação': 'guia_amamentacao',
       'Caderneta de Saúde': 'caderneta_saude',
+      'Caixa Gaveta (L 13,5 x P 18,5 cm)': 'caixa',
+      'Caixa Gaveta': 'caixa',
+      'Caixa': 'caixa',
       'Pack Digital para Instagram': 'pack_instagram',
       'Assinatura de E-mail': 'assinatura_email'
     };
