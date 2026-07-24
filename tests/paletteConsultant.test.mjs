@@ -15,7 +15,7 @@ process.env.OPENAI_MODEL = 'test-model';
 const { POST } = await import('../src/app/api/creative-director/palette-consultation/route.js');
 
 function request(journeyId) {
-  return new Request('http://localhost/api/creative-director/palette-consultation', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ journeyId, consultationIndex: 1, language: 'pt', feedback: { reasons: ['Muito claras'], comment: '' }, existingPalettes: [] }) });
+  return new Request('http://localhost/api/creative-director/palette-consultation', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ journeyId, consultationIndex: 1, language: 'pt', feedback: { rejectionReasons: ['Estavam claras demais'], preferences: ['Algo mais delicado'], comment: '' }, existingPalettes: [] }) });
 }
 function openAIResponse(body, status = 200) {
   return new Response(JSON.stringify(body), { status, headers: { 'Content-Type': 'application/json' } });
@@ -51,6 +51,18 @@ test('configuration failure returns its safe code and does not consume the consu
   global.fetch = async () => openAIResponse(output(response));
   const retried = await POST(request(journeyId));
   assert.equal(retried.status, 200);
+});
+
+test('keeps rejection feedback separate from new-palette preferences in the OpenAI payload', async () => {
+  let openAIPayload;
+  global.fetch = async (_url, init) => {
+    openAIPayload = JSON.parse(init.body);
+    return openAIResponse(output(response));
+  };
+  const result = await POST(request('feedback-separation'));
+  assert.equal(result.status, 200);
+  const userInput = JSON.parse(openAIPayload.input[1].content[0].text);
+  assert.deepEqual(userInput.feedback, { rejectionReasons: ['Estavam claras demais'], preferences: ['Algo mais delicado'], comment: '' });
 });
 
 test('valid palette consultation returns exactly three valid palettes', () => {

@@ -34,10 +34,10 @@ export async function POST(request) {
     const body = await request.json();
     const journeyId = clean(body.journeyId);
     const language = clean(body.language || body.idioma || 'pt');
-    const feedback = { reasons: Array.isArray(body.feedback?.reasons) ? body.feedback.reasons.map(clean).filter(Boolean).slice(0, 8) : [], comment: clean(body.feedback?.comment).slice(0, 400) };
+    const feedback = { rejectionReasons: Array.isArray(body.feedback?.rejectionReasons) ? body.feedback.rejectionReasons.map(clean).filter(Boolean).slice(0, 5) : [], preferences: Array.isArray(body.feedback?.preferences) ? body.feedback.preferences.map(clean).filter(Boolean).slice(0, 2) : [], comment: clean(body.feedback?.comment).slice(0, 400) };
     const consultationIndex = Number(body.consultationIndex);
     const existingPalettes = Array.isArray(body.existingPalettes) ? body.existingPalettes : [];
-    if (!journeyId || !['pt', 'en'].includes(language) || (!feedback.reasons.length && !feedback.comment) || !Number.isInteger(consultationIndex) || consultationIndex < 1 || consultationIndex > PALETTE_CONSULTATION_LIMIT) return Response.json({ error: 'invalid_palette_consultation_payload' }, { status: 400 });
+    if (!journeyId || !['pt', 'en'].includes(language) || (!feedback.rejectionReasons.length && !feedback.comment) || !Number.isInteger(consultationIndex) || consultationIndex < 1 || consultationIndex > PALETTE_CONSULTATION_LIMIT) return Response.json({ error: 'invalid_palette_consultation_payload' }, { status: 400 });
     const completed = completedConsultations.get(journeyId) || new Set();
     if (completed.size >= PALETTE_CONSULTATION_LIMIT && !completed.has(consultationIndex)) return Response.json({ error: 'palette_consultation_limit_reached' }, { status: 429 });
     const apiKey = clean(process.env.OPENAI_API_KEY).replace(/['"]/g, '');
