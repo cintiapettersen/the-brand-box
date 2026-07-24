@@ -15,3 +15,8 @@ export function serializeSelectedPalette(palette, { styleId, styleName, journeyI
 export function findSelectedPalette(palettes, selectedId, context = {}) {
   return serializeSelectedPalette((Array.isArray(palettes) ? palettes : []).find(palette => String(palette.id) === String(selectedId)), context);
 }
+
+export function paletteSignature(palette) {
+  const hex = normalizePaletteHexes(palette?.paleta_hex || palette?.cores_hex || palette?.hex);
+  return hex.length === 5 ? hex.join(',') : '';
+}
