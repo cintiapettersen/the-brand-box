@@ -326,6 +326,7 @@ export default function Home() {
   const selectedPaletteDetails = findSelectedPalette(paletas, selectedPaleta, { styleId: resultadoFinal?.estiloId, styleName: resultadoFinal?.estiloNome, journeyId: resultadoFinal?.creativeDirectorJourneyId });
 
   const [isHydrated, setIsHydrated] = useState(false);
+  const [isPersistenceReady, setIsPersistenceReady] = useState(false);
 
   // Restaura progresso salvo ao montar
   useEffect(() => {
@@ -350,6 +351,7 @@ export default function Home() {
         }
       } else {
         console.log('ℹ️ Nenhum progresso anterior encontrado no localStorage.');
+        setIsPersistenceReady(true);
       }
     } catch(e) { 
       console.error('❌ Erro ao ler progresso:', e);
@@ -431,7 +433,7 @@ export default function Home() {
 
   // Salva progresso automaticamente APÓS a hidratação inicial ser concluída
   useEffect(() => {
-    if (!isHydrated) return;
+    if (!isHydrated || !isPersistenceReady || showResumePrompt) return;
 
     const activeSessionId = typeof window !== 'undefined' ? localStorage.getItem('brandbox_session') : null;
 
@@ -467,7 +469,7 @@ export default function Home() {
         }
       }
     }
-  }, [isHydrated, step, formData, selectedTagline, customTagline, editData, generatedPatterns, selectedPattern, resultadoFinal, papelariaSelecionada]);
+  }, [isHydrated, isPersistenceReady, showResumePrompt, step, formData, selectedTagline, customTagline, editData, generatedPatterns, selectedPattern, resultadoFinal, papelariaSelecionada, selectedPaleta, selectedTipo, selectedIcon, customStep, paletteFeedback, patternGenerationCount, refazerAttempts]);
 
   useEffect(() => {
     if (step !== 11.5 || !resultadoFinal || resultadoFinal?.creativeDirector?.taglineSuggestions || resultadoFinal?.taglineSuggestions) return;
@@ -3424,7 +3426,7 @@ export default function Home() {
                 </p>
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
                   <button
-                    onClick={() => { restoreProgress(savedProgress); setShowResumePrompt(false); }}
+                    onClick={async () => { await restoreProgress(savedProgress); setShowResumePrompt(false); setIsPersistenceReady(true); }}
                     className="btn-primary"
                     style={{ width: '100%', background: 'var(--accent-turquoise)' }}
                   >
@@ -3438,6 +3440,7 @@ export default function Home() {
                       });
                       setShowResumePrompt(false);
                       setSavedProgress(null);
+                      setIsPersistenceReady(true);
                       window.location.reload(); // Recarrega para garantir estado limpo
                     }}
                     className="btn-secondary"
