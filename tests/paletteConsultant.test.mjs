@@ -15,7 +15,7 @@ process.env.OPENAI_MODEL = 'test-model';
 const { POST } = await import('../src/app/api/creative-director/palette-consultation/route.js');
 
 function request(journeyId) {
-  return new Request('http://localhost/api/creative-director/palette-consultation', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ journeyId, consultationIndex: 1, language: 'pt', feedback: { rejectionReasons: ['Estavam claras demais'], preferences: ['Algo mais delicado'], comment: '' }, existingPalettes: [] }) });
+  return new Request('http://localhost/api/creative-director/palette-consultation', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ journeyId, consultationIndex: 1, language: 'pt-BR', feedback: { rejectionReasons: ['Estavam claras demais'], preferences: ['Algo mais delicado'], comment: '' }, existingPalettes: [] }) });
 }
 function openAIResponse(body, status = 200) {
   return new Response(JSON.stringify(body), { status, headers: { 'Content-Type': 'application/json' } });
