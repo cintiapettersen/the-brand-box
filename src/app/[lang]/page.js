@@ -395,12 +395,14 @@ export default function Home() {
     // Re-busca paletas/tipografias do Supabase se estava em etapa avançada
     if (parsed.resultadoFinal?.estiloId && parsed.step >= 10) {
       setLoadingVariacoes(true);
+      let variationsLoaded = false;
       try {
         const id = parsed.resultadoFinal.estiloId;
         const res = await fetch(`/api/variacoes?id=${id}&t=${Date.now()}`, { cache: 'no-store' });
         const data = await res.json();
         
         if (data.variacoes) {
+          variationsLoaded = true;
           const restoredPalettes = data.variacoes.filter(d => d.tipo === 'PALETA');
           setPaletas(restoredPalettes);
           setTipografias(data.variacoes.filter(d => d.tipo === 'TIPOGRAFIA'));
@@ -414,11 +416,14 @@ export default function Home() {
         }
         setMoodboards(data.moodboard || []);
       } catch (e) {
-        console.error("Erro ao restaurar variações via API:", e);
+        console.error('Erro ao restaurar variações via API:', { name: e?.name || 'Error' });
       } finally {
-        if (parsed.selectedPaleta && !data.variacoes) setSelectedPaleta(parsed.selectedPaleta);
-        if (parsed.selectedTipo) setSelectedTipo(parsed.selectedTipo);
-        setLoadingVariacoes(false);
+        try {
+          if (parsed.selectedPaleta && !variationsLoaded) setSelectedPaleta(parsed.selectedPaleta);
+          if (parsed.selectedTipo) setSelectedTipo(parsed.selectedTipo);
+        } finally {
+          setLoadingVariacoes(false);
+        }
       }
     }
     if (parsed.selectedIcon) setSelectedIcon(parsed.selectedIcon);
