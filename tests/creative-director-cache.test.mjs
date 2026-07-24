@@ -1,0 +1,18 @@
+import assert from 'node:assert/strict';
+import { getOrCreateCreativeDirector } from '../src/app/api/creative-director/requestGuards.js';
+const key = `journey-test-${Date.now()}`;
+let calls = 0;
+const make = async () => ({ id: ++calls });
+assert.deepEqual((await getOrCreateCreativeDirector(key, make)).value, { id: 1 });
+assert.deepEqual((await getOrCreateCreativeDirector(key, make)).value, { id: 1 });
+assert.equal(calls, 1);
+const second = `journey-concurrent-${Date.now()}`;
+let concurrentCalls = 0;
+const slow = async () => { concurrentCalls++; await new Promise(r => setTimeout(r, 20)); return { ok: true }; };
+const [a, b] = await Promise.all([getOrCreateCreativeDirector(second, slow), getOrCreateCreativeDirector(second, slow)]);
+assert.deepEqual(a.value, b.value); assert.equal(concurrentCalls, 1);
+const failed = `journey-failure-${Date.now()}`;
+let attempts = 0;
+await assert.rejects(() => getOrCreateCreativeDirector(failed, async () => { attempts++; throw new Error('fail'); }));
+assert.deepEqual((await getOrCreateCreativeDirector(failed, async () => ({ attempt: ++attempts }))).value, { attempt: 2 });
+console.log('creative-director cache tests passed');

@@ -11,6 +11,8 @@ import { createClient } from '@supabase/supabase-js';
 import FONT_MAP from '../../lib/fontMap';
 import { STYLE_ICONS, getIconById, ESTILO_NOME_BY_ID } from '../../lib/styleIcons';
 import Image from 'next/image';
+import { getCreativeDiagnosisCopy } from '../../lib/creativeDiagnosisCopy';
+import { findSelectedPalette } from '../../lib/selectedPalette';
 
 const PAPELARIA_CLINICA = [
   "Cartão de Visita", "Papel Timbrado", "Receituário Padrão (A4 e A5)", "Atestado Médico (A4 e A5)", "Cartão de Retorno", "Pasta A4 Exclusiva",
@@ -85,6 +87,12 @@ export default function Home() {
   const [step, setStep] = useState(1);
   const [resultadoFinal, setResultadoFinal] = useState(null);
   const [isCreativeDirectorLoading, setIsCreativeDirectorLoading] = useState(false);
+  const [creativeDirectorStatus, setCreativeDirectorStatus] = useState('idle');
+  const effectiveCreativeDirectorStatus = creativeDirectorStatus === 'idle' ? resultadoFinal?.creativeDirectorStatus || 'idle' : creativeDirectorStatus;
+  const creativeDirectorRequestRef = useRef(null);
+  const resultStepRef = useRef(null);
+  const didScrollDiagnosticRef = useRef('');
+  const [isMatchmakerLoading, setIsMatchmakerLoading] = useState(false);
   const [isTaglineLoading, setIsTaglineLoading] = useState(false);
   const [aiSessionId, setAiSessionId] = useState('');
   const [selectedTagline, setSelectedTagline] = useState('');
@@ -94,6 +102,8 @@ export default function Home() {
   const [formData, setFormData] = useState({
     nome: '', email: '', marca: '', atuacao: '', atuacaoOutra: '', contextoExtra: '', publico: '', sentimentos: [], elementosVisuais: [], personalidade: '', primeiraImpressao: '', locais: [], inspiracoes: '', inspiracoesTags: [], nuncaPensar: '', nuncaPensarTags: []
   });
+
+  const creativeDiagnosisCopy = getCreativeDiagnosisCopy(lang);
 
   const refineCopy = {
     button: dictionary?.postmatch?.creative_refine_button || 'Refinar esta direção',
@@ -313,6 +323,7 @@ export default function Home() {
   const brandBoardRef = useRef(null);
   const selectedVisualBrandRef = useRef({ optionId: '', fontFamily: '' });
   const paletteFeedbackRequestRef = useRef('');
+  const selectedPaletteDetails = findSelectedPalette(paletas, selectedPaleta, { styleId: resultadoFinal?.estiloId, styleName: resultadoFinal?.estiloNome, journeyId: resultadoFinal?.creativeDirectorJourneyId });
 
   const [isHydrated, setIsHydrated] = useState(false);
 
@@ -793,7 +804,21 @@ export default function Home() {
     }) : prev);
   };
 
-  const getRequestKey = (contentType, targetLanguage = lang) => `${aiSessionId || 'pending'}:${getAiUsageKey(contentType, targetLanguage)}`;
+  const getRequestKey = (contentType, targetLanguage = lang) => {
+    const journeyId = resultadoFinal?.creativeDirectorJourneyId;
+    return journeyId ? `journey:${journeyId}:${contentType}:${targetLanguage}` : '';
+  };
+
+  useEffect(() => {
+    if (!selectedPaleta) return;
+    if (!selectedPaletteDetails) {
+      setSelectedPaleta(null);
+      setEditData(prev => ({ ...prev, corAtiva: null }));
+      setResultadoFinal(prev => prev ? ({ ...prev, selectedPalette: null }) : prev);
+      return;
+    }
+    setResultadoFinal(prev => prev && JSON.stringify(prev.selectedPalette) !== JSON.stringify(selectedPaletteDetails) ? ({ ...prev, selectedPalette: selectedPaletteDetails }) : prev);
+  }, [selectedPaleta, paletas, resultadoFinal?.estiloId, resultadoFinal?.creativeDirectorJourneyId]);
 
   const requestPaletteFeedback = async (primaryColor, palette) => {
     const requestId = `${selectedPaleta}:${primaryColor}:${Date.now()}`;
@@ -809,9 +834,10 @@ export default function Home() {
           formData,
           resultadoFinal,
           palette,
+          selectedPalette: selectedPaletteDetails,
           primaryColor,
           idioma: lang,
-          requestKey: `${aiSessionId || 'pending'}:palette_feedback:${selectedPaleta}:${primaryColor}`
+          requestKey: `${resultadoFinal?.creativeDirectorJourneyId || 'palette'}:palette_feedback:${selectedPaletteDetails?.id || selectedPaleta}:${primaryColor}`
         })
       });
 
@@ -830,24 +856,45 @@ export default function Home() {
   };
 
   const fetchCreativeDirectorDiagnostic = async (baseResult) => {
-    const creativeResponse = await fetch('/api/creative-director', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        formData,
-        estiloId: baseResult.estiloId,
-        estiloNome: baseResult.estiloNome,
-        mensagem: baseResult.mensagem,
-        idioma: lang,
-        requestKey: getRequestKey('diagnostic')
-      })
-    });
-
-    if (!creativeResponse.ok) return null;
-
+    const requestKey = `journey:${baseResult.creativeDirectorJourneyId}:diagnostic:${lang}`;
+    const creativeResponse = await fetch('/api/creative-director', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ formData, estiloId: baseResult.estiloId, estiloNome: baseResult.estiloNome, mensagem: baseResult.mensagem, idioma: lang, requestKey }) });
+    if (!creativeResponse.ok) {
+      const payload = await creativeResponse.json().catch(() => ({}));
+      throw Object.assign(new Error(payload.error || 'creative_director_failed'), { code: payload.error || 'creative_director_failed' });
+    }
     const creativeDirector = await creativeResponse.json();
     return { ...creativeDirector, language: lang, generatedAt: new Date().toISOString() };
   };
+
+  const runCreativeDirectorDiagnostic = async (baseResult) => {
+    if (creativeDirectorRequestRef.current) return creativeDirectorRequestRef.current;
+    setIsCreativeDirectorLoading(true); setCreativeDirectorStatus('loading');
+    const request = fetchCreativeDirectorDiagnostic(baseResult).then((creativeDirector) => {
+      setResultadoFinal(prev => prev ? ({ ...prev, creativeDirector, creativeDirectorStatus: 'ready' }) : prev);
+      setCreativeDirectorStatus('ready');
+
+      return creativeDirector;
+    }).catch((error) => {
+      console.warn('Creative Director unavailable:', error.code);
+      setResultadoFinal(prev => prev ? ({ ...prev, creativeDirectorStatus: 'fallback', creativeDirectorError: error.code }) : prev);
+      setCreativeDirectorStatus('fallback');
+      return null;
+    }).finally(() => { creativeDirectorRequestRef.current = null; setIsCreativeDirectorLoading(false); });
+    creativeDirectorRequestRef.current = request;
+    return request;
+  };
+
+  useEffect(() => {
+    const journeyId = resultadoFinal?.creativeDirectorJourneyId;
+    if (step !== 9 || !journeyId || didScrollDiagnosticRef.current === journeyId) return;
+    const timer = window.setTimeout(() => requestAnimationFrame(() => requestAnimationFrame(() => {
+      const target = resultStepRef.current;
+      if (!target) return;
+      didScrollDiagnosticRef.current = journeyId;
+      window.scrollTo({ top: Math.max(0, target.getBoundingClientRect().top + window.scrollY - 160), behavior: 'smooth' });
+    })), 180);
+    return () => window.clearTimeout(timer);
+  }, [step, resultadoFinal?.creativeDirectorJourneyId]);
 
   const regenerateCreativeDirector = async () => {
     if (!resultadoFinal || isCreativeDirectorLoading || hasAiUsage('diagnostic_regeneration')) return;
@@ -855,7 +902,7 @@ export default function Home() {
     markAiUsage('diagnostic_regeneration');
     setIsCreativeDirectorLoading(true);
     try {
-      const creativeDirector = await fetchCreativeDirectorDiagnostic(resultadoFinal);
+      const creativeDirector = await runCreativeDirectorDiagnostic(resultadoFinal);
       if (creativeDirector) {
         setResultadoFinal(prev => prev ? ({ ...prev, creativeDirector: { ...creativeDirector, refinement: prev.creativeDirector?.refinement } }) : prev);
       }
@@ -1078,6 +1125,8 @@ export default function Home() {
 
   // Aqui é onde ativamos a Mágica
   const callMatchmaker = async () => {
+    if (isMatchmakerLoading) return;
+    setIsMatchmakerLoading(true);
     setStep(8); // Vai para a tela de loading automático
     
     try {
@@ -1090,26 +1139,11 @@ export default function Home() {
       const data = await response.json();
       
       if (data.estiloNome) {
-        setIsCreativeDirectorLoading(true);
-        setResultadoFinal({
-          ...data,
-          aiUsage: {
-            [getAiUsageKey('diagnostic')]: new Date().toISOString()
-          }
-        });
+        const journeyId = window.crypto?.randomUUID?.() || `journey-${Date.now()}-${Math.random().toString(36).slice(2)}`;
+        const matchResult = { ...data, creativeDirectorJourneyId: journeyId, creativeDirectorStatus: 'loading' };
+        setResultadoFinal(matchResult);
         setStep(9); // Tela de Resultado Triunfal
-
-        try {
-          const creativeDirector = await fetchCreativeDirectorDiagnostic(data);
-
-          if (creativeDirector) {
-            setResultadoFinal(prev => prev ? ({ ...prev, creativeDirector }) : prev);
-          }
-        } catch (creativeError) {
-          console.warn('Creative Director indisponível; mantendo o fluxo antigo.', creativeError);
-        } finally {
-          setIsCreativeDirectorLoading(false);
-        }
+        await runCreativeDirectorDiagnostic(matchResult);
       } else {
         setAlertMessage("Ops, deu um pequeno tilt na IA. Refaça por favor!");
         setStep(7);
@@ -1118,6 +1152,8 @@ export default function Home() {
       console.error(error);
       setAlertMessage("Erro na conexão com o servidor mágico.");
       setStep(7);
+    } finally {
+      setIsMatchmakerLoading(false);
     }
   };
 
@@ -1370,7 +1406,7 @@ export default function Home() {
           ⚡ MODO DEV ATIVO — estampas não consomem créditos
         </div>
       )}
-      <div style={{ width: '100%', maxWidth: '700px', position: 'relative', height: '85vh', marginTop: devMode ? '22px' : 0 }}>
+      <div style={{ width: '100%', maxWidth: '700px', position: 'relative', height: step === 9 ? 'auto' : '85vh', minHeight: step === 9 ? '85vh' : undefined, marginTop: devMode ? '22px' : 0 }}>
 
         {step > 1 && step < 8 && (
            <button onClick={() => {
@@ -2116,7 +2152,7 @@ export default function Home() {
             </motion.div>
           )}
 
-          {step === 7.8 && (
+          {step === 7.8 && !isMatchmakerLoading && (
             <motion.div 
               key="step7_8" variants={variants} initial="initial" animate="animate" exit="exit" transition={{ duration: 0.5 }}
               className="wizard-step" style={{ position: 'absolute', width: '100%', height: '100%', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', textAlign: 'center', background: '#ffffff', borderRadius: '24px', border: '1px solid var(--border)' }}
@@ -2129,7 +2165,7 @@ export default function Home() {
                  <p style={{ margin: '8px 0', fontSize: '1.1rem' }}>✅ <strong>{dictionary?.onboarding?.summary_goals || 'Objetivos'}:</strong> Alinhados</p>
               </div>
               <p style={{ fontSize: '1rem', color: 'var(--text-secondary)', marginBottom: '1.5rem' }}>{dictionary?.onboarding?.summary_text || 'Com base nisso, estou buscando as direções visuais que melhor se encaixam na sua marca.'}</p>
-              <button onClick={callMatchmaker} className="btn-primary" style={{ background: 'var(--accent-magenta)' }}>{dictionary?.onboarding?.step_7_8_btn || 'Traduzir a essência da minha marca'}</button>
+              <button onClick={callMatchmaker} disabled={isMatchmakerLoading} className="btn-primary" style={{ background: 'var(--accent-magenta)', opacity: isMatchmakerLoading ? 0.6 : 1 }}>{dictionary?.onboarding?.step_7_8_btn || 'Traduzir a essência da minha marca'}</button>
             </motion.div>
           )}
 
@@ -2152,7 +2188,7 @@ export default function Home() {
           {step === 9 && resultadoFinal && (
             <motion.div 
               key="step9" variants={variants} initial="initial" animate="animate" exit="exit" transition={{ duration: 0.5 }}
-              className="wizard-step" style={{ position: 'absolute', width: '100%', height: '100%', display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center', background: 'var(--bg-color)', borderRadius: '24px', border: 'none', boxShadow: 'none' }}
+              ref={resultStepRef} className="wizard-step creative-diagnosis-step" aria-busy={isCreativeDirectorLoading} style={{ position: 'relative', width: '100%', minHeight: '100%', height: 'auto', display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center', background: 'var(--bg-color)', borderRadius: '24px', border: 'none', boxShadow: 'none' }}
             >
               <p style={{ fontSize: '0.9rem', color: 'var(--text-secondary)', marginBottom: '0.5rem', textTransform: 'uppercase', letterSpacing: '2px', fontWeight: 600 }}>{dictionary?.postmatch?.step_9_perfect_match || 'O MATCH PERFEITO PARA'} {formData.marca || 'SUA MARCA'}</p>
               {(() => {
@@ -2178,15 +2214,12 @@ export default function Home() {
                 </div>
               )}
 
-              {isCreativeDirectorLoading && (
-                <p style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', marginTop: '-1rem', marginBottom: '1.25rem' }}>
-                  Preparando seu diagnóstico criativo...
-                </p>
-              )}
+              {isCreativeDirectorLoading && (<p role="status" aria-live="polite" style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', marginBottom: '1.25rem' }}>{creativeDiagnosisCopy.loading}</p>)}
+              {effectiveCreativeDirectorStatus === 'fallback' && (<div role="status" style={{ marginBottom: '1.25rem' }}><p>{creativeDiagnosisCopy.fallback}</p><button type="button" className="btn-secondary" onClick={() => runCreativeDirectorDiagnostic(resultadoFinal)} disabled={isCreativeDirectorLoading}>{creativeDiagnosisCopy.retry}</button></div>)}
 
               {resultadoFinal.creativeDirector && (
-                <div style={{ width: '100%', maxWidth: '620px', background: '#ffffff', padding: '1.5rem', borderRadius: '18px', marginBottom: '2rem', boxShadow: '0 4px 15px rgba(0,0,0,0.03)', textAlign: 'left' }}>
-                  <p style={{ fontSize: '0.78rem', color: 'var(--accent-magenta)', textTransform: 'uppercase', letterSpacing: '1.8px', fontWeight: 700, marginBottom: '0.75rem', textAlign: 'center' }}>Diagnóstico Criativo</p>
+                <div className="creative-diagnosis-anchor"><div style={{ width: '100%', maxWidth: '620px', background: '#ffffff', padding: '1.5rem', borderRadius: '18px', marginBottom: '2rem', boxShadow: '0 4px 15px rgba(0,0,0,0.03)', textAlign: 'left' }}>
+                  <p style={{ fontSize: '0.78rem', color: 'var(--accent-magenta)', textTransform: 'uppercase', letterSpacing: '1.8px', fontWeight: 700, marginBottom: '0.75rem', textAlign: 'center' }}>{creativeDiagnosisCopy.title}</p>
                   {isDifferentLanguage(resultadoFinal.creativeDirector) && (
                     <div style={{ textAlign: 'center', marginBottom: '0.85rem' }}>
                       <button type="button" onClick={regenerateCreativeDirector} disabled={isCreativeDirectorLoading || hasAiUsage('diagnostic_regeneration')} className="btn-secondary" style={{ padding: '0.65rem 0.9rem', fontSize: '0.82rem', opacity: isCreativeDirectorLoading || hasAiUsage('diagnostic_regeneration') ? 0.65 : 1 }}>
@@ -2198,28 +2231,28 @@ export default function Home() {
 
                   <div style={{ display: 'grid', gap: '0.9rem' }}>
                     <div>
-                      <strong style={{ color: 'var(--text-primary)', fontSize: '0.9rem' }}>Personalidade da marca</strong>
+                      <strong style={{ color: 'var(--text-primary)', fontSize: '0.9rem' }}>{creativeDiagnosisCopy.personality}</strong>
                       <p style={{ color: 'var(--text-secondary)', fontSize: '0.9rem', lineHeight: 1.5, marginTop: '0.25rem' }}>{resultadoFinal.creativeDirector.personalidade.join(' • ')}</p>
                     </div>
                     <div>
-                      <strong style={{ color: 'var(--text-primary)', fontSize: '0.9rem' }}>O que o público precisa sentir</strong>
+                      <strong style={{ color: 'var(--text-primary)', fontSize: '0.9rem' }}>{creativeDiagnosisCopy.audience}</strong>
                       <ul style={{ color: 'var(--text-secondary)', fontSize: '0.9rem', lineHeight: 1.5, marginTop: '0.35rem', paddingLeft: '1.1rem' }}>
                         {resultadoFinal.creativeDirector.expectativasPublico.map((item, index) => <li key={`expectativa-${index}`}>{item}</li>)}
                       </ul>
                     </div>
                     <div>
-                      <strong style={{ color: 'var(--text-primary)', fontSize: '0.9rem' }}>Objetivos emocionais</strong>
+                      <strong style={{ color: 'var(--text-primary)', fontSize: '0.9rem' }}>{creativeDiagnosisCopy.goals}</strong>
                       <ul style={{ color: 'var(--text-secondary)', fontSize: '0.9rem', lineHeight: 1.5, marginTop: '0.35rem', paddingLeft: '1.1rem' }}>
                         {resultadoFinal.creativeDirector.objetivosEmocionais.map((item, index) => <li key={`objetivo-${index}`}>{item}</li>)}
                       </ul>
                     </div>
                     <div>
-                      <strong style={{ color: 'var(--text-primary)', fontSize: '0.9rem' }}>Por que essa direção combina</strong>
+                      <strong style={{ color: 'var(--text-primary)', fontSize: '0.9rem' }}>{creativeDiagnosisCopy.why}</strong>
                       <p style={{ color: 'var(--text-secondary)', fontSize: '0.9rem', lineHeight: 1.5, marginTop: '0.25rem' }}>{resultadoFinal.creativeDirector.porqueEsseEstilo}</p>
                       <p style={{ color: 'var(--text-secondary)', fontSize: '0.9rem', lineHeight: 1.5, marginTop: '0.35rem' }}>{resultadoFinal.creativeDirector.direcaoVisual}</p>
                     </div>
                     <div>
-                      <strong style={{ color: 'var(--text-primary)', fontSize: '0.9rem' }}>Riscos criativos a evitar</strong>
+                      <strong style={{ color: 'var(--text-primary)', fontSize: '0.9rem' }}>{creativeDiagnosisCopy.risks}</strong>
                       <ul style={{ color: 'var(--text-secondary)', fontSize: '0.9rem', lineHeight: 1.5, marginTop: '0.35rem', paddingLeft: '1.1rem' }}>
                         {resultadoFinal.creativeDirector.riscosEvitar.map((item, index) => <li key={`risco-${index}`}>{item}</li>)}
                       </ul>
@@ -2347,10 +2380,12 @@ export default function Home() {
                       )}
                     </div>
                   )}
-                </div>
+                </div></div>
               )}
 
-              <button onClick={fetchVariacoes} className="btn-primary" style={{ background: 'var(--accent-magenta)', color: 'var(--text-primary)', boxShadow: 'none' }}>{dictionary?.postmatch?.step_9_btn_customize || 'Personalizar minha Identidade'}</button>
+              {effectiveCreativeDirectorStatus === 'ready' && (<button onClick={fetchVariacoes} className="btn-primary" style={{ background: 'var(--accent-magenta)', color: 'var(--text-primary)', boxShadow: 'none' }}>{dictionary?.postmatch?.step_9_btn_customize || 'Personalizar minha Identidade'}</button>)}
+
+              {false && <button onClick={fetchVariacoes} className="btn-primary">{dictionary?.postmatch?.step_9_btn_customize || 'Personalizar minha Identidade'}</button>}
 
               {refazerAttempts < 2 ? (
                 <button
@@ -2400,6 +2435,7 @@ export default function Home() {
                         setGeneratedPatterns([]);
                         setSelectedPattern(null);
                         setSelectedPaleta(null);
+                        setEditData(prev => ({ ...prev, corAtiva: null }));
                         setSelectedTipo(null);
                         setStep(1);
                       }}
@@ -3335,6 +3371,7 @@ export default function Home() {
                       setFormData({ nome: '', email: '', marca: '', atuacao: '', atuacaoOutra: '', contextoExtra: '', publico: '', sentimentos: [], elementosVisuais: [], personalidade: '', primeiraImpressao: '', locais: [], inspiracoes: '', nuncaPensar: '', nuncaPensarTags: [] });
                       setShowContext(false);
                       setResultadoFinal(null);
+                      setCreativeDirectorStatus('idle');
                       setSelectedTagline('');
                       setCustomTagline('');
                     }}
