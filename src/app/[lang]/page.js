@@ -339,7 +339,7 @@ export default function Home() {
       if (saved) {
         const parsed = JSON.parse(saved);
         console.log('✨ Progresso encontrado:', parsed.formData?.marca || 'Sem nome');
-        if (parsed.step && parsed.step > 1) {
+        if ((parsed.step && parsed.step > 1) || parsed.resultadoFinal?.creativeDirectorJourneyId || parsed.selectedPaleta || parsed.paletteFeedback) {
           setSavedProgress(parsed);
           // Se o usuário está retornando do Stripe após cancelar o pagamento, restaura diretamente
           if (isCanceled) {
@@ -348,6 +348,8 @@ export default function Home() {
           } else {
             setShowResumePrompt(true);
           }
+        } else {
+          setIsPersistenceReady(true);
         }
       } else {
         console.log('ℹ️ Nenhum progresso anterior encontrado no localStorage.');
@@ -857,6 +859,7 @@ export default function Home() {
 
       if (!response.ok || paletteFeedbackRequestRef.current !== requestId) return;
       const feedback = await response.json();
+      try { localStorage.setItem('brandbox_progress', JSON.stringify({ ...(JSON.parse(localStorage.getItem('brandbox_progress') || '{}')), paletteFeedback: { ...feedback, context: { journeyId: resultadoFinal?.creativeDirectorJourneyId || null, styleId: selectedPaletteDetails?.styleId || null, paletteId: selectedPaletteDetails?.id || null, hex: selectedPaletteDetails?.hex || [], primaryColor, language: lang } }, customStep: 'cor', selectedPaleta, editData: { ...editData, corAtiva: primaryColor }, resultadoFinal })); } catch {}
       setPaletteFeedback({ ...feedback, context: { journeyId: resultadoFinal?.creativeDirectorJourneyId || null, styleId: selectedPaletteDetails?.styleId || null, paletteId: selectedPaletteDetails?.id || null, hex: selectedPaletteDetails?.hex || [], primaryColor, language: lang } });
     } catch (error) {
       console.warn('Feedback de paleta indisponível; mantendo o fluxo de escolha.', error);
