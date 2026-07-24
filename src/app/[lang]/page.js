@@ -11,6 +11,7 @@ import { createClient } from '@supabase/supabase-js';
 import FONT_MAP from '../../lib/fontMap';
 import { STYLE_ICONS, getIconById, ESTILO_NOME_BY_ID } from '../../lib/styleIcons';
 import Image from 'next/image';
+import { getCreativeDiagnosisCopy } from '../../lib/creativeDiagnosisCopy';
 
 const PAPELARIA_CLINICA = [
   "Cartão de Visita", "Papel Timbrado", "Receituário Padrão (A4 e A5)", "Atestado Médico (A4 e A5)", "Cartão de Retorno", "Pasta A4 Exclusiva",
@@ -88,7 +89,7 @@ export default function Home() {
   const [creativeDirectorStatus, setCreativeDirectorStatus] = useState('idle');
   const effectiveCreativeDirectorStatus = creativeDirectorStatus === 'idle' ? resultadoFinal?.creativeDirectorStatus || 'idle' : creativeDirectorStatus;
   const creativeDirectorRequestRef = useRef(null);
-  const diagnosticScrollRef = useRef(null);
+  const resultStepRef = useRef(null);
   const didScrollDiagnosticRef = useRef('');
   const [isMatchmakerLoading, setIsMatchmakerLoading] = useState(false);
   const [isTaglineLoading, setIsTaglineLoading] = useState(false);
@@ -101,7 +102,7 @@ export default function Home() {
     nome: '', email: '', marca: '', atuacao: '', atuacaoOutra: '', contextoExtra: '', publico: '', sentimentos: [], elementosVisuais: [], personalidade: '', primeiraImpressao: '', locais: [], inspiracoes: '', inspiracoesTags: [], nuncaPensar: '', nuncaPensarTags: []
   });
 
-  const creativeDiagnosisCopy = lang === 'en' ? { personality: 'Brand personality', audience: 'What the audience needs to feel', goals: 'Emotional goals', why: 'Why this direction fits', risks: 'Creative risks to avoid', loading: 'Preparing your creative diagnosis…', fallback: 'The Creative Director is temporarily unavailable. Your Gemini match remains available.', retry: 'Try again' } : { personality: 'Personalidade da marca', audience: 'O que o público precisa sentir', goals: 'Objetivos emocionais', why: 'Por que essa direção combina', risks: 'Riscos criativos a evitar', loading: 'Preparando seu diagnóstico criativo…', fallback: 'A Creative Director está temporariamente indisponível. Seu match Gemini continua disponível.', retry: 'Tentar novamente' };
+  const creativeDiagnosisCopy = getCreativeDiagnosisCopy(lang);
 
   const refineCopy = {
     button: dictionary?.postmatch?.creative_refine_button || 'Refinar esta direção',
@@ -871,15 +872,15 @@ export default function Home() {
 
   useEffect(() => {
     const journeyId = resultadoFinal?.creativeDirectorJourneyId;
-    if (step !== 9 || effectiveCreativeDirectorStatus !== 'ready' || !journeyId || didScrollDiagnosticRef.current === journeyId) return;
+    if (step !== 9 || !journeyId || didScrollDiagnosticRef.current === journeyId) return;
     const timer = window.setTimeout(() => requestAnimationFrame(() => requestAnimationFrame(() => {
-      const target = diagnosticScrollRef.current;
+      const target = resultStepRef.current;
       if (!target) return;
       didScrollDiagnosticRef.current = journeyId;
       window.scrollTo({ top: Math.max(0, target.getBoundingClientRect().top + window.scrollY - 160), behavior: 'smooth' });
     })), 180);
     return () => window.clearTimeout(timer);
-  }, [step, effectiveCreativeDirectorStatus, resultadoFinal?.creativeDirectorJourneyId]);
+  }, [step, resultadoFinal?.creativeDirectorJourneyId]);
 
   const regenerateCreativeDirector = async () => {
     if (!resultadoFinal || isCreativeDirectorLoading || hasAiUsage('diagnostic_regeneration')) return;
@@ -2137,7 +2138,7 @@ export default function Home() {
             </motion.div>
           )}
 
-          {step === 7.8 && (
+          {step === 7.8 && !isMatchmakerLoading && (
             <motion.div 
               key="step7_8" variants={variants} initial="initial" animate="animate" exit="exit" transition={{ duration: 0.5 }}
               className="wizard-step" style={{ position: 'absolute', width: '100%', height: '100%', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', textAlign: 'center', background: '#ffffff', borderRadius: '24px', border: '1px solid var(--border)' }}
@@ -2173,7 +2174,7 @@ export default function Home() {
           {step === 9 && resultadoFinal && (
             <motion.div 
               key="step9" variants={variants} initial="initial" animate="animate" exit="exit" transition={{ duration: 0.5 }}
-              className="wizard-step creative-diagnosis-step" aria-busy={isCreativeDirectorLoading} style={{ position: 'relative', width: '100%', minHeight: '100%', height: 'auto', display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center', background: 'var(--bg-color)', borderRadius: '24px', border: 'none', boxShadow: 'none' }}
+              ref={resultStepRef} className="wizard-step creative-diagnosis-step" aria-busy={isCreativeDirectorLoading} style={{ position: 'relative', width: '100%', minHeight: '100%', height: 'auto', display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center', background: 'var(--bg-color)', borderRadius: '24px', border: 'none', boxShadow: 'none' }}
             >
               <p style={{ fontSize: '0.9rem', color: 'var(--text-secondary)', marginBottom: '0.5rem', textTransform: 'uppercase', letterSpacing: '2px', fontWeight: 600 }}>{dictionary?.postmatch?.step_9_perfect_match || 'O MATCH PERFEITO PARA'} {formData.marca || 'SUA MARCA'}</p>
               {(() => {
@@ -2203,8 +2204,8 @@ export default function Home() {
               {effectiveCreativeDirectorStatus === 'fallback' && (<div role="status" style={{ marginBottom: '1.25rem' }}><p>{creativeDiagnosisCopy.fallback}</p><button type="button" className="btn-secondary" onClick={() => runCreativeDirectorDiagnostic(resultadoFinal)} disabled={isCreativeDirectorLoading}>{creativeDiagnosisCopy.retry}</button></div>)}
 
               {resultadoFinal.creativeDirector && (
-                <div ref={diagnosticScrollRef} className="creative-diagnosis-anchor"><div style={{ width: '100%', maxWidth: '620px', background: '#ffffff', padding: '1.5rem', borderRadius: '18px', marginBottom: '2rem', boxShadow: '0 4px 15px rgba(0,0,0,0.03)', textAlign: 'left' }}>
-                  <p style={{ fontSize: '0.78rem', color: 'var(--accent-magenta)', textTransform: 'uppercase', letterSpacing: '1.8px', fontWeight: 700, marginBottom: '0.75rem', textAlign: 'center' }}>{lang === 'en' ? 'CREATIVE DIAGNOSIS' : 'DIAGNÓSTICO CRIATIVO'}</p>
+                <div className="creative-diagnosis-anchor"><div style={{ width: '100%', maxWidth: '620px', background: '#ffffff', padding: '1.5rem', borderRadius: '18px', marginBottom: '2rem', boxShadow: '0 4px 15px rgba(0,0,0,0.03)', textAlign: 'left' }}>
+                  <p style={{ fontSize: '0.78rem', color: 'var(--accent-magenta)', textTransform: 'uppercase', letterSpacing: '1.8px', fontWeight: 700, marginBottom: '0.75rem', textAlign: 'center' }}>{creativeDiagnosisCopy.title}</p>
                   {isDifferentLanguage(resultadoFinal.creativeDirector) && (
                     <div style={{ textAlign: 'center', marginBottom: '0.85rem' }}>
                       <button type="button" onClick={regenerateCreativeDirector} disabled={isCreativeDirectorLoading || hasAiUsage('diagnostic_regeneration')} className="btn-secondary" style={{ padding: '0.65rem 0.9rem', fontSize: '0.82rem', opacity: isCreativeDirectorLoading || hasAiUsage('diagnostic_regeneration') ? 0.65 : 1 }}>
