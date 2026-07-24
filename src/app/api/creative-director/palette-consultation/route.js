@@ -16,6 +16,8 @@ const SCHEMA = {
 
 const completedConsultations = globalThis.__brandBoxPaletteConsultations || (globalThis.__brandBoxPaletteConsultations = new Map());
 
+const BRAND_MISMATCH_REASONS = new Set(['Não combinam com a minha marca', 'They do not fit my brand']);
+
 const clean = value => typeof value === 'string' ? value.trim() : '';
 const outputText = response => response.output_text || response.output?.flatMap(item => item.content || []).find(item => item.type === 'output_text')?.text || '';
 const errorId = value => String(value || 'unknown').replace(/[^a-z0-9_-]/gi, '_').slice(0, 80);
@@ -34,10 +36,10 @@ export async function POST(request) {
     const body = await request.json();
     const journeyId = clean(body.journeyId);
     const language = clean(body.language || body.idioma || 'pt');
-    const feedback = { rejectionReasons: Array.isArray(body.feedback?.rejectionReasons) ? body.feedback.rejectionReasons.map(clean).filter(Boolean).slice(0, 5) : [], preferences: Array.isArray(body.feedback?.preferences) ? body.feedback.preferences.map(clean).filter(Boolean).slice(0, 2) : [], comment: clean(body.feedback?.comment).slice(0, 400) };
+    const feedback = { primaryRejectionReason: clean(body.feedback?.primaryRejectionReason).slice(0, 120), desiredDirection: clean(body.feedback?.desiredDirection).slice(0, 120) || null, comment: clean(body.feedback?.comment).slice(0, 400) };
     const consultationIndex = Number(body.consultationIndex);
     const existingPalettes = Array.isArray(body.existingPalettes) ? body.existingPalettes : [];
-    if (!journeyId || !['pt', 'pt-BR', 'en'].includes(language) || (!feedback.rejectionReasons.length && !feedback.comment) || !Number.isInteger(consultationIndex) || consultationIndex < 1 || consultationIndex > PALETTE_CONSULTATION_LIMIT) return Response.json({ error: 'invalid_palette_consultation_payload' }, { status: 400 });
+    if (!journeyId || !['pt', 'pt-BR', 'en'].includes(language) || (!feedback.primaryRejectionReason && !feedback.comment) || (BRAND_MISMATCH_REASONS.has(feedback.primaryRejectionReason) && !feedback.comment) || !Number.isInteger(consultationIndex) || consultationIndex < 1 || consultationIndex > PALETTE_CONSULTATION_LIMIT) return Response.json({ error: 'invalid_palette_consultation_payload' }, { status: 400 });
     const completed = completedConsultations.get(journeyId) || new Set();
     if (completed.size >= PALETTE_CONSULTATION_LIMIT && !completed.has(consultationIndex)) return Response.json({ error: 'palette_consultation_limit_reached' }, { status: 429 });
     const apiKey = clean(process.env.OPENAI_API_KEY).replace(/['"]/g, '');

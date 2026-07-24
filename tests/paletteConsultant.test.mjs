@@ -15,7 +15,7 @@ process.env.OPENAI_MODEL = 'test-model';
 const { POST } = await import('../src/app/api/creative-director/palette-consultation/route.js');
 
 function request(journeyId) {
-  return new Request('http://localhost/api/creative-director/palette-consultation', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ journeyId, consultationIndex: 1, language: 'pt-BR', feedback: { rejectionReasons: ['Estavam claras demais'], preferences: ['Algo mais delicado'], comment: '' }, existingPalettes: [] }) });
+  return new Request('http://localhost/api/creative-director/palette-consultation', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ journeyId, consultationIndex: 1, language: 'pt-BR', feedback: { primaryRejectionReason: 'Estavam claras demais', desiredDirection: 'Algo mais delicado', comment: '' }, existingPalettes: [] }) });
 }
 function openAIResponse(body, status = 200) {
   return new Response(JSON.stringify(body), { status, headers: { 'Content-Type': 'application/json' } });
@@ -53,7 +53,7 @@ test('configuration failure returns its safe code and does not consume the consu
   assert.equal(retried.status, 200);
 });
 
-test('keeps rejection feedback separate from new-palette preferences in the OpenAI payload', async () => {
+test('keeps one primary rejection reason separate from one desired direction in the OpenAI payload', async () => {
   let openAIPayload;
   global.fetch = async (_url, init) => {
     openAIPayload = JSON.parse(init.body);
@@ -62,7 +62,17 @@ test('keeps rejection feedback separate from new-palette preferences in the Open
   const result = await POST(request('feedback-separation'));
   assert.equal(result.status, 200);
   const userInput = JSON.parse(openAIPayload.input[1].content[0].text);
-  assert.deepEqual(userInput.feedback, { rejectionReasons: ['Estavam claras demais'], preferences: ['Algo mais delicado'], comment: '' });
+  assert.deepEqual(userInput.feedback, { primaryRejectionReason: 'Estavam claras demais', desiredDirection: 'Algo mais delicado', comment: '' });
+});
+
+test('requires a comment when the primary rejection reason is a brand mismatch', async () => {
+  global.fetch = async () => openAIResponse(output(response));
+  const body = { journeyId: 'brand-mismatch', consultationIndex: 1, language: 'pt-BR', feedback: { primaryRejectionReason: 'Não combinam com a minha marca', desiredDirection: '', comment: '' }, existingPalettes: [] };
+  const failed = await POST(new Request('http://localhost/api/creative-director/palette-consultation', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) }));
+  assert.equal(failed.status, 400);
+  body.feedback.comment = 'O resultado parece infantil para o meu público.';
+  const accepted = await POST(new Request('http://localhost/api/creative-director/palette-consultation', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) }));
+  assert.equal(accepted.status, 200);
 });
 
 test('valid palette consultation returns exactly three valid palettes', () => {
