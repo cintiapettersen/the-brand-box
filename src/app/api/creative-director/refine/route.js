@@ -70,6 +70,7 @@ function normalizeResultado(resultadoFinal = {}) {
     estiloId: resultadoFinal.estiloId || null,
     styleName: resultadoFinal.estiloNome || null,
     mensagem: resultadoFinal.mensagem || null,
+    paletaAtualSelecionadaPeloCliente: resultadoFinal.selectedPalette && Array.isArray(resultadoFinal.selectedPalette.hex) ? { id: resultadoFinal.selectedPalette.id || null, name: resultadoFinal.selectedPalette.name || null, hex: resultadoFinal.selectedPalette.hex } : null,
     creativeDirector: resultadoFinal.creativeDirector ? {
       diagnostico: resultadoFinal.creativeDirector.diagnostico || null,
       personalidade: resultadoFinal.creativeDirector.personalidade || [],
@@ -188,6 +189,7 @@ function buildResolutionPrompt({ formData, resultadoFinal, pergunta, respostaUsu
       'Se não sugerir alternativa, retorne estiloAlternativoId null e estiloAlternativoNome null.',
       'Não invente estilo novo.',
       'Explique impacto em paleta, tipografia, composição e estampa.',
+      'Quando paletaAtualSelecionadaPeloCliente existir, ela é a escolha canônica atual do cliente; use seus HEX completos e nunca a substitua por sugestão inicial.',
       'Não altere resultadoFinal.estiloId nem resultadoFinal.estiloNome.',
       'O nome pessoal/de contato da usuária foi removido do briefing; use somente identityContext.brandName como nome público da marca.',
       'identityContext.styleName é direção criativa, não marca; não trate diferença entre brandName e styleName como conflito.'
