@@ -1,5 +1,5 @@
 import { getOrCreateCreativeDirector } from '../requestGuards.js';
-import { PALETTE_CONSULTATION_LIMIT, validateConsultedPalettes } from '../../../../lib/paletteConsultant.js';
+import { PALETTE_CONSULTATION_LIMIT, validateConsultedPalettesDetailed } from '../../../../lib/paletteConsultant.js';
 
 const SCHEMA = {
   type: 'object', additionalProperties: false, required: ['palettes'],
@@ -18,6 +18,16 @@ const completedConsultations = globalThis.__brandBoxPaletteConsultations || (glo
 
 const clean = value => typeof value === 'string' ? value.trim() : '';
 const outputText = response => response.output_text || response.output?.flatMap(item => item.content || []).find(item => item.type === 'output_text')?.text || '';
+const errorId = value => String(value || 'unknown').replace(/[^a-z0-9_-]/gi, '_').slice(0, 80);
+
+async function openAIErrorMeta(response) {
+  try {
+    const body = await response.json();
+    return { status: response.status, errorId: errorId(body?.error?.code || body?.error?.type || `http_${response.status}`) };
+  } catch {
+    return { status: response.status, errorId: `http_${response.status}` };
+  }
+}
 
 export async function POST(request) {
   try {
@@ -32,7 +42,10 @@ export async function POST(request) {
     if (completed.size >= PALETTE_CONSULTATION_LIMIT && !completed.has(consultationIndex)) return Response.json({ error: 'palette_consultation_limit_reached' }, { status: 429 });
     const apiKey = clean(process.env.OPENAI_API_KEY).replace(/['"]/g, '');
     const model = clean(process.env.OPENAI_MODEL);
-    if (!apiKey || !model) return Response.json({ error: 'palette_consultation_unavailable' }, { status: 503 });
+    if (!apiKey || !model) {
+      console.error('Creative Director palette consultation failed:', { phase: 'configuration', errorId: 'openai_configuration_missing' });
+      return Response.json({ error: 'palette_consultation_unavailable' }, { status: 503 });
+    }
     const requestKey = `journey:${journeyId}:palette-consultation:${consultationIndex}:${language}`;
     const generated = await getOrCreateCreativeDirector(requestKey, async () => {
       const response = await fetch('https://api.openai.com/v1/responses', {
@@ -43,17 +56,24 @@ export async function POST(request) {
           text: { format: { type: 'json_schema', name: 'palette_consultation', strict: true, schema: SCHEMA } }
         })
       });
-      if (!response.ok) throw Object.assign(new Error('openai_failed'), { publicCode: 'palette_consultation_failed' });
-      let payload; try { payload = JSON.parse(outputText(await response.json())); } catch { throw Object.assign(new Error('invalid_json'), { publicCode: 'palette_consultation_failed' }); }
-      const palettes = validateConsultedPalettes(payload, existingPalettes);
-      if (!palettes) throw Object.assign(new Error('invalid_palettes'), { publicCode: 'palette_consultation_failed' });
+      if (!response.ok) {
+        const meta = await openAIErrorMeta(response);
+        throw Object.assign(new Error('openai_failed'), { publicCode: 'palette_consultation_openai_error', phase: 'openai', ...meta });
+      }
+      let payload; try { payload = JSON.parse(outputText(await response.json())); } catch { throw Object.assign(new Error('invalid_json'), { publicCode: 'palette_consultation_invalid_json', phase: 'json', errorId: 'invalid_json' }); }
+      const validation = validateConsultedPalettesDetailed(payload, existingPalettes);
+      if (!validation.palettes) {
+        const isHexError = validation.reason === 'hex';
+        throw Object.assign(new Error('invalid_palettes'), { publicCode: isHexError ? 'palette_consultation_invalid_hex' : 'palette_consultation_invalid_schema', phase: isHexError ? 'hex' : 'schema', errorId: isHexError ? 'invalid_hex' : 'invalid_schema' });
+      }
+      const palettes = validation.palettes;
       return { palettes };
     });
     completed.add(consultationIndex);
     completedConsultations.set(journeyId, completed);
     return Response.json(generated.value, { headers: { 'X-Creative-Director-Cache': generated.cache } });
   } catch (error) {
-    console.error('Creative Director palette consultation failed:', { message: error.message });
+    console.error('Creative Director palette consultation failed:', { phase: error.phase || 'unexpected', status: error.status || null, errorId: errorId(error.errorId || error.code || error.name) });
     return Response.json({ error: error.publicCode || 'palette_consultation_failed' }, { status: 502 });
   }
 }
