@@ -13,6 +13,7 @@ import { STYLE_ICONS, getIconById, ESTILO_NOME_BY_ID } from '../../lib/styleIcon
 import Image from 'next/image';
 import { getCreativeDiagnosisCopy } from '../../lib/creativeDiagnosisCopy';
 import { findSelectedPalette } from '../../lib/selectedPalette';
+import { isCurrentPaletteFeedback, shouldClearPaletteFeedback } from '../../lib/paletteFeedbackState';
 import { PALETTE_CONSULTATION_LIMIT } from '../../lib/paletteConsultant';
 
 const PAPELARIA_CLINICA = [
@@ -429,7 +430,7 @@ export default function Home() {
           setEstampas(data.variacoes.filter(d => d.tipo === 'ESTAMPA'));
           const selected = findSelectedPalette(restoredPalettes, parsed.selectedPaleta, { styleId: parsed.resultadoFinal.estiloId, styleName: parsed.resultadoFinal.estiloNome, journeyId: parsed.resultadoFinal.creativeDirectorJourneyId });
           const savedFeedback = parsed.paletteFeedback;
-          const feedbackMatches = savedFeedback?.context && selected && savedFeedback.context.journeyId === selected.journeyId && savedFeedback.context.styleId === selected.styleId && savedFeedback.context.paletteId === selected.id && savedFeedback.context.hex.join(',') === selected.hex.join(',') && savedFeedback.context.primaryColor === parsed.editData?.corAtiva && savedFeedback.context.language === lang;
+          const feedbackMatches = isCurrentPaletteFeedback(savedFeedback, selected, parsed.editData?.corAtiva, parsed.resultadoFinal.creativeDirectorJourneyId, lang);
           if (selected) setSelectedPaleta(parsed.selectedPaleta); else setEditData(prev => ({ ...prev, corAtiva: null }));
           if (feedbackMatches) { setPaletteFeedback(savedFeedback); setCustomStep(parsed.customStep === 'cor' ? 'cor' : 'cor'); }
           else { setPaletteFeedback(null); setCustomStep(selected && parsed.customStep === 'cor' ? 'cor' : 'paleta'); }
@@ -884,6 +885,24 @@ export default function Home() {
       setShowPaletteConsultant(false); setPaletteRejectionReasons([]); setPalettePreferences([]); setPaletteComment('');
     } catch (error) { setPaletteConsultationError(paletteConsultantCopy.error); }
     finally { setIsPaletteConsulting(false); paletteConsultationRequestRef.current = null; }
+  };
+
+  const clearPaletteFeedbackForSelection = (nextPaletteId) => {
+    if (!shouldClearPaletteFeedback(selectedPaleta, nextPaletteId)) return;
+    paletteFeedbackRequestRef.current = '';
+    setIsPaletteFeedbackLoading(false);
+    setPaletteFeedback(null);
+    setEditData(prev => ({ ...prev, corAtiva: null }));
+    try {
+      const saved = JSON.parse(localStorage.getItem('brandbox_progress') || '{}');
+      localStorage.setItem('brandbox_progress', JSON.stringify({ ...saved, selectedPaleta: nextPaletteId, paletteFeedback: null, editData: { ...(saved.editData || {}), corAtiva: null }, customStep: 'paleta' }));
+    } catch {}
+  };
+
+  const selectPaletteForColor = (paletteId) => {
+    clearPaletteFeedbackForSelection(paletteId);
+    setSelectedPaleta(paletteId);
+    setTimeout(() => setCustomStep('cor'), 300);
   };
 
   const requestPaletteFeedback = async (primaryColor, palette) => {
@@ -2526,7 +2545,7 @@ export default function Home() {
             >
               <h2 style={{ fontSize: '1.8rem', marginBottom: '0.5rem', textAlign: 'center' }}>{dictionary?.postmatch?.step_10_title || 'Refinamento Visual'}</h2>
               <p style={{ fontSize: '1rem', color: 'var(--text-secondary)', marginBottom: '2rem', textAlign: 'center' }}>
-                {/* customStep === 'tipo' ? (dictionary?.postmatch?.step_10_subtitle_tipo || '1. Escolha a sua Tipografia ideal') : */ customStep === 'paleta' ? (dictionary?.postmatch?.step_10_subtitle_paleta || '1. Defina sua Paleta de Cores') : <span dangerouslySetInnerHTML={{ __html: dictionary?.postmatch?.step_10_subtitle_cor || (lang === 'en' ? '3. Which color will <strong>highlight</strong> your brand?' : '2. Qual cor será o <strong>destaque</strong> da sua marca?') }} />}
+                {/* customStep === 'tipo' ? (dictionary?.postmatch?.step_10_subtitle_tipo || '1. Escolha a sua Tipografia ideal') : */ customStep === 'paleta' ? (dictionary?.postmatch?.step_10_subtitle_paleta || '1. Defina sua Paleta de Cores') : <span dangerouslySetInnerHTML={{ __html: lang === 'en' ? '3. Choose your brand’s <strong>accent color</strong>' : '3. Escolha a <strong>cor de destaque</strong> da sua marca' }} />}
               </p>
               
               <div style={{ display: 'flex', gap: '8px', justifyContent: 'center', marginBottom: '20px' }}>
@@ -2599,7 +2618,7 @@ export default function Home() {
                               ? (dictionary?.postmatch?.creative_palette_suggested || 'Paleta sugerida {count}').replace('{count}', pi + 1)
                               : (dictionary?.postmatch?.creative_palette_curated || 'Paleta curada');
                             return (
-                              <div key={p.id} onClick={() => { setSelectedPaleta(p.id); setTimeout(() => setCustomStep('cor'), 300); }} style={{
+                              <div key={p.id} onClick={() => selectPaletteForColor(p.id)} style={{
                                 border: isSelected ? '2px solid var(--accent-magenta)' : '1px solid rgba(0,0,0,0.06)',
                                 borderRadius: '18px', padding: '0', cursor: 'pointer',
                                 display: 'flex', flexDirection: 'column', alignItems: 'stretch', justifyContent: 'stretch',
@@ -2640,7 +2659,7 @@ export default function Home() {
                           <section aria-labelledby="new-palette-title">
                             <h3 id="new-palette-title" style={{ fontSize: '0.82rem', textTransform: 'uppercase', letterSpacing: '0.08em', margin: '8px 0', color: 'var(--text-primary)' }}>{paletteConsultantCopy.newTitle}</h3>
                             <div style={{ display: 'grid', gridTemplateColumns: 'minmax(0, 1fr) minmax(0, 1fr)', gap: '12px' }}>
-                              {paletas.filter(p => String(p.id).startsWith('consulted-')).map(p => { const cores = p.paleta_hex || []; const selected = selectedPaleta === p.id; return <button type="button" key={p.id} onClick={() => { setSelectedPaleta(p.id); setTimeout(() => setCustomStep('cor'), 300); }} style={{ position: 'relative', border: selected ? '3px solid var(--accent-turquoise)' : '1px solid rgba(0,0,0,.1)', borderRadius: '20px', padding: 0, minHeight: '110px', overflow: 'hidden', cursor: 'pointer', background: '#fff', boxShadow: selected ? '0 12px 28px rgba(42, 137, 127, .35), 0 4px 10px rgba(0,0,0,.1)' : '0 8px 24px rgba(0,0,0,.1), 0 2px 6px rgba(0,0,0,.04)', transform: selected ? 'translateY(-4px) scale(1.02)' : 'none' }} aria-pressed={selected}>
+                              {paletas.filter(p => String(p.id).startsWith('consulted-')).map(p => { const cores = p.paleta_hex || []; const selected = selectedPaleta === p.id; return <button type="button" key={p.id} onClick={() => selectPaletteForColor(p.id)} style={{ position: 'relative', border: selected ? '3px solid var(--accent-turquoise)' : '1px solid rgba(0,0,0,.1)', borderRadius: '20px', padding: 0, minHeight: '110px', overflow: 'hidden', cursor: 'pointer', background: '#fff', boxShadow: selected ? '0 12px 28px rgba(42, 137, 127, .35), 0 4px 10px rgba(0,0,0,.1)' : '0 8px 24px rgba(0,0,0,.1), 0 2px 6px rgba(0,0,0,.04)', transform: selected ? 'translateY(-4px) scale(1.02)' : 'none' }} aria-pressed={selected}>
                                 <div style={{ display: 'grid', gridTemplateColumns: 'repeat(5, 1fr)', minHeight: '110px' }}>{cores.map(hex => <span key={hex} style={{ background: hex }} />)}</div><span style={{ display: 'block', padding: '7px 7px 2px', fontSize: '.62rem', fontWeight: 700 }}>{p.nome_variacao}</span><span style={{ display: 'block', padding: '0 7px 7px', fontSize: '.58rem', lineHeight: 1.35, color: '#555' }}>{p.rationale}</span>{selected && <span style={{ position: 'absolute', top: '8px', right: '8px', background: '#ffffff', color: '#1E293B', borderRadius: '50%', width: '20px', height: '20px', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '0.75rem', fontWeight: 'bold', boxShadow: '0 2px 5px rgba(0,0,0,0.15)' }}>✓</span>}</button>; })}
                             </div>
                           </section>
@@ -2667,7 +2686,7 @@ export default function Home() {
                   {customStep === 'cor' && (
                      <motion.div key="ccor" variants={slideVariants} initial="initial" animate="animate" exit="exit" transition={{ duration: 0.3 }} style={{ position: 'absolute', width: '100%', height: '100%', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: '25px', paddingBottom: '2rem' }}>
                         <p style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', textAlign: 'center', maxWidth: '320px', lineHeight: 1.5 }}>
-                          {dictionary?.postmatch?.step_10_color_desc || 'Essa cor será usada no logo, submarca e nos elementos de destaque da sua identidade visual.'}
+                          {lang === 'en' ? 'Choose below the color that will highlight your logo, sub-brand and key elements of your visual identity.' : 'Escolha abaixo a cor que será usada para dar destaque ao seu logo, submarca e elementos importantes da sua identidade visual.'}
                         </p>
                         <div style={{ display: 'flex', gap: '15px', flexWrap: 'wrap', justifyContent: 'center' }}>
                           {(() => {
@@ -2742,12 +2761,17 @@ export default function Home() {
                             {dictionary?.postmatch?.step_10_color_selected || 'Cor selecionada:'} <span style={{ color: editData.corAtiva, fontWeight: 800 }}>{editData.corAtiva}</span>
                           </p>
                         )}
+                        {!editData.corAtiva && !isPaletteFeedbackLoading && (
+                          <p role="status" style={{ fontSize: '0.8rem', color: 'var(--text-secondary)', textAlign: 'center', margin: 0 }}>
+                            {lang === 'en' ? 'Choose a color to receive the AI Creative Director’s reading.' : 'Escolha uma cor para receber a leitura da Diretora IA.'}
+                          </p>
+                        )}
                         {isPaletteFeedbackLoading && (
                           <p style={{ fontSize: '0.78rem', color: 'var(--text-secondary)', textAlign: 'center', margin: 0 }}>
                             {lang === 'en' ? 'The AI Creative Director is reading your palette...' : 'A AI Creative Director está lendo sua paleta...'}
                           </p>
                         )}
-                        {paletteFeedback && !isPaletteFeedbackLoading && (
+                        {paletteFeedback && !isPaletteFeedbackLoading && isCurrentPaletteFeedback(paletteFeedback, selectedPaletteDetails, editData.corAtiva, resultadoFinal?.creativeDirectorJourneyId, lang) && (
                           <div style={{ width: '100%', maxWidth: '420px', padding: '0.9rem 1rem', border: '1px solid var(--border)', borderRadius: '14px', background: '#fffafc', display: 'grid', gap: '0.45rem' }}>
                             <p style={{ margin: 0, fontSize: '0.72rem', fontWeight: 800, letterSpacing: '0.08em', textTransform: 'uppercase', color: 'var(--accent-magenta)' }}>
                               {lang === 'en' ? 'AI Creative Director' : 'AI Creative Director'}
