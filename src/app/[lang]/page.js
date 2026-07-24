@@ -401,15 +401,22 @@ export default function Home() {
         const data = await res.json();
         
         if (data.variacoes) {
-          setPaletas(data.variacoes.filter(d => d.tipo === 'PALETA'));
+          const restoredPalettes = data.variacoes.filter(d => d.tipo === 'PALETA');
+          setPaletas(restoredPalettes);
           setTipografias(data.variacoes.filter(d => d.tipo === 'TIPOGRAFIA'));
           setEstampas(data.variacoes.filter(d => d.tipo === 'ESTAMPA'));
+          const selected = findSelectedPalette(restoredPalettes, parsed.selectedPaleta, { styleId: parsed.resultadoFinal.estiloId, styleName: parsed.resultadoFinal.estiloNome, journeyId: parsed.resultadoFinal.creativeDirectorJourneyId });
+          const savedFeedback = parsed.paletteFeedback;
+          const feedbackMatches = savedFeedback?.context && selected && savedFeedback.context.journeyId === selected.journeyId && savedFeedback.context.styleId === selected.styleId && savedFeedback.context.paletteId === selected.id && savedFeedback.context.hex.join(',') === selected.hex.join(',') && savedFeedback.context.primaryColor === parsed.editData?.corAtiva && savedFeedback.context.language === lang;
+          if (selected) setSelectedPaleta(parsed.selectedPaleta); else setEditData(prev => ({ ...prev, corAtiva: null }));
+          if (feedbackMatches) { setPaletteFeedback(savedFeedback); setCustomStep(parsed.customStep === 'cor' ? 'cor' : 'cor'); }
+          else { setPaletteFeedback(null); setCustomStep(selected && parsed.customStep === 'cor' ? 'cor' : 'paleta'); }
         }
         setMoodboards(data.moodboard || []);
       } catch (e) {
         console.error("Erro ao restaurar variações via API:", e);
       } finally {
-        if (parsed.selectedPaleta) setSelectedPaleta(parsed.selectedPaleta);
+        if (parsed.selectedPaleta && !data.variacoes) setSelectedPaleta(parsed.selectedPaleta);
         if (parsed.selectedTipo) setSelectedTipo(parsed.selectedTipo);
         setLoadingVariacoes(false);
       }
@@ -433,7 +440,7 @@ export default function Home() {
         secondaryFontWeight: editData.secondaryFontWeight, secondaryFontStyle: editData.secondaryFontStyle, corAtiva: editData.corAtiva
       },
       patternGenerationCount, refazerAttempts,
-      resultadoFinal, selectedPaleta, selectedTipo, selectedIcon,
+      resultadoFinal, selectedPaleta, selectedTipo, selectedIcon, customStep, paletteFeedback,
       generatedPatterns, selectedPattern, papelariaSelecionada,
       sessionId: activeSessionId || undefined
     };
@@ -842,7 +849,8 @@ export default function Home() {
       });
 
       if (!response.ok || paletteFeedbackRequestRef.current !== requestId) return;
-      setPaletteFeedback(await response.json());
+      const feedback = await response.json();
+      setPaletteFeedback({ ...feedback, context: { journeyId: resultadoFinal?.creativeDirectorJourneyId || null, styleId: selectedPaletteDetails?.styleId || null, paletteId: selectedPaletteDetails?.id || null, hex: selectedPaletteDetails?.hex || [], primaryColor, language: lang } });
     } catch (error) {
       console.warn('Feedback de paleta indisponível; mantendo o fluxo de escolha.', error);
     } finally {
@@ -851,6 +859,7 @@ export default function Home() {
   };
 
   const handlePrimaryColorSelect = (hex, colors) => {
+    setPaletteFeedback(null);
     setEditData(prev => ({ ...prev, corAtiva: hex }));
     requestPaletteFeedback(hex, colors);
   };
