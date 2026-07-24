@@ -12,6 +12,7 @@ import FONT_MAP from '../../lib/fontMap';
 import { STYLE_ICONS, getIconById, ESTILO_NOME_BY_ID } from '../../lib/styleIcons';
 import Image from 'next/image';
 import { getCreativeDiagnosisCopy } from '../../lib/creativeDiagnosisCopy';
+import { findSelectedPalette } from '../../lib/selectedPalette';
 
 const PAPELARIA_CLINICA = [
   "Cartão de Visita", "Papel Timbrado", "Receituário Padrão (A4 e A5)", "Atestado Médico (A4 e A5)", "Cartão de Retorno", "Pasta A4 Exclusiva",
@@ -322,8 +323,10 @@ export default function Home() {
   const brandBoardRef = useRef(null);
   const selectedVisualBrandRef = useRef({ optionId: '', fontFamily: '' });
   const paletteFeedbackRequestRef = useRef('');
+  const selectedPaletteDetails = findSelectedPalette(paletas, selectedPaleta, { styleId: resultadoFinal?.estiloId, styleName: resultadoFinal?.estiloNome, journeyId: resultadoFinal?.creativeDirectorJourneyId });
 
   const [isHydrated, setIsHydrated] = useState(false);
+  const [isPersistenceReady, setIsPersistenceReady] = useState(false);
 
   // Restaura progresso salvo ao montar
   useEffect(() => {
@@ -348,6 +351,7 @@ export default function Home() {
         }
       } else {
         console.log('ℹ️ Nenhum progresso anterior encontrado no localStorage.');
+        setIsPersistenceReady(true);
       }
     } catch(e) { 
       console.error('❌ Erro ao ler progresso:', e);
@@ -393,23 +397,35 @@ export default function Home() {
     // Re-busca paletas/tipografias do Supabase se estava em etapa avançada
     if (parsed.resultadoFinal?.estiloId && parsed.step >= 10) {
       setLoadingVariacoes(true);
+      let variationsLoaded = false;
       try {
         const id = parsed.resultadoFinal.estiloId;
         const res = await fetch(`/api/variacoes?id=${id}&t=${Date.now()}`, { cache: 'no-store' });
         const data = await res.json();
         
         if (data.variacoes) {
-          setPaletas(data.variacoes.filter(d => d.tipo === 'PALETA'));
+          variationsLoaded = true;
+          const restoredPalettes = data.variacoes.filter(d => d.tipo === 'PALETA');
+          setPaletas(restoredPalettes);
           setTipografias(data.variacoes.filter(d => d.tipo === 'TIPOGRAFIA'));
           setEstampas(data.variacoes.filter(d => d.tipo === 'ESTAMPA'));
+          const selected = findSelectedPalette(restoredPalettes, parsed.selectedPaleta, { styleId: parsed.resultadoFinal.estiloId, styleName: parsed.resultadoFinal.estiloNome, journeyId: parsed.resultadoFinal.creativeDirectorJourneyId });
+          const savedFeedback = parsed.paletteFeedback;
+          const feedbackMatches = savedFeedback?.context && selected && savedFeedback.context.journeyId === selected.journeyId && savedFeedback.context.styleId === selected.styleId && savedFeedback.context.paletteId === selected.id && savedFeedback.context.hex.join(',') === selected.hex.join(',') && savedFeedback.context.primaryColor === parsed.editData?.corAtiva && savedFeedback.context.language === lang;
+          if (selected) setSelectedPaleta(parsed.selectedPaleta); else setEditData(prev => ({ ...prev, corAtiva: null }));
+          if (feedbackMatches) { setPaletteFeedback(savedFeedback); setCustomStep(parsed.customStep === 'cor' ? 'cor' : 'cor'); }
+          else { setPaletteFeedback(null); setCustomStep(selected && parsed.customStep === 'cor' ? 'cor' : 'paleta'); }
         }
         setMoodboards(data.moodboard || []);
       } catch (e) {
-        console.error("Erro ao restaurar variações via API:", e);
+        console.error('Erro ao restaurar variações via API:', { name: e?.name || 'Error' });
       } finally {
-        if (parsed.selectedPaleta) setSelectedPaleta(parsed.selectedPaleta);
-        if (parsed.selectedTipo) setSelectedTipo(parsed.selectedTipo);
-        setLoadingVariacoes(false);
+        try {
+          if (parsed.selectedPaleta && !variationsLoaded) setSelectedPaleta(parsed.selectedPaleta);
+          if (parsed.selectedTipo) setSelectedTipo(parsed.selectedTipo);
+        } finally {
+          setLoadingVariacoes(false);
+        }
       }
     }
     if (parsed.selectedIcon) setSelectedIcon(parsed.selectedIcon);
@@ -417,7 +433,7 @@ export default function Home() {
 
   // Salva progresso automaticamente APÓS a hidratação inicial ser concluída
   useEffect(() => {
-    if (!isHydrated) return;
+    if (!isHydrated || !isPersistenceReady || showResumePrompt) return;
 
     const activeSessionId = typeof window !== 'undefined' ? localStorage.getItem('brandbox_session') : null;
 
@@ -431,7 +447,7 @@ export default function Home() {
         secondaryFontWeight: editData.secondaryFontWeight, secondaryFontStyle: editData.secondaryFontStyle, corAtiva: editData.corAtiva
       },
       patternGenerationCount, refazerAttempts,
-      resultadoFinal, selectedPaleta, selectedTipo, selectedIcon,
+      resultadoFinal, selectedPaleta, selectedTipo, selectedIcon, customStep, paletteFeedback,
       generatedPatterns, selectedPattern, papelariaSelecionada,
       sessionId: activeSessionId || undefined
     };
@@ -453,7 +469,7 @@ export default function Home() {
         }
       }
     }
-  }, [isHydrated, step, formData, selectedTagline, customTagline, editData, generatedPatterns, selectedPattern, resultadoFinal, papelariaSelecionada]);
+  }, [isHydrated, isPersistenceReady, showResumePrompt, step, formData, selectedTagline, customTagline, editData, generatedPatterns, selectedPattern, resultadoFinal, papelariaSelecionada, selectedPaleta, selectedTipo, selectedIcon, customStep, paletteFeedback, patternGenerationCount, refazerAttempts]);
 
   useEffect(() => {
     if (step !== 11.5 || !resultadoFinal || resultadoFinal?.creativeDirector?.taglineSuggestions || resultadoFinal?.taglineSuggestions) return;
@@ -807,6 +823,17 @@ export default function Home() {
     return journeyId ? `journey:${journeyId}:${contentType}:${targetLanguage}` : '';
   };
 
+  useEffect(() => {
+    if (!selectedPaleta) return;
+    if (!selectedPaletteDetails) {
+      setSelectedPaleta(null);
+      setEditData(prev => ({ ...prev, corAtiva: null }));
+      setResultadoFinal(prev => prev ? ({ ...prev, selectedPalette: null }) : prev);
+      return;
+    }
+    setResultadoFinal(prev => prev && JSON.stringify(prev.selectedPalette) !== JSON.stringify(selectedPaletteDetails) ? ({ ...prev, selectedPalette: selectedPaletteDetails }) : prev);
+  }, [selectedPaleta, paletas, resultadoFinal?.estiloId, resultadoFinal?.creativeDirectorJourneyId]);
+
   const requestPaletteFeedback = async (primaryColor, palette) => {
     const requestId = `${selectedPaleta}:${primaryColor}:${Date.now()}`;
     paletteFeedbackRequestRef.current = requestId;
@@ -821,14 +848,16 @@ export default function Home() {
           formData,
           resultadoFinal,
           palette,
+          selectedPalette: selectedPaletteDetails,
           primaryColor,
           idioma: lang,
-          requestKey: `${aiSessionId || 'pending'}:palette_feedback:${selectedPaleta}:${primaryColor}`
+          requestKey: `${resultadoFinal?.creativeDirectorJourneyId || 'palette'}:palette_feedback:${selectedPaletteDetails?.id || selectedPaleta}:${primaryColor}`
         })
       });
 
       if (!response.ok || paletteFeedbackRequestRef.current !== requestId) return;
-      setPaletteFeedback(await response.json());
+      const feedback = await response.json();
+      setPaletteFeedback({ ...feedback, context: { journeyId: resultadoFinal?.creativeDirectorJourneyId || null, styleId: selectedPaletteDetails?.styleId || null, paletteId: selectedPaletteDetails?.id || null, hex: selectedPaletteDetails?.hex || [], primaryColor, language: lang } });
     } catch (error) {
       console.warn('Feedback de paleta indisponível; mantendo o fluxo de escolha.', error);
     } finally {
@@ -837,6 +866,7 @@ export default function Home() {
   };
 
   const handlePrimaryColorSelect = (hex, colors) => {
+    setPaletteFeedback(null);
     setEditData(prev => ({ ...prev, corAtiva: hex }));
     requestPaletteFeedback(hex, colors);
   };
@@ -2421,6 +2451,7 @@ export default function Home() {
                         setGeneratedPatterns([]);
                         setSelectedPattern(null);
                         setSelectedPaleta(null);
+                        setEditData(prev => ({ ...prev, corAtiva: null }));
                         setSelectedTipo(null);
                         setStep(1);
                       }}
@@ -3395,7 +3426,7 @@ export default function Home() {
                 </p>
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
                   <button
-                    onClick={() => { restoreProgress(savedProgress); setShowResumePrompt(false); }}
+                    onClick={async () => { await restoreProgress(savedProgress); setShowResumePrompt(false); setIsPersistenceReady(true); }}
                     className="btn-primary"
                     style={{ width: '100%', background: 'var(--accent-turquoise)' }}
                   >
@@ -3409,6 +3440,7 @@ export default function Home() {
                       });
                       setShowResumePrompt(false);
                       setSavedProgress(null);
+                      setIsPersistenceReady(true);
                       window.location.reload(); // Recarrega para garantir estado limpo
                     }}
                     className="btn-secondary"
