@@ -13,6 +13,7 @@ import { STYLE_ICONS, getIconById, ESTILO_NOME_BY_ID } from '../../lib/styleIcon
 import Image from 'next/image';
 import { getCreativeDiagnosisCopy } from '../../lib/creativeDiagnosisCopy';
 import { findSelectedPalette } from '../../lib/selectedPalette';
+import { PALETTE_CONSULTATION_LIMIT } from '../../lib/paletteConsultant';
 
 const PAPELARIA_CLINICA = [
   "Cartão de Visita", "Papel Timbrado", "Receituário Padrão (A4 e A5)", "Atestado Médico (A4 e A5)", "Cartão de Retorno", "Pasta A4 Exclusiva",
@@ -318,11 +319,18 @@ export default function Home() {
   const [refinementStep, setRefinementStep] = useState('idle');
   const [paletteFeedback, setPaletteFeedback] = useState(null);
   const [isPaletteFeedbackLoading, setIsPaletteFeedbackLoading] = useState(false);
+  const [paletteConsultations, setPaletteConsultations] = useState([]);
+  const [showPaletteConsultant, setShowPaletteConsultant] = useState(false);
+  const [paletteReasons, setPaletteReasons] = useState([]);
+  const [paletteComment, setPaletteComment] = useState('');
+  const [isPaletteConsulting, setIsPaletteConsulting] = useState(false);
+  const [paletteConsultationError, setPaletteConsultationError] = useState('');
 
 
   const brandBoardRef = useRef(null);
   const selectedVisualBrandRef = useRef({ optionId: '', fontFamily: '' });
   const paletteFeedbackRequestRef = useRef('');
+  const paletteConsultationRequestRef = useRef(null);
   const selectedPaletteDetails = findSelectedPalette(paletas, selectedPaleta, { styleId: resultadoFinal?.estiloId, styleName: resultadoFinal?.estiloNome, journeyId: resultadoFinal?.creativeDirectorJourneyId });
 
   const [isHydrated, setIsHydrated] = useState(false);
@@ -391,6 +399,7 @@ export default function Home() {
     if (parsed.generatedPatterns) setGeneratedPatterns(parsed.generatedPatterns);
     if (parsed.selectedPattern !== undefined) setSelectedPattern(parsed.selectedPattern);
     if (parsed.papelariaSelecionada) setPapelariaSelecionada(parsed.papelariaSelecionada);
+    if (Array.isArray(parsed.paletteConsultations)) setPaletteConsultations(parsed.paletteConsultations);
 
     if (parsed.sessionId) {
       try { localStorage.setItem('brandbox_session', parsed.sessionId); } catch {}
@@ -407,7 +416,7 @@ export default function Home() {
         
         if (data.variacoes) {
           variationsLoaded = true;
-          const restoredPalettes = data.variacoes.filter(d => d.tipo === 'PALETA');
+          const restoredPalettes = [...data.variacoes.filter(d => d.tipo === 'PALETA'), ...(Array.isArray(parsed.paletteConsultations) ? parsed.paletteConsultations.flatMap(consultation => consultation.palettes || []) : [])];
           setPaletas(restoredPalettes);
           setTipografias(data.variacoes.filter(d => d.tipo === 'TIPOGRAFIA'));
           setEstampas(data.variacoes.filter(d => d.tipo === 'ESTAMPA'));
@@ -449,7 +458,7 @@ export default function Home() {
         secondaryFontWeight: editData.secondaryFontWeight, secondaryFontStyle: editData.secondaryFontStyle, corAtiva: editData.corAtiva
       },
       patternGenerationCount, refazerAttempts,
-      resultadoFinal, selectedPaleta, selectedTipo, selectedIcon, customStep, paletteFeedback,
+      resultadoFinal, selectedPaleta, selectedTipo, selectedIcon, customStep, paletteFeedback, paletteConsultations,
       generatedPatterns, selectedPattern, papelariaSelecionada,
       sessionId: activeSessionId || undefined
     };
@@ -471,7 +480,7 @@ export default function Home() {
         }
       }
     }
-  }, [isHydrated, isPersistenceReady, showResumePrompt, step, formData, selectedTagline, customTagline, editData, generatedPatterns, selectedPattern, resultadoFinal, papelariaSelecionada, selectedPaleta, selectedTipo, selectedIcon, customStep, paletteFeedback, patternGenerationCount, refazerAttempts]);
+  }, [isHydrated, isPersistenceReady, showResumePrompt, step, formData, selectedTagline, customTagline, editData, generatedPatterns, selectedPattern, resultadoFinal, papelariaSelecionada, selectedPaleta, selectedTipo, selectedIcon, customStep, paletteFeedback, paletteConsultations, patternGenerationCount, refazerAttempts]);
 
   useEffect(() => {
     if (step !== 11.5 || !resultadoFinal || resultadoFinal?.creativeDirector?.taglineSuggestions || resultadoFinal?.taglineSuggestions) return;
@@ -633,7 +642,7 @@ export default function Home() {
       console.log('Dados recebidos da API:', data);
       
       if (data.variacoes && data.variacoes.length > 0) {
-         setPaletas(data.variacoes.filter(d => d.tipo === 'PALETA'));
+         setPaletas([...data.variacoes.filter(d => d.tipo === 'PALETA'), ...paletteConsultations.flatMap(consultation => consultation.palettes || [])]);
          setTipografias(data.variacoes.filter(d => d.tipo === 'TIPOGRAFIA'));
          setEstampas(data.variacoes.filter(d => d.tipo === 'ESTAMPA'));
          console.log(`Sucesso: ${data.variacoes.length} variações carregadas.`);
@@ -835,6 +844,40 @@ export default function Home() {
     }
     setResultadoFinal(prev => prev && JSON.stringify(prev.selectedPalette) !== JSON.stringify(selectedPaletteDetails) ? ({ ...prev, selectedPalette: selectedPaletteDetails }) : prev);
   }, [selectedPaleta, paletas, resultadoFinal?.estiloId, resultadoFinal?.creativeDirectorJourneyId]);
+
+  const paletteConsultantCopy = lang === 'en' ? {
+    intro: 'These are color interpretations for your brand’s creative direction. Each one was selected to match the style found in your briefing.',
+    button: '✨ I want other interpretations for this direction', title: 'These options follow the creative direction we found for your brand. What would you like to feel differently in the new suggestions?',
+    reasons: ['Too colorful', 'Too neutral', 'Too light', 'Too dark', 'I want something more delicate', 'I want something more striking', 'It does not fit my brand', 'Another reason'],
+    comment: 'Optional short comment', send: 'Ask the AI Creative Director', loading: 'Creating three new interpretations…', newTitle: 'New interpretations of your creative direction', limit: 'You have already explored two new color directions for this brand. Choose your favorite from the options created or continue with one of the current palettes.', error: 'We could not create new palettes right now. Please try again; this consultation was not used.', close: 'Close'
+  } : {
+    intro: 'Estas são interpretações de cor para a direção criativa da sua marca. Todas foram selecionadas para combinar com o estilo encontrado no seu briefing.',
+    button: '✨ Quero outras interpretações para esta direção', title: 'Essas opções seguem a direção criativa que encontramos para sua marca. O que você gostaria de sentir de diferente nas novas sugestões?',
+    reasons: ['Muito coloridas', 'Muito neutras', 'Muito claras', 'Muito escuras', 'Quero algo mais delicado', 'Quero algo mais marcante', 'Não combina com a minha marca', 'Outro motivo'],
+    comment: 'Comentário curto opcional', send: 'Consultar a Diretora IA', loading: 'Criando três novas interpretações…', newTitle: 'Novas interpretações da sua direção criativa', limit: 'Você já explorou duas novas direções de cor para esta marca. Escolha sua favorita entre as opções criadas ou siga com uma das paletas atuais.', error: 'Não foi possível criar novas paletas agora. Tente novamente; esta consulta não foi usada.', close: 'Fechar'
+  };
+
+  const submitPaletteConsultation = async () => {
+    const comment = paletteComment.trim();
+    if (isPaletteConsulting || (!paletteReasons.length && !comment) || paletteConsultations.length >= PALETTE_CONSULTATION_LIMIT) return;
+    const index = paletteConsultations.length + 1;
+    const requestKey = `${resultadoFinal?.creativeDirectorJourneyId}:${index}:${lang}`;
+    if (paletteConsultationRequestRef.current === requestKey) return;
+    paletteConsultationRequestRef.current = requestKey;
+    setIsPaletteConsulting(true); setPaletteConsultationError('');
+    try {
+      const response = await fetch('/api/creative-director/palette-consultation', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ journeyId: resultadoFinal?.creativeDirectorJourneyId, consultationIndex: index, language: lang, feedback: { reasons: paletteReasons, comment }, formData, resultadoFinal, existingPalettes: paletas }) });
+      if (!response.ok) throw new Error('palette_consultation_failed');
+      const data = await response.json();
+      const palettes = (data.palettes || []).map(palette => ({ ...palette, id: `${palette.id}-${index}`, estilo_id: resultadoFinal?.estiloId }));
+      if (palettes.length !== 3) throw new Error('invalid_palette_response');
+      const consultation = { id: requestKey, feedback: { reasons: paletteReasons, comment }, palettes, language: lang, completedAt: new Date().toISOString() };
+      setPaletteConsultations(prev => [...prev, consultation]);
+      setPaletas(prev => [...prev, ...palettes]);
+      setShowPaletteConsultant(false); setPaletteReasons([]); setPaletteComment('');
+    } catch (error) { setPaletteConsultationError(paletteConsultantCopy.error); }
+    finally { setIsPaletteConsulting(false); paletteConsultationRequestRef.current = null; }
+  };
 
   const requestPaletteFeedback = async (primaryColor, palette) => {
     const requestId = `${selectedPaleta}:${primaryColor}:${Date.now()}`;
@@ -2541,7 +2584,7 @@ export default function Home() {
                   {customStep === 'paleta' && (
                      <motion.div key="cpaleta" variants={slideVariants} initial="initial" animate="animate" exit="exit" transition={{ duration: 0.3 }} style={{ position: 'absolute', width: '100%', height: '100%', display: 'flex', flexDirection: 'column', gap: '12px', overflowY: 'auto', paddingBottom: '2rem' }}>
                         <div style={{ display: 'grid', gridTemplateColumns: 'minmax(0, 1fr) minmax(0, 1fr)', gap: '12px' }}>
-                          {paletas.map((p, pi) => {
+                          {paletas.filter(p => !String(p.id).startsWith('consulted-')).map((p, pi) => {
                             const cores = p.paleta_hex || p.cores_hex || [];
                             const isSelected = selectedPaleta === p.id;
                             const isAiPalette = p.source === 'openai' || p.origem === 'OPENAI' || p.isAiGenerated;
@@ -2586,25 +2629,33 @@ export default function Home() {
                           })}
                         </div>
 
+                        {paletteConsultations.length > 0 && (
+                          <section aria-labelledby="new-palette-title">
+                            <h3 id="new-palette-title" style={{ fontSize: '0.82rem', textTransform: 'uppercase', letterSpacing: '0.08em', margin: '8px 0', color: 'var(--text-primary)' }}>{paletteConsultantCopy.newTitle}</h3>
+                            <div style={{ display: 'grid', gridTemplateColumns: 'minmax(0, 1fr) minmax(0, 1fr)', gap: '12px' }}>
+                              {paletas.filter(p => String(p.id).startsWith('consulted-')).map(p => { const cores = p.paleta_hex || []; const selected = selectedPaleta === p.id; return <button type="button" key={p.id} onClick={() => { setSelectedPaleta(p.id); setTimeout(() => setCustomStep('cor'), 300); }} style={{ position: 'relative', border: selected ? '3px solid var(--accent-turquoise)' : '1px solid rgba(0,0,0,.1)', borderRadius: '20px', padding: 0, minHeight: '110px', overflow: 'hidden', cursor: 'pointer', background: '#fff', boxShadow: selected ? '0 12px 28px rgba(42, 137, 127, .35), 0 4px 10px rgba(0,0,0,.1)' : '0 8px 24px rgba(0,0,0,.1), 0 2px 6px rgba(0,0,0,.04)', transform: selected ? 'translateY(-4px) scale(1.02)' : 'none' }} aria-pressed={selected}>
+                                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(5, 1fr)', minHeight: '110px' }}>{cores.map(hex => <span key={hex} style={{ background: hex }} />)}</div><span style={{ display: 'block', padding: '7px 7px 2px', fontSize: '.62rem', fontWeight: 700 }}>{p.nome_variacao}</span><span style={{ display: 'block', padding: '0 7px 7px', fontSize: '.58rem', lineHeight: 1.35, color: '#555' }}>{p.rationale}</span>{selected && <span style={{ position: 'absolute', top: '8px', right: '8px', background: '#ffffff', color: '#1E293B', borderRadius: '50%', width: '20px', height: '20px', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '0.75rem', fontWeight: 'bold', boxShadow: '0 2px 5px rgba(0,0,0,0.15)' }}>✓</span>}</button>; })}
+                            </div>
+                          </section>
+                        )}
+
                         {/* Bloco de garantia de personalização + Chamada para o Consultor IA (Gemini) */}
                         <div style={{ marginTop: '6px', padding: '12px 14px', background: '#fafafa', borderRadius: '16px', border: '1px solid #eee', display: 'flex', flexDirection: 'column', gap: '8px', textAlign: 'center' }}>
                           <p style={{ fontSize: '0.7rem', color: '#777', lineHeight: 1.4, margin: 0 }}>
-                            💡 {lang === 'en' 
-                              ? 'These color palettes were curated for your project based on your unique answers, never randomly.' 
-                              : 'Estas paletas foram criadas especialmente para o seu projeto com base nas suas respostas, nunca aleatoriamente.'}
+                            {paletteConsultantCopy.intro}
                           </p>
                           <button 
-                            onClick={() => {
-                              setShowContext(true);
-                              startCreativeRefinement();
-                            }}
+                            onClick={() => { setShowPaletteConsultant(true); setPaletteConsultationError(''); }}
+                            disabled={isPaletteConsulting || paletteConsultations.length >= PALETTE_CONSULTATION_LIMIT}
                             style={{ padding: '9px 15px', background: 'transparent', color: 'var(--accent-turquoise)', border: '1.5px solid var(--accent-turquoise)', borderRadius: '20px', fontSize: '0.73rem', fontWeight: 700, cursor: 'pointer', fontFamily: 'Montserrat, sans-serif', transition: 'all 0.2s', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: '6px' }}
                           >
-                            ✨ {lang === 'en' ? 'Did not like any? Talk to AI Creative Director' : 'Não gostou de nenhuma? Consultar a Diretora IA'}
+                            {paletteConsultations.length >= PALETTE_CONSULTATION_LIMIT ? paletteConsultantCopy.limit : paletteConsultantCopy.button}
                           </button>
                         </div>
                      </motion.div>
                   )}
+
+                        <AnimatePresence>{showPaletteConsultant && <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} role="dialog" aria-modal="true" aria-labelledby="palette-consultant-title" style={{ position: 'fixed', inset: 0, zIndex: 10000, padding: '16px', background: 'rgba(0,0,0,.5)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}><div style={{ width: '100%', maxWidth: '480px', maxHeight: '90vh', overflowY: 'auto', background: '#fff', borderRadius: '20px', padding: '20px' }}><h3 id="palette-consultant-title" style={{ fontSize: '1.05rem', lineHeight: 1.4 }}>{paletteConsultantCopy.title}</h3><div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px', margin: '16px 0' }}>{paletteConsultantCopy.reasons.map(reason => <button type="button" key={reason} onClick={() => setPaletteReasons(current => current.includes(reason) ? current.filter(item => item !== reason) : [...current, reason])} aria-pressed={paletteReasons.includes(reason)} style={{ border: paletteReasons.includes(reason) ? '2px solid var(--accent-turquoise)' : '1px solid #ddd', borderRadius: '20px', padding: '8px 10px', background: '#fff', cursor: 'pointer', fontSize: '.75rem' }}>{reason}</button>)}</div><label style={{ display: 'block', fontSize: '.78rem', fontWeight: 700 }}>{paletteConsultantCopy.comment}<textarea value={paletteComment} onChange={event => setPaletteComment(event.target.value.slice(0, 400))} maxLength={400} rows={3} style={{ display: 'block', width: '100%', marginTop: '6px', borderRadius: '10px', border: '1px solid #ccc', padding: '8px', resize: 'vertical' }} /></label>{paletteConsultationError && <p role="alert" style={{ color: '#b42318', fontSize: '.8rem' }}>{paletteConsultationError}</p>}<div style={{ display: 'flex', gap: '10px', marginTop: '16px' }}><button type="button" onClick={() => setShowPaletteConsultant(false)} disabled={isPaletteConsulting} className="btn-secondary" style={{ flex: 1 }}>{paletteConsultantCopy.close}</button><button type="button" onClick={submitPaletteConsultation} disabled={isPaletteConsulting || (!paletteReasons.length && !paletteComment.trim())} aria-busy={isPaletteConsulting} className="btn-primary" style={{ flex: 1 }}>{isPaletteConsulting ? <span role="status" aria-live="polite">{paletteConsultantCopy.loading}</span> : paletteConsultantCopy.send}</button></div></div></motion.div>}</AnimatePresence>
 
                   {customStep === 'cor' && (
                      <motion.div key="ccor" variants={slideVariants} initial="initial" animate="animate" exit="exit" transition={{ duration: 0.3 }} style={{ position: 'absolute', width: '100%', height: '100%', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: '25px', paddingBottom: '2rem' }}>
