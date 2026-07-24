@@ -23,6 +23,7 @@ import PrenatalPage2 from './PrenatalPage2';
 import PrenatalPage3 from './PrenatalPage3';
 import PrenatalPage4 from './PrenatalPage4';
 import { STYLE_ICONS, ESTILO_NOME_BY_ID } from '../../../lib/styleIcons';
+import { selectedBrandElement as resolveSelectedBrandElement } from '../../../lib/brandElements';
 import FONT_MAP from '../../../lib/fontMap';
 import FolderVacinaPage1 from './FolderVacinaPage1';
 import FolderVacinaPage2 from './FolderVacinaPage2';
@@ -10451,8 +10452,10 @@ function EntregaContent({ brand, plano, setBrand }) {
   const estiloNome = ESTILO_NOME_BY_ID[brand.resultadoFinal?.estiloId] || brand.resultadoFinal?.estiloNome || '';
   const styleIcons = STYLE_ICONS[estiloNome] || [];
   const [selectedIcon, setSelectedIconState] = useState(() => { try { return localStorage.getItem(`brandbox_selected_icon_${brand.id}`) || brand.selectedIcon || null; } catch { return brand.selectedIcon || null; } });
-  const setSelectedIcon = (v) => { setSelectedIconState(v); try { if (v) localStorage.setItem(`brandbox_selected_icon_${brand.id}`, v); else localStorage.removeItem(`brandbox_selected_icon_${brand.id}`); } catch {} };
-  const currentIconPath = styleIcons.find(i => i.id === selectedIcon)?.path || null;
+  const [useBrandElement, setUseBrandElement] = useState(() => { try { const saved = localStorage.getItem(`brandbox_icon_source_${brand.id}`); return saved ? saved === 'brand-element' : Boolean(brand.selectedBrandElement); } catch { return Boolean(brand.selectedBrandElement); } });
+  const setSelectedIcon = (v) => { setSelectedIconState(v); setUseBrandElement(false); try { if (v) localStorage.setItem(`brandbox_selected_icon_${brand.id}`, v); else localStorage.removeItem(`brandbox_selected_icon_${brand.id}`); localStorage.setItem(`brandbox_icon_source_${brand.id}`, 'static'); } catch {} };
+  const savedBrandElement = resolveSelectedBrandElement(brand.brandElements, { journeyId: brand.resultadoFinal?.creativeDirectorJourneyId || null, styleId: String(brand.resultadoFinal?.estiloId || ''), patternHash: brand.brandElements?.context?.patternHash, paletteId: brand.brandElements?.context?.paletteId, paletteHex: brand.brandElements?.context?.paletteHex || [] });
+  const currentIconPath = useBrandElement && savedBrandElement ? `data:${savedBrandElement.mimeType};base64,${savedBrandElement.base64}` : (styleIcons.find(i => i.id === selectedIcon)?.path || null);
 
   const editData = { ...brand.editData, marca, tagline };
   const seloData = editData.fontStyle === 'script'

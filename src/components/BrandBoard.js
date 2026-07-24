@@ -91,7 +91,7 @@ const SectionHeader = ({ title }) => (
   </div>
 );
 
-const BrandBoard = ({ data, palette, color, seloColor, seloTextColor, patternImage, iconPath, customLogoSrc, logoElement }) => {
+const BrandBoard = ({ data, palette, color, seloColor, seloTextColor, patternImage, iconPath, iconIsMask = false, customLogoSrc, logoElement }) => {
   const { dictionary } = useTranslation();
   const t = dictionary?.placa || {};
 
@@ -290,6 +290,7 @@ const BrandBoard = ({ data, palette, color, seloColor, seloTextColor, patternIma
                  side="verso"
                  hideBackground={true}
                  iconPath={iconPath}
+                 iconIsMask={iconIsMask}
                />
             </div>
          </div>

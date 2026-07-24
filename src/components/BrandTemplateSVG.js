@@ -1,7 +1,8 @@
 import React from 'react';
 
-const BrandTemplateSVG = ({ data = {}, color, side = 'frente', hideBackground = false, iconPath = null, textColor = '#ffffff' }) => {
+const BrandTemplateSVG = ({ data = {}, color, side = 'frente', hideBackground = false, iconPath = null, iconIsMask = false, textColor = '#ffffff' }) => {
   const safeData = data || {};
+  const iconMaskId = React.useId().replace(/:/g, '');
   const { marca = '', tagline = '', whatsapp = '', instagram = '' } = safeData;
   const activeColor = color || '#d22f5a';
   const brandFont = safeData.fontFamily || 'Playfair Display';
@@ -68,6 +69,7 @@ const BrandTemplateSVG = ({ data = {}, color, side = 'frente', hideBackground = 
           .st-contact { fill: #333; font-family: 'Montserrat', sans-serif; font-size: 26px; font-weight: 600; }
         `}</style>
         <path id="circlePath" d="M1165.99,316.18c0,50.61-40.39,91.64-90.21,91.64s-90.21-41.03-90.21-91.64,40.39-91.64,90.21-91.64,90.21,41.03,90.21,91.64Z"/>
+        {iconPath && iconIsMask && <mask id={iconMaskId} maskUnits="userSpaceOnUse" style={{ maskType: 'alpha' }}><rect x="-65" y="-65" width="130" height="130" fill="black"/><image href={iconPath} x="-65" y="-65" width="130" height="130" preserveAspectRatio="xMidYMid meet" /></mask>}
       </defs>
 
       {/* LADO A: FRENTE (Fundo Colorido + Logo + Tagline) */}
@@ -135,13 +137,9 @@ const BrandTemplateSVG = ({ data = {}, color, side = 'frente', hideBackground = 
           {/* SELO CIRCULAR DINAMICO — fundo orgânico */}
           <g transform="translate(1076.6, 318.42)">
             <path className="st-selo-bg" d="M 5,-129 C 74,-135 135,-72 130,5 C 126,72 72,133 -3,129 C -72,126 -132,68 -128,-3 C -124,-70 -68,-132 5,-129 Z" />
-            {iconPath && (
-              <image
-                href={iconPath}
-                x={-65} y={-65}
-                width={130} height={130}
-                style={{ filter: 'brightness(0) invert(1) opacity(0.85)' }}
-              />
+            {iconPath && (iconIsMask
+              ? <rect x={-65} y={-65} width={130} height={130} fill={textColor} opacity="0.9" mask={`url(#${iconMaskId})`} />
+              : <image href={iconPath} x={-65} y={-65} width={130} height={130} style={{ filter: 'brightness(0) invert(1) opacity(0.85)' }} />
             )}
           </g>
           {(() => {
