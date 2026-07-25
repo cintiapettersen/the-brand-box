@@ -976,6 +976,7 @@ export default function Home() {
       setPaletteComment('');
     } catch (error) {
       console.warn('Erro no Consultor de Paletas:', error);
+      paletteConsultationRequestRef.current = null;
       setPaletteConsultationError(paletteConsultantCopy.error);
     } finally {
       setIsPaletteConsulting(false);

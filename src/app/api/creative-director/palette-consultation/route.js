@@ -32,10 +32,14 @@ async function openAIErrorMeta(response) {
 }
 
 export async function POST(request) {
+  let requestGuard;
   try {
     const body = await request.json();
     const journeyId = clean(body.journeyId) || 'default-journey';
-    const language = clean(body.language || body.idioma || 'pt');
+    let language = clean(body.language || body.idioma || 'pt-BR');
+    if (language.toLowerCase().startsWith('en')) language = 'en';
+    else if (language.toLowerCase().startsWith('pt')) language = 'pt-BR';
+
     const feedback = {
       primaryRejectionReason: clean(body.feedback?.primaryRejectionReason).slice(0, 120),
       desiredDirection: clean(body.feedback?.desiredDirection).slice(0, 120) || null,
@@ -44,7 +48,7 @@ export async function POST(request) {
     const consultationIndex = Number(body.consultationIndex) || 1;
     const existingPalettes = Array.isArray(body.existingPalettes) ? body.existingPalettes : [];
 
-    if (!journeyId || !['pt', 'pt-BR', 'en'].includes(language) || (!feedback.primaryRejectionReason && !feedback.comment) || (BRAND_MISMATCH_REASONS.has(feedback.primaryRejectionReason) && !feedback.comment) || !Number.isInteger(consultationIndex) || consultationIndex < 1 || consultationIndex > PALETTE_CONSULTATION_LIMIT) {
+    if (!journeyId || (!feedback.primaryRejectionReason && !feedback.comment) || (BRAND_MISMATCH_REASONS.has(feedback.primaryRejectionReason) && !feedback.comment) || !Number.isInteger(consultationIndex) || consultationIndex < 1 || consultationIndex > PALETTE_CONSULTATION_LIMIT) {
       return Response.json({ error: 'invalid_palette_consultation_payload' }, { status: 400 });
     }
 
@@ -62,7 +66,7 @@ export async function POST(request) {
     }
 
     const requestKey = `journey:${journeyId}:palette-consultation:${consultationIndex}:${language}`;
-    const requestGuard = acquireCreativeDirectorRequest(requestKey);
+    requestGuard = acquireCreativeDirectorRequest(requestKey);
 
     if (!requestGuard.ok) {
       return Response.json({ error: requestGuard.reason }, { status: 429 });
@@ -83,6 +87,7 @@ export async function POST(request) {
 
     if (!response.ok) {
       const meta = await openAIErrorMeta(response);
+      requestGuard.release({ completed: false });
       throw Object.assign(new Error('openai_failed'), { publicCode: 'palette_consultation_openai_error', phase: 'openai', ...meta });
     }
 
