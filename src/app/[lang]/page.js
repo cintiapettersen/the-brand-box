@@ -2654,12 +2654,19 @@ export default function Home() {
                                         }} />
                                       ))}
                                     </div>
-                                    <div style={{ padding: '8px 10px', background: 'rgba(255,255,255,0.92)', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '8px' }}>
-                                      <p style={{ fontSize: '0.58rem', fontWeight: 800, letterSpacing: '1.4px', textTransform: 'uppercase', color: 'var(--text-secondary)', margin: 0 }}>
-                                        {paletteLabel}
-                                      </p>
-                                      {isSelected && <span style={{ width: '7px', height: '7px', borderRadius: '999px', background: 'var(--accent-magenta)', flexShrink: 0 }} />}
-                                    </div>
+                                    <div style={{ padding: '8px 10px', background: 'rgba(255,255,255,0.96)', display: 'flex', flexDirection: 'column', gap: '4px' }}>
+                                       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '6px' }}>
+                                         <p style={{ fontSize: '0.62rem', fontWeight: 800, letterSpacing: '1px', textTransform: 'uppercase', color: 'var(--text-primary)', margin: 0 }}>
+                                           {p.nome_variacao || p.nome || paletteLabel}
+                                         </p>
+                                         {isSelected && <span style={{ width: '7px', height: '7px', borderRadius: '999px', background: 'var(--accent-magenta)', flexShrink: 0 }} />}
+                                       </div>
+                                       {(p.rationale || p.justificativa) && (
+                                         <p style={{ fontSize: '0.6rem', color: '#666', lineHeight: 1.35, margin: 0, fontFamily: 'Montserrat, sans-serif', fontWeight: 500 }}>
+                                           {p.rationale || p.justificativa}
+                                         </p>
+                                       )}
+                                     </div>
                                   </div>
                                 ) : (
                                   <img src={`${p.image_url}?t=${Date.now()}`} alt={p.nome_variacao} style={{ width: '100%', height: '158px', objectFit: 'cover' }} />

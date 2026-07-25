@@ -1,6 +1,6 @@
 import fs from 'fs';
 import path from 'path';
-import { normalizeHexes, validateConsultedPalettesDetailed, PALETTE_CONSULTATION_LIMIT } from '../src/lib/paletteConsultant.js';
+import { normalizeHexes, validateConsultedPalettesDetailed, arePalettesSimilar } from '../src/lib/paletteConsultant.js';
 
 console.log('🧪 Running Consultor de Paletas unit test suite...');
 
@@ -23,7 +23,26 @@ if (normalizeHexes(invalidShortPalette) !== null) {
   console.log('✅ PASS: Non-5 color palette correctly rejected by normalizeHexes.');
 }
 
-// 2. Validate 3-palette detailed schema and duplicate filtering
+// 2. Validate duplicate / near-identical palette blocking
+const paletteA = ['#C3CEDB', '#2A897F', '#FFFFFF', '#000000', '#F4E8DC'];
+const paletteNearIdentical = ['#C4CEEC', '#2B8A80', '#FFFFFF', '#010101', '#F5E9DD']; // very slight hex shift
+const paletteDifferent = ['#9B8B9B', '#515361', '#EFECE3', '#8D9A87', '#203830'];
+
+if (!arePalettesSimilar(paletteA, paletteNearIdentical, 30)) {
+  console.error('❌ FAIL: Near-identical palette was not detected as similar!');
+  process.exit(1);
+} else {
+  console.log('✅ PASS: Near-identical palette correctly detected as similar.');
+}
+
+if (arePalettesSimilar(paletteA, paletteDifferent, 30)) {
+  console.error('❌ FAIL: Distinct palette was incorrectly flagged as similar!');
+  process.exit(1);
+} else {
+  console.log('✅ PASS: Distinct palette correctly identified as distinct.');
+}
+
+// 3. Validate 3-palette detailed schema and duplicate filtering
 const mockPayload = {
   palettes: [
     { name: 'Tons Suaves 1', hex: ['#C3CEDB', '#2A897F', '#FFFFFF', '#000000', '#F4E8DC'], rationale: 'Harmonia delicada e serena.' },
@@ -40,7 +59,7 @@ if (!validation.palettes || validation.palettes.length !== 3) {
   console.log('✅ PASS: Exactly 3 consulted palettes validated with rationale and IDs.');
 }
 
-// 3. Verify route.js API file existence
+// 4. Verify route.js API file existence
 const routePath = path.resolve('src/app/api/creative-director/palette-consultation/route.js');
 if (!fs.existsSync(routePath)) {
   console.error('❌ FAIL: /api/creative-director/palette-consultation/route.js missing!');
@@ -49,7 +68,7 @@ if (!fs.existsSync(routePath)) {
   console.log('✅ PASS: API route /api/creative-director/palette-consultation/route.js is present.');
 }
 
-// 4. Verify page.js Consultor de Paletas UI integration
+// 5. Verify page.js Consultor de Paletas UI integration & name/rationale rendering
 const pagePath = path.resolve('src/app/[lang]/page.js');
 const pageContent = fs.readFileSync(pagePath, 'utf8');
 
@@ -66,7 +85,9 @@ const requiredStrings = [
   'Estavam escuras demais',
   'Não combinam com a minha marca',
   'Algo mais delicado',
-  'Algo mais marcante'
+  'Algo mais marcante',
+  'p.nome_variacao || p.nome || paletteLabel',
+  'p.rationale || p.justificativa'
 ];
 
 for (const reqStr of requiredStrings) {
@@ -75,6 +96,6 @@ for (const reqStr of requiredStrings) {
     process.exit(1);
   }
 }
-console.log('✅ PASS: All rejection reasons, direction preferences, state, and UI handlers present in page.js.');
+console.log('✅ PASS: All rejection reasons, direction preferences, state, name, and rationale UI rendering present in page.js.');
 
 console.log('🎉 ALL CONSULTOR DE PALETAS TESTS PASSED SUCCESSFULLY!');
