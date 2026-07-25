@@ -19,8 +19,8 @@ function cleanText(value) {
 function normalizeColors(colors) {
   if (!Array.isArray(colors) || colors.length !== 5) return null;
 
-  const normalized = colors.map(cleanText);
-  return normalized.every(color => /^#[0-9a-f]{6}$/i.test(color)) ? normalized : null;
+  const normalized = colors.map(c => cleanText(c).toUpperCase());
+  return normalized.every(color => /^#[0-9A-F]{6}$/.test(color)) ? normalized : null;
 }
 
 function normalizeBriefing(formData = {}) {
@@ -80,7 +80,7 @@ export async function POST(req) {
     const body = await req.json();
     const idioma = cleanText(body.idioma || body.lang || 'pt-BR');
     const colors = normalizeColors(body.palette);
-    const primaryColor = cleanText(body.primaryColor);
+    const primaryColor = cleanText(body.primaryColor).toUpperCase();
 
     if (!idioma || !colors || !colors.includes(primaryColor)) {
       return Response.json({ error: 'invalid_palette_feedback_payload' }, { status: 400 });

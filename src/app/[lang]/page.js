@@ -308,6 +308,9 @@ export default function Home() {
   const [refinementStep, setRefinementStep] = useState('idle');
   const [paletteFeedback, setPaletteFeedback] = useState(null);
   const [isPaletteFeedbackLoading, setIsPaletteFeedbackLoading] = useState(false);
+  const [paletteFeedbackError, setPaletteFeedbackError] = useState(null);
+  const [lastPaletteParams, setLastPaletteParams] = useState(null);
+
 
 
   const brandBoardRef = useRef(null);
@@ -793,13 +796,26 @@ export default function Home() {
     }) : prev);
   };
 
+  const clearAiUsage = (contentType, targetLanguage = lang) => {
+    const key = getAiUsageKey(contentType, targetLanguage);
+    setResultadoFinal(prev => prev ? ({
+      ...prev,
+      aiUsage: {
+        ...(prev.aiUsage || {}),
+        [key]: null
+      }
+    }) : prev);
+  };
+
   const getRequestKey = (contentType, targetLanguage = lang) => `${aiSessionId || 'pending'}:${getAiUsageKey(contentType, targetLanguage)}`;
 
   const requestPaletteFeedback = async (primaryColor, palette) => {
     const requestId = `${selectedPaleta}:${primaryColor}:${Date.now()}`;
     paletteFeedbackRequestRef.current = requestId;
     setPaletteFeedback(null);
+    setPaletteFeedbackError(null);
     setIsPaletteFeedbackLoading(true);
+    setLastPaletteParams({ primaryColor, palette });
 
     try {
       const response = await fetch('/api/creative-director/palette-feedback', {
@@ -815,10 +831,22 @@ export default function Home() {
         })
       });
 
-      if (!response.ok || paletteFeedbackRequestRef.current !== requestId) return;
+      if (paletteFeedbackRequestRef.current !== requestId) return;
+
+      if (!response.ok) {
+        setPaletteFeedbackError(lang === 'en'
+          ? 'AI Creative Director is temporarily unavailable for this palette.'
+          : 'A avaliação da Diretora IA está temporariamente indisponível para esta paleta.');
+        return;
+      }
       setPaletteFeedback(await response.json());
     } catch (error) {
       console.warn('Feedback de paleta indisponível; mantendo o fluxo de escolha.', error);
+      if (paletteFeedbackRequestRef.current === requestId) {
+        setPaletteFeedbackError(lang === 'en'
+          ? 'Connection issue while evaluating palette with AI Creative Director.'
+          : 'Erro de conexão ao avaliar a paleta com a Diretora IA.');
+      }
     } finally {
       if (paletteFeedbackRequestRef.current === requestId) setIsPaletteFeedbackLoading(false);
     }
@@ -2540,6 +2568,7 @@ export default function Home() {
                           </p>
                           <button 
                             onClick={() => {
+                              clearAiUsage('refinement_question');
                               setShowContext(true);
                               startCreativeRefinement();
                             }}
@@ -2547,6 +2576,85 @@ export default function Home() {
                           >
                             ✨ {lang === 'en' ? 'Did not like any? Talk to AI Creative Director' : 'Não gostou de nenhuma? Consultar a Diretora IA'}
                           </button>
+
+                          {showRefinement && (
+                            <div style={{ marginTop: '0.8rem', background: '#ffffff', borderRadius: '16px', padding: '1rem', border: '1px solid var(--border)', textAlign: 'left' }}>
+                              {isRefinementLoading && (
+                                <p style={{ color: 'var(--text-secondary)', fontSize: '0.85rem', textAlign: 'center', margin: 0 }}>
+                                  {refinementStep === 'question' ? refineCopy.loadingQuestion : refineCopy.loadingResolution}
+                                </p>
+                              )}
+
+                              {!isRefinementLoading && refinementStep === 'answer' && refinementQuestion && (
+                                <div>
+                                  {refinementQuestion.tensaoIdentificada && (
+                                    <div style={{ marginBottom: '0.85rem' }}>
+                                      <strong style={{ color: 'var(--text-primary)', fontSize: '0.88rem' }}>{refineCopy.tension}</strong>
+                                      <p style={{ color: 'var(--text-secondary)', fontSize: '0.88rem', lineHeight: 1.5, marginTop: '0.25rem' }}>{refinementQuestion.tensaoIdentificada}</p>
+                                    </div>
+                                  )}
+                                  <div style={{ marginBottom: '0.85rem' }}>
+                                    <strong style={{ color: 'var(--text-primary)', fontSize: '0.88rem' }}>{refineCopy.question}</strong>
+                                    <p style={{ color: 'var(--text-primary)', fontSize: '0.95rem', lineHeight: 1.5, marginTop: '0.25rem' }}>{refinementQuestion.pergunta}</p>
+                                    <p style={{ color: 'var(--text-secondary)', fontSize: '0.82rem', lineHeight: 1.5, marginTop: '0.35rem' }}>{refinementQuestion.porquePerguntar}</p>
+                                  </div>
+                                  <textarea
+                                    value={refinementAnswer}
+                                    onChange={(event) => setRefinementAnswer(event.target.value)}
+                                    placeholder={refineCopy.placeholder}
+                                    rows={3}
+                                    style={{ width: '100%', border: '1px solid var(--border)', borderRadius: '12px', padding: '0.85rem', resize: 'vertical', fontFamily: 'inherit', color: 'var(--text-primary)' }}
+                                  />
+                                  <div style={{ display: 'flex', gap: '0.75rem', marginTop: '0.85rem', flexWrap: 'wrap', justifyContent: 'center' }}>
+                                    <button
+                                      type="button"
+                                      onClick={submitCreativeRefinement}
+                                      disabled={!refinementAnswer.trim() || isRefinementLoading}
+                                      className="btn-primary"
+                                      style={{ padding: '0.8rem 1rem', opacity: refinementAnswer.trim() && !isRefinementLoading ? 1 : 0.55 }}
+                                    >
+                                      {refineCopy.analyze}
+                                    </button>
+                                    <button type="button" onClick={keepCurrentDirection} className="btn-secondary" style={{ padding: '0.8rem 1rem' }}>
+                                      {refineCopy.keepCurrent}
+                                    </button>
+                                  </div>
+                                </div>
+                              )}
+
+                              {!isRefinementLoading && refinementStep === 'result' && resultadoFinal?.creativeDirector?.refinement && (
+                                <div style={{ display: 'grid', gap: '0.75rem' }}>
+                                  <div style={{ background: '#fafafa', borderRadius: '12px', padding: '0.85rem' }}>
+                                    <strong style={{ color: 'var(--text-primary)', fontSize: '0.88rem' }}>{refineCopy.decision}</strong>
+                                    <p style={{ color: 'var(--text-secondary)', fontSize: '0.88rem', lineHeight: 1.5, marginTop: '0.25rem' }}>{resultadoFinal.creativeDirector.refinement.resumoDecisao}</p>
+                                  </div>
+                                  <div style={{ background: '#fafafa', borderRadius: '12px', padding: '0.85rem' }}>
+                                    <strong style={{ color: 'var(--text-primary)', fontSize: '0.88rem' }}>{refineCopy.direction}</strong>
+                                    <p style={{ color: 'var(--text-secondary)', fontSize: '0.88rem', lineHeight: 1.5, marginTop: '0.25rem' }}>{resultadoFinal.creativeDirector.refinement.direcaoRefinada}</p>
+                                  </div>
+                                </div>
+                              )}
+
+                              {!isRefinementLoading && refinementStep === 'unavailable' && (
+                                <div style={{ padding: '0.85rem', background: '#fff5f5', border: '1px solid #fca5a5', borderRadius: '12px', textAlign: 'center' }}>
+                                  <p style={{ color: '#dc2626', fontSize: '0.82rem', margin: '0 0 0.5rem' }}>
+                                    ⚠️ {refineCopy.unavailable}
+                                  </p>
+                                  <button
+                                    type="button"
+                                    onClick={() => {
+                                      clearAiUsage('refinement_question');
+                                      startCreativeRefinement();
+                                    }}
+                                    className="btn-secondary"
+                                    style={{ padding: '0.45rem 0.85rem', fontSize: '0.75rem' }}
+                                  >
+                                    🔄 {refineCopy.retry}
+                                  </button>
+                                </div>
+                              )}
+                            </div>
+                          )}
                         </div>
                      </motion.div>
                   )}
@@ -2642,6 +2750,22 @@ export default function Home() {
                             <p style={{ margin: 0, fontSize: '0.84rem', color: 'var(--text-primary)', lineHeight: 1.45 }}>{paletteFeedback.summary}</p>
                             <p style={{ margin: 0, fontSize: '0.8rem', color: 'var(--text-secondary)', lineHeight: 1.4 }}><strong>{lang === 'en' ? 'Strength:' : 'Ponto forte:'}</strong> {paletteFeedback.strength}</p>
                             <p style={{ margin: 0, fontSize: '0.8rem', color: 'var(--text-secondary)', lineHeight: 1.4 }}><strong>{lang === 'en' ? 'Attention:' : 'Atenção:'}</strong> {paletteFeedback.caution}</p>
+                          </div>
+                        )}
+                        {paletteFeedbackError && !isPaletteFeedbackLoading && (
+                          <div style={{ width: '100%', maxWidth: '420px', padding: '0.8rem 1rem', border: '1.5px solid #fecaca', borderRadius: '14px', background: '#fff5f5', display: 'flex', flexDirection: 'column', gap: '0.4rem', textAlign: 'center' }}>
+                            <p style={{ margin: 0, fontSize: '0.75rem', color: '#dc2626', fontWeight: 600 }}>
+                              ⚠️ {paletteFeedbackError}
+                            </p>
+                            {lastPaletteParams && (
+                              <button
+                                type="button"
+                                onClick={() => requestPaletteFeedback(lastPaletteParams.primaryColor, lastPaletteParams.palette)}
+                                style={{ alignSelf: 'center', padding: '5px 12px', background: '#fff', border: '1px solid #fca5a5', borderRadius: '16px', fontSize: '0.7rem', fontWeight: 700, color: '#dc2626', cursor: 'pointer' }}
+                              >
+                                {lang === 'en' ? '🔄 Try again' : '🔄 Tentar novamente'}
+                              </button>
+                            )}
                           </div>
                         )}
                      </motion.div>
