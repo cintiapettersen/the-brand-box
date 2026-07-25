@@ -101,22 +101,26 @@ export default function Home() {
     question: dictionary?.postmatch?.creative_refine_question || 'Pergunta da diretora criativa',
     placeholder: dictionary?.postmatch?.creative_refine_placeholder || 'Escreva sua resposta aqui...',
     analyze: dictionary?.postmatch?.creative_refine_analyze || 'Analisar minha resposta',
-    keepCurrent: dictionary?.postmatch?.creative_refine_keep_current || 'Manter direção atual',
-    loadingQuestion: dictionary?.postmatch?.creative_refine_loading_question || 'Conversando com a AI Creative Director...',
-    loadingResolution: dictionary?.postmatch?.creative_refine_loading_resolution || 'Analisando sua resposta...',
-    decision: dictionary?.postmatch?.creative_refine_decision || 'Decisão',
-    direction: dictionary?.postmatch?.creative_refine_direction || 'Direção refinada',
-    palette: dictionary?.postmatch?.creative_refine_palette || 'Impacto na paleta',
-    typography: dictionary?.postmatch?.creative_refine_typography || 'Impacto na tipografia',
-    composition: dictionary?.postmatch?.creative_refine_composition || 'Impacto na composição',
-    pattern: dictionary?.postmatch?.creative_refine_pattern || 'Impacto na estampa',
-    altStyle: dictionary?.postmatch?.creative_refine_alt_style || 'Estilo alternativo recomendado',
-    altNote: dictionary?.postmatch?.creative_refine_alt_note || 'Esta recomendação é apenas consultiva e não será aplicada automaticamente.',
-    unavailable: dictionary?.postmatch?.creative_refine_unavailable || 'Não foi possível analisar agora. Sua direção atual continua salva.',
-    close: dictionary?.postmatch?.creative_refine_close || 'Fechar',
-    retry: dictionary?.postmatch?.creative_refine_retry || 'Tentar novamente',
-    regenerate: dictionary?.postmatch?.creative_refine_regenerate || 'Gerar novamente em português',
-    regenerating: dictionary?.postmatch?.creative_refine_regenerating || 'Gerando novamente em português...'
+    keepOriginalBefore: dictionary?.postmatch?.creative_refine_keep_original_before || (lang === 'en' ? 'Proceed with original direction' : 'Seguir com a direção original'),
+    useRefined: dictionary?.postmatch?.creative_refine_use_refined || (lang === 'en' ? 'Use this refined direction' : 'Usar esta direção refinada'),
+    keepOriginal: dictionary?.postmatch?.creative_refine_keep_original || (lang === 'en' ? 'I prefer the original direction' : 'Prefiro a direção original'),
+    confirmRefined: dictionary?.postmatch?.creative_refine_confirm_refined || (lang === 'en' ? '✨ Refined direction applied! Loading your palettes...' : '✨ Direção refinada aplicada com sucesso! Carregando suas paletas...'),
+    confirmOriginal: dictionary?.postmatch?.creative_refine_confirm_original || (lang === 'en' ? '✨ Original direction retained! Loading your palettes...' : '✨ Direção original mantida! Carregando suas paletas...'),
+    loadingQuestion: dictionary?.postmatch?.creative_refine_loading_question || (lang === 'en' ? 'Connecting with AI Creative Director...' : 'Conversando com a AI Creative Director...'),
+    loadingResolution: dictionary?.postmatch?.creative_refine_loading_resolution || (lang === 'en' ? 'Analyzing your answer...' : 'Analisando sua resposta...'),
+    decision: dictionary?.postmatch?.creative_refine_decision || (lang === 'en' ? 'Decision' : 'Decisão'),
+    direction: dictionary?.postmatch?.creative_refine_direction || (lang === 'en' ? 'Refined direction' : 'Direção refinada'),
+    palette: dictionary?.postmatch?.creative_refine_palette || (lang === 'en' ? 'Impact on palette' : 'Impacto na paleta'),
+    typography: dictionary?.postmatch?.creative_refine_typography || (lang === 'en' ? 'Impact on typography' : 'Impacto na tipografia'),
+    composition: dictionary?.postmatch?.creative_refine_composition || (lang === 'en' ? 'Impact on composition' : 'Impacto na composição'),
+    pattern: dictionary?.postmatch?.creative_refine_pattern || (lang === 'en' ? 'Impact on pattern' : 'Impacto na estampa'),
+    altStyle: dictionary?.postmatch?.creative_refine_alt_style || (lang === 'en' ? 'Recommended alternative style' : 'Estilo alternativo recomendado'),
+    altNote: dictionary?.postmatch?.creative_refine_alt_note || (lang === 'en' ? 'This recommendation will be applied if chosen.' : 'Esta recomendação será aplicada caso você escolha esta opção.'),
+    unavailable: dictionary?.postmatch?.creative_refine_unavailable || (lang === 'en' ? 'Could not analyze right now. Your current direction remains saved.' : 'Não foi possível analisar agora. Sua direção atual continua salva.'),
+    close: dictionary?.postmatch?.creative_refine_close || (lang === 'en' ? 'Close' : 'Fechar'),
+    retry: dictionary?.postmatch?.creative_refine_retry || (lang === 'en' ? 'Try again' : 'Tentar novamente'),
+    regenerate: dictionary?.postmatch?.creative_refine_regenerate || (lang === 'en' ? 'Regenerate in English' : 'Gerar novamente em português'),
+    regenerating: dictionary?.postmatch?.creative_refine_regenerating || (lang === 'en' ? 'Regenerating in English...' : 'Gerando novamente em português...')
   };
 
   const [source, setSource] = useState('Direct');
@@ -306,6 +310,8 @@ export default function Home() {
   const [refinementAnswer, setRefinementAnswer] = useState('');
   const [isRefinementLoading, setIsRefinementLoading] = useState(false);
   const [refinementStep, setRefinementStep] = useState('idle');
+  const [refinementConfirmation, setRefinementConfirmation] = useState('');
+  const [isAdvancingFromRefinement, setIsAdvancingFromRefinement] = useState(false);
   const [paletteFeedback, setPaletteFeedback] = useState(null);
   const [isPaletteFeedbackLoading, setIsPaletteFeedbackLoading] = useState(false);
   const [paletteFeedbackError, setPaletteFeedbackError] = useState(null);
@@ -601,8 +607,8 @@ export default function Home() {
     }
   };
 
-  const fetchVariacoes = async () => {
-    const id = resultadoFinal?.estiloId || 1;
+  const fetchVariacoes = async (overrideEstiloId = null) => {
+    const id = (typeof overrideEstiloId === 'number' || typeof overrideEstiloId === 'string') ? overrideEstiloId : (resultadoFinal?.estiloId || 1);
     setLoadingVariacoes(true);
     
     try {
@@ -1252,11 +1258,90 @@ export default function Home() {
     }
   };
 
+  const handleUseRefinedDirection = async () => {
+    const currentRefinement = resultadoFinal?.creativeDirector?.refinement;
+    if (!currentRefinement || isAdvancingFromRefinement) return;
+
+    setIsAdvancingFromRefinement(true);
+
+    let targetEstiloId = resultadoFinal.estiloId;
+    let targetEstiloNome = resultadoFinal.estiloNome;
+
+    if (currentRefinement.estiloAlternativoId && currentRefinement.estiloAlternativoNome) {
+      targetEstiloId = currentRefinement.estiloAlternativoId;
+      targetEstiloNome = currentRefinement.estiloAlternativoNome;
+    }
+
+    const updatedResultado = {
+      ...resultadoFinal,
+      estiloId: targetEstiloId,
+      estiloNome: targetEstiloNome,
+      refinementChoice: 'refined',
+      creativeDirector: {
+        ...resultadoFinal.creativeDirector,
+        refinementChoice: 'refined',
+        activeRefinement: currentRefinement
+      }
+    };
+
+    setResultadoFinal(updatedResultado);
+
+    setFormData(prev => ({
+      ...prev,
+      contextoExtra: [prev.contextoExtra, `[Direção Refinada]: ${currentRefinement.direcaoRefinada}`].filter(Boolean).join(' | ')
+    }));
+
+    try {
+      localStorage.setItem('brandbox_resultado_final', JSON.stringify(updatedResultado));
+    } catch (e) {
+      console.warn('Erro ao persistir resultado final refinado:', e);
+    }
+
+    setRefinementConfirmation(refineCopy.confirmRefined);
+
+    setTimeout(async () => {
+      await fetchVariacoes(targetEstiloId);
+      setIsAdvancingFromRefinement(false);
+      setShowRefinement(false);
+      setRefinementConfirmation('');
+    }, 1200);
+  };
+
+  const handleKeepOriginalDirection = async () => {
+    if (isAdvancingFromRefinement) return;
+
+    setIsAdvancingFromRefinement(true);
+
+    const updatedResultado = {
+      ...resultadoFinal,
+      refinementChoice: 'original',
+      creativeDirector: {
+        ...resultadoFinal.creativeDirector,
+        refinementChoice: 'original',
+        activeRefinement: null
+      }
+    };
+
+    setResultadoFinal(updatedResultado);
+
+    try {
+      localStorage.setItem('brandbox_resultado_final', JSON.stringify(updatedResultado));
+    } catch (e) {
+      console.warn('Erro ao persistir resultado original:', e);
+    }
+
+    setRefinementConfirmation(refineCopy.confirmOriginal);
+
+    setTimeout(async () => {
+      await fetchVariacoes(resultadoFinal?.estiloId || 1);
+      setIsAdvancingFromRefinement(false);
+      setShowRefinement(false);
+      setRefinementConfirmation('');
+    }, 1200);
+  };
+
   const keepCurrentDirection = () => {
-    setShowRefinement(false);
-    setRefinementStep('idle');
-    setRefinementQuestion(null);
-    setRefinementAnswer('');
+    handleKeepOriginalDirection();
   };
 
   // Aqui é onde ativamos a Mágica
@@ -2478,14 +2563,20 @@ export default function Home() {
                         <button
                           type="button"
                           onClick={submitCreativeRefinement}
-                          disabled={!refinementAnswer.trim() || isRefinementLoading}
+                          disabled={!refinementAnswer.trim() || isRefinementLoading || isAdvancingFromRefinement}
                           className="btn-primary"
-                          style={{ padding: '0.8rem 1rem', opacity: refinementAnswer.trim() && !isRefinementLoading ? 1 : 0.55 }}
+                          style={{ padding: '0.8rem 1rem', opacity: refinementAnswer.trim() && !isRefinementLoading && !isAdvancingFromRefinement ? 1 : 0.55 }}
                         >
                           {refineCopy.analyze}
                         </button>
-                        <button type="button" onClick={keepCurrentDirection} className="btn-secondary" style={{ padding: '0.8rem 1rem' }}>
-                          {refineCopy.keepCurrent}
+                        <button
+                          type="button"
+                          onClick={handleKeepOriginalDirection}
+                          disabled={isAdvancingFromRefinement}
+                          className="btn-secondary"
+                          style={{ padding: '0.8rem 1rem' }}
+                        >
+                          {refineCopy.keepOriginalBefore}
                         </button>
                       </div>
                     </div>
@@ -2527,9 +2618,33 @@ export default function Home() {
                           </p>
                         </div>
                       )}
-                      <button type="button" onClick={keepCurrentDirection} className="btn-secondary" style={{ padding: '0.8rem 1rem', justifySelf: 'center' }}>
-                        {refineCopy.keepCurrent}
-                      </button>
+
+                      <div style={{ display: 'flex', gap: '0.75rem', marginTop: '0.5rem', flexWrap: 'wrap', justifyContent: 'center' }}>
+                        <button
+                          type="button"
+                          onClick={handleUseRefinedDirection}
+                          disabled={isAdvancingFromRefinement}
+                          className="btn-primary"
+                          style={{ background: 'var(--accent-magenta)', color: '#ffffff', padding: '0.85rem 1.25rem', fontWeight: 600, fontSize: '0.88rem', opacity: isAdvancingFromRefinement ? 0.65 : 1 }}
+                        >
+                          {refineCopy.useRefined}
+                        </button>
+                        <button
+                          type="button"
+                          onClick={handleKeepOriginalDirection}
+                          disabled={isAdvancingFromRefinement}
+                          className="btn-secondary"
+                          style={{ padding: '0.85rem 1.25rem', fontSize: '0.88rem', opacity: isAdvancingFromRefinement ? 0.65 : 1 }}
+                        >
+                          {refineCopy.keepOriginal}
+                        </button>
+                      </div>
+                    </div>
+                  )}
+
+                  {refinementConfirmation && (
+                    <div style={{ background: '#E1EDE7', border: '2px solid var(--accent-turquoise)', color: '#203830', padding: '1rem 1.25rem', borderRadius: '14px', textAlign: 'center', marginTop: '1rem', fontWeight: 600, fontSize: '0.92rem', boxShadow: '0 4px 12px rgba(42, 137, 127, 0.15)' }}>
+                      {refinementConfirmation}
                     </div>
                   )}
 
@@ -2542,7 +2657,7 @@ export default function Home() {
                         <button type="button" onClick={startCreativeRefinement} className="btn-primary" style={{ padding: '0.8rem 1rem' }}>
                           {refineCopy.retry}
                         </button>
-                        <button type="button" onClick={keepCurrentDirection} className="btn-secondary" style={{ padding: '0.8rem 1rem' }}>
+                        <button type="button" onClick={handleKeepOriginalDirection} className="btn-secondary" style={{ padding: '0.8rem 1rem' }}>
                           {refineCopy.close}
                         </button>
                       </div>
