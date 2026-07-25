@@ -2423,7 +2423,133 @@ export default function Home() {
                 </div>
               )}
 
-              <button onClick={fetchVariacoes} className="btn-primary" style={{ background: 'var(--accent-magenta)', color: '#ffffff', boxShadow: 'none' }}>{dictionary?.postmatch?.step_9_btn_customize || 'Personalizar minha Identidade'}</button>
+              <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '10px', width: '100%', maxWidth: '400px' }}>
+                <button onClick={fetchVariacoes} className="btn-primary" style={{ background: 'var(--accent-magenta)', color: '#ffffff', boxShadow: 'none', width: '100%' }}>
+                  {dictionary?.postmatch?.step_9_btn_customize || 'Personalizar minha Identidade'}
+                </button>
+
+                {!isCreativeDirectorLoading && resultadoFinal.creativeDirector && (
+                  <button
+                    type="button"
+                    onClick={startCreativeRefinement}
+                    disabled={isRefinementLoading}
+                    className="btn-secondary"
+                    style={{ padding: '0.75rem 1.2rem', fontSize: '0.85rem', opacity: isRefinementLoading ? 0.65 : 1, width: '100%' }}
+                  >
+                    ✨ {refineCopy.button}
+                  </button>
+                )}
+              </div>
+
+              {showRefinement && (
+                <div style={{ marginTop: '1rem', width: '100%', maxWidth: '620px', background: 'var(--bg-color)', borderRadius: '16px', padding: '1rem', border: '1px solid var(--border)', textAlign: 'left' }}>
+                  {isRefinementLoading && (
+                    <p style={{ color: 'var(--text-secondary)', fontSize: '0.85rem', textAlign: 'center', margin: 0 }}>
+                      {refinementStep === 'question' ? refineCopy.loadingQuestion : refineCopy.loadingResolution}
+                    </p>
+                  )}
+
+                  {!isRefinementLoading && refinementStep === 'answer' && refinementQuestion && (
+                    <div>
+                      {refinementQuestion.tensaoIdentificada && (
+                        <div style={{ marginBottom: '0.85rem' }}>
+                          <strong style={{ color: 'var(--text-primary)', fontSize: '0.88rem' }}>{refineCopy.tension}</strong>
+                          <p style={{ color: 'var(--text-secondary)', fontSize: '0.88rem', lineHeight: 1.5, marginTop: '0.25rem' }}>{refinementQuestion.tensaoIdentificada}</p>
+                        </div>
+                      )}
+                      <div style={{ marginBottom: '0.85rem' }}>
+                        <strong style={{ color: 'var(--text-primary)', fontSize: '0.88rem' }}>{refineCopy.question}</strong>
+                        <p style={{ color: 'var(--text-primary)', fontSize: '0.95rem', lineHeight: 1.5, marginTop: '0.25rem' }}>{refinementQuestion.pergunta}</p>
+                        <p style={{ color: 'var(--text-secondary)', fontSize: '0.82rem', lineHeight: 1.5, marginTop: '0.35rem' }}>{refinementQuestion.porquePerguntar}</p>
+                        {isDifferentLanguage(refinementQuestion) && (
+                          <button type="button" onClick={startCreativeRefinement} disabled={isRefinementLoading || hasAiUsage('refinement_question')} className="btn-secondary" style={{ marginTop: '0.65rem', padding: '0.65rem 0.9rem', fontSize: '0.82rem', opacity: isRefinementLoading || hasAiUsage('refinement_question') ? 0.65 : 1 }}>
+                            {refineCopy.regenerate}
+                          </button>
+                        )}
+                      </div>
+                      <textarea
+                        value={refinementAnswer}
+                        onChange={(event) => setRefinementAnswer(event.target.value)}
+                        placeholder={refineCopy.placeholder}
+                        rows={3}
+                        style={{ width: '100%', border: '1px solid var(--border)', borderRadius: '12px', padding: '0.85rem', resize: 'vertical', fontFamily: 'inherit', color: 'var(--text-primary)' }}
+                      />
+                      <div style={{ display: 'flex', gap: '0.75rem', marginTop: '0.85rem', flexWrap: 'wrap', justifyContent: 'center' }}>
+                        <button
+                          type="button"
+                          onClick={submitCreativeRefinement}
+                          disabled={!refinementAnswer.trim() || isRefinementLoading}
+                          className="btn-primary"
+                          style={{ padding: '0.8rem 1rem', opacity: refinementAnswer.trim() && !isRefinementLoading ? 1 : 0.55 }}
+                        >
+                          {refineCopy.analyze}
+                        </button>
+                        <button type="button" onClick={keepCurrentDirection} className="btn-secondary" style={{ padding: '0.8rem 1rem' }}>
+                          {refineCopy.keepCurrent}
+                        </button>
+                      </div>
+                    </div>
+                  )}
+
+                  {!isRefinementLoading && refinementStep === 'result' && resultadoFinal?.creativeDirector?.refinement && (
+                    <div style={{ display: 'grid', gap: '0.75rem' }}>
+                      <div style={{ background: '#fff', borderRadius: '12px', padding: '0.85rem' }}>
+                        <strong style={{ color: 'var(--text-primary)', fontSize: '0.88rem' }}>{refineCopy.decision}</strong>
+                        <p style={{ color: 'var(--text-secondary)', fontSize: '0.88rem', lineHeight: 1.5, marginTop: '0.25rem' }}>{resultadoFinal.creativeDirector.refinement.resumoDecisao}</p>
+                      </div>
+                      <div style={{ background: '#fff', borderRadius: '12px', padding: '0.85rem' }}>
+                        <strong style={{ color: 'var(--text-primary)', fontSize: '0.88rem' }}>{refineCopy.direction}</strong>
+                        <p style={{ color: 'var(--text-secondary)', fontSize: '0.88rem', lineHeight: 1.5, marginTop: '0.25rem' }}>{resultadoFinal.creativeDirector.refinement.direcaoRefinada}</p>
+                        {isDifferentLanguage(resultadoFinal.creativeDirector.refinement) && (
+                          <button type="button" onClick={regenerateRefinementResolution} disabled={isRefinementLoading || hasAiUsage('refinement_resolution_regeneration')} className="btn-secondary" style={{ marginTop: '0.65rem', padding: '0.65rem 0.9rem', fontSize: '0.82rem', opacity: isRefinementLoading || hasAiUsage('refinement_resolution_regeneration') ? 0.65 : 1 }}>
+                            {isRefinementLoading ? refineCopy.regenerating : refineCopy.regenerate}
+                          </button>
+                        )}
+                      </div>
+                      <div style={{ display: 'grid', gap: '0.65rem' }}>
+                        {[
+                          [refineCopy.palette, resultadoFinal.creativeDirector.refinement.impactoPaleta],
+                          [refineCopy.typography, resultadoFinal.creativeDirector.refinement.impactoTipografia],
+                          [refineCopy.composition, resultadoFinal.creativeDirector.refinement.impactoComposicao],
+                          [refineCopy.pattern, resultadoFinal.creativeDirector.refinement.impactoEstampa]
+                        ].map(([label, value]) => (
+                          <div key={label} style={{ background: '#fff', borderRadius: '12px', padding: '0.85rem' }}>
+                            <strong style={{ color: 'var(--text-primary)', fontSize: '0.86rem' }}>{label}</strong>
+                            <p style={{ color: 'var(--text-secondary)', fontSize: '0.86rem', lineHeight: 1.5, marginTop: '0.25rem' }}>{value}</p>
+                          </div>
+                        ))}
+                      </div>
+                      {resultadoFinal.creativeDirector.refinement.estiloAlternativoId && (
+                        <div style={{ background: '#fff', borderRadius: '12px', padding: '0.85rem', border: '1px solid var(--accent-magenta)' }}>
+                          <strong style={{ color: 'var(--text-primary)', fontSize: '0.88rem' }}>{refineCopy.altStyle}</strong>
+                          <p style={{ color: 'var(--text-secondary)', fontSize: '0.88rem', lineHeight: 1.5, marginTop: '0.25rem' }}>
+                            {resultadoFinal.creativeDirector.refinement.estiloAlternativoNome}. {refineCopy.altNote}
+                          </p>
+                        </div>
+                      )}
+                      <button type="button" onClick={keepCurrentDirection} className="btn-secondary" style={{ padding: '0.8rem 1rem', justifySelf: 'center' }}>
+                        {refineCopy.keepCurrent}
+                      </button>
+                    </div>
+                  )}
+
+                  {!isRefinementLoading && refinementStep === 'unavailable' && (
+                    <div style={{ textAlign: 'center' }}>
+                      <p style={{ color: 'var(--text-secondary)', fontSize: '0.88rem', lineHeight: 1.5 }}>
+                        {refineCopy.unavailable}
+                      </p>
+                      <div style={{ display: 'flex', gap: '0.75rem', marginTop: '0.75rem', justifyContent: 'center', flexWrap: 'wrap' }}>
+                        <button type="button" onClick={startCreativeRefinement} className="btn-primary" style={{ padding: '0.8rem 1rem' }}>
+                          {refineCopy.retry}
+                        </button>
+                        <button type="button" onClick={keepCurrentDirection} className="btn-secondary" style={{ padding: '0.8rem 1rem' }}>
+                          {refineCopy.close}
+                        </button>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              )}
 
               {refazerAttempts < 2 ? (
                 <button
