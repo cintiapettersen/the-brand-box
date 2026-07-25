@@ -3187,15 +3187,18 @@ function FonteStep({ brand, accentColor, logoColor, marca, tagline, editData, lo
 
 function GuiaStep({ brand, accentColor, paletteColors, marca, tagline, estampaPatterns, estampaSelectedIdx, editData }) {
   const { dictionary } = useTranslation();
+  const safeEditData = editData || {};
+  const safePaletteColors = Array.isArray(paletteColors) && paletteColors.length > 0 ? paletteColors : [accentColor || '#C3CEDB'];
+  const safeEstampaPatterns = Array.isArray(estampaPatterns) ? estampaPatterns : [];
   const currentIdx = estampaSelectedIdx || 0;
-  const patternSrc = estampaPatterns?.[currentIdx]
-    ? (estampaPatterns[currentIdx].url || `data:${estampaPatterns[currentIdx].mimeType};base64,${estampaPatterns[currentIdx].base64}`)
+  const patternSrc = safeEstampaPatterns[currentIdx]
+    ? (safeEstampaPatterns[currentIdx].url || (safeEstampaPatterns[currentIdx].base64 ? `data:${safeEstampaPatterns[currentIdx].mimeType || 'image/png'};base64,${safeEstampaPatterns[currentIdx].base64}` : null))
     : null;
-  const estiloNome = brand.resultadoFinal?.estiloNome || '';
-  const mensagem = brand.resultadoFinal?.mensagem || '';
-  const fontFamily = editData.fontFamily || 'Playfair Display';
-  const fontWeight = editData.fontWeight || 700;
-  const isScript = editData.fontStyle === 'script';
+  const estiloNome = brand?.resultadoFinal?.estiloNome || brand?.estilo_nome || '';
+  const mensagem = brand?.resultadoFinal?.mensagem || '';
+  const fontFamily = safeEditData.fontFamily || 'Playfair Display';
+  const fontWeight = safeEditData.fontWeight || 700;
+  const isScript = safeEditData.fontStyle === 'script';
   const toneWords = deriveTone(estiloNome, dictionary);
 
   const getPapelariaItems = () => {
@@ -3208,10 +3211,18 @@ function GuiaStep({ brand, accentColor, paletteColors, marca, tagline, estampaPa
     : (marca || 'SUA MARCA').toUpperCase();
 
   const openPrint = () => {
-    const manifesto = typeof window !== 'undefined' ? localStorage.getItem(`brandbox_manifesto_${marca}`) || null : null;
-    const tomDeVozRaw = typeof window !== 'undefined' ? localStorage.getItem(`brandbox_tomdevoz_${marca}`) : null;
-    const tomDeVoz = tomDeVozRaw ? JSON.parse(tomDeVozRaw) : null;
-    const html = buildGuiaHTML({ marca, tagline, accentColor, paletteColors, fontFamily, fontWeight, patternSrc, estiloNome, mensagem, isScript, manifesto, tomDeVoz });
+    let manifesto = null;
+    let tomDeVoz = null;
+    try {
+      manifesto = typeof window !== 'undefined' ? localStorage.getItem(`brandbox_manifesto_${marca}`) || null : null;
+    } catch {}
+    try {
+      const tomDeVozRaw = typeof window !== 'undefined' ? localStorage.getItem(`brandbox_tomdevoz_${marca}`) : null;
+      tomDeVoz = tomDeVozRaw ? JSON.parse(tomDeVozRaw) : null;
+    } catch (e) {
+      console.warn('Error parsing tomDeVoz JSON:', e);
+    }
+    const html = buildGuiaHTML({ marca, tagline, accentColor, paletteColors: safePaletteColors, fontFamily, fontWeight, patternSrc, estiloNome, mensagem, isScript, manifesto, tomDeVoz });
     const win = window.open('', '_blank');
     if (!win) return;
     win.document.write(html);
@@ -3233,7 +3244,7 @@ function GuiaStep({ brand, accentColor, paletteColors, marca, tagline, estampaPa
         <div style={{ padding: '16px 20px', borderBottom: '1px solid #f5f5f5' }}>
           <p style={{ fontSize: '0.55rem', fontWeight: 700, letterSpacing: '2px', textTransform: 'uppercase', color: '#bbb', marginBottom: '10px' }}>{dictionary?.guide_tab?.color_palette || 'Paleta de Cores'}</p>
           <div style={{ display: 'flex', gap: '6px' }}>
-            {paletteColors.map((hex, i) => (
+            {safePaletteColors.map((hex, i) => (
               <div key={i} style={{ flex: 1, borderRadius: '8px', overflow: 'hidden' }}>
                 <div style={{ background: hex, height: '40px' }} />
                 <p style={{ fontSize: '0.48rem', textAlign: 'center', color: '#aaa', padding: '3px 0', fontFamily: 'monospace' }}>{hex.toUpperCase()}</p>
@@ -9757,6 +9768,51 @@ ${fontImports2}
   );
 }
 
+class PostPaymentErrorBoundary extends React.Component {
+  constructor(props) {
+    super(props);
+    this.state = { hasError: false, error: null };
+  }
+  static getDerivedStateFromError(error) {
+    return { hasError: true, error };
+  }
+  componentDidCatch(error, errorInfo) {
+    console.error('PostPaymentErrorBoundary caught error:', error, errorInfo);
+    if (typeof window !== 'undefined' && this.props.brandId) {
+      try {
+        localStorage.removeItem(`brandbox_step_${this.props.brandId}`);
+        localStorage.removeItem('brandbox_step');
+      } catch (e) {}
+    }
+  }
+  handleReset = () => {
+    if (this.props.onResetStep) {
+      this.props.onResetStep();
+    }
+    this.setState({ hasError: false, error: null });
+  };
+  render() {
+    if (this.state.hasError) {
+      return (
+        <div style={{ background: '#fff0f0', border: '1.5px solid #ffcccc', borderRadius: '16px', padding: '24px', textAlign: 'center', margin: '20px 0' }}>
+          <div style={{ fontSize: '2rem', marginBottom: '8px' }}>⚠️</div>
+          <h3 style={{ fontSize: '1rem', color: '#c53030', marginBottom: '8px', fontFamily: 'Montserrat, sans-serif' }}>Ops! Ocorreu um problema nesta visualização.</h3>
+          <p style={{ fontSize: '0.82rem', color: '#666', marginBottom: '16px', lineHeight: 1.5, fontFamily: 'Montserrat, sans-serif' }}>
+            Não se preocupe, seus dados estão salvos. Você pode voltar para a etapa inicial da sua marca sem perder o progresso.
+          </p>
+          <button
+            onClick={this.handleReset}
+            style={{ padding: '10px 20px', background: '#363532', color: '#fff', border: 'none', borderRadius: '20px', fontWeight: 700, fontSize: '0.85rem', cursor: 'pointer', fontFamily: 'Montserrat, sans-serif' }}
+          >
+            ← Voltar para o início
+          </button>
+        </div>
+      );
+    }
+    return this.props.children;
+  }
+}
+
 function EntregaContent({ brand, plano, setBrand }) {
   const { dictionary, lang } = useTranslation();
   const tLogo = dictionary?.logo_tab || {};
@@ -10047,6 +10103,21 @@ function EntregaContent({ brand, plano, setBrand }) {
     } catch {}
   };
 
+  const [patternOffset, setPatternOffsetState] = useState(() => {
+    try {
+      const s = localStorage.getItem(`brandbox_pattern_offset_${brand?.id}`);
+      return s ? parseInt(s, 10) : 0;
+    } catch {
+      return 0;
+    }
+  });
+  const setPatternOffset = (v) => {
+    setPatternOffsetState(v);
+    try {
+      if (brand?.id) localStorage.setItem(`brandbox_pattern_offset_${brand.id}`, String(v));
+    } catch {}
+  };
+
   const [borderColor, setBorderColorState] = useState(() => {
     try {
       return localStorage.getItem(`brandbox_border_color_${brand.id}`) || null;
@@ -10248,7 +10319,12 @@ function EntregaContent({ brand, plano, setBrand }) {
     let isAsync = false;
     // Carregamento inicial de tudo
     try {
-      const s = localStorage.getItem(`brandbox_step_${brand.id}`); if (s) setStepState(s);
+      const s = localStorage.getItem(`brandbox_step_${brand.id}`);
+      if (s && ALL_STEPS.includes(s)) {
+        setStepState(s);
+      } else if (s) {
+        try { localStorage.removeItem(`brandbox_step_${brand.id}`); } catch {}
+      }
 
       let allPatterns = JSON.parse(localStorage.getItem(`brandbox_patterns_all_${brand.id}`) || localStorage.getItem('brandbox_patterns_all') || 'null');
       const singlePattern = JSON.parse(localStorage.getItem(`brandbox_pattern_${brand.id}`) || localStorage.getItem('brandbox_pattern') || 'null');
@@ -10660,132 +10736,134 @@ function EntregaContent({ brand, plano, setBrand }) {
           </div>
         )}
 
-        {/* Área da estampa */}
-        {step === 'estampa' && plano !== 'avulso' && <EstampaStep brand={brand} accentColor={accentColor} marca={marca} patterns={estampaPatterns} setPatterns={setEstampaPatterns} genCount={estampaGenCount} setGenCount={setEstampaGenCount} selectedIdx={estampaSelectedIdx} setSelectedIdx={setEstampaSelectedIdx} paletteColors={paletteColors} patternScale={patternScale} setPatternScale={setPatternScale} patternOffset={patternOffset} setPatternOffset={setPatternOffset} estampasRef={estampasRef} originalPattern={estampaOriginalPattern} setOriginalPattern={setEstampaOriginalPattern} />}
+        {/* Área da estampa / componentes com ErrorBoundary pós-pagamento */}
+        <PostPaymentErrorBoundary key={step} brandId={brand?.id} onResetStep={() => setStep(plano === 'avulso' ? 'papelaria' : 'placa')}>
+          {step === 'estampa' && plano !== 'avulso' && <EstampaStep brand={brand} accentColor={accentColor} marca={marca} patterns={estampaPatterns} setPatterns={setEstampaPatterns} genCount={estampaGenCount} setGenCount={setEstampaGenCount} selectedIdx={estampaSelectedIdx} setSelectedIdx={setEstampaSelectedIdx} paletteColors={paletteColors} patternScale={patternScale} setPatternScale={setPatternScale} patternOffset={patternOffset} setPatternOffset={setPatternOffset} estampasRef={estampasRef} originalPattern={estampaOriginalPattern} setOriginalPattern={setEstampaOriginalPattern} />}
 
-        {/* Cores — prioridade/ordem */}
-        {step === 'cores' && plano === 'avulso' && (
-          <div style={{ background: '#f5f3f0', border: '1px solid #e8e3dc', borderRadius: '12px', padding: '12px 16px', marginBottom: '14px', fontSize: '0.74rem', color: '#888', fontFamily: 'Montserrat,sans-serif', lineHeight: 1.6, textAlign: 'center' }}>
-            🎨 Esta é a paleta da coleção <strong style={{ color: '#8B7355' }}>The Brand Box</strong>.<br />
-            Para personalizar suas cores, clique no ícone de edição no círculo.
-          </div>
-        )}
-        {step === 'cores' && <CoresPrioridadeStep paletteColors={paletteColors} colorOrder={colorOrder} setColorOrder={setColorOrder} accentColor={accentColor}
-          onColorChange={plano === 'avulso' ? (idx, hex) => {
-            const updated = [...paletteColors];
-            updated[idx] = hex;
-            const newBrand = { ...brand, currentPaletteColors: updated, activeColor: updated[0] };
-            setBrand(newBrand);
-            try { localStorage.setItem('brandbox_avulso_' + avulsoParam, JSON.stringify(newBrand)); } catch {}
-          } : undefined}
-        />}
-
-        {/* Paleta — visualização completa */}
-        {step === 'paleta' && plano !== 'avulso' && <CoresStep paletteColors={paletteColors} accentColor={accentColor} paletaNome={paletas?.find(p => p.id === brand.selectedPaleta)?.nome_variacao} coresRef={coresRef} />}
-
-        {/* Cartão digital */}
-        {step === 'cartao' && (plano === 'avulso' ? <AvulsoUpgradeCard accentColor={accentColor} titulo="Cartão Digital" desc="Crie seu cartão digital interativo com QR code, link para redes sociais e muito mais. Disponível no Plano Completo." /> : <CartaoStep brand={brand} accentColor={accentColor} paletteColors={paletteColors} marca={marca} estampaPatterns={estampaPatterns} estampaSelectedIdx={estampaSelectedIdx} contacts={cartaoContacts} setContacts={setCartaoContacts} qrLink={cartaoQrLink} setQrLink={setCartaoQrLink} showQR={cartaoShowQR} setShowQR={setCartaoShowQR} logoLayout={logoLayout} editData={editDataWithLogo} logoColor={logoColor} setLayout={setLayout} />)}
-        {step === 'pack-instagram' && (plano === 'avulso' ? <AvulsoUpgradeCard accentColor={accentColor} titulo="Pack Digital para Instagram" desc="Templates prontos para Stories e Feed com a sua identidade visual aplicada. Disponível no Plano Completo." /> : <FundoInstaPreview brand={brand} editData={editDataWithLogo} accentColor={accentColor} patternSrc={patternSrc} logoColor={logoColor} logoLayout={logoLayout} comBorda={comBorda} setComBorda={setComBorda} paletteColors={paletteColors} borderColor={borderColor} setBorderColor={setBorderColor} patternScale={patternScale} setPatternScale={setPatternScale} patternOffset={patternOffset} setPatternOffset={setPatternOffset} cartaoContacts={cartaoContacts} crmLine={crmLine} localSlogan={localSlogan} clinicaNome={clinicaNome} storyTemplateIdx={storyTemplateIdx} setStoryTemplateIdx={setStoryTemplateIdx} storyFormatIdx={storyFormatIdx} setStoryFormatIdx={setStoryFormatIdx} />)}
-        {step === 'assinatura-email' && (plano === 'avulso' ? <AvulsoUpgradeCard accentColor={accentColor} titulo="Assinatura de E-mail" desc="Assinatura profissional com sua logo, dados de contato e links para usar no Gmail ou Outlook. Disponível no Plano Completo." /> : <AssinaturaEmailPreview brand={brand} editData={editDataWithLogo} accentColor={accentColor} logoColor={logoColor} logoLayout={logoLayout} cartaoContacts={cartaoContacts} crmLine={crmLine} localSlogan={localSlogan} clinicaNome={clinicaNome} storyTemplateIdx={storyTemplateIdx} setStoryTemplateIdx={setStoryTemplateIdx} storyFormatIdx={storyFormatIdx} setStoryFormatIdx={setStoryFormatIdx} setCartaoContacts={setCartaoContacts} setClinicaNome={setClinicaNome} setLocalSlogan={setLocalSlogan} />)}
-
-        {/* Placa da marca */}
-        {step === 'placa' && plano !== 'avulso' && <PlacaStep brand={brand} accentColor={accentColor} paletteColors={orderedPaletteColors} estampaPatterns={estampaPatterns} estampaSelectedIdx={estampaSelectedIdx} editData={editDataWithLogo} logoColor={logoColor} logoLayout={logoLayout} iconPath={currentIconPath} submarcaColor={submarcaColor} submarcaTextColor={submarcaTextColor} />}
-
-        {/* Manifesto */}
-        {step === 'manifesto' && plano !== 'avulso' && <ManifestoStep accentColor={accentColor} marca={marca} tagline={tagline} brand={brand} isSaude={isSaude} editData={editDataWithLogo} />}
-
-        {/* Tom de Voz */}
-        {step === 'tomdevoz' && plano !== 'avulso' && <TomDeVozStep accentColor={accentColor} marca={marca} tagline={tagline} brand={brand} editData={editDataWithLogo} />}
-
-        {step === 'fonte' && <FonteStep brand={brand} accentColor={accentColor} logoColor={logoColor} marca={marca} tagline={tagline} editData={editDataWithLogo} onFontChange={(f) => setFontOverride(f)} />}
-
-        {/* Aba Slogan */}
-        {step === 'slogan' && (
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-            {/* Preview da logo com slogan */}
-            <div style={{
-              width: '100%', aspectRatio: '1 / 1',
-              background: bgColor,
-              borderRadius: '16px',
-              overflow: 'hidden',
-              boxShadow: '0 8px 40px rgba(0,0,0,0.10)',
-              display: 'flex', alignItems: 'center', justifyContent: 'center',
-              transition: 'background 0.2s ease',
-            }}>
-              <div style={{ width: '85%', height: '58%', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                <LogoPreviewHTML editData={editDataWithLogo} color={logoColor} layout={logoLayout} scaleFactor={1.1} maxWidth="100%" maxHeight="100%" />
-              </div>
+          {/* Cores — prioridade/ordem */}
+          {step === 'cores' && plano === 'avulso' && (
+            <div style={{ background: '#f5f3f0', border: '1px solid #e8e3dc', borderRadius: '12px', padding: '12px 16px', marginBottom: '14px', fontSize: '0.74rem', color: '#888', fontFamily: 'Montserrat,sans-serif', lineHeight: 1.6, textAlign: 'center' }}>
+              🎨 Esta é a paleta da coleção <strong style={{ color: '#8B7355' }}>The Brand Box</strong>.<br />
+              Para personalizar suas cores, clique no ícone de edição no círculo.
             </div>
+          )}
+          {step === 'cores' && <CoresPrioridadeStep paletteColors={paletteColors} colorOrder={colorOrder} setColorOrder={setColorOrder} accentColor={accentColor}
+            onColorChange={plano === 'avulso' ? (idx, hex) => {
+              const updated = [...paletteColors];
+              updated[idx] = hex;
+              const newBrand = { ...brand, currentPaletteColors: updated, activeColor: updated[0] };
+              setBrand(newBrand);
+              try { localStorage.setItem('brandbox_avulso_' + avulsoParam, JSON.stringify(newBrand)); } catch {}
+            } : undefined}
+          />}
 
-            {/* Controles da tagline */}
-            {editDataWithLogo?.customLogoSrc ? (
-              <div style={{ padding: '16px', background: '#F8F5F1', borderRadius: '12px', border: '1.5px solid #E5E0D8', color: '#363532', fontSize: '0.82rem', fontFamily: 'Montserrat, sans-serif', textAlign: 'center', fontWeight: 600 }}>
-                {dictionary?.tagline_tab?.custom_logo_msg || 'Você enviou sua própria logo, então a tagline (slogan) já faz parte da sua imagem!'}<br/><br/>
-                <span style={{ fontSize: '0.72rem', fontWeight: 500, opacity: 0.8 }}>{dictionary?.tagline_tab?.custom_logo_sub || 'Para alterar a tagline ou usar as opções desta aba, volte à aba "Sua Logo" e selecione a "Logo sugerida".'}</span>
+          {/* Paleta — visualização completa */}
+          {step === 'paleta' && plano !== 'avulso' && <CoresStep paletteColors={paletteColors} accentColor={accentColor} paletaNome={paletas?.find(p => p.id === brand.selectedPaleta)?.nome_variacao} coresRef={coresRef} />}
+
+          {/* Cartão digital */}
+          {step === 'cartao' && (plano === 'avulso' ? <AvulsoUpgradeCard accentColor={accentColor} titulo="Cartão Digital" desc="Crie seu cartão digital interativo com QR code, link para redes sociais e muito mais. Disponível no Plano Completo." /> : <CartaoStep brand={brand} accentColor={accentColor} paletteColors={paletteColors} marca={marca} estampaPatterns={estampaPatterns} estampaSelectedIdx={estampaSelectedIdx} contacts={cartaoContacts} setContacts={setCartaoContacts} qrLink={cartaoQrLink} setQrLink={setCartaoQrLink} showQR={cartaoShowQR} setShowQR={setCartaoShowQR} logoLayout={logoLayout} editData={editDataWithLogo} logoColor={logoColor} setLayout={setLayout} />)}
+          {step === 'pack-instagram' && (plano === 'avulso' ? <AvulsoUpgradeCard accentColor={accentColor} titulo="Pack Digital para Instagram" desc="Templates prontos para Stories e Feed com a sua identidade visual aplicada. Disponível no Plano Completo." /> : <FundoInstaPreview brand={brand} editData={editDataWithLogo} accentColor={accentColor} patternSrc={patternSrc} logoColor={logoColor} logoLayout={logoLayout} comBorda={comBorda} setComBorda={setComBorda} paletteColors={paletteColors} borderColor={borderColor} setBorderColor={setBorderColor} patternScale={patternScale} setPatternScale={setPatternScale} patternOffset={patternOffset} setPatternOffset={setPatternOffset} cartaoContacts={cartaoContacts} crmLine={crmLine} localSlogan={localSlogan} clinicaNome={clinicaNome} storyTemplateIdx={storyTemplateIdx} setStoryTemplateIdx={setStoryTemplateIdx} storyFormatIdx={storyFormatIdx} setStoryFormatIdx={setStoryFormatIdx} />)}
+          {step === 'assinatura-email' && (plano === 'avulso' ? <AvulsoUpgradeCard accentColor={accentColor} titulo="Assinatura de E-mail" desc="Assinatura profissional com sua logo, dados de contato e links para usar no Gmail ou Outlook. Disponível no Plano Completo." /> : <AssinaturaEmailPreview brand={brand} editData={editDataWithLogo} accentColor={accentColor} logoColor={logoColor} logoLayout={logoLayout} cartaoContacts={cartaoContacts} crmLine={crmLine} localSlogan={localSlogan} clinicaNome={clinicaNome} storyTemplateIdx={storyTemplateIdx} setStoryTemplateIdx={setStoryTemplateIdx} storyFormatIdx={storyFormatIdx} setStoryFormatIdx={setStoryFormatIdx} setCartaoContacts={setCartaoContacts} setClinicaNome={setClinicaNome} setLocalSlogan={setLocalSlogan} />)}
+
+          {/* Placa da marca */}
+          {step === 'placa' && plano !== 'avulso' && <PlacaStep brand={brand} accentColor={accentColor} paletteColors={orderedPaletteColors} estampaPatterns={estampaPatterns} estampaSelectedIdx={estampaSelectedIdx} editData={editDataWithLogo} logoColor={logoColor} logoLayout={logoLayout} iconPath={currentIconPath} submarcaColor={submarcaColor} submarcaTextColor={submarcaTextColor} />}
+
+          {/* Manifesto */}
+          {step === 'manifesto' && plano !== 'avulso' && <ManifestoStep accentColor={accentColor} marca={marca} tagline={tagline} brand={brand} isSaude={isSaude} editData={editDataWithLogo} />}
+
+          {/* Tom de Voz */}
+          {step === 'tomdevoz' && plano !== 'avulso' && <TomDeVozStep accentColor={accentColor} marca={marca} tagline={tagline} brand={brand} editData={editDataWithLogo} />}
+
+          {step === 'fonte' && <FonteStep brand={brand} accentColor={accentColor} logoColor={logoColor} marca={marca} tagline={tagline} editData={editDataWithLogo} onFontChange={(f) => setFontOverride(f)} />}
+
+          {/* Aba Slogan */}
+          {step === 'slogan' && (
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+              {/* Preview da logo com slogan */}
+              <div style={{
+                width: '100%', aspectRatio: '1 / 1',
+                background: bgColor,
+                borderRadius: '16px',
+                overflow: 'hidden',
+                boxShadow: '0 8px 40px rgba(0,0,0,0.10)',
+                display: 'flex', alignItems: 'center', justifyContent: 'center',
+                transition: 'background 0.2s ease',
+              }}>
+                <div style={{ width: '85%', height: '58%', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                  <LogoPreviewHTML editData={editDataWithLogo} color={logoColor} layout={logoLayout} scaleFactor={1.1} maxWidth="100%" maxHeight="100%" />
+                </div>
               </div>
-            ) : (
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', padding: '16px', background: '#fcfcfc', borderRadius: '16px', border: '1.5px solid #eaeaea', boxShadow: '0 4px 12px rgba(0,0,0,0.02)' }}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                  <span style={{ fontSize: '0.78rem', fontWeight: 800, fontFamily: 'Montserrat, sans-serif', color: '#333', letterSpacing: '0.3px', display: 'flex', alignItems: 'center', gap: '6px' }}>{dictionary?.tagline_tab?.brand_tagline || '💬 Tagline da Marca'}</span>
-                  <button
-                    onClick={() => setSloganEnabled(!sloganEnabled)}
-                    style={{ padding: '5px 12px', borderRadius: '20px', fontSize: '0.65rem', fontWeight: 700, cursor: 'pointer', border: 'none', background: sloganEnabled ? `${accentColor}15` : '#eee', color: sloganEnabled ? accentColor : '#999', transition: 'all 0.2s', fontFamily: 'Montserrat, sans-serif' }}
-                  >
-                    {sloganEnabled ? (dictionary?.tagline_tab?.with_tagline || '✓ Com tagline') : (dictionary?.tagline_tab?.without_tagline || '✗ Sem tagline')}
-                  </button>
+
+              {/* Controles da tagline */}
+              {editDataWithLogo?.customLogoSrc ? (
+                <div style={{ padding: '16px', background: '#F8F5F1', borderRadius: '12px', border: '1.5px solid #E5E0D8', color: '#363532', fontSize: '0.82rem', fontFamily: 'Montserrat, sans-serif', textAlign: 'center', fontWeight: 600 }}>
+                  {dictionary?.tagline_tab?.custom_logo_msg || 'Você enviou sua própria logo, então a tagline (slogan) já faz parte da sua imagem!'}<br/><br/>
+                  <span style={{ fontSize: '0.72rem', fontWeight: 500, opacity: 0.8 }}>{dictionary?.tagline_tab?.custom_logo_sub || 'Para alterar a tagline ou usar as opções desta aba, volte à aba "Sua Logo" e selecione a "Logo sugerida".'}</span>
                 </div>
-                {sloganEnabled && (<>
-                <input
-                  value={tagline}
-                  onChange={e => setTagline(e.target.value)}
-                  placeholder={dictionary?.tagline_tab?.placeholder || 'Ex: Delicadeza em cada detalhe'}
-                  style={{ width: '100%', padding: '12px 16px', borderRadius: '12px', border: `1.5px solid ${logoColor}22`, fontSize: '0.88rem', fontFamily: 'Montserrat, sans-serif', boxSizing: 'border-box', background: '#fff', outline: 'none', color: '#444', letterSpacing: '0.3px' }}
-                />
-                <div style={{ display: 'flex', gap: '6px' }}>
-                  <button onClick={() => setTaglineWrap(false)} style={{ flex: 1, padding: '6px 4px', border: 'none', borderRadius: '20px', fontSize: '0.68rem', fontWeight: 700, background: !taglineWrap ? logoColor : '#eee', color: !taglineWrap ? '#fff' : '#888', cursor: 'pointer', transition: '0.2s' }}>{dictionary?.tagline_tab?.one_line || '1 Linha'}</button>
-                  <button onClick={() => setTaglineWrap(true)} style={{ flex: 1, padding: '6px 4px', border: 'none', borderRadius: '20px', fontSize: '0.68rem', fontWeight: 700, background: taglineWrap ? logoColor : '#eee', color: taglineWrap ? '#fff' : '#888', cursor: 'pointer', transition: '0.2s' }}>{dictionary?.tagline_tab?.two_lines || '2 Linhas'}</button>
+              ) : (
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', padding: '16px', background: '#fcfcfc', borderRadius: '16px', border: '1.5px solid #eaeaea', boxShadow: '0 4px 12px rgba(0,0,0,0.02)' }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                    <span style={{ fontSize: '0.78rem', fontWeight: 800, fontFamily: 'Montserrat, sans-serif', color: '#333', letterSpacing: '0.3px', display: 'flex', alignItems: 'center', gap: '6px' }}>{dictionary?.tagline_tab?.brand_tagline || '💬 Tagline da Marca'}</span>
+                    <button
+                      onClick={() => setSloganEnabled(!sloganEnabled)}
+                      style={{ padding: '5px 12px', borderRadius: '20px', fontSize: '0.65rem', fontWeight: 700, cursor: 'pointer', border: 'none', background: sloganEnabled ? `${accentColor}15` : '#eee', color: sloganEnabled ? accentColor : '#999', transition: 'all 0.2s', fontFamily: 'Montserrat, sans-serif' }}
+                    >
+                      {sloganEnabled ? (dictionary?.tagline_tab?.with_tagline || '✓ Com tagline') : (dictionary?.tagline_tab?.without_tagline || '✗ Sem tagline')}
+                    </button>
+                  </div>
+                  {sloganEnabled && (<>
+                  <input
+                    value={tagline}
+                    onChange={e => setTagline(e.target.value)}
+                    placeholder={dictionary?.tagline_tab?.placeholder || 'Ex: Delicadeza em cada detalhe'}
+                    style={{ width: '100%', padding: '12px 16px', borderRadius: '12px', border: `1.5px solid ${logoColor}22`, fontSize: '0.88rem', fontFamily: 'Montserrat, sans-serif', boxSizing: 'border-box', background: '#fff', outline: 'none', color: '#444', letterSpacing: '0.3px' }}
+                  />
+                  <div style={{ display: 'flex', gap: '6px' }}>
+                    <button onClick={() => setTaglineWrap(false)} style={{ flex: 1, padding: '6px 4px', border: 'none', borderRadius: '20px', fontSize: '0.68rem', fontWeight: 700, background: !taglineWrap ? logoColor : '#eee', color: !taglineWrap ? '#fff' : '#888', cursor: 'pointer', transition: '0.2s' }}>{dictionary?.tagline_tab?.one_line || '1 Linha'}</button>
+                    <button onClick={() => setTaglineWrap(true)} style={{ flex: 1, padding: '6px 4px', border: 'none', borderRadius: '20px', fontSize: '0.68rem', fontWeight: 700, background: taglineWrap ? logoColor : '#eee', color: taglineWrap ? '#fff' : '#888', cursor: 'pointer', transition: '0.2s' }}>{dictionary?.tagline_tab?.two_lines || '2 Linhas'}</button>
+                  </div>
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', padding: '10px', background: '#f8f8f8', borderRadius: '12px' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                      <span style={{ fontSize: '0.68rem', color: '#888', fontWeight: 600, fontFamily: 'Montserrat,sans-serif', width: '100px' }}>{dictionary?.tagline_tab?.scale || 'Escala Tagline'}</span>
+                      <input type="range" min="0.2" max="2.5" step="0.05" value={taglineSizeBoost} onChange={e => setTaglineSizeBoost(parseFloat(e.target.value))} style={{ flex: 1, accentColor }} />
+                      <span style={{ fontSize: '0.68rem', color: '#aaa', width: '30px' }}>{taglineSizeBoost.toFixed(2)}×</span>
+                    </div>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                      <span style={{ fontSize: '0.68rem', color: '#888', fontWeight: 600, fontFamily: 'Montserrat,sans-serif', width: '100px' }}>{dictionary?.tagline_tab?.distance || 'Distância'}</span>
+                      <input type="range" min="-0.5" max="1.5" step="0.05" value={taglineGap} onChange={e => setTaglineGap(parseFloat(e.target.value))} style={{ flex: 1, accentColor }} />
+                      <span style={{ fontSize: '0.68rem', color: '#aaa', width: '30px' }}>{taglineGap.toFixed(2)}</span>
+                    </div>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                      <span style={{ fontSize: '0.68rem', color: '#888', fontWeight: 600, fontFamily: 'Montserrat,sans-serif', width: '100px' }}>{dictionary?.tagline_tab?.spacing_slider || 'Espaçamento'}</span>
+                      <input type="range" min="-0.1" max="1.5" step="0.05" value={taglineLetterSpacing} onChange={e => setTaglineLetterSpacing(parseFloat(e.target.value))} style={{ flex: 1, accentColor }} />
+                      <span style={{ fontSize: '0.68rem', color: '#aaa', width: '30px' }}>{taglineLetterSpacing.toFixed(2)}em</span>
+                    </div>
+                  </div>
+                  </>)}
                 </div>
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', padding: '10px', background: '#f8f8f8', borderRadius: '12px' }}>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-                    <span style={{ fontSize: '0.68rem', color: '#888', fontWeight: 600, fontFamily: 'Montserrat,sans-serif', width: '100px' }}>{dictionary?.tagline_tab?.scale || 'Escala Tagline'}</span>
-                    <input type="range" min="0.2" max="2.5" step="0.05" value={taglineSizeBoost} onChange={e => setTaglineSizeBoost(parseFloat(e.target.value))} style={{ flex: 1, accentColor }} />
-                    <span style={{ fontSize: '0.68rem', color: '#aaa', width: '30px' }}>{taglineSizeBoost.toFixed(2)}×</span>
-                  </div>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-                    <span style={{ fontSize: '0.68rem', color: '#888', fontWeight: 600, fontFamily: 'Montserrat,sans-serif', width: '100px' }}>{dictionary?.tagline_tab?.distance || 'Distância'}</span>
-                    <input type="range" min="-0.5" max="1.5" step="0.05" value={taglineGap} onChange={e => setTaglineGap(parseFloat(e.target.value))} style={{ flex: 1, accentColor }} />
-                    <span style={{ fontSize: '0.68rem', color: '#aaa', width: '30px' }}>{taglineGap.toFixed(2)}</span>
-                  </div>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-                    <span style={{ fontSize: '0.68rem', color: '#888', fontWeight: 600, fontFamily: 'Montserrat,sans-serif', width: '100px' }}>{dictionary?.tagline_tab?.spacing_slider || 'Espaçamento'}</span>
-                    <input type="range" min="-0.1" max="1.5" step="0.05" value={taglineLetterSpacing} onChange={e => setTaglineLetterSpacing(parseFloat(e.target.value))} style={{ flex: 1, accentColor }} />
-                    <span style={{ fontSize: '0.68rem', color: '#aaa', width: '30px' }}>{taglineLetterSpacing.toFixed(2)}em</span>
-                  </div>
-                </div>
-                </>)}
-              </div>
-            )}
-          </div>
-        )}
+              )}
+            </div>
+          )}
 
-        {/* Guia da marca */}
-        {step === 'guia' && plano !== 'avulso' && <GuiaStep brand={brand} accentColor={accentColor} paletteColors={paletteColors} marca={marca} tagline={tagline} estampaPatterns={estampaPatterns} estampaSelectedIdx={estampaSelectedIdx} editData={editDataWithLogo} />}
+          {/* Guia da marca */}
+          {step === 'guia' && plano !== 'avulso' && <GuiaStep brand={brand} accentColor={accentColor} paletteColors={paletteColors} marca={marca} tagline={tagline} estampaPatterns={estampaPatterns} estampaSelectedIdx={estampaSelectedIdx} editData={editDataWithLogo} />}
 
-        {/* Papelaria / Gabaritos */}
-        {step === 'papelaria' && <PapelariaStep brand={brand} accentColor={accentColor} paletteColors={orderedPaletteColors} estampaPatterns={estampaPatterns} estampaSelectedIdx={estampaSelectedIdx} cartaoContacts={cartaoContacts} setCartaoContacts={setCartaoContacts} plano={plano} isSaude={isSaude} crmData={crmData} setCrmData={setCrmData} marca={marca} editData={editDataWithLogo} logoColor={logoColor} logoLayout={logoLayout} setLayout={setLayout} clinicaNome={clinicaNome} setClinicaNome={setClinicaNome} onNavSync={setPapelariaNavItens} navIdx={papelariaNavIdx} setNavIdx={setPapelariaNavIdx} customLogoSrc={customLogoSrc} getCustomLogoScale={getCustomLogoScale} setCustomLogoScale={setCustomLogoScale} getCustomLogoScaleMax={getCustomLogoScaleMax} customLogoScaleMap={customLogoScaleMap} submarcaColor={submarcaColor} submarcaTextColor={submarcaTextColor} iconPath={currentIconPath} avulsoParam={avulsoParam} />}
+          {/* Papelaria / Gabaritos */}
+          {step === 'papelaria' && <PapelariaStep brand={brand} accentColor={accentColor} paletteColors={orderedPaletteColors} estampaPatterns={estampaPatterns} estampaSelectedIdx={estampaSelectedIdx} cartaoContacts={cartaoContacts} setCartaoContacts={setCartaoContacts} plano={plano} isSaude={isSaude} crmData={crmData} setCrmData={setCrmData} marca={marca} editData={editDataWithLogo} logoColor={logoColor} logoLayout={logoLayout} setLayout={setLayout} clinicaNome={clinicaNome} setClinicaNome={setClinicaNome} onNavSync={setPapelariaNavItens} navIdx={papelariaNavIdx} setNavIdx={setPapelariaNavIdx} customLogoSrc={customLogoSrc} getCustomLogoScale={getCustomLogoScale} setCustomLogoScale={setCustomLogoScale} getCustomLogoScaleMax={getCustomLogoScaleMax} customLogoScaleMap={customLogoScaleMap} submarcaColor={submarcaColor} submarcaTextColor={submarcaTextColor} iconPath={currentIconPath} avulsoParam={avulsoParam} />}
 
-        {/* Ajuda & Inspiração */}
-        {step === 'ajuda' && (
-          <>
-            <AjudaStep brand={brand} accentColor={accentColor} onResendEmail={handleResendEmail} resendingEmail={resendingEmail} resendStatus={resendStatus} />
-            {plano === 'avulso' && <AvulsoUpgradeCard accentColor={accentColor} titulo="Quer uma identidade visual completa?" desc="Com o Plano Completo você tem logo, paleta de cores, estampa, guia da marca, pack para Instagram, assinatura de e-mail e todos os impressos personalizados com a sua marca." />}
-          </>
-        )}
+          {/* Ajuda & Inspiração */}
+          {step === 'ajuda' && (
+            <>
+              <AjudaStep brand={brand} accentColor={accentColor} onResendEmail={handleResendEmail} resendingEmail={resendingEmail} resendStatus={resendStatus} />
+              {plano === 'avulso' && <AvulsoUpgradeCard accentColor={accentColor} titulo="Quer uma identidade visual completa?" desc="Com o Plano Completo você tem logo, paleta de cores, estampa, guia da marca, pack para Instagram, assinatura de e-mail e todos os impressos personalizados com a sua marca." />}
+            </>
+          )}
 
-        {/* Upsell — página de fechamento com serviços extras */}
-        {step === 'upsell' && (
-          <UpsellStep brand={brand} accentColor={accentColor} marca={marca} />
-        )}
+          {/* Upsell — página de fechamento com serviços extras */}
+          {step === 'upsell' && (
+            <UpsellStep brand={brand} accentColor={accentColor} marca={marca} />
+          )}
+        </PostPaymentErrorBoundary>
 
         {/* Estilos Salvos — acima do preview na aba logo */}
         {step === 'logo' && !customLogoSrc && (
