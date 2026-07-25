@@ -2386,7 +2386,7 @@ export default function Home() {
                 )}
               </AnimatePresence>
 
-              <button onClick={() => setStep(7.8)} className="btn-secondary">{dictionary?.onboarding?.btn_next || 'Avançar'}</button>
+              <button onClick={callMatchmaker} className="btn-primary">{dictionary?.onboarding?.btn_next || 'Avançar'}</button>
             </motion.div>
           )}
 
