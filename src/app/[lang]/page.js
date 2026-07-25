@@ -3160,6 +3160,7 @@ export default function Home() {
                     color={editData.corAtiva || '#d22f5a'}
                     patternImage={selectedPattern !== null && generatedPatterns[selectedPattern] && !generatedPatterns[selectedPattern]._devPlaceholder ? `data:${generatedPatterns[selectedPattern].mimeType};base64,${generatedPatterns[selectedPattern].base64}` : null}
                     iconPath={getIconById(ESTILO_NOME_BY_ID[resultadoFinal?.estiloId] || resultadoFinal?.estiloNome, selectedIcon)?.path || null}
+                    brandElement={selectedBrandElementId ? (generatedBrandElements.find(el => el.id === selectedBrandElementId) || formData.brandElement) : formData.brandElement}
                   />
                 </div>
               </div>

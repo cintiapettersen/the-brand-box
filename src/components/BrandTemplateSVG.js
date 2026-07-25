@@ -1,9 +1,21 @@
 import React from 'react';
 
-const BrandTemplateSVG = ({ data = {}, color, side = 'frente', hideBackground = false, iconPath = null, textColor = '#ffffff' }) => {
+const BrandTemplateSVG = ({ data = {}, color, side = 'frente', hideBackground = false, iconPath = null, brandElement = null, textColor = '#ffffff' }) => {
   const safeData = data || {};
-  const { marca = '', tagline = '', whatsapp = '', instagram = '' } = safeData;
+  const { marca = '', tagline = '' } = safeData;
   const activeColor = color || '#d22f5a';
+
+  // Pré-processa o data URI de brandElement (objeto com base64 ou string data URI)
+  const elementSrc = (() => {
+    const el = brandElement || safeData.brandElement;
+    if (!el) return null;
+    if (typeof el === 'string') return el.startsWith('data:') ? el : `data:image/png;base64,${el}`;
+    if (typeof el === 'object' && el.base64) {
+      return el.base64.startsWith('data:') ? el.base64 : `data:${el.mimeType || 'image/png'};base64,${el.base64}`;
+    }
+    return null;
+  })();
+
   const brandFont = safeData.fontFamily || 'Playfair Display';
   const brandWeight = safeData.fontWeight || 700;
   const isScript = safeData.fontStyle === 'script';
@@ -135,14 +147,21 @@ const BrandTemplateSVG = ({ data = {}, color, side = 'frente', hideBackground = 
           {/* SELO CIRCULAR DINAMICO — fundo orgânico */}
           <g transform="translate(1076.6, 318.42)">
             <path className="st-selo-bg" d="M 5,-129 C 74,-135 135,-72 130,5 C 126,72 72,133 -3,129 C -72,126 -132,68 -128,-3 C -124,-70 -68,-132 5,-129 Z" />
-            {iconPath && (
+            {elementSrc ? (
+              <image
+                href={elementSrc}
+                x={-65} y={-65}
+                width={130} height={130}
+                style={{ filter: 'brightness(0) invert(1) opacity(0.9)' }}
+              />
+            ) : iconPath ? (
               <image
                 href={iconPath}
                 x={-65} y={-65}
                 width={130} height={130}
                 style={{ filter: 'brightness(0) invert(1) opacity(0.85)' }}
               />
-            )}
+            ) : null}
           </g>
           {(() => {
             const circumference = 2 * Math.PI * 91.64;
