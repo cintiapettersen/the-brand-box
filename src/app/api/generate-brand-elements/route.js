@@ -43,10 +43,14 @@ export async function POST(req) {
 Analyze the attached pattern image.
 Identify 3 DISTINCT individual visual elements/motifs that are physically present in this pattern image (e.g. a specific curved leaf, a distinct 5-petal flower, an abstract arch shape, a small berry branch, a star motif, etc.).
 
+CRITICAL REQUIREMENTS:
+- Each motif MUST be a SINGLE, INDIVIDUAL, SIMPLE SHAPE/MOTIF (e.g., "a single curved leaf", "a 5-petal flower silhouette", "a small berry stem").
+- DO NOT describe full pattern compositions, rectangular background patches, or tiled crops.
+
 For each of the 3 motifs, provide:
 1. "title": A short Portuguese title describing the motif (e.g. "Folha Curva", "Flor Solitária", "Ramo de Botões", "Forma Orgânica").
 2. "origin": A short sentence in Portuguese explaining where it came from in the pattern (e.g. "Inspirado na folha curva presente na sua estampa", "Derivado das flores delicadas da estampa", "Extraído das hastes orgânicas do padrão").
-3. "visualDescription": A precise English visual description of the isolated shape/motif (e.g. "a single curved leaf with thin stem", "a minimal five-petal flower icon", "a small cluster of three berries").
+3. "visualDescription": A precise English visual description of the single isolated shape/motif (e.g. "a single curved leaf with thin stem", "a minimal five-petal flower icon", "a small cluster of three berries").
 
 Return strictly valid JSON array of 3 objects with keys "title", "origin", and "visualDescription".
 `;
@@ -87,7 +91,7 @@ Return strictly valid JSON array of 3 objects with keys "title", "origin", and "
       motifs = [
         { title: "Folha Orgânica", origin: "Inspirado nos ramos folhosos presentes na sua estampa", visualDescription: "a single organic curved leaf motif" },
         { title: "Flor Delicada", origin: "Derivado das pétalas sutis presentes na estampa", visualDescription: "a minimal single flower motif" },
-        { title: "Elemento Botânico", origin: "Extraído das formas abstratas do padrão visual", visualDescription: "an abstract organic botanical shape" }
+        { title: "Elemento Botânico", origin: "Extraído das formas abstratas do padrão visual", visualDescription: "a single abstract organic botanical shape" }
       ];
     }
 
@@ -103,13 +107,13 @@ Return strictly valid JSON array of 3 objects with keys "title", "origin", and "
 Look at the attached pattern image as reference.
 Extract and illustrate ONE SINGLE ISOLATED GRAPHIC MOTIF: ${motif.visualDescription}.
 
-MANDATORY SPECIFICATIONS:
-- ISOLATED ELEMENT ONLY: Render exactly one motif centered on a PURE WHITE BACKGROUND (#FFFFFF).
-- FLAT MONOCHROMATIC GRAPHIC ICON / VECTOR ILLUSTRATION.
-- COLOR: Use ONLY the exact color ${primaryColor} for the entire shape.
-- NO GRADIENTS, NO SHADOWS, NO MULTIPLE COLORS.
-- NO OTHER ELEMENTS, NO BACKGROUND PATTERNS, NO BORDERS, NO MARGINS.
-- Clean vector lineart or solid flat silhouette.
+STRICT MANDATORY SPECIFICATIONS (VIOLATIONS WILL BE REJECTED):
+- SINGLE ISOLATED MOTIF ONLY: Draw exactly ONE standalone graphic icon centered on a PURE WHITE (#FFFFFF) background with generous padding/margins around it.
+- NO PATTERN REPETITION / NO TILES: DO NOT crop a rectangle of the pattern. DO NOT generate a seamless pattern or wallpaper patch.
+- NO BACKGROUND FRAMES: DO NOT render any bounding box, rectangular container, card border, or background texture.
+- FLAT MONOCHROMATIC VECTOR ICON: Render as a clean, flat vector silhouette or lineart.
+- COLOR: Use ONLY the exact color ${primaryColor} for the entire motif shape.
+- NO GRADIENTS, NO SHADOWS, NO MULTIPLE COLORS, NO NOISE.
 `;
 
       // Tentativa 1 com gemini-2.5-flash-image (alinhado com /api/generate-pattern)

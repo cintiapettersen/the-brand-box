@@ -3193,50 +3193,98 @@ export default function Home() {
               {/* Seletor de ícone da submarca */}
               {(() => {
                 const styleIcons = STYLE_ICONS[ESTILO_NOME_BY_ID[resultadoFinal?.estiloId] || resultadoFinal?.estiloNome] || [];
-                if (styleIcons.length === 0) return null;
                 const activeColor = editData.corAtiva || '#d22f5a';
+                const hasGeneratedElements = generatedBrandElements && generatedBrandElements.length > 0;
+
                 return (
-                  <div style={{ padding: '10px 20px', background: '#fff', borderTop: '1px solid #f0f0f0', display: 'flex', alignItems: 'center', gap: '10px', justifyContent: 'center' }}>
+                  <div style={{ padding: '10px 20px', background: '#fff', borderTop: '1px solid #f0f0f0', display: 'flex', alignItems: 'center', gap: '10px', justifyContent: 'center', overflowX: 'auto' }}>
                     <p style={{ fontSize: '0.65rem', color: 'var(--text-secondary)', textTransform: 'uppercase', letterSpacing: '1px', fontWeight: 600, whiteSpace: 'nowrap' }}>{dictionary?.postmatch?.step_12_icon || 'Ícone:'}</p>
-                    {/* opção nenhum */}
-                    <div
-                      onClick={() => setSelectedIcon(null)}
-                      title="Nenhum"
-                      style={{
-                        width: '38px', height: '38px', borderRadius: '50%', cursor: 'pointer',
-                        background: selectedIcon === null ? activeColor : '#f5f5f5',
-                        border: selectedIcon === null ? `3px solid #333` : '2px solid #ddd',
-                        display: 'flex', alignItems: 'center', justifyContent: 'center',
-                        transition: 'all 0.15s ease', flexShrink: 0,
-                        fontSize: '0.55rem', color: selectedIcon === null ? '#fff' : '#aaa', fontWeight: 700, letterSpacing: '0.5px'
-                      }}
-                    >—</div>
-                    {styleIcons.slice(0, 5).map(icon => (
-                      <div
-                        key={icon.id}
-                        onClick={() => setSelectedIcon(icon.id)}
-                        title={icon.label}
-                        style={{
-                          width: '38px', height: '38px', borderRadius: '50%', cursor: 'pointer',
-                          background: selectedIcon === icon.id ? activeColor : '#f5f5f5',
-                          border: selectedIcon === icon.id ? '3px solid #333' : '2px solid #ddd',
-                          display: 'flex', alignItems: 'center', justifyContent: 'center',
-                          transition: 'all 0.15s ease', flexShrink: 0,
-                          transform: selectedIcon === icon.id ? 'scale(1.15)' : 'scale(1)',
-                          boxShadow: selectedIcon === icon.id ? '0 0 0 1px #333' : 'none'
-                        }}
-                      >
-                        <img src={icon.path} alt={icon.label}
-                          style={{ width: '22px', height: '22px', objectFit: 'contain',
-                            filter: selectedIcon === icon.id ? 'brightness(0) invert(1)' : 'none' }} />
-                      </div>
-                    ))}
+                    
+                    {/* Se houver elementos gráficos gerados a partir da estampa, exibe-os prioritariamente */}
+                    {hasGeneratedElements ? (
+                      generatedBrandElements.map(el => {
+                        const isSelected = selectedBrandElementId === el.id;
+                        const elSrc = el.base64 ? (el.base64.startsWith('data:') ? el.base64 : `data:${el.mimeType || 'image/png'};base64,${el.base64}`) : null;
+                        return (
+                          <div
+                            key={el.id}
+                            onClick={() => {
+                              setSelectedBrandElementId(el.id);
+                              setFormData(prev => ({ ...prev, brandElement: el }));
+                            }}
+                            title={el.title || 'Elemento da Estampa'}
+                            style={{
+                              width: '38px', height: '38px', borderRadius: '50%', cursor: 'pointer',
+                              background: isSelected ? activeColor : '#f5f5f5',
+                              border: isSelected ? '3px solid #333' : '2px solid #ddd',
+                              display: 'flex', alignItems: 'center', justifyContent: 'center',
+                              transition: 'all 0.15s ease', flexShrink: 0,
+                              transform: isSelected ? 'scale(1.15)' : 'scale(1)',
+                              boxShadow: isSelected ? '0 0 0 1px #333' : 'none'
+                            }}
+                          >
+                            {elSrc ? (
+                              <img 
+                                src={elSrc} 
+                                alt={el.title}
+                                style={{ width: '22px', height: '22px', objectFit: 'contain', filter: isSelected ? 'brightness(0) invert(1)' : 'none' }} 
+                              />
+                            ) : (
+                              <span style={{ fontSize: '0.6rem', color: isSelected ? '#fff' : '#666' }}>✨</span>
+                            )}
+                          </div>
+                        );
+                      })
+                    ) : (
+                      <>
+                        {/* Opção Nenhum (Fallback catálogos estáticos) */}
+                        <div
+                          onClick={() => setSelectedIcon(null)}
+                          title="Nenhum"
+                          style={{
+                            width: '38px', height: '38px', borderRadius: '50%', cursor: 'pointer',
+                            background: selectedIcon === null ? activeColor : '#f5f5f5',
+                            border: selectedIcon === null ? `3px solid #333` : '2px solid #ddd',
+                            display: 'flex', alignItems: 'center', justifyContent: 'center',
+                            transition: 'all 0.15s ease', flexShrink: 0,
+                            fontSize: '0.55rem', color: selectedIcon === null ? '#fff' : '#aaa', fontWeight: 700, letterSpacing: '0.5px'
+                          }}
+                        >—</div>
+                        {styleIcons.slice(0, 5).map(icon => (
+                          <div
+                            key={icon.id}
+                            onClick={() => setSelectedIcon(icon.id)}
+                            title={icon.label}
+                            style={{
+                              width: '38px', height: '38px', borderRadius: '50%', cursor: 'pointer',
+                              background: selectedIcon === icon.id ? activeColor : '#f5f5f5',
+                              border: selectedIcon === icon.id ? '3px solid #333' : '2px solid #ddd',
+                              display: 'flex', alignItems: 'center', justifyContent: 'center',
+                              transition: 'all 0.15s ease', flexShrink: 0,
+                              transform: selectedIcon === icon.id ? 'scale(1.15)' : 'scale(1)',
+                              boxShadow: selectedIcon === icon.id ? '0 0 0 1px #333' : 'none'
+                            }}
+                          >
+                            <img src={icon.path} alt={icon.label}
+                              style={{ width: '22px', height: '22px', objectFit: 'contain',
+                                filter: selectedIcon === icon.id ? 'brightness(0) invert(1)' : 'none' }} />
+                          </div>
+                        ))}
+                      </>
+                    )}
                   </div>
                 );
               })()}
 
-              <div style={{ padding: '1.2rem', background: '#fff', borderTop: '1px solid var(--border)', zIndex: 10, display: 'flex', flexDirection: 'column', gap: '10px' }}>
+              <div style={{ padding: '1.2rem', background: '#fff', borderTop: '1px solid var(--border)', zIndex: 10, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '8px' }}>
                  <button onClick={() => { setApprovalChecked(false); setStep(12.8); }} className="btn-primary" style={{ width: '100%', background: 'var(--accent-magenta)', padding: '12px 20px', borderRadius: '14px', fontSize: '0.92rem', fontWeight: 600, height: '46px', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: 'none' }}>{dictionary?.postmatch?.step_12_btn_packages || 'Ver pacotes disponíveis ✨'}</button>
+                 <button 
+                   type="button"
+                   onClick={() => setStep(11.7)} 
+                   style={{ background: 'none', border: 'none', color: 'var(--text-secondary)', fontSize: '0.78rem', cursor: 'pointer', textDecoration: 'underline', padding: '4px 8px' }}
+                 >
+                   {dictionary?.postmatch?.step_12_btn_back_pattern || '← Voltar à estampa'}
+                 </button>
               </div>
             </motion.div>
           )}
