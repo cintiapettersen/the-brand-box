@@ -803,13 +803,14 @@ export default function Home() {
       });
 
       const data = await res.json();
-      if (data.elements && data.elements.length > 0) {
+      if (res.ok && Array.isArray(data.elements) && data.elements.length === 3) {
         setGeneratedBrandElements(data.elements);
         setSelectedBrandElementId(data.elements[0].id);
         setElementsGenerationCount(prev => prev + 1);
         setFormData(prev => ({ ...prev, brandElement: data.elements[0] }));
       } else {
-        setAlertMessage('Não foi possível extrair os elementos da estampa. Tente novamente.');
+        console.warn('Falha na geração de elementos visuais (telemetria):', data.telemetry || data.error);
+        setAlertMessage(data.error || 'Não foi possível extrair os elementos da estampa. Tente novamente.');
       }
     } catch (err) {
       console.error('Erro ao gerar elementos da estampa:', err);
