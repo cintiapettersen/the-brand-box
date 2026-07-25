@@ -39,18 +39,18 @@ if (!pageContent.includes('paletteFeedbackError')) {
   console.log('✅ PASS: paletteFeedbackError state declared for visible error card.');
 }
 
-if (!pageContent.includes('Did not like any? Talk to AI Creative Director') || !pageContent.includes('Não gostou de nenhuma? Consultar a Diretora IA')) {
+if (!pageContent.includes('I want other interpretations for this direction') || !pageContent.includes('Quero outras interpretações para esta direção')) {
   console.error('❌ FAIL: Step 10 CTA text strings missing or altered!');
   process.exit(1);
 } else {
   console.log('✅ PASS: Step 10 CTA text strings intact for PT and EN.');
 }
 
-if (!pageContent.includes('clearAiUsage(\'refinement_question\')')) {
-  console.error('❌ FAIL: clearAiUsage helper for retry missing in page.js!');
+if (!pageContent.includes('submitPaletteConsultation')) {
+  console.error('❌ FAIL: submitPaletteConsultation handler missing in page.js!');
   process.exit(1);
 } else {
-  console.log('✅ PASS: Retry handling and clearAiUsage helper configured.');
+  console.log('✅ PASS: submitPaletteConsultation handler configured.');
 }
 
 // Simulated mock runtime test for HEX normalization & 5-color constraint

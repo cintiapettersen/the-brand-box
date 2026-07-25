@@ -311,7 +311,15 @@ export default function Home() {
   const [paletteFeedbackError, setPaletteFeedbackError] = useState(null);
   const [lastPaletteParams, setLastPaletteParams] = useState(null);
 
-
+  // Consultor de Paletas state (PR #8 flow)
+  const [showPaletteConsultant, setShowPaletteConsultant] = useState(false);
+  const [primaryRejectionReason, setPrimaryRejectionReason] = useState('');
+  const [desiredDirection, setDesiredDirection] = useState('');
+  const [paletteComment, setPaletteComment] = useState('');
+  const [isPaletteConsulting, setIsPaletteConsulting] = useState(false);
+  const [paletteConsultationError, setPaletteConsultationError] = useState('');
+  const [paletteConsultations, setPaletteConsultations] = useState([]);
+  const paletteConsultationRequestRef = useRef(null);
 
   const brandBoardRef = useRef(null);
   const selectedVisualBrandRef = useRef({ optionId: '', fontFamily: '' });
@@ -849,6 +857,108 @@ export default function Home() {
       }
     } finally {
       if (paletteFeedbackRequestRef.current === requestId) setIsPaletteFeedbackLoading(false);
+    }
+  };
+
+  const paletteConsultantCopy = (lang === 'en' || lang === 'en-US') ? {
+    intro: 'These are color interpretations for your brand’s creative direction. Each one was selected to match the style found in your briefing.',
+    button: '✨ I want other interpretations for this direction',
+    title: 'AI Palette Consultant',
+    rejectionTitle: 'What was the main reason?',
+    rejectionReasons: ['They were too colorful', 'They were too neutral', 'They were too light', 'They were too dark', 'They do not fit my brand'],
+    mismatchReason: 'They do not fit my brand',
+    preferenceTitle: 'What would you like to feel in the new suggestions?',
+    optional: 'Optional',
+    preferences: ['Something more delicate', 'Something more striking'],
+    comment: 'Tell us, if you wish, what you imagined for your brand colors.',
+    placeholder: 'E.g.: I want something softer, elegant and less childlike.',
+    mismatchComment: 'Briefly tell us what does not fit your brand *',
+    mismatchPlaceholder: 'E.g.: the colors feel too playful for my premium audience.',
+    mismatchHelp: 'This comment is required to guide the new suggestions.',
+    mismatchButtonHelp: 'Complete the required comment to enable this button.',
+    send: 'Ask the AI Creative Director',
+    loading: 'The AI Creative Director is creating new palettes…',
+    loadingHelp: 'We are translating your feedback into new color interpretations.',
+    newTitle: 'New interpretations of your creative direction',
+    limit: 'You have already explored two new color directions for this brand. Choose your favorite from the options created or continue with one of the current palettes.',
+    error: 'We could not create new palettes right now. Please try again; this consultation was not used.',
+    close: 'Close'
+  } : {
+    intro: 'Estas são interpretações de cor para a direção criativa da sua marca. Todas foram selecionadas para combinar com o estilo encontrado no seu briefing.',
+    button: '✨ Quero outras interpretações para esta direção',
+    title: 'Consultor de Paletas IA',
+    rejectionTitle: 'Qual foi o principal motivo?',
+    rejectionReasons: ['Estavam coloridas demais', 'Estavam neutras demais', 'Estavam claras demais', 'Estavam escuras demais', 'Não combinam com a minha marca'],
+    mismatchReason: 'Não combinam com a minha marca',
+    preferenceTitle: 'O que você gostaria de sentir nas novas sugestões?',
+    optional: 'Opcional',
+    preferences: ['Algo mais delicado', 'Algo mais marcante'],
+    comment: 'Conte, se quiser, o que você imaginava para as cores da sua marca.',
+    placeholder: 'Ex.: quero algo mais suave, elegante e menos infantil.',
+    mismatchComment: 'Conte brevemente o que não combina com a sua marca *',
+    mismatchPlaceholder: 'Ex.: as cores parecem infantis para o meu público premium.',
+    mismatchHelp: 'Este comentário é necessário para orientar as novas sugestões.',
+    mismatchButtonHelp: 'Preencha o comentário obrigatório para ativar este botão.',
+    send: 'Consultar a Diretora IA',
+    loading: 'A Diretora IA está criando novas paletas…',
+    loadingHelp: 'Estamos traduzindo seu feedback em novas interpretações de cor.',
+    newTitle: 'Novas interpretações da sua direção criativa',
+    limit: 'Você já explorou duas novas direções de cor para esta marca. Escolha sua favorita entre as opções criadas ou siga com uma das paletas atuais.',
+    error: 'Não foi possível criar novas paletas agora. Tente novamente; esta consulta não foi usada.',
+    close: 'Fechar'
+  };
+
+  const submitPaletteConsultation = async () => {
+    const comment = paletteComment.trim();
+    const isMismatch = primaryRejectionReason === paletteConsultantCopy.mismatchReason;
+    if (isPaletteConsulting || (!primaryRejectionReason && !comment) || (isMismatch && !comment) || paletteConsultations.length >= 2) return;
+
+    const index = paletteConsultations.length + 1;
+    const requestKey = `${resultadoFinal?.creativeDirectorJourneyId || aiSessionId || 'pending'}:${index}:${lang}`;
+    if (paletteConsultationRequestRef.current === requestKey) return;
+    paletteConsultationRequestRef.current = requestKey;
+
+    setIsPaletteConsulting(true);
+    setPaletteConsultationError('');
+
+    try {
+      const response = await fetch('/api/creative-director/palette-consultation', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          journeyId: resultadoFinal?.creativeDirectorJourneyId || aiSessionId || 'pending',
+          consultationIndex: index,
+          language: lang,
+          feedback: { primaryRejectionReason, desiredDirection, comment },
+          formData,
+          resultadoFinal,
+          existingPalettes: paletas
+        })
+      });
+
+      if (!response.ok) {
+        throw new Error('palette_consultation_failed');
+      }
+
+      const data = await response.json();
+      const palettes = (data.palettes || []).map(palette => ({ ...palette, id: `${palette.id}-${index}`, estilo_id: resultadoFinal?.estiloId }));
+      if (palettes.length !== 3) {
+        throw new Error('invalid_palette_response');
+      }
+
+      const consultation = { id: requestKey, feedback: { primaryRejectionReason, desiredDirection, comment }, palettes, language: lang, completedAt: new Date().toISOString() };
+      setPaletteConsultations(prev => [...prev, consultation]);
+      setPaletas(prev => [...prev, ...palettes]);
+      setShowPaletteConsultant(false);
+      setPrimaryRejectionReason('');
+      setDesiredDirection('');
+      setPaletteComment('');
+    } catch (error) {
+      console.warn('Erro no Consultor de Paletas:', error);
+      setPaletteConsultationError(paletteConsultantCopy.error);
+    } finally {
+      setIsPaletteConsulting(false);
+      paletteConsultationRequestRef.current = null;
     }
   };
 
@@ -2568,89 +2678,119 @@ export default function Home() {
                           </p>
                           <button 
                             onClick={() => {
-                              clearAiUsage('refinement_question');
-                              setShowContext(true);
-                              startCreativeRefinement();
+                              setShowPaletteConsultant(!showPaletteConsultant);
+                              setPaletteConsultationError('');
                             }}
                             style={{ padding: '9px 15px', background: 'transparent', color: 'var(--accent-turquoise)', border: '1.5px solid var(--accent-turquoise)', borderRadius: '20px', fontSize: '0.73rem', fontWeight: 700, cursor: 'pointer', fontFamily: 'Montserrat, sans-serif', transition: 'all 0.2s', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: '6px' }}
                           >
-                            ✨ {lang === 'en' ? 'Did not like any? Talk to AI Creative Director' : 'Não gostou de nenhuma? Consultar a Diretora IA'}
+                            ✨ {paletteConsultantCopy.button}
                           </button>
 
-                          {showRefinement && (
-                            <div style={{ marginTop: '0.8rem', background: '#ffffff', borderRadius: '16px', padding: '1rem', border: '1px solid var(--border)', textAlign: 'left' }}>
-                              {isRefinementLoading && (
-                                <p style={{ color: 'var(--text-secondary)', fontSize: '0.85rem', textAlign: 'center', margin: 0 }}>
-                                  {refinementStep === 'question' ? refineCopy.loadingQuestion : refineCopy.loadingResolution}
+                          {showPaletteConsultant && (
+                            <div style={{ marginTop: '0.8rem', background: '#ffffff', borderRadius: '16px', padding: '1.2rem', border: '1.5px solid var(--accent-turquoise)', textAlign: 'left', boxShadow: '0 8px 30px rgba(0,0,0,0.08)' }}>
+                              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.85rem' }}>
+                                <p style={{ margin: 0, fontSize: '0.85rem', fontWeight: 800, color: 'var(--text-primary)', fontFamily: 'Montserrat, sans-serif' }}>
+                                  🎨 {paletteConsultantCopy.title}
                                 </p>
-                              )}
+                                <button type="button" onClick={() => setShowPaletteConsultant(false)} style={{ background: 'none', border: 'none', fontSize: '1rem', color: '#999', cursor: 'pointer' }}>✕</button>
+                              </div>
 
-                              {!isRefinementLoading && refinementStep === 'answer' && refinementQuestion && (
-                                <div>
-                                  {refinementQuestion.tensaoIdentificada && (
-                                    <div style={{ marginBottom: '0.85rem' }}>
-                                      <strong style={{ color: 'var(--text-primary)', fontSize: '0.88rem' }}>{refineCopy.tension}</strong>
-                                      <p style={{ color: 'var(--text-secondary)', fontSize: '0.88rem', lineHeight: 1.5, marginTop: '0.25rem' }}>{refinementQuestion.tensaoIdentificada}</p>
+                              {paletteConsultations.length >= 2 ? (
+                                <p style={{ fontSize: '0.8rem', color: '#666', lineHeight: 1.5, margin: 0 }}>
+                                  {paletteConsultantCopy.limit}
+                                </p>
+                              ) : (
+                                <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+                                  {/* Motivo da Rejeição */}
+                                  <div>
+                                    <p style={{ fontSize: '0.78rem', fontWeight: 700, color: '#333', marginBottom: '0.4rem', fontFamily: 'Montserrat, sans-serif' }}>
+                                      {paletteConsultantCopy.rejectionTitle}
+                                    </p>
+                                    <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px' }}>
+                                      {paletteConsultantCopy.rejectionReasons.map((reason, idx) => (
+                                        <button
+                                          key={idx}
+                                          type="button"
+                                          onClick={() => setPrimaryRejectionReason(primaryRejectionReason === reason ? '' : reason)}
+                                          style={{
+                                            padding: '6px 12px', borderRadius: '20px', fontSize: '0.72rem', fontWeight: 600, cursor: 'pointer',
+                                            border: primaryRejectionReason === reason ? '2px solid var(--accent-turquoise)' : '1px solid #ddd',
+                                            background: primaryRejectionReason === reason ? 'rgba(42, 137, 127, 0.12)' : '#fff',
+                                            color: primaryRejectionReason === reason ? 'var(--accent-turquoise)' : '#555',
+                                            transition: 'all 0.15s'
+                                          }}
+                                        >
+                                          {reason}
+                                        </button>
+                                      ))}
+                                    </div>
+                                  </div>
+
+                                  {/* Preferência Opcional */}
+                                  <div>
+                                    <p style={{ fontSize: '0.78rem', fontWeight: 700, color: '#333', marginBottom: '0.4rem', fontFamily: 'Montserrat, sans-serif' }}>
+                                      {paletteConsultantCopy.preferenceTitle} <span style={{ fontSize: '0.68rem', fontWeight: 400, color: '#999' }}>({paletteConsultantCopy.optional})</span>
+                                    </p>
+                                    <div style={{ display: 'flex', gap: '6px' }}>
+                                      {paletteConsultantCopy.preferences.map((pref, idx) => (
+                                        <button
+                                          key={idx}
+                                          type="button"
+                                          onClick={() => setDesiredDirection(desiredDirection === pref ? '' : pref)}
+                                          style={{
+                                            flex: 1, padding: '6px 10px', borderRadius: '20px', fontSize: '0.72rem', fontWeight: 600, cursor: 'pointer',
+                                            border: desiredDirection === pref ? '2px solid var(--accent-turquoise)' : '1px solid #ddd',
+                                            background: desiredDirection === pref ? 'rgba(42, 137, 127, 0.12)' : '#fff',
+                                            color: desiredDirection === pref ? 'var(--accent-turquoise)' : '#555',
+                                            transition: 'all 0.15s'
+                                          }}
+                                        >
+                                          {pref}
+                                        </button>
+                                      ))}
+                                    </div>
+                                  </div>
+
+                                  {/* Comentário Livre */}
+                                  <div>
+                                    <p style={{ fontSize: '0.78rem', fontWeight: 700, color: '#333', marginBottom: '0.4rem', fontFamily: 'Montserrat, sans-serif' }}>
+                                      {primaryRejectionReason === paletteConsultantCopy.mismatchReason ? paletteConsultantCopy.mismatchComment : paletteConsultantCopy.comment}
+                                    </p>
+                                    <textarea
+                                      value={paletteComment}
+                                      onChange={e => setPaletteComment(e.target.value)}
+                                      placeholder={primaryRejectionReason === paletteConsultantCopy.mismatchReason ? paletteConsultantCopy.mismatchPlaceholder : paletteConsultantCopy.placeholder}
+                                      rows={2}
+                                      style={{ width: '100%', border: '1px solid #ccc', borderRadius: '10px', padding: '8px 12px', fontSize: '0.78rem', fontFamily: 'Montserrat, sans-serif', boxSizing: 'border-box' }}
+                                    />
+                                  </div>
+
+                                  {/* Status de Erro / Indisponibilidade */}
+                                  {paletteConsultationError && (
+                                    <div style={{ padding: '8px 12px', background: '#fff5f5', border: '1px solid #fca5a5', borderRadius: '10px', fontSize: '0.74rem', color: '#dc2626', textAlign: 'center' }}>
+                                      ⚠️ {paletteConsultationError}
                                     </div>
                                   )}
-                                  <div style={{ marginBottom: '0.85rem' }}>
-                                    <strong style={{ color: 'var(--text-primary)', fontSize: '0.88rem' }}>{refineCopy.question}</strong>
-                                    <p style={{ color: 'var(--text-primary)', fontSize: '0.95rem', lineHeight: 1.5, marginTop: '0.25rem' }}>{refinementQuestion.pergunta}</p>
-                                    <p style={{ color: 'var(--text-secondary)', fontSize: '0.82rem', lineHeight: 1.5, marginTop: '0.35rem' }}>{refinementQuestion.porquePerguntar}</p>
-                                  </div>
-                                  <textarea
-                                    value={refinementAnswer}
-                                    onChange={(event) => setRefinementAnswer(event.target.value)}
-                                    placeholder={refineCopy.placeholder}
-                                    rows={3}
-                                    style={{ width: '100%', border: '1px solid var(--border)', borderRadius: '12px', padding: '0.85rem', resize: 'vertical', fontFamily: 'inherit', color: 'var(--text-primary)' }}
-                                  />
-                                  <div style={{ display: 'flex', gap: '0.75rem', marginTop: '0.85rem', flexWrap: 'wrap', justifyContent: 'center' }}>
+
+                                  {/* Botão de Envio */}
+                                  <div style={{ display: 'flex', gap: '8px', justifyContent: 'flex-end', alignItems: 'center' }}>
+                                    <button type="button" onClick={() => setShowPaletteConsultant(false)} style={{ padding: '8px 14px', borderRadius: '20px', border: 'none', background: '#eee', fontSize: '0.72rem', fontWeight: 600, color: '#666', cursor: 'pointer' }}>
+                                      {paletteConsultantCopy.close}
+                                    </button>
                                     <button
                                       type="button"
-                                      onClick={submitCreativeRefinement}
-                                      disabled={!refinementAnswer.trim() || isRefinementLoading}
-                                      className="btn-primary"
-                                      style={{ padding: '0.8rem 1rem', opacity: refinementAnswer.trim() && !isRefinementLoading ? 1 : 0.55 }}
+                                      onClick={submitPaletteConsultation}
+                                      disabled={isPaletteConsulting || (!primaryRejectionReason && !paletteComment.trim()) || (primaryRejectionReason === paletteConsultantCopy.mismatchReason && !paletteComment.trim())}
+                                      style={{
+                                        padding: '8px 18px', borderRadius: '20px', border: 'none',
+                                        background: (primaryRejectionReason || paletteComment.trim()) && !isPaletteConsulting ? 'var(--accent-turquoise)' : '#cbd5e1',
+                                        color: '#fff', fontSize: '0.75rem', fontWeight: 700, cursor: (primaryRejectionReason || paletteComment.trim()) && !isPaletteConsulting ? 'pointer' : 'not-allowed',
+                                        transition: 'all 0.2s'
+                                      }}
                                     >
-                                      {refineCopy.analyze}
-                                    </button>
-                                    <button type="button" onClick={keepCurrentDirection} className="btn-secondary" style={{ padding: '0.8rem 1rem' }}>
-                                      {refineCopy.keepCurrent}
+                                      {isPaletteConsulting ? paletteConsultantCopy.loading : paletteConsultantCopy.send}
                                     </button>
                                   </div>
-                                </div>
-                              )}
-
-                              {!isRefinementLoading && refinementStep === 'result' && resultadoFinal?.creativeDirector?.refinement && (
-                                <div style={{ display: 'grid', gap: '0.75rem' }}>
-                                  <div style={{ background: '#fafafa', borderRadius: '12px', padding: '0.85rem' }}>
-                                    <strong style={{ color: 'var(--text-primary)', fontSize: '0.88rem' }}>{refineCopy.decision}</strong>
-                                    <p style={{ color: 'var(--text-secondary)', fontSize: '0.88rem', lineHeight: 1.5, marginTop: '0.25rem' }}>{resultadoFinal.creativeDirector.refinement.resumoDecisao}</p>
-                                  </div>
-                                  <div style={{ background: '#fafafa', borderRadius: '12px', padding: '0.85rem' }}>
-                                    <strong style={{ color: 'var(--text-primary)', fontSize: '0.88rem' }}>{refineCopy.direction}</strong>
-                                    <p style={{ color: 'var(--text-secondary)', fontSize: '0.88rem', lineHeight: 1.5, marginTop: '0.25rem' }}>{resultadoFinal.creativeDirector.refinement.direcaoRefinada}</p>
-                                  </div>
-                                </div>
-                              )}
-
-                              {!isRefinementLoading && refinementStep === 'unavailable' && (
-                                <div style={{ padding: '0.85rem', background: '#fff5f5', border: '1px solid #fca5a5', borderRadius: '12px', textAlign: 'center' }}>
-                                  <p style={{ color: '#dc2626', fontSize: '0.82rem', margin: '0 0 0.5rem' }}>
-                                    ⚠️ {refineCopy.unavailable}
-                                  </p>
-                                  <button
-                                    type="button"
-                                    onClick={() => {
-                                      clearAiUsage('refinement_question');
-                                      startCreativeRefinement();
-                                    }}
-                                    className="btn-secondary"
-                                    style={{ padding: '0.45rem 0.85rem', fontSize: '0.75rem' }}
-                                  >
-                                    🔄 {refineCopy.retry}
-                                  </button>
                                 </div>
                               )}
                             </div>
