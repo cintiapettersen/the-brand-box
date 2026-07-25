@@ -5,6 +5,7 @@ import { motion, AnimatePresence, useReducedMotion } from 'framer-motion';
 // Libraries dynamically imported for performance
 import BrandTemplateSVG from '../../components/BrandTemplateSVG';
 import BrandBoard from '../../components/BrandBoard';
+import BrandElementsSelector from '../../components/brand-elements/BrandElementsSelector';
 import LanguageSwitcher from '../../components/LanguageSwitcher';
 import { useTranslation } from '../LanguageContext';
 import { createClient } from '@supabase/supabase-js';
@@ -292,6 +293,12 @@ export default function Home() {
   const [patternLoading, setPatternLoading] = useState(false);
   const [patternPhraseIndex, setPatternPhraseIndex] = useState(0);
   const [loadingVariacoes, setLoadingVariacoes] = useState(false);
+
+  // Estados para Elementos Gráficos extraídos da estampa
+  const [generatedBrandElements, setGeneratedBrandElements] = useState([]);
+  const [selectedBrandElementId, setSelectedBrandElementId] = useState(null);
+  const [isElementsLoading, setIsElementsLoading] = useState(false);
+  const [elementsGenerationCount, setElementsGenerationCount] = useState(0);
   
   const [selectedPaleta, setSelectedPaleta] = useState(null);
   const [selectedTipo, setSelectedTipo] = useState(null);
@@ -411,6 +418,9 @@ export default function Home() {
     if (parsed.resultadoFinal) setResultadoFinal(parsed.resultadoFinal);
     if (parsed.generatedPatterns) setGeneratedPatterns(parsed.generatedPatterns);
     if (parsed.selectedPattern !== undefined) setSelectedPattern(parsed.selectedPattern);
+    if (parsed.generatedBrandElements) setGeneratedBrandElements(parsed.generatedBrandElements);
+    if (parsed.selectedBrandElementId !== undefined) setSelectedBrandElementId(parsed.selectedBrandElementId);
+    if (parsed.elementsGenerationCount) setElementsGenerationCount(parsed.elementsGenerationCount);
     if (parsed.papelariaSelecionada) setPapelariaSelecionada(parsed.papelariaSelecionada);
     if (Array.isArray(parsed.paletteConsultations)) setPaletteConsultations(parsed.paletteConsultations);
 
@@ -472,7 +482,9 @@ export default function Home() {
       },
       patternGenerationCount, refazerAttempts,
       resultadoFinal, selectedPaleta, selectedTipo, selectedIcon, customStep, paletteFeedback, paletteConsultations,
-      generatedPatterns, selectedPattern, papelariaSelecionada,
+      generatedPatterns, selectedPattern,
+      generatedBrandElements, selectedBrandElementId, elementsGenerationCount,
+      papelariaSelecionada,
       sessionId: activeSessionId || undefined
     };
     try {
@@ -493,7 +505,7 @@ export default function Home() {
         }
       }
     }
-  }, [isHydrated, isPersistenceReady, showResumePrompt, step, formData, selectedTagline, customTagline, editData, generatedPatterns, selectedPattern, resultadoFinal, papelariaSelecionada, selectedPaleta, selectedTipo, selectedIcon, customStep, paletteFeedback, paletteConsultations, patternGenerationCount, refazerAttempts]);
+  }, [isHydrated, isPersistenceReady, showResumePrompt, step, formData, selectedTagline, customTagline, editData, generatedPatterns, selectedPattern, generatedBrandElements, selectedBrandElementId, elementsGenerationCount, resultadoFinal, papelariaSelecionada, customStep, paletteFeedback, paletteConsultations, selectedPaleta, selectedTipo, selectedIcon, patternGenerationCount, refazerAttempts]);
 
   useEffect(() => {
     if (step !== 11.5 || !resultadoFinal || resultadoFinal?.creativeDirector?.taglineSuggestions || resultadoFinal?.taglineSuggestions) return;
@@ -746,7 +758,7 @@ export default function Home() {
       });
       
       const data = await res.json();
-      if (data.success && data.images) {
+      if (data.success && data.images && data.images.length > 0) {
         setGeneratedPatterns(data.images);
         setSelectedPattern(0);
       } else {
@@ -756,8 +768,54 @@ export default function Home() {
     } catch (err) {
       console.error('Erro chamando API:', err);
       setAlertMessage('Erro de conexão. Verifique se o servidor está rodando.');
+    } finally {
+      setPatternLoading(false);
     }
-    setPatternLoading(false);
+  };
+
+  const handleGenerateBrandElements = async () => {
+    if (elementsGenerationCount >= 1) {
+      setAlertMessage('Você já realizou a geração de elementos visuais para esta jornada.');
+      return;
+    }
+
+    const currentPatternObj = selectedPattern !== null ? generatedPatterns[selectedPattern] : null;
+    if (!currentPatternObj || !currentPatternObj.base64) {
+      setAlertMessage('Por favor, selecione e aprove uma estampa antes de gerar elementos gráficos.');
+      return;
+    }
+
+    setIsElementsLoading(true);
+    try {
+      const activePaleta = paletas.find(p => p.id === selectedPaleta);
+      const coresHex = activePaleta?.paleta_hex || activePaleta?.cores_hex || ['#2A897F', '#E1EDE7'];
+      const estilo = ESTILO_NOME_BY_ID[resultadoFinal?.estiloId] || resultadoFinal?.estiloNome || 'Elegante';
+
+      const res = await fetch('/api/generate-brand-elements', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          patternBase64: currentPatternObj.base64,
+          patternMimeType: currentPatternObj.mimeType || 'image/png',
+          paleta: coresHex,
+          estiloNome: estilo
+        })
+      });
+
+      const data = await res.json();
+      if (data.elements && data.elements.length > 0) {
+        setGeneratedBrandElements(data.elements);
+        setSelectedBrandElementId(data.elements[0].id);
+        setElementsGenerationCount(prev => prev + 1);
+        setFormData(prev => ({ ...prev, brandElement: data.elements[0] }));
+      } else {
+        setAlertMessage('Não foi possível extrair os elementos da estampa. Tente novamente.');
+      }
+    } catch (err) {
+      console.error('Erro ao gerar elementos da estampa:', err);
+      setAlertMessage('Erro de conexão ao gerar elementos gráficos.');
+    }
+    setIsElementsLoading(false);
   };
 
   const nextStep = () => setStep((s) => s + 1);
@@ -3033,6 +3091,28 @@ export default function Home() {
                       ))}
                     </div>
                     <button onClick={generatePatterns} style={{ fontSize: '0.75rem', color: 'var(--accent-magenta)', background: 'none', border: 'none', cursor: 'pointer', textDecoration: 'underline', marginTop: '5px' }}>{dictionary?.postmatch?.step_117_btn_regenerate || '🔄 Gerar novas opções'}</button>
+
+                    {/* SELETOR E GERAÇÃO DE ELEMENTOS VISUAIS DA ESTAMPA APROVADA */}
+                    {selectedPattern !== null && (
+                      <div style={{ width: '100%', maxWidth: '500px', marginTop: '15px' }}>
+                        <BrandElementsSelector 
+                          generatedElements={generatedBrandElements}
+                          selectedElementId={selectedBrandElementId}
+                          onSelect={(el) => {
+                            setSelectedBrandElementId(el.id);
+                            setFormData(prev => ({ ...prev, brandElement: el }));
+                          }}
+                          onGenerate={handleGenerateBrandElements}
+                          isLoading={isElementsLoading}
+                          hasGenerated={generatedBrandElements.length > 0}
+                          hasPattern={selectedPattern !== null && generatedPatterns[selectedPattern] && !generatedPatterns[selectedPattern]._devPlaceholder}
+                          primaryColor={(() => {
+                            const sel = paletas.find(p => p.id === selectedPaleta);
+                            return sel?.paleta_hex?.[0] || sel?.cores_hex?.[0] || '#2A897F';
+                          })()}
+                        />
+                      </div>
+                    )}
                   </>
                 )}
               </div>
@@ -3480,6 +3560,9 @@ export default function Home() {
                       setCreativeDirectorStatus('idle');
                       setSelectedTagline('');
                       setCustomTagline('');
+                      setGeneratedBrandElements([]);
+                      setSelectedBrandElementId(null);
+                      setElementsGenerationCount(0);
                     }}
                     style={{ background: 'none', border: 'none', color: 'var(--text-secondary)', fontSize: '0.8rem', cursor: 'pointer', textDecoration: 'underline', textAlign: 'center', paddingBottom: '1.5rem' }}
                   >
