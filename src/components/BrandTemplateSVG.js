@@ -1,6 +1,6 @@
 import React from 'react';
 
-const BrandTemplateSVG = ({ data = {}, color, side = 'frente', hideBackground = false, iconPath = null, textColor = '#ffffff' }) => {
+const BrandTemplateSVG = ({ data = {}, color, side = 'frente', hideBackground = false, iconPath = null, textColor = '#ffffff', brandElement = null }) => {
   const safeData = data || {};
   const { marca = '', tagline = '', whatsapp = '', instagram = '' } = safeData;
   const activeColor = color || '#d22f5a';

@@ -1,6 +1,7 @@
 import React from 'react';
 import BrandTemplateSVG from './BrandTemplateSVG';
 import { useTranslation } from '../app/LanguageContext';
+import BrandElement from './brand-elements/BrandElement';
 
 // Dicionário de cores afetivas: [R, G, B, NomeBonito]
 const COLOR_PALETTE = [
@@ -91,7 +92,7 @@ const SectionHeader = ({ title }) => (
   </div>
 );
 
-const BrandBoard = ({ data, palette, color, seloColor, seloTextColor, patternImage, iconPath, customLogoSrc, logoElement }) => {
+const BrandBoard = ({ data, palette, color, seloColor, seloTextColor, patternImage, iconPath, customLogoSrc, logoElement, brandElement }) => {
   const { dictionary } = useTranslation();
   const t = dictionary?.placa || {};
 
@@ -278,11 +279,11 @@ const BrandBoard = ({ data, palette, color, seloColor, seloTextColor, patternIma
          </div>
       </div>
 
-      {/* SUBMARCA E ESTAMPA */}
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px', width: '100%', flex: 1, marginTop: '20px' }}>
+      {/* SUBMARCA, ESTAMPA E ELEMENTOS */}
+      <div style={{ display: 'grid', gridTemplateColumns: brandElement ? '1fr 1fr 1fr' : '1fr 1fr', gap: '15px', width: '100%', flex: 1, marginTop: '20px' }}>
          <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
             <SectionHeader title={t.submarca || "Submarca"} />
-            <div style={{ width: '130px', height: '130px' }}>
+            <div style={{ width: '110px', height: '110px' }}>
                <BrandTemplateSVG
                  data={data.fontStyle === 'script' ? { ...data, fontFamily: 'Montserrat', fontWeight: 700, fontStyle: 'display' } : data}
                  color={seloColor || color}
@@ -296,15 +297,23 @@ const BrandBoard = ({ data, palette, color, seloColor, seloTextColor, patternIma
          <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
             <SectionHeader title={t.estampa || "Estampa"} />
             {patternImage ? (
-              <div style={{ width: '130px', height: '130px', borderRadius: '8px', overflow: 'hidden', border: '1px solid #eee' }}>
+              <div style={{ width: '110px', height: '110px', borderRadius: '8px', overflow: 'hidden', border: '1px solid #eee' }}>
                 <img src={patternImage} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
               </div>
             ) : (
-              <div style={{ width: '130px', height: '130px', background: '#f9f9f9', borderRadius: '8px', border: '1px dashed #ddd', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+              <div style={{ width: '110px', height: '110px', background: '#f9f9f9', borderRadius: '8px', border: '1px dashed #ddd', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                 <span style={{ fontSize: '0.5rem', color: '#999', textAlign: 'center', padding: '10px' }}>{t.estampa_exclusiva || "ESTAMPA EXCLUSIVA"}</span>
               </div>
             )}
          </div>
+         {brandElement && (
+           <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+              <SectionHeader title="Elementos" />
+              <div style={{ width: '110px', height: '110px', background: '#fafafa', borderRadius: '8px', border: '1px solid #eee', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                <BrandElement type={brandElement} color={color} secondaryColor={palette?.[1] || '#E1EDE7'} size={70} />
+              </div>
+           </div>
+         )}
       </div>
 
       {/* RODAPÉ */}

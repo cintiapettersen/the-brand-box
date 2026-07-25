@@ -5,6 +5,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 // Libraries dynamically imported for performance
 import BrandTemplateSVG from '../../components/BrandTemplateSVG';
 import BrandBoard from '../../components/BrandBoard';
+import BrandElementsSelector from '../../components/brand-elements/BrandElementsSelector';
 import LanguageSwitcher from '../../components/LanguageSwitcher';
 import { useTranslation } from '../LanguageContext';
 import { createClient } from '@supabase/supabase-js';
@@ -92,7 +93,7 @@ export default function Home() {
   const [alertMessage, setAlertMessage] = useState(null);
   
   const [formData, setFormData] = useState({
-    nome: '', email: '', marca: '', atuacao: '', atuacaoOutra: '', contextoExtra: '', publico: '', sentimentos: [], elementosVisuais: [], personalidade: '', primeiraImpressao: '', locais: [], inspiracoes: '', inspiracoesTags: [], nuncaPensar: '', nuncaPensarTags: []
+    nome: '', email: '', marca: '', atuacao: '', atuacaoOutra: '', contextoExtra: '', publico: '', sentimentos: [], elementosVisuais: [], brandElement: 'abstract', personalidade: '', primeiraImpressao: '', locais: [], inspiracoes: '', inspiracoesTags: [], nuncaPensar: '', nuncaPensarTags: []
   });
 
   const refineCopy = {
@@ -1942,6 +1943,12 @@ export default function Home() {
                     });
                   })()}
                 </div>
+                <div style={{ marginTop: '20px', borderTop: '1px solid #E2E8F0', paddingTop: '16px' }}>
+                  <BrandElementsSelector 
+                    selectedElement={formData.brandElement || 'abstract'} 
+                    onSelect={(elId) => setFormData(prev => ({ ...prev, brandElement: elId }))}
+                  />
+                </div>
               </div>
               <button onClick={() => { if (formData.elementosVisuais.length > 0) setStep(7.2); else setAlertMessage(dictionary?.onboarding?.alert_select_option || 'Por favor, selecione uma opção antes de avançar.'); }} className="btn-primary" style={{ opacity: formData.elementosVisuais.length > 0 ? 1 : 0.5 }}>{dictionary?.onboarding?.btn_next || 'Avançar'}</button>
             </motion.div>
@@ -2937,6 +2944,7 @@ export default function Home() {
                     color={editData.corAtiva || '#d22f5a'}
                     patternImage={selectedPattern !== null && generatedPatterns[selectedPattern] && !generatedPatterns[selectedPattern]._devPlaceholder ? `data:${generatedPatterns[selectedPattern].mimeType};base64,${generatedPatterns[selectedPattern].base64}` : null}
                     iconPath={getIconById(ESTILO_NOME_BY_ID[resultadoFinal?.estiloId] || resultadoFinal?.estiloNome, selectedIcon)?.path || null}
+                    brandElement={formData.brandElement}
                   />
                 </div>
               </div>
@@ -3332,7 +3340,7 @@ export default function Home() {
                     onClick={() => {
                       localStorage.removeItem('brandbox_progress');
                       setStep(1);
-                      setFormData({ nome: '', email: '', marca: '', atuacao: '', atuacaoOutra: '', contextoExtra: '', publico: '', sentimentos: [], elementosVisuais: [], personalidade: '', primeiraImpressao: '', locais: [], inspiracoes: '', nuncaPensar: '', nuncaPensarTags: [] });
+                      setFormData({ nome: '', email: '', marca: '', atuacao: '', atuacaoOutra: '', contextoExtra: '', publico: '', sentimentos: [], elementosVisuais: [], brandElement: 'abstract', personalidade: '', primeiraImpressao: '', locais: [], inspiracoes: '', nuncaPensar: '', nuncaPensarTags: [] });
                       setShowContext(false);
                       setResultadoFinal(null);
                       setSelectedTagline('');
