@@ -270,6 +270,12 @@ export default function Home() {
   const [patternLoading, setPatternLoading] = useState(false);
   const [patternPhraseIndex, setPatternPhraseIndex] = useState(0);
   const [loadingVariacoes, setLoadingVariacoes] = useState(false);
+
+  // Estados para Elementos Gráficos extraídos da estampa
+  const [generatedBrandElements, setGeneratedBrandElements] = useState([]);
+  const [selectedBrandElementId, setSelectedBrandElementId] = useState(null);
+  const [isElementsLoading, setIsElementsLoading] = useState(false);
+  const [elementsGenerationCount, setElementsGenerationCount] = useState(0);
   
   const [selectedPaleta, setSelectedPaleta] = useState(null);
   const [selectedTipo, setSelectedTipo] = useState(null);
@@ -709,7 +715,51 @@ export default function Home() {
       console.error('Erro chamando API:', err);
       setAlertMessage('Erro de conexão. Verifique se o servidor está rodando.');
     }
-    setPatternLoading(false);
+  };
+
+  const handleGenerateBrandElements = async () => {
+    if (elementsGenerationCount >= 1) {
+      setAlertMessage('Você já realizou a geração de elementos visuais para esta jornada.');
+      return;
+    }
+
+    const currentPatternObj = selectedPattern !== null ? generatedPatterns[selectedPattern] : null;
+    if (!currentPatternObj || !currentPatternObj.base64) {
+      setAlertMessage('Por favor, selecione e aprove uma estampa antes de gerar elementos gráficos.');
+      return;
+    }
+
+    setIsElementsLoading(true);
+    try {
+      const activePaleta = paletas.find(p => p.id === selectedPaleta);
+      const coresHex = activePaleta?.paleta_hex || activePaleta?.cores_hex || ['#2A897F', '#E1EDE7'];
+      const estilo = ESTILO_NOME_BY_ID[resultadoFinal?.estiloId] || resultadoFinal?.estiloNome || 'Elegante';
+
+      const res = await fetch('/api/generate-brand-elements', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          patternBase64: currentPatternObj.base64,
+          patternMimeType: currentPatternObj.mimeType || 'image/png',
+          paleta: coresHex,
+          estiloNome: estilo
+        })
+      });
+
+      const data = await res.json();
+      if (data.elements && data.elements.length > 0) {
+        setGeneratedBrandElements(data.elements);
+        setSelectedBrandElementId(data.elements[0].id);
+        setElementsGenerationCount(prev => prev + 1);
+        setFormData(prev => ({ ...prev, brandElement: data.elements[0] }));
+      } else {
+        setAlertMessage('Não foi possível extrair os elementos da estampa. Tente novamente.');
+      }
+    } catch (err) {
+      console.error('Erro ao gerar elementos da estampa:', err);
+      setAlertMessage('Erro de conexão ao gerar elementos gráficos.');
+    }
+    setIsElementsLoading(false);
   };
 
   const nextStep = () => setStep((s) => s + 1);
@@ -1943,12 +1993,6 @@ export default function Home() {
                     });
                   })()}
                 </div>
-                <div style={{ marginTop: '20px', borderTop: '1px solid #E2E8F0', paddingTop: '16px' }}>
-                  <BrandElementsSelector 
-                    selectedElement={formData.brandElement || 'abstract'} 
-                    onSelect={(elId) => setFormData(prev => ({ ...prev, brandElement: elId }))}
-                  />
-                </div>
               </div>
               <button onClick={() => { if (formData.elementosVisuais.length > 0) setStep(7.2); else setAlertMessage(dictionary?.onboarding?.alert_select_option || 'Por favor, selecione uma opção antes de avançar.'); }} className="btn-primary" style={{ opacity: formData.elementosVisuais.length > 0 ? 1 : 0.5 }}>{dictionary?.onboarding?.btn_next || 'Avançar'}</button>
             </motion.div>
@@ -2898,6 +2942,28 @@ export default function Home() {
                       ))}
                     </div>
                     <button onClick={generatePatterns} style={{ fontSize: '0.75rem', color: 'var(--accent-magenta)', background: 'none', border: 'none', cursor: 'pointer', textDecoration: 'underline', marginTop: '5px' }}>{dictionary?.postmatch?.step_117_btn_regenerate || '🔄 Gerar novas opções'}</button>
+                    
+                    {/* SELETOR E GERAÇÃO DE ELEMENTOS VISUAIS DA ESTAMPA APROVADA */}
+                    {selectedPattern !== null && (
+                      <div style={{ width: '100%', maxWidth: '500px', marginTop: '15px' }}>
+                        <BrandElementsSelector 
+                          generatedElements={generatedBrandElements}
+                          selectedElementId={selectedBrandElementId}
+                          onSelect={(el) => {
+                            setSelectedBrandElementId(el.id);
+                            setFormData(prev => ({ ...prev, brandElement: el }));
+                          }}
+                          onGenerate={handleGenerateBrandElements}
+                          isLoading={isElementsLoading}
+                          hasGenerated={generatedBrandElements.length > 0}
+                          hasPattern={selectedPattern !== null && generatedPatterns[selectedPattern] && !generatedPatterns[selectedPattern]._devPlaceholder}
+                          primaryColor={(() => {
+                            const sel = paletas.find(p => p.id === selectedPaleta);
+                            return sel?.paleta_hex?.[0] || sel?.cores_hex?.[0] || '#2A897F';
+                          })()}
+                        />
+                      </div>
+                    )}
                   </>
                 )}
               </div>

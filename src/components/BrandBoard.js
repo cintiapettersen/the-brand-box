@@ -309,8 +309,14 @@ const BrandBoard = ({ data, palette, color, seloColor, seloTextColor, patternIma
          {brandElement && (
            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
               <SectionHeader title="Elementos" />
-              <div style={{ width: '110px', height: '110px', background: '#fafafa', borderRadius: '8px', border: '1px solid #eee', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                <BrandElement type={brandElement} color={color} secondaryColor={palette?.[1] || '#E1EDE7'} size={70} />
+              <div style={{ width: '110px', height: '110px', background: '#fafafa', borderRadius: '8px', border: '1px solid #eee', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '6px' }}>
+                <BrandElement 
+                  element={typeof brandElement === 'object' ? brandElement : null} 
+                  type={typeof brandElement === 'string' ? brandElement : 'abstract'} 
+                  color={color} 
+                  secondaryColor={palette?.[1] || '#E1EDE7'} 
+                  size={75} 
+                />
               </div>
            </div>
          )}

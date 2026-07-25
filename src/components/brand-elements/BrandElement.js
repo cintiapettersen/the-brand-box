@@ -1,12 +1,31 @@
 import React from 'react';
 
 const BrandElement = ({ 
+  element = null,
   type = 'abstract', 
   color = '#2A897F', 
   secondaryColor = '#E1EDE7',
   size = 120,
   className = ''
 }) => {
+  // Se element for um objeto gerado dinamicamente com base64
+  if (element && element.base64) {
+    const imgSrc = element.base64.startsWith('data:') 
+      ? element.base64 
+      : `data:${element.mimeType || 'image/png'};base64,${element.base64}`;
+
+    return (
+      <div style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', width: size, height: size }}>
+        <img 
+          src={imgSrc} 
+          alt={element.title || 'Elemento Gráfico'} 
+          style={{ width: '100%', height: '100%', objectFit: 'contain' }}
+        />
+      </div>
+    );
+  }
+
+  // Fallback interno estático
   const renderShape = () => {
     switch (type) {
       case 'arch':
