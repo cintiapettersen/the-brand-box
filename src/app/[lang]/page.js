@@ -702,7 +702,7 @@ export default function Home() {
     setPatternLoading(true);
     setGeneratedPatterns([]);
     try {
-      const sel = paletas.find(p => p.id === selectedPaleta);
+      const sel = getAllPalettes().find(p => p.id === selectedPaleta);
       const cores = sel?.paleta_hex || sel?.cores_hex || [];
       
       // Selecionar 2 estampas aleatórias diferentes como referência
@@ -833,6 +833,11 @@ export default function Home() {
 
   const getRequestKey = (contentType, targetLanguage = lang) => `${aiSessionId || 'pending'}:${getAiUsageKey(contentType, targetLanguage)}`;
 
+  const getAllPalettes = () => {
+    const consulted = paletteConsultations.flatMap(c => c.palettes || []);
+    return [...paletas, ...consulted];
+  };
+
   const requestPaletteFeedback = async (primaryColor, palette) => {
     const requestId = `${selectedPaleta}:${primaryColor}:${Date.now()}`;
     paletteFeedbackRequestRef.current = requestId;
@@ -851,7 +856,7 @@ export default function Home() {
           palette,
           primaryColor,
           idioma: lang,
-          requestKey: `${aiSessionId || 'pending'}:palette_feedback:${selectedPaleta}:${primaryColor}`
+          requestKey: `${aiSessionId || 'pending'}:palette_feedback:${selectedPaleta}:${primaryColor}:${Date.now()}`
         })
       });
 
@@ -3000,11 +3005,11 @@ export default function Home() {
                               const luma = 0.2126 * r + 0.7152 * g + 0.0722 * b;
                               return luma > 220; 
                             };
-                            const sel = paletas.find(p => p.id === selectedPaleta);
+                            const sel = getAllPalettes().find(p => p.id === selectedPaleta);
                             console.log('🎯 Cor picker - selectedPaleta:', selectedPaleta, 'sel:', sel);
                             let cores = sel?.paleta_hex || sel?.cores_hex || [];
                             if (cores.length === 0) {
-                              const qualquer = paletas.find(p => (p.paleta_hex?.length > 0) || (p.cores_hex?.length > 0));
+                              const qualquer = getAllPalettes().find(p => (p.paleta_hex?.length > 0) || (p.cores_hex?.length > 0));
                               cores = qualquer?.paleta_hex || qualquer?.cores_hex || [];
                             }
                             if (cores.length === 0) return <p style={{ color: '#999', fontSize: '0.8rem' }}>{dictionary?.postmatch?.step_10_no_color || 'Nenhuma cor encontrada.'}</p>;
@@ -3371,13 +3376,13 @@ export default function Home() {
                     data={editData} 
                     palette={(() => {
                       // Prioridade: paleta selecionada > primeira paleta com hex > fallback
-                      const sel = paletas.find(p => p.id === selectedPaleta);
+                      const sel = getAllPalettes().find(p => p.id === selectedPaleta);
                       if (sel?.paleta_hex?.length > 0) return sel.paleta_hex;
                       // Busca a primeira paleta que tenha paleta_hex preenchido
-                      const comHex = paletas.find(p => p.paleta_hex && p.paleta_hex.length > 0);
+                      const comHex = getAllPalettes().find(p => p.paleta_hex && p.paleta_hex.length > 0);
                       if (comHex) return comHex.paleta_hex;
                       // Fallback: se nenhuma paleta tem hex, tenta montar do campo cores_hex
-                      const comCores = paletas.find(p => p.cores_hex && p.cores_hex.length > 0);
+                      const comCores = getAllPalettes().find(p => p.cores_hex && p.cores_hex.length > 0);
                       if (comCores) return comCores.cores_hex;
                       return ['#eee','#ddd','#ccc','#bbb','#aaa'];
                     })()} 
@@ -3392,9 +3397,9 @@ export default function Home() {
               <div style={{ padding: '10px 20px', background: '#fff', borderTop: '1px solid #f0f0f0', display: 'flex', alignItems: 'center', gap: '12px', justifyContent: 'center' }}>
                 <p style={{ fontSize: '0.65rem', color: 'var(--text-secondary)', textTransform: 'uppercase', letterSpacing: '1px', fontWeight: 600, whiteSpace: 'nowrap' }}>{dictionary?.postmatch?.step_12_main_color || 'Cor Principal:'}</p>
                 {(() => {
-                  const sel = paletas.find(p => p.id === selectedPaleta);
+                  const sel = getAllPalettes().find(p => p.id === selectedPaleta);
                   const cores = sel?.paleta_hex || sel?.cores_hex || [];
-                  const todasCores = cores.length > 0 ? cores : (paletas.find(p => p.paleta_hex?.length > 0)?.paleta_hex || []);
+                  const todasCores = cores.length > 0 ? cores : (getAllPalettes().find(p => p.paleta_hex?.length > 0)?.paleta_hex || []);
                   return todasCores.map((hex, i) => (
                     <div
                       key={i}
