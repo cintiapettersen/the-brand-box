@@ -2514,23 +2514,25 @@ export default function Home() {
                 </div>
               )}
 
-              <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '10px', width: '100%', maxWidth: '400px' }}>
-                <button onClick={fetchVariacoes} className="btn-primary" style={{ background: 'var(--accent-magenta)', color: '#ffffff', boxShadow: 'none', width: '100%' }}>
-                  {dictionary?.postmatch?.step_9_btn_customize || 'Personalizar minha Identidade'}
-                </button>
-
-                {!isCreativeDirectorLoading && resultadoFinal.creativeDirector && (
-                  <button
-                    type="button"
-                    onClick={startCreativeRefinement}
-                    disabled={isRefinementLoading}
-                    className="btn-secondary"
-                    style={{ padding: '0.75rem 1.2rem', fontSize: '0.85rem', opacity: isRefinementLoading ? 0.65 : 1, width: '100%' }}
-                  >
-                    ✨ {refineCopy.button}
+              {!isCreativeDirectorLoading && (
+                <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '10px', width: '100%', maxWidth: '400px' }}>
+                  <button onClick={fetchVariacoes} className="btn-primary" style={{ background: 'var(--accent-magenta)', color: '#ffffff', boxShadow: 'none', width: '100%' }}>
+                    {dictionary?.postmatch?.step_9_btn_customize || 'Personalizar minha Identidade'}
                   </button>
-                )}
-              </div>
+
+                  {resultadoFinal.creativeDirector && (
+                    <button
+                      type="button"
+                      onClick={startCreativeRefinement}
+                      disabled={isRefinementLoading}
+                      className="btn-secondary"
+                      style={{ padding: '0.75rem 1.2rem', fontSize: '0.85rem', opacity: isRefinementLoading ? 0.65 : 1, width: '100%' }}
+                    >
+                      ✨ {refineCopy.button}
+                    </button>
+                  )}
+                </div>
+              )}
 
               {showRefinement && (
                 <div style={{ marginTop: '1rem', width: '100%', maxWidth: '620px', background: 'var(--bg-color)', borderRadius: '16px', padding: '1rem', border: '1px solid var(--border)', textAlign: 'left' }}>
