@@ -962,6 +962,41 @@ export default function Home() {
     }
   };
 
+  const prevSelectedPaletaRef = useRef(selectedPaleta);
+  useEffect(() => {
+    if (prevSelectedPaletaRef.current && prevSelectedPaletaRef.current !== selectedPaleta) {
+      setEditData(prev => ({ ...prev, corAtiva: null }));
+      setPaletteFeedback(null);
+      setPaletteFeedbackError(null);
+      paletteFeedbackRequestRef.current = '';
+    }
+    prevSelectedPaletaRef.current = selectedPaleta;
+  }, [selectedPaleta]);
+
+  const selectPaletteForColor = (nextPaletteId) => {
+    if (selectedPaleta !== nextPaletteId) {
+      setSelectedPaleta(nextPaletteId);
+      setEditData(prev => ({ ...prev, corAtiva: null }));
+      setPaletteFeedback(null);
+      setPaletteFeedbackError(null);
+      paletteFeedbackRequestRef.current = '';
+
+      try {
+        const saved = JSON.parse(localStorage.getItem('brandbox_progress') || '{}');
+        localStorage.setItem('brandbox_progress', JSON.stringify({
+          ...saved,
+          selectedPaleta: nextPaletteId,
+          editData: { ...(saved.editData || {}), corAtiva: null },
+          paletteFeedback: null,
+          customStep: 'cor'
+        }));
+      } catch (e) {
+        console.warn('Erro ao atualizar localStorage na troca de paleta:', e);
+      }
+    }
+    setTimeout(() => setCustomStep('cor'), 300);
+  };
+
   const handlePrimaryColorSelect = (hex, colors) => {
     setEditData(prev => ({ ...prev, corAtiva: hex }));
     requestPaletteFeedback(hex, colors);
@@ -2632,7 +2667,7 @@ export default function Home() {
                               ? (dictionary?.postmatch?.creative_palette_suggested || 'Paleta sugerida {count}').replace('{count}', pi + 1)
                               : (dictionary?.postmatch?.creative_palette_curated || 'Paleta curada');
                             return (
-                              <div key={p.id} onClick={() => { setSelectedPaleta(p.id); setTimeout(() => setCustomStep('cor'), 300); }} style={{
+                              <div key={p.id} onClick={() => selectPaletteForColor(p.id)} style={{
                                 border: isSelected ? '2px solid var(--accent-magenta)' : '1px solid rgba(0,0,0,0.06)',
                                 borderRadius: '18px', padding: '0', cursor: 'pointer',
                                 display: 'flex', flexDirection: 'column', alignItems: 'stretch', justifyContent: 'stretch',
