@@ -17,10 +17,10 @@ function cleanText(value) {
 }
 
 function normalizeColors(colors) {
-  if (!Array.isArray(colors) || colors.length !== 5) return null;
+  if (!Array.isArray(colors) || colors.length === 0) return null;
 
-  const normalized = colors.map(c => cleanText(c).toUpperCase());
-  return normalized.every(color => /^#[0-9A-F]{6}$/.test(color)) ? normalized : null;
+  const normalized = colors.map(c => cleanText(c).toUpperCase()).filter(c => /^#[0-9A-F]{6}$/i.test(c));
+  return normalized.length > 0 ? normalized : null;
 }
 
 function normalizeBriefing(formData = {}) {
@@ -54,7 +54,11 @@ function validateFeedback(payload, idioma) {
     caution: cleanText(payload.caution)
   };
 
-  return feedback.language === idioma && feedback.summary && feedback.strength && feedback.caution ? feedback : null;
+  const targetLangPrefix = cleanText(idioma).toLowerCase().slice(0, 2);
+  const responseLangPrefix = feedback.language.toLowerCase().slice(0, 2);
+  const isMatchingLang = !targetLangPrefix || !responseLangPrefix || targetLangPrefix === responseLangPrefix;
+
+  return isMatchingLang && feedback.summary && feedback.strength && feedback.caution ? feedback : null;
 }
 
 async function readOpenAIError(response) {
@@ -79,10 +83,14 @@ export async function POST(req) {
   try {
     const body = await req.json();
     const idioma = cleanText(body.idioma || body.lang || 'pt-BR');
-    const colors = normalizeColors(body.palette);
+    let colors = normalizeColors(body.palette) || [];
     const primaryColor = cleanText(body.primaryColor).toUpperCase();
 
-    if (!idioma || !colors || !colors.includes(primaryColor)) {
+    if (primaryColor && /^#[0-9A-F]{6}$/i.test(primaryColor) && !colors.includes(primaryColor)) {
+      colors = [...colors, primaryColor];
+    }
+
+    if (!idioma || colors.length === 0 || !primaryColor) {
       return Response.json({ error: 'invalid_palette_feedback_payload' }, { status: 400 });
     }
 
