@@ -324,6 +324,16 @@ export default function Home() {
   const brandBoardRef = useRef(null);
   const selectedVisualBrandRef = useRef({ optionId: '', fontFamily: '' });
   const paletteFeedbackRequestRef = useRef('');
+  const resultStepRef = useRef(null);
+
+  useEffect(() => {
+    if (step === 9 && typeof window !== 'undefined') {
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+      if (resultStepRef.current) {
+        resultStepRef.current.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }
+    }
+  }, [step]);
 
   const [isHydrated, setIsHydrated] = useState(false);
 
@@ -2325,7 +2335,7 @@ export default function Home() {
           {step === 9 && resultadoFinal && (
             <motion.div 
               key="step9" variants={variants} initial="initial" animate="animate" exit="exit" transition={{ duration: 0.5 }}
-              className="wizard-step" style={{ position: 'absolute', width: '100%', height: '100%', display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center', background: 'var(--bg-color)', borderRadius: '24px', border: 'none', boxShadow: 'none' }}
+              ref={resultStepRef} className="wizard-step creative-diagnosis-step" aria-busy={isCreativeDirectorLoading} style={{ position: 'relative', width: '100%', minHeight: '100%', height: 'auto', display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center', background: 'var(--bg-color)', borderRadius: '24px', border: 'none', boxShadow: 'none' }}
             >
               <p style={{ fontSize: '0.9rem', color: 'var(--text-secondary)', marginBottom: '0.5rem', textTransform: 'uppercase', letterSpacing: '2px', fontWeight: 600 }}>{dictionary?.postmatch?.step_9_perfect_match || 'O MATCH PERFEITO PARA'} {formData.marca || 'SUA MARCA'}</p>
               {(() => {
@@ -2353,13 +2363,15 @@ export default function Home() {
 
               {isCreativeDirectorLoading && (
                 <p style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', marginTop: '-1rem', marginBottom: '1.25rem' }}>
-                  Preparando seu diagnóstico criativo...
+                  {lang === 'en' ? 'Preparing your creative diagnosis...' : 'Preparando seu diagnóstico criativo...'}
                 </p>
               )}
 
               {resultadoFinal.creativeDirector && (
-                <div style={{ width: '100%', maxWidth: '620px', background: '#ffffff', padding: '1.5rem', borderRadius: '18px', marginBottom: '2rem', boxShadow: '0 4px 15px rgba(0,0,0,0.03)', textAlign: 'left' }}>
-                  <p style={{ fontSize: '0.78rem', color: 'var(--accent-magenta)', textTransform: 'uppercase', letterSpacing: '1.8px', fontWeight: 700, marginBottom: '0.75rem', textAlign: 'center' }}>Diagnóstico Criativo</p>
+                <div className="creative-diagnosis-anchor" style={{ width: '100%', maxWidth: '620px', background: '#ffffff', padding: '1.5rem', borderRadius: '18px', marginBottom: '2rem', boxShadow: '0 4px 15px rgba(0,0,0,0.03)', textAlign: 'left' }}>
+                  <p style={{ fontSize: '0.78rem', color: 'var(--accent-magenta)', textTransform: 'uppercase', letterSpacing: '1.8px', fontWeight: 700, marginBottom: '0.75rem', textAlign: 'center' }}>
+                    {lang === 'en' ? 'Creative Diagnosis' : 'Diagnóstico Criativo'}
+                  </p>
                   {isDifferentLanguage(resultadoFinal.creativeDirector) && (
                     <div style={{ textAlign: 'center', marginBottom: '0.85rem' }}>
                       <button type="button" onClick={regenerateCreativeDirector} disabled={isCreativeDirectorLoading || hasAiUsage('diagnostic_regeneration')} className="btn-secondary" style={{ padding: '0.65rem 0.9rem', fontSize: '0.82rem', opacity: isCreativeDirectorLoading || hasAiUsage('diagnostic_regeneration') ? 0.65 : 1 }}>
@@ -2371,159 +2383,47 @@ export default function Home() {
 
                   <div style={{ display: 'grid', gap: '0.9rem' }}>
                     <div>
-                      <strong style={{ color: 'var(--text-primary)', fontSize: '0.9rem' }}>Personalidade da marca</strong>
+                      <strong style={{ color: 'var(--text-primary)', fontSize: '0.9rem' }}>
+                        {lang === 'en' ? 'Brand Personality' : 'Personalidade da marca'}
+                      </strong>
                       <p style={{ color: 'var(--text-secondary)', fontSize: '0.9rem', lineHeight: 1.5, marginTop: '0.25rem' }}>{resultadoFinal.creativeDirector.personalidade.join(' • ')}</p>
                     </div>
                     <div>
-                      <strong style={{ color: 'var(--text-primary)', fontSize: '0.9rem' }}>O que o público precisa sentir</strong>
+                      <strong style={{ color: 'var(--text-primary)', fontSize: '0.9rem' }}>
+                        {lang === 'en' ? 'What audience needs to feel' : 'O que o público precisa sentir'}
+                      </strong>
                       <ul style={{ color: 'var(--text-secondary)', fontSize: '0.9rem', lineHeight: 1.5, marginTop: '0.35rem', paddingLeft: '1.1rem' }}>
                         {resultadoFinal.creativeDirector.expectativasPublico.map((item, index) => <li key={`expectativa-${index}`}>{item}</li>)}
                       </ul>
                     </div>
                     <div>
-                      <strong style={{ color: 'var(--text-primary)', fontSize: '0.9rem' }}>Objetivos emocionais</strong>
+                      <strong style={{ color: 'var(--text-primary)', fontSize: '0.9rem' }}>
+                        {lang === 'en' ? 'Emotional goals' : 'Objetivos emocionais'}
+                      </strong>
                       <ul style={{ color: 'var(--text-secondary)', fontSize: '0.9rem', lineHeight: 1.5, marginTop: '0.35rem', paddingLeft: '1.1rem' }}>
                         {resultadoFinal.creativeDirector.objetivosEmocionais.map((item, index) => <li key={`objetivo-${index}`}>{item}</li>)}
                       </ul>
                     </div>
                     <div>
-                      <strong style={{ color: 'var(--text-primary)', fontSize: '0.9rem' }}>Por que essa direção combina</strong>
+                      <strong style={{ color: 'var(--text-primary)', fontSize: '0.9rem' }}>
+                        {lang === 'en' ? 'Why this direction fits' : 'Por que essa direção combina'}
+                      </strong>
                       <p style={{ color: 'var(--text-secondary)', fontSize: '0.9rem', lineHeight: 1.5, marginTop: '0.25rem' }}>{resultadoFinal.creativeDirector.porqueEsseEstilo}</p>
                       <p style={{ color: 'var(--text-secondary)', fontSize: '0.9rem', lineHeight: 1.5, marginTop: '0.35rem' }}>{resultadoFinal.creativeDirector.direcaoVisual}</p>
                     </div>
                     <div>
-                      <strong style={{ color: 'var(--text-primary)', fontSize: '0.9rem' }}>Riscos criativos a evitar</strong>
+                      <strong style={{ color: 'var(--text-primary)', fontSize: '0.9rem' }}>
+                        {lang === 'en' ? 'Creative risks to avoid' : 'Riscos criativos a evitar'}
+                      </strong>
                       <ul style={{ color: 'var(--text-secondary)', fontSize: '0.9rem', lineHeight: 1.5, marginTop: '0.35rem', paddingLeft: '1.1rem' }}>
                         {resultadoFinal.creativeDirector.riscosEvitar.map((item, index) => <li key={`risco-${index}`}>{item}</li>)}
                       </ul>
                     </div>
                   </div>
-
-                  <div style={{ marginTop: '1.25rem', paddingTop: '1rem', borderTop: '1px solid var(--border)', textAlign: 'center' }}>
-                    <button
-                      type="button"
-                      onClick={startCreativeRefinement}
-                      disabled={isRefinementLoading}
-                      className="btn-secondary"
-                      style={{ padding: '0.85rem 1.2rem', fontSize: '0.9rem', opacity: isRefinementLoading ? 0.65 : 1 }}
-                    >
-                      {refineCopy.button}
-                    </button>
-                  </div>
-
-                  {showRefinement && (
-                    <div style={{ marginTop: '1rem', background: 'var(--bg-color)', borderRadius: '16px', padding: '1rem', border: '1px solid var(--border)' }}>
-                      {isRefinementLoading && (
-                        <p style={{ color: 'var(--text-secondary)', fontSize: '0.85rem', textAlign: 'center', margin: 0 }}>
-                          {refinementStep === 'question' ? refineCopy.loadingQuestion : refineCopy.loadingResolution}
-                        </p>
-                      )}
-
-                      {!isRefinementLoading && refinementStep === 'answer' && refinementQuestion && (
-                        <div>
-                          {refinementQuestion.tensaoIdentificada && (
-                            <div style={{ marginBottom: '0.85rem' }}>
-                              <strong style={{ color: 'var(--text-primary)', fontSize: '0.88rem' }}>{refineCopy.tension}</strong>
-                              <p style={{ color: 'var(--text-secondary)', fontSize: '0.88rem', lineHeight: 1.5, marginTop: '0.25rem' }}>{refinementQuestion.tensaoIdentificada}</p>
-                            </div>
-                          )}
-                          <div style={{ marginBottom: '0.85rem' }}>
-                            <strong style={{ color: 'var(--text-primary)', fontSize: '0.88rem' }}>{refineCopy.question}</strong>
-                            <p style={{ color: 'var(--text-primary)', fontSize: '0.95rem', lineHeight: 1.5, marginTop: '0.25rem' }}>{refinementQuestion.pergunta}</p>
-                            <p style={{ color: 'var(--text-secondary)', fontSize: '0.82rem', lineHeight: 1.5, marginTop: '0.35rem' }}>{refinementQuestion.porquePerguntar}</p>
-                            {isDifferentLanguage(refinementQuestion) && (
-                              <button type="button" onClick={startCreativeRefinement} disabled={isRefinementLoading || hasAiUsage('refinement_question')} className="btn-secondary" style={{ marginTop: '0.65rem', padding: '0.65rem 0.9rem', fontSize: '0.82rem', opacity: isRefinementLoading || hasAiUsage('refinement_question') ? 0.65 : 1 }}>
-                                {refineCopy.regenerate}
-                              </button>
-                            )}
-                          </div>
-                          <textarea
-                            value={refinementAnswer}
-                            onChange={(event) => setRefinementAnswer(event.target.value)}
-                            placeholder={refineCopy.placeholder}
-                            rows={3}
-                            style={{ width: '100%', border: '1px solid var(--border)', borderRadius: '12px', padding: '0.85rem', resize: 'vertical', fontFamily: 'inherit', color: 'var(--text-primary)' }}
-                          />
-                          <div style={{ display: 'flex', gap: '0.75rem', marginTop: '0.85rem', flexWrap: 'wrap', justifyContent: 'center' }}>
-                            <button
-                              type="button"
-                              onClick={submitCreativeRefinement}
-                              disabled={!refinementAnswer.trim() || isRefinementLoading}
-                              className="btn-primary"
-                              style={{ padding: '0.8rem 1rem', opacity: refinementAnswer.trim() && !isRefinementLoading ? 1 : 0.55 }}
-                            >
-                              {refineCopy.analyze}
-                            </button>
-                            <button type="button" onClick={keepCurrentDirection} className="btn-secondary" style={{ padding: '0.8rem 1rem' }}>
-                              {refineCopy.keepCurrent}
-                            </button>
-                          </div>
-                        </div>
-                      )}
-
-                      {!isRefinementLoading && refinementStep === 'result' && resultadoFinal.creativeDirector.refinement && (
-                        <div style={{ display: 'grid', gap: '0.75rem' }}>
-                          <div style={{ background: '#fff', borderRadius: '12px', padding: '0.85rem' }}>
-                            <strong style={{ color: 'var(--text-primary)', fontSize: '0.88rem' }}>{refineCopy.decision}</strong>
-                            <p style={{ color: 'var(--text-secondary)', fontSize: '0.88rem', lineHeight: 1.5, marginTop: '0.25rem' }}>{resultadoFinal.creativeDirector.refinement.resumoDecisao}</p>
-                          </div>
-                          <div style={{ background: '#fff', borderRadius: '12px', padding: '0.85rem' }}>
-                            <strong style={{ color: 'var(--text-primary)', fontSize: '0.88rem' }}>{refineCopy.direction}</strong>
-                            <p style={{ color: 'var(--text-secondary)', fontSize: '0.88rem', lineHeight: 1.5, marginTop: '0.25rem' }}>{resultadoFinal.creativeDirector.refinement.direcaoRefinada}</p>
-                            {isDifferentLanguage(resultadoFinal.creativeDirector.refinement) && (
-                              <button type="button" onClick={regenerateRefinementResolution} disabled={isRefinementLoading || hasAiUsage('refinement_resolution_regeneration')} className="btn-secondary" style={{ marginTop: '0.65rem', padding: '0.65rem 0.9rem', fontSize: '0.82rem', opacity: isRefinementLoading || hasAiUsage('refinement_resolution_regeneration') ? 0.65 : 1 }}>
-                                {isRefinementLoading ? refineCopy.regenerating : refineCopy.regenerate}
-                              </button>
-                            )}
-                          </div>
-                          <div style={{ display: 'grid', gap: '0.65rem' }}>
-                            {[
-                              [refineCopy.palette, resultadoFinal.creativeDirector.refinement.impactoPaleta],
-                              [refineCopy.typography, resultadoFinal.creativeDirector.refinement.impactoTipografia],
-                              [refineCopy.composition, resultadoFinal.creativeDirector.refinement.impactoComposicao],
-                              [refineCopy.pattern, resultadoFinal.creativeDirector.refinement.impactoEstampa]
-                            ].map(([label, value]) => (
-                              <div key={label} style={{ background: '#fff', borderRadius: '12px', padding: '0.85rem' }}>
-                                <strong style={{ color: 'var(--text-primary)', fontSize: '0.86rem' }}>{label}</strong>
-                                <p style={{ color: 'var(--text-secondary)', fontSize: '0.86rem', lineHeight: 1.5, marginTop: '0.25rem' }}>{value}</p>
-                              </div>
-                            ))}
-                          </div>
-                          {resultadoFinal.creativeDirector.refinement.estiloAlternativoId && (
-                            <div style={{ background: '#fff', borderRadius: '12px', padding: '0.85rem', border: '1px solid var(--accent-magenta)' }}>
-                              <strong style={{ color: 'var(--text-primary)', fontSize: '0.88rem' }}>{refineCopy.altStyle}</strong>
-                              <p style={{ color: 'var(--text-secondary)', fontSize: '0.88rem', lineHeight: 1.5, marginTop: '0.25rem' }}>
-                                {resultadoFinal.creativeDirector.refinement.estiloAlternativoNome}. {refineCopy.altNote}
-                              </p>
-                            </div>
-                          )}
-                          <button type="button" onClick={keepCurrentDirection} className="btn-secondary" style={{ padding: '0.8rem 1rem', justifySelf: 'center' }}>
-                            {refineCopy.keepCurrent}
-                          </button>
-                        </div>
-                      )}
-
-                      {!isRefinementLoading && refinementStep === 'unavailable' && (
-                        <div style={{ textAlign: 'center' }}>
-                          <p style={{ color: 'var(--text-secondary)', fontSize: '0.88rem', lineHeight: 1.5 }}>
-                            {refineCopy.unavailable}
-                          </p>
-                          <div style={{ display: 'flex', gap: '0.75rem', marginTop: '0.75rem', justifyContent: 'center', flexWrap: 'wrap' }}>
-                            <button type="button" onClick={startCreativeRefinement} className="btn-primary" style={{ padding: '0.8rem 1rem' }}>
-                              {refineCopy.retry}
-                            </button>
-                            <button type="button" onClick={keepCurrentDirection} className="btn-secondary" style={{ padding: '0.8rem 1rem' }}>
-                              {refineCopy.close}
-                            </button>
-                          </div>
-                        </div>
-                      )}
-                    </div>
-                  )}
                 </div>
               )}
 
-              <button onClick={fetchVariacoes} className="btn-primary" style={{ background: 'var(--accent-magenta)', color: 'var(--text-primary)', boxShadow: 'none' }}>{dictionary?.postmatch?.step_9_btn_customize || 'Personalizar minha Identidade'}</button>
+              <button onClick={fetchVariacoes} className="btn-primary" style={{ background: 'var(--accent-magenta)', color: '#ffffff', boxShadow: 'none' }}>{dictionary?.postmatch?.step_9_btn_customize || 'Personalizar minha Identidade'}</button>
 
               {refazerAttempts < 2 ? (
                 <button
