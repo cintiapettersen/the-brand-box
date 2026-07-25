@@ -27,29 +27,41 @@ For each of the 3 motifs, provide:
 2. "origin": A short sentence in Portuguese explaining where it came from in the pattern (e.g. "Inspirado na folha curva presente na sua estampa", "Derivado das flores delicadas da estampa", "Extraído das hastes orgânicas do padrão").
 3. "visualDescription": A precise English visual description of the isolated shape/motif (e.g. "a single curved leaf with thin stem", "a minimal five-petal flower icon", "a small cluster of three berries").
 
-Return strictly valid JSON array of 3 objects with keys "title", "origin", and "visualDescription". Do not wrap in markdown quotes if possible or return raw JSON array.
+Return strictly valid JSON array of 3 objects with keys "title", "origin", and "visualDescription".
 `;
-
-    const analysisResponse = await ai.models.generateContent({
-      model: 'gemini-2.5-flash',
-      contents: [
-        { inlineData: { mimeType, data: patternBase64 } },
-        { text: analysisPrompt }
-      ]
-    });
-
-    let textRes = analysisResponse.response.text().trim();
-    if (textRes.startsWith("```json")) {
-      textRes = textRes.replace(/^```json\s*/, '').replace(/\s*```$/, '');
-    } else if (textRes.startsWith("```")) {
-      textRes = textRes.replace(/^```\s*/, '').replace(/\s*```$/, '');
-    }
 
     let motifs = [];
     try {
+      const analysisResponse = await ai.models.generateContent({
+        model: 'gemini-2.5-flash',
+        contents: [
+          { inlineData: { mimeType, data: patternBase64 } },
+          { text: analysisPrompt }
+        ],
+        config: {
+          responseMimeType: 'application/json'
+        }
+      });
+
+      let textRes = analysisResponse.response?.text ? analysisResponse.response.text().trim() : '';
+      if (textRes.startsWith("```json")) {
+        textRes = textRes.replace(/^```json\s*/, '').replace(/\s*```$/, '');
+      } else if (textRes.startsWith("```")) {
+        textRes = textRes.replace(/^```\s*/, '').replace(/\s*```$/, '');
+      }
+
+      const firstBracket = textRes.indexOf('[');
+      const lastBracket = textRes.lastIndexOf(']');
+      if (firstBracket !== -1 && lastBracket > firstBracket) {
+        textRes = textRes.substring(firstBracket, lastBracket + 1);
+      }
+
       motifs = JSON.parse(textRes);
+      if (!Array.isArray(motifs) || motifs.length === 0) {
+        throw new Error('Motifs parsed is not a non-empty array');
+      }
     } catch (e) {
-      console.error("Erro ao parsear resposta do Gemini na análise:", e, textRes);
+      console.error("Erro ao analisar estampa com Gemini 2.5 Flash, usando fallback de motivos:", e);
       motifs = [
         {
           title: "Folha Orgânica",
@@ -71,7 +83,8 @@ Return strictly valid JSON array of 3 objects with keys "title", "origin", and "
 
     // Step 2: Gerar 3 imagens isoladas monocromáticas transparentes (1 para cada motivo)
     const elementsPromises = motifs.slice(0, 3).map(async (motif, index) => {
-      const genPrompt = `
+      try {
+        const genPrompt = `
 Look at the attached pattern image as reference.
 Extract and illustrate ONE SINGLE ISOLATED GRAPHIC MOTIF: ${motif.visualDescription}.
 
@@ -84,35 +97,46 @@ MANDATORY SPECIFICATIONS:
 - Clean vector lineart or solid flat silhouette.
 `;
 
-      const genRes = await ai.models.generateContent({
-        model: 'imagen-3.0-generate-002',
-        contents: [
-          { inlineData: { mimeType, data: patternBase64 } },
-          { text: genPrompt }
-        ],
-        config: {
-          numberOfImages: 1,
-          outputMimeType: 'image/png',
-          aspectRatio: '1:1',
+        const genRes = await ai.models.generateContent({
+          model: 'imagen-3.0-generate-002',
+          contents: [
+            { inlineData: { mimeType, data: patternBase64 } },
+            { text: genPrompt }
+          ],
+          config: {
+            numberOfImages: 1,
+            outputMimeType: 'image/png',
+            aspectRatio: '1:1',
+          }
+        });
+
+        const candidate = genRes?.response?.candidates?.[0];
+        const imagePart = candidate?.content?.parts?.find(p => p.inlineData);
+        
+        let base64 = null;
+        if (imagePart?.inlineData?.data) {
+          base64 = imagePart.inlineData.data;
         }
-      });
 
-      const candidate = genRes?.response?.candidates?.[0];
-      const imagePart = candidate?.content?.parts?.find(p => p.inlineData);
-      
-      let base64 = null;
-      if (imagePart?.inlineData?.data) {
-        base64 = imagePart.inlineData.data;
+        return {
+          id: `gen-elem-${index + 1}`,
+          title: motif.title || `Motivo ${index + 1}`,
+          origin: motif.origin || 'Extraído da estampa',
+          visualDescription: motif.visualDescription || '',
+          base64: base64,
+          mimeType: 'image/png'
+        };
+      } catch (err) {
+        console.error(`Erro ao gerar motivo ${index + 1}:`, err);
+        return {
+          id: `gen-elem-${index + 1}`,
+          title: motif.title || `Motivo ${index + 1}`,
+          origin: motif.origin || 'Extraído da estampa',
+          visualDescription: motif.visualDescription || '',
+          base64: null,
+          mimeType: 'image/png'
+        };
       }
-
-      return {
-        id: `gen-elem-${index + 1}`,
-        title: motif.title,
-        origin: motif.origin,
-        visualDescription: motif.visualDescription,
-        base64: base64,
-        mimeType: 'image/png'
-      };
     });
 
     const results = await Promise.all(elementsPromises);

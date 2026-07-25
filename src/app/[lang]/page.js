@@ -382,6 +382,9 @@ export default function Home() {
     if (parsed.resultadoFinal) setResultadoFinal(parsed.resultadoFinal);
     if (parsed.generatedPatterns) setGeneratedPatterns(parsed.generatedPatterns);
     if (parsed.selectedPattern !== undefined) setSelectedPattern(parsed.selectedPattern);
+    if (parsed.generatedBrandElements) setGeneratedBrandElements(parsed.generatedBrandElements);
+    if (parsed.selectedBrandElementId !== undefined) setSelectedBrandElementId(parsed.selectedBrandElementId);
+    if (parsed.elementsGenerationCount) setElementsGenerationCount(parsed.elementsGenerationCount);
     if (parsed.papelariaSelecionada) setPapelariaSelecionada(parsed.papelariaSelecionada);
 
     if (parsed.sessionId) {
@@ -430,7 +433,9 @@ export default function Home() {
       },
       patternGenerationCount, refazerAttempts,
       resultadoFinal, selectedPaleta, selectedTipo, selectedIcon,
-      generatedPatterns, selectedPattern, papelariaSelecionada,
+      generatedPatterns, selectedPattern,
+      generatedBrandElements, selectedBrandElementId, elementsGenerationCount,
+      papelariaSelecionada,
       sessionId: activeSessionId || undefined
     };
     try {
@@ -451,7 +456,7 @@ export default function Home() {
         }
       }
     }
-  }, [isHydrated, step, formData, selectedTagline, customTagline, editData, generatedPatterns, selectedPattern, resultadoFinal, papelariaSelecionada]);
+  }, [isHydrated, step, formData, selectedTagline, customTagline, editData, generatedPatterns, selectedPattern, generatedBrandElements, selectedBrandElementId, elementsGenerationCount, resultadoFinal, papelariaSelecionada]);
 
   useEffect(() => {
     if (step !== 11.5 || !resultadoFinal || resultadoFinal?.creativeDirector?.taglineSuggestions || resultadoFinal?.taglineSuggestions) return;
@@ -680,7 +685,6 @@ export default function Home() {
     }
     setPatternGenerationCount(c => c + 1);
     setPatternLoading(true);
-    setGeneratedPatterns([]);
     try {
       const sel = paletas.find(p => p.id === selectedPaleta);
       const cores = sel?.paleta_hex || sel?.cores_hex || [];
@@ -704,7 +708,7 @@ export default function Home() {
       });
       
       const data = await res.json();
-      if (data.success && data.images) {
+      if (data.success && data.images && data.images.length > 0) {
         setGeneratedPatterns(data.images);
         setSelectedPattern(0);
       } else {
@@ -714,6 +718,8 @@ export default function Home() {
     } catch (err) {
       console.error('Erro chamando API:', err);
       setAlertMessage('Erro de conexão. Verifique se o servidor está rodando.');
+    } finally {
+      setPatternLoading(false);
     }
   };
 
@@ -3411,6 +3417,9 @@ export default function Home() {
                       setResultadoFinal(null);
                       setSelectedTagline('');
                       setCustomTagline('');
+                      setGeneratedBrandElements([]);
+                      setSelectedBrandElementId(null);
+                      setElementsGenerationCount(0);
                     }}
                     style={{ background: 'none', border: 'none', color: 'var(--text-secondary)', fontSize: '0.8rem', cursor: 'pointer', textDecoration: 'underline', textAlign: 'center', paddingBottom: '1.5rem' }}
                   >
