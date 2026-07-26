@@ -2768,7 +2768,7 @@ function PlacaStep({ brand, accentColor, paletteColors, estampaPatterns, estampa
             patternImage={patternImage}
             iconPath={iconPath}
             customLogoSrc={customLogoSrc}
-            logoElement={<LogoPreviewHTML editData={editData} color={logoColor || accentColor} layout={logoLayout || editData?.logoLayout || 'horizontal'} scaleFactor={0.82} maxWidth="440px" maxHeight="125px" />}
+            logoElement={customLogoSrc ? <LogoPreviewHTML editData={editData} color={logoColor || accentColor} layout={logoLayout || editData?.logoLayout || 'horizontal'} scaleFactor={0.82} maxWidth="440px" maxHeight="125px" /> : null}
           />
         </div>
       </div>
@@ -10613,7 +10613,8 @@ function EntregaContent({ brand, plano, setBrand }) {
   };
 
   // accentColor = cor principal: respeita a ordem definida na aba Cores, senão usa logoColor
-  const accentColor = orderedPaletteColors[0] || logoColor || '#C3CEDB';
+  const effectiveLogoColor = logoColor || brand?.editData?.corAtiva || brand?.activeColor || orderedPaletteColors[0] || '#C3CEDB';
+  const accentColor = orderedPaletteColors[0] || effectiveLogoColor || '#C3CEDB';
 
   return (
     <div style={{ minHeight: '100vh', background: '#faf9f7', fontFamily: 'Montserrat, sans-serif', paddingBottom: '3rem' }}>
@@ -10704,7 +10705,7 @@ function EntregaContent({ brand, plano, setBrand }) {
         {step === 'assinatura-email' && (plano === 'avulso' ? <AvulsoUpgradeCard accentColor={accentColor} titulo="Assinatura de E-mail" desc="Assinatura profissional com sua logo, dados de contato e links para usar no Gmail ou Outlook. Disponível no Plano Completo." /> : <AssinaturaEmailPreview brand={brand} editData={editDataWithLogo} accentColor={accentColor} logoColor={logoColor} logoLayout={logoLayout} cartaoContacts={cartaoContacts} crmLine={crmLine} localSlogan={localSlogan} clinicaNome={clinicaNome} storyTemplateIdx={storyTemplateIdx} setStoryTemplateIdx={setStoryTemplateIdx} storyFormatIdx={storyFormatIdx} setStoryFormatIdx={setStoryFormatIdx} setCartaoContacts={setCartaoContacts} setClinicaNome={setClinicaNome} setLocalSlogan={setLocalSlogan} />)}
 
         {/* Placa da marca */}
-        {step === 'placa' && plano !== 'avulso' && <PlacaStep brand={brand} accentColor={accentColor} paletteColors={orderedPaletteColors} estampaPatterns={estampaPatterns} estampaSelectedIdx={estampaSelectedIdx} editData={editDataWithLogo} logoColor={logoColor} logoLayout={logoLayout} iconPath={currentIconPath} submarcaColor={submarcaColor} submarcaTextColor={submarcaTextColor} />}
+        {step === 'placa' && plano !== 'avulso' && <PlacaStep brand={brand} accentColor={accentColor} paletteColors={orderedPaletteColors} estampaPatterns={estampaPatterns} estampaSelectedIdx={estampaSelectedIdx} editData={editDataWithLogo} logoColor={effectiveLogoColor} logoLayout={logoLayout} iconPath={currentIconPath} submarcaColor={submarcaColor} submarcaTextColor={submarcaTextColor} />}
 
         {/* Manifesto */}
         {step === 'manifesto' && plano !== 'avulso' && <ManifestoStep accentColor={accentColor} marca={marca} tagline={tagline} brand={brand} isSaude={isSaude} editData={editDataWithLogo} />}
