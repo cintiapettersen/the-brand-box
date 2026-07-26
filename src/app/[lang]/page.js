@@ -3896,18 +3896,9 @@ export default function Home() {
                       window.location.href = dest;
                     }}
                     className="btn-primary"
-                    style={{ width: '100%', background: 'var(--accent-turquoise)' }}
+                    style={{ width: '100%', background: 'var(--accent-turquoise)', padding: '14px 20px', fontSize: '0.95rem', fontWeight: 700 }}
                   >
                     Ir para minha Marca (Área de Entrega) →
-                  </button>
-                  <button
-                    onClick={() => {
-                      setShowCompletedPrompt(false);
-                    }}
-                    className="btn-secondary"
-                    style={{ width: '100%' }}
-                  >
-                    Criar um novo briefing
                   </button>
                 </div>
               </motion.div>
