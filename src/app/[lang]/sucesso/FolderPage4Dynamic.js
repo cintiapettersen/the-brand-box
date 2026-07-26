@@ -37,8 +37,11 @@ export default function FolderPage4Dynamic({
     { idade: '12 a 24 meses', text: 'Alimentos cortados', qty: 'Uma xícara ou tigela de 250 ml' }
   ];
 
-  const horarios = (propsHorarios && propsHorarios.length > 0) ? propsHorarios : defaultHorarios;
-  const introducao = (propsIntroducao && propsIntroducao.length > 0) ? propsIntroducao : defaultIntroducao;
+  const isValidHorarios = Array.isArray(propsHorarios) && propsHorarios.length > 0 && propsHorarios.some(h => h && (h.label || h.val));
+  const isValidIntroducao = Array.isArray(propsIntroducao) && propsIntroducao.length > 0 && propsIntroducao.some(i => i && (i.idade || i.text));
+
+  const horarios = isValidHorarios ? propsHorarios : defaultHorarios;
+  const introducao = isValidIntroducao ? propsIntroducao : defaultIntroducao;
 
   const c1 = palette[0] || accentColor;
   const c2 = palette[1] || c1;

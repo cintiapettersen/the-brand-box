@@ -4593,7 +4593,7 @@ function FolderTrifoldPreview({ brand, editData, logoColor, logoLayout, comBorda
 
   const Art2 = isVacina ? FolderVacinaPage2 : (isDev ? FolderDevPage2 : (isSono ? FolderSonoPage2 : (isCuidados ? FolderCuidadosPage2 : FolderPage2Art)));
   const Art3 = isVacina ? FolderVacinaPage3 : (isDev ? FolderDevPage3 : (isSono ? FolderSonoPage3 : (isCuidados ? FolderCuidadosPage3 : FolderPage3Art)));
-  const Art4 = isVacina ? FolderVacinaPage4 : (isDev ? FolderDevPage4 : (isSono ? FolderSonoPage4 : (isCuidados ? FolderCuidadosPage4 : FolderPage4Art)));
+  const Art4 = isVacina ? FolderVacinaPage4 : (isDev ? FolderDevPage4 : (isSono ? FolderSonoPage4 : (isCuidados ? FolderCuidadosPage4 : (currentItem === 'Guia Alimentar' ? FolderPage4Dynamic : FolderPage4Art))));
   const Art5 = isVacina ? FolderVacinaPage5 : (isDev ? FolderDevPage5 : (isSono ? FolderSonoPage5 : (isCuidados ? FolderCuidadosPage5 : FolderPage5Art)));
   const Art6 = isVacina ? FolderVacinaPage6 : null;
   const Art1 = isVacina ? FolderVacinaPage1 : null;
@@ -7891,13 +7891,13 @@ body { background:#fff; }
         <div style="position:absolute;inset:0;${bgEt}"></div>
         <div style="position:absolute;top:${B}mm;left:${B}mm;width:${selSize.w}mm;height:${selSize.h}mm;">
           <div style="position:absolute;inset:3mm;border:0.3mm solid rgba(255,255,255,0.45);border-radius:2mm;"></div>
-          <div style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:82%;min-height:70%;background:rgba(255,255,255,0.88);border-radius:2.5mm;padding:5mm 5mm;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3mm;">
-            <div style="font-size:5.5mm;font-weight:800;color:${solidColor};font-family:'Montserrat',sans-serif;text-align:center;line-height:1.25;">${selFrase}</div>
+          <div style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:88%;height:84%;background:rgba(255,255,255,0.92);border-radius:3.5mm;padding:4mm 5mm;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2.5mm;box-sizing:border-box;overflow:hidden;">
+            <div style="font-size:4.8mm;font-weight:800;color:${solidColor};font-family:'Montserrat',sans-serif;text-align:center;line-height:1.2;">${selFrase}</div>
             <div style="width:25%;height:0.2mm;background:${solidColor}40;"></div>
             ${logoHtmlEt}
-            <div style="display:flex;flex-direction:column;align-items:center;gap:2mm;margin-top:4mm;">
-              ${instagram ? `<div style="display:flex;align-items:center;gap:2mm;">${igIcon}<span style="font-size:3.5mm;color:${solidColor};font-family:'Montserrat',sans-serif;font-weight:600;">@${instagram.replace('@','')}</span></div>` : ''}
-              ${mainPhone ? `<div style="display:flex;align-items:center;gap:2mm;">${waIcon}<span style="font-size:3.2mm;color:${solidColor}bb;font-family:'Montserrat',sans-serif;font-weight:400;">${mainPhone}</span></div>` : ''}
+            <div style="display:flex;flex-direction:column;align-items:center;gap:1.5mm;margin-top:1mm;">
+              ${instagram ? `<div style="display:flex;align-items:center;gap:1.5mm;">${igIcon}<span style="font-size:3mm;color:${solidColor};font-family:'Montserrat',sans-serif;font-weight:600;">@${instagram.replace('@','')}</span></div>` : ''}
+              ${mainPhone ? `<div style="display:flex;align-items:center;gap:1.5mm;">${waIcon}<span style="font-size:2.8mm;color:${solidColor}bb;font-family:'Montserrat',sans-serif;font-weight:400;">${mainPhone}</span></div>` : ''}
             </div>
           </div>
         </div>
@@ -8115,9 +8115,9 @@ html, body { width:${totalW}mm; height:${totalH}mm; overflow:hidden; }
       // Logo — usa genPDFLogoHtml com hideSlogan para logo imagem, mostra slogan para logo texto
       const _hasImgT = !!itemEditData?.customLogoSrc;
       const isRectT = TSHAPE === 'rect';
-      const _logoBoxDim = isCircleT ? (Math.min(TW, TH) * 0.60).toFixed(0) : isRectT ? (TH * 0.58).toFixed(0) : (Math.min(TW, TH) * 0.64).toFixed(0);
-      const _logoBoxW = isRectT ? (TW * 0.64).toFixed(0) : _logoBoxDim;
-      const _logoBoxH = isRectT ? (TH * 0.58).toFixed(0) : _logoBoxDim;
+      const _logoBoxDim = isCircleT ? (Math.min(TW, TH) * 0.74).toFixed(0) : isRectT ? (TH * 0.65).toFixed(0) : (Math.min(TW, TH) * 0.78).toFixed(0);
+      const _logoBoxW = isRectT ? (TW * 0.72).toFixed(0) : _logoBoxDim;
+      const _logoBoxH = isRectT ? (TH * 0.65).toFixed(0) : _logoBoxDim;
       const _logoColor = (comBorda && patternSrc) ? solidColor : '#fff';
       const _tagLogoHtml = genPDFLogoHtml({
         brand, editDataOverride: itemEditData,

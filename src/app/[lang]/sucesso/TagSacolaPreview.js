@@ -35,15 +35,15 @@ function TagCard({ size, solidColor, c0, c1, paletteColors, effectiveSrc, patter
         <div style={bgStyle} />
         {(() => {
           const isRect = size.shape === 'rect';
-          const boxDim = Math.round(Math.min(W, H) * (isCircle ? 0.60 : isRect ? 0.58 : 0.64));
-          const boxW = isRect ? Math.round(W * 0.64) : boxDim;
-          const boxH = isRect ? Math.round(H * 0.58) : boxDim;
+          const boxDim = Math.round(Math.min(W, H) * (isCircle ? 0.74 : isRect ? 0.65 : 0.78));
+          const boxW = isRect ? Math.round(W * 0.72) : boxDim;
+          const boxH = isRect ? Math.round(H * 0.65) : boxDim;
           return (
             <div style={{
               position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%)', zIndex: 2,
               display: 'flex', alignItems: 'center', justifyContent: 'center',
               background: effectiveSrc ? 'rgba(255,255,255,0.95)' : 'transparent',
-              padding: effectiveSrc ? '6px' : '0',
+              padding: effectiveSrc ? '8px' : '0',
               borderRadius: isCircle ? '50%' : '4px',
               width: `${boxW}px`, height: `${boxH}px`,
               maxWidth: `${boxW}px`, maxHeight: `${boxH}px`, overflow: 'hidden',
@@ -55,7 +55,7 @@ function TagCard({ size, solidColor, c0, c1, paletteColors, effectiveSrc, patter
               }}>
                 <LogoPreviewHTML item="Tag para Sacola" editData={editData}
                   color={effectiveSrc ? solidColor : '#ffffff'}
-                  layout={logoLayout} scaleFactor={isCircle ? 0.62 : isRect ? 0.58 : 0.64}
+                  layout={logoLayout} scaleFactor={isCircle ? 0.75 : isRect ? 0.68 : 0.78}
                   hideTagline={false} withBackground={false}
                   taglineColor={effectiveSrc ? undefined : 'rgba(255,255,255,0.75)'}
                   maxWidth="100%" maxHeight="100%" />
