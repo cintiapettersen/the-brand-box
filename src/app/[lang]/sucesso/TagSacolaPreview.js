@@ -35,26 +35,27 @@ function TagCard({ size, solidColor, c0, c1, paletteColors, effectiveSrc, patter
         <div style={bgStyle} />
         {(() => {
           const hasImg = !!editData?.customLogoSrc;
-          const isRect = size.shape === 'rect';
-          const boxW = Math.round(W * (isCircle ? 0.62 : isRect ? 0.58 : 0.70));
-          const boxH = Math.round(H * (isCircle ? 0.55 : isRect ? 0.58 : 0.62));
+          const boxDim = Math.round(Math.min(W, H) * (isCircle ? 0.60 : isRect ? 0.58 : 0.64));
+          const boxW = isRect ? Math.round(W * 0.64) : boxDim;
+          const boxH = isRect ? Math.round(H * 0.58) : boxDim;
           return (
             <div style={{
               position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%)', zIndex: 2,
               display: 'flex', alignItems: 'center', justifyContent: 'center',
-              background: effectiveSrc ? 'rgba(255,255,255,0.92)' : 'transparent',
-              padding: effectiveSrc ? '4px 6px' : '0',
-              borderRadius: '4px',
-              maxWidth: `${boxW + 12}px`, maxHeight: `${boxH + 8}px`, overflow: 'visible',
+              background: effectiveSrc ? 'rgba(255,255,255,0.95)' : 'transparent',
+              padding: effectiveSrc ? '6px' : '0',
+              borderRadius: isCircle ? '50%' : '4px',
+              width: `${boxW}px`, height: `${boxH}px`,
+              maxWidth: `${boxW}px`, maxHeight: `${boxH}px`, overflow: 'hidden',
+              boxSizing: 'border-box',
             }}>
               <div style={{
-                display: hasImg ? 'inline-flex' : 'flex',
-                ...(hasImg ? { maxWidth: `${boxW}px` } : { width: `${boxW}px`, height: `${boxH}px` }),
-                alignItems: 'center', justifyContent: 'center', overflow: 'visible',
+                display: 'flex', width: '100%', height: '100%',
+                alignItems: 'center', justifyContent: 'center', overflow: 'hidden',
               }}>
                 <LogoPreviewHTML item="Tag para Sacola" editData={editData}
                   color={effectiveSrc ? solidColor : '#ffffff'}
-                  layout={logoLayout} scaleFactor={isCircle ? 0.65 : isRect ? 0.58 : 0.70}
+                  layout={logoLayout} scaleFactor={isCircle ? 0.62 : isRect ? 0.58 : 0.64}
                   hideTagline={false} withBackground={false}
                   taglineColor={effectiveSrc ? undefined : 'rgba(255,255,255,0.75)'}
                   maxWidth="100%" maxHeight="100%" />

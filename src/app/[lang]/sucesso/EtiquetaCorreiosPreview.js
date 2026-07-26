@@ -107,7 +107,7 @@ export default function EtiquetaCorreiosPreview({
                 <div style={{ width: '30%', height: '0.5px', background: solidColor + '50' }} />
 
                 <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', width: '100%', height: size.h * 9 }}>
-                  <LogoPreviewHTML editData={editData} color={solidColor} layout={logoLayout} scaleFactor={0.85} hideTagline={false} maxWidth="100%" maxHeight="100%" />
+                  <LogoPreviewHTML editData={editData} color={solidColor} layout={logoLayout} scaleFactor={1.08} hideTagline={false} maxWidth="100%" maxHeight="100%" />
                 </div>
 
                 {(instagram || mainPhone) && (

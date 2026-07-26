@@ -4049,7 +4049,7 @@ function ControleEspecialPreview({ accentColor, patternSrc, editData, logoColor,
         {/* Área branca interna */}
         <div style={{ position: 'absolute', top: BORDER, left: BORDER, right: BORDER, bottom: BORDER, background: '#fff', display: 'flex', flexDirection: 'column', padding: '8px' }}>
           
-          <div style={{ textAlign: 'center', fontSize: '5.5px', fontWeight: 800, color: '#999', letterSpacing: '1px', textTransform: 'uppercase', marginBottom: '6px' }}>
+          <div style={{ textAlign: 'center', fontSize: '5.5px', fontWeight: 800, color: '#999', opacity: 0.65, letterSpacing: '1px', textTransform: 'uppercase', marginBottom: '6px', marginTop: '-2px' }}>
             {dictionary?.controle_especial?.titulo || 'RECEITUÁRIO DE CONTROLE ESPECIAL'}
           </div>
  
@@ -5083,8 +5083,8 @@ function PapelTimbradoPreview({ brand, editData, accentColor, patternSrc, logoCo
         </div>
 
         {/* Central Watermark */}
-        <div style={{ position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%)', opacity: 0.15, width: '160px', display: 'flex', justifyContent: 'center', pointerEvents: 'none', overflow: 'hidden' }}>
-           <LogoPreviewHTML editData={editData} color={logoColor} layout={logoLayout} scaleFactor={0.65} hideTagline maxWidth="160px" maxHeight="100px" />
+        <div style={{ position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%)', opacity: 0.15, width: '160px', display: 'flex', justifyContent: 'center', pointerEvents: 'none' }}>
+           <LogoPreviewHTML editData={editData} color={logoColor} layout={logoLayout} scaleFactor={0.65} hideTagline maxWidth="160px" maxHeight="130px" />
         </div>
 
         {/* Footer */}
@@ -5382,7 +5382,7 @@ function EnvelopeSacoPreview({ brand, editData, accentColor, patternSrc, logoCol
             <div style={{ position: 'absolute', top: 0, left: 0, right: 0, height: '45px', background: abaColor, opacity: 0.9, zIndex: 5 }} />
             {/* Etiqueta com logo — centralizada na área abaixo da aba */}
             <div style={{ position: 'absolute', top: '172px', left: '50%', transform: 'translate(-50%, -50%)', padding: '12px 16px', background: 'rgba(255,255,255,0.93)', borderRadius: '4px', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', width: '160px', height: '100px' }}>
-              <LogoPreviewHTML item="Envelope Saco" editData={{ ...editData, tagline: localSlogan }} color={logoColor} layout={logoLayout} scaleFactor={0.80} crm={crmLine} withBackground={false} maxWidth="100%" maxHeight="100%" />
+              <LogoPreviewHTML item="Envelope Saco" editData={{ ...editData, tagline: localSlogan }} color={logoColor} layout={logoLayout} scaleFactor={1.0} crm={crmLine} withBackground={false} maxWidth="100%" maxHeight="100%" />
             </div>
           </div>
         </div>
@@ -6264,7 +6264,7 @@ function PapelariaStep({ brand, accentColor, paletteColors, estampaPatterns, est
     const _isA4Global = _psLower.includes('a4') || ['Receita de Alta', 'Timbrado', 'Diário', 'Ficha', 'Cadastro', 'Prontuário', 'Checklist', 'Orientação'].some(n => item.includes(n));
     const _isReceituario = item.includes('Receituário');
     const _globalBoost = (['Receituário', 'Recibo', 'Ficha', 'Prontuário', 'Certificado', 'Atestado'].some(n => item.includes(n)) || _isA4Global) ? 1.0 : 1.0;
-    const _logoWidthMmGlobal = _isReceituario ? (_isA4Global ? 150 : 110) : 100; // padronizado: A4 e A5 usam mesma caixa de logo
+    const _logoWidthMmGlobal = _isReceituario ? (_isA4Global ? 110 : 85) : 100; // padronizado: A4 e A5 usam mesma caixa de logo proporcional
 
     const logoHtmlWithCrm = genPDFLogoHtml({
       brand,
@@ -6273,13 +6273,13 @@ function PapelariaStep({ brand, accentColor, paletteColors, estampaPatterns, est
       layout: logoLayout,
       localSlogan,
       crmLine,
-      fontPt: (parseFloat(_fontPt) * (_isReceituario ? (_isA4Global ? 3.0 : 2.2) : _globalBoost)).toFixed(1),
+      fontPt: (parseFloat(_fontPt) * (_isReceituario ? (_isA4Global ? 1.6 : 1.3) : _globalBoost)).toFixed(1),
       lineH: _lineH,
       letterSp: _letterSp,
       customLogoSrc,
       customLogoScale: customLogoSrc ? getCustomLogoScale(item) * (ITEM_CUSTOM_BASE_SCALES[item] || 1) : 100,
       maxWidth: `${_logoWidthMmGlobal}mm`,
-      maxHeight: _isReceituario ? (_isA4Global ? '80mm' : '60mm') : '36mm'
+      maxHeight: _isReceituario ? (_isA4Global ? '42mm' : '32mm') : '36mm'
     });
     const logoHtml = logoHtmlWithCrm;
 
@@ -7035,7 +7035,7 @@ ${versoHtml}
       const abaLatHtml = `<div style="position:absolute;top:${BLEED + ABA_S}mm;left:0;width:${ABA_L + BLEED}mm;height:${H}mm;background:#fff;z-index:1;">${genPattern(1, ABA_L, 0)}</div>`;
 
       // Respect user's logoLayout choice so it stays on one line if requested. Use a smaller fontPt so it fits the white box without overflowing and breaking CSS centering.
-      const _sacLogoHtml = genPDFLogoHtml({ brand, editDataOverride: editData, color: logoColor, layout: logoLayout, localSlogan, crmLine: null, fontPt: 40, lineH: _lineH, letterSp: _letterSp, customLogoSrc, customLogoScale: customLogoSrc ? getCustomLogoScale(item) * (ITEM_CUSTOM_BASE_SCALES[item] || 1) : 100, maxWidth: '130mm', maxHeight: '75mm', withBackground: false });
+      const _sacLogoHtml = genPDFLogoHtml({ brand, editDataOverride: editData, color: logoColor, layout: logoLayout, localSlogan, crmLine: null, fontPt: 56, lineH: _lineH, letterSp: _letterSp, customLogoSrc, customLogoScale: customLogoSrc ? getCustomLogoScale(item) * (ITEM_CUSTOM_BASE_SCALES[item] || 1) : 100, maxWidth: '138mm', maxHeight: '80mm', withBackground: false });
       const frenteHtml = `
         <div style="position:absolute;top:${BLEED + ABA_S}mm;left:${BLEED + ABA_L}mm;width:${W}mm;height:${H}mm;overflow:hidden;background:#fff;z-index:2;">
             ${genPattern(1, 0, 0)}
@@ -7089,7 +7089,7 @@ body { width:${totalW}mm; height:${totalH}mm; position:relative; overflow:hidden
       const totalH = (H * 2) + ABA + (BLEED * 2);
 
       const solidColor = borderColor || accentColor;
-      const genPattern = (scaleMul = 1) => (comBorda && patternSrc) ? `<div style="position:absolute;inset:0;background-image:url(${patternSrc});background-size:${(patternScale * 0.71 * scaleMul).toFixed(1)}mm;background-repeat:repeat;opacity:1;"></div>` : '';
+      const genPattern = (scaleMul = 1) => (comBorda && patternSrc) ? `<div style="position:absolute;inset:0;background-image:url(${patternSrc});background-size:${(getPatternTileMm(patternScale) * scaleMul).toFixed(1)}mm;background-repeat:repeat;opacity:1;"></div>` : '';
       const _envPhones = [mainPhone, telefone].filter(Boolean).join(' / ');
 
       const _ffEnv = editData?.fontFamily || brand.editData?.fontFamily || 'Playfair Display';
@@ -7435,7 +7435,7 @@ body { width: 220mm; height: 307mm; background: #fff; }
       const exCk = document.getElementById('_gabarito_iframe'); if (exCk) exCk.remove();
       const blobCk = new Blob([htmlCk], { type: 'text/html;charset=utf-8' });
       const blobUrlCk = URL.createObjectURL(blobCk);
-      return exportHTMLAsPDF(html, item, mode);
+      return exportHTMLAsPDF(htmlCk, item, mode);
     }
 
     if (item.includes('Atestado Médico')) {
@@ -7868,10 +7868,10 @@ body { background:#fff; }
       const selFrase = FRASES_ET[etiquetaFraseIdx] || FRASES_ET[0];
       const BLEED_ET = 3;
       // scaleFactor e maxHeight por formato
-      const _etSFMap = [0.30, 0.50, 0.28];
-      const _etMaxHMap = ['22mm', '28mm', '20mm'];
-      const _etSF = _etSFMap[etiquetaSizeIdx] ?? 0.30;
-      const _etMaxH = _etMaxHMap[etiquetaSizeIdx] ?? '22mm';
+      const _etSFMap = [0.45, 0.68, 0.42];
+      const _etMaxHMap = ['32mm', '38mm', '30mm'];
+      const _etSF = _etSFMap[etiquetaSizeIdx] ?? 0.45;
+      const _etMaxH = _etMaxHMap[etiquetaSizeIdx] ?? '32mm';
       // zoom: PDF px/mm (3.78) ÷ preview px/mm
       const _etZoom = (3.78 / selSize.previewScale).toFixed(3);
       const logoHtmlEt = `<div style="zoom:${_etZoom};display:flex;flex-direction:column;align-items:center;">${genPDFLogoHtml({ brand, editDataOverride: editData, color: solidColor, layout: logoLayout || 'stacked', localSlogan, scaleFactor: _etSF, crmLine: null, customLogoSrc, customLogoScale: customLogoSrc ? getCustomLogoScale(item) * (ITEM_CUSTOM_BASE_SCALES[item] || 1) : 100, maxWidth: '100mm', maxHeight: _etMaxH, withBackground: false })}</div>`;
@@ -8013,6 +8013,8 @@ html, body { width:${TW}mm; height:${TH}mm; overflow:hidden; }
         ? `background-image:url(${patternSrc});background-size:${tileMm}mm;background-repeat:repeat;`
         : `background:${solidColor};`;
 
+      const showLogoT = typeof showLogo !== 'undefined' ? showLogo : true;
+
       const html = `<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Estampa Camiseta - ${marca}</title>${fiT}
 <style>
 * { box-sizing:border-box; margin:0; padding:0; print-color-adjust:exact !important; -webkit-print-color-adjust:exact !important; }
@@ -8020,37 +8022,35 @@ html, body { width:${TW}mm; height:${TH}mm; overflow:hidden; }
 @page shirt { size:${SHIRT_W}mm ${SHIRT_H}mm; margin:0; }
 @page selo { size:200mm 200mm; margin:0; }
 .tile-page  { page: tile;  width:${tileMm}mm; height:${tileMm}mm; position:relative; overflow:hidden; page-break-after:always; }
-.shirt-page { page: shirt; width:${SHIRT_W}mm; height:${SHIRT_H}mm; position:relative; overflow:hidden; page-break-after:always; }
+.shirt-page { page: shirt; width:${SHIRT_W}mm; height:${SHIRT_H}mm; position:relative; overflow:hidden; ${showLogoT ? 'page-break-after:always;' : ''} }
 .selo-page  { page: selo;  width:200mm; height:200mm; position:relative; overflow:hidden; }
 </style></head><body>
 
-<!-- PAG 1: MODULO DE REPETICAO — tile exato que a graffica deve repetir no tecido -->
+<!-- PAG 1: MODULO DE REPETICAO — tile exato que a grafica deve repetir no tecido -->
 <div class="tile-page" style="${bgStyleT}">
   <div style="position:absolute;bottom:3mm;right:4mm;font-family:Montserrat,sans-serif;font-size:6pt;color:rgba(0,0,0,0.3);font-weight:700;letter-spacing:0.5px;">
     MODULO ${tileMm}x${tileMm}mm — REPETIR EM GRADE
   </div>
 </div>
 
-<!-- PAG 2: LAYOUT COMPLETO DA CAMISETA (70x80cm) -->
+<!-- PAG 2: LAYOUT COMPLETO DA CAMISETA APENAS COM ESTAMPA (70x80cm) -->
 <div class="shirt-page" style="${bgStyleT}">
-  <!-- Selo do peito -->
-  <div style="position:absolute;top:180mm;left:50%;transform:translateX(-50%);width:${seloSizeT}mm;height:${seloSizeT}mm;display:flex;align-items:center;justify-content:center;">
-    ${logoHtmlT}
-  </div>
   <div style="position:absolute;bottom:8mm;left:0;right:0;text-align:center;font-family:Montserrat,sans-serif;font-size:7pt;color:rgba(0,0,0,0.35);font-weight:700;">
-    LAYOUT CAMISETA ADULTO — ${SHIRT_W/10}x${SHIRT_H/10}cm | ESTAMPA: ${marca}
+    LAYOUT ESTAMPA CAMISETA — ${SHIRT_W/10}x${SHIRT_H/10}cm | MARCA: ${marca}
   </div>
 </div>
 
-<!-- PAG 3: SELO DO PEITO ISOLADO (tamanho real) -->
+${showLogoT ? `
+<!-- PAG 3: SELO ISOLADO EM FOLHA SEPARADA DA ESTAMPA (tamanho real) -->
 <div class="selo-page" style="background:#fff;">
   <div style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);">
     ${logoHtmlT}
   </div>
   <div style="position:absolute;bottom:10mm;left:0;right:0;text-align:center;font-family:Montserrat,sans-serif;font-size:9pt;color:#888;font-weight:700;">
-    SELO DO PEITO: ${seloSizeT}x${seloSizeT}mm (TAMANHO REAL)
+    SELO DO PEITO: ${seloSizeT}x${seloSizeT}mm (FOLHA SEPARADA DA ESTAMPA)
   </div>
 </div>
+` : ''}
 
 </body></html>`;
       const exT = document.getElementById('_gabarito_camiseta'); if (exT) exT.remove();
@@ -8114,8 +8114,10 @@ html, body { width:${totalW}mm; height:${totalH}mm; overflow:hidden; }
 
       // Logo — usa genPDFLogoHtml com hideSlogan para logo imagem, mostra slogan para logo texto
       const _hasImgT = !!itemEditData?.customLogoSrc;
-      const isRectT = TSHAPE === 'rect'; const _logoBoxW = isCircleT ? (TW * 0.62).toFixed(0) : isRectT ? (TW * 0.58).toFixed(0) : (TW * 0.70).toFixed(0);
-      const _logoBoxH = isCircleT ? (TH * 0.55).toFixed(0) : isRectT ? (TH * 0.58).toFixed(0) : (TH * 0.62).toFixed(0);
+      const isRectT = TSHAPE === 'rect';
+      const _logoBoxDim = isCircleT ? (Math.min(TW, TH) * 0.60).toFixed(0) : isRectT ? (TH * 0.58).toFixed(0) : (Math.min(TW, TH) * 0.64).toFixed(0);
+      const _logoBoxW = isRectT ? (TW * 0.64).toFixed(0) : _logoBoxDim;
+      const _logoBoxH = isRectT ? (TH * 0.58).toFixed(0) : _logoBoxDim;
       const _logoColor = (comBorda && patternSrc) ? solidColor : '#fff';
       const _tagLogoHtml = genPDFLogoHtml({
         brand, editDataOverride: itemEditData,
@@ -8254,7 +8256,7 @@ body { width:${W + BLEED*2}mm; height:${H + BLEED*2}mm; position:relative; overf
     ${patternBorder}
     
     <div style="position:absolute;top:${BLEED + BORDER + 8}mm;left:${BLEED + BORDER + 8}mm;right:${BLEED + BORDER + 8}mm;bottom:${BLEED + BORDER + 4}mm;display:flex;flex-direction:column;gap:3mm;z-index:3;">
-        <div style="text-align:center;font-size:9pt;font-weight:800;color:#aaa;letter-spacing:2pt;text-transform:uppercase;margin-bottom:1mm;">${dictionary?.controle_especial?.titulo || 'RECEITUÁRIO DE CONTROLE ESPECIAL'}</div>
+        <div style="text-align:center;font-size:9pt;font-weight:800;color:#aaa;opacity:0.65;letter-spacing:2pt;text-transform:uppercase;margin-bottom:1mm;margin-top:-2mm;">${dictionary?.controle_especial?.titulo || 'RECEITUÁRIO DE CONTROLE ESPECIAL'}</div>
 
         <div style="display:flex;gap:6mm;align-items:stretch;">
             <div style="flex:2.5;background:${_accent}08;border:0.2mm solid ${_accent}20;padding:3mm 4mm;border-radius:1.5mm;">
@@ -8961,7 +8963,7 @@ body { background:#fff; font-family:'Montserrat',sans-serif; }
     
     <!-- LUVA -->
     <div style="position:absolute; top:30mm; left:20mm; width:436.1mm; height:194.0mm;">
-       <div style="position:absolute; inset:0; ${effectiveSrc ? `background-image:url('${effectiveSrc}');background-size:${getPatternTileMm(patternScale).toFixed(1)}mm;background-repeat:repeat;` : `background:${solidColor};`} z-index:1;"></div>
+       <div style="position:absolute; inset:0; ${effectiveSrc ? `background-image:url('${effectiveSrc}');background-size:${(getPatternTileMm(patternScale) * 2.2).toFixed(1)}mm;background-repeat:repeat;` : `background:${solidColor};`} z-index:1;"></div>
        <img src="${window.location.origin}${svgLuva}" style="position:absolute; inset:0; width:100%; height:100%; z-index:10;" />
        
        <div style="position:absolute; left:67.821%; top:2.238%; width:30.963%; height:95.360%; z-index:5; display:flex; align-items:center; justify-content:center;">
@@ -9009,8 +9011,8 @@ body { background:#eee; }
     : `<div style="position:absolute; inset:0; background:${solidColor};"></div>`}
   <div style="position:absolute; top:${BLEED + BORDER}mm; left:${BLEED + BORDER}mm; right:${BLEED + BORDER}mm; bottom:${BLEED + BORDER}mm; background:#fff; clip-path:${_clipRoof}; -webkit-clip-path:${_clipRoof};"></div>
 
-  <div style="position:absolute; top:${BLEED + BORDER + (folderRoof ? 22 : 14)}mm; left:50%; transform:translateX(-50%); width:120mm; display:flex; justify-content:center;">
-    ${genPDFLogoHtml({ brand, editDataOverride: editData, color: logoColor, layout: logoLayout, localSlogan, crmLine, fontPt: _fontPt, lineH: _lineH, letterSp: _letterSp, customLogoSrc, customLogoScale: customLogoSrc ? getCustomLogoScale(item) * (ITEM_CUSTOM_BASE_SCALES[item] || 1) : 100, maxWidth: '120mm', maxHeight: '45mm', withBackground: comBorda && patternSrc })}
+  <div style="position:absolute; top:${BLEED + BORDER + (folderRoof ? 22 : 14)}mm; left:50%; transform:translateX(-50%); width:140mm; display:flex; justify-content:center;">
+    ${genPDFLogoHtml({ brand, editDataOverride: editData, color: logoColor, layout: logoLayout, localSlogan, crmLine, fontPt: (parseFloat(_fontPt) * 2.2).toFixed(1), lineH: _lineH, letterSp: _letterSp, customLogoSrc, customLogoScale: customLogoSrc ? getCustomLogoScale(item) * (ITEM_CUSTOM_BASE_SCALES[item] || 1) : 100, maxWidth: '140mm', maxHeight: '52mm', withBackground: comBorda && patternSrc })}
   </div>
 
   <div style="position:absolute; top:50%; left:50%; transform:translate(-50%, -50%); opacity:0.15; width:170mm; display:flex; justify-content:center; pointer-events:none;">
