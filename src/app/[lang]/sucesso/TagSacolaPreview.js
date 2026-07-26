@@ -34,7 +34,7 @@ function TagCard({ size, solidColor, c0, c1, paletteColors, effectiveSrc, patter
       <div style={containerStyle}>
         <div style={bgStyle} />
         {(() => {
-          const hasImg = !!editData?.customLogoSrc;
+          const isRect = size.shape === 'rect';
           const boxDim = Math.round(Math.min(W, H) * (isCircle ? 0.60 : isRect ? 0.58 : 0.64));
           const boxW = isRect ? Math.round(W * 0.64) : boxDim;
           const boxH = isRect ? Math.round(H * 0.58) : boxDim;

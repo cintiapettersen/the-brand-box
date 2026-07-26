@@ -5382,7 +5382,7 @@ function EnvelopeSacoPreview({ brand, editData, accentColor, patternSrc, logoCol
             <div style={{ position: 'absolute', top: 0, left: 0, right: 0, height: '45px', background: abaColor, opacity: 0.9, zIndex: 5 }} />
             {/* Etiqueta com logo — centralizada na área abaixo da aba */}
             <div style={{ position: 'absolute', top: '172px', left: '50%', transform: 'translate(-50%, -50%)', padding: '12px 16px', background: 'rgba(255,255,255,0.93)', borderRadius: '4px', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', width: '160px', height: '100px' }}>
-              <LogoPreviewHTML item="Envelope Saco" editData={{ ...editData, tagline: localSlogan }} color={logoColor} layout={logoLayout} scaleFactor={1.0} crm={crmLine} withBackground={false} maxWidth="100%" maxHeight="100%" />
+              <LogoPreviewHTML item="Envelope Saco" editData={{ ...editData, tagline: localSlogan }} color={logoColor} layout={logoLayout} scaleFactor={1.25} crm={crmLine} withBackground={false} maxWidth="100%" maxHeight="100%" />
             </div>
           </div>
         </div>
@@ -7034,8 +7034,8 @@ ${versoHtml}
       const abaInfHtml = `<div style="position:absolute;top:${BLEED + ABA_S + H}mm;left:${BLEED + ABA_L}mm;width:${W}mm;height:${ABA_I + BLEED}mm;background:#fff;z-index:1;">${genPattern(1, 0, -H)}</div>`;
       const abaLatHtml = `<div style="position:absolute;top:${BLEED + ABA_S}mm;left:0;width:${ABA_L + BLEED}mm;height:${H}mm;background:#fff;z-index:1;">${genPattern(1, ABA_L, 0)}</div>`;
 
-      // Respect user's logoLayout choice so it stays on one line if requested. Use a smaller fontPt so it fits the white box without overflowing and breaking CSS centering.
-      const _sacLogoHtml = genPDFLogoHtml({ brand, editDataOverride: editData, color: logoColor, layout: logoLayout, localSlogan, crmLine: null, fontPt: 56, lineH: _lineH, letterSp: _letterSp, customLogoSrc, customLogoScale: customLogoSrc ? getCustomLogoScale(item) * (ITEM_CUSTOM_BASE_SCALES[item] || 1) : 100, maxWidth: '138mm', maxHeight: '80mm', withBackground: false });
+      // Respect user's logoLayout choice so it stays on one line if requested. Use a prominent fontPt so it fills the white box cleanly.
+      const _sacLogoHtml = genPDFLogoHtml({ brand, editDataOverride: editData, color: logoColor, layout: logoLayout, localSlogan, crmLine: null, fontPt: 84, lineH: _lineH, letterSp: _letterSp, customLogoSrc, customLogoScale: customLogoSrc ? getCustomLogoScale(item) * (ITEM_CUSTOM_BASE_SCALES[item] || 1) : 100, maxWidth: '142mm', maxHeight: '85mm', withBackground: false });
       const frenteHtml = `
         <div style="position:absolute;top:${BLEED + ABA_S}mm;left:${BLEED + ABA_L}mm;width:${W}mm;height:${H}mm;overflow:hidden;background:#fff;z-index:2;">
             ${genPattern(1, 0, 0)}
@@ -7421,7 +7421,7 @@ body { width: 220mm; height: 307mm; background: #fff; }
       const _ffCk = editData?.fontFamily || brand.editData?.fontFamily || 'Playfair Display';
       const _lfCk = LOCAL_FONT_FACES[_ffCk];
       const _fiCk = _lfCk ? `<style>${_lfCk}</style>` : `<link href="https://fonts.googleapis.com/css2?family=${encodeURIComponent(_ffCk)}:wght@400;700&display=swap" rel="stylesheet">`;
-      const _logoCk = genPDFLogoHtml({ brand, editDataOverride: editData, color: logoColor, localSlogan, crmLine, fontPt: _fontPt, lineH: _lineH, letterSp: _letterSp, layout: logoLayout, customLogoSrc, customLogoScale: customLogoSrc ? getCustomLogoScale(item) * (ITEM_CUSTOM_BASE_SCALES[item] || 1) : 100, maxWidth: '100mm', maxHeight: '36mm', withBackground: comBorda && patternSrc });
+      const _logoCk = genPDFLogoHtml({ brand, editDataOverride: editData, color: logoColor, localSlogan, crmLine, fontPt: (parseFloat(_fontPt) * 2.2).toFixed(1), lineH: _lineH, letterSp: _letterSp, layout: logoLayout, customLogoSrc, customLogoScale: customLogoSrc ? getCustomLogoScale(item) * (ITEM_CUSTOM_BASE_SCALES[item] || 1) : 100, maxWidth: '130mm', maxHeight: '54mm', withBackground: comBorda && patternSrc });
       const _cmCk = `
         <div style="position:absolute;top:${BLEED}mm;left:0;width:${BLEED-0.5}mm;height:0.2mm;background:#000;z-index:100;"></div>
         <div style="position:absolute;top:0;left:${BLEED}mm;width:0.2mm;height:${BLEED-0.5}mm;background:#000;z-index:100;"></div>
@@ -7868,13 +7868,13 @@ body { background:#fff; }
       const selFrase = FRASES_ET[etiquetaFraseIdx] || FRASES_ET[0];
       const BLEED_ET = 3;
       // scaleFactor e maxHeight por formato
-      const _etSFMap = [0.45, 0.68, 0.42];
-      const _etMaxHMap = ['32mm', '38mm', '30mm'];
-      const _etSF = _etSFMap[etiquetaSizeIdx] ?? 0.45;
-      const _etMaxH = _etMaxHMap[etiquetaSizeIdx] ?? '32mm';
+      const _etSFMap = [0.85, 1.10, 0.85];
+      const _etMaxHMap = ['52mm', '60mm', '50mm'];
+      const _etSF = _etSFMap[etiquetaSizeIdx] ?? 0.85;
+      const _etMaxH = _etMaxHMap[etiquetaSizeIdx] ?? '52mm';
       // zoom: PDF px/mm (3.78) ÷ preview px/mm
       const _etZoom = (3.78 / selSize.previewScale).toFixed(3);
-      const logoHtmlEt = `<div style="zoom:${_etZoom};display:flex;flex-direction:column;align-items:center;">${genPDFLogoHtml({ brand, editDataOverride: editData, color: solidColor, layout: logoLayout || 'stacked', localSlogan, scaleFactor: _etSF, crmLine: null, customLogoSrc, customLogoScale: customLogoSrc ? getCustomLogoScale(item) * (ITEM_CUSTOM_BASE_SCALES[item] || 1) : 100, maxWidth: '100mm', maxHeight: _etMaxH, withBackground: false })}</div>`;
+      const logoHtmlEt = `<div style="zoom:${_etZoom};display:flex;flex-direction:column;align-items:center;">${genPDFLogoHtml({ brand, editDataOverride: editData, color: solidColor, layout: logoLayout || 'stacked', localSlogan, fontPt: 64, scaleFactor: _etSF, crmLine: null, customLogoSrc, customLogoScale: customLogoSrc ? getCustomLogoScale(item) * (ITEM_CUSTOM_BASE_SCALES[item] || 1) : 100, maxWidth: '100mm', maxHeight: _etMaxH, withBackground: false })}</div>`;
       // Marcas de corte padrão gráfica: ficam NO sangria, apontando para fora da área de corte
       // gap 0.5mm entre linha de corte e início da marca; marca com 2.5mm de comprimento
       const B = BLEED_ET;
@@ -8963,7 +8963,7 @@ body { background:#fff; font-family:'Montserrat',sans-serif; }
     
     <!-- LUVA -->
     <div style="position:absolute; top:30mm; left:20mm; width:436.1mm; height:194.0mm;">
-       <div style="position:absolute; inset:0; ${effectiveSrc ? `background-image:url('${effectiveSrc}');background-size:${(getPatternTileMm(patternScale) * 2.2).toFixed(1)}mm;background-repeat:repeat;` : `background:${solidColor};`} z-index:1;"></div>
+       <div style="position:absolute; inset:0; ${effectiveSrc ? `background-image:url('${effectiveSrc}');background-size:${(getPatternTileMm(patternScale) * 4.8).toFixed(1)}mm;background-repeat:repeat;` : `background:${solidColor};`} z-index:1;"></div>
        <img src="${window.location.origin}${svgLuva}" style="position:absolute; inset:0; width:100%; height:100%; z-index:10;" />
        
        <div style="position:absolute; left:67.821%; top:2.238%; width:30.963%; height:95.360%; z-index:5; display:flex; align-items:center; justify-content:center;">
