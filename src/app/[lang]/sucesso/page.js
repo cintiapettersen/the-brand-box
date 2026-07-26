@@ -12062,7 +12062,7 @@ function SucessoContent() {
     return 'starter';
   });
 
-  const sessionParam = params.get('session') || params.get('id') || params.get('session_id') || params.get('project') || params.get('b') || params.get('entrega') || params.get('p');
+  const sessionParam = params.get('session') || params.get('id') || params.get('session_id') || params.get('project') || params.get('b') || params.get('entrega') || params.get('p') || (typeof window !== 'undefined' ? localStorage.getItem('brandbox_session') : null);
   const planoParam = params.get('plano');
   const devMode = params.get('dev') === '1';
   const avulsoParam = params.has('avulso') ? (params.get('avulso') || 'inicio') : null;

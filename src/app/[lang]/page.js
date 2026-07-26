@@ -304,6 +304,8 @@ export default function Home() {
   const [selectedIcon, setSelectedIcon] = useState(null);
   const [showResumePrompt, setShowResumePrompt] = useState(false);
   const [savedProgress, setSavedProgress] = useState(null);
+  const [showCompletedPrompt, setShowCompletedPrompt] = useState(false);
+  const [completedBrand, setCompletedBrand] = useState(null);
   const [loadingCheckout, setLoadingCheckout] = useState(false);
   const [showRefinement, setShowRefinement] = useState(false);
   const [refinementQuestion, setRefinementQuestion] = useState(null);
@@ -365,7 +367,18 @@ export default function Home() {
           }
         }
       } else {
-        console.log('ℹ️ Nenhum progresso anterior encontrado no localStorage.');
+        const completedDelivery = localStorage.getItem('brandbox_delivery');
+        const completedSession = localStorage.getItem('brandbox_session');
+        if (completedDelivery || completedSession) {
+          let deliveryData = null;
+          try { deliveryData = completedDelivery ? JSON.parse(completedDelivery) : null; } catch {}
+          const brandName = deliveryData?.editData?.marca || deliveryData?.formData?.marca || deliveryData?.marca || '';
+          setCompletedBrand({
+            session: completedSession,
+            marca: brandName
+          });
+          setShowCompletedPrompt(true);
+        }
       }
     } catch(e) { 
       console.error('❌ Erro ao ler progresso:', e);
@@ -3848,6 +3861,53 @@ export default function Home() {
                     style={{ width: '100%' }}
                   >
                     {dictionary?.onboarding?.resume_btn_restart || 'Começar do zero'}
+                  </button>
+                </div>
+              </motion.div>
+            </motion.div>
+          )}
+        </AnimatePresence>
+
+        {/* MODAL DE MARCA PRONTA/FINALIZADA */}
+        <AnimatePresence>
+          {showCompletedPrompt && completedBrand && (
+            <motion.div
+              initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+              style={{ position: 'fixed', top: 0, left: 0, width: '100vw', height: '100vh', background: 'rgba(0,0,0,0.55)', zIndex: 9999, display: 'flex', justifyContent: 'center', alignItems: 'center', padding: '20px' }}
+            >
+              <motion.div
+                initial={{ scale: 0.92, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} exit={{ scale: 0.92, opacity: 0 }}
+                style={{ background: '#fff', borderRadius: '24px', padding: '2rem', maxWidth: '380px', width: '100%', textAlign: 'center', boxShadow: '0 20px 50px rgba(0,0,0,0.15)' }}
+              >
+                <p style={{ fontSize: '2rem', marginBottom: '0.5rem' }}>🎉</p>
+                <h3 style={{ fontSize: '1.3rem', color: 'var(--text-primary)', marginBottom: '0.5rem' }}>Sua marca está pronta!</h3>
+                {completedBrand.marca && (
+                  <p style={{ fontSize: '1.05rem', color: 'var(--accent-magenta)', fontWeight: 700, marginBottom: '0.25rem' }}>
+                    {completedBrand.marca}
+                  </p>
+                )}
+                <p style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', marginBottom: '1.75rem', lineHeight: 1.5 }}>
+                  Encontramos sua marca finalizada no sistema. Deseja acessar a área de entrega e arquivos da sua marca?
+                </p>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+                  <button
+                    onClick={() => {
+                      const dest = completedBrand.session ? `/${lang}/sucesso?session=${completedBrand.session}` : `/${lang}/sucesso`;
+                      window.location.href = dest;
+                    }}
+                    className="btn-primary"
+                    style={{ width: '100%', background: 'var(--accent-turquoise)' }}
+                  >
+                    Ir para minha Marca (Área de Entrega) →
+                  </button>
+                  <button
+                    onClick={() => {
+                      setShowCompletedPrompt(false);
+                    }}
+                    className="btn-secondary"
+                    style={{ width: '100%' }}
+                  >
+                    Criar um novo briefing
                   </button>
                 </div>
               </motion.div>
