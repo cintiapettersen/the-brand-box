@@ -7868,9 +7868,9 @@ body { background:#fff; }
       const selFrase = FRASES_ET[etiquetaFraseIdx] || FRASES_ET[0];
       const BLEED_ET = 3;
       const B = BLEED_ET;
-      const _logoMaxW = (selSize.w * 0.76).toFixed(1) + 'mm';
-      const _logoMaxH = (selSize.h * 0.42).toFixed(1) + 'mm';
-      const logoHtmlEt = `<div style="display:flex;flex-direction:column;align-items:center;justify-content:center;width:100%;max-width:${_logoMaxW};max-height:${_logoMaxH};">${genPDFLogoHtml({ brand, editDataOverride: editData, color: solidColor, layout: logoLayout || 'stacked', localSlogan, fontPt: 28, scaleFactor: 1.0, crmLine: null, customLogoSrc, customLogoScale: customLogoSrc ? getCustomLogoScale(item) * (ITEM_CUSTOM_BASE_SCALES[item] || 1) : 100, maxWidth: _logoMaxW, maxHeight: _logoMaxH, withBackground: false })}</div>`;
+      const _logoMaxW = (selSize.w * 0.78).toFixed(1) + 'mm';
+      const _logoMaxH = (selSize.h * 0.50).toFixed(1) + 'mm';
+      const logoHtmlEt = `<div style="display:flex;flex-direction:column;align-items:center;justify-content:center;width:100%;max-width:${_logoMaxW};max-height:${_logoMaxH};">${genPDFLogoHtml({ brand, editDataOverride: editData, color: solidColor, layout: logoLayout || 'stacked', localSlogan, fontPt: 44, scaleFactor: 1.0, crmLine: null, customLogoSrc, customLogoScale: customLogoSrc ? getCustomLogoScale(item) * (ITEM_CUSTOM_BASE_SCALES[item] || 1) : 100, maxWidth: _logoMaxW, maxHeight: _logoMaxH, withBackground: false })}</div>`;
 
       // Marcas de corte padrão gráfica: ficam NO sangria, apontando para fora da área de corte
       const cms = `
