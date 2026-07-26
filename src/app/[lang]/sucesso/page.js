@@ -7867,17 +7867,12 @@ body { background:#fff; }
       const selSize = SIZES_ET[etiquetaSizeIdx] || SIZES_ET[0];
       const selFrase = FRASES_ET[etiquetaFraseIdx] || FRASES_ET[0];
       const BLEED_ET = 3;
-      // scaleFactor e maxHeight por formato
-      const _etSFMap = [0.85, 1.10, 0.85];
-      const _etMaxHMap = ['52mm', '60mm', '50mm'];
-      const _etSF = _etSFMap[etiquetaSizeIdx] ?? 0.85;
-      const _etMaxH = _etMaxHMap[etiquetaSizeIdx] ?? '52mm';
-      // zoom: PDF px/mm (3.78) ÷ preview px/mm
-      const _etZoom = (3.78 / selSize.previewScale).toFixed(3);
-      const logoHtmlEt = `<div style="zoom:${_etZoom};display:flex;flex-direction:column;align-items:center;">${genPDFLogoHtml({ brand, editDataOverride: editData, color: solidColor, layout: logoLayout || 'stacked', localSlogan, fontPt: 64, scaleFactor: _etSF, crmLine: null, customLogoSrc, customLogoScale: customLogoSrc ? getCustomLogoScale(item) * (ITEM_CUSTOM_BASE_SCALES[item] || 1) : 100, maxWidth: '100mm', maxHeight: _etMaxH, withBackground: false })}</div>`;
-      // Marcas de corte padrão gráfica: ficam NO sangria, apontando para fora da área de corte
-      // gap 0.5mm entre linha de corte e início da marca; marca com 2.5mm de comprimento
       const B = BLEED_ET;
+      const _logoMaxW = (selSize.w * 0.76).toFixed(1) + 'mm';
+      const _logoMaxH = (selSize.h * 0.42).toFixed(1) + 'mm';
+      const logoHtmlEt = `<div style="display:flex;flex-direction:column;align-items:center;justify-content:center;width:100%;max-width:${_logoMaxW};max-height:${_logoMaxH};">${genPDFLogoHtml({ brand, editDataOverride: editData, color: solidColor, layout: logoLayout || 'stacked', localSlogan, fontPt: 28, scaleFactor: 1.0, crmLine: null, customLogoSrc, customLogoScale: customLogoSrc ? getCustomLogoScale(item) * (ITEM_CUSTOM_BASE_SCALES[item] || 1) : 100, maxWidth: _logoMaxW, maxHeight: _logoMaxH, withBackground: false })}</div>`;
+
+      // Marcas de corte padrão gráfica: ficam NO sangria, apontando para fora da área de corte
       const cms = `
         <div style="position:absolute;top:${B}mm;left:0;width:${B-0.5}mm;height:0.2mm;background:#000;"></div>
         <div style="position:absolute;top:0;left:${B}mm;width:0.2mm;height:${B-0.5}mm;background:#000;"></div>
@@ -7890,15 +7885,19 @@ body { background:#fff; }
       const etiquetaBlock = `
         <div style="position:absolute;inset:0;${bgEt}"></div>
         <div style="position:absolute;top:${B}mm;left:${B}mm;width:${selSize.w}mm;height:${selSize.h}mm;">
-          <div style="position:absolute;inset:3mm;border:0.3mm solid rgba(255,255,255,0.45);border-radius:2mm;"></div>
-          <div style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:88%;height:84%;background:rgba(255,255,255,0.92);border-radius:3.5mm;padding:4mm 5mm;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2.5mm;box-sizing:border-box;overflow:hidden;">
-            <div style="font-size:4.8mm;font-weight:800;color:${solidColor};font-family:'Montserrat',sans-serif;text-align:center;line-height:1.2;">${selFrase}</div>
-            <div style="width:25%;height:0.2mm;background:${solidColor}40;"></div>
-            ${logoHtmlEt}
-            <div style="display:flex;flex-direction:column;align-items:center;gap:1.5mm;margin-top:1mm;">
-              ${instagram ? `<div style="display:flex;align-items:center;gap:1.5mm;">${igIcon}<span style="font-size:3mm;color:${solidColor};font-family:'Montserrat',sans-serif;font-weight:600;">@${instagram.replace('@','')}</span></div>` : ''}
-              ${mainPhone ? `<div style="display:flex;align-items:center;gap:1.5mm;">${waIcon}<span style="font-size:2.8mm;color:${solidColor}bb;font-family:'Montserrat',sans-serif;font-weight:400;">${mainPhone}</span></div>` : ''}
+          <div style="position:absolute;inset:3mm;border:0.3mm solid rgba(255,255,255,0.45);border-radius:2mm;pointer-events:none;"></div>
+          <div style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:88%;height:84%;background:rgba(255,255,255,0.92);border-radius:3.5mm;padding:5mm 5mm;display:flex;flex-direction:column;align-items:center;justify-content:space-between;box-sizing:border-box;overflow:hidden;">
+            <div style="display:flex;flex-direction:column;align-items:center;gap:2mm;width:100%;">
+              <div style="font-size:${(selSize.h * 0.045).toFixed(1)}mm;font-weight:800;color:${solidColor};font-family:'Montserrat',sans-serif;text-align:center;line-height:1.2;">${selFrase}</div>
+              <div style="width:25%;height:0.2mm;background:${solidColor}40;"></div>
             </div>
+            ${logoHtmlEt}
+            ${(instagram || mainPhone) ? `
+              <div style="display:flex;flex-direction:column;align-items:center;gap:1.5mm;margin-top:1mm;">
+                ${instagram ? `<div style="display:flex;align-items:center;gap:1.5mm;">${igIcon}<span style="font-size:3mm;color:${solidColor};font-family:'Montserrat',sans-serif;font-weight:600;">@${instagram.replace('@','')}</span></div>` : ''}
+                ${mainPhone ? `<div style="display:flex;align-items:center;gap:1.5mm;">${waIcon}<span style="font-size:2.8mm;color:${solidColor}bb;font-family:'Montserrat',sans-serif;font-weight:400;">${mainPhone}</span></div>` : ''}
+              </div>
+            ` : ''}
           </div>
         </div>
         ${cms}`;
