@@ -1030,7 +1030,7 @@ function CartaoStep({ brand, accentColor, paletteColors, marca, estampaPatterns,
   );
 }
 
-function EstampaStep({ brand, accentColor, marca, patterns, setPatterns, genCount, setGenCount, selectedIdx, setSelectedIdx, paletteColors, patternScale, setPatternScale, estampasRef, originalPattern, setOriginalPattern }) {
+function EstampaStep({ brand, accentColor, marca, patterns, setPatterns, genCount, setGenCount, selectedIdx, setSelectedIdx, paletteColors, patternScale, setPatternScale, patternOffset, setPatternOffset, estampasRef, originalPattern, setOriginalPattern }) {
   const { dictionary } = useTranslation();
   const [generating, setGenerating] = useState(false);
   const [fixingSeams, setFixingSeams] = useState(false);
@@ -10047,6 +10047,21 @@ function EntregaContent({ brand, plano, setBrand }) {
     } catch {}
   };
 
+  const [patternOffset, setPatternOffsetState] = useState(() => {
+    try {
+      const s = localStorage.getItem(`brandbox_pattern_offset_${brand?.id}`);
+      return s ? parseInt(s, 10) : 0;
+    } catch {
+      return 0;
+    }
+  });
+  const setPatternOffset = (v) => {
+    setPatternOffsetState(v);
+    try {
+      localStorage.setItem(`brandbox_pattern_offset_${brand?.id}`, String(v));
+    } catch {}
+  };
+
   const [borderColor, setBorderColorState] = useState(() => {
     try {
       return localStorage.getItem(`brandbox_border_color_${brand.id}`) || null;
@@ -10772,7 +10787,7 @@ function EntregaContent({ brand, plano, setBrand }) {
         {step === 'guia' && plano !== 'avulso' && <GuiaStep brand={brand} accentColor={accentColor} paletteColors={paletteColors} marca={marca} tagline={tagline} estampaPatterns={estampaPatterns} estampaSelectedIdx={estampaSelectedIdx} editData={editDataWithLogo} />}
 
         {/* Papelaria / Gabaritos */}
-        {step === 'papelaria' && <PapelariaStep brand={brand} accentColor={accentColor} paletteColors={orderedPaletteColors} estampaPatterns={estampaPatterns} estampaSelectedIdx={estampaSelectedIdx} cartaoContacts={cartaoContacts} setCartaoContacts={setCartaoContacts} plano={plano} isSaude={isSaude} crmData={crmData} setCrmData={setCrmData} marca={marca} editData={editDataWithLogo} logoColor={logoColor} logoLayout={logoLayout} setLayout={setLayout} clinicaNome={clinicaNome} setClinicaNome={setClinicaNome} onNavSync={setPapelariaNavItens} navIdx={papelariaNavIdx} setNavIdx={setPapelariaNavIdx} customLogoSrc={customLogoSrc} getCustomLogoScale={getCustomLogoScale} setCustomLogoScale={setCustomLogoScale} getCustomLogoScaleMax={getCustomLogoScaleMax} customLogoScaleMap={customLogoScaleMap} submarcaColor={submarcaColor} submarcaTextColor={submarcaTextColor} iconPath={currentIconPath} avulsoParam={avulsoParam} />}
+        {step === 'papelaria' && <PapelariaStep brand={brand} accentColor={accentColor} paletteColors={orderedPaletteColors} estampaPatterns={estampaPatterns} estampaSelectedIdx={estampaSelectedIdx} cartaoContacts={cartaoContacts} setCartaoContacts={setCartaoContacts} plano={plano} isSaude={isSaude} crmData={crmData} setCrmData={setCrmData} marca={marca} editData={editDataWithLogo} logoColor={logoColor} logoLayout={logoLayout} setLayout={setLayout} clinicaNome={clinicaNome} setClinicaNome={setClinicaNome} onNavSync={setPapelariaNavItens} navIdx={papelariaNavIdx} setNavIdx={setPapelariaNavIdx} customLogoSrc={customLogoSrc} getCustomLogoScale={getCustomLogoScale} setCustomLogoScale={setCustomLogoScale} getCustomLogoScaleMax={getCustomLogoScaleMax} customLogoScaleMap={customLogoScaleMap} submarcaColor={submarcaColor} submarcaTextColor={submarcaTextColor} iconPath={currentIconPath} avulsoParam={avulsoParam} patternOffset={patternOffset} setPatternOffset={setPatternOffset} />}
 
         {/* Ajuda & Inspiração */}
         {step === 'ajuda' && (
