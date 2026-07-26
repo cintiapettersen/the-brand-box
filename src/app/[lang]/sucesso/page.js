@@ -9006,7 +9006,7 @@ body { background:#fff; font-family:'Montserrat',sans-serif; }
         const html = `<!DOCTYPE html><html><head><meta charset="UTF-8"><title>${item} - ${marca}</title><link href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,400;0,700;0,800;0,900;1,700&display=swap" rel="stylesheet"/>
 <style>* { box-sizing:border-box; margin:0; padding:0; print-color-adjust:exact !important; -webkit-print-color-adjust:exact !important; }
 body { background:#eee; }
-.page { width:${totalW}mm; height:${totalH}mm; background:#fff; position:relative; overflow:hidden; margin:0 auto; box-shadow:0 0 10mm rgba(0,0,0,0.1); }
+.page { width:${totalW}mm; height:${totalH}mm; background:#fff; position:relative; overflow:hidden; margin:0 auto; box-shadow:none; }
 .cm { position:absolute; width:10mm; height:10mm; border-color:rgba(0,0,0,0.5); border-style:solid; border-width:0; pointer-events:none; z-index:100; }
 .cm-tl { top:${BLEED}mm; left:${BLEED}mm; border-top:0.2mm solid; border-left:0.2mm solid; }
 .cm-tr { top:${BLEED}mm; right:${BLEED}mm; border-top:0.2mm solid; border-right:0.2mm solid; }

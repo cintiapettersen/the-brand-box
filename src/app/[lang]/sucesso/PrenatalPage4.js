@@ -54,7 +54,7 @@ export default function PrenatalPage4({ accentColor, palette = [], comBorda, pat
       )}
 
       {/* Content Container */}
-      <div style={{ position: 'relative', zIndex: 2, background: '#fff', padding: '3px', height: '100%', display: 'flex', flexDirection: 'column', gap: '2px', borderRadius: '1.5px', boxShadow: '0 1px 5px rgba(0,0,0,0.05)' }}>
+      <div style={{ position: 'relative', zIndex: 2, background: '#fff', padding: '3px', height: '100%', display: 'flex', flexDirection: 'column', gap: '2px', borderRadius: '1.5px', boxShadow: 'none' }}>
         {/* Exames Laboratoriais */}
         <div style={{ background: secondaryColor, color: '#fff', fontSize: '4px', fontWeight: 900, padding: '1.5px 4px', textTransform: 'uppercase' }}>
           {lang === 'en' ? "LAB EXAMS" : "EXAMES LABORATORIAIS"}

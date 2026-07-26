@@ -58,7 +58,7 @@ export default function FolderPage5Art({ accentColor = '#879A6C', palette = [] }
           borderRadius: '50%',
           background: '#ffffff',
           border: '2px solid #e2e8f0',
-          boxShadow: '0 4px 10px rgba(0,0,0,0.06)',
+          boxShadow: 'none',
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'center',
