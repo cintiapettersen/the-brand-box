@@ -8114,28 +8114,26 @@ html, body { width:${totalW}mm; height:${totalH}mm; overflow:hidden; }
       // Logo — usa genPDFLogoHtml com hideSlogan para logo imagem, mostra slogan para logo texto
       const _hasImgT = !!itemEditData?.customLogoSrc;
       const isRectT = TSHAPE === 'rect';
-      const _logoBoxDim = isCircleT ? (Math.min(TW, TH) * 0.74).toFixed(0) : isRectT ? (TH * 0.65).toFixed(0) : (Math.min(TW, TH) * 0.78).toFixed(0);
-      const _logoBoxW = isRectT ? (TW * 0.72).toFixed(0) : _logoBoxDim;
-      const _logoBoxH = isRectT ? (TH * 0.65).toFixed(0) : _logoBoxDim;
+      const _logoBoxDim = isCircleT ? Math.round(Math.min(TW, TH) * 0.74) : isRectT ? Math.round(TH * 0.65) : Math.round(Math.min(TW, TH) * 0.78);
+      const _logoBoxW = isRectT ? Math.round(TW * 0.72) : _logoBoxDim;
+      const _logoBoxH = isRectT ? Math.round(TH * 0.65) : _logoBoxDim;
       const _logoColor = (comBorda && patternSrc) ? solidColor : '#fff';
+      const _maxW_mm = (_logoBoxW * 0.88).toFixed(1) + 'mm';
+      const _maxH_mm = (_logoBoxH * 0.88).toFixed(1) + 'mm';
       const _tagLogoHtml = genPDFLogoHtml({
         brand, editDataOverride: itemEditData,
         color: _logoColor,
         localSlogan: _hasImgT ? null : localSlogan,
         crmLine: null,
-        fontPt: Math.min(
-          Math.round(parseFloat(_logoBoxW) * 0.29 / (Math.max(...(marca || '').split(' ').map(w => w.length)) * (itemEditData?.fontStyle === 'script' ? 0.70 : 0.55) * 0.353)),
-          Math.round(parseFloat(_logoBoxH) * 0.38 / 0.353 / (itemEditData?.fontStyle === 'script' ? 1.5 : 1.1))
-        ).toString(),
+        fontPt: 36,
         lineH: itemEditData?.fontStyle === 'script' ? 1.5 : 1.1,
         letterSp: itemEditData?.fontLetterSpacing || (itemEditData?.fontStyle === 'script' ? '0pt' : '0.5pt'),
         layout: logoLayout || 'stacked',
         customLogoSrc: itemEditData?.customLogoSrc,
         customLogoScale: _hasImgT ? Math.min(getCustomLogoScale(item) * (ITEM_CUSTOM_BASE_SCALES[item] || 1), 100) : 100,
-        maxWidth: `${_logoBoxW}mm`,
-        maxHeight: `${_logoBoxH}mm`,
-        withBackground: !!(comBorda && patternSrc),
-        withBackgroundPadding: '2mm 3mm',
+        maxWidth: _maxW_mm,
+        maxHeight: _maxH_mm,
+        withBackground: false,
         sloganColor: (comBorda && patternSrc) ? undefined : 'rgba(255,255,255,0.75)',
         hideSlogan: _hasImgT,
       });
@@ -8158,7 +8156,7 @@ html, body { width:${totalW}mm; height:${totalH}mm; overflow:hidden; }
       const frentePageT = `
         <div style="width:${totalW_T}mm;height:${totalH_T}mm;position:relative;overflow:hidden;border-radius:${borderR};">
           <div style="position:absolute;inset:0;${bgFixed}"></div>
-          <div style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);z-index:2;">
+          <div style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);z-index:2;width:${_logoBoxW}mm;height:${_logoBoxH}mm;background:${(comBorda && patternSrc) ? 'rgba(255,255,255,0.95)' : 'transparent'};border-radius:${isCircleT ? '50%' : '3.5mm'};display:flex;align-items:center;justify-content:center;box-sizing:border-box;padding:2mm;overflow:hidden;">
             ${_tagLogoHtml}
           </div>
           ${cms}
