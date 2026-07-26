@@ -8650,7 +8650,7 @@ body { font-family:'Montserrat',sans-serif; }
         // Conteúdo da Pág 6 (Contra Capa)
         const p6Content = `
           <div style="width:100%; height:100%; position:relative; display:flex; flex-direction:column; align-items:center;">
-            <div class="quote-box" style="position:absolute; top:48%; left:50%; transform:translate(-50%, -50%); width:88%; background:${paletteColors[0] || accentColor}; border:0.4mm solid ${paletteColors[0] || accentColor}; border-radius:4mm; padding:10mm 8mm; text-align:center; box-shadow:0 2mm 8mm rgba(0,0,0,0.1); z-index:3;">
+            <div class="quote-box" style="position:absolute; top:48%; left:50%; transform:translate(-50%, -50%); width:88%; background:${paletteColors[0] || accentColor}; border:0.4mm solid ${paletteColors[0] || accentColor}; border-radius:4mm; padding:10mm 8mm; text-align:center; box-shadow:none; z-index:3;">
                 <div style="font-family:'Brush Script MT','Segoe Script',cursive; font-style:italic; color:#fff !important; -webkit-text-fill-color:#fff; font-size:30pt; margin-bottom:4mm; text-transform:none;">
                    ${isSono 
                      ? (isEn ? '"A well-rested baby is a happier baby!"' : '"Um bebê bem descansado é um bebê mais feliz!"')
@@ -8779,7 +8779,7 @@ body { font-family:'Montserrat',sans-serif; }
         const page2 = renderTrifoldFace([
           { num: 2, w: W3, content: `<div style="position:absolute;top:3.5mm;left:3.5mm;width:148px;height:210px;transform:scale(${sInner});transform-origin:top left;">${ReactDOMServer.renderToString(<LanguageOverrideProvider lang={lang} dictionary={dictionary}>{React.createElement(Art2, { accentColor, palette: paletteColors })}</LanguageOverrideProvider>)}</div>` },
           { num: 3, w: W2, content: `<div style="position:absolute;top:3.5mm;left:3.5mm;width:148px;height:210px;transform:scale(${sInner});transform-origin:top left;">${ReactDOMServer.renderToString(<LanguageOverrideProvider lang={lang} dictionary={dictionary}>{React.createElement(Art3, { accentColor, palette: paletteColors })}</LanguageOverrideProvider>)}</div>` },
-          { num: 4, w: W1, content: `<div style="position:absolute;top:3.5mm;left:3.5mm;width:146px;height:210px;transform:scale(${sInner});transform-origin:top left;">${ReactDOMServer.renderToString(<LanguageOverrideProvider lang={lang} dictionary={dictionary}>{React.createElement(Art4, { accentColor, palette: paletteColors, ...(item === 'Guia Alimentar' ? { horarios: guiaHorarios, introducao: guiaIntroducao } : {}) })}</LanguageOverrideProvider>)}</div>` }
+          { num: 4, w: W1, content: `<div style="position:absolute;top:3.5mm;left:3.5mm;width:146px;height:210px;transform:scale(${sInner});transform-origin:top left;">${ReactDOMServer.renderToString(<LanguageOverrideProvider lang={lang} dictionary={dictionary}>{React.createElement(Art4, { accentColor, palette: paletteColors, ...(item.includes('Alimentar') ? { horarios: guiaHorarios, introducao: guiaIntroducao } : {}) })}</LanguageOverrideProvider>)}</div>` }
         ], false);
 
         const html = `<!DOCTYPE html><html><head><meta charset="UTF-8"><title>${item} - ${marca}</title>${fiTri}

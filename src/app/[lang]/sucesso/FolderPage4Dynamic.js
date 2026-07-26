@@ -22,7 +22,7 @@ export default function FolderPage4Dynamic({
   const { dictionary } = useTranslation();
   const gTranslation = dictionary?.guia_alimentar;
 
-  const defaultHorarios = gTranslation?.horarios || [
+  const fallbackHorarios = [
     { label: 'CAFÉ DA MANHÃ', val: 'Leite materno ou fórmula infantil' },
     { label: 'LANCHE DA MANHÃ', val: 'Fruta / leite materno ou fórmula' },
     { label: 'ALMOÇO', val: 'Cereal ou tubérculo + proteína animal + leguminosa + hortaliças (verduras +legumes) + fruta' },
@@ -30,12 +30,16 @@ export default function FolderPage4Dynamic({
     { label: 'JANTAR', val: 'Igual almoço' },
     { label: 'LANCHE DA NOITE', val: 'Leite materno ou fórmula infantil' }
   ];
-  const defaultIntroducao = gTranslation?.introducao || [
+
+  const fallbackIntroducao = [
     { idade: 'A partir de 6 meses', text: 'Alimentos amassados', qty: 'Iniciar com 2 a 3 colheres de sopa e aumentar a quantidade conforme aceitação' },
     { idade: 'A partir dos 7 meses', text: 'Alimentos amassados', qty: '2/3 de uma xícara ou tigela de 250 ml' },
     { idade: '9 a 11 meses', text: 'Alimentos cortados ou levemente amassados', qty: '3/4 de uma xícara ou tigela de 250 ml' },
     { idade: '12 a 24 meses', text: 'Alimentos cortados', qty: 'Uma xícara ou tigela de 250 ml' }
   ];
+
+  const defaultHorarios = (gTranslation?.horarios && Array.isArray(gTranslation.horarios) && gTranslation.horarios.length > 0) ? gTranslation.horarios : fallbackHorarios;
+  const defaultIntroducao = (gTranslation?.introducao && Array.isArray(gTranslation.introducao) && gTranslation.introducao.length > 0) ? gTranslation.introducao : fallbackIntroducao;
 
   const isValidHorarios = Array.isArray(propsHorarios) && propsHorarios.length > 0 && propsHorarios.some(h => h && (h.label || h.val));
   const isValidIntroducao = Array.isArray(propsIntroducao) && propsIntroducao.length > 0 && propsIntroducao.some(i => i && (i.idade || i.text));
