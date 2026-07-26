@@ -8121,18 +8121,18 @@ html, body { width:${totalW}mm; height:${totalH}mm; overflow:hidden; }
       const _maxW_mm = (_logoBoxW * 0.88).toFixed(1) + 'mm';
       const _maxH_mm = (_logoBoxH * 0.88).toFixed(1) + 'mm';
       const _tagLogoHtml = genPDFLogoHtml({
-        brand, editDataOverride: itemEditData,
+        brand, editDataOverride: { ...itemEditData, taglineSizeBoost: 0.72 },
         color: _logoColor,
         localSlogan: _hasImgT ? null : localSlogan,
         crmLine: null,
-        fontPt: 36,
-        lineH: itemEditData?.fontStyle === 'script' ? 1.5 : 1.1,
+        fontPt: 48,
+        lineH: itemEditData?.fontStyle === 'script' ? 1.4 : 1.05,
         letterSp: itemEditData?.fontLetterSpacing || (itemEditData?.fontStyle === 'script' ? '0pt' : '0.5pt'),
         layout: logoLayout || 'stacked',
         customLogoSrc: itemEditData?.customLogoSrc,
         customLogoScale: _hasImgT ? Math.min(getCustomLogoScale(item) * (ITEM_CUSTOM_BASE_SCALES[item] || 1), 100) : 100,
-        maxWidth: _maxW_mm,
-        maxHeight: _maxH_mm,
+        maxWidth: `${(_logoBoxW * 0.92).toFixed(1)}mm`,
+        maxHeight: `${(_logoBoxH * 0.92).toFixed(1)}mm`,
         withBackground: false,
         sloganColor: (comBorda && patternSrc) ? undefined : 'rgba(255,255,255,0.75)',
         hideSlogan: _hasImgT,
