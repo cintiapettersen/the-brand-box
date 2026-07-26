@@ -8594,6 +8594,16 @@ body { font-family:'Montserrat',sans-serif; }
         };
         const finalTagline = brand.editData?.tagline || _getTitleData(item).tagline;
 
+        const isCuidados = item.includes('Cuidados');
+        const isDev = item.includes('Desenvolvimento');
+        const isVacina = item.includes('Vacina');
+        const isSono = item.includes('Sono');
+
+        const Art2 = isVacina ? FolderVacinaPage2 : (isDev ? FolderDevPage2 : (isSono ? FolderSonoPage2 : (isCuidados ? FolderCuidadosPage2 : FolderPage2Art)));
+        const Art3 = isVacina ? FolderVacinaPage3 : (isDev ? FolderDevPage3 : (isSono ? FolderSonoPage3 : (isCuidados ? FolderCuidadosPage3 : FolderPage3Art)));
+        const Art4 = isVacina ? FolderVacinaPage4 : (isDev ? FolderDevPage4 : (isSono ? FolderSonoPage4 : (isCuidados ? FolderCuidadosPage4 : (item.includes('Alimentar') ? FolderPage4Dynamic : FolderPage4Art))));
+        const Art5 = isVacina ? FolderVacinaPage5 : (isDev ? FolderDevPage5 : (isSono ? FolderSonoPage5 : (isCuidados ? FolderCuidadosPage5 : FolderPage5Art)));
+
         const _ffTri = editData?.fontFamily || brand.editData?.fontFamily || 'Playfair Display';
         const _lfTri = LOCAL_FONT_FACES[_ffTri];
         const fiTri = `<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;600;700;800&family=Great+Vibes&display=swap" rel="stylesheet">${_lfTri ? `<style>${_lfTri}</style>` : `<link href="https://fonts.googleapis.com/css2?family=${_ffTri.replace(/ /g,'+')}:wght@400;700&display=swap" rel="stylesheet">`}`;
@@ -8615,7 +8625,7 @@ body { font-family:'Montserrat',sans-serif; }
                 ${panels.map((p, i) => `
                   <div style="flex:0 0 ${p.w}mm; position:relative; overflow:hidden; ${i < 2 ? 'border-right:0.1mm dashed rgba(0,0,0,0.1);' : ''}">
                     ${withMargem ? `
-                      <div style="position:absolute;top:5mm;left:5mm;right:5mm;bottom:5mm;background:#fff;border:0.2mm solid ${accentColor}30;z-index:2;box-shadow:0 3mm 10mm rgba(0,0,0,0.15);overflow:hidden;${p.clip ? 'clip-path:'+p.clip+';-webkit-clip-path:'+p.clip+';' : ''}">
+                      <div style="position:absolute;top:5mm;left:5mm;right:5mm;bottom:5mm;background:#fff;border:0.2mm solid ${accentColor}30;z-index:2;box-shadow:none;overflow:hidden;${p.clip ? 'clip-path:'+p.clip+';-webkit-clip-path:'+p.clip+';' : ''}">
                         ${p.content}
                       </div>
                     ` : `
