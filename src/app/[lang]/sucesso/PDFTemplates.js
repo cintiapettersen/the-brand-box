@@ -106,7 +106,7 @@ export const genPDFLogoHtml = ({ brand, editDataOverride = null, color, localSlo
 
   const _sloganColor = sloganColor || '#666';
   // Gap adaptativo baseado no tamanho da fonte do slogan e complexidade
-  const _sloganGap = (parseFloat(effectiveSloganSize) * _sloganGapMultiplier).toFixed(1);
+  const _sloganGap = _ed?.sloganGap || (parseFloat(effectiveSloganSize) * _sloganGapMultiplier).toFixed(1);
   
   const _shouldWrap = _ed?.taglineWrap !== undefined ? _ed.taglineWrap : (_sloganLenRaw > 25);
 
