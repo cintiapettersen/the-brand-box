@@ -8111,31 +8111,27 @@ html, body { width:${totalW}mm; height:${totalH}mm; overflow:hidden; }
         ? `background-image:url(${patternSrc});background-size:${bgSizeMm}mm;background-repeat:repeat;`
         : `background:${solidColor};`;
 
-      // Logo — usa genPDFLogoHtml com hideSlogan para logo imagem, mostra slogan para logo texto
+      // Logo e Cartão — exatamente igual à Etiqueta Correios
       const _hasImgT = !!itemEditData?.customLogoSrc;
-      const isRectT = TSHAPE === 'rect';
-      const _logoBoxDim = isCircleT ? Math.round(Math.min(TW, TH) * 0.74) : isRectT ? Math.round(TH * 0.65) : Math.round(Math.min(TW, TH) * 0.78);
-      const _logoBoxW = isRectT ? Math.round(TW * 0.72) : _logoBoxDim;
-      const _logoBoxH = isRectT ? Math.round(TH * 0.65) : _logoBoxDim;
-      const _logoColor = (comBorda && patternSrc) ? solidColor : '#fff';
-      const _maxW_mm = (_logoBoxW * 0.88).toFixed(1) + 'mm';
-      const _maxH_mm = (_logoBoxH * 0.88).toFixed(1) + 'mm';
+      const _cardW = isCircleT ? (Math.min(TW, TH) * 0.76).toFixed(1) + 'mm' : isRectT ? (TW * 0.76).toFixed(1) + 'mm' : (TW * 0.78).toFixed(1) + 'mm';
+      const _cardH = isCircleT ? (Math.min(TW, TH) * 0.76).toFixed(1) + 'mm' : isRectT ? (TH * 0.65).toFixed(1) + 'mm' : (TH * 0.78).toFixed(1) + 'mm';
+      const _logoMaxW = (parseFloat(_cardW) * 0.88).toFixed(1) + 'mm';
+      const _logoMaxH = (parseFloat(_cardH) * 0.88).toFixed(1) + 'mm';
+
       const _tagLogoHtml = genPDFLogoHtml({
-        brand, editDataOverride: { ...itemEditData, sloganGap: 8 },
-        color: _logoColor,
-        localSlogan: _hasImgT ? null : localSlogan,
-        crmLine: null,
-        fontPt: 26,
-        lineH: itemEditData?.fontStyle === 'script' ? 1.35 : 1.05,
-        letterSp: itemEditData?.fontLetterSpacing || (itemEditData?.fontStyle === 'script' ? '0pt' : '0.5pt'),
+        brand,
+        editDataOverride: itemEditData,
+        color: (comBorda && patternSrc) ? solidColor : '#ffffff',
         layout: logoLayout || 'stacked',
+        localSlogan: _hasImgT ? null : localSlogan,
+        fontPt: 44,
+        scaleFactor: 1.0,
+        crmLine: null,
         customLogoSrc: itemEditData?.customLogoSrc,
         customLogoScale: _hasImgT ? Math.min(getCustomLogoScale(item) * (ITEM_CUSTOM_BASE_SCALES[item] || 1), 100) : 100,
-        maxWidth: `${(_logoBoxW * 0.85).toFixed(1)}mm`,
-        maxHeight: `${(_logoBoxH * 0.85).toFixed(1)}mm`,
-        withBackground: false,
-        sloganColor: (comBorda && patternSrc) ? undefined : 'rgba(255,255,255,0.75)',
-        hideSlogan: _hasImgT,
+        maxWidth: _logoMaxW,
+        maxHeight: _logoMaxH,
+        withBackground: false
       });
 
       // Marcas de corte
@@ -8156,7 +8152,7 @@ html, body { width:${totalW}mm; height:${totalH}mm; overflow:hidden; }
       const frentePageT = `
         <div style="width:${totalW_T}mm;height:${totalH_T}mm;position:relative;overflow:hidden;border-radius:${borderR};">
           <div style="position:absolute;inset:0;${bgFixed}"></div>
-          <div style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);z-index:2;width:${_logoBoxW}mm;height:${_logoBoxH}mm;background:${(comBorda && patternSrc) ? 'rgba(255,255,255,0.95)' : 'transparent'};border-radius:${isCircleT ? '50%' : '3.5mm'};display:flex;align-items:center;justify-content:center;box-sizing:border-box;padding:2mm;overflow:hidden;">
+          <div style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);z-index:2;width:${_cardW};height:${_cardH};background:${(comBorda && patternSrc) ? 'rgba(255,255,255,0.95)' : 'transparent'};border-radius:${isCircleT ? '50%' : '3.5mm'};display:flex;align-items:center;justify-content:center;box-sizing:border-box;padding:2mm;overflow:hidden;">
             ${_tagLogoHtml}
           </div>
           ${cms}
