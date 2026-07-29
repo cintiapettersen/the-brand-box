@@ -6146,6 +6146,9 @@ function PapelariaStep({ brand, accentColor, paletteColors, estampaPatterns, est
       const cards = Array.from(iframeEl.contentDocument.querySelectorAll('.card, .page'));
       const targetElements = cards.length > 0 ? cards : [iframeEl.contentDocument.body];
 
+      // Dynamically adjust iframe height to fit all pages stacked to prevent html2canvas offset clipping
+      iframeEl.style.height = `${pxH * targetElements.length}px`;
+
       const isLandscape = width > height;
       const doc = new jsPDF({
         orientation: isLandscape ? 'landscape' : 'portrait',
@@ -6162,7 +6165,7 @@ function PapelariaStep({ brand, accentColor, paletteColors, estampaPatterns, est
           logging: false,
           backgroundColor: '#ffffff',
           windowWidth: pxW,
-          windowHeight: pxH,
+          windowHeight: pxH * targetElements.length,
         });
         const imgData = canvas.toDataURL('image/png');
         if (i > 0) {
