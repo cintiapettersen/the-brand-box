@@ -6146,9 +6146,6 @@ function PapelariaStep({ brand, accentColor, paletteColors, estampaPatterns, est
       const cards = Array.from(iframeEl.contentDocument.querySelectorAll('.card, .page'));
       const targetElements = cards.length > 0 ? cards : [iframeEl.contentDocument.body];
 
-      // Dynamically adjust iframe height to fit all pages stacked to prevent html2canvas offset clipping
-      iframeEl.style.height = `${pxH * targetElements.length}px`;
-
       const isLandscape = width > height;
       const doc = new jsPDF({
         orientation: isLandscape ? 'landscape' : 'portrait',
@@ -6157,6 +6154,15 @@ function PapelariaStep({ brand, accentColor, paletteColors, estampaPatterns, est
       });
 
       for (let i = 0; i < targetElements.length; i++) {
+        // Temporarily isolate the target element to avoid document height rendering glitches
+        for (let j = 0; j < targetElements.length; j++) {
+          targetElements[j].style.display = (j === i) ? '' : 'none';
+        }
+        // Force the iframe height to match exactly one page
+        iframeEl.style.height = `${pxH}px`;
+        
+        await new Promise(r => setTimeout(r, 80));
+
         const el = targetElements[i];
         const canvas = await html2canvas(el, {
           scale: 3,
@@ -6165,13 +6171,18 @@ function PapelariaStep({ brand, accentColor, paletteColors, estampaPatterns, est
           logging: false,
           backgroundColor: '#ffffff',
           windowWidth: pxW,
-          windowHeight: pxH * targetElements.length,
+          windowHeight: pxH,
         });
         const imgData = canvas.toDataURL('image/png');
         if (i > 0) {
           doc.addPage([width, height], isLandscape ? 'landscape' : 'portrait');
         }
         doc.addImage(imgData, 'PNG', 0, 0, width, height, undefined, 'FAST');
+      }
+
+      // Restore display styles after rendering completes
+      for (let j = 0; j < targetElements.length; j++) {
+        targetElements[j].style.display = '';
       }
 
       const filename = `${pdfTitle(item)}.pdf`;
