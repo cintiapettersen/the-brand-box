@@ -487,7 +487,7 @@ function SectionLabel({ children }) {
 
 export function getMaxPatternGenerations(brand) {
   const isDemo = brand?.isDemo || brand?.id?.includes('demo') || (typeof window !== 'undefined' && (new URLSearchParams(window.location.search).get('demo') === '1' || new URLSearchParams(window.location.search).get('demo') === 'BUILDWEEK100' || new URLSearchParams(window.location.search).get('session') === '0da0b9d0-f6f6-4743-a349-365e0cb16-demo'));
-  return isDemo ? 5 : 3;
+  return isDemo ? 5 : 6;
 }
 
 function hexToRgb(hex) {
@@ -1094,7 +1094,7 @@ function EstampaStep({ brand, accentColor, marca, patterns, setPatterns, genCoun
     : null;
 
   const handleGenerateClick = () => {
-    if (patterns.length >= 3) {
+    if (patterns.length >= 6) {
       setShowSlotModal(true);
     } else {
       generate();
@@ -1637,13 +1637,13 @@ function EstampaStep({ brand, accentColor, marca, patterns, setPatterns, genCoun
             fontFamily: 'Montserrat, sans-serif'
           }}>
             <div>
-              <h4 style={{ margin: 0, fontSize: '1rem', fontWeight: 700, color: '#333' }}>Galeria cheia (Máx. 3 estampas)</h4>
+              <h4 style={{ margin: 0, fontSize: '1rem', fontWeight: 700, color: '#333' }}>Galeria cheia (Máx. 6 estampas)</h4>
               <p style={{ margin: '6px 0 0 0', fontSize: '0.78rem', color: '#666', lineHeight: 1.4 }}>
-                Você já tem 3 estampas na sua galeria. Escolha uma abaixo para ser substituída pela nova versão:
+                Você já tem 6 estampas na sua galeria. Escolha uma abaixo para ser substituída pela nova versão:
               </p>
             </div>
             
-            <div style={{ display: 'flex', gap: '12px', justifyContent: 'center', margin: '8px 0' }}>
+            <div style={{ display: 'flex', gap: '12px', justifyContent: 'center', margin: '8px 0', flexWrap: 'wrap' }}>
               {patterns.map((p, idx) => (
                 <div
                   key={idx}
