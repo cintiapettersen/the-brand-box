@@ -1171,6 +1171,7 @@ function EstampaStep({ brand, accentColor, marca, patterns, setPatterns, genCoun
               sessionId,
               allPatterns: novos,
               replaceUrl: replaceUrl,
+              incrementGenCount: true,
             }),
           })
           .then(r => r.json())
@@ -9962,7 +9963,20 @@ function EntregaContent({ brand, plano, setBrand }) {
   };
   const [isInitialized, setIsInitialized] = useState(false);
   const [estampaPatterns, setEstampaPatterns] = useState(brand.pattern ? [brand.pattern] : []);
-  const [estampaGenCount, setEstampaGenCount] = useState(brand.patternGenerationCount || 0);
+  const [estampaGenCount, setEstampaGenCountState] = useState(() => {
+    try {
+      const s = localStorage.getItem(`brandbox_gen_count_${brand.id}`);
+      if (s) return parseInt(s, 10);
+    } catch {}
+    return brand.patternGenerationCount || 0;
+  });
+  const setEstampaGenCount = (v) => {
+    setEstampaGenCountState(prev => {
+      const next = typeof v === 'function' ? v(prev) : v;
+      try { localStorage.setItem(`brandbox_gen_count_${brand.id}`, next); } catch {}
+      return next;
+    });
+  };
   const [estampaSelectedIdx, setEstampaSelectedIdx] = useState(0);
   const [estampaOriginalPattern, setEstampaOriginalPattern] = useState(null); // backup pre-suavização
   const [estampasRef, setEstampasRef] = useState(brand.estampas || []);
@@ -10327,8 +10341,8 @@ function EntregaContent({ brand, plano, setBrand }) {
       let allPatterns = JSON.parse(localStorage.getItem(`brandbox_patterns_all_${brand.id}`) || localStorage.getItem('brandbox_patterns_all') || 'null');
       const singlePattern = JSON.parse(localStorage.getItem(`brandbox_pattern_${brand.id}`) || localStorage.getItem('brandbox_pattern') || 'null');
       if (allPatterns && allPatterns.length > 0) {
-        if (allPatterns.length > 3) {
-          allPatterns = allPatterns.slice(-3);
+        if (allPatterns.length > 6) {
+          allPatterns = allPatterns.slice(-6);
           try { localStorage.setItem(`brandbox_patterns_all_${brand.id}`, JSON.stringify(allPatterns)); } catch {}
         }
         setEstampaPatterns(allPatterns);
