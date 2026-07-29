@@ -6158,21 +6158,38 @@ function PapelariaStep({ brand, accentColor, paletteColors, estampaPatterns, est
         for (let j = 0; j < targetElements.length; j++) {
           targetElements[j].style.display = (j === i) ? '' : 'none';
         }
-        // Force the iframe height to match exactly one page
+        // Force the element to match exact page dimensions so html2canvas doesn't capture extra height
+        const el = targetElements[i];
+        const origW = el.style.width;
+        const origH = el.style.height;
+        const origOverflow = el.style.overflow;
+        el.style.width = `${pxW}px`;
+        el.style.height = `${pxH}px`;
+        el.style.overflow = 'hidden';
+        
+        // Force the iframe to match exactly one page
+        iframeEl.style.width = `${pxW}px`;
         iframeEl.style.height = `${pxH}px`;
         
-        await new Promise(r => setTimeout(r, 80));
+        await new Promise(r => setTimeout(r, 100));
 
-        const el = targetElements[i];
         const canvas = await html2canvas(el, {
           scale: 3,
           useCORS: true,
           allowTaint: true,
           logging: false,
           backgroundColor: '#ffffff',
+          width: pxW,
+          height: pxH,
           windowWidth: pxW,
           windowHeight: pxH,
         });
+
+        // Restore original styles
+        el.style.width = origW;
+        el.style.height = origH;
+        el.style.overflow = origOverflow;
+
         const imgData = canvas.toDataURL('image/png');
         if (i > 0) {
           doc.addPage([width, height], isLandscape ? 'landscape' : 'portrait');
@@ -8196,7 +8213,7 @@ html, body { width:${totalW}mm; height:${totalH}mm; overflow:hidden; }
       const html = `<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Tag para Sacola - ${marca}</title>${fiT}
 <style>
 * { box-sizing:border-box; margin:0; padding:0; print-color-adjust:exact !important; -webkit-print-color-adjust:exact !important; }
-.page { width:${totalW_T}mm; height:${totalH_T}mm; display:flex; align-items:center; justify-content:center; page-break-after:always; }
+.page { width:${totalW_T}mm; height:${totalH_T}mm; overflow:hidden; position:relative; page-break-after:always; }
 @page {  size:${totalW_T }mm ${totalH_T}mm; margin:0; } @media print { }
 </style></head><body>
 <div class="page">${frentePageT}</div>
