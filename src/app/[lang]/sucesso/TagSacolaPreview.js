@@ -71,6 +71,8 @@ function TagCard({ size, solidColor, c0, c1, paletteColors, effectiveSrc, patter
   return (
     <div style={{ ...containerStyle, background: '#fff', border: `6px solid ${solidColor}` }}>
       {(() => {
+        const fs = Math.round(Math.min(W, H) * 0.075);
+        const fsSmall = Math.round(fs * 0.72);
         const mainPhone = cartaoContacts?.whatsapp || cartaoContacts?.telefone || '';
         const email = cartaoContacts?.email || '';
         const endereco = cartaoContacts?.endereco || '';
