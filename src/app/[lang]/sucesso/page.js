@@ -8169,7 +8169,7 @@ html, body { width:${totalW}mm; height:${totalH}mm; overflow:hidden; }
 
       const frentePageT = `
         <div style="width:${totalW_T}mm;height:${totalH_T}mm;position:relative;overflow:hidden;border-radius:${borderR};">
-          <div style="position:absolute;inset:0;${bgFixed}"></div>
+          <div style="position:absolute;top:0;left:0;right:0;bottom:0;${bgFixed}"></div>
           <div style="position:absolute;top:${BLEED}mm;left:${BLEED}mm;width:${TW}mm;height:${TH}mm;overflow:hidden;">
             <div style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);z-index:2;width:${_cardW};height:${_cardH};background:${(comBorda && patternSrc) ? 'rgba(255,255,255,0.95)' : 'transparent'};border-radius:${isCircleT ? '50%' : '3.5mm'};display:flex;align-items:center;justify-content:center;box-sizing:border-box;padding:2mm;overflow:hidden;">
               ${_tagLogoHtml}
@@ -8180,7 +8180,7 @@ html, body { width:${totalW}mm; height:${totalH}mm; overflow:hidden; }
 
       const versoPageT = `
         <div style="width:${totalW_T}mm;height:${totalH_T}mm;position:relative;overflow:hidden;background:#fff;">
-          <div style="position:absolute;inset:0;border:5mm solid ${solidColor};border-radius:${borderR};"></div>
+          <div style="position:absolute;top:0;left:0;right:0;bottom:0;border:5mm solid ${solidColor};border-radius:${borderR};"></div>
           <div style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:80%;display:flex;flex-direction:column;align-items:center;gap:1.5mm;text-align:center;overflow:hidden;max-height:85%;">
             ${clinicaNome ? `<div style="font-size:4.8mm;color:${solidColor};font-family:'Brush Script MT','Segoe Script',cursive;line-height:1.2;">${clinicaNome}</div>` : ''}
             <div style="width:5mm;height:0.2mm;background:${solidColor}60;margin:1mm 0;"></div>
