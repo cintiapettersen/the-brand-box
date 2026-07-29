@@ -73,16 +73,21 @@ function TagCard({ size, solidColor, c0, c1, paletteColors, effectiveSrc, patter
       {(() => {
         const fs = Math.round(Math.min(W, H) * 0.075);
         const fsSmall = Math.round(fs * 0.72);
-        const mainPhone = cartaoContacts?.whatsapp || cartaoContacts?.telefone || '';
+        const whatsapp = cartaoContacts?.whatsapp || '';
+        const telefone = cartaoContacts?.telefone || '';
+        const telefone2 = cartaoContacts?.telefone2 || '';
         const email = cartaoContacts?.email || '';
         const endereco = cartaoContacts?.endereco || '';
         const instagram = cartaoContacts?.instagram || '';
         const site = cartaoContacts?.site || '';
+        
+        const logoFont = editData?.fontFamily || 'Montserrat';
 
         return <div style={{ position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%)', width: '80%', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: Math.round(fs * 0.35), overflow: 'hidden', maxHeight: '85%', textAlign: 'center' }}>
-          {clinicaNome && <div style={{ fontSize: fs, fontWeight: 400, color: solidColor, fontFamily: "'Brush Script MT','Segoe Script','Dancing Script',cursive", textAlign: 'center', lineHeight: 1.3 }}>{clinicaNome}</div>}
+          {clinicaNome && <div style={{ fontSize: fs, fontWeight: 600, color: solidColor, fontFamily: `'${logoFont}', sans-serif`, textAlign: 'center', lineHeight: 1.3 }}>{clinicaNome}</div>}
           <div style={{ width: 24, height: 0.5, background: `${solidColor}60` }} />
-          {mainPhone && <div style={{ fontSize: fsSmall, fontWeight: 400, color: '#888', fontFamily: 'Montserrat,sans-serif', letterSpacing: '0.3px', whiteSpace: 'nowrap' }}>{mainPhone}</div>}
+          {whatsapp && <div style={{ fontSize: fsSmall, fontWeight: 400, color: '#888', fontFamily: 'Montserrat,sans-serif', letterSpacing: '0.3px', whiteSpace: 'nowrap' }}>{whatsapp}</div>}
+          {(telefone || telefone2) && <div style={{ fontSize: Math.round(fsSmall * 0.8), fontWeight: 400, color: '#999', fontFamily: 'Montserrat,sans-serif', letterSpacing: '0.3px', whiteSpace: 'nowrap', marginTop: '2px' }}>{[telefone, telefone2].filter(Boolean).join(' · ')}</div>}
           {instagram && <div style={{ fontSize: fsSmall, fontWeight: 400, color: '#888', fontFamily: 'Montserrat,sans-serif', letterSpacing: '0.3px', whiteSpace: 'nowrap' }}>@{instagram.replace('@','')}</div>}
           {email && <div style={{ fontSize: Math.round(fsSmall * 0.85), fontWeight: 400, color: '#888', fontFamily: 'Montserrat,sans-serif', letterSpacing: '0.2px', wordBreak: 'break-all' }}>{email}</div>}
           {site && <div style={{ fontSize: Math.round(fsSmall * 0.85), fontWeight: 400, color: '#bbb', fontFamily: 'Montserrat,sans-serif', letterSpacing: '0.3px', wordBreak: 'break-all' }}>{site}</div>}
