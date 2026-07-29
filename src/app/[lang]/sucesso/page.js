@@ -8180,8 +8180,8 @@ html, body { width:${totalW}mm; height:${totalH}mm; overflow:hidden; }
         <div style="position:absolute;bottom:0;right:${BLEED}mm;width:0.1mm;height:${BLEED - 0.5}mm;background:#000;"></div>
         <div style="position:absolute;bottom:${BLEED}mm;right:0;width:${BLEED - 0.5}mm;height:0.1mm;background:#000;"></div>`;
 
-      const { whatsapp, telefone, instagram, site, email, endereco } = cartaoContacts || {};
-      const mainPhone = whatsapp || telefone || '';
+      const { whatsapp, telefone, telefone2, instagram, site, email, endereco } = cartaoContacts || {};
+      const allPhones = [whatsapp, telefone, telefone2].filter(Boolean).join(' · ');
       const borderR = isCircleT ? '50%' : '0';
 
       // Para tags circulares: html2canvas não renderiza border-radius+background-image bem.
@@ -8194,8 +8194,8 @@ html, body { width:${totalW}mm; height:${totalH}mm; overflow:hidden; }
         <div style="width:100%;height:100%;position:relative;overflow:hidden;">
           <div style="position:absolute;top:0;left:0;right:0;bottom:0;${bgFixed}"></div>
           ${circleMask}
-          <div style="position:absolute;top:${BLEED}mm;left:${BLEED}mm;width:${TW}mm;height:${TH}mm;overflow:hidden;${isCircleT ? `border-radius:50%;` : ''}">
-            <div style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);z-index:2;width:${_cardW};height:${_cardH};background:${(comBorda && patternSrc) ? 'rgba(255,255,255,0.95)' : 'transparent'};border-radius:${isCircleT ? '50%' : '3.5mm'};display:flex;align-items:center;justify-content:center;box-sizing:border-box;padding:2mm;overflow:hidden;">
+          <div style="position:absolute;top:${BLEED}mm;left:${BLEED}mm;width:${TW}mm;height:${TH}mm;overflow:hidden;${isCircleT ? `border-radius:50%;` : ''} display:flex; align-items:center; justify-content:center;">
+            <div style="z-index:2;width:${_cardW};height:${_cardH};background:${(comBorda && patternSrc) ? 'rgba(255,255,255,0.95)' : 'transparent'};border-radius:${isCircleT ? '50%' : '3.5mm'};display:flex;align-items:center;justify-content:center;box-sizing:border-box;padding:2mm;overflow:hidden;">
               ${_tagLogoHtml}
             </div>
           </div>
@@ -8209,14 +8209,16 @@ html, body { width:${totalW}mm; height:${totalH}mm; overflow:hidden; }
             ? `<div style="position:absolute;top:0;left:0;right:0;bottom:0;background:radial-gradient(circle ${circleR}mm at ${totalW_T / 2}mm ${totalH_T / 2}mm, ${solidColor} ${circleR}mm, transparent ${circleR}mm);"></div>
                <div style="position:absolute;top:0;left:0;right:0;bottom:0;background:radial-gradient(circle ${circleR - 5}mm at ${totalW_T / 2}mm ${totalH_T / 2}mm, #ffffff ${circleR - 5}mm, transparent ${circleR - 5}mm);z-index:1;"></div>`
             : `<div style="position:absolute;top:0;left:0;right:0;bottom:0;border:5mm solid ${solidColor};"></div>`}
-          <div style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:80%;display:flex;flex-direction:column;align-items:center;gap:1.5mm;text-align:center;overflow:hidden;max-height:85%;z-index:2;">
-            ${clinicaNome ? `<div style="font-size:4.8mm;color:${solidColor};font-family:'Brush Script MT','Segoe Script',cursive;line-height:1.2;">${clinicaNome}</div>` : ''}
-            <div style="width:5mm;height:0.2mm;background:${solidColor}60;margin:1mm 0;"></div>
-            ${mainPhone ? `<div style="font-size:2.8mm;color:#888;font-family:'Montserrat',sans-serif;white-space:nowrap;">${mainPhone}</div>` : ''}
-            ${instagram ? `<div style="font-size:2.8mm;color:#888;font-family:'Montserrat',sans-serif;white-space:nowrap;">@${instagram.replace('@','')}</div>` : ''}
-            ${email ? `<div style="font-size:2.4mm;color:#888;font-family:'Montserrat',sans-serif;word-break:break-all;">${email}</div>` : ''}
-            ${site ? `<div style="font-size:2.4mm;color:#bbb;font-family:'Montserrat',sans-serif;word-break:break-all;">${site}</div>` : ''}
-            ${endereco ? `<div style="font-size:2.0mm;color:#aaa;font-family:'Montserrat',sans-serif;line-height:1.2;margin-top:0.8mm;">${endereco}</div>` : ''}
+          <div style="position:absolute;top:0;left:0;right:0;bottom:0;display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:2;">
+            <div style="width:80%;display:flex;flex-direction:column;align-items:center;gap:1.5mm;text-align:center;overflow:hidden;max-height:85%;">
+              ${clinicaNome ? `<div style="font-size:4.8mm;color:${solidColor};font-family:'${_ffT}',sans-serif;line-height:1.2;font-weight:600;">${clinicaNome}</div>` : ''}
+              <div style="width:5mm;height:0.2mm;background:${solidColor}60;margin:1mm 0;"></div>
+              ${allPhones ? `<div style="font-size:2.8mm;color:#888;font-family:'Montserrat',sans-serif;white-space:nowrap;">${allPhones}</div>` : ''}
+              ${instagram ? `<div style="font-size:2.8mm;color:#888;font-family:'Montserrat',sans-serif;white-space:nowrap;">@${instagram.replace('@','')}</div>` : ''}
+              ${email ? `<div style="font-size:2.4mm;color:#888;font-family:'Montserrat',sans-serif;word-break:break-all;">${email}</div>` : ''}
+              ${site ? `<div style="font-size:2.4mm;color:#bbb;font-family:'Montserrat',sans-serif;word-break:break-all;">${site}</div>` : ''}
+              ${endereco ? `<div style="font-size:2.0mm;color:#aaa;font-family:'Montserrat',sans-serif;line-height:1.2;margin-top:0.8mm;">${endereco}</div>` : ''}
+            </div>
           </div>
           ${isCircleT ? `<div style="position:absolute;top:0;left:0;right:0;bottom:0;background:radial-gradient(circle ${circleR}mm at ${totalW_T / 2}mm ${totalH_T / 2}mm, transparent ${circleR}mm, #ffffff ${circleR}mm);z-index:3;"></div>` : ''}
           ${cms}
