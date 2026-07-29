@@ -8967,7 +8967,7 @@ body { background:#fff; font-family:'Montserrat',sans-serif; }
     
     <!-- LUVA -->
     <div style="position:absolute; top:30mm; left:20mm; width:436.1mm; height:194.0mm;">
-       <div style="position:absolute; inset:0; ${effectiveSrc ? `background-image:url('${effectiveSrc}');background-size:${(getPatternTileMm(patternScale) * 4.8).toFixed(1)}mm;background-repeat:repeat;` : `background:${solidColor};`} z-index:1;"></div>
+       <div style="position:absolute; inset:0; ${effectiveSrc ? `background-image:url('${effectiveSrc}');background-size:${(getPatternTileMm(patternScale) * 14.0).toFixed(1)}mm;background-repeat:repeat;` : `background:${solidColor};`} z-index:1;"></div>
        <img src="${window.location.origin}${svgLuva}" style="position:absolute; inset:0; width:100%; height:100%; z-index:10;" />
        
        <div style="position:absolute; left:67.821%; top:2.238%; width:30.963%; height:95.360%; z-index:5; display:flex; align-items:center; justify-content:center;">
