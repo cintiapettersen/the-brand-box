@@ -8114,26 +8114,29 @@ html, body { width:${totalW}mm; height:${totalH}mm; overflow:hidden; }
 
       // Logo e Cartão — exatamente igual à Etiqueta Correios
       const _hasImgT = !!itemEditData?.customLogoSrc;
-      const _cardW = isCircleT ? (Math.min(TW, TH) * 0.76).toFixed(1) + 'mm' : isRectT ? (TW * 0.76).toFixed(1) + 'mm' : (TW * 0.78).toFixed(1) + 'mm';
-      const _cardH = isCircleT ? (Math.min(TW, TH) * 0.76).toFixed(1) + 'mm' : isRectT ? (TH * 0.65).toFixed(1) + 'mm' : (TH * 0.78).toFixed(1) + 'mm';
-      const _logoMaxW = (parseFloat(_cardW) * 0.88).toFixed(1) + 'mm';
-      const _logoMaxH = (parseFloat(_cardH) * 0.88).toFixed(1) + 'mm';
+      const _cardW = isRectT ? '72%' : isCircleT ? '74%' : '78%';
+      const _cardH = isRectT ? '65%' : isCircleT ? '74%' : '78%';
+      const maxWmm = TW * (isRectT ? 0.72 : isCircleT ? 0.74 : 0.78) * 0.88;
+      const maxHmm = TH * (isRectT ? 0.65 : isCircleT ? 0.74 : 0.78) * 0.88;
+      const _logoMaxW = maxWmm.toFixed(1) + 'mm';
+      const _logoMaxH = maxHmm.toFixed(1) + 'mm';
 
-      const _tagLogoHtml = genPDFLogoHtml({
+      const _tagLogoHtml = `<div style="display:flex;flex-direction:column;align-items:center;justify-content:center;width:100%;height:100%;overflow:hidden;">${genPDFLogoHtml({
         brand,
-        editDataOverride: itemEditData,
+        editDataOverride: { ...itemEditData, sloganGap: 6 },
         color: (comBorda && patternSrc) ? solidColor : '#ffffff',
         layout: logoLayout || 'stacked',
         localSlogan: _hasImgT ? null : localSlogan,
-        fontPt: 44,
+        fontPt: 26,
         scaleFactor: 1.0,
         crmLine: null,
         customLogoSrc: itemEditData?.customLogoSrc,
         customLogoScale: _hasImgT ? Math.min(getCustomLogoScale(item) * (ITEM_CUSTOM_BASE_SCALES[item] || 1), 100) : 100,
         maxWidth: _logoMaxW,
         maxHeight: _logoMaxH,
-        withBackground: false
-      });
+        withBackground: false,
+        sloganColor: (comBorda && patternSrc) ? undefined : 'rgba(255,255,255,0.75)'
+      })}</div>`;
 
       // Marcas de corte
       const cms = `
@@ -8153,8 +8156,10 @@ html, body { width:${totalW}mm; height:${totalH}mm; overflow:hidden; }
       const frentePageT = `
         <div style="width:${totalW_T}mm;height:${totalH_T}mm;position:relative;overflow:hidden;border-radius:${borderR};">
           <div style="position:absolute;inset:0;${bgFixed}"></div>
-          <div style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);z-index:2;width:${_cardW};height:${_cardH};background:${(comBorda && patternSrc) ? 'rgba(255,255,255,0.95)' : 'transparent'};border-radius:${isCircleT ? '50%' : '3.5mm'};display:flex;align-items:center;justify-content:center;box-sizing:border-box;padding:2mm;overflow:hidden;">
-            ${_tagLogoHtml}
+          <div style="position:absolute;top:${BLEED}mm;left:${BLEED}mm;width:${TW}mm;height:${TH}mm;overflow:hidden;">
+            <div style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);z-index:2;width:${_cardW};height:${_cardH};background:${(comBorda && patternSrc) ? 'rgba(255,255,255,0.95)' : 'transparent'};border-radius:${isCircleT ? '50%' : '3.5mm'};display:flex;align-items:center;justify-content:center;box-sizing:border-box;padding:2mm;overflow:hidden;">
+              ${_tagLogoHtml}
+            </div>
           </div>
           ${cms}
         </div>`;
