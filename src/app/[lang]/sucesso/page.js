@@ -8191,7 +8191,7 @@ html, body { width:${totalW}mm; height:${totalH}mm; overflow:hidden; }
         ? `<div style="position:absolute;top:0;left:0;right:0;bottom:0;background:radial-gradient(circle ${circleR}mm at ${totalW_T / 2}mm ${totalH_T / 2}mm, transparent ${circleR}mm, #ffffff ${circleR}mm);z-index:1;"></div>`
         : '';
       const frentePageT = `
-        <div style="width:${totalW_T}mm;height:${totalH_T}mm;position:relative;overflow:hidden;">
+        <div style="width:100%;height:100%;position:relative;overflow:hidden;">
           <div style="position:absolute;top:0;left:0;right:0;bottom:0;${bgFixed}"></div>
           ${circleMask}
           <div style="position:absolute;top:${BLEED}mm;left:${BLEED}mm;width:${TW}mm;height:${TH}mm;overflow:hidden;${isCircleT ? `border-radius:50%;` : ''}">
@@ -8204,7 +8204,7 @@ html, body { width:${totalW}mm; height:${totalH}mm; overflow:hidden; }
 
 
       const versoPageT = `
-        <div style="width:${totalW_T}mm;height:${totalH_T}mm;position:relative;overflow:hidden;background:#fff;">
+        <div style="width:100%;height:100%;position:relative;overflow:hidden;background:#fff;">
           ${isCircleT
             ? `<div style="position:absolute;top:0;left:0;right:0;bottom:0;background:radial-gradient(circle ${circleR}mm at ${totalW_T / 2}mm ${totalH_T / 2}mm, ${solidColor} ${circleR}mm, transparent ${circleR}mm);"></div>
                <div style="position:absolute;top:0;left:0;right:0;bottom:0;background:radial-gradient(circle ${circleR - 5}mm at ${totalW_T / 2}mm ${totalH_T / 2}mm, #ffffff ${circleR - 5}mm, transparent ${circleR - 5}mm);z-index:1;"></div>`
