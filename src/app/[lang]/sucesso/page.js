@@ -56,7 +56,7 @@ const CamisetaPreview = dynamic(() => import('./CamisetaPreview'), { ssr: false 
 const PapelPresentePreview = dynamic(() => import('./PapelPresentePreview'), { ssr: false });
 const GuiaAmamentacaoPreview = dynamic(() => import('./GuiaAmamentacaoPreview'), { ssr: false });
 const GuiaAlimentarPreview = dynamic(() => import('./GuiaAlimentarPreview'), { ssr: false });
-const FolderPage4Dynamic = dynamic(() => import('./FolderPage4Dynamic'), { ssr: false });
+import FolderPage4Dynamic from './FolderPage4Dynamic';
 const CadernetaPreview = dynamic(() => import('./CadernetaPreview'), { ssr: false }); // 176KB — maior ganho
 const CaixaPreview = dynamic(() => import('./CaixaPreview'), { ssr: false });
 
@@ -10272,7 +10272,7 @@ function EntregaContent({ brand, plano, setBrand }) {
   }, [cartaoContacts, cartaoQrLink, cartaoShowQR]);
 
   const atuacoesSaude = ['Pediatria / Saúde infantil', 'Obstetrícia / Saúde da mulher', 'Clínica / Saúde geral adulta'];
-  const isSaude = atuacoesSaude.includes(brand.formData?.atuacao);
+  const isSaude = atuacoesSaude.includes(brand.formData?.atuacao) || brand.niche === 'Saúde e Medicina' || brand.nicho === 'Saúde e Medicina';
 
   const [clinicaNome, setClinicaNomeState] = useState(() => { try { return JSON.parse(localStorage.getItem(`brandbox_papelaria_${brand.id}`) || '{}').clinicaNome || ''; } catch { return ''; } });
   const [resendingEmail, setResendingEmail] = useState(false);
