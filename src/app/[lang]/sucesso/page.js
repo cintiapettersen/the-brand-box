@@ -8102,6 +8102,7 @@ html, body { width:${totalW}mm; height:${totalH}mm; overflow:hidden; }
       const selT = SIZES_T[tagSacolaSizeIdx] || SIZES_T[0];
       const { w: TW, h: TH, shape: TSHAPE } = selT;
       const isCircleT = TSHAPE === 'circle';
+      const isRectT = TSHAPE === 'rect';
       const totalW_T = TW + BLEED * 2;
       const totalH_T = TH + BLEED * 2;
 
