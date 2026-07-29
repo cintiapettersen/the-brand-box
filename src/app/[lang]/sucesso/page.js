@@ -8181,7 +8181,6 @@ html, body { width:${totalW}mm; height:${totalH}mm; overflow:hidden; }
         <div style="position:absolute;bottom:${BLEED}mm;right:0;width:${BLEED - 0.5}mm;height:0.1mm;background:#000;"></div>`;
 
       const { whatsapp, telefone, telefone2, instagram, site, email, endereco } = cartaoContacts || {};
-      const allPhones = [whatsapp, telefone, telefone2].filter(Boolean).join(' · ');
       const borderR = isCircleT ? '50%' : '0';
 
       // Para tags circulares: html2canvas não renderiza border-radius+background-image bem.
@@ -8213,7 +8212,8 @@ html, body { width:${totalW}mm; height:${totalH}mm; overflow:hidden; }
             <div style="width:80%;display:flex;flex-direction:column;align-items:center;gap:1.5mm;text-align:center;overflow:hidden;max-height:85%;">
               ${clinicaNome ? `<div style="font-size:4.8mm;color:${solidColor};font-family:'${_ffT}',sans-serif;line-height:1.2;font-weight:600;">${clinicaNome}</div>` : ''}
               <div style="width:5mm;height:0.2mm;background:${solidColor}60;margin:1mm 0;"></div>
-              ${allPhones ? `<div style="font-size:2.8mm;color:#888;font-family:'Montserrat',sans-serif;white-space:nowrap;">${allPhones}</div>` : ''}
+              ${whatsapp ? `<div style="font-size:2.8mm;color:#888;font-family:'Montserrat',sans-serif;white-space:nowrap;">${whatsapp}</div>` : ''}
+              ${(telefone || telefone2) ? `<div style="font-size:2.2mm;color:#999;font-family:'Montserrat',sans-serif;white-space:nowrap;margin-top:0.5mm;">${[telefone, telefone2].filter(Boolean).join(' · ')}</div>` : ''}
               ${instagram ? `<div style="font-size:2.8mm;color:#888;font-family:'Montserrat',sans-serif;white-space:nowrap;">@${instagram.replace('@','')}</div>` : ''}
               ${email ? `<div style="font-size:2.4mm;color:#888;font-family:'Montserrat',sans-serif;word-break:break-all;">${email}</div>` : ''}
               ${site ? `<div style="font-size:2.4mm;color:#bbb;font-family:'Montserrat',sans-serif;word-break:break-all;">${site}</div>` : ''}
