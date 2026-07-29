@@ -8149,7 +8149,7 @@ html, body { width:${totalW}mm; height:${totalH}mm; overflow:hidden; }
         <div style="position:absolute;bottom:0;right:${BLEED}mm;width:0.1mm;height:${BLEED - 0.5}mm;background:#000;"></div>
         <div style="position:absolute;bottom:${BLEED}mm;right:0;width:${BLEED - 0.5}mm;height:0.1mm;background:#000;"></div>`;
 
-      const { whatsapp, telefone, instagram, site } = cartaoContacts || {};
+      const { whatsapp, telefone, instagram, site, email, endereco } = cartaoContacts || {};
       const mainPhone = whatsapp || telefone || '';
       const borderR = isCircleT ? '50%' : '0';
 
@@ -8167,12 +8167,14 @@ html, body { width:${totalW}mm; height:${totalH}mm; overflow:hidden; }
       const versoPageT = `
         <div style="width:${totalW_T}mm;height:${totalH_T}mm;position:relative;overflow:hidden;background:#fff;">
           <div style="position:absolute;inset:0;border:5mm solid ${solidColor};border-radius:${borderR};"></div>
-          <div style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:80%;display:flex;flex-direction:column;align-items:center;gap:2mm;text-align:center;overflow:hidden;max-height:80%;">
-            ${clinicaNome ? `<div style="font-size:5mm;color:${solidColor};font-family:'Brush Script MT','Segoe Script',cursive;">${clinicaNome}</div>` : ''}
-            <div style="width:5mm;height:0.2mm;background:${solidColor}60;"></div>
-            ${mainPhone ? `<div style="font-size:3mm;color:#888;font-family:'Montserrat',sans-serif;">${mainPhone}</div>` : ''}
-            ${instagram ? `<div style="font-size:3mm;color:#888;font-family:'Montserrat',sans-serif;">@${instagram.replace('@','')}</div>` : ''}
-            ${site ? `<div style="font-size:2.5mm;color:#bbb;font-family:'Montserrat',sans-serif;">${site}</div>` : ''}
+          <div style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:80%;display:flex;flex-direction:column;align-items:center;gap:1.5mm;text-align:center;overflow:hidden;max-height:85%;">
+            ${clinicaNome ? `<div style="font-size:4.8mm;color:${solidColor};font-family:'Brush Script MT','Segoe Script',cursive;line-height:1.2;">${clinicaNome}</div>` : ''}
+            <div style="width:5mm;height:0.2mm;background:${solidColor}60;margin:1mm 0;"></div>
+            ${mainPhone ? `<div style="font-size:2.8mm;color:#888;font-family:'Montserrat',sans-serif;white-space:nowrap;">${mainPhone}</div>` : ''}
+            ${instagram ? `<div style="font-size:2.8mm;color:#888;font-family:'Montserrat',sans-serif;white-space:nowrap;">@${instagram.replace('@','')}</div>` : ''}
+            ${email ? `<div style="font-size:2.4mm;color:#888;font-family:'Montserrat',sans-serif;word-break:break-all;">${email}</div>` : ''}
+            ${site ? `<div style="font-size:2.4mm;color:#bbb;font-family:'Montserrat',sans-serif;word-break:break-all;">${site}</div>` : ''}
+            ${endereco ? `<div style="font-size:2.0mm;color:#aaa;font-family:'Montserrat',sans-serif;line-height:1.2;margin-top:0.8mm;">${endereco}</div>` : ''}
           </div>
           ${cms}
         </div>`;

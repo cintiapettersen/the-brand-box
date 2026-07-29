@@ -71,15 +71,21 @@ function TagCard({ size, solidColor, c0, c1, paletteColors, effectiveSrc, patter
   return (
     <div style={{ ...containerStyle, background: '#fff', border: `6px solid ${solidColor}` }}>
       {(() => {
-        const fs = Math.round(Math.min(W, H) * 0.075);
-        const fsSmall = Math.round(fs * 0.72);
-        return <div style={{ position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%)', width: '76%', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: Math.round(fs * 0.4), overflow: 'hidden', maxHeight: '80%' }}>
-        {clinicaNome && <div style={{ fontSize: fs, fontWeight: 400, color: solidColor, fontFamily: "'Brush Script MT','Segoe Script','Dancing Script',cursive", textAlign: 'center', lineHeight: 1.3 }}>{clinicaNome}</div>}
-        <div style={{ width: 24, height: 0.5, background: `${solidColor}60` }} />
-        {cartaoContacts?.telefone && <div style={{ fontSize: fsSmall, fontWeight: 400, color: '#888', fontFamily: 'Montserrat,sans-serif', letterSpacing: '0.3px' }}>{cartaoContacts.telefone}</div>}
-        {cartaoContacts?.instagram && <div style={{ fontSize: fsSmall, fontWeight: 400, color: '#888', fontFamily: 'Montserrat,sans-serif', letterSpacing: '0.3px' }}>@{cartaoContacts.instagram.replace('@','')}</div>}
-        {cartaoContacts?.site && <div style={{ fontSize: Math.round(fsSmall * 0.9), fontWeight: 400, color: '#bbb', fontFamily: 'Montserrat,sans-serif', letterSpacing: '0.3px' }}>{cartaoContacts.site}</div>}
-      </div>;
+        const mainPhone = cartaoContacts?.whatsapp || cartaoContacts?.telefone || '';
+        const email = cartaoContacts?.email || '';
+        const endereco = cartaoContacts?.endereco || '';
+        const instagram = cartaoContacts?.instagram || '';
+        const site = cartaoContacts?.site || '';
+
+        return <div style={{ position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%)', width: '80%', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: Math.round(fs * 0.35), overflow: 'hidden', maxHeight: '85%', textAlign: 'center' }}>
+          {clinicaNome && <div style={{ fontSize: fs, fontWeight: 400, color: solidColor, fontFamily: "'Brush Script MT','Segoe Script','Dancing Script',cursive", textAlign: 'center', lineHeight: 1.3 }}>{clinicaNome}</div>}
+          <div style={{ width: 24, height: 0.5, background: `${solidColor}60` }} />
+          {mainPhone && <div style={{ fontSize: fsSmall, fontWeight: 400, color: '#888', fontFamily: 'Montserrat,sans-serif', letterSpacing: '0.3px', whiteSpace: 'nowrap' }}>{mainPhone}</div>}
+          {instagram && <div style={{ fontSize: fsSmall, fontWeight: 400, color: '#888', fontFamily: 'Montserrat,sans-serif', letterSpacing: '0.3px', whiteSpace: 'nowrap' }}>@{instagram.replace('@','')}</div>}
+          {email && <div style={{ fontSize: Math.round(fsSmall * 0.85), fontWeight: 400, color: '#888', fontFamily: 'Montserrat,sans-serif', letterSpacing: '0.2px', wordBreak: 'break-all' }}>{email}</div>}
+          {site && <div style={{ fontSize: Math.round(fsSmall * 0.85), fontWeight: 400, color: '#bbb', fontFamily: 'Montserrat,sans-serif', letterSpacing: '0.3px', wordBreak: 'break-all' }}>{site}</div>}
+          {endereco && <div style={{ fontSize: Math.round(fsSmall * 0.75), fontWeight: 400, color: '#aaa', fontFamily: 'Montserrat,sans-serif', letterSpacing: '0.2px', marginTop: '2px', lineHeight: 1.2 }}>{endereco}</div>}
+        </div>;
       })()}
     </div>
   );
