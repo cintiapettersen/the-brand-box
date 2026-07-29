@@ -3,6 +3,7 @@ import Script from "next/script";
 import "../globals.css";
 import { getDictionary } from "../../getDictionary";
 import { LanguageProvider } from "../LanguageContext";
+import { Analytics } from '@vercel/analytics/next';
 
 
 
@@ -71,6 +72,7 @@ export default async function RootLayout({ children, params }) {
         <LanguageProvider initialDictionary={dictionary}>
           {children}
         </LanguageProvider>
+        <Analytics />
       </body>
     </html>
   );
