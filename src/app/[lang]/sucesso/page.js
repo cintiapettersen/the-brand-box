@@ -8137,10 +8137,10 @@ html, body { width:${totalW}mm; height:${totalH}mm; overflow:hidden; }
       const totalW_T = TW + BLEED * 2;
       const totalH_T = TH + BLEED * 2;
 
-      // Fundo
-      const bgSizeMm = ((patternScale || 100) / 10).toFixed(1);
+      // Fundo — usar a mesma fórmula do resto do sistema (getPatternTileMm)
+      const bgTileMm = getPatternTileMm(patternScale).toFixed(1);
       const bgFixed = comBorda && patternSrc
-        ? `background-image:url(${patternSrc});background-size:${bgSizeMm}mm;background-repeat:repeat;`
+        ? `background-image:url(${patternSrc});background-size:${bgTileMm}mm;background-repeat:repeat;`
         : `background:${solidColor};`;
 
       // Logo e Cartão — exatamente igual à Etiqueta Correios
@@ -8184,10 +8184,17 @@ html, body { width:${totalW}mm; height:${totalH}mm; overflow:hidden; }
       const mainPhone = whatsapp || telefone || '';
       const borderR = isCircleT ? '50%' : '0';
 
+      // Para tags circulares: html2canvas não renderiza border-radius+background-image bem.
+      // Usamos uma "máscara" com radial-gradient: transparente no centro (mostra estampa), branco fora.
+      const circleR = Math.min(TW, TH) / 2;
+      const circleMask = isCircleT
+        ? `<div style="position:absolute;top:0;left:0;right:0;bottom:0;background:radial-gradient(circle ${circleR}mm at ${totalW_T / 2}mm ${totalH_T / 2}mm, transparent ${circleR}mm, #ffffff ${circleR}mm);z-index:1;"></div>`
+        : '';
       const frentePageT = `
-        <div style="width:${totalW_T}mm;height:${totalH_T}mm;position:relative;overflow:hidden;border-radius:${borderR};">
+        <div style="width:${totalW_T}mm;height:${totalH_T}mm;position:relative;overflow:hidden;">
           <div style="position:absolute;top:0;left:0;right:0;bottom:0;${bgFixed}"></div>
-          <div style="position:absolute;top:${BLEED}mm;left:${BLEED}mm;width:${TW}mm;height:${TH}mm;overflow:hidden;">
+          ${circleMask}
+          <div style="position:absolute;top:${BLEED}mm;left:${BLEED}mm;width:${TW}mm;height:${TH}mm;overflow:hidden;${isCircleT ? `border-radius:50%;` : ''}">
             <div style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);z-index:2;width:${_cardW};height:${_cardH};background:${(comBorda && patternSrc) ? 'rgba(255,255,255,0.95)' : 'transparent'};border-radius:${isCircleT ? '50%' : '3.5mm'};display:flex;align-items:center;justify-content:center;box-sizing:border-box;padding:2mm;overflow:hidden;">
               ${_tagLogoHtml}
             </div>
@@ -8195,10 +8202,14 @@ html, body { width:${totalW}mm; height:${totalH}mm; overflow:hidden; }
           ${cms}
         </div>`;
 
+
       const versoPageT = `
         <div style="width:${totalW_T}mm;height:${totalH_T}mm;position:relative;overflow:hidden;background:#fff;">
-          <div style="position:absolute;top:0;left:0;right:0;bottom:0;border:5mm solid ${solidColor};border-radius:${borderR};"></div>
-          <div style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:80%;display:flex;flex-direction:column;align-items:center;gap:1.5mm;text-align:center;overflow:hidden;max-height:85%;">
+          ${isCircleT
+            ? `<div style="position:absolute;top:0;left:0;right:0;bottom:0;background:radial-gradient(circle ${circleR}mm at ${totalW_T / 2}mm ${totalH_T / 2}mm, ${solidColor} ${circleR}mm, transparent ${circleR}mm);"></div>
+               <div style="position:absolute;top:0;left:0;right:0;bottom:0;background:radial-gradient(circle ${circleR - 5}mm at ${totalW_T / 2}mm ${totalH_T / 2}mm, #ffffff ${circleR - 5}mm, transparent ${circleR - 5}mm);z-index:1;"></div>`
+            : `<div style="position:absolute;top:0;left:0;right:0;bottom:0;border:5mm solid ${solidColor};"></div>`}
+          <div style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:80%;display:flex;flex-direction:column;align-items:center;gap:1.5mm;text-align:center;overflow:hidden;max-height:85%;z-index:2;">
             ${clinicaNome ? `<div style="font-size:4.8mm;color:${solidColor};font-family:'Brush Script MT','Segoe Script',cursive;line-height:1.2;">${clinicaNome}</div>` : ''}
             <div style="width:5mm;height:0.2mm;background:${solidColor}60;margin:1mm 0;"></div>
             ${mainPhone ? `<div style="font-size:2.8mm;color:#888;font-family:'Montserrat',sans-serif;white-space:nowrap;">${mainPhone}</div>` : ''}
@@ -8207,8 +8218,10 @@ html, body { width:${totalW}mm; height:${totalH}mm; overflow:hidden; }
             ${site ? `<div style="font-size:2.4mm;color:#bbb;font-family:'Montserrat',sans-serif;word-break:break-all;">${site}</div>` : ''}
             ${endereco ? `<div style="font-size:2.0mm;color:#aaa;font-family:'Montserrat',sans-serif;line-height:1.2;margin-top:0.8mm;">${endereco}</div>` : ''}
           </div>
+          ${isCircleT ? `<div style="position:absolute;top:0;left:0;right:0;bottom:0;background:radial-gradient(circle ${circleR}mm at ${totalW_T / 2}mm ${totalH_T / 2}mm, transparent ${circleR}mm, #ffffff ${circleR}mm);z-index:3;"></div>` : ''}
           ${cms}
         </div>`;
+
 
       const html = `<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Tag para Sacola - ${marca}</title>${fiT}
 <style>
