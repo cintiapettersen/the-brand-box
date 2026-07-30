@@ -40,22 +40,24 @@ export async function POST(req) {
 
     const colorRule = `
 =========================================
-CRITICAL COLOR OVERRIDE & HIERARCHY (MANDATORY)
+CRITICAL COLOR OVERRIDE (MANDATORY)
 =========================================
-You MUST completely IGNORE the colors of the reference image. The reference image is ONLY for shapes, layout, and drawing style. 
-You MUST strictly color ALL elements using ONLY the exact hex colors provided below, AND you MUST respect their hierarchy of incidence/frequency:
+The reference image is ONLY for shapes, layout, and drawing style. You MUST completely IGNORE all colors in the reference image.
+If the reference image has green leaves or pink flowers, DO NOT draw green leaves or pink flowers unless those exact colors are in your palette list below.
+You MUST strictly color ALL elements using ONLY the exact hex colors provided below. 
 
-1. DOMINANT COLOR (Highest incidence, use for largest/most elements): ${(paleta || [])[0] || ''}
-2. SECONDARY COLOR (High incidence): ${(paleta || [])[1] || ''}
-3. ACCENT COLOR (Medium incidence): ${(paleta || [])[2] || ''}
-4. MINOR COLOR (Low incidence): ${(paleta || [])[3] || ''}
-5. DETAIL COLOR (Lowest incidence, use sparingly): ${(paleta || [])[4] || ''}
+YOUR APPROVED COLOR PALETTE (AND NOTHING ELSE):
+1. DOMINANT COLOR: ${(paleta || [])[0] || ''}
+2. SECONDARY COLOR: ${(paleta || [])[1] || ''}
+3. ACCENT COLOR: ${(paleta || [])[2] || ''}
+4. MINOR COLOR: ${(paleta || [])[3] || ''}
+5. DETAIL COLOR: ${(paleta || [])[4] || ''}
 
-CRITICAL REQUIREMENT: You MUST use ALL of the colors provided above in your final image. Do NOT create a monochromatic or bi-chromatic design. Every single color listed MUST be visibly present in the pattern. Distribute the colors across different motifs (e.g. use secondary and accent colors for different types of flowers, minor colors for berries or distinct leaves).
-
-Do NOT use any colors from the reference image (like greens, browns, etc.) unless they are in the hex list above. 
-CRITICAL: Even natural elements like leaves and stems MUST be colored using ONLY the provided palette colors. Absolutely NO GREEN is allowed unless it is explicitly in the palette list above.
-Keep the background pure white or very light cream.
+CRITICAL:
+- Every single color listed above MUST be visibly present.
+- Leaves, stems, and nature elements MUST be colored using ONLY the approved palette colors (e.g., if you only have blue and orange, leaves must be blue or orange).
+- ZERO GREEN, ZERO PINK, ZERO RED, ZERO YELLOW unless explicitly provided in the hex list above.
+- Background: pure white or very light cream.
 =========================================
 `;
     const seamless = `SEAMLESS TILING RULES (CRITICAL & MANDATORY):
