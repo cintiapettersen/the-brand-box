@@ -77,7 +77,7 @@ Keep the background white or very light.
 Create ONE TILE of a seamless repeating surface pattern using those same elements and drawing style, but in a COMPLETELY NEW, ORIGINAL, AND BALANCED composition (30% creative arrangement). Do NOT copy the reference layout.
 
 ${seamless}
-Composition Style: Balanced and elegant, generous spacing between motifs. Density: moderate. Style context: ${hint}.`,
+Composition Style: Balanced and elegant, moderate density. Distinct scale of elements. Style context: ${hint}.`,
 
       // Variação 2 — Composição Minimalista e Extremamente Espaçada (Layout "Airy")
       `${brandContext}Study the reference image carefully. Replicate its exact illustration style, textures, and drawing technique faithfully (70% style DNA).
@@ -87,17 +87,17 @@ Keep the background white or very light.
 Create ONE TILE of a seamless repeating surface pattern. Compared to the reference and typical layouts, make this version a MINIMALIST, HIGHLY AIRY composition (30% creative arrangement). Use FEWER elements per tile, with large open spaces of solid color between them. The motifs should be slightly larger and arranged with plenty of breathing room.
 
 ${seamless}
-Composition Style: High negative space, minimalist, scattered and airy. Highly distinct from previous compositions. Style context: ${hint}.`,
+Composition Style: High negative space, minimalist, scattered and airy. Highly distinct from previous compositions. Very low density. Style context: ${hint}.`,
 
-      // Variação 3 — Composição Dinâmica com Movimento Diagonal (Layout "Flow")
+      // Variação 3 — Composição Dinâmica com Movimento Diagonal e Diferença de Escala
       `${brandContext}Use the reference image as your main creative direction — match its illustration style, element types, drawing technique, and proportions faithfully (70% style DNA).
 ${colorRule}
 Keep the background white or very light.
 
-Create ONE TILE of a seamless repeating surface pattern. Arrange the elements to create a DYNAMIC FLOWING MOVEMENT (like a soft diagonal breeze or organic waving paths) (30% creative arrangement). Rotate, tilt, and vary the orientations of the elements dynamically so they are NOT all standing upright.
+Create ONE TILE of a seamless repeating surface pattern. Arrange the elements to create a DYNAMIC FLOWING MOVEMENT (like a soft diagonal breeze or organic waving paths) (30% creative arrangement). Rotate, tilt, and vary the orientations of the elements dynamically so they are NOT all standing upright. Introduce a HUGE SCALE CONTRAST (some elements very tiny, some very large).
 
 ${seamless}
-Composition Style: Dynamic diagonal flow, varied rotations, fluid and active. Extremely different from standard upright layouts. Style context: ${hint}.`,
+Composition Style: Dynamic diagonal flow, varied rotations, fluid and active. Huge contrast in element sizes. Extremely different from standard upright layouts. Style context: ${hint}.`,
     ];
 
     const results = [];

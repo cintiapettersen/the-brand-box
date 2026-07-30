@@ -10074,32 +10074,34 @@ function EntregaContent({ brand, plano, setBrand }) {
       const pendingPatterns = estampaPatterns.filter(p => !p.url && p.base64);
       
       if (pendingPatterns.length > 0) {
-        // Upload them sequentially to avoid overloading
-        pendingPatterns.forEach((pat, idx) => {
-          fetch('/api/salvar-estampa', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-              base64: pat.base64,
-              mimeType: pat.mimeType || 'image/png',
-              sessionId,
-            })
-          })
-          .then(r => r.json())
-          .then(r => {
-            if (r.url) {
-              setEstampaPatterns(prev => {
-                const next = [...prev];
-                const pIdx = next.findIndex(p => p.base64 === pat.base64);
-                if (pIdx >= 0) {
-                  next[pIdx] = { ...next[pIdx], url: r.url };
-                }
-                return next;
-              });
-            }
-          })
-          .catch(() => {});
-        });
+        // Upload them sequentially to avoid overloading and DB race conditions
+        const uploadAll = async () => {
+          for (const pat of pendingPatterns) {
+            try {
+              const r = await fetch('/api/salvar-estampa', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                  base64: pat.base64,
+                  mimeType: pat.mimeType || 'image/png',
+                  sessionId,
+                })
+              }).then(res => res.json());
+
+              if (r.url) {
+                setEstampaPatterns(prev => {
+                  const next = [...prev];
+                  const pIdx = next.findIndex(p => p.base64 === pat.base64);
+                  if (pIdx >= 0) {
+                    next[pIdx] = { ...next[pIdx], url: r.url, base64: null };
+                  }
+                  return next;
+                });
+              }
+            } catch (e) {}
+          }
+        };
+        uploadAll();
       } else if (activePat?.url) {
         // All have URLs, just select the active one
         fetch('/api/salvar-estampa', {
