@@ -10495,7 +10495,7 @@ function EntregaContent({ brand, plano, setBrand }) {
       )
       .then(pats => {
         setEstampaPatterns(prev => {
-          return prev.map(p => {
+          const next = prev.map(p => {
             // Não sobrescreve patterns editados localmente (url:null = editado)
             if (!p.url && p.base64) return p;
             const loaded = pats.find(lp => lp.url === p.url);
@@ -10503,7 +10503,12 @@ function EntregaContent({ brand, plano, setBrand }) {
               return { ...p, base64: loaded.base64, mimeType: loaded.mimeType };
             }
             return p;
-          });
+          }).filter(p => p.base64 || p.originalBase64 || (!p.url && p.base64));
+          
+          if (estampaSelectedIdx >= next.length && next.length > 0) {
+            setEstampaSelectedIdx(Math.max(0, next.length - 1));
+          }
+          return next;
         });
         const validPats = pats.filter(p => p.base64);
         if (validPats.length > 0) {
