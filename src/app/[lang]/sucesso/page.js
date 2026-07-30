@@ -1039,14 +1039,25 @@ function EstampaStep({ brand, accentColor, marca, patterns, setPatterns, genCoun
   const [showSlotModal, setShowSlotModal] = useState(false);
   const bxSpinStyle = `@keyframes bx-spin { 0%,100%{transform:scale(1);opacity:1} 50%{transform:scale(1.4);opacity:0.5} }`;
   const [loadingPhraseIdx, setLoadingPhraseIdx] = useState(0);
-  const [feedbackState, setFeedbackState] = useState({});
+  const [feedbackState, setFeedbackState] = useState(() => {
+    try {
+      const saved = typeof window !== 'undefined' ? localStorage.getItem(`brandbox_feedback_${brand?.id}`) : null;
+      return saved ? JSON.parse(saved) : {};
+    } catch {
+      return {};
+    }
+  });
 
   const handleFeedback = (status) => {
     const current = patterns[selectedIdx];
     const url = current?.url;
     if (!url) return;
 
-    setFeedbackState(prev => ({ ...prev, [url]: status }));
+    setFeedbackState(prev => {
+      const next = { ...prev, [url]: status };
+      try { localStorage.setItem(`brandbox_feedback_${brand?.id}`, JSON.stringify(next)); } catch {}
+      return next;
+    });
 
     const sessionId = typeof window !== 'undefined'
       ? (new URLSearchParams(window.location.search).get('session') || localStorage.getItem('brandbox_session'))
@@ -10466,7 +10477,7 @@ function EntregaContent({ brand, plano, setBrand }) {
       isAsync = true;
       // Initialize immediately with URL-only objects so they display instantly without causing blank layouts
       const initialPats = estampaUrls.map(url => {
-        if (brand?.pattern && (brand.pattern.url === url || brand.pattern.base64)) {
+        if (brand?.pattern && brand.pattern.url === url) {
           return { url, base64: brand.pattern.base64, mimeType: brand.pattern.mimeType || 'image/png' };
         }
         return { url };
