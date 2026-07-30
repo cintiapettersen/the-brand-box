@@ -9961,6 +9961,9 @@ function EntregaContent({ brand, plano, setBrand }) {
     setFontOverrideState(v);
     try { if (v) localStorage.setItem(`brandbox_font_override_${brand.id}`, JSON.stringify(v)); else localStorage.removeItem(`brandbox_font_override_${brand.id}`); } catch {}
   };
+
+
+
   const [isInitialized, setIsInitialized] = useState(false);
   const [estampaPatterns, setEstampaPatterns] = useState(brand.pattern ? [brand.pattern] : []);
   const [estampaGenCount, setEstampaGenCountState] = useState(() => {
@@ -10044,22 +10047,59 @@ function EntregaContent({ brand, plano, setBrand }) {
 
   useEffect(() => {
     if (!isInitialized) return;
-    const pat = estampaPatterns[estampaSelectedIdx];
-    if (pat) {
-      try { localStorage.setItem(`brandbox_pattern_${brand.id}`, JSON.stringify(pat)); } catch {}
-      const sessionId = typeof window !== 'undefined'
-        ? (new URLSearchParams(window.location.search).get('session') || localStorage.getItem('brandbox_session'))
-        : null;
-      if (sessionId && pat.url) {
+    
+    // Save active pattern
+    const activePat = estampaPatterns[estampaSelectedIdx];
+    if (activePat) {
+      try { localStorage.setItem(`brandbox_pattern_${brand.id}`, JSON.stringify(activePat)); } catch {}
+    }
+
+    const sessionId = typeof window !== 'undefined'
+      ? (new URLSearchParams(window.location.search).get('session') || localStorage.getItem('brandbox_session'))
+      : null;
+
+    if (sessionId) {
+      // Find all patterns that need to be uploaded
+      const pendingPatterns = estampaPatterns.filter(p => !p.url && p.base64);
+      
+      if (pendingPatterns.length > 0) {
+        // Upload them sequentially to avoid overloading
+        pendingPatterns.forEach((pat, idx) => {
+          fetch('/api/salvar-estampa', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              base64: pat.base64,
+              mimeType: pat.mimeType || 'image/png',
+              sessionId,
+            })
+          })
+          .then(r => r.json())
+          .then(r => {
+            if (r.url) {
+              setEstampaPatterns(prev => {
+                const next = [...prev];
+                const pIdx = next.findIndex(p => p.base64 === pat.base64);
+                if (pIdx >= 0) {
+                  next[pIdx] = { ...next[pIdx], url: r.url };
+                }
+                return next;
+              });
+            }
+          })
+          .catch(() => {});
+        });
+      } else if (activePat?.url) {
+        // All have URLs, just select the active one
         fetch('/api/salvar-estampa', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
             action: 'select',
             sessionId,
-            selectedUrl: pat.url,
-            base64: pat.base64,
-            mimeType: pat.mimeType
+            selectedUrl: activePat.url,
+            base64: activePat.base64,
+            mimeType: activePat.mimeType
           })
         }).catch(() => {});
       }
@@ -10359,15 +10399,15 @@ function EntregaContent({ brand, plano, setBrand }) {
     // Recupera estampa do banco: tenta carregar todas as estampas geradas
     let estampaUrls = brand?.estampas_geradas_urls || (brand?.estampa_url ? [brand.estampa_url] : []);
     
-    // Prune to maximum 3 patterns to avoid gallery bloating and save database/Supabase storage memory
-    if (estampaUrls.length > 3) {
+    // Prune to maximum 6 patterns to avoid gallery bloating and save database/Supabase storage memory
+    if (estampaUrls.length > 6) {
       const activeUrl = brand?.estampa_url;
       let urlsToKeep = [];
       if (activeUrl && estampaUrls.includes(activeUrl)) {
         urlsToKeep.push(activeUrl);
       }
       const remainingUrls = estampaUrls.filter(u => u !== activeUrl);
-      const slotsNeeded = 3 - urlsToKeep.length;
+      const slotsNeeded = 6 - urlsToKeep.length;
       if (slotsNeeded > 0) {
         const latestFromRemaining = remainingUrls.slice(-slotsNeeded);
         urlsToKeep = [...urlsToKeep, ...latestFromRemaining];
