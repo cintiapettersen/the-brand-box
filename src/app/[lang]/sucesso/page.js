@@ -1235,21 +1235,39 @@ function EstampaStep({ brand, accentColor, marca, patterns, setPatterns, genCoun
     }
   };
 
-  const download = () => {
+  const download = async () => {
     if (!patternSrc) return;
     const pattern = patterns[selectedIdx];
-    const binary = atob(pattern.base64);
-    const bytes = new Uint8Array(binary.length);
-    for (let i = 0; i < binary.length; i++) bytes[i] = binary.charCodeAt(i);
-    const blob = new Blob([bytes], { type: 'image/png' });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = `Estampa_${marca || 'marca'}.png`;
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
-    setTimeout(() => URL.revokeObjectURL(url), 1000);
+    
+    if (pattern.base64) {
+      const binary = atob(pattern.base64);
+      const bytes = new Uint8Array(binary.length);
+      for (let i = 0; i < binary.length; i++) bytes[i] = binary.charCodeAt(i);
+      const blob = new Blob([bytes], { type: 'image/png' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `Estampa_${marca || 'marca'}.png`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      setTimeout(() => URL.revokeObjectURL(url), 1000);
+    } else if (pattern.url) {
+      try {
+        const response = await fetch(pattern.url);
+        const blob = await response.blob();
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `Estampa_${marca || 'marca'}.png`;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        setTimeout(() => URL.revokeObjectURL(url), 1000);
+      } catch (e) {
+        window.open(pattern.url, '_blank');
+      }
+    }
   };
 
   const makeSeamless = async (type = 'blur') => {

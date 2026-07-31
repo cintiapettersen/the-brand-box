@@ -47,11 +47,11 @@ You are an illustrator who has ONLY 5 tubes of paint. You MUST NOT use any other
 Treat the reference image as a purely structural guide. COMPLETELY DISCARD its colors.
 
 YOUR 5 PAINT TUBES (EXACT HEX CODES ONLY):
-- ${(paleta || [])[0] || ''}
-- ${(paleta || [])[1] || ''}
-- ${(paleta || [])[2] || ''}
-- ${(paleta || [])[3] || ''}
-- ${(paleta || [])[4] || ''}
+- ${(paleta || [])[0] || ''} (Dominant - Use this for the largest or most frequent elements)
+- ${(paleta || [])[1] || ''} (Secondary - Use this for the second most frequent elements)
+- ${(paleta || [])[2] || ''} (Accent - Use this for medium-sized elements)
+- ${(paleta || [])[3] || ''} (Minor - Use this sparingly)
+- ${(paleta || [])[4] || ''} (Detail - Use this only for tiny details or outlines)
 
 RULES:
 1. Every single element you draw (including leaves, stems, flowers, dots) MUST be painted using ONLY one of the 5 hex codes above.
