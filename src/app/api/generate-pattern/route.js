@@ -72,32 +72,34 @@ RULES:
     // 3 VARIAÇÕES ALTAMENTE DISTINTAS — composição completamente redesenhada
     const variationPrompts = [
       // Variação 1 — Composição balanceada, espaçamento elegante e original
-      `${brandContext}Look carefully at the reference image. This is your PRIMARY creative style brief — replicate its drawing technique, line quality, element types (flowers, leaves, shapes), illustration style, and level of detail as closely as possible (70% style DNA).
+      `${brandContext}Look carefully at the reference image. This is your PRIMARY creative style brief — replicate its drawing technique, line quality, element types (flowers, leaves, shapes), illustration style, and level of detail as closely as possible.
 ${colorRule}
 Keep the background white or very light.
 
-Create ONE TILE of a seamless repeating surface pattern using those same elements and drawing style, but in a COMPLETELY NEW, ORIGINAL, AND BALANCED composition (30% creative arrangement). Do NOT copy the reference layout.
+Create ONE TILE of a seamless repeating surface pattern using those same elements and drawing style, but in a COMPLETELY NEW, ORIGINAL, AND BALANCED composition.
+CRITICAL RULE: DO NOT COPY THE LAYOUT OF THE REFERENCE IMAGE. You MUST create a completely different arrangement of the elements. Shuffle their positions, sizes, and orientations so the new pattern looks like a brand new design, not a clone.
 
 ${seamless}
 Composition Style: Balanced and elegant, moderate density. Distinct scale of elements. Style context: ${hint}.`,
 
       // Variação 2 — Composição Minimalista e Extremamente Espaçada (Layout "Airy")
-      `${brandContext}Study the reference image carefully. Replicate its exact illustration style, textures, and drawing technique faithfully (70% style DNA).
+      `${brandContext}Study the reference image carefully. Replicate its exact illustration style, textures, and drawing technique faithfully.
 ${colorRule}
 Keep the background white or very light.
 
-Create ONE TILE of a seamless repeating surface pattern. Compared to the reference and typical layouts, make this version a MINIMALIST, HIGHLY AIRY composition (30% creative arrangement). Use FEWER elements per tile, scattered EVENLY across the entire canvas with large open spaces of solid color between them. 
-CRITICAL: Do NOT leave a giant blank hole in the center. The elements must be distributed evenly throughout the tile, just spaced further apart than usual.
+Create ONE TILE of a seamless repeating surface pattern. Compared to the reference and typical layouts, make this version a MINIMALIST, HIGHLY AIRY composition. Use FEWER elements per tile, scattered EVENLY across the entire canvas with large open spaces of solid color between them. 
+CRITICAL RULE: DO NOT COPY THE LAYOUT OF THE REFERENCE IMAGE. Do NOT leave a giant blank hole in the center. The elements must be distributed evenly throughout the tile, just spaced further apart than usual.
 
 ${seamless}
 Composition Style: High negative space, minimalist, evenly scattered and airy. Highly distinct from previous compositions. Very low density. Style context: ${hint}.`,
 
       // Variação 3 — Composição Dinâmica com Movimento Diagonal e Diferença de Escala
-      `${brandContext}Use the reference image as your main creative direction — match its illustration style, element types, drawing technique, and proportions faithfully (70% style DNA).
+      `${brandContext}Use the reference image as your main creative direction — match its illustration style, element types, drawing technique, and proportions faithfully.
 ${colorRule}
 Keep the background white or very light.
 
-Create ONE TILE of a seamless repeating surface pattern. Arrange the elements to create a DYNAMIC FLOWING MOVEMENT (like a soft diagonal breeze or organic waving paths) (30% creative arrangement). Rotate, tilt, and vary the orientations of the elements dynamically so they are NOT all standing upright. Introduce a HUGE SCALE CONTRAST (some elements very tiny, some very large).
+Create ONE TILE of a seamless repeating surface pattern. Arrange the elements to create a DYNAMIC FLOWING MOVEMENT (like a soft diagonal breeze or organic waving paths). Rotate, tilt, and vary the orientations of the elements dynamically so they are NOT all standing upright. Introduce a HUGE SCALE CONTRAST (some elements very tiny, some very large).
+CRITICAL RULE: DO NOT COPY THE LAYOUT OF THE REFERENCE IMAGE. You MUST create a completely different arrangement of the elements.
 
 ${seamless}
 Composition Style: Dynamic diagonal flow, varied rotations, fluid and active. Huge contrast in element sizes. Extremely different from standard upright layouts. Style context: ${hint}.`,
