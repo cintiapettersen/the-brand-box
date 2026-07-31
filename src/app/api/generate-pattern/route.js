@@ -75,6 +75,7 @@ RULES:
       `${brandContext}Look carefully at the reference image. This is your PRIMARY creative style brief — replicate its drawing technique, line quality, and illustration style as closely as possible.
       
 CRITICAL MOTIF RULE: Draw ONLY the types of elements, shapes, or subjects you see in the reference image. Do NOT invent new subjects or draw literal icons of the Brand Essence (e.g., if the brand is a hospital, do not draw stethoscopes). The Brand Essence is only for the emotional vibe.
+CRITICAL NEGATIVE PROMPT: ABSOLUTELY DO NOT DRAW FLOWERS, LEAVES, OR BOTANICAL ELEMENTS unless they are explicitly the main subject of the reference image. If the reference is abstract birds, geometric shapes, or lines, draw ONLY those.
 
 ${colorRule}
 Keep the background white or very light.
@@ -89,6 +90,7 @@ Composition Style: Balanced and elegant, moderate density. Distinct scale of ele
       `${brandContext}Study the reference image carefully. Replicate its exact illustration style, textures, and drawing technique faithfully.
       
 CRITICAL MOTIF RULE: Draw ONLY the types of elements, shapes, or subjects you see in the reference image. Do NOT invent new subjects or draw literal icons of the Brand Essence.
+CRITICAL NEGATIVE PROMPT: ABSOLUTELY DO NOT DRAW FLOWERS, LEAVES, OR BOTANICAL ELEMENTS unless they are explicitly the main subject of the reference image.
 
 ${colorRule}
 Keep the background white or very light.
@@ -103,6 +105,7 @@ Composition Style: High negative space, minimalist, evenly scattered and airy. H
       `${brandContext}Use the reference image as your main creative direction — match its illustration style, drawing technique, and proportions faithfully.
       
 CRITICAL MOTIF RULE: Draw ONLY the types of elements, shapes, or subjects you see in the reference image. Do NOT invent new subjects or draw literal icons of the Brand Essence.
+CRITICAL NEGATIVE PROMPT: ABSOLUTELY DO NOT DRAW FLOWERS, LEAVES, OR BOTANICAL ELEMENTS unless they are explicitly the main subject of the reference image.
 
 ${colorRule}
 Keep the background white or very light.
@@ -207,7 +210,7 @@ Composition Style: Dynamic diagonal flow, varied rotations, fluid and active. Hu
           const seed = Math.floor(Math.random() * 1000000);
           const response = await ai.models.generateImages({
             model: 'imagen-4.0-generate-001',
-            prompt: `A single seamless repeating tile for a premium brand surface pattern. Style DNA: ${estiloNome} — ${hint}. SEAMLESS TILING: Must tile perfectly seamlessly. Elements exiting one edge wrap around and re-enter from the exact opposite edge. Absolutely NO vertical or horizontal seams, NO white borders, NO margins, NO vignettes, and NO grid lines. Background must be 100% solid, flat, and uniform right up to the absolute edges. COMPOSITION: Do not cut or crop main motifs in half inside the tile (except for seamless wrap-around edge bleed at the boundaries). Replicate the drawing technique and elements of style references (70% style influence) but create a completely new, unique and custom arrangement (30% creative composition). Composition layout style: ${fallbackCompositions[compIdx % 3]}. Colors ONLY from palette: ${coresStr}. STRICT COLOR HIERARCHY: Dominant color ${(paleta || [])[0] || ''}, secondary ${(paleta || [])[1] || ''}, accent ${(paleta || [])[2] || ''}, minor ${(paleta || [])[3] || ''}, detail ${(paleta || [])[4] || ''}. Absolutely NO GREEN unless in palette. Leaves/stems must use palette colors. White background. Flat illustration. [Creative Seed: ${seed}]`,
+            prompt: `A single seamless repeating tile for a premium brand surface pattern. Style DNA: ${estiloNome} — ${hint}. SEAMLESS TILING: Must tile perfectly seamlessly. Elements exiting one edge wrap around and re-enter from the exact opposite edge. Absolutely NO vertical or horizontal seams, NO white borders, NO margins, NO vignettes, and NO grid lines. Background must be 100% solid, flat, and uniform right up to the absolute edges. COMPOSITION: Do not cut or crop main motifs in half inside the tile (except for seamless wrap-around edge bleed at the boundaries). Replicate the drawing technique and elements of style references (70% style influence) but create a completely new, unique and custom arrangement (30% creative composition). Composition layout style: ${fallbackCompositions[compIdx % 3]}. Colors ONLY from palette: ${coresStr}. STRICT COLOR HIERARCHY: Dominant color ${(paleta || [])[0] || ''}, secondary ${(paleta || [])[1] || ''}, accent ${(paleta || [])[2] || ''}, minor ${(paleta || [])[3] || ''}, detail ${(paleta || [])[4] || ''}. Absolutely NO GREEN unless in palette. ALL elements must use palette colors. ABSOLUTELY NO FLOWERS OR BOTANICAL ELEMENTS unless explicitly part of the style. White background. Flat illustration. [Creative Seed: ${seed}]`,
             config: { numberOfImages: 1 },
           });
           for (const img of response.generatedImages) {
