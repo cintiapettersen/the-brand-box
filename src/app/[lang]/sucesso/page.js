@@ -1127,20 +1127,9 @@ function EstampaStep({ brand, accentColor, marca, patterns, setPatterns, genCoun
       const sel = paletas.find(p => p.id === brand.selectedPaleta);
       const cores = sel?.paleta_hex || sel?.cores_hex || [];
       
-      // Evolução Genética: Usa as estampas já curtidas como referência primária
-      const likedPatterns = patterns.filter(p => p.url && feedbackState[p.url] === 'liked').map(p => p.url);
-      
-      let refs = [];
-      if (likedPatterns.length > 0) {
-        // Se temos estampas curtidas, usamos elas como a semente evolutiva!
-        refs = [...likedPatterns].sort(() => Math.random() - 0.5);
-        console.log(`🧬 Evolução Ativada! Usando ${refs.length} estampa(s) curtida(s) como base.`);
-      } else {
-        // Fallback: Moodboard original do Pinterest
-        const estampas = (estampasRef && estampasRef.length > 0) ? estampasRef : (brand.estampas || []);
-        const shuffled = [...estampas].sort(() => Math.random() - 0.5);
-        refs = shuffled.map(e => e.image_url).filter(Boolean);
-      }
+      const estampas = (estampasRef && estampasRef.length > 0) ? estampasRef : (brand.estampas || []);
+      const shuffled = [...estampas].sort(() => Math.random() - 0.5);
+      const refs = shuffled.map(e => e.image_url).filter(Boolean);
       
       const currentCount = patterns?.length || 0;
       const requestCount = currentCount === 0 ? 3 : 1;
