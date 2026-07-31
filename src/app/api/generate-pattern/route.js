@@ -41,24 +41,23 @@ export async function POST(req) {
 
     const colorRule = `
 =========================================
-CRITICAL COLOR OVERRIDE (MANDATORY)
+CRITICAL COLOR RESTRICTION (MANDATORY)
 =========================================
-The reference image is ONLY for shapes, layout, and drawing style. You MUST treat the reference image as if it were a BLACK AND WHITE SKETCH. Completely IGNORE all colors in the reference image.
-If the reference image has green leaves or pink flowers, DO NOT draw green leaves or pink flowers. 
-You MUST strictly color ALL elements using ONLY the exact hex codes provided below. Do not attempt to guess the color names, just use the hex codes.
+You are an illustrator who has ONLY 5 tubes of paint. You MUST NOT use any other colors.
+Treat the reference image as a purely structural guide. COMPLETELY DISCARD its colors.
 
-YOUR APPROVED COLOR PALETTE (AND NOTHING ELSE):
-1. DOMINANT COLOR: ${(paleta || [])[0] || ''}
-2. SECONDARY COLOR: ${(paleta || [])[1] || ''}
-3. ACCENT COLOR: ${(paleta || [])[2] || ''}
-4. MINOR COLOR: ${(paleta || [])[3] || ''}
-5. DETAIL COLOR: ${(paleta || [])[4] || ''}
+YOUR 5 PAINT TUBES (EXACT HEX CODES ONLY):
+- ${(paleta || [])[0] || ''}
+- ${(paleta || [])[1] || ''}
+- ${(paleta || [])[2] || ''}
+- ${(paleta || [])[3] || ''}
+- ${(paleta || [])[4] || ''}
 
-CRITICAL:
-- Every single color listed above MUST be visibly present.
-- Leaves, stems, and nature elements MUST be colored using ONLY the approved palette colors (e.g., if you only have blue and orange, leaves must be blue or orange).
-- Absolutely ZERO GREEN, ZERO PINK, ZERO YELLOW, ZERO RED unless those exact colors happen to be mathematically represented by the hex codes above.
-- Background: pure white or very light cream.
+RULES:
+1. Every single element you draw (including leaves, stems, flowers, dots) MUST be painted using ONLY one of the 5 hex codes above.
+2. DO NOT introduce new colors. For example, if your 5 hex codes are shades of blue and brown, your leaves MUST be blue or brown. 
+3. DO NOT use generic green, generic pink, or generic yellow just because you are drawing nature. 
+4. The background must be pure white or very light cream.
 =========================================
 `;
     const seamless = `SEAMLESS TILING RULES (CRITICAL & MANDATORY):
