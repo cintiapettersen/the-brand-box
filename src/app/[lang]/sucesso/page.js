@@ -1537,7 +1537,7 @@ function EstampaStep({ brand, accentColor, marca, patterns, setPatterns, genCoun
             </div>
           )}
           {/* Botões: varinha mágica + reverter */}
-          {patternSrc && !generating && (
+          {patternSrc && !generating && viewMode === 'repetida' && (
             <div style={{ display: 'flex', justifyContent: 'center', gap: '8px', marginTop: '6px', flexWrap: 'wrap' }}>
               <button
                 onClick={() => makeSeamless('blur')}
@@ -1740,7 +1740,7 @@ function EstampaStep({ brand, accentColor, marca, patterns, setPatterns, genCoun
         </p>
       )}
 
-      {patternSrc && setPatternScale && (
+      {patternSrc && setPatternScale && viewMode === 'repetida' && (
         <div style={{ display: 'flex', alignItems: 'center', gap: '10px', padding: '8px 14px', background: '#f7f7f5', borderRadius: '12px' }}>
           <span style={{ fontSize: '0.68rem', color: '#999', textTransform: 'uppercase', letterSpacing: '1px', fontWeight: 600, whiteSpace: 'nowrap' }}>{dictionary?.pattern_tab?.size || 'TAMANHO'}</span>
           <input type="range" min="50" max="600" step="10"
