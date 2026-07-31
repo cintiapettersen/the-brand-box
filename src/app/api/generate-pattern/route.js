@@ -54,9 +54,9 @@ YOUR 5 PAINT TUBES (EXACT HEX CODES ONLY):
 - ${(paleta || [])[4] || ''} (Detail - Use this only for tiny details or outlines)
 
 RULES:
-1. Every single element you draw (including leaves, stems, flowers, dots) MUST be painted using ONLY one of the 5 hex codes above.
-2. DO NOT introduce new colors. For example, if your 5 hex codes are shades of blue and brown, your leaves MUST be blue or brown. 
-3. DO NOT use generic green, generic pink, or generic yellow just because you are drawing nature. 
+1. Every single element you draw MUST be painted using ONLY one of the 5 hex codes above.
+2. DO NOT introduce new colors. The entire image must be composed strictly of these 5 colors plus the background color.
+3. DO NOT use generic or default colors. You must sample EXACTLY the hex codes provided.
 4. The background must be pure white or very light cream.
 =========================================
 `;
@@ -72,7 +72,7 @@ RULES:
     // 3 VARIAÇÕES ALTAMENTE DISTINTAS — composição completamente redesenhada
     const variationPrompts = [
       // Variação 1 — Composição balanceada, espaçamento elegante e original
-      `${brandContext}Look carefully at the reference image. This is your PRIMARY creative style brief — replicate its drawing technique, line quality, element types (flowers, leaves, shapes), illustration style, and level of detail as closely as possible.
+      `${brandContext}Look carefully at the reference image. This is your PRIMARY creative style brief — replicate its drawing technique, line quality, element types (whatever shapes or subjects are present), illustration style, and level of detail as closely as possible.
 ${colorRule}
 Keep the background white or very light.
 
