@@ -331,6 +331,8 @@ export default function Home() {
   const [refinementStep, setRefinementStep] = useState('idle');
   const [paletteFeedback, setPaletteFeedback] = useState(null);
   const [isPaletteFeedbackLoading, setIsPaletteFeedbackLoading] = useState(false);
+  const [paletteFeedbackError, setPaletteFeedbackError] = useState(null);
+  const [lastPaletteParams, setLastPaletteParams] = useState(null);
   const [paletteConsultations, setPaletteConsultations] = useState([]);
   const [showPaletteConsultant, setShowPaletteConsultant] = useState(false);
   const [primaryRejectionReason, setPrimaryRejectionReason] = useState('');
@@ -907,6 +909,7 @@ export default function Home() {
   const selectPaletteForColor = (paletteId) => {
     clearPaletteFeedbackForSelection(paletteId);
     setSelectedPaleta(paletteId);
+    setEditData(prev => ({ ...prev, corAtiva: null }));
     setTimeout(() => setCustomStep('cor'), 300);
   };
 
@@ -914,7 +917,9 @@ export default function Home() {
     const requestId = `${selectedPaleta}:${primaryColor}:${Date.now()}`;
     paletteFeedbackRequestRef.current = requestId;
     setPaletteFeedback(null);
+    setPaletteFeedbackError(null);
     setIsPaletteFeedbackLoading(true);
+    setLastPaletteParams({ primaryColor, palette });
 
     try {
       const response = await fetch('/api/creative-director/palette-feedback', {
@@ -931,12 +936,22 @@ export default function Home() {
         })
       });
 
-      if (!response.ok || paletteFeedbackRequestRef.current !== requestId) return;
+      if (!response.ok || paletteFeedbackRequestRef.current !== requestId) {
+        if (!response.ok) {
+          setPaletteFeedbackError(lang === 'en'
+            ? 'AI Creative Director is temporarily unavailable for this palette.'
+            : 'A avaliação da Diretora IA está temporariamente indisponível para esta paleta.');
+        }
+        return;
+      }
       const feedback = await response.json();
       try { localStorage.setItem('brandbox_progress', JSON.stringify({ ...(JSON.parse(localStorage.getItem('brandbox_progress') || '{}')), paletteFeedback: { ...feedback, context: { journeyId: resultadoFinal?.creativeDirectorJourneyId || null, styleId: selectedPaletteDetails?.styleId || null, paletteId: selectedPaletteDetails?.id || null, hex: selectedPaletteDetails?.hex || [], primaryColor, language: lang } }, customStep: 'cor', selectedPaleta, editData: { ...editData, corAtiva: primaryColor }, resultadoFinal })); } catch {}
       setPaletteFeedback({ ...feedback, context: { journeyId: resultadoFinal?.creativeDirectorJourneyId || null, styleId: selectedPaletteDetails?.styleId || null, paletteId: selectedPaletteDetails?.id || null, hex: selectedPaletteDetails?.hex || [], primaryColor, language: lang } });
     } catch (error) {
-      console.warn('Feedback de paleta indisponível; mantendo o fluxo de escolha.', error);
+      console.warn('Feedback de paleta falhou:', error);
+      setPaletteFeedbackError(lang === 'en'
+        ? 'Connection error. Please try again.'
+        : 'Erro de conexão. Por favor, tente novamente.');
     } finally {
       if (paletteFeedbackRequestRef.current === requestId) setIsPaletteFeedbackLoading(false);
     }
@@ -2352,20 +2367,10 @@ export default function Home() {
                     </div>
                   </div>
 
-                  <div style={{ marginTop: '1.25rem', paddingTop: '1rem', borderTop: '1px solid var(--border)', textAlign: 'center' }}>
-                    <button
-                      type="button"
-                      onClick={startCreativeRefinement}
-                      disabled={isRefinementLoading}
-                      className="btn-secondary"
-                      style={{ padding: '0.85rem 1.2rem', fontSize: '0.9rem', opacity: isRefinementLoading ? 0.65 : 1 }}
-                    >
-                      {refineCopy.button}
-                    </button>
-                  </div>
+                  {/* CTA button was moved to the bottom next to Customize */}
 
                   {showRefinement && (
-                    <div style={{ marginTop: '1rem', background: 'var(--bg-color)', borderRadius: '16px', padding: '1rem', border: '1px solid var(--border)' }}>
+                    <div style={{ marginTop: '1rem', width: '100%', maxWidth: '620px', background: 'var(--bg-color)', borderRadius: '16px', padding: '1rem', border: '1px solid var(--border)', textAlign: 'left' }}>
                       {isRefinementLoading && (
                         <p style={{ color: 'var(--text-secondary)', fontSize: '0.85rem', textAlign: 'center', margin: 0 }}>
                           {refinementStep === 'question' ? refineCopy.loadingQuestion : refineCopy.loadingResolution}
@@ -2401,14 +2406,20 @@ export default function Home() {
                             <button
                               type="button"
                               onClick={submitCreativeRefinement}
-                              disabled={!refinementAnswer.trim() || isRefinementLoading}
+                              disabled={!refinementAnswer.trim() || isRefinementLoading || isAdvancingFromRefinement}
                               className="btn-primary"
-                              style={{ padding: '0.8rem 1rem', opacity: refinementAnswer.trim() && !isRefinementLoading ? 1 : 0.55 }}
+                              style={{ padding: '0.8rem 1rem', opacity: refinementAnswer.trim() && !isRefinementLoading && !isAdvancingFromRefinement ? 1 : 0.55 }}
                             >
                               {refineCopy.analyze}
                             </button>
-                            <button type="button" onClick={keepCurrentDirection} className="btn-secondary" style={{ padding: '0.8rem 1rem' }}>
-                              {refineCopy.keepCurrent}
+                            <button
+                              type="button"
+                              onClick={handleKeepOriginalDirection}
+                              disabled={isAdvancingFromRefinement}
+                              className="btn-secondary"
+                              style={{ padding: '0.8rem 1rem' }}
+                            >
+                              {refineCopy.keepOriginalBefore}
                             </button>
                           </div>
                         </div>
@@ -2450,9 +2461,26 @@ export default function Home() {
                               </p>
                             </div>
                           )}
-                          <button type="button" onClick={keepCurrentDirection} className="btn-secondary" style={{ padding: '0.8rem 1rem', justifySelf: 'center' }}>
-                            {refineCopy.keepCurrent}
-                          </button>
+                          <div style={{ display: 'flex', gap: '0.75rem', marginTop: '0.5rem', flexWrap: 'wrap', justifyContent: 'center' }}>
+                            <button
+                              type="button"
+                              onClick={handleUseRefinedDirection}
+                              disabled={isAdvancingFromRefinement}
+                              className="btn-primary"
+                              style={{ background: 'var(--accent-magenta)', color: '#ffffff', padding: '0.85rem 1.25rem', fontWeight: 600, fontSize: '0.88rem', opacity: isAdvancingFromRefinement ? 0.65 : 1 }}
+                            >
+                              {refineCopy.useRefined}
+                            </button>
+                            <button
+                              type="button"
+                              onClick={handleKeepOriginalDirection}
+                              disabled={isAdvancingFromRefinement}
+                              className="btn-secondary"
+                              style={{ padding: '0.85rem 1.25rem', fontSize: '0.88rem', opacity: isAdvancingFromRefinement ? 0.65 : 1 }}
+                            >
+                              {refineCopy.keepOriginal}
+                            </button>
+                          </div>
                         </div>
                       )}
 
@@ -2465,7 +2493,7 @@ export default function Home() {
                             <button type="button" onClick={startCreativeRefinement} className="btn-primary" style={{ padding: '0.8rem 1rem' }}>
                               {refineCopy.retry}
                             </button>
-                            <button type="button" onClick={keepCurrentDirection} className="btn-secondary" style={{ padding: '0.8rem 1rem' }}>
+                            <button type="button" onClick={handleKeepOriginalDirection} className="btn-secondary" style={{ padding: '0.8rem 1rem' }}>
                               {refineCopy.close}
                             </button>
                           </div>
@@ -2476,9 +2504,25 @@ export default function Home() {
                 </div></div>
               )}
 
-              {effectiveCreativeDirectorStatus === 'ready' && (<button onClick={fetchVariacoes} className="btn-primary" style={{ background: 'var(--accent-magenta)', color: 'var(--text-primary)', boxShadow: 'none' }}>{dictionary?.postmatch?.step_9_btn_customize || 'Personalizar minha Identidade'}</button>)}
+              {effectiveCreativeDirectorStatus === 'ready' && (
+                <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '10px', width: '100%', maxWidth: '400px' }}>
+                  <button onClick={fetchVariacoes} className="btn-primary" style={{ background: 'var(--accent-magenta)', color: '#ffffff', boxShadow: 'none', width: '100%' }}>
+                    {dictionary?.postmatch?.step_9_btn_customize || 'Personalizar minha Identidade'}
+                  </button>
 
-              {false && <button onClick={fetchVariacoes} className="btn-primary">{dictionary?.postmatch?.step_9_btn_customize || 'Personalizar minha Identidade'}</button>}
+                  {resultadoFinal.creativeDirector && (
+                    <button
+                      type="button"
+                      onClick={startCreativeRefinement}
+                      disabled={isRefinementLoading}
+                      className="btn-secondary"
+                      style={{ padding: '0.75rem 1.2rem', fontSize: '0.85rem', opacity: isRefinementLoading ? 0.65 : 1, width: '100%' }}
+                    >
+                      ✨ {refineCopy.button}
+                    </button>
+                  )}
+                </div>
+              )}
 
               {refazerAttempts < 2 ? (
                 <button
@@ -2645,13 +2689,20 @@ export default function Home() {
                                         }} />
                                       ))}
                                     </div>
-                                    <div style={{ padding: '8px 10px', background: 'rgba(255,255,255,0.92)', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '8px' }}>
-                                      <p style={{ fontSize: '0.58rem', fontWeight: 800, letterSpacing: '1.4px', textTransform: 'uppercase', color: 'var(--text-secondary)', margin: 0 }}>
-                                        {paletteLabel}
-                                      </p>
-                                      {isSelected && <span style={{ width: '7px', height: '7px', borderRadius: '999px', background: 'var(--accent-magenta)', flexShrink: 0 }} />}
+                                      <div style={{ padding: '8px 10px', background: 'rgba(255,255,255,0.92)', display: 'flex', flexDirection: 'column', gap: '4px' }}>
+                                        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '8px' }}>
+                                          <p style={{ fontSize: '0.62rem', fontWeight: 800, letterSpacing: '1px', textTransform: 'uppercase', color: 'var(--text-primary)', margin: 0 }}>
+                                            {p.nome_variacao || p.nome || paletteLabel}
+                                          </p>
+                                          {isSelected && <span style={{ width: '7px', height: '7px', borderRadius: '999px', background: 'var(--accent-magenta)', flexShrink: 0 }} />}
+                                        </div>
+                                        {(p.rationale || p.justificativa) && (
+                                          <p style={{ fontSize: '0.6rem', color: '#666', lineHeight: 1.35, margin: 0, fontFamily: 'Montserrat, sans-serif', fontWeight: 500 }}>
+                                            {p.rationale || p.justificativa}
+                                          </p>
+                                        )}
+                                      </div>
                                     </div>
-                                  </div>
                                 ) : (
                                   <img src={`${p.image_url}?t=${Date.now()}`} alt={p.nome_variacao} style={{ width: '100%', height: '158px', objectFit: 'cover' }} />
                                 )}
@@ -2784,6 +2835,22 @@ export default function Home() {
                             <p style={{ margin: 0, fontSize: '0.84rem', color: 'var(--text-primary)', lineHeight: 1.45 }}>{paletteFeedback.summary}</p>
                             <p style={{ margin: 0, fontSize: '0.8rem', color: 'var(--text-secondary)', lineHeight: 1.4 }}><strong>{lang === 'en' ? 'Strength:' : 'Ponto forte:'}</strong> {paletteFeedback.strength}</p>
                             <p style={{ margin: 0, fontSize: '0.8rem', color: 'var(--text-secondary)', lineHeight: 1.4 }}><strong>{lang === 'en' ? 'Attention:' : 'Atenção:'}</strong> {paletteFeedback.caution}</p>
+                          </div>
+                        )}
+                        {paletteFeedbackError && !isPaletteFeedbackLoading && (
+                          <div style={{ width: '100%', maxWidth: '420px', padding: '0.8rem 1rem', border: '1.5px solid #fecaca', borderRadius: '14px', background: '#fff5f5', display: 'flex', flexDirection: 'column', gap: '0.4rem', textAlign: 'center' }}>
+                            <p style={{ margin: 0, fontSize: '0.75rem', color: '#dc2626', fontWeight: 600 }}>
+                              ⚠️ {paletteFeedbackError}
+                            </p>
+                            {lastPaletteParams && (
+                              <button
+                                type="button"
+                                onClick={() => requestPaletteFeedback(lastPaletteParams.primaryColor, lastPaletteParams.palette)}
+                                style={{ alignSelf: 'center', padding: '5px 12px', background: '#fff', border: '1px solid #fca5a5', borderRadius: '16px', fontSize: '0.7rem', fontWeight: 700, color: '#dc2626', cursor: 'pointer' }}
+                              >
+                                {lang === 'en' ? '🔄 Try again' : '🔄 Tentar novamente'}
+                              </button>
+                            )}
                           </div>
                         )}
                      </motion.div>
