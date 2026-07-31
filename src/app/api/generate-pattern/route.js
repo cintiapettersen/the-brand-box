@@ -72,11 +72,14 @@ RULES:
     // 3 VARIAÇÕES ALTAMENTE DISTINTAS — composição completamente redesenhada
     const variationPrompts = [
       // Variação 1 — Composição balanceada, espaçamento elegante e original
-      `${brandContext}Look carefully at the reference image. This is your PRIMARY creative style brief — replicate its drawing technique, line quality, element types (whatever shapes or subjects are present), illustration style, and level of detail as closely as possible.
+      `${brandContext}Look carefully at the reference image. This is your PRIMARY creative style brief — replicate its drawing technique, line quality, and illustration style as closely as possible.
+      
+CRITICAL MOTIF RULE: Draw ONLY the types of elements, shapes, or subjects you see in the reference image. Do NOT invent new subjects or draw literal icons of the Brand Essence (e.g., if the brand is a hospital, do not draw stethoscopes). The Brand Essence is only for the emotional vibe.
+
 ${colorRule}
 Keep the background white or very light.
 
-Create ONE TILE of a seamless repeating surface pattern using those same elements and drawing style, but in a COMPLETELY NEW, ORIGINAL, AND BALANCED composition.
+Create ONE TILE of a seamless repeating surface pattern using those same reference elements and drawing style, but in a COMPLETELY NEW, ORIGINAL, AND BALANCED composition.
 CRITICAL RULE: DO NOT COPY THE LAYOUT OF THE REFERENCE IMAGE. You MUST create a completely different arrangement of the elements. Shuffle their positions, sizes, and orientations so the new pattern looks like a brand new design, not a clone.
 
 ${seamless}
@@ -84,6 +87,9 @@ Composition Style: Balanced and elegant, moderate density. Distinct scale of ele
 
       // Variação 2 — Composição Minimalista e Extremamente Espaçada (Layout "Airy")
       `${brandContext}Study the reference image carefully. Replicate its exact illustration style, textures, and drawing technique faithfully.
+      
+CRITICAL MOTIF RULE: Draw ONLY the types of elements, shapes, or subjects you see in the reference image. Do NOT invent new subjects or draw literal icons of the Brand Essence.
+
 ${colorRule}
 Keep the background white or very light.
 
@@ -94,7 +100,10 @@ ${seamless}
 Composition Style: High negative space, minimalist, evenly scattered and airy. Highly distinct from previous compositions. Very low density. Style context: ${hint}.`,
 
       // Variação 3 — Composição Dinâmica com Movimento Diagonal e Diferença de Escala
-      `${brandContext}Use the reference image as your main creative direction — match its illustration style, element types, drawing technique, and proportions faithfully.
+      `${brandContext}Use the reference image as your main creative direction — match its illustration style, drawing technique, and proportions faithfully.
+      
+CRITICAL MOTIF RULE: Draw ONLY the types of elements, shapes, or subjects you see in the reference image. Do NOT invent new subjects or draw literal icons of the Brand Essence.
+
 ${colorRule}
 Keep the background white or very light.
 
