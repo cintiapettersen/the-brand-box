@@ -87,10 +87,11 @@ Composition Style: Balanced and elegant, moderate density. Distinct scale of ele
 ${colorRule}
 Keep the background white or very light.
 
-Create ONE TILE of a seamless repeating surface pattern. Compared to the reference and typical layouts, make this version a MINIMALIST, HIGHLY AIRY composition (30% creative arrangement). Use FEWER elements per tile, with large open spaces of solid color between them. The motifs should be slightly larger and arranged with plenty of breathing room.
+Create ONE TILE of a seamless repeating surface pattern. Compared to the reference and typical layouts, make this version a MINIMALIST, HIGHLY AIRY composition (30% creative arrangement). Use FEWER elements per tile, scattered EVENLY across the entire canvas with large open spaces of solid color between them. 
+CRITICAL: Do NOT leave a giant blank hole in the center. The elements must be distributed evenly throughout the tile, just spaced further apart than usual.
 
 ${seamless}
-Composition Style: High negative space, minimalist, scattered and airy. Highly distinct from previous compositions. Very low density. Style context: ${hint}.`,
+Composition Style: High negative space, minimalist, evenly scattered and airy. Highly distinct from previous compositions. Very low density. Style context: ${hint}.`,
 
       // Variação 3 — Composição Dinâmica com Movimento Diagonal e Diferença de Escala
       `${brandContext}Use the reference image as your main creative direction — match its illustration style, element types, drawing technique, and proportions faithfully (70% style DNA).
