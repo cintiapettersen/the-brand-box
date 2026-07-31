@@ -1135,12 +1135,14 @@ function EstampaStep({ brand, accentColor, marca, patterns, setPatterns, genCoun
       console.log(`🎨 Gerando com ${refs.length} referência(s). Solicitando ${requestCount} estampa(s).`);
 
       const replaceUrl = (replaceIdx !== null && patterns[replaceIdx]) ? patterns[replaceIdx].url : null;
+      const paletteNames = paletteColors.map(hex => colorNamePT(hex, dictionary));
 
       const res = await fetch('/api/generate-pattern', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           paleta: paletteColors,
+          paletaNomes: paletteNames,
           estiloNome: ESTILO_NOME_BY_ID[brand.resultadoFinal?.estiloId] || brand.resultadoFinal?.estiloNome || '',
           marca: marca || brand.formData?.marca || '',
           descricao: brand.resultadoFinal?.mensagem || '',

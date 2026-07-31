@@ -2,7 +2,7 @@ import { GoogleGenAI } from "@google/genai";
 
 export async function POST(req) {
   try {
-    const { paleta, estiloNome, marca, descricao, referenceUrls, count } = await req.json();
+    const { paleta, paletaNomes, estiloNome, marca, descricao, referenceUrls, count } = await req.json();
     const requestCount = typeof count === 'number' ? count : 3;
 
     const ai = new GoogleGenAI({ apiKey: (process.env.GEMINI_API_KEY ? process.env.GEMINI_API_KEY.replace(/['"]/g, '') : undefined) });
@@ -37,6 +37,7 @@ export async function POST(req) {
       'Estético Editorial':    'clean aesthetic, structured and clinical beauty, modern abstract geometric precision, high-end editorial look',
     };
     const hint = styleHints[estiloNome] || 'elegant and delicate';
+    const pn = paletaNomes || [];
 
     const colorRule = `
 =========================================
@@ -47,16 +48,16 @@ If the reference image has green leaves or pink flowers, DO NOT draw green leave
 You MUST strictly color ALL elements using ONLY the exact hex colors provided below. 
 
 YOUR APPROVED COLOR PALETTE (AND NOTHING ELSE):
-1. DOMINANT COLOR: ${(paleta || [])[0] || ''}
-2. SECONDARY COLOR: ${(paleta || [])[1] || ''}
-3. ACCENT COLOR: ${(paleta || [])[2] || ''}
-4. MINOR COLOR: ${(paleta || [])[3] || ''}
-5. DETAIL COLOR: ${(paleta || [])[4] || ''}
+1. DOMINANT COLOR: ${(paleta || [])[0] || ''} (${pn[0] || 'Base'})
+2. SECONDARY COLOR: ${(paleta || [])[1] || ''} (${pn[1] || 'Secondary'})
+3. ACCENT COLOR: ${(paleta || [])[2] || ''} (${pn[2] || 'Accent'})
+4. MINOR COLOR: ${(paleta || [])[3] || ''} (${pn[3] || 'Minor'})
+5. DETAIL COLOR: ${(paleta || [])[4] || ''} (${pn[4] || 'Detail'})
 
 CRITICAL:
 - Every single color listed above MUST be visibly present.
 - Leaves, stems, and nature elements MUST be colored using ONLY the approved palette colors (e.g., if you only have blue and orange, leaves must be blue or orange).
-- ZERO GREEN, ZERO PINK, ZERO RED, ZERO YELLOW unless explicitly provided in the hex list above.
+- ZERO GREEN, ZERO HOT PINK, ZERO NEON, ZERO YELLOW unless explicitly provided in the hex list above. Use the exact sophisticated shades provided.
 - Background: pure white or very light cream.
 =========================================
 `;
