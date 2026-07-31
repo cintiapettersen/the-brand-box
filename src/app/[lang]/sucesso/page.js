@@ -487,6 +487,12 @@ function SectionLabel({ children }) {
 
 export function getMaxPatternGenerations(brand) {
   const isDemo = brand?.isDemo || brand?.id?.includes('demo') || (typeof window !== 'undefined' && (new URLSearchParams(window.location.search).get('demo') === '1' || new URLSearchParams(window.location.search).get('demo') === 'BUILDWEEK100' || new URLSearchParams(window.location.search).get('session') === '0da0b9d0-f6f6-4743-a349-365e0cb16-demo'));
+  
+  const marcaName = (brand?.formData?.marca || brand?.editData?.marca || '').toLowerCase().trim();
+  if (marcaName === 'baby boom') {
+    return 50; // Increased limit specifically for testing the Baby Boom project
+  }
+  
   return isDemo ? 5 : 6;
 }
 
