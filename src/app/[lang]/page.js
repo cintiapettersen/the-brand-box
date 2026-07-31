@@ -329,6 +329,8 @@ export default function Home() {
   const [refinementAnswer, setRefinementAnswer] = useState('');
   const [isRefinementLoading, setIsRefinementLoading] = useState(false);
   const [refinementStep, setRefinementStep] = useState('idle');
+  const [refinementConfirmation, setRefinementConfirmation] = useState('');
+  const [isAdvancingFromRefinement, setIsAdvancingFromRefinement] = useState(false);
   const [paletteFeedback, setPaletteFeedback] = useState(null);
   const [isPaletteFeedbackLoading, setIsPaletteFeedbackLoading] = useState(false);
   const [paletteFeedbackError, setPaletteFeedbackError] = useState(null);
@@ -631,8 +633,8 @@ export default function Home() {
     }
   };
 
-  const fetchVariacoes = async () => {
-    const id = resultadoFinal?.estiloId || 1;
+  const fetchVariacoes = async (overrideEstiloId = null) => {
+    const id = (typeof overrideEstiloId === 'number' || typeof overrideEstiloId === 'string') ? overrideEstiloId : (resultadoFinal?.estiloId || 1);
     setLoadingVariacoes(true);
     
     try {
@@ -1224,11 +1226,86 @@ export default function Home() {
     }
   };
 
-  const keepCurrentDirection = () => {
-    setShowRefinement(false);
-    setRefinementStep('idle');
-    setRefinementQuestion(null);
-    setRefinementAnswer('');
+  const handleUseRefinedDirection = async () => {
+    const currentRefinement = resultadoFinal?.creativeDirector?.refinement;
+    if (!currentRefinement || isAdvancingFromRefinement) return;
+
+    setIsAdvancingFromRefinement(true);
+
+    let targetEstiloId = resultadoFinal.estiloId;
+    let targetEstiloNome = resultadoFinal.estiloNome;
+
+    if (currentRefinement.estiloAlternativoId && currentRefinement.estiloAlternativoNome) {
+      targetEstiloId = currentRefinement.estiloAlternativoId;
+      targetEstiloNome = currentRefinement.estiloAlternativoNome;
+    }
+
+    const updatedResultado = {
+      ...resultadoFinal,
+      estiloId: targetEstiloId,
+      estiloNome: targetEstiloNome,
+      refinementChoice: 'refined',
+      creativeDirector: {
+        ...resultadoFinal.creativeDirector,
+        refinementChoice: 'refined',
+        activeRefinement: currentRefinement
+      }
+    };
+
+    setResultadoFinal(updatedResultado);
+
+    setFormData(prev => ({
+      ...prev,
+      contextoExtra: [prev.contextoExtra, `[Direção Refinada]: ${currentRefinement.direcaoRefinada}`].filter(Boolean).join(' | ')
+    }));
+
+    try {
+      localStorage.setItem('brandbox_resultado_final', JSON.stringify(updatedResultado));
+    } catch (e) {
+      console.warn('Erro ao persistir resultado final refinado:', e);
+    }
+
+    setRefinementConfirmation(refineCopy.confirmRefined);
+
+    setTimeout(async () => {
+      await fetchVariacoes(targetEstiloId);
+      setIsAdvancingFromRefinement(false);
+      setShowRefinement(false);
+      setRefinementConfirmation('');
+    }, 1200);
+  };
+
+  const handleKeepOriginalDirection = async () => {
+    if (isAdvancingFromRefinement) return;
+
+    setIsAdvancingFromRefinement(true);
+
+    const updatedResultado = {
+      ...resultadoFinal,
+      refinementChoice: 'original',
+      creativeDirector: {
+        ...resultadoFinal.creativeDirector,
+        refinementChoice: 'original',
+        activeRefinement: null
+      }
+    };
+
+    setResultadoFinal(updatedResultado);
+
+    try {
+      localStorage.setItem('brandbox_resultado_final', JSON.stringify(updatedResultado));
+    } catch (e) {
+      console.warn('Erro ao persistir resultado original:', e);
+    }
+
+    setRefinementConfirmation(refineCopy.confirmOriginal);
+
+    setTimeout(async () => {
+      await fetchVariacoes(resultadoFinal?.estiloId || 1);
+      setIsAdvancingFromRefinement(false);
+      setShowRefinement(false);
+      setRefinementConfirmation('');
+    }, 1200);
   };
 
   // Aqui é onde ativamos a Mágica
@@ -2481,6 +2558,12 @@ export default function Home() {
                               {refineCopy.keepOriginal}
                             </button>
                           </div>
+                        </div>
+                      )}
+
+                      {refinementConfirmation && (
+                        <div style={{ background: '#E1EDE7', border: '2px solid var(--accent-turquoise)', color: '#203830', padding: '1rem 1.25rem', borderRadius: '14px', textAlign: 'center', marginTop: '1rem', fontWeight: 600, fontSize: '0.92rem', boxShadow: '0 4px 12px rgba(42, 137, 127, 0.15)' }}>
+                          {refinementConfirmation}
                         </div>
                       )}
 
