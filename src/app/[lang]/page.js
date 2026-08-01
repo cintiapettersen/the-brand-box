@@ -2399,7 +2399,40 @@ export default function Home() {
                 </div>
               )}
 
-              {isCreativeDirectorLoading && (<p role="status" aria-live="polite" style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', marginBottom: '1.25rem' }}>{creativeDiagnosisCopy.loading}</p>)}
+              {isCreativeDirectorLoading && (
+                <motion.div 
+                  initial={{ opacity: 0, y: 10 }} 
+                  animate={{ opacity: 1, y: 0 }} 
+                  style={{ 
+                    background: '#ffffff', 
+                    padding: '1.25rem', 
+                    borderRadius: '16px', 
+                    marginBottom: '1.25rem',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    gap: '1rem',
+                    boxShadow: '0 4px 15px rgba(0,0,0,0.04)',
+                    border: '1px solid var(--border)'
+                  }}
+                >
+                  <motion.div 
+                    animate={{ rotate: 360 }}
+                    transition={{ repeat: Infinity, duration: 1, ease: "linear" }}
+                    style={{
+                      width: '22px',
+                      height: '22px',
+                      borderRadius: '50%',
+                      border: '3px solid var(--bg-soft)',
+                      borderTopColor: 'var(--accent-magenta)',
+                      borderRightColor: 'var(--accent-magenta)'
+                    }} 
+                  />
+                  <p role="status" aria-live="polite" style={{ fontSize: '0.92rem', color: 'var(--text-primary)', fontWeight: 600, margin: 0 }}>
+                    {creativeDiagnosisCopy.loading}
+                  </p>
+                </motion.div>
+              )}
               {effectiveCreativeDirectorStatus === 'fallback' && (<div role="status" style={{ marginBottom: '1.25rem' }}><p>{creativeDiagnosisCopy.fallback}</p><button type="button" className="btn-secondary" onClick={() => runCreativeDirectorDiagnostic(resultadoFinal)} disabled={isCreativeDirectorLoading}>{creativeDiagnosisCopy.retry}</button></div>)}
 
               {resultadoFinal.creativeDirector && (
