@@ -60,7 +60,7 @@ export default function GuiaAmamentacaoPreview({
         <div style={{
           position: 'absolute', top: '6px', left: '6px', right: '6px', bottom: '6px',
           background: '#fff', borderRadius: '1.5px',
-          boxShadow: '0 2px 10px rgba(0,0,0,0.05)', zIndex: 2, overflow: 'hidden',
+          boxShadow: 'none', zIndex: 2, overflow: 'hidden',
           clipPath: (num === 1 && folderRoof) ? 'polygon(0% 12%, 50% 0%, 100% 12%, 100% 100%, 0% 100%)' : 'none',
           transition: 'clip-path 0.3s ease'
         }}>
