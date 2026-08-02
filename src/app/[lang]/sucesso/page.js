@@ -487,7 +487,13 @@ function SectionLabel({ children }) {
 
 export function getMaxPatternGenerations(brand) {
   const isDemo = brand?.isDemo || brand?.id?.includes('demo') || (typeof window !== 'undefined' && (new URLSearchParams(window.location.search).get('demo') === '1' || new URLSearchParams(window.location.search).get('demo') === 'BUILDWEEK100' || new URLSearchParams(window.location.search).get('session') === '0da0b9d0-f6f6-4743-a349-365e0cb16-demo'));
-  return isDemo ? 5 : 3;
+  
+  const marcaName = (brand?.formData?.marca || brand?.editData?.marca || '').toLowerCase().trim();
+  if (marcaName === 'baby boom') {
+    return 50; // Increased limit specifically for testing the Baby Boom project
+  }
+
+  return isDemo ? 5 : 6;
 }
 
 function hexToRgb(hex) {
@@ -1498,7 +1504,7 @@ function EstampaStep({ brand, accentColor, marca, patterns, setPatterns, genCoun
             </div>
           )}
           {/* Botões: varinha mágica + reverter */}
-          {patternSrc && !generating && (
+          {patternSrc && !generating && viewMode === 'repetida' && (
             <div style={{ display: 'flex', justifyContent: 'center', gap: '8px', marginTop: '6px', flexWrap: 'wrap' }}>
               <button
                 onClick={() => makeSeamless('blur')}
@@ -1701,7 +1707,7 @@ function EstampaStep({ brand, accentColor, marca, patterns, setPatterns, genCoun
         </p>
       )}
 
-      {patternSrc && setPatternScale && (
+      {patternSrc && setPatternScale && viewMode === 'repetida' && (
         <div style={{ display: 'flex', alignItems: 'center', gap: '10px', padding: '8px 14px', background: '#f7f7f5', borderRadius: '12px' }}>
           <span style={{ fontSize: '0.68rem', color: '#999', textTransform: 'uppercase', letterSpacing: '1px', fontWeight: 600, whiteSpace: 'nowrap' }}>{dictionary?.pattern_tab?.size || 'TAMANHO'}</span>
           <input type="range" min="50" max="600" step="10"
@@ -9959,7 +9965,26 @@ function EntregaContent({ brand, plano, setBrand }) {
   };
   const [isInitialized, setIsInitialized] = useState(false);
   const [estampaPatterns, setEstampaPatterns] = useState(brand.pattern ? [brand.pattern] : []);
-  const [estampaGenCount, setEstampaGenCount] = useState(brand.patternGenerationCount || 0);
+  const [estampaGenCount, setEstampaGenCountState] = useState(() => {
+    try {
+      const s = localStorage.getItem(`brandbox_gen_count_${brand.id}`);
+      if (s) return parseInt(s, 10);
+    } catch {}
+    return brand.patternGenerationCount || 0;
+  });
+
+  const setEstampaGenCount = (val) => {
+    let newVal;
+    if (typeof val === 'function') {
+      newVal = val(estampaGenCount);
+    } else {
+      newVal = val;
+    }
+    setEstampaGenCountState(newVal);
+    try {
+      localStorage.setItem(`brandbox_gen_count_${brand.id}`, newVal);
+    } catch {}
+  };
   const [estampaSelectedIdx, setEstampaSelectedIdx] = useState(0);
   const [estampaOriginalPattern, setEstampaOriginalPattern] = useState(null); // backup pre-suavização
   const [estampasRef, setEstampasRef] = useState(brand.estampas || []);
@@ -10443,7 +10468,7 @@ function EntregaContent({ brand, plano, setBrand }) {
       )
       .then(pats => {
         setEstampaPatterns(prev => {
-          return prev.map(p => {
+          const next = prev.map(p => {
             // Não sobrescreve patterns editados localmente (url:null = editado)
             if (!p.url && p.base64) return p;
             const loaded = pats.find(lp => lp.url === p.url);
@@ -10451,7 +10476,12 @@ function EntregaContent({ brand, plano, setBrand }) {
               return { ...p, base64: loaded.base64, mimeType: loaded.mimeType };
             }
             return p;
-          });
+          }).filter(p => p.base64 || p.originalBase64 || (!p.url && p.base64));
+          
+          if (estampaSelectedIdx >= next.length && next.length > 0) {
+            setEstampaSelectedIdx(Math.max(0, next.length - 1));
+          }
+          return next;
         });
         const validPats = pats.filter(p => p.base64);
         if (validPats.length > 0) {

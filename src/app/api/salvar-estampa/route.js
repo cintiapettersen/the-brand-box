@@ -9,7 +9,7 @@ const BUCKET = 'estampas';
 
 export async function POST(request) {
   try {
-    const { base64, mimeType, sessionId, allPatterns, replaceUrl, action, selectedUrl } = await request.json();
+    const { base64, mimeType, sessionId, allPatterns, replaceUrl, action, selectedUrl, incrementGenCount } = await request.json();
 
     if (!sessionId) {
       return Response.json({ error: 'Parâmetros ausentes.' }, { status: 400 });
@@ -173,6 +173,7 @@ export async function POST(request) {
         ...current.brand_data,
         estampa_url: publicUrl,
         estampas_geradas_urls: todasUrls,
+        ...(incrementGenCount && { patternGenerationCount: (current.brand_data.patternGenerationCount || 0) + 1 })
       };
       await supabase
         .from('entregas')
