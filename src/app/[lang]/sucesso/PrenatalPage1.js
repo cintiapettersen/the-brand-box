@@ -42,7 +42,7 @@ export default function PrenatalPage1({ accentColor, palette = [], logoComponent
         bottom: '10px', 
         background: '#fff', 
         borderRadius: '2px', 
-        boxShadow: '0 2px 10px rgba(0,0,0,0.1)', 
+        boxShadow: 'none', 
         zIndex: 2, 
         display: 'flex', 
         flexDirection: 'column', 

@@ -56,7 +56,7 @@ const CamisetaPreview = dynamic(() => import('./CamisetaPreview'), { ssr: false 
 const PapelPresentePreview = dynamic(() => import('./PapelPresentePreview'), { ssr: false });
 const GuiaAmamentacaoPreview = dynamic(() => import('./GuiaAmamentacaoPreview'), { ssr: false });
 const GuiaAlimentarPreview = dynamic(() => import('./GuiaAlimentarPreview'), { ssr: false });
-const FolderPage4Dynamic = dynamic(() => import('./FolderPage4Dynamic'), { ssr: false });
+import FolderPage4Dynamic from './FolderPage4Dynamic';
 const CadernetaPreview = dynamic(() => import('./CadernetaPreview'), { ssr: false }); // 176KB — maior ganho
 const CaixaPreview = dynamic(() => import('./CaixaPreview'), { ssr: false });
 
@@ -4610,7 +4610,7 @@ function FolderTrifoldPreview({ brand, editData, logoColor, logoLayout, comBorda
 
   const Art2 = isVacina ? FolderVacinaPage2 : (isDev ? FolderDevPage2 : (isSono ? FolderSonoPage2 : (isCuidados ? FolderCuidadosPage2 : FolderPage2Art)));
   const Art3 = isVacina ? FolderVacinaPage3 : (isDev ? FolderDevPage3 : (isSono ? FolderSonoPage3 : (isCuidados ? FolderCuidadosPage3 : FolderPage3Art)));
-  const Art4 = isVacina ? FolderVacinaPage4 : (isDev ? FolderDevPage4 : (isSono ? FolderSonoPage4 : (isCuidados ? FolderCuidadosPage4 : FolderPage4Art)));
+  const Art4 = isVacina ? FolderVacinaPage4 : (isDev ? FolderDevPage4 : (isSono ? FolderSonoPage4 : (isCuidados ? FolderCuidadosPage4 : (currentItem === 'Guia Alimentar' ? FolderPage4Dynamic : FolderPage4Art))));
   const Art5 = isVacina ? FolderVacinaPage5 : (isDev ? FolderDevPage5 : (isSono ? FolderSonoPage5 : (isCuidados ? FolderCuidadosPage5 : FolderPage5Art)));
   const Art6 = isVacina ? FolderVacinaPage6 : null;
   const Art1 = isVacina ? FolderVacinaPage1 : null;
@@ -4642,7 +4642,7 @@ function FolderTrifoldPreview({ brand, editData, logoColor, logoLayout, comBorda
                )}
                <div style={{ position: 'absolute', inset: 0, background: !patternSrc && comBorda ? `${accentColor}10` : (!comBorda ? 'transparent' : 'transparent') }} />
             </div>
-            <div style={{ position: 'absolute', top: '6px', left: '6px', right: '6px', bottom: '6px', background: '#fff', borderRadius: '1.5px', boxShadow: '0 2px 5px rgba(0,0,0,0.05)', zIndex: 2, display: 'flex', flexDirection: 'column', alignItems: 'center', overflow: 'hidden', justifyContent: 'center' }}>
+            <div style={{ position: 'absolute', top: '6px', left: '6px', right: '6px', bottom: '6px', background: '#fff', borderRadius: '1.5px', boxShadow: 'none', zIndex: 2, display: 'flex', flexDirection: 'column', alignItems: 'center', overflow: 'hidden', justifyContent: 'center' }}>
                <div style={{ width: '100%', height: '100%', transform: 'scale(0.92)', transformOrigin: 'center center' }}>
                  <Art5 accentColor={accentColor} palette={paletteColors} />
                </div>
@@ -4659,9 +4659,9 @@ function FolderTrifoldPreview({ brand, editData, logoColor, logoLayout, comBorda
               <div style={{ position: 'absolute', inset: 0, background: !patternSrc && comBorda ? `${accentColor}10` : 'transparent' }} />
             </div>
             
-             <div style={{ position: 'absolute', top: '6px', left: '6px', right: '6px', bottom: '6px', background: '#fff', borderRadius: '1.5px', boxShadow: '0 2px 5px rgba(0,0,0,0.05)', zIndex: 2, display: 'flex', flexDirection: 'column', alignItems: 'center', overflow: 'hidden' }}>
+             <div style={{ position: 'absolute', top: '6px', left: '6px', right: '6px', bottom: '6px', background: '#fff', borderRadius: '1.5px', boxShadow: 'none', zIndex: 2, display: 'flex', flexDirection: 'column', alignItems: 'center', overflow: 'hidden' }}>
                 <div style={{ position: 'absolute', top: '48%', left: '10px', right: '10px', zIndex: 3, display: 'flex', justifyContent: 'center', transform: 'translateY(-50%)' }}>
-                  <div style={{ width: '92%', background: mainColor, borderRadius: '4px', padding: '12px 14px', textAlign: 'center', position: 'relative', border: `0.4px solid ${mainColor}`, boxShadow: '0 4px 12px rgba(0,0,0,0.1)' }}>
+                  <div style={{ width: '92%', background: mainColor, borderRadius: '4px', padding: '12px 14px', textAlign: 'center', position: 'relative', border: `0.4px solid ${mainColor}`, boxShadow: 'none' }}>
                      <div style={{ fontFamily: `'Great Vibes', cursive`, color: '#fff', fontSize: '9px', marginBottom: '4px', textTransform: 'none' }}>
                        {isSono 
                          ? (lang === 'en' ? '"A well-rested baby is a happier baby!"' : '"Um bebê bem descansado é um bebê mais feliz!"')
@@ -4691,7 +4691,7 @@ function FolderTrifoldPreview({ brand, editData, logoColor, logoLayout, comBorda
 
             {/* ETIQUETA DE DADOS NO RODAPÉ (DISCRETA E ELEGANTE) */}
             {!!(clinicaNome || endereco || allPhones || brand.email || site || instagram) ? (
-              <div style={{ position: 'absolute', bottom: '10px', left: '12px', right: '12px', background: '#fff', border: `0.5px solid ${mainColor}15`, borderRadius: '3px', padding: '4px 10px', zIndex: 4, boxShadow: '0 2px 10px rgba(0,0,0,0.04)', textAlign: 'center', display: 'flex', flexDirection: 'column', gap: '1px' }}>
+              <div style={{ position: 'absolute', bottom: '10px', left: '12px', right: '12px', background: '#fff', border: `0.5px solid ${mainColor}15`, borderRadius: '3px', padding: '4px 10px', zIndex: 4, boxShadow: 'none', textAlign: 'center', display: 'flex', flexDirection: 'column', gap: '1px' }}>
                   {clinicaNome && <div style={{ fontSize: '5.2px', fontWeight: 800, color: mainColor, marginBottom: '0.5px' }}>{clinicaNome}</div>}
                   {endereco && <div style={{ fontSize: '4.2px', color: '#999', fontWeight: 500, lineHeight: 1.1 }}>{endereco}</div>}
                   
@@ -4719,7 +4719,7 @@ function FolderTrifoldPreview({ brand, editData, logoColor, logoLayout, comBorda
                )}
                <div style={{ position: 'absolute', inset: 0, background: !patternSrc && comBorda ? `${accentColor}15` : 'transparent' }} />
             </div>
-            <div style={{ position: 'absolute', top: '10px', left: '10px', right: '10px', bottom: '10px', background: '#fff', borderRadius: '2px', boxShadow: '0 2px 10px rgba(0,0,0,0.1)', zIndex: 2, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', overflow: 'hidden', border: `0.5px solid ${accentColor}15`, clipPath: folderRoof ? 'polygon(0% 12%, 50% 0%, 100% 12%, 100% 100%, 0% 100%)' : 'none', transition: 'clip-path 0.3s ease' }}>
+            <div style={{ position: 'absolute', top: '10px', left: '10px', right: '10px', bottom: '10px', background: '#fff', borderRadius: '2px', boxShadow: 'none', zIndex: 2, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', overflow: 'hidden', border: `0.5px solid ${accentColor}15`, clipPath: folderRoof ? 'polygon(0% 12%, 50% 0%, 100% 12%, 100% 100%, 0% 100%)' : 'none', transition: 'clip-path 0.3s ease' }}>
                 <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'flex-start', paddingTop: '32px', textAlign: 'center', width: '100%', height: '100%' }}>
                   <div style={{ width: '120px', height: '40px', display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: '16px' }}>{logoHtml}</div>
                   <div style={{ width: '22px', height: '1.2px', background: accentColor, marginBottom: '14px', borderRadius: '10px' }} />
@@ -4941,8 +4941,8 @@ function AtestadoPreview({ accentColor, patternSrc, editData, logoColor, logoLay
       <div style={{ position: 'absolute', top: BORDER, left: BORDER, right: BORDER, bottom: BORDER, background: '#fff', clipPath: roofClip }} />
 
       {/* Logo no topo */}
-      <div style={{ position: 'absolute', top: `${BORDER + 18}px`, left: '50%', transform: 'translateX(-50%)', width: '180px', height: '60px', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
-        <LogoPreviewHTML item="Atestado Médico" editData={editData} color={logoColor} layout={logoLayout} scaleFactor={1.1} crm={crmLine} hideTagline={hideTagline} withBackground={false} maxWidth="180px" maxHeight="60px" />
+      <div style={{ position: 'absolute', top: `${BORDER + 18}px`, left: '50%', transform: 'translateX(-50%)', width: '140px', height: '44px', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
+        <LogoPreviewHTML item="Atestado Médico" editData={editData} color={logoColor} layout={logoLayout} scaleFactor={0.65} crm={crmLine} hideTagline={hideTagline} withBackground={false} maxWidth="140px" maxHeight="44px" />
       </div>
 
       {/* Título */}
@@ -6171,13 +6171,33 @@ function PapelariaStep({ brand, accentColor, paletteColors, estampaPatterns, est
       });
 
       for (let i = 0; i < targetElements.length; i++) {
+        // Temporariamente isola o elemento alvo para evitar glitches de altura de documento no html2canvas
+        for (let j = 0; j < targetElements.length; j++) {
+          targetElements[j].style.display = (j === i) ? '' : 'none';
+        }
+        // Força o elemento a casar exatamente com as dimensões da página
         const el = targetElements[i];
+        const origW = el.style.width;
+        const origH = el.style.height;
+        const origOverflow = el.style.overflow;
+        el.style.width = `${pxW}px`;
+        el.style.height = `${pxH}px`;
+        el.style.overflow = 'hidden';
+
+        // Força o iframe a casar exatamente com uma página
+        iframeEl.style.width = `${pxW}px`;
+        iframeEl.style.height = `${pxH}px`;
+
+        await new Promise(r => setTimeout(r, 100));
+
         const canvas = await html2canvas(el, {
           scale: 3,
           useCORS: true,
           allowTaint: true,
           logging: false,
           backgroundColor: '#ffffff',
+          width: pxW,
+          height: pxH,
           windowWidth: pxW,
           windowHeight: pxH,
         });
@@ -6307,7 +6327,7 @@ function PapelariaStep({ brand, accentColor, paletteColors, estampaPatterns, est
     const isCuidados = item.includes('Cuidados');
     const Art2 = isVacina ? FolderVacinaPage2 : (isDev ? FolderDevPage2 : (isSono ? FolderSonoPage2 : (isCuidados ? FolderCuidadosPage2 : FolderPage2Art)));
     const Art3 = isVacina ? FolderVacinaPage3 : (isDev ? FolderDevPage3 : (isSono ? FolderSonoPage3 : (isCuidados ? FolderCuidadosPage3 : FolderPage3Art)));
-    const Art4 = isVacina ? FolderVacinaPage4 : (isDev ? FolderDevPage4 : (isSono ? FolderSonoPage4 : (isCuidados ? FolderCuidadosPage4 : (item === 'Guia Alimentar' ? FolderPage4Dynamic : FolderPage4Art))));
+    const Art4 = isVacina ? FolderVacinaPage4 : (isDev ? FolderDevPage4 : (isSono ? FolderSonoPage4 : (isCuidados ? FolderCuidadosPage4 : (item.includes('Alimentar') ? FolderPage4Dynamic : FolderPage4Art))));
     const Art5 = isVacina ? FolderVacinaPage5 : (isDev ? FolderDevPage5 : (isSono ? FolderSonoPage5 : (isCuidados ? FolderCuidadosPage5 : FolderPage5Art)));
     const Art6 = isVacina ? FolderVacinaPage6 : null;
     const Art1 = isVacina ? FolderVacinaPage1 : null;
@@ -7438,7 +7458,7 @@ body { width: 220mm; height: 307mm; background: #fff; }
       const _ffCk = editData?.fontFamily || brand.editData?.fontFamily || 'Playfair Display';
       const _lfCk = LOCAL_FONT_FACES[_ffCk];
       const _fiCk = _lfCk ? `<style>${_lfCk}</style>` : `<link href="https://fonts.googleapis.com/css2?family=${encodeURIComponent(_ffCk)}:wght@400;700&display=swap" rel="stylesheet">`;
-      const _logoCk = genPDFLogoHtml({ brand, editDataOverride: editData, color: logoColor, localSlogan, crmLine, fontPt: _fontPt, lineH: _lineH, letterSp: _letterSp, layout: logoLayout, customLogoSrc, customLogoScale: customLogoSrc ? getCustomLogoScale(item) * (ITEM_CUSTOM_BASE_SCALES[item] || 1) : 100, maxWidth: '100mm', maxHeight: '36mm', withBackground: comBorda && patternSrc });
+      const _logoCk = genPDFLogoHtml({ brand, editDataOverride: editData, color: logoColor, localSlogan, crmLine, fontPt: (parseFloat(_fontPt) * 2.2).toFixed(1), lineH: _lineH, letterSp: _letterSp, layout: logoLayout, customLogoSrc, customLogoScale: customLogoSrc ? getCustomLogoScale(item) * (ITEM_CUSTOM_BASE_SCALES[item] || 1) : 100, maxWidth: '130mm', maxHeight: '54mm', withBackground: comBorda && patternSrc });
       const _cmCk = `
         <div style="position:absolute;top:${BLEED}mm;left:0;width:${BLEED-0.5}mm;height:0.2mm;background:#000;z-index:100;"></div>
         <div style="position:absolute;top:0;left:${BLEED}mm;width:0.2mm;height:${BLEED-0.5}mm;background:#000;z-index:100;"></div>
@@ -7452,7 +7472,7 @@ body { width: 220mm; height: 307mm; background: #fff; }
       const exCk = document.getElementById('_gabarito_iframe'); if (exCk) exCk.remove();
       const blobCk = new Blob([htmlCk], { type: 'text/html;charset=utf-8' });
       const blobUrlCk = URL.createObjectURL(blobCk);
-      return exportHTMLAsPDF(html, item, mode);
+      return exportHTMLAsPDF(htmlCk, item, mode);
     }
 
     if (item.includes('Atestado Médico')) {
@@ -8123,38 +8143,38 @@ html, body { width:${totalW}mm; height:${totalH}mm; overflow:hidden; }
       const totalW_T = TW + BLEED * 2;
       const totalH_T = TH + BLEED * 2;
 
-      // Fundo
-      const bgSizeMm = ((patternScale || 100) / 10).toFixed(1);
+      // Fundo — usar a mesma fórmula do resto do sistema (getPatternTileMm)
+      const bgTileMm = getPatternTileMm(patternScale).toFixed(1);
       const bgFixed = comBorda && patternSrc
-        ? `background-image:url(${patternSrc});background-size:${bgSizeMm}mm;background-repeat:repeat;`
+        ? `background-image:url(${patternSrc});background-size:${bgTileMm}mm;background-repeat:repeat;`
         : `background:${solidColor};`;
 
-      // Logo — usa genPDFLogoHtml com hideSlogan para logo imagem, mostra slogan para logo texto
+      // Logo — usa genPDFLogoHtml com a mesma proporção do Preview (caixa branca de ~75% e escala cheia)
       const _hasImgT = !!itemEditData?.customLogoSrc;
-      const isRectT = TSHAPE === 'rect'; const _logoBoxW = isCircleT ? (TW * 0.62).toFixed(0) : isRectT ? (TW * 0.58).toFixed(0) : (TW * 0.70).toFixed(0);
-      const _logoBoxH = isCircleT ? (TH * 0.55).toFixed(0) : isRectT ? (TH * 0.58).toFixed(0) : (TH * 0.62).toFixed(0);
-      const _logoColor = (comBorda && patternSrc) ? solidColor : '#fff';
-      const _tagLogoHtml = genPDFLogoHtml({
-        brand, editDataOverride: itemEditData,
-        color: _logoColor,
-        localSlogan: _hasImgT ? null : localSlogan,
-        crmLine: null,
-        fontPt: Math.min(
-          Math.round(parseFloat(_logoBoxW) * 0.29 / (Math.max(...(marca || '').split(' ').map(w => w.length)) * (itemEditData?.fontStyle === 'script' ? 0.70 : 0.55) * 0.353)),
-          Math.round(parseFloat(_logoBoxH) * 0.38 / 0.353 / (itemEditData?.fontStyle === 'script' ? 1.5 : 1.1))
-        ).toString(),
-        lineH: itemEditData?.fontStyle === 'script' ? 1.5 : 1.1,
-        letterSp: itemEditData?.fontLetterSpacing || (itemEditData?.fontStyle === 'script' ? '0pt' : '0.5pt'),
+      const isRectT = TSHAPE === 'rect';
+      const _cardW = isRectT ? '72%' : isCircleT ? '74%' : '78%';
+      const _cardH = isRectT ? '65%' : isCircleT ? '74%' : '78%';
+      const maxWmm = TW * (isRectT ? 0.72 : isCircleT ? 0.74 : 0.78) * 0.88;
+      const maxHmm = TH * (isRectT ? 0.65 : isCircleT ? 0.74 : 0.78) * 0.88;
+      const _logoMaxW = maxWmm.toFixed(1) + 'mm';
+      const _logoMaxH = maxHmm.toFixed(1) + 'mm';
+
+      const _tagLogoHtml = `<div style="display:flex;flex-direction:column;align-items:center;justify-content:center;width:100%;height:100%;overflow:hidden;">${genPDFLogoHtml({
+        brand,
+        editDataOverride: { ...itemEditData, sloganGap: 6 },
+        color: (comBorda && patternSrc) ? solidColor : '#ffffff',
         layout: logoLayout || 'stacked',
+        localSlogan: _hasImgT ? null : localSlogan,
+        fontPt: 26,
+        scaleFactor: 1.0,
+        crmLine: null,
         customLogoSrc: itemEditData?.customLogoSrc,
         customLogoScale: _hasImgT ? Math.min(getCustomLogoScale(item) * (ITEM_CUSTOM_BASE_SCALES[item] || 1), 100) : 100,
-        maxWidth: `${_logoBoxW}mm`,
-        maxHeight: `${_logoBoxH}mm`,
-        withBackground: !!(comBorda && patternSrc),
-        withBackgroundPadding: '2mm 3mm',
-        sloganColor: (comBorda && patternSrc) ? undefined : 'rgba(255,255,255,0.75)',
-        hideSlogan: _hasImgT,
-      });
+        maxWidth: _logoMaxW,
+        maxHeight: _logoMaxH,
+        withBackground: false,
+        sloganColor: (comBorda && patternSrc) ? undefined : 'rgba(255,255,255,0.75)'
+      })}</div>`;
 
       // Marcas de corte
       const cms = `
@@ -8167,29 +8187,46 @@ html, body { width:${totalW}mm; height:${totalH}mm; overflow:hidden; }
         <div style="position:absolute;bottom:0;right:${BLEED}mm;width:0.1mm;height:${BLEED - 0.5}mm;background:#000;"></div>
         <div style="position:absolute;bottom:${BLEED}mm;right:0;width:${BLEED - 0.5}mm;height:0.1mm;background:#000;"></div>`;
 
-      const { whatsapp, telefone, instagram, site } = cartaoContacts || {};
-      const mainPhone = whatsapp || telefone || '';
+      const { whatsapp, telefone, telefone2, instagram, site, email, endereco } = cartaoContacts || {};
       const borderR = isCircleT ? '50%' : '0';
 
+      // Para tags circulares: html2canvas não renderiza border-radius+background-image bem.
+      // Usamos uma "máscara" com radial-gradient: transparente no centro (mostra estampa), branco fora.
+      const circleR = Math.min(TW, TH) / 2;
+      const circleMask = isCircleT
+        ? `<div style="position:absolute;top:0;left:0;right:0;bottom:0;background:radial-gradient(circle ${circleR}mm at ${totalW_T / 2}mm ${totalH_T / 2}mm, transparent ${circleR}mm, #ffffff ${circleR}mm);z-index:1;"></div>`
+        : '';
       const frentePageT = `
-        <div style="width:${totalW_T}mm;height:${totalH_T}mm;position:relative;overflow:hidden;border-radius:${borderR};">
-          <div style="position:absolute;inset:0;${bgFixed}"></div>
-          <div style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);z-index:2;">
-            ${_tagLogoHtml}
+        <div style="width:100%;height:100%;position:relative;overflow:hidden;">
+          <div style="position:absolute;top:0;left:0;right:0;bottom:0;${bgFixed}"></div>
+          ${circleMask}
+          <div style="position:absolute;top:${BLEED}mm;left:${BLEED}mm;width:${TW}mm;height:${TH}mm;overflow:hidden;${isCircleT ? `border-radius:50%;` : ''} display:flex; align-items:center; justify-content:center;">
+            <div style="z-index:2;width:${_cardW};height:${_cardH};background:${(comBorda && patternSrc) ? 'rgba(255,255,255,0.95)' : 'transparent'};border-radius:${isCircleT ? '50%' : '3.5mm'};display:flex;align-items:center;justify-content:center;box-sizing:border-box;padding:2mm;overflow:hidden;">
+              ${_tagLogoHtml}
+            </div>
           </div>
           ${cms}
         </div>`;
 
       const versoPageT = `
-        <div style="width:${totalW_T}mm;height:${totalH_T}mm;position:relative;overflow:hidden;background:#fff;">
-          <div style="position:absolute;inset:0;border:5mm solid ${solidColor};border-radius:${borderR};"></div>
-          <div style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:80%;display:flex;flex-direction:column;align-items:center;gap:2mm;text-align:center;overflow:hidden;max-height:80%;">
-            ${clinicaNome ? `<div style="font-size:5mm;color:${solidColor};font-family:'Brush Script MT','Segoe Script',cursive;">${clinicaNome}</div>` : ''}
-            <div style="width:5mm;height:0.2mm;background:${solidColor}60;"></div>
-            ${mainPhone ? `<div style="font-size:3mm;color:#888;font-family:'Montserrat',sans-serif;">${mainPhone}</div>` : ''}
-            ${instagram ? `<div style="font-size:3mm;color:#888;font-family:'Montserrat',sans-serif;">@${instagram.replace('@','')}</div>` : ''}
-            ${site ? `<div style="font-size:2.5mm;color:#bbb;font-family:'Montserrat',sans-serif;">${site}</div>` : ''}
+        <div style="width:100%;height:100%;position:relative;overflow:hidden;background:#fff;">
+          ${isCircleT
+            ? `<div style="position:absolute;top:0;left:0;right:0;bottom:0;background:radial-gradient(circle ${circleR}mm at ${totalW_T / 2}mm ${totalH_T / 2}mm, ${solidColor} ${circleR}mm, transparent ${circleR}mm);"></div>
+               <div style="position:absolute;top:0;left:0;right:0;bottom:0;background:radial-gradient(circle ${circleR - 5}mm at ${totalW_T / 2}mm ${totalH_T / 2}mm, #ffffff ${circleR - 5}mm, transparent ${circleR - 5}mm);z-index:1;"></div>`
+            : `<div style="position:absolute;top:0;left:0;right:0;bottom:0;border:5mm solid ${solidColor};"></div>`}
+          <div style="position:absolute;top:0;left:0;right:0;bottom:0;display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:2;">
+            <div style="width:80%;display:flex;flex-direction:column;align-items:center;gap:1.5mm;text-align:center;overflow:hidden;max-height:85%;">
+              ${clinicaNome ? `<div style="font-size:4.8mm;color:${solidColor};font-family:'${_ffT}',sans-serif;line-height:1.2;font-weight:600;">${clinicaNome}</div>` : ''}
+              <div style="width:5mm;height:0.2mm;background:${solidColor}60;margin:1mm 0;"></div>
+              ${whatsapp ? `<div style="font-size:2.8mm;color:#888;font-family:'Montserrat',sans-serif;white-space:nowrap;">${whatsapp}</div>` : ''}
+              ${(telefone || telefone2) ? `<div style="font-size:2.2mm;color:#999;font-family:'Montserrat',sans-serif;white-space:nowrap;margin-top:0.5mm;">${[telefone, telefone2].filter(Boolean).join(' · ')}</div>` : ''}
+              ${instagram ? `<div style="font-size:2.8mm;color:#888;font-family:'Montserrat',sans-serif;white-space:nowrap;">@${instagram.replace('@','')}</div>` : ''}
+              ${email ? `<div style="font-size:2.4mm;color:#888;font-family:'Montserrat',sans-serif;word-break:break-all;">${email}</div>` : ''}
+              ${site ? `<div style="font-size:2.4mm;color:#bbb;font-family:'Montserrat',sans-serif;word-break:break-all;">${site}</div>` : ''}
+              ${endereco ? `<div style="font-size:2.0mm;color:#aaa;font-family:'Montserrat',sans-serif;line-height:1.2;margin-top:0.8mm;">${endereco}</div>` : ''}
+            </div>
           </div>
+          ${isCircleT ? `<div style="position:absolute;top:0;left:0;right:0;bottom:0;background:radial-gradient(circle ${circleR}mm at ${totalW_T / 2}mm ${totalH_T / 2}mm, transparent ${circleR}mm, #ffffff ${circleR}mm);z-index:3;"></div>` : ''}
           ${cms}
         </div>`;
 
@@ -8631,7 +8668,7 @@ body { font-family:'Montserrat',sans-serif; }
                 ${panels.map((p, i) => `
                   <div style="flex:0 0 ${p.w}mm; position:relative; overflow:hidden; ${i < 2 ? 'border-right:0.1mm dashed rgba(0,0,0,0.1);' : ''}">
                     ${withMargem ? `
-                      <div style="position:absolute;top:5mm;left:5mm;right:5mm;bottom:5mm;background:#fff;border:0.2mm solid ${accentColor}30;z-index:2;box-shadow:0 3mm 10mm rgba(0,0,0,0.15);overflow:hidden;${p.clip ? 'clip-path:'+p.clip+';-webkit-clip-path:'+p.clip+';' : ''}">
+                      <div style="position:absolute;top:5mm;left:5mm;right:5mm;bottom:5mm;background:#fff;border:0.2mm solid ${accentColor}30;z-index:2;box-shadow:none;overflow:hidden;${p.clip ? 'clip-path:'+p.clip+';-webkit-clip-path:'+p.clip+';' : ''}">
                         ${p.content}
                       </div>
                     ` : `
@@ -8656,7 +8693,7 @@ body { font-family:'Montserrat',sans-serif; }
         // Conteúdo da Pág 6 (Contra Capa)
         const p6Content = `
           <div style="width:100%; height:100%; position:relative; display:flex; flex-direction:column; align-items:center;">
-            <div class="quote-box" style="position:absolute; top:48%; left:50%; transform:translate(-50%, -50%); width:88%; background:${paletteColors[0] || accentColor}; border:0.4mm solid ${paletteColors[0] || accentColor}; border-radius:4mm; padding:10mm 8mm; text-align:center; box-shadow:0 2mm 8mm rgba(0,0,0,0.1); z-index:3;">
+            <div class="quote-box" style="position:absolute; top:48%; left:50%; transform:translate(-50%, -50%); width:88%; background:${paletteColors[0] || accentColor}; border:0.4mm solid ${paletteColors[0] || accentColor}; border-radius:4mm; padding:10mm 8mm; text-align:center; box-shadow:none; z-index:3;">
                 <div style="font-family:'Brush Script MT','Segoe Script',cursive; font-style:italic; color:#fff !important; -webkit-text-fill-color:#fff; font-size:30pt; margin-bottom:4mm; text-transform:none;">
                    ${isSono 
                      ? (isEn ? '"A well-rested baby is a happier baby!"' : '"Um bebê bem descansado é um bebê mais feliz!"')
@@ -8785,7 +8822,7 @@ body { font-family:'Montserrat',sans-serif; }
         const page2 = renderTrifoldFace([
           { num: 2, w: W3, content: `<div style="position:absolute;top:3.5mm;left:3.5mm;width:148px;height:210px;transform:scale(${sInner});transform-origin:top left;">${ReactDOMServer.renderToString(<LanguageOverrideProvider lang={lang} dictionary={dictionary}>{React.createElement(Art2, { accentColor, palette: paletteColors })}</LanguageOverrideProvider>)}</div>` },
           { num: 3, w: W2, content: `<div style="position:absolute;top:3.5mm;left:3.5mm;width:148px;height:210px;transform:scale(${sInner});transform-origin:top left;">${ReactDOMServer.renderToString(<LanguageOverrideProvider lang={lang} dictionary={dictionary}>{React.createElement(Art3, { accentColor, palette: paletteColors })}</LanguageOverrideProvider>)}</div>` },
-          { num: 4, w: W1, content: `<div style="position:absolute;top:3.5mm;left:3.5mm;width:146px;height:210px;transform:scale(${sInner});transform-origin:top left;">${ReactDOMServer.renderToString(<LanguageOverrideProvider lang={lang} dictionary={dictionary}>{React.createElement(Art4, { accentColor, palette: paletteColors, ...(item === 'Guia Alimentar' ? { horarios: guiaHorarios, introducao: guiaIntroducao } : {}) })}</LanguageOverrideProvider>)}</div>` }
+          { num: 4, w: W1, content: `<div style="position:absolute;top:3.5mm;left:3.5mm;width:146px;height:210px;transform:scale(${sInner});transform-origin:top left;">${ReactDOMServer.renderToString(<LanguageOverrideProvider lang={lang} dictionary={dictionary}>{React.createElement(Art4, { accentColor, palette: paletteColors, ...((item.includes('Alimentar') || item.includes('Dietary')) ? { horarios: guiaHorarios, introducao: guiaIntroducao } : {}) })}</LanguageOverrideProvider>)}</div>` }
         ], false);
 
         const html = `<!DOCTYPE html><html><head><meta charset="UTF-8"><title>${item} - ${marca}</title>${fiTri}
@@ -8978,7 +9015,7 @@ body { background:#fff; font-family:'Montserrat',sans-serif; }
     
     <!-- LUVA -->
     <div style="position:absolute; top:30mm; left:20mm; width:436.1mm; height:194.0mm;">
-       <div style="position:absolute; inset:0; ${effectiveSrc ? `background-image:url('${effectiveSrc}');background-size:${getPatternTileMm(patternScale).toFixed(1)}mm;background-repeat:repeat;` : `background:${solidColor};`} z-index:1;"></div>
+       <div style="position:absolute; inset:0; ${effectiveSrc ? `background-image:url('${effectiveSrc}');background-size:${(getPatternTileMm(patternScale) * 14.0).toFixed(1)}mm;background-repeat:repeat;` : `background:${solidColor};`} z-index:1;"></div>
        <img src="${window.location.origin}${svgLuva}" style="position:absolute; inset:0; width:100%; height:100%; z-index:10;" />
        
        <div style="position:absolute; left:67.821%; top:2.238%; width:30.963%; height:95.360%; z-index:5; display:flex; align-items:center; justify-content:center;">
@@ -9384,7 +9421,7 @@ ${fontImports2}
                 />
             : currentItem.includes('Pré-Natal')
               ? <FolderA5Preview brand={brand} editData={itemEditData} logoColor={logoColor} logoLayout={logoLayout} comBorda={comBorda} setComBorda={setComBorda} patternSrc={patternSrc} patternScale={patternScale} setPatternScale={setPatternScale} patternOffset={typeof patternOffset !== 'undefined' ? patternOffset : 0} setPatternOffset={typeof setPatternOffset !== 'undefined' ? setPatternOffset : undefined} accentColor={accentColor} borderColor={borderColor} setBorderColor={setBorderColor} paletteColors={paletteColors} title={currentItem} cartaoContacts={cartaoContacts} crmLine={crmLine} folderRoof={folderRoof} />
-            : currentItem === 'Guia Alimentar'
+            : (currentItem === 'Guia Alimentar' || currentItem === 'Dietary Guide' || currentItem.includes('Alimentar'))
               ? <GuiaAlimentarPreview brand={brand} editData={itemEditData} logoColor={logoColor} logoLayout={logoLayout} comBorda={comBorda} setComBorda={setComBorda} patternSrc={patternSrc} patternScale={patternScale} setPatternScale={setPatternScale} patternOffset={typeof patternOffset !== 'undefined' ? patternOffset : 0} setPatternOffset={typeof setPatternOffset !== 'undefined' ? setPatternOffset : undefined} accentColor={accentColor} borderColor={borderColor} setBorderColor={setBorderColor} paletteColors={paletteColors} cartaoContacts={cartaoContacts} folderRoof={folderRoof} setFolderRoof={setFolderRoof} crmLine={crmLine} horarios={guiaHorarios} setHorarios={setGuiaHorarios} introducao={guiaIntroducao} setIntroducao={setGuiaIntroducao} localSlogan={localSlogan} />
             : currentItem === 'Caderneta de Saúde'
               ? <CadernetaPreview brand={brand} editData={itemEditData} logoColor={logoColor} logoLayout={logoLayout} comBorda={comBorda} setComBorda={setComBorda} patternSrc={patternSrc} patternScale={patternScale} setPatternScale={setPatternScale} patternOffset={typeof patternOffset !== 'undefined' ? patternOffset : 0} setPatternOffset={typeof setPatternOffset !== 'undefined' ? setPatternOffset : undefined} accentColor={accentColor} borderColor={borderColor} setBorderColor={setBorderColor} paletteColors={paletteColors} cartaoContacts={cartaoContacts} crmLine={crmLine} localSlogan={localSlogan} setLocalSlogan={setLocalSlogan} clinicaNome={clinicaNome} setClinicaNome={setClinicaNome} crmData={crmData} setCrmData={setCrmData} setCartaoContacts={setCartaoContacts} isSaude={isSaude} />

@@ -137,7 +137,7 @@ export default function FolderDevPage5({ accentColor, palette = [] }) {
                     padding: '0.5px 2px',
                     borderRadius: '10px',
                     whiteSpace: 'nowrap',
-                    boxShadow: '0 1px 2px rgba(0,0,0,0.1)',
+                    boxShadow: 'none',
                     zIndex: 3
                   }}>
                     {item.idade}
