@@ -4,7 +4,7 @@ import { supabase } from '@/lib/supabase';
 export async function POST(req) {
   try {
     const body = await req.json();
-    const { nome, email, source, last_step, project_completed } = body;
+    const { nome, email, source, last_step, project_completed, accepts_marketing } = body;
 
     if (!email) {
       return NextResponse.json({ error: 'Email é obrigatório' }, { status: 400 });
@@ -27,6 +27,7 @@ export async function POST(req) {
       if (source) updateData.source = source;
       if (last_step) updateData.last_step = last_step;
       if (project_completed !== undefined) updateData.project_completed = project_completed;
+      if (accepts_marketing !== undefined) updateData.accepts_marketing = accepts_marketing;
 
       const { error } = await supabase
         .from('leads')
@@ -46,7 +47,8 @@ export async function POST(req) {
           email,
           source: source || 'Direct',
           last_step: last_step || 'Started',
-          project_completed: project_completed || false
+          project_completed: project_completed || false,
+          ...(accepts_marketing !== undefined ? { accepts_marketing } : {})
         }]);
 
       if (error) {

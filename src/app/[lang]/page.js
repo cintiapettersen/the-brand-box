@@ -113,7 +113,7 @@ export default function Home() {
   const [alertMessage, setAlertMessage] = useState(null);
   
   const [formData, setFormData] = useState({
-    nome: '', email: '', marca: '', atuacao: '', atuacaoOutra: '', contextoExtra: '', publico: '', sentimentos: [], elementosVisuais: [], personalidade: '', primeiraImpressao: '', locais: [], inspiracoes: '', inspiracoesTags: [], nuncaPensar: '', nuncaPensarTags: []
+    nome: '', email: '', acceptsMarketing: false, marca: '', atuacao: '', atuacaoOutra: '', contextoExtra: '', publico: '', sentimentos: [], elementosVisuais: [], personalidade: '', primeiraImpressao: '', locais: [], inspiracoes: '', inspiracoesTags: [], nuncaPensar: '', nuncaPensarTags: []
   });
 
   const creativeDiagnosisCopy = getCreativeDiagnosisCopy(lang);
@@ -180,7 +180,8 @@ export default function Home() {
           email: emailTrimmed, 
           source: source,
           last_step: stepName,
-          project_completed: step >= 13
+          project_completed: step >= 13,
+          accepts_marketing: formData.acceptsMarketing
         })
       }).catch(err => console.error('Erro ao atualizar lead:', err));
     }
@@ -1691,7 +1692,37 @@ export default function Home() {
                     </span>
                   </div>
                 ) : (
-                  <input name="email" value={formData.email} onChange={handleInput} type="email" placeholder={dictionary?.onboarding?.step_2_email_placeholder || 'O seu melhor e-mail'} />
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '12px', textAlign: 'left', width: '100%' }}>
+                    <input name="email" value={formData.email} onChange={handleInput} type="email" placeholder={dictionary?.onboarding?.step_2_email_placeholder || 'O seu melhor e-mail'} />
+                    
+                    <p style={{ fontSize: '0.78rem', color: 'var(--text-secondary, #64748b)', lineHeight: '1.45', margin: 0, padding: '0 4px' }}>
+                      {dictionary?.onboarding?.step_2_privacy_notice || 'Usaremos seu e-mail para salvar seu projeto, permitir que você continue depois e enviar comunicações essenciais sobre esta experiência.'}
+                    </p>
+
+                    <label style={{ display: 'flex', alignItems: 'flex-start', gap: '10px', fontSize: '0.78rem', color: 'var(--text-secondary, #475569)', cursor: 'pointer', margin: '4px 0 0 4px', lineHeight: '1.4' }}>
+                      <input 
+                        type="checkbox" 
+                        name="acceptsMarketing" 
+                        checked={formData.acceptsMarketing || false} 
+                        onChange={(e) => setFormData(prev => ({ ...prev, acceptsMarketing: e.target.checked }))} 
+                        style={{ marginTop: '2px', cursor: 'pointer', accentColor: 'var(--accent-turquoise, #2a897f)' }} 
+                      />
+                      <span>
+                        {dictionary?.onboarding?.step_2_newsletter_checkbox || 'Também quero receber novidades, conteúdos e ofertas da The Brand Box por e-mail. Posso cancelar a inscrição a qualquer momento.'}
+                      </span>
+                    </label>
+
+                    <div style={{ paddingLeft: '4px', marginTop: '-2px' }}>
+                      <a 
+                        href="/politica-de-privacidade" 
+                        target="_blank" 
+                        rel="noopener noreferrer" 
+                        style={{ fontSize: '0.75rem', color: 'var(--text-secondary, #64748b)', textDecoration: 'underline' }}
+                      >
+                        {dictionary?.onboarding?.step_2_privacy_policy_link || 'Política de Privacidade'}
+                      </a>
+                    </div>
+                  </div>
                 )}
               </div>
               <button 
