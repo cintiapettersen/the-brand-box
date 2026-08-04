@@ -1699,13 +1699,13 @@ export default function Home() {
                       {dictionary?.onboarding?.step_2_privacy_notice || 'Usaremos seu e-mail para salvar seu projeto, permitir que você continue depois e enviar comunicações essenciais sobre esta experiência.'}
                     </p>
 
-                    <label style={{ display: 'flex', alignItems: 'flex-start', gap: '10px', fontSize: '0.78rem', color: 'var(--text-secondary, #475569)', cursor: 'pointer', margin: '4px 0 0 4px', lineHeight: '1.4' }}>
+                    <label style={{ display: 'flex', alignItems: 'flex-start', gap: '8px', fontSize: '0.78rem', color: 'var(--text-secondary, #475569)', cursor: 'pointer', margin: '4px 0 0 0', lineHeight: '1.45', textAlign: 'left' }}>
                       <input 
                         type="checkbox" 
                         name="acceptsMarketing" 
                         checked={formData.acceptsMarketing || false} 
                         onChange={(e) => setFormData(prev => ({ ...prev, acceptsMarketing: e.target.checked }))} 
-                        style={{ marginTop: '2px', cursor: 'pointer', accentColor: 'var(--accent-turquoise, #2a897f)' }} 
+                        style={{ width: 'auto', minWidth: '16px', height: '16px', padding: 0, margin: '2px 0 0 0', cursor: 'pointer', accentColor: 'var(--accent-turquoise, #2a897f)', flexShrink: 0 }} 
                       />
                       <span>
                         {dictionary?.onboarding?.step_2_newsletter_checkbox || 'Também quero receber novidades, conteúdos e ofertas da The Brand Box por e-mail. Posso cancelar a inscrição a qualquer momento.'}
