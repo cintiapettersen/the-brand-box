@@ -172,6 +172,7 @@ export default function Home() {
 
     if (lastStepRef.current !== stepName) {
       lastStepRef.current = stepName;
+      const consentVersion = (lang || 'pt').startsWith('en') ? 'en-v1' : 'pt-v1';
       fetch('/api/leads', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -181,7 +182,13 @@ export default function Home() {
           source: source,
           last_step: stepName,
           project_completed: step >= 13,
-          accepts_marketing: formData.acceptsMarketing
+          accepts_marketing: !!formData.acceptsMarketing,
+          ...(formData.acceptsMarketing ? {
+            marketing_consent: true,
+            marketing_consent_at: new Date().toISOString(),
+            marketing_consent_source: 'briefing',
+            marketing_consent_version: consentVersion
+          } : {})
         })
       }).catch(err => console.error('Erro ao atualizar lead:', err));
     }
@@ -1692,36 +1699,33 @@ export default function Home() {
                     </span>
                   </div>
                 ) : (
-                  <div style={{ display: 'flex', flexDirection: 'column', gap: '12px', textAlign: 'left', width: '100%' }}>
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '14px', textAlign: 'left', width: '100%' }}>
                     <input name="email" value={formData.email} onChange={handleInput} type="email" placeholder={dictionary?.onboarding?.step_2_email_placeholder || 'O seu melhor e-mail'} />
                     
-                    <p style={{ fontSize: '0.78rem', color: 'var(--text-secondary, #64748b)', lineHeight: '1.45', margin: 0, padding: '0 4px' }}>
-                      {dictionary?.onboarding?.step_2_privacy_notice || 'Usaremos seu e-mail para salvar seu projeto, permitir que você continue depois e enviar comunicações essenciais sobre esta experiência.'}
+                    <p style={{ fontSize: '0.82rem', color: 'var(--text-secondary, #64748b)', lineHeight: '1.5', margin: 0, padding: '0 2px' }}>
+                      {dictionary?.onboarding?.step_2_privacy_notice || 'Usamos seu e-mail para salvar seu projeto e enviar mensagens essenciais sobre ele.'}{' '}
+                      <a 
+                        href={lang === 'en' ? '/en/privacy-policy' : '/politica-de-privacidade'} 
+                        target="_blank" 
+                        rel="noopener noreferrer" 
+                        style={{ color: 'var(--text-secondary, #64748b)', textDecoration: 'underline', fontWeight: 500 }}
+                      >
+                        {dictionary?.onboarding?.step_2_privacy_policy_link || 'Política de Privacidade'}
+                      </a>
                     </p>
 
-                    <label style={{ display: 'flex', alignItems: 'flex-start', gap: '8px', fontSize: '0.78rem', color: 'var(--text-secondary, #475569)', cursor: 'pointer', margin: '4px 0 0 0', lineHeight: '1.45', textAlign: 'left' }}>
+                    <label style={{ display: 'flex', alignItems: 'flex-start', gap: '10px', fontSize: '0.82rem', color: 'var(--text-secondary, #475569)', cursor: 'pointer', margin: '2px 0 0 0', lineHeight: '1.45', textAlign: 'left' }}>
                       <input 
                         type="checkbox" 
                         name="acceptsMarketing" 
                         checked={formData.acceptsMarketing || false} 
                         onChange={(e) => setFormData(prev => ({ ...prev, acceptsMarketing: e.target.checked }))} 
-                        style={{ width: 'auto', minWidth: '16px', height: '16px', padding: 0, margin: '2px 0 0 0', cursor: 'pointer', accentColor: 'var(--accent-turquoise, #2a897f)', flexShrink: 0 }} 
+                        style={{ width: '18px', minWidth: '18px', height: '18px', minHeight: '18px', padding: 0, margin: '2px 0 0 0', cursor: 'pointer', accentColor: 'var(--accent-turquoise, #2a897f)', flexShrink: 0 }} 
                       />
                       <span>
-                        {dictionary?.onboarding?.step_2_newsletter_checkbox || 'Também quero receber novidades, conteúdos e ofertas da The Brand Box por e-mail. Posso cancelar a inscrição a qualquer momento.'}
+                        {dictionary?.onboarding?.step_2_newsletter_checkbox || 'Quero receber também novidades, conteúdos e ofertas da The Brand Box. Posso cancelar quando quiser.'}
                       </span>
                     </label>
-
-                    <div style={{ paddingLeft: '4px', marginTop: '-2px' }}>
-                      <a 
-                        href="/politica-de-privacidade" 
-                        target="_blank" 
-                        rel="noopener noreferrer" 
-                        style={{ fontSize: '0.75rem', color: 'var(--text-secondary, #64748b)', textDecoration: 'underline' }}
-                      >
-                        {dictionary?.onboarding?.step_2_privacy_policy_link || 'Política de Privacidade'}
-                      </a>
-                    </div>
                   </div>
                 )}
               </div>
