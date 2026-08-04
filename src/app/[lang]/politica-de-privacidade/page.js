@@ -52,7 +52,7 @@ export default function PoliticaDePrivacidadePage() {
 
           <section>
             <h2 style={{ fontSize: '1.25rem', fontWeight: 700, color: '#0F172A', marginBottom: '10px' }}>3. Como coletamos os dados</h2>
-            <p>Os dados são coletados diretamente quando você os preenche na etapa inicial ("Antes de começarmos"), ao avançar pelas perguntas interativas do briefing e ao finalizar a contratação no checkout.</p>
+            <p>Os dados são coletados diretamente quando você os preenche na etapa inicial (&quot;Antes de começarmos&quot;), ao avançar pelas perguntas interativas do briefing e ao finalizar a contratação no checkout.</p>
           </section>
 
           <section>
@@ -169,7 +169,7 @@ export default function PoliticaDePrivacidadePage() {
           <section>
             <h2 style={{ fontSize: '1.25rem', fontWeight: 700, color: '#0F172A', marginBottom: '10px' }}>15. Como revogar o consentimento</h2>
             <p>
-              Você pode cancelar o recebimento de e-mails de marketing clicando em "Unsubscribe" / "Cancelar inscrição" no rodapé de qualquer e-mail promocional ou enviando uma solicitação direta para o nosso contato para assuntos de privacidade: <a href="mailto:thebrandbox@sonhodepapel.com" style={{ color: '#2A897F', textDecoration: 'underline' }}>thebrandbox@sonhodepapel.com</a>.
+              Você pode cancelar o recebimento de e-mails de marketing clicando em &quot;Unsubscribe&quot; / &quot;Cancelar inscrição&quot; no rodapé de qualquer e-mail promocional ou enviando uma solicitação direta para o nosso contato para assuntos de privacidade: <a href="mailto:thebrandbox@sonhodepapel.com" style={{ color: '#2A897F', textDecoration: 'underline' }}>thebrandbox@sonhodepapel.com</a>.
             </p>
           </section>
 

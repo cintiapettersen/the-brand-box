@@ -45,14 +45,14 @@ export default function PrivacyPolicyPage() {
               <li><strong>Identity & Contact Data:</strong> Name/nickname and email address.</li>
               <li><strong>Project & Brand Data:</strong> Brand name, business industry, visual preferences, tone of voice, colors, and selected patterns.</li>
               <li><strong>Consent Records:</strong> Voluntary opt-in records for marketing communications and product news, including timestamp and consent version.</li>
-              <li><strong>Transaction & Purchase Data:</strong> Plan selection history (e.g., Pro, Single purchase) and Stripe payment session identifiers (we do not store credit card details on our servers).</li>
+              <li><strong>Transaction &amp; Purchase Data:</strong> Plan selection history (e.g., Pro, Single purchase) and Stripe payment session identifiers (we do not store credit card details on our servers).</li>
               <li><strong>Technical Log Data:</strong> IP address, browser type, operating system, and system access logs for security purposes.</li>
             </ul>
           </section>
 
           <section>
             <h2 style={{ fontSize: '1.25rem', fontWeight: 700, color: '#0F172A', marginBottom: '10px' }}>3. How we collect data</h2>
-            <p>Data is collected directly when you fill out the initial step ("Before we start"), progress through the interactive briefing questions, and complete checkout.</p>
+            <p>Data is collected directly when you fill out the initial step (&quot;Before we start&quot;), progress through the interactive briefing questions, and complete checkout.</p>
           </section>
 
           <section>
@@ -67,7 +67,7 @@ export default function PrivacyPolicyPage() {
           </section>
 
           <section>
-            <h2 style={{ fontSize: '1.25rem', fontWeight: 700, color: '#0F172A', marginBottom: '10px' }}>5. Legal basis for processing (GDPR & LGPD)</h2>
+            <h2 style={{ fontSize: '1.25rem', fontWeight: 700, color: '#0F172A', marginBottom: '10px' }}>5. Legal basis for processing (GDPR &amp; LGPD)</h2>
             <p>We process personal data under the following legal bases:</p>
             <ul style={{ paddingLeft: '20px', margin: '8px 0' }}>
               <li><strong>Contract Performance:</strong> sending project links and providing access to your purchased files.</li>
@@ -94,7 +94,7 @@ export default function PrivacyPolicyPage() {
               <li><strong>Supabase Inc.:</strong> database hosting and lead records.</li>
               <li><strong>Vercel Inc.:</strong> web application hosting and edge infrastructure.</li>
               <li><strong>InMotion Hosting (SMTP):</strong> transactional project email delivery.</li>
-              <li><strong>OpenAI & Google LLC (Gemini and Imagen):</strong> creative AI generation.</li>
+              <li><strong>OpenAI &amp; Google LLC (Gemini and Imagen):</strong> creative AI generation.</li>
               <li><strong>Stripe Inc.:</strong> payment processing and secure checkout.</li>
             </ul>
           </section>
@@ -152,7 +152,7 @@ export default function PrivacyPolicyPage() {
           </section>
 
           <section>
-            <h2 style={{ fontSize: '1.25rem', fontWeight: 700, color: '#0F172A', marginBottom: '10px' }}>14. Your Rights (GDPR & LGPD)</h2>
+            <h2 style={{ fontSize: '1.25rem', fontWeight: 700, color: '#0F172A', marginBottom: '10px' }}>14. Your Rights (GDPR &amp; LGPD)</h2>
             <p>You have the right to request at any time:</p>
             <ul style={{ paddingLeft: '20px', margin: '8px 0' }}>
               <li>Access to your personal data.</li>
@@ -166,7 +166,7 @@ export default function PrivacyPolicyPage() {
           <section>
             <h2 style={{ fontSize: '1.25rem', fontWeight: 700, color: '#0F172A', marginBottom: '10px' }}>15. How to withdraw consent</h2>
             <p>
-              You can withdraw marketing consent at any time by clicking "Unsubscribe" in any marketing email or contacting our privacy contact at <a href="mailto:thebrandbox@sonhodepapel.com" style={{ color: '#2A897F', textDecoration: 'underline' }}>thebrandbox@sonhodepapel.com</a>.
+              You can withdraw marketing consent at any time by clicking &quot;Unsubscribe&quot; in any marketing email or contacting our privacy contact at <a href="mailto:thebrandbox@sonhodepapel.com" style={{ color: '#2A897F', textDecoration: 'underline' }}>thebrandbox@sonhodepapel.com</a>.
             </p>
           </section>
 
@@ -178,7 +178,7 @@ export default function PrivacyPolicyPage() {
           </section>
 
           <section>
-            <h2 style={{ fontSize: '1.25rem', fontWeight: 700, color: '#0F172A', marginBottom: '10px' }}>17. Children's Privacy</h2>
+            <h2 style={{ fontSize: '1.25rem', fontWeight: 700, color: '#0F172A', marginBottom: '10px' }}>17. Children&apos;s Privacy</h2>
             <p>
               Our platform is intended for users aged 18 and older. We do not knowingly collect data from children without parental consent.
             </p>
