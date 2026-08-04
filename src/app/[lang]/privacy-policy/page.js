@@ -204,9 +204,12 @@ export default function PrivacyPolicyPage() {
           </section>
 
           <section>
-            <h2 style={{ fontSize: '1.25rem', fontWeight: 700, color: '#0F172A', marginBottom: '10px' }}>20. Data Protection Authorities</h2>
+            <h2 style={{ fontSize: '1.25rem', fontWeight: 700, color: '#0F172A', marginBottom: '10px' }}>20. Right to Lodge a Complaint</h2>
+            <p style={{ marginBottom: '10px' }}>
+              If you have any questions or concerns regarding the processing of your personal data, we recommend that you first contact us at <a href="mailto:thebrandbox@sonhodepapel.com" style={{ color: '#2A897F', textDecoration: 'underline' }}>thebrandbox@sonhodepapel.com</a> so we can review and try to resolve the matter.
+            </p>
             <p>
-              If you believe our processing infringes data protection laws, you have the right to lodge a complaint with your local Data Protection Authority.
+              You also have the right to lodge a complaint with <strong>Datatilsynet</strong>, the Norwegian Data Protection Authority, or another competent supervisory authority where applicable. More information is available on the <a href="https://www.datatilsynet.no/en/" target="_blank" rel="noopener noreferrer" style={{ color: '#2A897F', textDecoration: 'underline' }}>Datatilsynet website</a>.
             </p>
           </section>
 

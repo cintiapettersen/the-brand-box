@@ -207,9 +207,12 @@ export default function PoliticaDePrivacidadePage() {
           </section>
 
           <section>
-            <h2 style={{ fontSize: '1.25rem', fontWeight: 700, color: '#0F172A', marginBottom: '10px' }}>20. Autoridades de proteção de dados</h2>
+            <h2 style={{ fontSize: '1.25rem', fontWeight: 700, color: '#0F172A', marginBottom: '10px' }}>20. Direito de apresentar reclamação</h2>
+            <p style={{ marginBottom: '10px' }}>
+              Se você tiver alguma dúvida ou preocupação sobre o tratamento dos seus dados pessoais, recomendamos que primeiro entre em contato conosco pelo e-mail <a href="mailto:thebrandbox@sonhodepapel.com" style={{ color: '#2A897F', textDecoration: 'underline' }}>thebrandbox@sonhodepapel.com</a>, para que possamos analisar e tentar resolver a questão.
+            </p>
             <p>
-              Se você considerar que o tratamento de seus dados violou a legislação de privacidade, tem o direito de apresentar uma reclamação perante a Autoridade Nacional de Proteção de Dados (ANPD) no Brasil ou à autoridade de proteção de dados competente na União Europeia.
+              Você também tem o direito de apresentar uma reclamação à <strong>Datatilsynet</strong>, autoridade norueguesa de proteção de dados, ou a outra autoridade supervisora competente, quando aplicável. Mais informações estão disponíveis no site da <a href="https://www.datatilsynet.no/en/" target="_blank" rel="noopener noreferrer" style={{ color: '#2A897F', textDecoration: 'underline' }}>Datatilsynet</a>.
             </p>
           </section>
 
