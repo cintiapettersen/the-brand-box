@@ -1989,6 +1989,20 @@ function AjudaStep({ brand, accentColor, onResendEmail, resendingEmail, resendSt
         </div>
       )}
 
+      {/* Rodapé Legal */}
+      <div style={{ marginTop: '36px', paddingTop: '20px', borderTop: '1px solid #eae7e2', display: 'flex', flexDirection: 'column', gap: '8px', alignItems: 'center', textAlign: 'center', fontSize: '0.72rem', color: '#888888', lineHeight: '1.5' }}>
+        <div>
+          © 2026 The Brand Box — operated by PETTERSEN LUNT DESIGN, org. no. 932 370 956, Norway.
+        </div>
+        <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+          <a href="/politica-de-privacidade" target="_blank" rel="noopener noreferrer" style={{ color: '#666', textDecoration: 'underline' }}>Privacy Policy</a>
+          <span>·</span>
+          <a href="/politica-de-privacidade" target="_blank" rel="noopener noreferrer" style={{ color: '#666', textDecoration: 'underline' }}>Terms</a>
+          <span>·</span>
+          <a href="mailto:thebrandbox@sonhodepapel.com" style={{ color: '#666', textDecoration: 'underline' }}>Contact</a>
+        </div>
+      </div>
+
     </div>
   );
 }
