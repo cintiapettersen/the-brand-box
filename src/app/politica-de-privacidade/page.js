@@ -11,8 +11,8 @@ export default function PoliticaDePrivacidadePage() {
       <div style={{ maxWidth: '820px', margin: '0 auto', background: '#FFFFFF', borderRadius: '24px', padding: '48px 36px', boxShadow: '0 10px 40px rgba(0,0,0,0.04)', border: '1px solid #E2E8F0' }}>
         
         {/* Header */}
-        <div style={{ marginBottom: '36px', borderBottom: '1px solid #F1F5F9', pb: '24px' }}>
-          <Link href="/" style={{ inlineSize: 'fit-content', display: 'inline-block', fontSize: '0.85rem', fontWeight: 600, color: '#2A897F', textDecoration: 'none', marginBottom: '16px' }}>
+        <div style={{ marginBottom: '36px', borderBottom: '1px solid #F1F5F9', paddingBottom: '24px' }}>
+          <Link href="/" style={{ width: 'fit-content', display: 'inline-block', fontSize: '0.85rem', fontWeight: 600, color: '#2A897F', textDecoration: 'none', marginBottom: '16px' }}>
             ← Voltar para o início
           </Link>
           <h1 style={{ fontFamily: "'Cinzel', 'Playfair Display', serif", fontSize: '2.2rem', fontWeight: 700, color: '#0F172A', margin: '8px 0 12px', letterSpacing: '-0.02em' }}>
@@ -29,12 +29,12 @@ export default function PoliticaDePrivacidadePage() {
           <section>
             <h2 style={{ fontSize: '1.25rem', fontWeight: 700, color: '#0F172A', marginBottom: '10px' }}>1. Quem somos e quem é o controlador dos dados</h2>
             <p>
-              A <strong>The Brand Box</strong> é uma plataforma interativa de criação e auxílio no desenvolvimento de identidades visuais e papelaria digital, operada sob a marca <strong>Sonho de Papel</strong>.
+              A <strong>The Brand Box</strong> é uma plataforma interativa de criação e auxílio no desenvolvimento de identidades visuais e papelaria digital, operada pela empresa <strong>PETTERSEN LUNT DESIGN</strong>.
             </p>
             <p style={{ background: '#F8FAFC', padding: '12px 16px', borderRadius: '8px', borderLeft: '4px solid #2A897F', fontSize: '0.9rem' }}>
-              <strong>Controlador dos Dados:</strong> [INSERIR NOME LEGAL DA EMPRESA]<br/>
-              <strong>Identificação / Registro:</strong> [INSERIR ORGANIZATION NUMBER]<br/>
-              <strong>Contato de Privacidade / Encarregado (DPO):</strong> [INSERIR E-MAIL DE CONTATO / DPO]
+              <strong>Nome legal:</strong> PETTERSEN LUNT DESIGN, responsável pela marca The Brand Box<br/>
+              <strong>Organization number:</strong> 932 370 956<br/>
+              <strong>Contato para assuntos de privacidade:</strong> <a href="mailto:thebrandbox@sonhodepapel.com" style={{ color: '#2A897F', textDecoration: 'underline' }}>thebrandbox@sonhodepapel.com</a>
             </p>
           </section>
 
@@ -80,10 +80,10 @@ export default function PoliticaDePrivacidadePage() {
           <section>
             <h2 style={{ fontSize: '1.25rem', fontWeight: 700, color: '#0F172A', marginBottom: '10px' }}>6. Como usamos inteligência artificial</h2>
             <p>
-              Utilizamos modelos de inteligência artificial da <strong>Google (API Google Gemini)</strong> exclusivamente para processar as preferências criativas do seu briefing, gerar sugestões de taglines, diagnósticos de marca e estampas.
+              Utilizamos modelos de inteligência artificial da <strong>OpenAI e Google (incluindo Gemini e Imagen)</strong> exclusivamente para processar as preferências criativas do seu briefing, gerar sugestões de taglines, diagnósticos de marca e estampas.
             </p>
-            <p style={{ background: '#FFFBEB', padding: '12px 16px', borderRadius: '8px', borderLeft: '4px solid #F59E0B', fontSize: '0.9rem' }}>
-              <strong>Nota sobre treinamento de IA:</strong> Os dados e respostas do seu briefing são enviados via API técnica para geração imediata do diagnóstico. [CONFIRMAR FORNECEDORES DE IA]
+            <p style={{ background: '#F8FAFC', padding: '12px 16px', borderRadius: '8px', borderLeft: '4px solid #2A897F', fontSize: '0.9rem' }}>
+              <strong>Processamento seguro via API:</strong> Os dados e respostas do seu briefing são transmitidos de forma segura via API técnica exclusiva para a geração imediata do seu diagnóstico e artes, sem compartilhamento não autorizado.
             </p>
           </section>
 
@@ -94,7 +94,7 @@ export default function PoliticaDePrivacidadePage() {
               <li><strong>Supabase Inc.:</strong> armazenamento de banco de dados e registros de leads.</li>
               <li><strong>Vercel Inc.:</strong> hospedagem de aplicação web e servidores edge.</li>
               <li><strong>InMotion Hosting (SMTP):</strong> disparo de e-mails transacionais e de entrega de projeto.</li>
-              <li><strong>Google LLC (Gemini API):</strong> processamento de inteligência artificial criativa.</li>
+              <li><strong>OpenAI & Google LLC (Gemini e Imagen):</strong> processamento de inteligência artificial criativa.</li>
               <li><strong>Stripe Inc.:</strong> processamento seguro de pagamentos e checkout.</li>
             </ul>
           </section>
@@ -127,7 +127,7 @@ export default function PoliticaDePrivacidadePage() {
           <section>
             <h2 style={{ fontSize: '1.25rem', fontWeight: 700, color: '#0F172A', marginBottom: '10px' }}>11. Transferências internacionais</h2>
             <p>
-              Como nossos provedores de tecnologia (Supabase, Vercel, Stripe, Google) possuem servidores globais, seus dados podem ser transferidos e processados internacionalmente sob garantias adequadas de proteção de dados.
+              Como nossos provedores de tecnologia (Supabase, Vercel, Stripe, Google, OpenAI) possuem servidores globais, seus dados podem ser transferidos e processados internacionalmente sob garantias adequadas de proteção de dados.
             </p>
           </section>
 
@@ -136,9 +136,14 @@ export default function PoliticaDePrivacidadePage() {
             <p>
               Mantemos seus dados pessoais e arquivos do projeto pelo período necessário para cumprir as finalidades desta política ou conforme exigido por obrigações legais:
             </p>
-            <p style={{ background: '#F8FAFC', padding: '12px 16px', borderRadius: '8px', fontSize: '0.9rem' }}>
-              <strong>Sessões e projetos:</strong> [CONFIRMAR PRAZO DE RETENÇÃO]<br/>
-              <strong>Logs de acesso:</strong> 6 meses (conforme artigo 15 do Marco Civil da Internet).
+            <ul style={{ paddingLeft: '20px', margin: '8px 0' }}>
+              <li><strong>Projetos não concluídos:</strong> mantidos por até 12 meses após a última atividade.</li>
+              <li><strong>Projetos comprados e materiais gerados:</strong> mantidos por até 24 meses após a entrega.</li>
+              <li><strong>Registros fiscais, contábeis e de pagamento:</strong> mantidos durante o prazo legal aplicável, normalmente 5 anos.</li>
+              <li><strong>Dados de marketing:</strong> mantidos até a retirada do consentimento (descadastro).</li>
+            </ul>
+            <p style={{ marginTop: '8px', fontSize: '0.9rem', color: '#64748B' }}>
+              * Pedidos de exclusão serão atendidos antes desses prazos quando não existir obrigação legal de conservação.
             </p>
           </section>
 
@@ -164,21 +169,21 @@ export default function PoliticaDePrivacidadePage() {
           <section>
             <h2 style={{ fontSize: '1.25rem', fontWeight: 700, color: '#0F172A', marginBottom: '10px' }}>15. Como revogar o consentimento</h2>
             <p>
-              Você pode cancelar o recebimento de e-mails de marketing clicando em "Unsubscribe" / "Cancelar inscrição" no rodapé de qualquer e-mail promocional ou enviando uma solicitação direta para [INSERIR E-MAIL DE CONTATO / DPO].
+              Você pode cancelar o recebimento de e-mails de marketing clicando em "Unsubscribe" / "Cancelar inscrição" no rodapé de qualquer e-mail promocional ou enviando uma solicitação direta para o nosso contato para assuntos de privacidade: <a href="mailto:thebrandbox@sonhodepapel.com" style={{ color: '#2A897F', textDecoration: 'underline' }}>thebrandbox@sonhodepapel.com</a>.
             </p>
           </section>
 
           <section>
             <h2 style={{ fontSize: '1.25rem', fontWeight: 700, color: '#0F172A', marginBottom: '10px' }}>16. Exclusão e portabilidade dos dados</h2>
             <p>
-              Para solicitar a exclusão definitiva dos seus dados de nossa base de leads, entre em contato através do nosso canal oficial de privacidade.
+              Para solicitar a exclusão definitiva dos seus dados de nossa base de leads, entre em contato através do e-mail <a href="mailto:thebrandbox@sonhodepapel.com" style={{ color: '#2A897F', textDecoration: 'underline' }}>thebrandbox@sonhodepapel.com</a>.
             </p>
           </section>
 
           <section>
             <h2 style={{ fontSize: '1.25rem', fontWeight: 700, color: '#0F172A', marginBottom: '10px' }}>17. Privacidade de menores</h2>
             <p>
-              Nossa plataforma é destinada a maiores de 18 anos ou profissionais emancipation legal. Não coletamos intencionalmente dados de crianças ou adolescentes sem consentimento prévio dos responsáveis.
+              Nossa plataforma é destinada a maiores de 18 anos ou profissionais com emancipação legal. Não coletamos intencionalmente dados de crianças ou adolescentes sem consentimento prévio dos responsáveis.
             </p>
           </section>
 
@@ -195,8 +200,9 @@ export default function PoliticaDePrivacidadePage() {
               Para dúvidas, solicitações ou exercício de direitos de privacidade:
             </p>
             <p>
-              <strong>E-mail:</strong> [INSERIR E-MAIL DE CONTATO / DPO]<br/>
-              <strong>Marca:</strong> The Brand Box / Sonho de Papel
+              <strong>Nome legal:</strong> PETTERSEN LUNT DESIGN<br/>
+              <strong>Contato para assuntos de privacidade:</strong> <a href="mailto:thebrandbox@sonhodepapel.com" style={{ color: '#2A897F', textDecoration: 'underline' }}>thebrandbox@sonhodepapel.com</a><br/>
+              <strong>Marca:</strong> The Brand Box
             </p>
           </section>
 

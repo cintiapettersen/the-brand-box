@@ -11,8 +11,8 @@ export default function PrivacyPolicyPage() {
       <div style={{ maxWidth: '820px', margin: '0 auto', background: '#FFFFFF', borderRadius: '24px', padding: '48px 36px', boxShadow: '0 10px 40px rgba(0,0,0,0.04)', border: '1px solid #E2E8F0' }}>
         
         {/* Header */}
-        <div style={{ marginBottom: '36px', borderBottom: '1px solid #F1F5F9', pb: '24px' }}>
-          <Link href="/en" style={{ inlineSize: 'fit-content', display: 'inline-block', fontSize: '0.85rem', fontWeight: 600, color: '#2A897F', textDecoration: 'none', marginBottom: '16px' }}>
+        <div style={{ marginBottom: '36px', borderBottom: '1px solid #F1F5F9', paddingBottom: '24px' }}>
+          <Link href="/en" style={{ width: 'fit-content', display: 'inline-block', fontSize: '0.85rem', fontWeight: 600, color: '#2A897F', textDecoration: 'none', marginBottom: '16px' }}>
             ← Back to home
           </Link>
           <h1 style={{ fontFamily: "'Cinzel', 'Playfair Display', serif", fontSize: '2.2rem', fontWeight: 700, color: '#0F172A', margin: '8px 0 12px', letterSpacing: '-0.02em' }}>
@@ -29,12 +29,12 @@ export default function PrivacyPolicyPage() {
           <section>
             <h2 style={{ fontSize: '1.25rem', fontWeight: 700, color: '#0F172A', marginBottom: '10px' }}>1. Who we are and Data Controller</h2>
             <p>
-              <strong>The Brand Box</strong> is an interactive visual identity and digital stationery creation platform operated under the <strong>Sonho de Papel</strong> brand.
+              <strong>The Brand Box</strong> is an interactive visual identity and digital stationery creation platform operated by <strong>PETTERSEN LUNT DESIGN</strong>.
             </p>
             <p style={{ background: '#F8FAFC', padding: '12px 16px', borderRadius: '8px', borderLeft: '4px solid #2A897F', fontSize: '0.9rem' }}>
-              <strong>Data Controller:</strong> [INSERIR NOME LEGAL DA EMPRESA]<br/>
-              <strong>Organization / Registration Number:</strong> [INSERIR ORGANIZATION NUMBER]<br/>
-              <strong>Privacy Contact / DPO:</strong> [INSERIR E-MAIL DE CONTATO / DPO]
+              <strong>Legal Name:</strong> PETTERSEN LUNT DESIGN, responsible for The Brand Box<br/>
+              <strong>Organization Number:</strong> 932 370 956<br/>
+              <strong>Privacy Contact:</strong> <a href="mailto:thebrandbox@sonhodepapel.com" style={{ color: '#2A897F', textDecoration: 'underline' }}>thebrandbox@sonhodepapel.com</a>
             </p>
           </section>
 
@@ -80,10 +80,10 @@ export default function PrivacyPolicyPage() {
           <section>
             <h2 style={{ fontSize: '1.25rem', fontWeight: 700, color: '#0F172A', marginBottom: '10px' }}>6. How we use Artificial Intelligence</h2>
             <p>
-              We utilize artificial intelligence models from <strong>Google (Google Gemini API)</strong> exclusively to process your creative preferences, generate tagline suggestions, brand diagnosis, and pattern designs.
+              We utilize artificial intelligence models from <strong>OpenAI and Google (including Gemini and Imagen)</strong> exclusively to process your creative preferences, generate tagline suggestions, brand diagnosis, and pattern designs.
             </p>
-            <p style={{ background: '#FFFBEB', padding: '12px 16px', borderRadius: '8px', borderLeft: '4px solid #F59E0B', fontSize: '0.9rem' }}>
-              <strong>AI Data Note:</strong> Briefing responses are transmitted securely via API for instant diagnosis generation. [CONFIRMAR FORNECEDORES DE IA]
+            <p style={{ background: '#F8FAFC', padding: '12px 16px', borderRadius: '8px', borderLeft: '4px solid #2A897F', fontSize: '0.9rem' }}>
+              <strong>Secure Processing:</strong> Your briefing responses are processed securely via dedicated technical APIs for immediate asset generation without unauthorized data sharing.
             </p>
           </section>
 
@@ -94,7 +94,7 @@ export default function PrivacyPolicyPage() {
               <li><strong>Supabase Inc.:</strong> database hosting and lead records.</li>
               <li><strong>Vercel Inc.:</strong> web application hosting and edge infrastructure.</li>
               <li><strong>InMotion Hosting (SMTP):</strong> transactional project email delivery.</li>
-              <li><strong>Google LLC (Gemini API):</strong> creative AI generation.</li>
+              <li><strong>OpenAI & Google LLC (Gemini and Imagen):</strong> creative AI generation.</li>
               <li><strong>Stripe Inc.:</strong> payment processing and secure checkout.</li>
             </ul>
           </section>
@@ -124,7 +124,7 @@ export default function PrivacyPolicyPage() {
           <section>
             <h2 style={{ fontSize: '1.25rem', fontWeight: 700, color: '#0F172A', marginBottom: '10px' }}>11. International data transfers</h2>
             <p>
-              Since our technology providers operate global infrastructure, your data may be transferred and processed internationally under standard data protection safeguards.
+              Since our technology providers (Supabase, Vercel, Stripe, Google, OpenAI) operate global infrastructure, your data may be transferred and processed internationally under standard data protection safeguards.
             </p>
           </section>
 
@@ -133,9 +133,14 @@ export default function PrivacyPolicyPage() {
             <p>
               We retain personal data and project files for as long as necessary to fulfill the purposes outlined in this policy:
             </p>
-            <p style={{ background: '#F8FAFC', padding: '12px 16px', borderRadius: '8px', fontSize: '0.9rem' }}>
-              <strong>Sessions & Projects:</strong> [CONFIRMAR PRAZO DE RETENÇÃO]<br/>
-              <strong>Access Logs:</strong> 6 months.
+            <ul style={{ paddingLeft: '20px', margin: '8px 0' }}>
+              <li><strong>Unfinished projects:</strong> retained for up to 12 months after the last activity.</li>
+              <li><strong>Purchased projects and generated assets:</strong> retained for up to 24 months after delivery.</li>
+              <li><strong>Tax, accounting, and payment records:</strong> retained during the applicable statutory period, typically 5 years.</li>
+              <li><strong>Marketing data:</strong> retained until consent is withdrawn.</li>
+            </ul>
+            <p style={{ marginTop: '8px', fontSize: '0.9rem', color: '#64748B' }}>
+              * Deletion requests will be fulfilled prior to these periods when no legal retention obligation exists.
             </p>
           </section>
 
@@ -161,14 +166,14 @@ export default function PrivacyPolicyPage() {
           <section>
             <h2 style={{ fontSize: '1.25rem', fontWeight: 700, color: '#0F172A', marginBottom: '10px' }}>15. How to withdraw consent</h2>
             <p>
-              You can withdraw marketing consent at any time by clicking "Unsubscribe" in any marketing email or contacting us at [INSERIR E-MAIL DE CONTATO / DPO].
+              You can withdraw marketing consent at any time by clicking "Unsubscribe" in any marketing email or contacting our privacy contact at <a href="mailto:thebrandbox@sonhodepapel.com" style={{ color: '#2A897F', textDecoration: 'underline' }}>thebrandbox@sonhodepapel.com</a>.
             </p>
           </section>
 
           <section>
             <h2 style={{ fontSize: '1.25rem', fontWeight: 700, color: '#0F172A', marginBottom: '10px' }}>16. Data erasure and portability</h2>
             <p>
-              To request permanent erasure of your lead records, please send a request to our official privacy contact.
+              To request permanent erasure of your lead records, please contact <a href="mailto:thebrandbox@sonhodepapel.com" style={{ color: '#2A897F', textDecoration: 'underline' }}>thebrandbox@sonhodepapel.com</a>.
             </p>
           </section>
 
@@ -192,8 +197,9 @@ export default function PrivacyPolicyPage() {
               For questions or privacy requests:
             </p>
             <p>
-              <strong>Email:</strong> [INSERIR E-MAIL DE CONTATO / DPO]<br/>
-              <strong>Brand:</strong> The Brand Box / Sonho de Papel
+              <strong>Legal Name:</strong> PETTERSEN LUNT DESIGN<br/>
+              <strong>Privacy Contact:</strong> <a href="mailto:thebrandbox@sonhodepapel.com" style={{ color: '#2A897F', textDecoration: 'underline' }}>thebrandbox@sonhodepapel.com</a><br/>
+              <strong>Brand:</strong> The Brand Box
             </p>
           </section>
 
