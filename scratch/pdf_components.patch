@@ -1,0 +1,291 @@
+diff --git a/src/app/[lang]/sucesso/EtiquetaCorreiosPreview.js b/src/app/[lang]/sucesso/EtiquetaCorreiosPreview.js
+index c414ac5..800fb80 100644
+--- a/src/app/[lang]/sucesso/EtiquetaCorreiosPreview.js
++++ b/src/app/[lang]/sucesso/EtiquetaCorreiosPreview.js
+@@ -98,16 +98,16 @@ export default function EtiquetaCorreiosPreview({
+               <div style={{ position: 'absolute', inset: W * 0.04, border: '1px solid rgba(255,255,255,0.45)', borderRadius: 7, pointerEvents: 'none' }} />
+ 
+               {/* Card branco semitransparente */}
+-              <div style={{ position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%)', width: '82%', minHeight: '72%', maxHeight: '85%', overflow: 'hidden', background: 'rgba(255,255,255,0.82)', borderRadius: 8, padding: `${W * 0.07}px ${W * 0.06}px`, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: W * 0.032, backdropFilter: 'blur(4px)' }}>
++              <div style={{ position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%)', width: '88%', height: '84%', overflow: 'hidden', background: 'rgba(255,255,255,0.92)', borderRadius: 8, padding: `${W * 0.04}px ${W * 0.05}px`, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: W * 0.02, boxSizing: 'border-box', backdropFilter: 'blur(4px)' }}>
+ 
+-                <div style={{ fontSize: size.scale * 0.58, fontWeight: 800, color: solidColor, fontFamily: 'Montserrat,sans-serif', textAlign: 'center', lineHeight: 1.2 }}>
++                <div style={{ fontSize: size.scale * 0.50, fontWeight: 800, color: solidColor, fontFamily: 'Montserrat,sans-serif', textAlign: 'center', lineHeight: 1.2 }}>
+                   {frase}
+                 </div>
+ 
+-                <div style={{ width: '30%', height: '0.5px', background: solidColor + '50' }} />
++                <div style={{ width: '25%', height: '0.5px', background: solidColor + '50' }} />
+ 
+-                <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', width: '100%', height: size.h * 9 }}>
+-                  <LogoPreviewHTML editData={editData} color={solidColor} layout={logoLayout} scaleFactor={0.85} hideTagline={false} maxWidth="100%" maxHeight="100%" />
++                <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', width: '100%', flex: 1, overflow: 'hidden' }}>
++                  <LogoPreviewHTML editData={editData} color={solidColor} layout={logoLayout} scaleFactor={1.05} hideTagline={false} maxWidth="100%" maxHeight="100%" />
+                 </div>
+ 
+                 {(instagram || mainPhone) && (
+diff --git a/src/app/[lang]/sucesso/FolderDevPage4.js b/src/app/[lang]/sucesso/FolderDevPage4.js
+index 18f6bb3..8752937 100644
+--- a/src/app/[lang]/sucesso/FolderDevPage4.js
++++ b/src/app/[lang]/sucesso/FolderDevPage4.js
+@@ -120,7 +120,7 @@ export default function FolderDevPage4({ accentColor, palette = [] }) {
+         
+         {/* Left Col */}
+         <div style={{ flex: '0 0 53%', display: 'flex', flexDirection: 'column', gap: '4px' }}>
+-          <div style={{ alignSelf: 'flex-start', background: '#E67E7E', color: '#fff', fontSize: '4.8px', fontWeight: 900, fontStyle: 'italic', padding: '2px 6px', borderRadius: '8px', textTransform: 'uppercase', boxShadow: '1px 1px 0 rgba(0,0,0,0.1)' }}>
++          <div style={{ alignSelf: 'flex-start', background: '#E67E7E', color: '#fff', fontSize: '4.8px', fontWeight: 900, fontStyle: 'italic', padding: '2px 6px', borderRadius: '8px', textTransform: 'uppercase', boxShadow: 'none' }}>
+             {lang === 'en' ? 'DEVELOPMENTAL LEAP:' : 'SALTO DE DESENVOLVIMENTO:'}
+           </div>
+           <div style={{ fontSize: '3.3px', color: '#444', lineHeight: 1.25, textAlign: 'justify', fontWeight: 500 }}>
+diff --git a/src/app/[lang]/sucesso/FolderDevPage5.js b/src/app/[lang]/sucesso/FolderDevPage5.js
+index 7666d5d..ef90fe0 100644
+--- a/src/app/[lang]/sucesso/FolderDevPage5.js
++++ b/src/app/[lang]/sucesso/FolderDevPage5.js
+@@ -137,7 +137,7 @@ export default function FolderDevPage5({ accentColor, palette = [] }) {
+                     padding: '0.5px 2px',
+                     borderRadius: '10px',
+                     whiteSpace: 'nowrap',
+-                    boxShadow: '0 1px 2px rgba(0,0,0,0.1)',
++                    boxShadow: 'none',
+                     zIndex: 3
+                   }}>
+                     {item.idade}
+diff --git a/src/app/[lang]/sucesso/FolderPage4Dynamic.js b/src/app/[lang]/sucesso/FolderPage4Dynamic.js
+index 921b225..d9e06d3 100644
+--- a/src/app/[lang]/sucesso/FolderPage4Dynamic.js
++++ b/src/app/[lang]/sucesso/FolderPage4Dynamic.js
+@@ -22,7 +22,7 @@ export default function FolderPage4Dynamic({
+   const { dictionary } = useTranslation();
+   const gTranslation = dictionary?.guia_alimentar;
+ 
+-  const defaultHorarios = gTranslation?.horarios || [
++  const fallbackHorarios = [
+     { label: 'CAFÉ DA MANHÃ', val: 'Leite materno ou fórmula infantil' },
+     { label: 'LANCHE DA MANHÃ', val: 'Fruta / leite materno ou fórmula' },
+     { label: 'ALMOÇO', val: 'Cereal ou tubérculo + proteína animal + leguminosa + hortaliças (verduras +legumes) + fruta' },
+@@ -30,15 +30,22 @@ export default function FolderPage4Dynamic({
+     { label: 'JANTAR', val: 'Igual almoço' },
+     { label: 'LANCHE DA NOITE', val: 'Leite materno ou fórmula infantil' }
+   ];
+-  const defaultIntroducao = gTranslation?.introducao || [
++
++  const fallbackIntroducao = [
+     { idade: 'A partir de 6 meses', text: 'Alimentos amassados', qty: 'Iniciar com 2 a 3 colheres de sopa e aumentar a quantidade conforme aceitação' },
+     { idade: 'A partir dos 7 meses', text: 'Alimentos amassados', qty: '2/3 de uma xícara ou tigela de 250 ml' },
+     { idade: '9 a 11 meses', text: 'Alimentos cortados ou levemente amassados', qty: '3/4 de uma xícara ou tigela de 250 ml' },
+     { idade: '12 a 24 meses', text: 'Alimentos cortados', qty: 'Uma xícara ou tigela de 250 ml' }
+   ];
+ 
+-  const horarios = propsHorarios || defaultHorarios;
+-  const introducao = propsIntroducao || defaultIntroducao;
++  const defaultHorarios = (gTranslation?.horarios && Array.isArray(gTranslation.horarios) && gTranslation.horarios.length > 0) ? gTranslation.horarios : fallbackHorarios;
++  const defaultIntroducao = (gTranslation?.introducao && Array.isArray(gTranslation.introducao) && gTranslation.introducao.length > 0) ? gTranslation.introducao : fallbackIntroducao;
++
++  const isValidHorarios = Array.isArray(propsHorarios) && propsHorarios.length > 0 && propsHorarios.some(h => h && (h.label || h.val));
++  const isValidIntroducao = Array.isArray(propsIntroducao) && propsIntroducao.length > 0 && propsIntroducao.some(i => i && (i.idade || i.text));
++
++  const horarios = isValidHorarios ? propsHorarios : defaultHorarios;
++  const introducao = isValidIntroducao ? propsIntroducao : defaultIntroducao;
+ 
+   const c1 = palette[0] || accentColor;
+   const c2 = palette[1] || c1;
+diff --git a/src/app/[lang]/sucesso/FolderPage5Art.js b/src/app/[lang]/sucesso/FolderPage5Art.js
+index 246fba1..989800b 100644
+--- a/src/app/[lang]/sucesso/FolderPage5Art.js
++++ b/src/app/[lang]/sucesso/FolderPage5Art.js
+@@ -58,7 +58,7 @@ export default function FolderPage5Art({ accentColor = '#879A6C', palette = [] }
+           borderRadius: '50%',
+           background: '#ffffff',
+           border: '2px solid #e2e8f0',
+-          boxShadow: '0 4px 10px rgba(0,0,0,0.06)',
++          boxShadow: 'none',
+           display: 'flex',
+           alignItems: 'center',
+           justifyContent: 'center',
+diff --git a/src/app/[lang]/sucesso/GuiaAlimentarPreview.js b/src/app/[lang]/sucesso/GuiaAlimentarPreview.js
+index f8aaaa5..7ec1d7f 100644
+--- a/src/app/[lang]/sucesso/GuiaAlimentarPreview.js
++++ b/src/app/[lang]/sucesso/GuiaAlimentarPreview.js
+@@ -121,7 +121,7 @@ export default function GuiaAlimentarPreview({
+                )}
+                <div style={{ position: 'absolute', inset: 0, background: !patternSrc && comBorda ? `${accentColor}10` : 'transparent' }} />
+             </div>
+-            <div style={{ position: 'absolute', top: '6px', left: '6px', right: '6px', bottom: '6px', background: '#fff', borderRadius: '1.5px', boxShadow: '0 2px 5px rgba(0,0,0,0.05)', zIndex: 2, display: 'flex', flexDirection: 'column', alignItems: 'center', overflow: 'hidden', justifyContent: 'center' }}>
++            <div style={{ position: 'absolute', top: '6px', left: '6px', right: '6px', bottom: '6px', background: '#fff', borderRadius: '1.5px', boxShadow: 'none', zIndex: 2, display: 'flex', flexDirection: 'column', alignItems: 'center', overflow: 'hidden', justifyContent: 'center' }}>
+                <div style={{ width: '100%', height: '100%', transform: 'scale(0.92)', transformOrigin: 'center center' }}>
+                  <FolderPage5Art accentColor={accentColor} palette={paletteColors} />
+                </div>
+@@ -137,9 +137,9 @@ export default function GuiaAlimentarPreview({
+               <div style={{ position: 'absolute', inset: 0, background: !patternSrc && comBorda ? `${accentColor}10` : 'transparent' }} />
+             </div>
+             
+-             <div style={{ position: 'absolute', top: '6px', left: '6px', right: '6px', bottom: '6px', background: '#fff', borderRadius: '1.5px', boxShadow: '0 2px 5px rgba(0,0,0,0.05)', zIndex: 2, display: 'flex', flexDirection: 'column', alignItems: 'center', overflow: 'hidden' }}>
++             <div style={{ position: 'absolute', top: '6px', left: '6px', right: '6px', bottom: '6px', background: '#fff', borderRadius: '1.5px', boxShadow: 'none', zIndex: 2, display: 'flex', flexDirection: 'column', alignItems: 'center', overflow: 'hidden' }}>
+                 <div style={{ position: 'absolute', top: '48%', left: '10px', right: '10px', zIndex: 3, display: 'flex', justifyContent: 'center', transform: 'translateY(-50%)' }}>
+-                  <div style={{ width: '92%', background: mainColor, borderRadius: '4px', padding: '12px 14px', textAlign: 'center', position: 'relative', border: `0.4px solid ${mainColor}`, boxShadow: '0 4px 12px rgba(0,0,0,0.1)' }}>
++                  <div style={{ width: '92%', background: mainColor, borderRadius: '4px', padding: '12px 14px', textAlign: 'center', position: 'relative', border: `0.4px solid ${mainColor}`, boxShadow: 'none' }}>
+                      <div style={{ fontFamily: `'Great Vibes', cursive`, color: '#fff', fontSize: '9px', marginBottom: '4px', textTransform: 'none' }}>{gTranslation?.quote_text || '"Brinque, converse e explore!"'}</div>
+                      <div style={{ fontSize: '3.5px', color: '#fff', fontWeight: 500, lineHeight: 1.5, fontFamily: 'Montserrat, sans-serif' }}>
+                         {gTranslation?.quote_desc || 'As brincadeiras são mais do que momentos de divertimento. Elas ajudam seu bebê a aprender, a desenvolver novas habilidades e a se sentir seguro e amado.'}
+@@ -155,7 +155,7 @@ export default function GuiaAlimentarPreview({
+ 
+             {/* ETIQUETA DE DADOS NO RODAPÉ */}
+             {(clinicaNome || endereco || allPhones || brand?.email || cartaoContacts?.site || cartaoContacts?.instagram) ? (
+-              <div style={{ position: 'absolute', bottom: '10px', left: '12px', right: '12px', background: '#fff', border: `0.5px solid ${mainColor}15`, borderRadius: '3px', padding: '4px 10px', zIndex: 4, boxShadow: '0 2px 10px rgba(0,0,0,0.04)', textAlign: 'center', display: 'flex', flexDirection: 'column', gap: '1px' }}>
++              <div style={{ position: 'absolute', bottom: '10px', left: '12px', right: '12px', background: '#fff', border: `0.5px solid ${mainColor}15`, borderRadius: '3px', padding: '4px 10px', zIndex: 4, boxShadow: 'none', textAlign: 'center', display: 'flex', flexDirection: 'column', gap: '1px' }}>
+                   {clinicaNome && <div style={{ fontSize: '5.2px', fontWeight: 800, color: mainColor, marginBottom: '0.5px' }}>{clinicaNome}</div>}
+                   {endereco && <div style={{ fontSize: '4.2px', color: '#999', fontWeight: 500, lineHeight: 1.1 }}>{endereco}</div>}
+                   
+@@ -183,7 +183,7 @@ export default function GuiaAlimentarPreview({
+                )}
+                <div style={{ position: 'absolute', inset: 0, background: !patternSrc && comBorda ? `${accentColor}15` : 'transparent' }} />
+             </div>
+-            <div style={{ position: 'absolute', top: '10px', left: '10px', right: '10px', bottom: '10px', background: '#fff', borderRadius: '2px', boxShadow: '0 2px 10px rgba(0,0,0,0.1)', zIndex: 2, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', overflow: 'hidden', border: `0.5px solid ${accentColor}15`, clipPath: folderRoof ? 'polygon(0% 12%, 50% 0%, 100% 12%, 100% 100%, 0% 100%)' : 'none', transition: 'clip-path 0.3s ease' }}>
++            <div style={{ position: 'absolute', top: '10px', left: '10px', right: '10px', bottom: '10px', background: '#fff', borderRadius: '2px', boxShadow: 'none', zIndex: 2, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', overflow: 'hidden', border: `0.5px solid ${accentColor}15`, clipPath: folderRoof ? 'polygon(0% 12%, 50% 0%, 100% 12%, 100% 100%, 0% 100%)' : 'none', transition: 'clip-path 0.3s ease' }}>
+                 <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'flex-start', paddingTop: '32px', textAlign: 'center', width: '100%', height: '100%' }}>
+                   <div style={{ width: '120px', height: '40px', display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: '16px' }}>{logoHtml}</div>
+                   <div style={{ width: '22px', height: '1.2px', background: accentColor, marginBottom: '14px', borderRadius: '10px' }} />
+diff --git a/src/app/[lang]/sucesso/GuiaAmamentacaoPreview.js b/src/app/[lang]/sucesso/GuiaAmamentacaoPreview.js
+index 3b6658b..a1f72b3 100644
+--- a/src/app/[lang]/sucesso/GuiaAmamentacaoPreview.js
++++ b/src/app/[lang]/sucesso/GuiaAmamentacaoPreview.js
+@@ -60,7 +60,7 @@ export default function GuiaAmamentacaoPreview({
+         <div style={{
+           position: 'absolute', top: '6px', left: '6px', right: '6px', bottom: '6px',
+           background: '#fff', borderRadius: '1.5px',
+-          boxShadow: '0 2px 10px rgba(0,0,0,0.05)', zIndex: 2, overflow: 'hidden',
++          boxShadow: 'none', zIndex: 2, overflow: 'hidden',
+           clipPath: (num === 1 && folderRoof) ? 'polygon(0% 12%, 50% 0%, 100% 12%, 100% 100%, 0% 100%)' : 'none',
+           transition: 'clip-path 0.3s ease'
+         }}>
+diff --git a/src/app/[lang]/sucesso/PDFTemplates.js b/src/app/[lang]/sucesso/PDFTemplates.js
+index 2960be4..ff20939 100644
+--- a/src/app/[lang]/sucesso/PDFTemplates.js
++++ b/src/app/[lang]/sucesso/PDFTemplates.js
+@@ -106,7 +106,7 @@ export const genPDFLogoHtml = ({ brand, editDataOverride = null, color, localSlo
+ 
+   const _sloganColor = sloganColor || '#666';
+   // Gap adaptativo baseado no tamanho da fonte do slogan e complexidade
+-  const _sloganGap = (parseFloat(effectiveSloganSize) * _sloganGapMultiplier).toFixed(1);
++  const _sloganGap = _ed?.sloganGap || (parseFloat(effectiveSloganSize) * _sloganGapMultiplier).toFixed(1);
+   
+   const _shouldWrap = _ed?.taglineWrap !== undefined ? _ed.taglineWrap : (_sloganLenRaw > 25);
+ 
+@@ -128,10 +128,10 @@ export const genPDFLogoHtml = ({ brand, editDataOverride = null, color, localSlo
+   const _crmW_pt = _crmLen * (parseFloat(effectiveCrmSize) * 0.75);
+   const _sloganMaxLineLen = (localSlogan && !hideSlogan) ? displaySloganLines.reduce((max, l) => Math.max(max, l.length), 0) : 0;
+   // inclui o letter-spacing real do slogan no cálculo de largura
+-  const _sloganLsFactor = _sloganLenRaw > 45 ? 1.55 : _sloganLenRaw > 30 ? 1.48 : _sloganLenRaw > 15 ? 1.40 : 1.35;
+-  const _sloganW_pt = _sloganMaxLineLen * (parseFloat(effectiveSloganSize) * 0.65 * _sloganLsFactor);
++  const _lsEmVal = !isNaN(parseFloat(_ed?.taglineLetterSpacing)) ? parseFloat(_ed.taglineLetterSpacing) : (_sloganLenRaw > 45 ? 0.55 : _sloganLenRaw > 30 ? 0.48 : _sloganLenRaw > 15 ? 0.40 : 0.35);
++  const _sloganW_pt = _sloganMaxLineLen * (parseFloat(effectiveSloganSize) * (0.66 + _lsEmVal));
+   const _estimatedWidthPt = Math.max(_logoW_pt, _crmW_pt, _sloganW_pt);
+-  const _maxWidthPt = _maxWmm ? _maxWmm * 2.83465 : 9999;
++  const _maxWidthPt = _maxWmm ? (_maxWmm - 1.5) * 2.83465 : 9999;
+   const _autoZoomW = (_estimatedWidthPt > _maxWidthPt) ? (_maxWidthPt / _estimatedWidthPt) : 1;
+ 
+   // _autoZoom pela altura — evita overflow:hidden cortar o conteúdo
+diff --git a/src/app/[lang]/sucesso/PrenatalPage1.js b/src/app/[lang]/sucesso/PrenatalPage1.js
+index 347e82f..b5b0972 100644
+--- a/src/app/[lang]/sucesso/PrenatalPage1.js
++++ b/src/app/[lang]/sucesso/PrenatalPage1.js
+@@ -42,7 +42,7 @@ export default function PrenatalPage1({ accentColor, palette = [], logoComponent
+         bottom: '10px', 
+         background: '#fff', 
+         borderRadius: '2px', 
+-        boxShadow: '0 2px 10px rgba(0,0,0,0.1)', 
++        boxShadow: 'none', 
+         zIndex: 2, 
+         display: 'flex', 
+         flexDirection: 'column', 
+diff --git a/src/app/[lang]/sucesso/PrenatalPage4.js b/src/app/[lang]/sucesso/PrenatalPage4.js
+index bac6fe5..5edae90 100644
+--- a/src/app/[lang]/sucesso/PrenatalPage4.js
++++ b/src/app/[lang]/sucesso/PrenatalPage4.js
+@@ -54,7 +54,7 @@ export default function PrenatalPage4({ accentColor, palette = [], comBorda, pat
+       )}
+ 
+       {/* Content Container */}
+-      <div style={{ position: 'relative', zIndex: 2, background: '#fff', padding: '3px', height: '100%', display: 'flex', flexDirection: 'column', gap: '2px', borderRadius: '1.5px', boxShadow: '0 1px 5px rgba(0,0,0,0.05)' }}>
++      <div style={{ position: 'relative', zIndex: 2, background: '#fff', padding: '3px', height: '100%', display: 'flex', flexDirection: 'column', gap: '2px', borderRadius: '1.5px', boxShadow: 'none' }}>
+         {/* Exames Laboratoriais */}
+         <div style={{ background: secondaryColor, color: '#fff', fontSize: '4px', fontWeight: 900, padding: '1.5px 4px', textTransform: 'uppercase' }}>
+           {lang === 'en' ? "LAB EXAMS" : "EXAMES LABORATORIAIS"}
+diff --git a/src/app/[lang]/sucesso/TagSacolaPreview.js b/src/app/[lang]/sucesso/TagSacolaPreview.js
+index d766156..6b6761b 100644
+--- a/src/app/[lang]/sucesso/TagSacolaPreview.js
++++ b/src/app/[lang]/sucesso/TagSacolaPreview.js
+@@ -34,27 +34,28 @@ function TagCard({ size, solidColor, c0, c1, paletteColors, effectiveSrc, patter
+       <div style={containerStyle}>
+         <div style={bgStyle} />
+         {(() => {
+-          const hasImg = !!editData?.customLogoSrc;
+           const isRect = size.shape === 'rect';
+-          const boxW = Math.round(W * (isCircle ? 0.62 : isRect ? 0.58 : 0.70));
+-          const boxH = Math.round(H * (isCircle ? 0.55 : isRect ? 0.58 : 0.62));
++          const boxDim = Math.round(Math.min(W, H) * (isCircle ? 0.74 : isRect ? 0.65 : 0.78));
++          const boxW = isRect ? Math.round(W * 0.72) : boxDim;
++          const boxH = isRect ? Math.round(H * 0.65) : boxDim;
+           return (
+             <div style={{
+               position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%)', zIndex: 2,
+               display: 'flex', alignItems: 'center', justifyContent: 'center',
+-              background: effectiveSrc ? 'rgba(255,255,255,0.92)' : 'transparent',
+-              padding: effectiveSrc ? '4px 6px' : '0',
+-              borderRadius: '4px',
+-              maxWidth: `${boxW + 12}px`, maxHeight: `${boxH + 8}px`, overflow: 'visible',
++              background: effectiveSrc ? 'rgba(255,255,255,0.95)' : 'transparent',
++              padding: effectiveSrc ? '8px' : '0',
++              borderRadius: isCircle ? '50%' : '4px',
++              width: `${boxW}px`, height: `${boxH}px`,
++              maxWidth: `${boxW}px`, maxHeight: `${boxH}px`, overflow: 'hidden',
++              boxSizing: 'border-box',
+             }}>
+               <div style={{
+-                display: hasImg ? 'inline-flex' : 'flex',
+-                ...(hasImg ? { maxWidth: `${boxW}px` } : { width: `${boxW}px`, height: `${boxH}px` }),
+-                alignItems: 'center', justifyContent: 'center', overflow: 'visible',
++                display: 'flex', width: '100%', height: '100%',
++                alignItems: 'center', justifyContent: 'center', overflow: 'hidden',
+               }}>
+                 <LogoPreviewHTML item="Tag para Sacola" editData={editData}
+                   color={effectiveSrc ? solidColor : '#ffffff'}
+-                  layout={logoLayout} scaleFactor={isCircle ? 0.65 : isRect ? 0.58 : 0.70}
++                  layout={logoLayout} scaleFactor={isCircle ? 0.75 : isRect ? 0.68 : 0.78}
+                   hideTagline={false} withBackground={false}
+                   taglineColor={effectiveSrc ? undefined : 'rgba(255,255,255,0.75)'}
+                   maxWidth="100%" maxHeight="100%" />
+@@ -72,13 +73,26 @@ function TagCard({ size, solidColor, c0, c1, paletteColors, effectiveSrc, patter
+       {(() => {
+         const fs = Math.round(Math.min(W, H) * 0.075);
+         const fsSmall = Math.round(fs * 0.72);
+-        return <div style={{ position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%)', width: '76%', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: Math.round(fs * 0.4), overflow: 'hidden', maxHeight: '80%' }}>
+-        {clinicaNome && <div style={{ fontSize: fs, fontWeight: 400, color: solidColor, fontFamily: "'Brush Script MT','Segoe Script','Dancing Script',cursive", textAlign: 'center', lineHeight: 1.3 }}>{clinicaNome}</div>}
+-        <div style={{ width: 24, height: 0.5, background: `${solidColor}60` }} />
+-        {cartaoContacts?.telefone && <div style={{ fontSize: fsSmall, fontWeight: 400, color: '#888', fontFamily: 'Montserrat,sans-serif', letterSpacing: '0.3px' }}>{cartaoContacts.telefone}</div>}
+-        {cartaoContacts?.instagram && <div style={{ fontSize: fsSmall, fontWeight: 400, color: '#888', fontFamily: 'Montserrat,sans-serif', letterSpacing: '0.3px' }}>@{cartaoContacts.instagram.replace('@','')}</div>}
+-        {cartaoContacts?.site && <div style={{ fontSize: Math.round(fsSmall * 0.9), fontWeight: 400, color: '#bbb', fontFamily: 'Montserrat,sans-serif', letterSpacing: '0.3px' }}>{cartaoContacts.site}</div>}
+-      </div>;
++        const whatsapp = cartaoContacts?.whatsapp || '';
++        const telefone = cartaoContacts?.telefone || '';
++        const telefone2 = cartaoContacts?.telefone2 || '';
++        const email = cartaoContacts?.email || '';
++        const endereco = cartaoContacts?.endereco || '';
++        const instagram = cartaoContacts?.instagram || '';
++        const site = cartaoContacts?.site || '';
++        
++        const logoFont = editData?.fontFamily || 'Montserrat';
++
++        return <div style={{ position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%)', width: '80%', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: Math.round(fs * 0.35), overflow: 'hidden', maxHeight: '85%', textAlign: 'center' }}>
++          {clinicaNome && <div style={{ fontSize: fs, fontWeight: 600, color: solidColor, fontFamily: `'${logoFont}', sans-serif`, textAlign: 'center', lineHeight: 1.3 }}>{clinicaNome}</div>}
++          <div style={{ width: 24, height: 0.5, background: `${solidColor}60` }} />
++          {whatsapp && <div style={{ fontSize: fsSmall, fontWeight: 400, color: '#888', fontFamily: 'Montserrat,sans-serif', letterSpacing: '0.3px', whiteSpace: 'nowrap' }}>{whatsapp}</div>}
++          {(telefone || telefone2) && <div style={{ fontSize: Math.round(fsSmall * 0.8), fontWeight: 400, color: '#999', fontFamily: 'Montserrat,sans-serif', letterSpacing: '0.3px', whiteSpace: 'nowrap', marginTop: '2px' }}>{[telefone, telefone2].filter(Boolean).join(' · ')}</div>}
++          {instagram && <div style={{ fontSize: fsSmall, fontWeight: 400, color: '#888', fontFamily: 'Montserrat,sans-serif', letterSpacing: '0.3px', whiteSpace: 'nowrap' }}>@{instagram.replace('@','')}</div>}
++          {email && <div style={{ fontSize: Math.round(fsSmall * 0.85), fontWeight: 400, color: '#888', fontFamily: 'Montserrat,sans-serif', letterSpacing: '0.2px', wordBreak: 'break-all' }}>{email}</div>}
++          {site && <div style={{ fontSize: Math.round(fsSmall * 0.85), fontWeight: 400, color: '#bbb', fontFamily: 'Montserrat,sans-serif', letterSpacing: '0.3px', wordBreak: 'break-all' }}>{site}</div>}
++          {endereco && <div style={{ fontSize: Math.round(fsSmall * 0.75), fontWeight: 400, color: '#aaa', fontFamily: 'Montserrat,sans-serif', letterSpacing: '0.2px', marginTop: '2px', lineHeight: 1.2 }}>{endereco}</div>}
++        </div>;
+       })()}
+     </div>
+   );

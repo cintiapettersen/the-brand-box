@@ -1,0 +1,1251 @@
+diff --git a/src/app/[lang]/sucesso/page.js b/src/app/[lang]/sucesso/page.js
+index b9bb3ac..5943606 100644
+--- a/src/app/[lang]/sucesso/page.js
++++ b/src/app/[lang]/sucesso/page.js
+@@ -56,7 +56,7 @@ const CamisetaPreview = dynamic(() => import('./CamisetaPreview'), { ssr: false
+ const PapelPresentePreview = dynamic(() => import('./PapelPresentePreview'), { ssr: false });
+ const GuiaAmamentacaoPreview = dynamic(() => import('./GuiaAmamentacaoPreview'), { ssr: false });
+ const GuiaAlimentarPreview = dynamic(() => import('./GuiaAlimentarPreview'), { ssr: false });
+-const FolderPage4Dynamic = dynamic(() => import('./FolderPage4Dynamic'), { ssr: false });
++import FolderPage4Dynamic from './FolderPage4Dynamic';
+ const CadernetaPreview = dynamic(() => import('./CadernetaPreview'), { ssr: false }); // 176KB — maior ganho
+ const CaixaPreview = dynamic(() => import('./CaixaPreview'), { ssr: false });
+ 
+@@ -487,7 +487,13 @@ function SectionLabel({ children }) {
+ 
+ export function getMaxPatternGenerations(brand) {
+   const isDemo = brand?.isDemo || brand?.id?.includes('demo') || (typeof window !== 'undefined' && (new URLSearchParams(window.location.search).get('demo') === '1' || new URLSearchParams(window.location.search).get('demo') === 'BUILDWEEK100' || new URLSearchParams(window.location.search).get('session') === '0da0b9d0-f6f6-4743-a349-365e0cb16-demo'));
+-  return isDemo ? 5 : 3;
++  
++  const marcaName = (brand?.formData?.marca || brand?.editData?.marca || '').toLowerCase().trim();
++  if (marcaName === 'baby boom') {
++    return 50; // Increased limit specifically for testing the Baby Boom project
++  }
++  
++  return isDemo ? 5 : 6;
+ }
+ 
+ function hexToRgb(hex) {
+@@ -1030,7 +1036,7 @@ function CartaoStep({ brand, accentColor, paletteColors, marca, estampaPatterns,
+   );
+ }
+ 
+-function EstampaStep({ brand, accentColor, marca, patterns, setPatterns, genCount, setGenCount, selectedIdx, setSelectedIdx, paletteColors, patternScale, setPatternScale, estampasRef, originalPattern, setOriginalPattern }) {
++function EstampaStep({ brand, accentColor, marca, patterns, setPatterns, genCount, setGenCount, selectedIdx, setSelectedIdx, paletteColors, patternScale, setPatternScale, patternOffset, setPatternOffset, estampasRef, originalPattern, setOriginalPattern }) {
+   const { dictionary } = useTranslation();
+   const [generating, setGenerating] = useState(false);
+   const [fixingSeams, setFixingSeams] = useState(false);
+@@ -1039,14 +1045,25 @@ function EstampaStep({ brand, accentColor, marca, patterns, setPatterns, genCoun
+   const [showSlotModal, setShowSlotModal] = useState(false);
+   const bxSpinStyle = `@keyframes bx-spin { 0%,100%{transform:scale(1);opacity:1} 50%{transform:scale(1.4);opacity:0.5} }`;
+   const [loadingPhraseIdx, setLoadingPhraseIdx] = useState(0);
+-  const [feedbackState, setFeedbackState] = useState({});
++  const [feedbackState, setFeedbackState] = useState(() => {
++    try {
++      const saved = typeof window !== 'undefined' ? localStorage.getItem(`brandbox_feedback_${brand?.id}`) : null;
++      return saved ? JSON.parse(saved) : {};
++    } catch {
++      return {};
++    }
++  });
+ 
+   const handleFeedback = (status) => {
+     const current = patterns[selectedIdx];
+     const url = current?.url;
+     if (!url) return;
+ 
+-    setFeedbackState(prev => ({ ...prev, [url]: status }));
++    setFeedbackState(prev => {
++      const next = { ...prev, [url]: status };
++      try { localStorage.setItem(`brandbox_feedback_${brand?.id}`, JSON.stringify(next)); } catch {}
++      return next;
++    });
+ 
+     const sessionId = typeof window !== 'undefined'
+       ? (new URLSearchParams(window.location.search).get('session') || localStorage.getItem('brandbox_session'))
+@@ -1094,7 +1111,7 @@ function EstampaStep({ brand, accentColor, marca, patterns, setPatterns, genCoun
+     : null;
+ 
+   const handleGenerateClick = () => {
+-    if (patterns.length >= 3) {
++    if (patterns.length >= 6) {
+       setShowSlotModal(true);
+     } else {
+       generate();
+@@ -1109,6 +1126,7 @@ function EstampaStep({ brand, accentColor, marca, patterns, setPatterns, genCoun
+       const paletas = brand.paletas || [];
+       const sel = paletas.find(p => p.id === brand.selectedPaleta);
+       const cores = sel?.paleta_hex || sel?.cores_hex || [];
++      
+       const estampas = (estampasRef && estampasRef.length > 0) ? estampasRef : (brand.estampas || []);
+       const shuffled = [...estampas].sort(() => Math.random() - 0.5);
+       const refs = shuffled.map(e => e.image_url).filter(Boolean);
+@@ -1118,12 +1136,14 @@ function EstampaStep({ brand, accentColor, marca, patterns, setPatterns, genCoun
+       console.log(`🎨 Gerando com ${refs.length} referência(s). Solicitando ${requestCount} estampa(s).`);
+ 
+       const replaceUrl = (replaceIdx !== null && patterns[replaceIdx]) ? patterns[replaceIdx].url : null;
++      const paletteNames = paletteColors.map(hex => colorNamePT(hex, dictionary));
+ 
+       const res = await fetch('/api/generate-pattern', {
+         method: 'POST',
+         headers: { 'Content-Type': 'application/json' },
+         body: JSON.stringify({
+           paleta: paletteColors,
++          paletaNomes: paletteNames,
+           estiloNome: ESTILO_NOME_BY_ID[brand.resultadoFinal?.estiloId] || brand.resultadoFinal?.estiloNome || '',
+           marca: marca || brand.formData?.marca || '',
+           descricao: brand.resultadoFinal?.mensagem || '',
+@@ -1171,6 +1191,7 @@ function EstampaStep({ brand, accentColor, marca, patterns, setPatterns, genCoun
+               sessionId,
+               allPatterns: novos,
+               replaceUrl: replaceUrl,
++              incrementGenCount: true,
+             }),
+           })
+           .then(r => r.json())
+@@ -1214,21 +1235,39 @@ function EstampaStep({ brand, accentColor, marca, patterns, setPatterns, genCoun
+     }
+   };
+ 
+-  const download = () => {
++  const download = async () => {
+     if (!patternSrc) return;
+     const pattern = patterns[selectedIdx];
+-    const binary = atob(pattern.base64);
+-    const bytes = new Uint8Array(binary.length);
+-    for (let i = 0; i < binary.length; i++) bytes[i] = binary.charCodeAt(i);
+-    const blob = new Blob([bytes], { type: 'image/png' });
+-    const url = URL.createObjectURL(blob);
+-    const a = document.createElement('a');
+-    a.href = url;
+-    a.download = `Estampa_${marca || 'marca'}.png`;
+-    document.body.appendChild(a);
+-    a.click();
+-    document.body.removeChild(a);
+-    setTimeout(() => URL.revokeObjectURL(url), 1000);
++    
++    if (pattern.base64) {
++      const binary = atob(pattern.base64);
++      const bytes = new Uint8Array(binary.length);
++      for (let i = 0; i < binary.length; i++) bytes[i] = binary.charCodeAt(i);
++      const blob = new Blob([bytes], { type: 'image/png' });
++      const url = URL.createObjectURL(blob);
++      const a = document.createElement('a');
++      a.href = url;
++      a.download = `Estampa_${marca || 'marca'}.png`;
++      document.body.appendChild(a);
++      a.click();
++      document.body.removeChild(a);
++      setTimeout(() => URL.revokeObjectURL(url), 1000);
++    } else if (pattern.url) {
++      try {
++        const response = await fetch(pattern.url);
++        const blob = await response.blob();
++        const url = URL.createObjectURL(blob);
++        const a = document.createElement('a');
++        a.href = url;
++        a.download = `Estampa_${marca || 'marca'}.png`;
++        document.body.appendChild(a);
++        a.click();
++        document.body.removeChild(a);
++        setTimeout(() => URL.revokeObjectURL(url), 1000);
++      } catch (e) {
++        window.open(pattern.url, '_blank');
++      }
++    }
+   };
+ 
+   const makeSeamless = async (type = 'blur') => {
+@@ -1498,7 +1537,7 @@ function EstampaStep({ brand, accentColor, marca, patterns, setPatterns, genCoun
+             </div>
+           )}
+           {/* Botões: varinha mágica + reverter */}
+-          {patternSrc && !generating && (
++          {patternSrc && !generating && viewMode === 'repetida' && (
+             <div style={{ display: 'flex', justifyContent: 'center', gap: '8px', marginTop: '6px', flexWrap: 'wrap' }}>
+               <button
+                 onClick={() => makeSeamless('blur')}
+@@ -1637,13 +1676,13 @@ function EstampaStep({ brand, accentColor, marca, patterns, setPatterns, genCoun
+             fontFamily: 'Montserrat, sans-serif'
+           }}>
+             <div>
+-              <h4 style={{ margin: 0, fontSize: '1rem', fontWeight: 700, color: '#333' }}>Galeria cheia (Máx. 3 estampas)</h4>
++              <h4 style={{ margin: 0, fontSize: '1rem', fontWeight: 700, color: '#333' }}>Galeria cheia (Máx. 6 estampas)</h4>
+               <p style={{ margin: '6px 0 0 0', fontSize: '0.78rem', color: '#666', lineHeight: 1.4 }}>
+-                Você já tem 3 estampas na sua galeria. Escolha uma abaixo para ser substituída pela nova versão:
++                Você já tem 6 estampas na sua galeria. Escolha uma abaixo para ser substituída pela nova versão:
+               </p>
+             </div>
+             
+-            <div style={{ display: 'flex', gap: '12px', justifyContent: 'center', margin: '8px 0' }}>
++            <div style={{ display: 'flex', gap: '12px', justifyContent: 'center', margin: '8px 0', flexWrap: 'wrap' }}>
+               {patterns.map((p, idx) => (
+                 <div
+                   key={idx}
+@@ -1701,7 +1740,7 @@ function EstampaStep({ brand, accentColor, marca, patterns, setPatterns, genCoun
+         </p>
+       )}
+ 
+-      {patternSrc && setPatternScale && (
++      {patternSrc && setPatternScale && viewMode === 'repetida' && (
+         <div style={{ display: 'flex', alignItems: 'center', gap: '10px', padding: '8px 14px', background: '#f7f7f5', borderRadius: '12px' }}>
+           <span style={{ fontSize: '0.68rem', color: '#999', textTransform: 'uppercase', letterSpacing: '1px', fontWeight: 600, whiteSpace: 'nowrap' }}>{dictionary?.pattern_tab?.size || 'TAMANHO'}</span>
+           <input type="range" min="50" max="600" step="10"
+@@ -2768,7 +2807,7 @@ function PlacaStep({ brand, accentColor, paletteColors, estampaPatterns, estampa
+             patternImage={patternImage}
+             iconPath={iconPath}
+             customLogoSrc={customLogoSrc}
+-            logoElement={<LogoPreviewHTML editData={editData} color={logoColor || accentColor} layout={logoLayout || editData?.logoLayout || 'horizontal'} scaleFactor={0.82} maxWidth="440px" maxHeight="125px" />}
++            logoElement={<LogoPreviewHTML editData={editData} color={logoColor || accentColor} layout={logoLayout || editData?.logoLayout || 'horizontal'} scaleFactor={0.90} maxWidth="450px" maxHeight="145px" />}
+           />
+         </div>
+       </div>
+@@ -3187,18 +3226,15 @@ function FonteStep({ brand, accentColor, logoColor, marca, tagline, editData, lo
+ 
+ function GuiaStep({ brand, accentColor, paletteColors, marca, tagline, estampaPatterns, estampaSelectedIdx, editData }) {
+   const { dictionary } = useTranslation();
+-  const safeEditData = editData || {};
+-  const safePaletteColors = Array.isArray(paletteColors) && paletteColors.length > 0 ? paletteColors : [accentColor || '#C3CEDB'];
+-  const safeEstampaPatterns = Array.isArray(estampaPatterns) ? estampaPatterns : [];
+   const currentIdx = estampaSelectedIdx || 0;
+-  const patternSrc = safeEstampaPatterns[currentIdx]
+-    ? (safeEstampaPatterns[currentIdx].url || (safeEstampaPatterns[currentIdx].base64 ? `data:${safeEstampaPatterns[currentIdx].mimeType || 'image/png'};base64,${safeEstampaPatterns[currentIdx].base64}` : null))
++  const patternSrc = estampaPatterns?.[currentIdx]
++    ? (estampaPatterns[currentIdx].url || `data:${estampaPatterns[currentIdx].mimeType};base64,${estampaPatterns[currentIdx].base64}`)
+     : null;
+-  const estiloNome = brand?.resultadoFinal?.estiloNome || brand?.estilo_nome || '';
+-  const mensagem = brand?.resultadoFinal?.mensagem || '';
+-  const fontFamily = safeEditData.fontFamily || 'Playfair Display';
+-  const fontWeight = safeEditData.fontWeight || 700;
+-  const isScript = safeEditData.fontStyle === 'script';
++  const estiloNome = brand.resultadoFinal?.estiloNome || '';
++  const mensagem = brand.resultadoFinal?.mensagem || '';
++  const fontFamily = editData.fontFamily || 'Playfair Display';
++  const fontWeight = editData.fontWeight || 700;
++  const isScript = editData.fontStyle === 'script';
+   const toneWords = deriveTone(estiloNome, dictionary);
+ 
+   const getPapelariaItems = () => {
+@@ -3211,18 +3247,10 @@ function GuiaStep({ brand, accentColor, paletteColors, marca, tagline, estampaPa
+     : (marca || 'SUA MARCA').toUpperCase();
+ 
+   const openPrint = () => {
+-    let manifesto = null;
+-    let tomDeVoz = null;
+-    try {
+-      manifesto = typeof window !== 'undefined' ? localStorage.getItem(`brandbox_manifesto_${marca}`) || null : null;
+-    } catch {}
+-    try {
+-      const tomDeVozRaw = typeof window !== 'undefined' ? localStorage.getItem(`brandbox_tomdevoz_${marca}`) : null;
+-      tomDeVoz = tomDeVozRaw ? JSON.parse(tomDeVozRaw) : null;
+-    } catch (e) {
+-      console.warn('Error parsing tomDeVoz JSON:', e);
+-    }
+-    const html = buildGuiaHTML({ marca, tagline, accentColor, paletteColors: safePaletteColors, fontFamily, fontWeight, patternSrc, estiloNome, mensagem, isScript, manifesto, tomDeVoz });
++    const manifesto = typeof window !== 'undefined' ? localStorage.getItem(`brandbox_manifesto_${marca}`) || null : null;
++    const tomDeVozRaw = typeof window !== 'undefined' ? localStorage.getItem(`brandbox_tomdevoz_${marca}`) : null;
++    const tomDeVoz = tomDeVozRaw ? JSON.parse(tomDeVozRaw) : null;
++    const html = buildGuiaHTML({ marca, tagline, accentColor, paletteColors, fontFamily, fontWeight, patternSrc, estiloNome, mensagem, isScript, manifesto, tomDeVoz });
+     const win = window.open('', '_blank');
+     if (!win) return;
+     win.document.write(html);
+@@ -3244,7 +3272,7 @@ function GuiaStep({ brand, accentColor, paletteColors, marca, tagline, estampaPa
+         <div style={{ padding: '16px 20px', borderBottom: '1px solid #f5f5f5' }}>
+           <p style={{ fontSize: '0.55rem', fontWeight: 700, letterSpacing: '2px', textTransform: 'uppercase', color: '#bbb', marginBottom: '10px' }}>{dictionary?.guide_tab?.color_palette || 'Paleta de Cores'}</p>
+           <div style={{ display: 'flex', gap: '6px' }}>
+-            {safePaletteColors.map((hex, i) => (
++            {paletteColors.map((hex, i) => (
+               <div key={i} style={{ flex: 1, borderRadius: '8px', overflow: 'hidden' }}>
+                 <div style={{ background: hex, height: '40px' }} />
+                 <p style={{ fontSize: '0.48rem', textAlign: 'center', color: '#aaa', padding: '3px 0', fontFamily: 'monospace' }}>{hex.toUpperCase()}</p>
+@@ -4060,7 +4088,7 @@ function ControleEspecialPreview({ accentColor, patternSrc, editData, logoColor,
+         {/* Área branca interna */}
+         <div style={{ position: 'absolute', top: BORDER, left: BORDER, right: BORDER, bottom: BORDER, background: '#fff', display: 'flex', flexDirection: 'column', padding: '8px' }}>
+           
+-          <div style={{ textAlign: 'center', fontSize: '5.5px', fontWeight: 800, color: '#999', letterSpacing: '1px', textTransform: 'uppercase', marginBottom: '6px' }}>
++          <div style={{ textAlign: 'center', fontSize: '5.5px', fontWeight: 800, color: '#999', opacity: 0.65, letterSpacing: '1px', textTransform: 'uppercase', marginBottom: '6px', marginTop: '-2px' }}>
+             {dictionary?.controle_especial?.titulo || 'RECEITUÁRIO DE CONTROLE ESPECIAL'}
+           </div>
+  
+@@ -4604,7 +4632,7 @@ function FolderTrifoldPreview({ brand, editData, logoColor, logoLayout, comBorda
+ 
+   const Art2 = isVacina ? FolderVacinaPage2 : (isDev ? FolderDevPage2 : (isSono ? FolderSonoPage2 : (isCuidados ? FolderCuidadosPage2 : FolderPage2Art)));
+   const Art3 = isVacina ? FolderVacinaPage3 : (isDev ? FolderDevPage3 : (isSono ? FolderSonoPage3 : (isCuidados ? FolderCuidadosPage3 : FolderPage3Art)));
+-  const Art4 = isVacina ? FolderVacinaPage4 : (isDev ? FolderDevPage4 : (isSono ? FolderSonoPage4 : (isCuidados ? FolderCuidadosPage4 : FolderPage4Art)));
++  const Art4 = isVacina ? FolderVacinaPage4 : (isDev ? FolderDevPage4 : (isSono ? FolderSonoPage4 : (isCuidados ? FolderCuidadosPage4 : (currentItem === 'Guia Alimentar' ? FolderPage4Dynamic : FolderPage4Art))));
+   const Art5 = isVacina ? FolderVacinaPage5 : (isDev ? FolderDevPage5 : (isSono ? FolderSonoPage5 : (isCuidados ? FolderCuidadosPage5 : FolderPage5Art)));
+   const Art6 = isVacina ? FolderVacinaPage6 : null;
+   const Art1 = isVacina ? FolderVacinaPage1 : null;
+@@ -5094,8 +5122,8 @@ function PapelTimbradoPreview({ brand, editData, accentColor, patternSrc, logoCo
+         </div>
+ 
+         {/* Central Watermark */}
+-        <div style={{ position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%)', opacity: 0.15, width: '160px', display: 'flex', justifyContent: 'center', pointerEvents: 'none', overflow: 'hidden' }}>
+-           <LogoPreviewHTML editData={editData} color={logoColor} layout={logoLayout} scaleFactor={0.65} hideTagline maxWidth="160px" maxHeight="100px" />
++        <div style={{ position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%)', opacity: 0.15, width: '160px', display: 'flex', justifyContent: 'center', pointerEvents: 'none' }}>
++           <LogoPreviewHTML editData={editData} color={logoColor} layout={logoLayout} scaleFactor={0.65} hideTagline maxWidth="160px" maxHeight="130px" />
+         </div>
+ 
+         {/* Footer */}
+@@ -5393,7 +5421,7 @@ function EnvelopeSacoPreview({ brand, editData, accentColor, patternSrc, logoCol
+             <div style={{ position: 'absolute', top: 0, left: 0, right: 0, height: '45px', background: abaColor, opacity: 0.9, zIndex: 5 }} />
+             {/* Etiqueta com logo — centralizada na área abaixo da aba */}
+             <div style={{ position: 'absolute', top: '172px', left: '50%', transform: 'translate(-50%, -50%)', padding: '12px 16px', background: 'rgba(255,255,255,0.93)', borderRadius: '4px', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', width: '160px', height: '100px' }}>
+-              <LogoPreviewHTML item="Envelope Saco" editData={{ ...editData, tagline: localSlogan }} color={logoColor} layout={logoLayout} scaleFactor={0.80} crm={crmLine} withBackground={false} maxWidth="100%" maxHeight="100%" />
++              <LogoPreviewHTML item="Envelope Saco" editData={{ ...editData, tagline: localSlogan }} color={logoColor} layout={logoLayout} scaleFactor={1.25} crm={crmLine} withBackground={false} maxWidth="100%" maxHeight="100%" />
+             </div>
+           </div>
+         </div>
+@@ -6165,16 +6193,42 @@ function PapelariaStep({ brand, accentColor, paletteColors, estampaPatterns, est
+       });
+ 
+       for (let i = 0; i < targetElements.length; i++) {
++        // Temporarily isolate the target element to avoid document height rendering glitches
++        for (let j = 0; j < targetElements.length; j++) {
++          targetElements[j].style.display = (j === i) ? '' : 'none';
++        }
++        // Force the element to match exact page dimensions so html2canvas doesn't capture extra height
+         const el = targetElements[i];
++        const origW = el.style.width;
++        const origH = el.style.height;
++        const origOverflow = el.style.overflow;
++        el.style.width = `${pxW}px`;
++        el.style.height = `${pxH}px`;
++        el.style.overflow = 'hidden';
++        
++        // Force the iframe to match exactly one page
++        iframeEl.style.width = `${pxW}px`;
++        iframeEl.style.height = `${pxH}px`;
++        
++        await new Promise(r => setTimeout(r, 100));
++
+         const canvas = await html2canvas(el, {
+           scale: 3,
+           useCORS: true,
+           allowTaint: true,
+           logging: false,
+           backgroundColor: '#ffffff',
++          width: pxW,
++          height: pxH,
+           windowWidth: pxW,
+           windowHeight: pxH,
+         });
++
++        // Restore original styles
++        el.style.width = origW;
++        el.style.height = origH;
++        el.style.overflow = origOverflow;
++
+         const imgData = canvas.toDataURL('image/png');
+         if (i > 0) {
+           doc.addPage([width, height], isLandscape ? 'landscape' : 'portrait');
+@@ -6182,6 +6236,11 @@ function PapelariaStep({ brand, accentColor, paletteColors, estampaPatterns, est
+         doc.addImage(imgData, 'PNG', 0, 0, width, height, undefined, 'FAST');
+       }
+ 
++      // Restore display styles after rendering completes
++      for (let j = 0; j < targetElements.length; j++) {
++        targetElements[j].style.display = '';
++      }
++
+       const filename = `${pdfTitle(item)}.pdf`;
+       doc.save(filename);
+     } catch (err) {
+@@ -6275,7 +6334,7 @@ function PapelariaStep({ brand, accentColor, paletteColors, estampaPatterns, est
+     const _isA4Global = _psLower.includes('a4') || ['Receita de Alta', 'Timbrado', 'Diário', 'Ficha', 'Cadastro', 'Prontuário', 'Checklist', 'Orientação'].some(n => item.includes(n));
+     const _isReceituario = item.includes('Receituário');
+     const _globalBoost = (['Receituário', 'Recibo', 'Ficha', 'Prontuário', 'Certificado', 'Atestado'].some(n => item.includes(n)) || _isA4Global) ? 1.0 : 1.0;
+-    const _logoWidthMmGlobal = _isReceituario ? (_isA4Global ? 150 : 110) : 100; // padronizado: A4 e A5 usam mesma caixa de logo
++    const _logoWidthMmGlobal = _isReceituario ? (_isA4Global ? 110 : 85) : 100; // padronizado: A4 e A5 usam mesma caixa de logo proporcional
+ 
+     const logoHtmlWithCrm = genPDFLogoHtml({
+       brand,
+@@ -6284,13 +6343,13 @@ function PapelariaStep({ brand, accentColor, paletteColors, estampaPatterns, est
+       layout: logoLayout,
+       localSlogan,
+       crmLine,
+-      fontPt: (parseFloat(_fontPt) * (_isReceituario ? (_isA4Global ? 3.0 : 2.2) : _globalBoost)).toFixed(1),
++      fontPt: (parseFloat(_fontPt) * (_isReceituario ? (_isA4Global ? 1.6 : 1.3) : _globalBoost)).toFixed(1),
+       lineH: _lineH,
+       letterSp: _letterSp,
+       customLogoSrc,
+       customLogoScale: customLogoSrc ? getCustomLogoScale(item) * (ITEM_CUSTOM_BASE_SCALES[item] || 1) : 100,
+       maxWidth: `${_logoWidthMmGlobal}mm`,
+-      maxHeight: _isReceituario ? (_isA4Global ? '80mm' : '60mm') : '36mm'
++      maxHeight: _isReceituario ? (_isA4Global ? '42mm' : '32mm') : '36mm'
+     });
+     const logoHtml = logoHtmlWithCrm;
+ 
+@@ -7045,8 +7104,8 @@ ${versoHtml}
+       const abaInfHtml = `<div style="position:absolute;top:${BLEED + ABA_S + H}mm;left:${BLEED + ABA_L}mm;width:${W}mm;height:${ABA_I + BLEED}mm;background:#fff;z-index:1;">${genPattern(1, 0, -H)}</div>`;
+       const abaLatHtml = `<div style="position:absolute;top:${BLEED + ABA_S}mm;left:0;width:${ABA_L + BLEED}mm;height:${H}mm;background:#fff;z-index:1;">${genPattern(1, ABA_L, 0)}</div>`;
+ 
+-      // Respect user's logoLayout choice so it stays on one line if requested. Use a smaller fontPt so it fits the white box without overflowing and breaking CSS centering.
+-      const _sacLogoHtml = genPDFLogoHtml({ brand, editDataOverride: editData, color: logoColor, layout: logoLayout, localSlogan, crmLine: null, fontPt: 40, lineH: _lineH, letterSp: _letterSp, customLogoSrc, customLogoScale: customLogoSrc ? getCustomLogoScale(item) * (ITEM_CUSTOM_BASE_SCALES[item] || 1) : 100, maxWidth: '130mm', maxHeight: '75mm', withBackground: false });
++      // Respect user's logoLayout choice so it stays on one line if requested. Use a prominent fontPt so it fills the white box cleanly.
++      const _sacLogoHtml = genPDFLogoHtml({ brand, editDataOverride: editData, color: logoColor, layout: logoLayout, localSlogan, crmLine: null, fontPt: 84, lineH: _lineH, letterSp: _letterSp, customLogoSrc, customLogoScale: customLogoSrc ? getCustomLogoScale(item) * (ITEM_CUSTOM_BASE_SCALES[item] || 1) : 100, maxWidth: '142mm', maxHeight: '85mm', withBackground: false });
+       const frenteHtml = `
+         <div style="position:absolute;top:${BLEED + ABA_S}mm;left:${BLEED + ABA_L}mm;width:${W}mm;height:${H}mm;overflow:hidden;background:#fff;z-index:2;">
+             ${genPattern(1, 0, 0)}
+@@ -7100,7 +7159,7 @@ body { width:${totalW}mm; height:${totalH}mm; position:relative; overflow:hidden
+       const totalH = (H * 2) + ABA + (BLEED * 2);
+ 
+       const solidColor = borderColor || accentColor;
+-      const genPattern = (scaleMul = 1) => (comBorda && patternSrc) ? `<div style="position:absolute;inset:0;background-image:url(${patternSrc});background-size:${(patternScale * 0.71 * scaleMul).toFixed(1)}mm;background-repeat:repeat;opacity:1;"></div>` : '';
++      const genPattern = (scaleMul = 1) => (comBorda && patternSrc) ? `<div style="position:absolute;inset:0;background-image:url(${patternSrc});background-size:${(getPatternTileMm(patternScale) * scaleMul).toFixed(1)}mm;background-repeat:repeat;opacity:1;"></div>` : '';
+       const _envPhones = [mainPhone, telefone].filter(Boolean).join(' / ');
+ 
+       const _ffEnv = editData?.fontFamily || brand.editData?.fontFamily || 'Playfair Display';
+@@ -7432,7 +7491,7 @@ body { width: 220mm; height: 307mm; background: #fff; }
+       const _ffCk = editData?.fontFamily || brand.editData?.fontFamily || 'Playfair Display';
+       const _lfCk = LOCAL_FONT_FACES[_ffCk];
+       const _fiCk = _lfCk ? `<style>${_lfCk}</style>` : `<link href="https://fonts.googleapis.com/css2?family=${encodeURIComponent(_ffCk)}:wght@400;700&display=swap" rel="stylesheet">`;
+-      const _logoCk = genPDFLogoHtml({ brand, editDataOverride: editData, color: logoColor, localSlogan, crmLine, fontPt: _fontPt, lineH: _lineH, letterSp: _letterSp, layout: logoLayout, customLogoSrc, customLogoScale: customLogoSrc ? getCustomLogoScale(item) * (ITEM_CUSTOM_BASE_SCALES[item] || 1) : 100, maxWidth: '100mm', maxHeight: '36mm', withBackground: comBorda && patternSrc });
++      const _logoCk = genPDFLogoHtml({ brand, editDataOverride: editData, color: logoColor, localSlogan, crmLine, fontPt: (parseFloat(_fontPt) * 2.2).toFixed(1), lineH: _lineH, letterSp: _letterSp, layout: logoLayout, customLogoSrc, customLogoScale: customLogoSrc ? getCustomLogoScale(item) * (ITEM_CUSTOM_BASE_SCALES[item] || 1) : 100, maxWidth: '130mm', maxHeight: '54mm', withBackground: comBorda && patternSrc });
+       const _cmCk = `
+         <div style="position:absolute;top:${BLEED}mm;left:0;width:${BLEED-0.5}mm;height:0.2mm;background:#000;z-index:100;"></div>
+         <div style="position:absolute;top:0;left:${BLEED}mm;width:0.2mm;height:${BLEED-0.5}mm;background:#000;z-index:100;"></div>
+@@ -7446,7 +7505,7 @@ body { width: 220mm; height: 307mm; background: #fff; }
+       const exCk = document.getElementById('_gabarito_iframe'); if (exCk) exCk.remove();
+       const blobCk = new Blob([htmlCk], { type: 'text/html;charset=utf-8' });
+       const blobUrlCk = URL.createObjectURL(blobCk);
+-      return exportHTMLAsPDF(html, item, mode);
++      return exportHTMLAsPDF(htmlCk, item, mode);
+     }
+ 
+     if (item.includes('Atestado Médico')) {
+@@ -7878,17 +7937,12 @@ body { background:#fff; }
+       const selSize = SIZES_ET[etiquetaSizeIdx] || SIZES_ET[0];
+       const selFrase = FRASES_ET[etiquetaFraseIdx] || FRASES_ET[0];
+       const BLEED_ET = 3;
+-      // scaleFactor e maxHeight por formato
+-      const _etSFMap = [0.30, 0.50, 0.28];
+-      const _etMaxHMap = ['22mm', '28mm', '20mm'];
+-      const _etSF = _etSFMap[etiquetaSizeIdx] ?? 0.30;
+-      const _etMaxH = _etMaxHMap[etiquetaSizeIdx] ?? '22mm';
+-      // zoom: PDF px/mm (3.78) ÷ preview px/mm
+-      const _etZoom = (3.78 / selSize.previewScale).toFixed(3);
+-      const logoHtmlEt = `<div style="zoom:${_etZoom};display:flex;flex-direction:column;align-items:center;">${genPDFLogoHtml({ brand, editDataOverride: editData, color: solidColor, layout: logoLayout || 'stacked', localSlogan, scaleFactor: _etSF, crmLine: null, customLogoSrc, customLogoScale: customLogoSrc ? getCustomLogoScale(item) * (ITEM_CUSTOM_BASE_SCALES[item] || 1) : 100, maxWidth: '100mm', maxHeight: _etMaxH, withBackground: false })}</div>`;
+-      // Marcas de corte padrão gráfica: ficam NO sangria, apontando para fora da área de corte
+-      // gap 0.5mm entre linha de corte e início da marca; marca com 2.5mm de comprimento
+       const B = BLEED_ET;
++      const _logoMaxW = (selSize.w * 0.78).toFixed(1) + 'mm';
++      const _logoMaxH = (selSize.h * 0.50).toFixed(1) + 'mm';
++      const logoHtmlEt = `<div style="display:flex;flex-direction:column;align-items:center;justify-content:center;width:100%;max-width:${_logoMaxW};max-height:${_logoMaxH};">${genPDFLogoHtml({ brand, editDataOverride: editData, color: solidColor, layout: logoLayout || 'stacked', localSlogan, fontPt: 44, scaleFactor: 1.0, crmLine: null, customLogoSrc, customLogoScale: customLogoSrc ? getCustomLogoScale(item) * (ITEM_CUSTOM_BASE_SCALES[item] || 1) : 100, maxWidth: _logoMaxW, maxHeight: _logoMaxH, withBackground: false })}</div>`;
++
++      // Marcas de corte padrão gráfica: ficam NO sangria, apontando para fora da área de corte
+       const cms = `
+         <div style="position:absolute;top:${B}mm;left:0;width:${B-0.5}mm;height:0.2mm;background:#000;"></div>
+         <div style="position:absolute;top:0;left:${B}mm;width:0.2mm;height:${B-0.5}mm;background:#000;"></div>
+@@ -7901,15 +7955,19 @@ body { background:#fff; }
+       const etiquetaBlock = `
+         <div style="position:absolute;inset:0;${bgEt}"></div>
+         <div style="position:absolute;top:${B}mm;left:${B}mm;width:${selSize.w}mm;height:${selSize.h}mm;">
+-          <div style="position:absolute;inset:3mm;border:0.3mm solid rgba(255,255,255,0.45);border-radius:2mm;"></div>
+-          <div style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:82%;min-height:70%;background:rgba(255,255,255,0.88);border-radius:2.5mm;padding:5mm 5mm;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3mm;">
+-            <div style="font-size:5.5mm;font-weight:800;color:${solidColor};font-family:'Montserrat',sans-serif;text-align:center;line-height:1.25;">${selFrase}</div>
+-            <div style="width:25%;height:0.2mm;background:${solidColor}40;"></div>
+-            ${logoHtmlEt}
+-            <div style="display:flex;flex-direction:column;align-items:center;gap:2mm;margin-top:4mm;">
+-              ${instagram ? `<div style="display:flex;align-items:center;gap:2mm;">${igIcon}<span style="font-size:3.5mm;color:${solidColor};font-family:'Montserrat',sans-serif;font-weight:600;">@${instagram.replace('@','')}</span></div>` : ''}
+-              ${mainPhone ? `<div style="display:flex;align-items:center;gap:2mm;">${waIcon}<span style="font-size:3.2mm;color:${solidColor}bb;font-family:'Montserrat',sans-serif;font-weight:400;">${mainPhone}</span></div>` : ''}
++          <div style="position:absolute;inset:3mm;border:0.3mm solid rgba(255,255,255,0.45);border-radius:2mm;pointer-events:none;"></div>
++          <div style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:88%;height:84%;background:rgba(255,255,255,0.92);border-radius:3.5mm;padding:5mm 5mm;display:flex;flex-direction:column;align-items:center;justify-content:space-between;box-sizing:border-box;overflow:hidden;">
++            <div style="display:flex;flex-direction:column;align-items:center;gap:2mm;width:100%;">
++              <div style="font-size:${(selSize.h * 0.045).toFixed(1)}mm;font-weight:800;color:${solidColor};font-family:'Montserrat',sans-serif;text-align:center;line-height:1.2;">${selFrase}</div>
++              <div style="width:25%;height:0.2mm;background:${solidColor}40;"></div>
+             </div>
++            ${logoHtmlEt}
++            ${(instagram || mainPhone) ? `
++              <div style="display:flex;flex-direction:column;align-items:center;gap:1.5mm;margin-top:1mm;">
++                ${instagram ? `<div style="display:flex;align-items:center;gap:1.5mm;">${igIcon}<span style="font-size:3mm;color:${solidColor};font-family:'Montserrat',sans-serif;font-weight:600;">@${instagram.replace('@','')}</span></div>` : ''}
++                ${mainPhone ? `<div style="display:flex;align-items:center;gap:1.5mm;">${waIcon}<span style="font-size:2.8mm;color:${solidColor}bb;font-family:'Montserrat',sans-serif;font-weight:400;">${mainPhone}</span></div>` : ''}
++              </div>
++            ` : ''}
+           </div>
+         </div>
+         ${cms}`;
+@@ -8024,6 +8082,8 @@ html, body { width:${TW}mm; height:${TH}mm; overflow:hidden; }
+         ? `background-image:url(${patternSrc});background-size:${tileMm}mm;background-repeat:repeat;`
+         : `background:${solidColor};`;
+ 
++      const showLogoT = typeof showLogo !== 'undefined' ? showLogo : true;
++
+       const html = `<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Estampa Camiseta - ${marca}</title>${fiT}
+ <style>
+ * { box-sizing:border-box; margin:0; padding:0; print-color-adjust:exact !important; -webkit-print-color-adjust:exact !important; }
+@@ -8031,37 +8091,35 @@ html, body { width:${TW}mm; height:${TH}mm; overflow:hidden; }
+ @page shirt { size:${SHIRT_W}mm ${SHIRT_H}mm; margin:0; }
+ @page selo { size:200mm 200mm; margin:0; }
+ .tile-page  { page: tile;  width:${tileMm}mm; height:${tileMm}mm; position:relative; overflow:hidden; page-break-after:always; }
+-.shirt-page { page: shirt; width:${SHIRT_W}mm; height:${SHIRT_H}mm; position:relative; overflow:hidden; page-break-after:always; }
++.shirt-page { page: shirt; width:${SHIRT_W}mm; height:${SHIRT_H}mm; position:relative; overflow:hidden; ${showLogoT ? 'page-break-after:always;' : ''} }
+ .selo-page  { page: selo;  width:200mm; height:200mm; position:relative; overflow:hidden; }
+ </style></head><body>
+ 
+-<!-- PAG 1: MODULO DE REPETICAO — tile exato que a graffica deve repetir no tecido -->
++<!-- PAG 1: MODULO DE REPETICAO — tile exato que a grafica deve repetir no tecido -->
+ <div class="tile-page" style="${bgStyleT}">
+   <div style="position:absolute;bottom:3mm;right:4mm;font-family:Montserrat,sans-serif;font-size:6pt;color:rgba(0,0,0,0.3);font-weight:700;letter-spacing:0.5px;">
+     MODULO ${tileMm}x${tileMm}mm — REPETIR EM GRADE
+   </div>
+ </div>
+ 
+-<!-- PAG 2: LAYOUT COMPLETO DA CAMISETA (70x80cm) -->
++<!-- PAG 2: LAYOUT COMPLETO DA CAMISETA APENAS COM ESTAMPA (70x80cm) -->
+ <div class="shirt-page" style="${bgStyleT}">
+-  <!-- Selo do peito -->
+-  <div style="position:absolute;top:180mm;left:50%;transform:translateX(-50%);width:${seloSizeT}mm;height:${seloSizeT}mm;display:flex;align-items:center;justify-content:center;">
+-    ${logoHtmlT}
+-  </div>
+   <div style="position:absolute;bottom:8mm;left:0;right:0;text-align:center;font-family:Montserrat,sans-serif;font-size:7pt;color:rgba(0,0,0,0.35);font-weight:700;">
+-    LAYOUT CAMISETA ADULTO — ${SHIRT_W/10}x${SHIRT_H/10}cm | ESTAMPA: ${marca}
++    LAYOUT ESTAMPA CAMISETA — ${SHIRT_W/10}x${SHIRT_H/10}cm | MARCA: ${marca}
+   </div>
+ </div>
+ 
+-<!-- PAG 3: SELO DO PEITO ISOLADO (tamanho real) -->
++${showLogoT ? `
++<!-- PAG 3: SELO ISOLADO EM FOLHA SEPARADA DA ESTAMPA (tamanho real) -->
+ <div class="selo-page" style="background:#fff;">
+   <div style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);">
+     ${logoHtmlT}
+   </div>
+   <div style="position:absolute;bottom:10mm;left:0;right:0;text-align:center;font-family:Montserrat,sans-serif;font-size:9pt;color:#888;font-weight:700;">
+-    SELO DO PEITO: ${seloSizeT}x${seloSizeT}mm (TAMANHO REAL)
++    SELO DO PEITO: ${seloSizeT}x${seloSizeT}mm (FOLHA SEPARADA DA ESTAMPA)
+   </div>
+ </div>
++` : ''}
+ 
+ </body></html>`;
+       const exT = document.getElementById('_gabarito_camiseta'); if (exT) exT.remove();
+@@ -8114,41 +8172,41 @@ html, body { width:${totalW}mm; height:${totalH}mm; overflow:hidden; }
+       const selT = SIZES_T[tagSacolaSizeIdx] || SIZES_T[0];
+       const { w: TW, h: TH, shape: TSHAPE } = selT;
+       const isCircleT = TSHAPE === 'circle';
++      const isRectT = TSHAPE === 'rect';
+       const totalW_T = TW + BLEED * 2;
+       const totalH_T = TH + BLEED * 2;
+ 
+-      // Fundo
+-      const bgSizeMm = ((patternScale || 100) / 10).toFixed(1);
++      // Fundo — usar a mesma fórmula do resto do sistema (getPatternTileMm)
++      const bgTileMm = getPatternTileMm(patternScale).toFixed(1);
+       const bgFixed = comBorda && patternSrc
+-        ? `background-image:url(${patternSrc});background-size:${bgSizeMm}mm;background-repeat:repeat;`
++        ? `background-image:url(${patternSrc});background-size:${bgTileMm}mm;background-repeat:repeat;`
+         : `background:${solidColor};`;
+ 
+-      // Logo — usa genPDFLogoHtml com hideSlogan para logo imagem, mostra slogan para logo texto
++      // Logo e Cartão — exatamente igual à Etiqueta Correios
+       const _hasImgT = !!itemEditData?.customLogoSrc;
+-      const isRectT = TSHAPE === 'rect'; const _logoBoxW = isCircleT ? (TW * 0.62).toFixed(0) : isRectT ? (TW * 0.58).toFixed(0) : (TW * 0.70).toFixed(0);
+-      const _logoBoxH = isCircleT ? (TH * 0.55).toFixed(0) : isRectT ? (TH * 0.58).toFixed(0) : (TH * 0.62).toFixed(0);
+-      const _logoColor = (comBorda && patternSrc) ? solidColor : '#fff';
+-      const _tagLogoHtml = genPDFLogoHtml({
+-        brand, editDataOverride: itemEditData,
+-        color: _logoColor,
++      const _cardW = isRectT ? '72%' : isCircleT ? '74%' : '78%';
++      const _cardH = isRectT ? '65%' : isCircleT ? '74%' : '78%';
++      const maxWmm = TW * (isRectT ? 0.72 : isCircleT ? 0.74 : 0.78) * 0.88;
++      const maxHmm = TH * (isRectT ? 0.65 : isCircleT ? 0.74 : 0.78) * 0.88;
++      const _logoMaxW = maxWmm.toFixed(1) + 'mm';
++      const _logoMaxH = maxHmm.toFixed(1) + 'mm';
++
++      const _tagLogoHtml = `<div style="display:flex;flex-direction:column;align-items:center;justify-content:center;width:100%;height:100%;overflow:hidden;">${genPDFLogoHtml({
++        brand,
++        editDataOverride: { ...itemEditData, sloganGap: 6 },
++        color: (comBorda && patternSrc) ? solidColor : '#ffffff',
++        layout: logoLayout || 'stacked',
+         localSlogan: _hasImgT ? null : localSlogan,
++        fontPt: 26,
++        scaleFactor: 1.0,
+         crmLine: null,
+-        fontPt: Math.min(
+-          Math.round(parseFloat(_logoBoxW) * 0.29 / (Math.max(...(marca || '').split(' ').map(w => w.length)) * (itemEditData?.fontStyle === 'script' ? 0.70 : 0.55) * 0.353)),
+-          Math.round(parseFloat(_logoBoxH) * 0.38 / 0.353 / (itemEditData?.fontStyle === 'script' ? 1.5 : 1.1))
+-        ).toString(),
+-        lineH: itemEditData?.fontStyle === 'script' ? 1.5 : 1.1,
+-        letterSp: itemEditData?.fontLetterSpacing || (itemEditData?.fontStyle === 'script' ? '0pt' : '0.5pt'),
+-        layout: logoLayout || 'stacked',
+         customLogoSrc: itemEditData?.customLogoSrc,
+         customLogoScale: _hasImgT ? Math.min(getCustomLogoScale(item) * (ITEM_CUSTOM_BASE_SCALES[item] || 1), 100) : 100,
+-        maxWidth: `${_logoBoxW}mm`,
+-        maxHeight: `${_logoBoxH}mm`,
+-        withBackground: !!(comBorda && patternSrc),
+-        withBackgroundPadding: '2mm 3mm',
+-        sloganColor: (comBorda && patternSrc) ? undefined : 'rgba(255,255,255,0.75)',
+-        hideSlogan: _hasImgT,
+-      });
++        maxWidth: _logoMaxW,
++        maxHeight: _logoMaxH,
++        withBackground: false,
++        sloganColor: (comBorda && patternSrc) ? undefined : 'rgba(255,255,255,0.75)'
++      })}</div>`;
+ 
+       // Marcas de corte
+       const cms = `
+@@ -8161,36 +8219,55 @@ html, body { width:${totalW}mm; height:${totalH}mm; overflow:hidden; }
+         <div style="position:absolute;bottom:0;right:${BLEED}mm;width:0.1mm;height:${BLEED - 0.5}mm;background:#000;"></div>
+         <div style="position:absolute;bottom:${BLEED}mm;right:0;width:${BLEED - 0.5}mm;height:0.1mm;background:#000;"></div>`;
+ 
+-      const { whatsapp, telefone, instagram, site } = cartaoContacts || {};
+-      const mainPhone = whatsapp || telefone || '';
++      const { whatsapp, telefone, telefone2, instagram, site, email, endereco } = cartaoContacts || {};
+       const borderR = isCircleT ? '50%' : '0';
+ 
++      // Para tags circulares: html2canvas não renderiza border-radius+background-image bem.
++      // Usamos uma "máscara" com radial-gradient: transparente no centro (mostra estampa), branco fora.
++      const circleR = Math.min(TW, TH) / 2;
++      const circleMask = isCircleT
++        ? `<div style="position:absolute;top:0;left:0;right:0;bottom:0;background:radial-gradient(circle ${circleR}mm at ${totalW_T / 2}mm ${totalH_T / 2}mm, transparent ${circleR}mm, #ffffff ${circleR}mm);z-index:1;"></div>`
++        : '';
+       const frentePageT = `
+-        <div style="width:${totalW_T}mm;height:${totalH_T}mm;position:relative;overflow:hidden;border-radius:${borderR};">
+-          <div style="position:absolute;inset:0;${bgFixed}"></div>
+-          <div style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);z-index:2;">
+-            ${_tagLogoHtml}
++        <div style="width:100%;height:100%;position:relative;overflow:hidden;">
++          <div style="position:absolute;top:0;left:0;right:0;bottom:0;${bgFixed}"></div>
++          ${circleMask}
++          <div style="position:absolute;top:${BLEED}mm;left:${BLEED}mm;width:${TW}mm;height:${TH}mm;overflow:hidden;${isCircleT ? `border-radius:50%;` : ''} display:flex; align-items:center; justify-content:center;">
++            <div style="z-index:2;width:${_cardW};height:${_cardH};background:${(comBorda && patternSrc) ? 'rgba(255,255,255,0.95)' : 'transparent'};border-radius:${isCircleT ? '50%' : '3.5mm'};display:flex;align-items:center;justify-content:center;box-sizing:border-box;padding:2mm;overflow:hidden;">
++              ${_tagLogoHtml}
++            </div>
+           </div>
+           ${cms}
+         </div>`;
+ 
++
+       const versoPageT = `
+-        <div style="width:${totalW_T}mm;height:${totalH_T}mm;position:relative;overflow:hidden;background:#fff;">
+-          <div style="position:absolute;inset:0;border:5mm solid ${solidColor};border-radius:${borderR};"></div>
+-          <div style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:80%;display:flex;flex-direction:column;align-items:center;gap:2mm;text-align:center;overflow:hidden;max-height:80%;">
+-            ${clinicaNome ? `<div style="font-size:5mm;color:${solidColor};font-family:'Brush Script MT','Segoe Script',cursive;">${clinicaNome}</div>` : ''}
+-            <div style="width:5mm;height:0.2mm;background:${solidColor}60;"></div>
+-            ${mainPhone ? `<div style="font-size:3mm;color:#888;font-family:'Montserrat',sans-serif;">${mainPhone}</div>` : ''}
+-            ${instagram ? `<div style="font-size:3mm;color:#888;font-family:'Montserrat',sans-serif;">@${instagram.replace('@','')}</div>` : ''}
+-            ${site ? `<div style="font-size:2.5mm;color:#bbb;font-family:'Montserrat',sans-serif;">${site}</div>` : ''}
++        <div style="width:100%;height:100%;position:relative;overflow:hidden;background:#fff;">
++          ${isCircleT
++            ? `<div style="position:absolute;top:0;left:0;right:0;bottom:0;background:radial-gradient(circle ${circleR}mm at ${totalW_T / 2}mm ${totalH_T / 2}mm, ${solidColor} ${circleR}mm, transparent ${circleR}mm);"></div>
++               <div style="position:absolute;top:0;left:0;right:0;bottom:0;background:radial-gradient(circle ${circleR - 5}mm at ${totalW_T / 2}mm ${totalH_T / 2}mm, #ffffff ${circleR - 5}mm, transparent ${circleR - 5}mm);z-index:1;"></div>`
++            : `<div style="position:absolute;top:0;left:0;right:0;bottom:0;border:5mm solid ${solidColor};"></div>`}
++          <div style="position:absolute;top:0;left:0;right:0;bottom:0;display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:2;">
++            <div style="width:80%;display:flex;flex-direction:column;align-items:center;gap:1.5mm;text-align:center;overflow:hidden;max-height:85%;">
++              ${clinicaNome ? `<div style="font-size:4.8mm;color:${solidColor};font-family:'${_ffT}',sans-serif;line-height:1.2;font-weight:600;">${clinicaNome}</div>` : ''}
++              <div style="width:5mm;height:0.2mm;background:${solidColor}60;margin:1mm 0;"></div>
++              ${whatsapp ? `<div style="font-size:2.8mm;color:#888;font-family:'Montserrat',sans-serif;white-space:nowrap;">${whatsapp}</div>` : ''}
++              ${(telefone || telefone2) ? `<div style="font-size:2.2mm;color:#999;font-family:'Montserrat',sans-serif;white-space:nowrap;margin-top:0.5mm;">${[telefone, telefone2].filter(Boolean).join(' · ')}</div>` : ''}
++              ${instagram ? `<div style="font-size:2.8mm;color:#888;font-family:'Montserrat',sans-serif;white-space:nowrap;">@${instagram.replace('@','')}</div>` : ''}
++              ${email ? `<div style="font-size:2.4mm;color:#888;font-family:'Montserrat',sans-serif;word-break:break-all;">${email}</div>` : ''}
++              ${site ? `<div style="font-size:2.4mm;color:#bbb;font-family:'Montserrat',sans-serif;word-break:break-all;">${site}</div>` : ''}
++              ${endereco ? `<div style="font-size:2.0mm;color:#aaa;font-family:'Montserrat',sans-serif;line-height:1.2;margin-top:0.8mm;">${endereco}</div>` : ''}
++            </div>
+           </div>
++          ${isCircleT ? `<div style="position:absolute;top:0;left:0;right:0;bottom:0;background:radial-gradient(circle ${circleR}mm at ${totalW_T / 2}mm ${totalH_T / 2}mm, transparent ${circleR}mm, #ffffff ${circleR}mm);z-index:3;"></div>` : ''}
+           ${cms}
+         </div>`;
+ 
++
+       const html = `<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Tag para Sacola - ${marca}</title>${fiT}
+ <style>
+ * { box-sizing:border-box; margin:0; padding:0; print-color-adjust:exact !important; -webkit-print-color-adjust:exact !important; }
+-.page { width:${totalW_T}mm; height:${totalH_T}mm; display:flex; align-items:center; justify-content:center; page-break-after:always; }
++.page { width:${totalW_T}mm; height:${totalH_T}mm; overflow:hidden; position:relative; page-break-after:always; }
+ @page {  size:${totalW_T }mm ${totalH_T}mm; margin:0; } @media print { }
+ </style></head><body>
+ <div class="page">${frentePageT}</div>
+@@ -8265,7 +8342,7 @@ body { width:${W + BLEED*2}mm; height:${H + BLEED*2}mm; position:relative; overf
+     ${patternBorder}
+     
+     <div style="position:absolute;top:${BLEED + BORDER + 8}mm;left:${BLEED + BORDER + 8}mm;right:${BLEED + BORDER + 8}mm;bottom:${BLEED + BORDER + 4}mm;display:flex;flex-direction:column;gap:3mm;z-index:3;">
+-        <div style="text-align:center;font-size:9pt;font-weight:800;color:#aaa;letter-spacing:2pt;text-transform:uppercase;margin-bottom:1mm;">${dictionary?.controle_especial?.titulo || 'RECEITUÁRIO DE CONTROLE ESPECIAL'}</div>
++        <div style="text-align:center;font-size:9pt;font-weight:800;color:#aaa;opacity:0.65;letter-spacing:2pt;text-transform:uppercase;margin-bottom:1mm;margin-top:-2mm;">${dictionary?.controle_especial?.titulo || 'RECEITUÁRIO DE CONTROLE ESPECIAL'}</div>
+ 
+         <div style="display:flex;gap:6mm;align-items:stretch;">
+             <div style="flex:2.5;background:${_accent}08;border:0.2mm solid ${_accent}20;padding:3mm 4mm;border-radius:1.5mm;">
+@@ -8604,6 +8681,16 @@ body { font-family:'Montserrat',sans-serif; }
+         };
+         const finalTagline = brand.editData?.tagline || _getTitleData(item).tagline;
+ 
++        const isCuidados = item.includes('Cuidados');
++        const isDev = item.includes('Desenvolvimento');
++        const isVacina = item.includes('Vacina');
++        const isSono = item.includes('Sono');
++
++        const Art2 = isVacina ? FolderVacinaPage2 : (isDev ? FolderDevPage2 : (isSono ? FolderSonoPage2 : (isCuidados ? FolderCuidadosPage2 : FolderPage2Art)));
++        const Art3 = isVacina ? FolderVacinaPage3 : (isDev ? FolderDevPage3 : (isSono ? FolderSonoPage3 : (isCuidados ? FolderCuidadosPage3 : FolderPage3Art)));
++        const Art4 = isVacina ? FolderVacinaPage4 : (isDev ? FolderDevPage4 : (isSono ? FolderSonoPage4 : (isCuidados ? FolderCuidadosPage4 : (item.includes('Alimentar') ? FolderPage4Dynamic : FolderPage4Art))));
++        const Art5 = isVacina ? FolderVacinaPage5 : (isDev ? FolderDevPage5 : (isSono ? FolderSonoPage5 : (isCuidados ? FolderCuidadosPage5 : FolderPage5Art)));
++
+         const _ffTri = editData?.fontFamily || brand.editData?.fontFamily || 'Playfair Display';
+         const _lfTri = LOCAL_FONT_FACES[_ffTri];
+         const fiTri = `<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;600;700;800&family=Great+Vibes&display=swap" rel="stylesheet">${_lfTri ? `<style>${_lfTri}</style>` : `<link href="https://fonts.googleapis.com/css2?family=${_ffTri.replace(/ /g,'+')}:wght@400;700&display=swap" rel="stylesheet">`}`;
+@@ -8625,7 +8712,7 @@ body { font-family:'Montserrat',sans-serif; }
+                 ${panels.map((p, i) => `
+                   <div style="flex:0 0 ${p.w}mm; position:relative; overflow:hidden; ${i < 2 ? 'border-right:0.1mm dashed rgba(0,0,0,0.1);' : ''}">
+                     ${withMargem ? `
+-                      <div style="position:absolute;top:5mm;left:5mm;right:5mm;bottom:5mm;background:#fff;border:0.2mm solid ${accentColor}30;z-index:2;box-shadow:0 3mm 10mm rgba(0,0,0,0.15);overflow:hidden;${p.clip ? 'clip-path:'+p.clip+';-webkit-clip-path:'+p.clip+';' : ''}">
++                      <div style="position:absolute;top:5mm;left:5mm;right:5mm;bottom:5mm;background:#fff;border:0.2mm solid ${accentColor}30;z-index:2;box-shadow:none;overflow:hidden;${p.clip ? 'clip-path:'+p.clip+';-webkit-clip-path:'+p.clip+';' : ''}">
+                         ${p.content}
+                       </div>
+                     ` : `
+@@ -8650,7 +8737,7 @@ body { font-family:'Montserrat',sans-serif; }
+         // Conteúdo da Pág 6 (Contra Capa)
+         const p6Content = `
+           <div style="width:100%; height:100%; position:relative; display:flex; flex-direction:column; align-items:center;">
+-            <div class="quote-box" style="position:absolute; top:48%; left:50%; transform:translate(-50%, -50%); width:88%; background:${paletteColors[0] || accentColor}; border:0.4mm solid ${paletteColors[0] || accentColor}; border-radius:4mm; padding:10mm 8mm; text-align:center; box-shadow:0 2mm 8mm rgba(0,0,0,0.1); z-index:3;">
++            <div class="quote-box" style="position:absolute; top:48%; left:50%; transform:translate(-50%, -50%); width:88%; background:${paletteColors[0] || accentColor}; border:0.4mm solid ${paletteColors[0] || accentColor}; border-radius:4mm; padding:10mm 8mm; text-align:center; box-shadow:none; z-index:3;">
+                 <div style="font-family:'Brush Script MT','Segoe Script',cursive; font-style:italic; color:#fff !important; -webkit-text-fill-color:#fff; font-size:30pt; margin-bottom:4mm; text-transform:none;">
+                    ${isSono 
+                      ? (isEn ? '"A well-rested baby is a happier baby!"' : '"Um bebê bem descansado é um bebê mais feliz!"')
+@@ -8779,7 +8866,7 @@ body { font-family:'Montserrat',sans-serif; }
+         const page2 = renderTrifoldFace([
+           { num: 2, w: W3, content: `<div style="position:absolute;top:3.5mm;left:3.5mm;width:148px;height:210px;transform:scale(${sInner});transform-origin:top left;">${ReactDOMServer.renderToString(<LanguageOverrideProvider lang={lang} dictionary={dictionary}>{React.createElement(Art2, { accentColor, palette: paletteColors })}</LanguageOverrideProvider>)}</div>` },
+           { num: 3, w: W2, content: `<div style="position:absolute;top:3.5mm;left:3.5mm;width:148px;height:210px;transform:scale(${sInner});transform-origin:top left;">${ReactDOMServer.renderToString(<LanguageOverrideProvider lang={lang} dictionary={dictionary}>{React.createElement(Art3, { accentColor, palette: paletteColors })}</LanguageOverrideProvider>)}</div>` },
+-          { num: 4, w: W1, content: `<div style="position:absolute;top:3.5mm;left:3.5mm;width:146px;height:210px;transform:scale(${sInner});transform-origin:top left;">${ReactDOMServer.renderToString(<LanguageOverrideProvider lang={lang} dictionary={dictionary}>{React.createElement(Art4, { accentColor, palette: paletteColors, ...(item === 'Guia Alimentar' ? { horarios: guiaHorarios, introducao: guiaIntroducao } : {}) })}</LanguageOverrideProvider>)}</div>` }
++          { num: 4, w: W1, content: `<div style="position:absolute;top:3.5mm;left:3.5mm;width:146px;height:210px;transform:scale(${sInner});transform-origin:top left;">${ReactDOMServer.renderToString(<LanguageOverrideProvider lang={lang} dictionary={dictionary}>{React.createElement(Art4, { accentColor, palette: paletteColors, ...(item.includes('Alimentar') ? { horarios: guiaHorarios, introducao: guiaIntroducao } : {}) })}</LanguageOverrideProvider>)}</div>` }
+         ], false);
+ 
+         const html = `<!DOCTYPE html><html><head><meta charset="UTF-8"><title>${item} - ${marca}</title>${fiTri}
+@@ -8972,7 +9059,7 @@ body { background:#fff; font-family:'Montserrat',sans-serif; }
+     
+     <!-- LUVA -->
+     <div style="position:absolute; top:30mm; left:20mm; width:436.1mm; height:194.0mm;">
+-       <div style="position:absolute; inset:0; ${effectiveSrc ? `background-image:url('${effectiveSrc}');background-size:${getPatternTileMm(patternScale).toFixed(1)}mm;background-repeat:repeat;` : `background:${solidColor};`} z-index:1;"></div>
++       <div style="position:absolute; inset:0; ${effectiveSrc ? `background-image:url('${effectiveSrc}');background-size:${(getPatternTileMm(patternScale) * 14.0).toFixed(1)}mm;background-repeat:repeat;` : `background:${solidColor};`} z-index:1;"></div>
+        <img src="${window.location.origin}${svgLuva}" style="position:absolute; inset:0; width:100%; height:100%; z-index:10;" />
+        
+        <div style="position:absolute; left:67.821%; top:2.238%; width:30.963%; height:95.360%; z-index:5; display:flex; align-items:center; justify-content:center;">
+@@ -9006,7 +9093,7 @@ body { background:#fff; font-family:'Montserrat',sans-serif; }
+         const html = `<!DOCTYPE html><html><head><meta charset="UTF-8"><title>${item} - ${marca}</title><link href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,400;0,700;0,800;0,900;1,700&display=swap" rel="stylesheet"/>
+ <style>* { box-sizing:border-box; margin:0; padding:0; print-color-adjust:exact !important; -webkit-print-color-adjust:exact !important; }
+ body { background:#eee; }
+-.page { width:${totalW}mm; height:${totalH}mm; background:#fff; position:relative; overflow:hidden; margin:0 auto; box-shadow:0 0 10mm rgba(0,0,0,0.1); }
++.page { width:${totalW}mm; height:${totalH}mm; background:#fff; position:relative; overflow:hidden; margin:0 auto; box-shadow:none; }
+ .cm { position:absolute; width:10mm; height:10mm; border-color:rgba(0,0,0,0.5); border-style:solid; border-width:0; pointer-events:none; z-index:100; }
+ .cm-tl { top:${BLEED}mm; left:${BLEED}mm; border-top:0.2mm solid; border-left:0.2mm solid; }
+ .cm-tr { top:${BLEED}mm; right:${BLEED}mm; border-top:0.2mm solid; border-right:0.2mm solid; }
+@@ -9020,8 +9107,8 @@ body { background:#eee; }
+     : `<div style="position:absolute; inset:0; background:${solidColor};"></div>`}
+   <div style="position:absolute; top:${BLEED + BORDER}mm; left:${BLEED + BORDER}mm; right:${BLEED + BORDER}mm; bottom:${BLEED + BORDER}mm; background:#fff; clip-path:${_clipRoof}; -webkit-clip-path:${_clipRoof};"></div>
+ 
+-  <div style="position:absolute; top:${BLEED + BORDER + (folderRoof ? 22 : 14)}mm; left:50%; transform:translateX(-50%); width:120mm; display:flex; justify-content:center;">
+-    ${genPDFLogoHtml({ brand, editDataOverride: editData, color: logoColor, layout: logoLayout, localSlogan, crmLine, fontPt: _fontPt, lineH: _lineH, letterSp: _letterSp, customLogoSrc, customLogoScale: customLogoSrc ? getCustomLogoScale(item) * (ITEM_CUSTOM_BASE_SCALES[item] || 1) : 100, maxWidth: '120mm', maxHeight: '45mm', withBackground: comBorda && patternSrc })}
++  <div style="position:absolute; top:${BLEED + BORDER + (folderRoof ? 22 : 14)}mm; left:50%; transform:translateX(-50%); width:140mm; display:flex; justify-content:center;">
++    ${genPDFLogoHtml({ brand, editDataOverride: editData, color: logoColor, layout: logoLayout, localSlogan, crmLine, fontPt: (parseFloat(_fontPt) * 2.2).toFixed(1), lineH: _lineH, letterSp: _letterSp, customLogoSrc, customLogoScale: customLogoSrc ? getCustomLogoScale(item) * (ITEM_CUSTOM_BASE_SCALES[item] || 1) : 100, maxWidth: '140mm', maxHeight: '52mm', withBackground: comBorda && patternSrc })}
+   </div>
+ 
+   <div style="position:absolute; top:50%; left:50%; transform:translate(-50%, -50%); opacity:0.15; width:170mm; display:flex; justify-content:center; pointer-events:none;">
+@@ -9768,51 +9855,6 @@ ${fontImports2}
+   );
+ }
+ 
+-class PostPaymentErrorBoundary extends React.Component {
+-  constructor(props) {
+-    super(props);
+-    this.state = { hasError: false, error: null };
+-  }
+-  static getDerivedStateFromError(error) {
+-    return { hasError: true, error };
+-  }
+-  componentDidCatch(error, errorInfo) {
+-    console.error('PostPaymentErrorBoundary caught error:', error, errorInfo);
+-    if (typeof window !== 'undefined' && this.props.brandId) {
+-      try {
+-        localStorage.removeItem(`brandbox_step_${this.props.brandId}`);
+-        localStorage.removeItem('brandbox_step');
+-      } catch (e) {}
+-    }
+-  }
+-  handleReset = () => {
+-    if (this.props.onResetStep) {
+-      this.props.onResetStep();
+-    }
+-    this.setState({ hasError: false, error: null });
+-  };
+-  render() {
+-    if (this.state.hasError) {
+-      return (
+-        <div style={{ background: '#fff0f0', border: '1.5px solid #ffcccc', borderRadius: '16px', padding: '24px', textAlign: 'center', margin: '20px 0' }}>
+-          <div style={{ fontSize: '2rem', marginBottom: '8px' }}>⚠️</div>
+-          <h3 style={{ fontSize: '1rem', color: '#c53030', marginBottom: '8px', fontFamily: 'Montserrat, sans-serif' }}>Ops! Ocorreu um problema nesta visualização.</h3>
+-          <p style={{ fontSize: '0.82rem', color: '#666', marginBottom: '16px', lineHeight: 1.5, fontFamily: 'Montserrat, sans-serif' }}>
+-            Não se preocupe, seus dados estão salvos. Você pode voltar para a etapa inicial da sua marca sem perder o progresso.
+-          </p>
+-          <button
+-            onClick={this.handleReset}
+-            style={{ padding: '10px 20px', background: '#363532', color: '#fff', border: 'none', borderRadius: '20px', fontWeight: 700, fontSize: '0.85rem', cursor: 'pointer', fontFamily: 'Montserrat, sans-serif' }}
+-          >
+-            ← Voltar para o início
+-          </button>
+-        </div>
+-      );
+-    }
+-    return this.props.children;
+-  }
+-}
+-
+ function EntregaContent({ brand, plano, setBrand }) {
+   const { dictionary, lang } = useTranslation();
+   const tLogo = dictionary?.logo_tab || {};
+@@ -9957,9 +9999,25 @@ function EntregaContent({ brand, plano, setBrand }) {
+     setFontOverrideState(v);
+     try { if (v) localStorage.setItem(`brandbox_font_override_${brand.id}`, JSON.stringify(v)); else localStorage.removeItem(`brandbox_font_override_${brand.id}`); } catch {}
+   };
++
++
++
+   const [isInitialized, setIsInitialized] = useState(false);
+   const [estampaPatterns, setEstampaPatterns] = useState(brand.pattern ? [brand.pattern] : []);
+-  const [estampaGenCount, setEstampaGenCount] = useState(brand.patternGenerationCount || 0);
++  const [estampaGenCount, setEstampaGenCountState] = useState(() => {
++    try {
++      const s = localStorage.getItem(`brandbox_gen_count_${brand.id}`);
++      if (s) return parseInt(s, 10);
++    } catch {}
++    return brand.patternGenerationCount || 0;
++  });
++  const setEstampaGenCount = (v) => {
++    setEstampaGenCountState(prev => {
++      const next = typeof v === 'function' ? v(prev) : v;
++      try { localStorage.setItem(`brandbox_gen_count_${brand.id}`, next); } catch {}
++      return next;
++    });
++  };
+   const [estampaSelectedIdx, setEstampaSelectedIdx] = useState(0);
+   const [estampaOriginalPattern, setEstampaOriginalPattern] = useState(null); // backup pre-suavização
+   const [estampasRef, setEstampasRef] = useState(brand.estampas || []);
+@@ -10027,22 +10085,61 @@ function EntregaContent({ brand, plano, setBrand }) {
+ 
+   useEffect(() => {
+     if (!isInitialized) return;
+-    const pat = estampaPatterns[estampaSelectedIdx];
+-    if (pat) {
+-      try { localStorage.setItem(`brandbox_pattern_${brand.id}`, JSON.stringify(pat)); } catch {}
+-      const sessionId = typeof window !== 'undefined'
+-        ? (new URLSearchParams(window.location.search).get('session') || localStorage.getItem('brandbox_session'))
+-        : null;
+-      if (sessionId && pat.url) {
++    
++    // Save active pattern
++    const activePat = estampaPatterns[estampaSelectedIdx];
++    if (activePat) {
++      try { localStorage.setItem(`brandbox_pattern_${brand.id}`, JSON.stringify(activePat)); } catch {}
++    }
++
++    const sessionId = typeof window !== 'undefined'
++      ? (new URLSearchParams(window.location.search).get('session') || localStorage.getItem('brandbox_session'))
++      : null;
++
++    if (sessionId) {
++      // Find all patterns that need to be uploaded
++      const pendingPatterns = estampaPatterns.filter(p => !p.url && p.base64);
++      
++      if (pendingPatterns.length > 0) {
++        // Upload them sequentially to avoid overloading and DB race conditions
++        const uploadAll = async () => {
++          for (const pat of pendingPatterns) {
++            try {
++              const r = await fetch('/api/salvar-estampa', {
++                method: 'POST',
++                headers: { 'Content-Type': 'application/json' },
++                body: JSON.stringify({
++                  base64: pat.base64,
++                  mimeType: pat.mimeType || 'image/png',
++                  sessionId,
++                })
++              }).then(res => res.json());
++
++              if (r.url) {
++                setEstampaPatterns(prev => {
++                  const next = [...prev];
++                  const pIdx = next.findIndex(p => p.base64 === pat.base64);
++                  if (pIdx >= 0) {
++                    next[pIdx] = { ...next[pIdx], url: r.url, base64: null };
++                  }
++                  return next;
++                });
++              }
++            } catch (e) {}
++          }
++        };
++        uploadAll();
++      } else if (activePat?.url) {
++        // All have URLs, just select the active one
+         fetch('/api/salvar-estampa', {
+           method: 'POST',
+           headers: { 'Content-Type': 'application/json' },
+           body: JSON.stringify({
+             action: 'select',
+             sessionId,
+-            selectedUrl: pat.url,
+-            base64: pat.base64,
+-            mimeType: pat.mimeType
++            selectedUrl: activePat.url,
++            base64: activePat.base64,
++            mimeType: activePat.mimeType
+           })
+         }).catch(() => {});
+       }
+@@ -10114,7 +10211,7 @@ function EntregaContent({ brand, plano, setBrand }) {
+   const setPatternOffset = (v) => {
+     setPatternOffsetState(v);
+     try {
+-      if (brand?.id) localStorage.setItem(`brandbox_pattern_offset_${brand.id}`, String(v));
++      localStorage.setItem(`brandbox_pattern_offset_${brand?.id}`, String(v));
+     } catch {}
+   };
+ 
+@@ -10271,7 +10368,7 @@ function EntregaContent({ brand, plano, setBrand }) {
+   }, [cartaoContacts, cartaoQrLink, cartaoShowQR]);
+ 
+   const atuacoesSaude = ['Pediatria / Saúde infantil', 'Obstetrícia / Saúde da mulher', 'Clínica / Saúde geral adulta'];
+-  const isSaude = atuacoesSaude.includes(brand.formData?.atuacao);
++  const isSaude = atuacoesSaude.includes(brand.formData?.atuacao) || brand.niche === 'Saúde e Medicina' || brand.nicho === 'Saúde e Medicina';
+ 
+   const [clinicaNome, setClinicaNomeState] = useState(() => { try { return JSON.parse(localStorage.getItem(`brandbox_papelaria_${brand.id}`) || '{}').clinicaNome || ''; } catch { return ''; } });
+   const [resendingEmail, setResendingEmail] = useState(false);
+@@ -10319,18 +10416,13 @@ function EntregaContent({ brand, plano, setBrand }) {
+     let isAsync = false;
+     // Carregamento inicial de tudo
+     try {
+-      const s = localStorage.getItem(`brandbox_step_${brand.id}`);
+-      if (s && ALL_STEPS.includes(s)) {
+-        setStepState(s);
+-      } else if (s) {
+-        try { localStorage.removeItem(`brandbox_step_${brand.id}`); } catch {}
+-      }
++      const s = localStorage.getItem(`brandbox_step_${brand.id}`); if (s) setStepState(s);
+ 
+       let allPatterns = JSON.parse(localStorage.getItem(`brandbox_patterns_all_${brand.id}`) || localStorage.getItem('brandbox_patterns_all') || 'null');
+       const singlePattern = JSON.parse(localStorage.getItem(`brandbox_pattern_${brand.id}`) || localStorage.getItem('brandbox_pattern') || 'null');
+       if (allPatterns && allPatterns.length > 0) {
+-        if (allPatterns.length > 3) {
+-          allPatterns = allPatterns.slice(-3);
++        if (allPatterns.length > 6) {
++          allPatterns = allPatterns.slice(-6);
+           try { localStorage.setItem(`brandbox_patterns_all_${brand.id}`, JSON.stringify(allPatterns)); } catch {}
+         }
+         setEstampaPatterns(allPatterns);
+@@ -10347,15 +10439,15 @@ function EntregaContent({ brand, plano, setBrand }) {
+     // Recupera estampa do banco: tenta carregar todas as estampas geradas
+     let estampaUrls = brand?.estampas_geradas_urls || (brand?.estampa_url ? [brand.estampa_url] : []);
+     
+-    // Prune to maximum 3 patterns to avoid gallery bloating and save database/Supabase storage memory
+-    if (estampaUrls.length > 3) {
++    // Prune to maximum 6 patterns to avoid gallery bloating and save database/Supabase storage memory
++    if (estampaUrls.length > 6) {
+       const activeUrl = brand?.estampa_url;
+       let urlsToKeep = [];
+       if (activeUrl && estampaUrls.includes(activeUrl)) {
+         urlsToKeep.push(activeUrl);
+       }
+       const remainingUrls = estampaUrls.filter(u => u !== activeUrl);
+-      const slotsNeeded = 3 - urlsToKeep.length;
++      const slotsNeeded = 6 - urlsToKeep.length;
+       if (slotsNeeded > 0) {
+         const latestFromRemaining = remainingUrls.slice(-slotsNeeded);
+         urlsToKeep = [...urlsToKeep, ...latestFromRemaining];
+@@ -10414,7 +10506,7 @@ function EntregaContent({ brand, plano, setBrand }) {
+       isAsync = true;
+       // Initialize immediately with URL-only objects so they display instantly without causing blank layouts
+       const initialPats = estampaUrls.map(url => {
+-        if (brand?.pattern && (brand.pattern.url === url || brand.pattern.base64)) {
++        if (brand?.pattern && brand.pattern.url === url) {
+           return { url, base64: brand.pattern.base64, mimeType: brand.pattern.mimeType || 'image/png' };
+         }
+         return { url };
+@@ -10443,7 +10535,7 @@ function EntregaContent({ brand, plano, setBrand }) {
+       )
+       .then(pats => {
+         setEstampaPatterns(prev => {
+-          return prev.map(p => {
++          const next = prev.map(p => {
+             // Não sobrescreve patterns editados localmente (url:null = editado)
+             if (!p.url && p.base64) return p;
+             const loaded = pats.find(lp => lp.url === p.url);
+@@ -10451,7 +10543,12 @@ function EntregaContent({ brand, plano, setBrand }) {
+               return { ...p, base64: loaded.base64, mimeType: loaded.mimeType };
+             }
+             return p;
+-          });
++          }).filter(p => p.base64 || p.originalBase64 || (!p.url && p.base64));
++          
++          if (estampaSelectedIdx >= next.length && next.length > 0) {
++            setEstampaSelectedIdx(Math.max(0, next.length - 1));
++          }
++          return next;
+         });
+         const validPats = pats.filter(p => p.base64);
+         if (validPats.length > 0) {
+@@ -10674,7 +10771,8 @@ function EntregaContent({ brand, plano, setBrand }) {
+   };
+ 
+   // accentColor = cor principal: respeita a ordem definida na aba Cores, senão usa logoColor
+-  const accentColor = orderedPaletteColors[0] || logoColor || '#C3CEDB';
++  const effectiveLogoColor = logoColor || brand?.editData?.corAtiva || brand?.activeColor || orderedPaletteColors[0] || '#C3CEDB';
++  const accentColor = orderedPaletteColors[0] || effectiveLogoColor || '#C3CEDB';
+ 
+   return (
+     <div style={{ minHeight: '100vh', background: '#faf9f7', fontFamily: 'Montserrat, sans-serif', paddingBottom: '3rem' }}>
+@@ -10736,134 +10834,132 @@ function EntregaContent({ brand, plano, setBrand }) {
+           </div>
+         )}
+ 
+-        {/* Área da estampa / componentes com ErrorBoundary pós-pagamento */}
+-        <PostPaymentErrorBoundary key={step} brandId={brand?.id} onResetStep={() => setStep(plano === 'avulso' ? 'papelaria' : 'placa')}>
+-          {step === 'estampa' && plano !== 'avulso' && <EstampaStep brand={brand} accentColor={accentColor} marca={marca} patterns={estampaPatterns} setPatterns={setEstampaPatterns} genCount={estampaGenCount} setGenCount={setEstampaGenCount} selectedIdx={estampaSelectedIdx} setSelectedIdx={setEstampaSelectedIdx} paletteColors={paletteColors} patternScale={patternScale} setPatternScale={setPatternScale} patternOffset={patternOffset} setPatternOffset={setPatternOffset} estampasRef={estampasRef} originalPattern={estampaOriginalPattern} setOriginalPattern={setEstampaOriginalPattern} />}
++        {/* Área da estampa */}
++        {step === 'estampa' && plano !== 'avulso' && <EstampaStep brand={brand} accentColor={accentColor} marca={marca} patterns={estampaPatterns} setPatterns={setEstampaPatterns} genCount={estampaGenCount} setGenCount={setEstampaGenCount} selectedIdx={estampaSelectedIdx} setSelectedIdx={setEstampaSelectedIdx} paletteColors={paletteColors} patternScale={patternScale} setPatternScale={setPatternScale} patternOffset={patternOffset} setPatternOffset={setPatternOffset} estampasRef={estampasRef} originalPattern={estampaOriginalPattern} setOriginalPattern={setEstampaOriginalPattern} />}
+ 
+-          {/* Cores — prioridade/ordem */}
+-          {step === 'cores' && plano === 'avulso' && (
+-            <div style={{ background: '#f5f3f0', border: '1px solid #e8e3dc', borderRadius: '12px', padding: '12px 16px', marginBottom: '14px', fontSize: '0.74rem', color: '#888', fontFamily: 'Montserrat,sans-serif', lineHeight: 1.6, textAlign: 'center' }}>
+-              🎨 Esta é a paleta da coleção <strong style={{ color: '#8B7355' }}>The Brand Box</strong>.<br />
+-              Para personalizar suas cores, clique no ícone de edição no círculo.
+-            </div>
+-          )}
+-          {step === 'cores' && <CoresPrioridadeStep paletteColors={paletteColors} colorOrder={colorOrder} setColorOrder={setColorOrder} accentColor={accentColor}
+-            onColorChange={plano === 'avulso' ? (idx, hex) => {
+-              const updated = [...paletteColors];
+-              updated[idx] = hex;
+-              const newBrand = { ...brand, currentPaletteColors: updated, activeColor: updated[0] };
+-              setBrand(newBrand);
+-              try { localStorage.setItem('brandbox_avulso_' + avulsoParam, JSON.stringify(newBrand)); } catch {}
+-            } : undefined}
+-          />}
+-
+-          {/* Paleta — visualização completa */}
+-          {step === 'paleta' && plano !== 'avulso' && <CoresStep paletteColors={paletteColors} accentColor={accentColor} paletaNome={paletas?.find(p => p.id === brand.selectedPaleta)?.nome_variacao} coresRef={coresRef} />}
+-
+-          {/* Cartão digital */}
+-          {step === 'cartao' && (plano === 'avulso' ? <AvulsoUpgradeCard accentColor={accentColor} titulo="Cartão Digital" desc="Crie seu cartão digital interativo com QR code, link para redes sociais e muito mais. Disponível no Plano Completo." /> : <CartaoStep brand={brand} accentColor={accentColor} paletteColors={paletteColors} marca={marca} estampaPatterns={estampaPatterns} estampaSelectedIdx={estampaSelectedIdx} contacts={cartaoContacts} setContacts={setCartaoContacts} qrLink={cartaoQrLink} setQrLink={setCartaoQrLink} showQR={cartaoShowQR} setShowQR={setCartaoShowQR} logoLayout={logoLayout} editData={editDataWithLogo} logoColor={logoColor} setLayout={setLayout} />)}
+-          {step === 'pack-instagram' && (plano === 'avulso' ? <AvulsoUpgradeCard accentColor={accentColor} titulo="Pack Digital para Instagram" desc="Templates prontos para Stories e Feed com a sua identidade visual aplicada. Disponível no Plano Completo." /> : <FundoInstaPreview brand={brand} editData={editDataWithLogo} accentColor={accentColor} patternSrc={patternSrc} logoColor={logoColor} logoLayout={logoLayout} comBorda={comBorda} setComBorda={setComBorda} paletteColors={paletteColors} borderColor={borderColor} setBorderColor={setBorderColor} patternScale={patternScale} setPatternScale={setPatternScale} patternOffset={patternOffset} setPatternOffset={setPatternOffset} cartaoContacts={cartaoContacts} crmLine={crmLine} localSlogan={localSlogan} clinicaNome={clinicaNome} storyTemplateIdx={storyTemplateIdx} setStoryTemplateIdx={setStoryTemplateIdx} storyFormatIdx={storyFormatIdx} setStoryFormatIdx={setStoryFormatIdx} />)}
+-          {step === 'assinatura-email' && (plano === 'avulso' ? <AvulsoUpgradeCard accentColor={accentColor} titulo="Assinatura de E-mail" desc="Assinatura profissional com sua logo, dados de contato e links para usar no Gmail ou Outlook. Disponível no Plano Completo." /> : <AssinaturaEmailPreview brand={brand} editData={editDataWithLogo} accentColor={accentColor} logoColor={logoColor} logoLayout={logoLayout} cartaoContacts={cartaoContacts} crmLine={crmLine} localSlogan={localSlogan} clinicaNome={clinicaNome} storyTemplateIdx={storyTemplateIdx} setStoryTemplateIdx={setStoryTemplateIdx} storyFormatIdx={storyFormatIdx} setStoryFormatIdx={setStoryFormatIdx} setCartaoContacts={setCartaoContacts} setClinicaNome={setClinicaNome} setLocalSlogan={setLocalSlogan} />)}
+-
+-          {/* Placa da marca */}
+-          {step === 'placa' && plano !== 'avulso' && <PlacaStep brand={brand} accentColor={accentColor} paletteColors={orderedPaletteColors} estampaPatterns={estampaPatterns} estampaSelectedIdx={estampaSelectedIdx} editData={editDataWithLogo} logoColor={logoColor} logoLayout={logoLayout} iconPath={currentIconPath} submarcaColor={submarcaColor} submarcaTextColor={submarcaTextColor} />}
+-
+-          {/* Manifesto */}
+-          {step === 'manifesto' && plano !== 'avulso' && <ManifestoStep accentColor={accentColor} marca={marca} tagline={tagline} brand={brand} isSaude={isSaude} editData={editDataWithLogo} />}
+-
+-          {/* Tom de Voz */}
+-          {step === 'tomdevoz' && plano !== 'avulso' && <TomDeVozStep accentColor={accentColor} marca={marca} tagline={tagline} brand={brand} editData={editDataWithLogo} />}
+-
+-          {step === 'fonte' && <FonteStep brand={brand} accentColor={accentColor} logoColor={logoColor} marca={marca} tagline={tagline} editData={editDataWithLogo} onFontChange={(f) => setFontOverride(f)} />}
+-
+-          {/* Aba Slogan */}
+-          {step === 'slogan' && (
+-            <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+-              {/* Preview da logo com slogan */}
+-              <div style={{
+-                width: '100%', aspectRatio: '1 / 1',
+-                background: bgColor,
+-                borderRadius: '16px',
+-                overflow: 'hidden',
+-                boxShadow: '0 8px 40px rgba(0,0,0,0.10)',
+-                display: 'flex', alignItems: 'center', justifyContent: 'center',
+-                transition: 'background 0.2s ease',
+-              }}>
+-                <div style={{ width: '85%', height: '58%', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+-                  <LogoPreviewHTML editData={editDataWithLogo} color={logoColor} layout={logoLayout} scaleFactor={1.1} maxWidth="100%" maxHeight="100%" />
+-                </div>
++        {/* Cores — prioridade/ordem */}
++        {step === 'cores' && plano === 'avulso' && (
++          <div style={{ background: '#f5f3f0', border: '1px solid #e8e3dc', borderRadius: '12px', padding: '12px 16px', marginBottom: '14px', fontSize: '0.74rem', color: '#888', fontFamily: 'Montserrat,sans-serif', lineHeight: 1.6, textAlign: 'center' }}>
++            🎨 Esta é a paleta da coleção <strong style={{ color: '#8B7355' }}>The Brand Box</strong>.<br />
++            Para personalizar suas cores, clique no ícone de edição no círculo.
++          </div>
++        )}
++        {step === 'cores' && <CoresPrioridadeStep paletteColors={paletteColors} colorOrder={colorOrder} setColorOrder={setColorOrder} accentColor={accentColor}
++          onColorChange={plano === 'avulso' ? (idx, hex) => {
++            const updated = [...paletteColors];
++            updated[idx] = hex;
++            const newBrand = { ...brand, currentPaletteColors: updated, activeColor: updated[0] };
++            setBrand(newBrand);
++            try { localStorage.setItem('brandbox_avulso_' + avulsoParam, JSON.stringify(newBrand)); } catch {}
++          } : undefined}
++        />}
++
++        {/* Paleta — visualização completa */}
++        {step === 'paleta' && plano !== 'avulso' && <CoresStep paletteColors={paletteColors} accentColor={accentColor} paletaNome={paletas?.find(p => p.id === brand.selectedPaleta)?.nome_variacao} coresRef={coresRef} />}
++
++        {/* Cartão digital */}
++        {step === 'cartao' && (plano === 'avulso' ? <AvulsoUpgradeCard accentColor={accentColor} titulo="Cartão Digital" desc="Crie seu cartão digital interativo com QR code, link para redes sociais e muito mais. Disponível no Plano Completo." /> : <CartaoStep brand={brand} accentColor={accentColor} paletteColors={paletteColors} marca={marca} estampaPatterns={estampaPatterns} estampaSelectedIdx={estampaSelectedIdx} contacts={cartaoContacts} setContacts={setCartaoContacts} qrLink={cartaoQrLink} setQrLink={setCartaoQrLink} showQR={cartaoShowQR} setShowQR={setCartaoShowQR} logoLayout={logoLayout} editData={editDataWithLogo} logoColor={logoColor} setLayout={setLayout} />)}
++        {step === 'pack-instagram' && (plano === 'avulso' ? <AvulsoUpgradeCard accentColor={accentColor} titulo="Pack Digital para Instagram" desc="Templates prontos para Stories e Feed com a sua identidade visual aplicada. Disponível no Plano Completo." /> : <FundoInstaPreview brand={brand} editData={editDataWithLogo} accentColor={accentColor} patternSrc={patternSrc} logoColor={logoColor} logoLayout={logoLayout} comBorda={comBorda} setComBorda={setComBorda} paletteColors={paletteColors} borderColor={borderColor} setBorderColor={setBorderColor} patternScale={patternScale} setPatternScale={setPatternScale} patternOffset={patternOffset} setPatternOffset={setPatternOffset} cartaoContacts={cartaoContacts} crmLine={crmLine} localSlogan={localSlogan} clinicaNome={clinicaNome} storyTemplateIdx={storyTemplateIdx} setStoryTemplateIdx={setStoryTemplateIdx} storyFormatIdx={storyFormatIdx} setStoryFormatIdx={setStoryFormatIdx} />)}
++        {step === 'assinatura-email' && (plano === 'avulso' ? <AvulsoUpgradeCard accentColor={accentColor} titulo="Assinatura de E-mail" desc="Assinatura profissional com sua logo, dados de contato e links para usar no Gmail ou Outlook. Disponível no Plano Completo." /> : <AssinaturaEmailPreview brand={brand} editData={editDataWithLogo} accentColor={accentColor} logoColor={logoColor} logoLayout={logoLayout} cartaoContacts={cartaoContacts} crmLine={crmLine} localSlogan={localSlogan} clinicaNome={clinicaNome} storyTemplateIdx={storyTemplateIdx} setStoryTemplateIdx={setStoryTemplateIdx} storyFormatIdx={storyFormatIdx} setStoryFormatIdx={setStoryFormatIdx} setCartaoContacts={setCartaoContacts} setClinicaNome={setClinicaNome} setLocalSlogan={setLocalSlogan} />)}
++
++        {/* Placa da marca */}
++        {step === 'placa' && plano !== 'avulso' && <PlacaStep brand={brand} accentColor={accentColor} paletteColors={orderedPaletteColors} estampaPatterns={estampaPatterns} estampaSelectedIdx={estampaSelectedIdx} editData={editDataWithLogo} logoColor={effectiveLogoColor} logoLayout={logoLayout} iconPath={currentIconPath} submarcaColor={submarcaColor} submarcaTextColor={submarcaTextColor} />}
++
++        {/* Manifesto */}
++        {step === 'manifesto' && plano !== 'avulso' && <ManifestoStep accentColor={accentColor} marca={marca} tagline={tagline} brand={brand} isSaude={isSaude} editData={editDataWithLogo} />}
++
++        {/* Tom de Voz */}
++        {step === 'tomdevoz' && plano !== 'avulso' && <TomDeVozStep accentColor={accentColor} marca={marca} tagline={tagline} brand={brand} editData={editDataWithLogo} />}
++
++        {step === 'fonte' && <FonteStep brand={brand} accentColor={accentColor} logoColor={logoColor} marca={marca} tagline={tagline} editData={editDataWithLogo} onFontChange={(f) => setFontOverride(f)} />}
++
++        {/* Aba Slogan */}
++        {step === 'slogan' && (
++          <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
++            {/* Preview da logo com slogan */}
++            <div style={{
++              width: '100%', aspectRatio: '1 / 1',
++              background: bgColor,
++              borderRadius: '16px',
++              overflow: 'hidden',
++              boxShadow: '0 8px 40px rgba(0,0,0,0.10)',
++              display: 'flex', alignItems: 'center', justifyContent: 'center',
++              transition: 'background 0.2s ease',
++            }}>
++              <div style={{ width: '85%', height: '58%', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
++                <LogoPreviewHTML editData={editDataWithLogo} color={logoColor} layout={logoLayout} scaleFactor={1.1} maxWidth="100%" maxHeight="100%" />
+               </div>
++            </div>
+ 
+-              {/* Controles da tagline */}
+-              {editDataWithLogo?.customLogoSrc ? (
+-                <div style={{ padding: '16px', background: '#F8F5F1', borderRadius: '12px', border: '1.5px solid #E5E0D8', color: '#363532', fontSize: '0.82rem', fontFamily: 'Montserrat, sans-serif', textAlign: 'center', fontWeight: 600 }}>
+-                  {dictionary?.tagline_tab?.custom_logo_msg || 'Você enviou sua própria logo, então a tagline (slogan) já faz parte da sua imagem!'}<br/><br/>
+-                  <span style={{ fontSize: '0.72rem', fontWeight: 500, opacity: 0.8 }}>{dictionary?.tagline_tab?.custom_logo_sub || 'Para alterar a tagline ou usar as opções desta aba, volte à aba "Sua Logo" e selecione a "Logo sugerida".'}</span>
++            {/* Controles da tagline */}
++            {editDataWithLogo?.customLogoSrc ? (
++              <div style={{ padding: '16px', background: '#F8F5F1', borderRadius: '12px', border: '1.5px solid #E5E0D8', color: '#363532', fontSize: '0.82rem', fontFamily: 'Montserrat, sans-serif', textAlign: 'center', fontWeight: 600 }}>
++                {dictionary?.tagline_tab?.custom_logo_msg || 'Você enviou sua própria logo, então a tagline (slogan) já faz parte da sua imagem!'}<br/><br/>
++                <span style={{ fontSize: '0.72rem', fontWeight: 500, opacity: 0.8 }}>{dictionary?.tagline_tab?.custom_logo_sub || 'Para alterar a tagline ou usar as opções desta aba, volte à aba "Sua Logo" e selecione a "Logo sugerida".'}</span>
++              </div>
++            ) : (
++              <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', padding: '16px', background: '#fcfcfc', borderRadius: '16px', border: '1.5px solid #eaeaea', boxShadow: '0 4px 12px rgba(0,0,0,0.02)' }}>
++                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
++                  <span style={{ fontSize: '0.78rem', fontWeight: 800, fontFamily: 'Montserrat, sans-serif', color: '#333', letterSpacing: '0.3px', display: 'flex', alignItems: 'center', gap: '6px' }}>{dictionary?.tagline_tab?.brand_tagline || '💬 Tagline da Marca'}</span>
++                  <button
++                    onClick={() => setSloganEnabled(!sloganEnabled)}
++                    style={{ padding: '5px 12px', borderRadius: '20px', fontSize: '0.65rem', fontWeight: 700, cursor: 'pointer', border: 'none', background: sloganEnabled ? `${accentColor}15` : '#eee', color: sloganEnabled ? accentColor : '#999', transition: 'all 0.2s', fontFamily: 'Montserrat, sans-serif' }}
++                  >
++                    {sloganEnabled ? (dictionary?.tagline_tab?.with_tagline || '✓ Com tagline') : (dictionary?.tagline_tab?.without_tagline || '✗ Sem tagline')}
++                  </button>
+                 </div>
+-              ) : (
+-                <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', padding: '16px', background: '#fcfcfc', borderRadius: '16px', border: '1.5px solid #eaeaea', boxShadow: '0 4px 12px rgba(0,0,0,0.02)' }}>
+-                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+-                    <span style={{ fontSize: '0.78rem', fontWeight: 800, fontFamily: 'Montserrat, sans-serif', color: '#333', letterSpacing: '0.3px', display: 'flex', alignItems: 'center', gap: '6px' }}>{dictionary?.tagline_tab?.brand_tagline || '💬 Tagline da Marca'}</span>
+-                    <button
+-                      onClick={() => setSloganEnabled(!sloganEnabled)}
+-                      style={{ padding: '5px 12px', borderRadius: '20px', fontSize: '0.65rem', fontWeight: 700, cursor: 'pointer', border: 'none', background: sloganEnabled ? `${accentColor}15` : '#eee', color: sloganEnabled ? accentColor : '#999', transition: 'all 0.2s', fontFamily: 'Montserrat, sans-serif' }}
+-                    >
+-                      {sloganEnabled ? (dictionary?.tagline_tab?.with_tagline || '✓ Com tagline') : (dictionary?.tagline_tab?.without_tagline || '✗ Sem tagline')}
+-                    </button>
++                {sloganEnabled && (<>
++                <input
++                  value={tagline}
++                  onChange={e => setTagline(e.target.value)}
++                  placeholder={dictionary?.tagline_tab?.placeholder || 'Ex: Delicadeza em cada detalhe'}
++                  style={{ width: '100%', padding: '12px 16px', borderRadius: '12px', border: `1.5px solid ${logoColor}22`, fontSize: '0.88rem', fontFamily: 'Montserrat, sans-serif', boxSizing: 'border-box', background: '#fff', outline: 'none', color: '#444', letterSpacing: '0.3px' }}
++                />
++                <div style={{ display: 'flex', gap: '6px' }}>
++                  <button onClick={() => setTaglineWrap(false)} style={{ flex: 1, padding: '6px 4px', border: 'none', borderRadius: '20px', fontSize: '0.68rem', fontWeight: 700, background: !taglineWrap ? logoColor : '#eee', color: !taglineWrap ? '#fff' : '#888', cursor: 'pointer', transition: '0.2s' }}>{dictionary?.tagline_tab?.one_line || '1 Linha'}</button>
++                  <button onClick={() => setTaglineWrap(true)} style={{ flex: 1, padding: '6px 4px', border: 'none', borderRadius: '20px', fontSize: '0.68rem', fontWeight: 700, background: taglineWrap ? logoColor : '#eee', color: taglineWrap ? '#fff' : '#888', cursor: 'pointer', transition: '0.2s' }}>{dictionary?.tagline_tab?.two_lines || '2 Linhas'}</button>
++                </div>
++                <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', padding: '10px', background: '#f8f8f8', borderRadius: '12px' }}>
++                  <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
++                    <span style={{ fontSize: '0.68rem', color: '#888', fontWeight: 600, fontFamily: 'Montserrat,sans-serif', width: '100px' }}>{dictionary?.tagline_tab?.scale || 'Escala Tagline'}</span>
++                    <input type="range" min="0.2" max="2.5" step="0.05" value={taglineSizeBoost} onChange={e => setTaglineSizeBoost(parseFloat(e.target.value))} style={{ flex: 1, accentColor }} />
++                    <span style={{ fontSize: '0.68rem', color: '#aaa', width: '30px' }}>{taglineSizeBoost.toFixed(2)}×</span>
+                   </div>
+-                  {sloganEnabled && (<>
+-                  <input
+-                    value={tagline}
+-                    onChange={e => setTagline(e.target.value)}
+-                    placeholder={dictionary?.tagline_tab?.placeholder || 'Ex: Delicadeza em cada detalhe'}
+-                    style={{ width: '100%', padding: '12px 16px', borderRadius: '12px', border: `1.5px solid ${logoColor}22`, fontSize: '0.88rem', fontFamily: 'Montserrat, sans-serif', boxSizing: 'border-box', background: '#fff', outline: 'none', color: '#444', letterSpacing: '0.3px' }}
+-                  />
+-                  <div style={{ display: 'flex', gap: '6px' }}>
+-                    <button onClick={() => setTaglineWrap(false)} style={{ flex: 1, padding: '6px 4px', border: 'none', borderRadius: '20px', fontSize: '0.68rem', fontWeight: 700, background: !taglineWrap ? logoColor : '#eee', color: !taglineWrap ? '#fff' : '#888', cursor: 'pointer', transition: '0.2s' }}>{dictionary?.tagline_tab?.one_line || '1 Linha'}</button>
+-                    <button onClick={() => setTaglineWrap(true)} style={{ flex: 1, padding: '6px 4px', border: 'none', borderRadius: '20px', fontSize: '0.68rem', fontWeight: 700, background: taglineWrap ? logoColor : '#eee', color: taglineWrap ? '#fff' : '#888', cursor: 'pointer', transition: '0.2s' }}>{dictionary?.tagline_tab?.two_lines || '2 Linhas'}</button>
++                  <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
++                    <span style={{ fontSize: '0.68rem', color: '#888', fontWeight: 600, fontFamily: 'Montserrat,sans-serif', width: '100px' }}>{dictionary?.tagline_tab?.distance || 'Distância'}</span>
++                    <input type="range" min="-0.5" max="1.5" step="0.05" value={taglineGap} onChange={e => setTaglineGap(parseFloat(e.target.value))} style={{ flex: 1, accentColor }} />
++                    <span style={{ fontSize: '0.68rem', color: '#aaa', width: '30px' }}>{taglineGap.toFixed(2)}</span>
+                   </div>
+-                  <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', padding: '10px', background: '#f8f8f8', borderRadius: '12px' }}>
+-                    <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+-                      <span style={{ fontSize: '0.68rem', color: '#888', fontWeight: 600, fontFamily: 'Montserrat,sans-serif', width: '100px' }}>{dictionary?.tagline_tab?.scale || 'Escala Tagline'}</span>
+-                      <input type="range" min="0.2" max="2.5" step="0.05" value={taglineSizeBoost} onChange={e => setTaglineSizeBoost(parseFloat(e.target.value))} style={{ flex: 1, accentColor }} />
+-                      <span style={{ fontSize: '0.68rem', color: '#aaa', width: '30px' }}>{taglineSizeBoost.toFixed(2)}×</span>
+-                    </div>
+-                    <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+-                      <span style={{ fontSize: '0.68rem', color: '#888', fontWeight: 600, fontFamily: 'Montserrat,sans-serif', width: '100px' }}>{dictionary?.tagline_tab?.distance || 'Distância'}</span>
+-                      <input type="range" min="-0.5" max="1.5" step="0.05" value={taglineGap} onChange={e => setTaglineGap(parseFloat(e.target.value))} style={{ flex: 1, accentColor }} />
+-                      <span style={{ fontSize: '0.68rem', color: '#aaa', width: '30px' }}>{taglineGap.toFixed(2)}</span>
+-                    </div>
+-                    <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+-                      <span style={{ fontSize: '0.68rem', color: '#888', fontWeight: 600, fontFamily: 'Montserrat,sans-serif', width: '100px' }}>{dictionary?.tagline_tab?.spacing_slider || 'Espaçamento'}</span>
+-                      <input type="range" min="-0.1" max="1.5" step="0.05" value={taglineLetterSpacing} onChange={e => setTaglineLetterSpacing(parseFloat(e.target.value))} style={{ flex: 1, accentColor }} />
+-                      <span style={{ fontSize: '0.68rem', color: '#aaa', width: '30px' }}>{taglineLetterSpacing.toFixed(2)}em</span>
+-                    </div>
++                  <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
++                    <span style={{ fontSize: '0.68rem', color: '#888', fontWeight: 600, fontFamily: 'Montserrat,sans-serif', width: '100px' }}>{dictionary?.tagline_tab?.spacing_slider || 'Espaçamento'}</span>
++                    <input type="range" min="-0.1" max="1.5" step="0.05" value={taglineLetterSpacing} onChange={e => setTaglineLetterSpacing(parseFloat(e.target.value))} style={{ flex: 1, accentColor }} />
++                    <span style={{ fontSize: '0.68rem', color: '#aaa', width: '30px' }}>{taglineLetterSpacing.toFixed(2)}em</span>
+                   </div>
+-                  </>)}
+                 </div>
+-              )}
+-            </div>
+-          )}
++                </>)}
++              </div>
++            )}
++          </div>
++        )}
+ 
+-          {/* Guia da marca */}
+-          {step === 'guia' && plano !== 'avulso' && <GuiaStep brand={brand} accentColor={accentColor} paletteColors={paletteColors} marca={marca} tagline={tagline} estampaPatterns={estampaPatterns} estampaSelectedIdx={estampaSelectedIdx} editData={editDataWithLogo} />}
++        {/* Guia da marca */}
++        {step === 'guia' && plano !== 'avulso' && <GuiaStep brand={brand} accentColor={accentColor} paletteColors={paletteColors} marca={marca} tagline={tagline} estampaPatterns={estampaPatterns} estampaSelectedIdx={estampaSelectedIdx} editData={editDataWithLogo} />}
+ 
+-          {/* Papelaria / Gabaritos */}
+-          {step === 'papelaria' && <PapelariaStep brand={brand} accentColor={accentColor} paletteColors={orderedPaletteColors} estampaPatterns={estampaPatterns} estampaSelectedIdx={estampaSelectedIdx} cartaoContacts={cartaoContacts} setCartaoContacts={setCartaoContacts} plano={plano} isSaude={isSaude} crmData={crmData} setCrmData={setCrmData} marca={marca} editData={editDataWithLogo} logoColor={logoColor} logoLayout={logoLayout} setLayout={setLayout} clinicaNome={clinicaNome} setClinicaNome={setClinicaNome} onNavSync={setPapelariaNavItens} navIdx={papelariaNavIdx} setNavIdx={setPapelariaNavIdx} customLogoSrc={customLogoSrc} getCustomLogoScale={getCustomLogoScale} setCustomLogoScale={setCustomLogoScale} getCustomLogoScaleMax={getCustomLogoScaleMax} customLogoScaleMap={customLogoScaleMap} submarcaColor={submarcaColor} submarcaTextColor={submarcaTextColor} iconPath={currentIconPath} avulsoParam={avulsoParam} />}
++        {/* Papelaria / Gabaritos */}
++        {step === 'papelaria' && <PapelariaStep brand={brand} accentColor={accentColor} paletteColors={orderedPaletteColors} estampaPatterns={estampaPatterns} estampaSelectedIdx={estampaSelectedIdx} cartaoContacts={cartaoContacts} setCartaoContacts={setCartaoContacts} plano={plano} isSaude={isSaude} crmData={crmData} setCrmData={setCrmData} marca={marca} editData={editDataWithLogo} logoColor={logoColor} logoLayout={logoLayout} setLayout={setLayout} clinicaNome={clinicaNome} setClinicaNome={setClinicaNome} onNavSync={setPapelariaNavItens} navIdx={papelariaNavIdx} setNavIdx={setPapelariaNavIdx} customLogoSrc={customLogoSrc} getCustomLogoScale={getCustomLogoScale} setCustomLogoScale={setCustomLogoScale} getCustomLogoScaleMax={getCustomLogoScaleMax} customLogoScaleMap={customLogoScaleMap} submarcaColor={submarcaColor} submarcaTextColor={submarcaTextColor} iconPath={currentIconPath} avulsoParam={avulsoParam} patternOffset={patternOffset} setPatternOffset={setPatternOffset} />}
+ 
+-          {/* Ajuda & Inspiração */}
+-          {step === 'ajuda' && (
+-            <>
+-              <AjudaStep brand={brand} accentColor={accentColor} onResendEmail={handleResendEmail} resendingEmail={resendingEmail} resendStatus={resendStatus} />
+-              {plano === 'avulso' && <AvulsoUpgradeCard accentColor={accentColor} titulo="Quer uma identidade visual completa?" desc="Com o Plano Completo você tem logo, paleta de cores, estampa, guia da marca, pack para Instagram, assinatura de e-mail e todos os impressos personalizados com a sua marca." />}
+-            </>
+-          )}
++        {/* Ajuda & Inspiração */}
++        {step === 'ajuda' && (
++          <>
++            <AjudaStep brand={brand} accentColor={accentColor} onResendEmail={handleResendEmail} resendingEmail={resendingEmail} resendStatus={resendStatus} />
++            {plano === 'avulso' && <AvulsoUpgradeCard accentColor={accentColor} titulo="Quer uma identidade visual completa?" desc="Com o Plano Completo você tem logo, paleta de cores, estampa, guia da marca, pack para Instagram, assinatura de e-mail e todos os impressos personalizados com a sua marca." />}
++          </>
++        )}
+ 
+-          {/* Upsell — página de fechamento com serviços extras */}
+-          {step === 'upsell' && (
+-            <UpsellStep brand={brand} accentColor={accentColor} marca={marca} />
+-          )}
+-        </PostPaymentErrorBoundary>
++        {/* Upsell — página de fechamento com serviços extras */}
++        {step === 'upsell' && (
++          <UpsellStep brand={brand} accentColor={accentColor} marca={marca} />
++        )}
+ 
+         {/* Estilos Salvos — acima do preview na aba logo */}
+         {step === 'logo' && !customLogoSrc && (
+@@ -12124,7 +12220,7 @@ function SucessoContent() {
+     return 'starter';
+   });
+ 
+-  const sessionParam = params.get('session') || params.get('id') || params.get('session_id') || params.get('project') || params.get('b') || params.get('entrega') || params.get('p');
++  const sessionParam = params.get('session') || params.get('id') || params.get('session_id') || params.get('project') || params.get('b') || params.get('entrega') || params.get('p') || (typeof window !== 'undefined' ? localStorage.getItem('brandbox_session') : null);
+   const planoParam = params.get('plano');
+   const devMode = params.get('dev') === '1';
+   const avulsoParam = params.has('avulso') ? (params.get('avulso') || 'inicio') : null;
