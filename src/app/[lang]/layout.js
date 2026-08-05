@@ -12,6 +12,7 @@ export async function generateMetadata({ params }) {
   const isEn = rawLang.startsWith('en');
   const langPath = isEn ? 'en' : 'pt';
   const ogLocale = isEn ? 'en_US' : 'pt_BR';
+  const baseUrl = (process.env.SITE_URL || process.env.NEXT_PUBLIC_SITE_URL || 'https://thebrandbox.sonhodepapel.com').replace(/\/$/, '');
 
   const title = isEn
     ? 'Build Your Brand | The Brand Box'
@@ -22,7 +23,7 @@ export async function generateMetadata({ params }) {
     : 'Transforme sua essência em uma identidade visual completa e profissional através de uma experiência guiada, dinâmica e mágica. Sem complicações e sem precisar de designer.';
 
   return {
-    metadataBase: new URL('https://thebrandbox.sonhodepapel.com'),
+    metadataBase: new URL(baseUrl),
     title: {
       default: title,
       template: '%s | The Brand Box',
@@ -39,7 +40,7 @@ export async function generateMetadata({ params }) {
     openGraph: {
       title: title,
       description: description,
-      url: `https://thebrandbox.sonhodepapel.com/${langPath}`,
+      url: `${baseUrl}/${langPath}`,
       siteName: 'The Brand Box / Sonho de Papel',
       locale: ogLocale,
       type: 'website',

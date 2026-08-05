@@ -1,5 +1,5 @@
 export default function sitemap() {
-  const baseUrl = 'https://thebrandbox.sonhodepapel.com';
+  const baseUrl = (process.env.SITE_URL || process.env.NEXT_PUBLIC_SITE_URL || 'https://thebrandbox.sonhodepapel.com').replace(/\/$/, '');
   const now = new Date();
   
   return [
