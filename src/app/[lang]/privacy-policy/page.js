@@ -42,7 +42,7 @@ export default function PrivacyPolicyPage() {
             <p style={{ background: '#F8FAFC', padding: '12px 16px', borderRadius: '8px', borderLeft: '4px solid #2A897F', fontSize: '0.9rem' }}>
               <strong>Legal Name:</strong> PETTERSEN LUNT DESIGN, responsible for The Brand Box<br/>
               <strong>Organization Number:</strong> 932 370 956<br/>
-              <strong>Privacy Contact:</strong> <a href="mailto:thebrandbox@sonhodepapel.com" style={{ color: '#2A897F', textDecoration: 'underline' }}>thebrandbox@sonhodepapel.com</a>
+              <strong>Privacy Contact:</strong> <a href="mailto:hello@thebrandbox.design" style={{ color: '#2A897F', textDecoration: 'underline' }}>hello@thebrandbox.design</a>
             </p>
           </section>
 
@@ -174,14 +174,14 @@ export default function PrivacyPolicyPage() {
           <section>
             <h2 style={{ fontSize: '1.25rem', fontWeight: 700, color: '#0F172A', marginBottom: '10px' }}>15. How to withdraw consent</h2>
             <p>
-              You can withdraw marketing consent at any time by clicking &quot;Unsubscribe&quot; in any marketing email or contacting our privacy contact at <a href="mailto:thebrandbox@sonhodepapel.com" style={{ color: '#2A897F', textDecoration: 'underline' }}>thebrandbox@sonhodepapel.com</a>.
+              You can withdraw marketing consent at any time by clicking &quot;Unsubscribe&quot; in any marketing email or contacting our privacy contact at <a href="mailto:hello@thebrandbox.design" style={{ color: '#2A897F', textDecoration: 'underline' }}>hello@thebrandbox.design</a>.
             </p>
           </section>
 
           <section>
             <h2 style={{ fontSize: '1.25rem', fontWeight: 700, color: '#0F172A', marginBottom: '10px' }}>16. Data erasure and portability</h2>
             <p>
-              To request permanent erasure of your lead records, please contact <a href="mailto:thebrandbox@sonhodepapel.com" style={{ color: '#2A897F', textDecoration: 'underline' }}>thebrandbox@sonhodepapel.com</a>.
+              To request permanent erasure of your lead records, please contact <a href="mailto:hello@thebrandbox.design" style={{ color: '#2A897F', textDecoration: 'underline' }}>hello@thebrandbox.design</a>.
             </p>
           </section>
 
@@ -206,7 +206,7 @@ export default function PrivacyPolicyPage() {
             </p>
             <p>
               <strong>Legal Name:</strong> PETTERSEN LUNT DESIGN<br/>
-              <strong>Privacy Contact:</strong> <a href="mailto:thebrandbox@sonhodepapel.com" style={{ color: '#2A897F', textDecoration: 'underline' }}>thebrandbox@sonhodepapel.com</a><br/>
+              <strong>Privacy Contact:</strong> <a href="mailto:hello@thebrandbox.design" style={{ color: '#2A897F', textDecoration: 'underline' }}>hello@thebrandbox.design</a><br/>
               <strong>Brand:</strong> The Brand Box
             </p>
           </section>
@@ -214,7 +214,7 @@ export default function PrivacyPolicyPage() {
           <section>
             <h2 style={{ fontSize: '1.25rem', fontWeight: 700, color: '#0F172A', marginBottom: '10px' }}>20. Right to Lodge a Complaint</h2>
             <p style={{ marginBottom: '10px' }}>
-              If you have any questions or concerns regarding the processing of your personal data, we recommend that you first contact us at <a href="mailto:thebrandbox@sonhodepapel.com" style={{ color: '#2A897F', textDecoration: 'underline' }}>thebrandbox@sonhodepapel.com</a> so we can review and try to resolve the matter.
+              If you have any questions or concerns regarding the processing of your personal data, we recommend that you first contact us at <a href="mailto:hello@thebrandbox.design" style={{ color: '#2A897F', textDecoration: 'underline' }}>hello@thebrandbox.design</a> so we can review and try to resolve the matter.
             </p>
             <p>
               You also have the right to lodge a complaint with <strong>Datatilsynet</strong>, the Norwegian Data Protection Authority, or another competent supervisory authority where applicable. More information is available on the <a href="https://www.datatilsynet.no/en/" target="_blank" rel="noopener noreferrer" style={{ color: '#2A897F', textDecoration: 'underline' }}>Datatilsynet website</a>.
