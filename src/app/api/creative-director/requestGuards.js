@@ -1,52 +1,41 @@
-const LOCK_TTL_MS = 60 * 1000;
-const COMPLETED_TTL_MS = 10 * 60 * 1000;
+const TTL_MS = 10 * 60 * 1000;
 
-function getStores() {
-  if (!globalThis.__brandBoxCreativeDirectorGuards) {
-    globalThis.__brandBoxCreativeDirectorGuards = {
-      locks: new Map(),
-      completed: new Map()
-    };
-  }
-  return globalThis.__brandBoxCreativeDirectorGuards;
+function store() {
+  if (!globalThis.__brandBoxCreativeDirectorCache) globalThis.__brandBoxCreativeDirectorCache = { ready: new Map(), pending: new Map() };
+  return globalThis.__brandBoxCreativeDirectorCache;
+}
+function clean(now = Date.now()) {
+  const s = store();
+  for (const [key, entry] of s.ready) if (entry.expiresAt <= now) s.ready.delete(key);
+  return s;
 }
 
-function cleanup(store, now) {
-  for (const [key, expiresAt] of store.locks.entries()) {
-    if (expiresAt <= now) store.locks.delete(key);
-  }
-  for (const [key, expiresAt] of store.completed.entries()) {
-    if (expiresAt <= now) store.completed.delete(key);
+// One stable journey key owns one successful diagnosis. Failures are deliberately never cached.
+export async function getOrCreateCreativeDirector(requestKey, create) {
+  if (!requestKey || typeof requestKey !== 'string') return { value: await create(), cache: 'miss' };
+  const key = requestKey.slice(0, 180);
+  const s = clean();
+  const cached = s.ready.get(key);
+  if (cached) return { value: cached.value, cache: 'hit' };
+  if (s.pending.has(key)) return { value: await s.pending.get(key), cache: 'shared' };
+  const promise = Promise.resolve().then(create);
+  s.pending.set(key, promise);
+  try {
+    const value = await promise;
+    s.ready.set(key, { value, expiresAt: Date.now() + TTL_MS });
+    return { value, cache: 'miss' };
+  } finally {
+    s.pending.delete(key);
   }
 }
 
+// Compatibility guard for the independent refinement, palette-feedback and tagline routes.
 export function acquireCreativeDirectorRequest(requestKey) {
-  if (!requestKey || typeof requestKey !== 'string') {
-    return { ok: true, release: () => {} };
-  }
-
-  const normalizedKey = requestKey.slice(0, 180);
-  const store = getStores();
-  const now = Date.now();
-  cleanup(store, now);
-
-  if (store.locks.has(normalizedKey)) {
-    return { ok: false, reason: 'duplicate_in_progress' };
-  }
-
-  if (store.completed.has(normalizedKey)) {
-    return { ok: false, reason: 'request_already_completed' };
-  }
-
-  store.locks.set(normalizedKey, now + LOCK_TTL_MS);
-
-  return {
-    ok: true,
-    release: ({ completed = false } = {}) => {
-      store.locks.delete(normalizedKey);
-      if (completed) {
-        store.completed.set(normalizedKey, Date.now() + COMPLETED_TTL_MS);
-      }
-    }
-  };
+  if (!requestKey || typeof requestKey !== 'string') return { ok: true, release: () => {} };
+  const key = `legacy:${requestKey.slice(0, 170)}`;
+  const s = clean();
+  if (s.pending.has(key)) return { ok: false, reason: 'duplicate_in_progress' };
+  let released = false;
+  s.pending.set(key, new Promise(() => {}));
+  return { ok: true, release: () => { if (!released) { released = true; s.pending.delete(key); } } };
 }

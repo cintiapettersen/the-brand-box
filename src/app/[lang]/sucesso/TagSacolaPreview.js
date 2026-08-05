@@ -34,27 +34,28 @@ function TagCard({ size, solidColor, c0, c1, paletteColors, effectiveSrc, patter
       <div style={containerStyle}>
         <div style={bgStyle} />
         {(() => {
-          const hasImg = !!editData?.customLogoSrc;
           const isRect = size.shape === 'rect';
-          const boxW = Math.round(W * (isCircle ? 0.62 : isRect ? 0.58 : 0.70));
-          const boxH = Math.round(H * (isCircle ? 0.55 : isRect ? 0.58 : 0.62));
+          const boxDim = Math.round(Math.min(W, H) * (isCircle ? 0.74 : isRect ? 0.65 : 0.78));
+          const boxW = isRect ? Math.round(W * 0.72) : boxDim;
+          const boxH = isRect ? Math.round(H * 0.65) : boxDim;
           return (
             <div style={{
               position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%)', zIndex: 2,
               display: 'flex', alignItems: 'center', justifyContent: 'center',
-              background: effectiveSrc ? 'rgba(255,255,255,0.92)' : 'transparent',
-              padding: effectiveSrc ? '4px 6px' : '0',
-              borderRadius: '4px',
-              maxWidth: `${boxW + 12}px`, maxHeight: `${boxH + 8}px`, overflow: 'visible',
+              background: effectiveSrc ? 'rgba(255,255,255,0.95)' : 'transparent',
+              padding: effectiveSrc ? '8px' : '0',
+              borderRadius: isCircle ? '50%' : '4px',
+              width: `${boxW}px`, height: `${boxH}px`,
+              maxWidth: `${boxW}px`, maxHeight: `${boxH}px`, overflow: 'hidden',
+              boxSizing: 'border-box',
             }}>
               <div style={{
-                display: hasImg ? 'inline-flex' : 'flex',
-                ...(hasImg ? { maxWidth: `${boxW}px` } : { width: `${boxW}px`, height: `${boxH}px` }),
-                alignItems: 'center', justifyContent: 'center', overflow: 'visible',
+                display: 'flex', width: '100%', height: '100%',
+                alignItems: 'center', justifyContent: 'center', overflow: 'hidden',
               }}>
                 <LogoPreviewHTML item="Tag para Sacola" editData={editData}
                   color={effectiveSrc ? solidColor : '#ffffff'}
-                  layout={logoLayout} scaleFactor={isCircle ? 0.65 : isRect ? 0.58 : 0.70}
+                  layout={logoLayout} scaleFactor={isCircle ? 0.75 : isRect ? 0.68 : 0.78}
                   hideTagline={false} withBackground={false}
                   taglineColor={effectiveSrc ? undefined : 'rgba(255,255,255,0.75)'}
                   maxWidth="100%" maxHeight="100%" />
@@ -72,13 +73,26 @@ function TagCard({ size, solidColor, c0, c1, paletteColors, effectiveSrc, patter
       {(() => {
         const fs = Math.round(Math.min(W, H) * 0.075);
         const fsSmall = Math.round(fs * 0.72);
-        return <div style={{ position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%)', width: '76%', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: Math.round(fs * 0.4), overflow: 'hidden', maxHeight: '80%' }}>
-        {clinicaNome && <div style={{ fontSize: fs, fontWeight: 400, color: solidColor, fontFamily: "'Brush Script MT','Segoe Script','Dancing Script',cursive", textAlign: 'center', lineHeight: 1.3 }}>{clinicaNome}</div>}
-        <div style={{ width: 24, height: 0.5, background: `${solidColor}60` }} />
-        {cartaoContacts?.telefone && <div style={{ fontSize: fsSmall, fontWeight: 400, color: '#888', fontFamily: 'Montserrat,sans-serif', letterSpacing: '0.3px' }}>{cartaoContacts.telefone}</div>}
-        {cartaoContacts?.instagram && <div style={{ fontSize: fsSmall, fontWeight: 400, color: '#888', fontFamily: 'Montserrat,sans-serif', letterSpacing: '0.3px' }}>@{cartaoContacts.instagram.replace('@','')}</div>}
-        {cartaoContacts?.site && <div style={{ fontSize: Math.round(fsSmall * 0.9), fontWeight: 400, color: '#bbb', fontFamily: 'Montserrat,sans-serif', letterSpacing: '0.3px' }}>{cartaoContacts.site}</div>}
-      </div>;
+        const whatsapp = cartaoContacts?.whatsapp || '';
+        const telefone = cartaoContacts?.telefone || '';
+        const telefone2 = cartaoContacts?.telefone2 || '';
+        const email = cartaoContacts?.email || '';
+        const endereco = cartaoContacts?.endereco || '';
+        const instagram = cartaoContacts?.instagram || '';
+        const site = cartaoContacts?.site || '';
+        
+        const logoFont = editData?.fontFamily || 'Montserrat';
+
+        return <div style={{ position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%)', width: '80%', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: Math.round(fs * 0.35), overflow: 'hidden', maxHeight: '85%', textAlign: 'center' }}>
+          {clinicaNome && <div style={{ fontSize: fs, fontWeight: 600, color: solidColor, fontFamily: `'${logoFont}', sans-serif`, textAlign: 'center', lineHeight: 1.3 }}>{clinicaNome}</div>}
+          <div style={{ width: 24, height: 0.5, background: `${solidColor}60` }} />
+          {whatsapp && <div style={{ fontSize: fsSmall, fontWeight: 400, color: '#888', fontFamily: 'Montserrat,sans-serif', letterSpacing: '0.3px', whiteSpace: 'nowrap' }}>{whatsapp}</div>}
+          {(telefone || telefone2) && <div style={{ fontSize: Math.round(fsSmall * 0.8), fontWeight: 400, color: '#999', fontFamily: 'Montserrat,sans-serif', letterSpacing: '0.3px', whiteSpace: 'nowrap', marginTop: '2px' }}>{[telefone, telefone2].filter(Boolean).join(' · ')}</div>}
+          {instagram && <div style={{ fontSize: fsSmall, fontWeight: 400, color: '#888', fontFamily: 'Montserrat,sans-serif', letterSpacing: '0.3px', whiteSpace: 'nowrap' }}>@{instagram.replace('@','')}</div>}
+          {email && <div style={{ fontSize: Math.round(fsSmall * 0.85), fontWeight: 400, color: '#888', fontFamily: 'Montserrat,sans-serif', letterSpacing: '0.2px', wordBreak: 'break-all' }}>{email}</div>}
+          {site && <div style={{ fontSize: Math.round(fsSmall * 0.85), fontWeight: 400, color: '#bbb', fontFamily: 'Montserrat,sans-serif', letterSpacing: '0.3px', wordBreak: 'break-all' }}>{site}</div>}
+          {endereco && <div style={{ fontSize: Math.round(fsSmall * 0.75), fontWeight: 400, color: '#aaa', fontFamily: 'Montserrat,sans-serif', letterSpacing: '0.2px', marginTop: '2px', lineHeight: 1.2 }}>{endereco}</div>}
+        </div>;
       })()}
     </div>
   );

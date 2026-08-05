@@ -1,4 +1,4 @@
-import { acquireCreativeDirectorRequest } from './requestGuards.js';
+import { getOrCreateCreativeDirector } from './requestGuards.js';
 
 const REQUIRED_ARRAY_FIELDS = ['personalidade', 'objetivosEmocionais', 'expectativasPublico', 'riscosEvitar'];
 const REQUIRED_STRING_FIELDS = ['diagnostico', 'porqueEsseEstilo', 'direcaoVisual'];
@@ -69,6 +69,10 @@ async function readOpenAIError(openAIResponse) {
   }
 }
 
+function errorId(error) {
+  return String(error?.code || error?.type || error?.name || 'unknown').replace(/[^a-z0-9_-]/gi, '_').slice(0, 80);
+}
+
 function buildBriefing(formData = {}) {
   return {
     brandName: formData.marca || null,
@@ -88,7 +92,6 @@ function buildBriefing(formData = {}) {
 }
 
 export async function POST(req) {
-  let requestGuard;
   try {
     const apiKey = process.env.OPENAI_API_KEY ? process.env.OPENAI_API_KEY.replace(/["']/g, '') : '';
     const model = process.env.OPENAI_MODEL ? process.env.OPENAI_MODEL.trim() : '';
@@ -115,11 +118,8 @@ export async function POST(req) {
       return Response.json({ error: 'invalid_creative_director_payload' }, { status: 400 });
     }
 
-    requestGuard = acquireCreativeDirectorRequest(cleanText(body.requestKey));
-    if (!requestGuard.ok) {
-      return Response.json({ error: requestGuard.reason }, { status: 429 });
-    }
-
+    const requestKey = cleanText(body.requestKey);
+    const generated = await getOrCreateCreativeDirector(requestKey, async () => {
     const openAIResponse = await fetch('https://api.openai.com/v1/responses', {
       method: 'POST',
       headers: {
@@ -174,13 +174,8 @@ export async function POST(req) {
 
     if (!openAIResponse.ok) {
       const error = await readOpenAIError(openAIResponse);
-      console.error('OpenAI Creative Director request failed:', {
-        status: openAIResponse.status,
-        error
-      });
-
-      requestGuard.release({ completed: true });
-      return Response.json({ error: 'creative_director_openai_error' }, { status: 502 });
+      console.error('OpenAI Creative Director request failed:', { status: openAIResponse.status, errorId: errorId(error) });
+      throw Object.assign(new Error('creative_director_openai_error'), { publicCode: 'creative_director_openai_error' });
     }
 
     const response = await openAIResponse.json();
@@ -191,8 +186,7 @@ export async function POST(req) {
         status: openAIResponse.status
       });
 
-      requestGuard.release({ completed: true });
-      return Response.json({ error: 'missing_creative_director_output' }, { status: 502 });
+      throw Object.assign(new Error('missing_creative_director_output'), { publicCode: 'missing_creative_director_output' });
     }
 
     let parsed;
@@ -204,8 +198,7 @@ export async function POST(req) {
         error: error.message
       });
 
-      requestGuard.release({ completed: true });
-      return Response.json({ error: 'invalid_creative_director_json' }, { status: 502 });
+      throw Object.assign(new Error('invalid_creative_director_json'), { publicCode: 'invalid_creative_director_json' });
     }
 
     const diagnostico = validateCreativeDirector(parsed);
@@ -216,16 +209,14 @@ export async function POST(req) {
         receivedFields: Object.keys(parsed || {})
       });
 
-      requestGuard.release({ completed: true });
-      return Response.json({ error: 'invalid_creative_director_response' }, { status: 502 });
+      throw Object.assign(new Error('invalid_creative_director_response'), { publicCode: 'invalid_creative_director_response' });
     }
 
-    requestGuard.release({ completed: true });
-    return Response.json(diagnostico);
+    return diagnostico;
+    });
+    return Response.json(generated.value, { headers: { 'X-Creative-Director-Cache': generated.cache } });
   } catch (error) {
-    console.error('Creative Director AI error:', error);
-    return Response.json({ error: 'creative_director_failed' }, { status: 502 });
-  } finally {
-    requestGuard?.release?.();
+    console.error('Creative Director AI error:', { errorId: errorId(error) });
+    return Response.json({ error: error.publicCode || 'creative_director_failed' }, { status: 502 });
   }
 }

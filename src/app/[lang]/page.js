@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useRef, useEffect } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion, AnimatePresence, useReducedMotion } from 'framer-motion';
 // Libraries dynamically imported for performance
 import BrandTemplateSVG from '../../components/BrandTemplateSVG';
 import BrandBoard from '../../components/BrandBoard';
@@ -11,6 +11,10 @@ import { createClient } from '@supabase/supabase-js';
 import FONT_MAP from '../../lib/fontMap';
 import { STYLE_ICONS, getIconById, ESTILO_NOME_BY_ID } from '../../lib/styleIcons';
 import Image from 'next/image';
+import { getCreativeDiagnosisCopy } from '../../lib/creativeDiagnosisCopy';
+import { findSelectedPalette } from '../../lib/selectedPalette';
+import { isCurrentPaletteFeedback, shouldClearPaletteFeedback } from '../../lib/paletteFeedbackState';
+import { PALETTE_CONSULTATION_LIMIT } from '../../lib/paletteConsultant';
 
 const PAPELARIA_CLINICA = [
   "Cartão de Visita", "Papel Timbrado", "Receituário Padrão (A4 e A5)", "Atestado Médico (A4 e A5)", "Cartão de Retorno", "Pasta A4 Exclusiva",
@@ -50,6 +54,17 @@ const LightbulbIcon = ({ size = 20, color = 'var(--text-primary)' }) => (
   </svg>
 );
 
+const PaletteLoadingSparkle = () => {
+  const reduceMotion = useReducedMotion();
+  return <motion.span aria-hidden="true" animate={reduceMotion ? {} : { rotate: [0, 12, -12, 0], scale: [1, 1.12, 1] }} transition={{ duration: 1.4, repeat: Infinity, ease: 'easeInOut' }} style={{ display: 'inline-block' }}>✨</motion.span>;
+};
+
+const PaletteRadioOption = ({ label, selected, onClick }) => (
+  <button type="button" role="radio" onClick={onClick} aria-checked={selected} style={{ border: selected ? '2px solid #16776f' : '1px solid #d0d5dd', borderRadius: '20px', padding: '8px 11px', background: selected ? '#1f8a80' : '#ffffff', color: selected ? '#ffffff' : '#475467', cursor: 'pointer', fontSize: '.75rem', fontWeight: selected ? 700 : 500, display: 'inline-flex', alignItems: 'center', gap: '6px', boxShadow: selected ? '0 2px 6px rgba(31,138,128,.28)' : 'none' }}>
+    {selected && <span aria-hidden="true" style={{ fontWeight: 800 }}>✓</span>}{label}
+  </button>
+);
+
 export default function Home() {
   const { dictionary, lang } = useTranslation();
 
@@ -85,6 +100,12 @@ export default function Home() {
   const [step, setStep] = useState(1);
   const [resultadoFinal, setResultadoFinal] = useState(null);
   const [isCreativeDirectorLoading, setIsCreativeDirectorLoading] = useState(false);
+  const [creativeDirectorStatus, setCreativeDirectorStatus] = useState('idle');
+  const effectiveCreativeDirectorStatus = creativeDirectorStatus === 'idle' ? resultadoFinal?.creativeDirectorStatus || 'idle' : creativeDirectorStatus;
+  const creativeDirectorRequestRef = useRef(null);
+  const resultStepRef = useRef(null);
+  const didScrollDiagnosticRef = useRef('');
+  const [isMatchmakerLoading, setIsMatchmakerLoading] = useState(false);
   const [isTaglineLoading, setIsTaglineLoading] = useState(false);
   const [aiSessionId, setAiSessionId] = useState('');
   const [selectedTagline, setSelectedTagline] = useState('');
@@ -92,8 +113,10 @@ export default function Home() {
   const [alertMessage, setAlertMessage] = useState(null);
   
   const [formData, setFormData] = useState({
-    nome: '', email: '', marca: '', atuacao: '', atuacaoOutra: '', contextoExtra: '', publico: '', sentimentos: [], elementosVisuais: [], personalidade: '', primeiraImpressao: '', locais: [], inspiracoes: '', inspiracoesTags: [], nuncaPensar: '', nuncaPensarTags: []
+    nome: '', email: '', acceptsMarketing: false, marca: '', atuacao: '', atuacaoOutra: '', contextoExtra: '', publico: '', sentimentos: [], elementosVisuais: [], personalidade: '', primeiraImpressao: '', locais: [], inspiracoes: '', inspiracoesTags: [], nuncaPensar: '', nuncaPensarTags: []
   });
+
+  const creativeDiagnosisCopy = getCreativeDiagnosisCopy(lang);
 
   const refineCopy = {
     button: dictionary?.postmatch?.creative_refine_button || 'Refinar esta direção',
@@ -149,6 +172,7 @@ export default function Home() {
 
     if (lastStepRef.current !== stepName) {
       lastStepRef.current = stepName;
+      const consentVersion = (lang || 'pt').startsWith('en') ? 'en-v1' : 'pt-v1';
       fetch('/api/leads', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -157,7 +181,14 @@ export default function Home() {
           email: emailTrimmed, 
           source: source,
           last_step: stepName,
-          project_completed: step >= 13
+          project_completed: step >= 13,
+          accepts_marketing: !!formData.acceptsMarketing,
+          ...(formData.acceptsMarketing ? {
+            marketing_consent: true,
+            marketing_consent_at: new Date().toISOString(),
+            marketing_consent_source: 'briefing',
+            marketing_consent_version: consentVersion
+          } : {})
         })
       }).catch(err => console.error('Erro ao atualizar lead:', err));
     }
@@ -306,15 +337,29 @@ export default function Home() {
   const [refinementAnswer, setRefinementAnswer] = useState('');
   const [isRefinementLoading, setIsRefinementLoading] = useState(false);
   const [refinementStep, setRefinementStep] = useState('idle');
+  const [refinementConfirmation, setRefinementConfirmation] = useState('');
+  const [isAdvancingFromRefinement, setIsAdvancingFromRefinement] = useState(false);
   const [paletteFeedback, setPaletteFeedback] = useState(null);
   const [isPaletteFeedbackLoading, setIsPaletteFeedbackLoading] = useState(false);
+  const [paletteFeedbackError, setPaletteFeedbackError] = useState(null);
+  const [lastPaletteParams, setLastPaletteParams] = useState(null);
+  const [paletteConsultations, setPaletteConsultations] = useState([]);
+  const [showPaletteConsultant, setShowPaletteConsultant] = useState(false);
+  const [primaryRejectionReason, setPrimaryRejectionReason] = useState('');
+  const [desiredDirection, setDesiredDirection] = useState('');
+  const [paletteComment, setPaletteComment] = useState('');
+  const [isPaletteConsulting, setIsPaletteConsulting] = useState(false);
+  const [paletteConsultationError, setPaletteConsultationError] = useState('');
 
 
   const brandBoardRef = useRef(null);
   const selectedVisualBrandRef = useRef({ optionId: '', fontFamily: '' });
   const paletteFeedbackRequestRef = useRef('');
+  const paletteConsultationRequestRef = useRef(null);
+  const selectedPaletteDetails = findSelectedPalette(paletas, selectedPaleta, { styleId: resultadoFinal?.estiloId, styleName: resultadoFinal?.estiloNome, journeyId: resultadoFinal?.creativeDirectorJourneyId });
 
   const [isHydrated, setIsHydrated] = useState(false);
+  const [isPersistenceReady, setIsPersistenceReady] = useState(false);
 
   // Restaura progresso salvo ao montar
   useEffect(() => {
@@ -327,7 +372,7 @@ export default function Home() {
       if (saved) {
         const parsed = JSON.parse(saved);
         console.log('✨ Progresso encontrado:', parsed.formData?.marca || 'Sem nome');
-        if (parsed.step && parsed.step > 1) {
+        if ((parsed.step && parsed.step > 1) || parsed.resultadoFinal?.creativeDirectorJourneyId || parsed.selectedPaleta || parsed.paletteFeedback) {
           setSavedProgress(parsed);
           // Se o usuário está retornando do Stripe após cancelar o pagamento, restaura diretamente
           if (isCanceled) {
@@ -336,9 +381,12 @@ export default function Home() {
           } else {
             setShowResumePrompt(true);
           }
+        } else {
+          setIsPersistenceReady(true);
         }
       } else {
         console.log('ℹ️ Nenhum progresso anterior encontrado no localStorage.');
+        setIsPersistenceReady(true);
       }
     } catch(e) { 
       console.error('❌ Erro ao ler progresso:', e);
@@ -376,6 +424,7 @@ export default function Home() {
     if (parsed.generatedPatterns) setGeneratedPatterns(parsed.generatedPatterns);
     if (parsed.selectedPattern !== undefined) setSelectedPattern(parsed.selectedPattern);
     if (parsed.papelariaSelecionada) setPapelariaSelecionada(parsed.papelariaSelecionada);
+    if (Array.isArray(parsed.paletteConsultations)) setPaletteConsultations(parsed.paletteConsultations);
 
     if (parsed.sessionId) {
       try { localStorage.setItem('brandbox_session', parsed.sessionId); } catch {}
@@ -384,23 +433,35 @@ export default function Home() {
     // Re-busca paletas/tipografias do Supabase se estava em etapa avançada
     if (parsed.resultadoFinal?.estiloId && parsed.step >= 10) {
       setLoadingVariacoes(true);
+      let variationsLoaded = false;
       try {
         const id = parsed.resultadoFinal.estiloId;
         const res = await fetch(`/api/variacoes?id=${id}&t=${Date.now()}`, { cache: 'no-store' });
         const data = await res.json();
         
         if (data.variacoes) {
-          setPaletas(data.variacoes.filter(d => d.tipo === 'PALETA'));
+          variationsLoaded = true;
+          const restoredPalettes = [...data.variacoes.filter(d => d.tipo === 'PALETA'), ...(Array.isArray(parsed.paletteConsultations) ? parsed.paletteConsultations.flatMap(consultation => consultation.palettes || []) : [])];
+          setPaletas(restoredPalettes);
           setTipografias(data.variacoes.filter(d => d.tipo === 'TIPOGRAFIA'));
           setEstampas(data.variacoes.filter(d => d.tipo === 'ESTAMPA'));
+          const selected = findSelectedPalette(restoredPalettes, parsed.selectedPaleta, { styleId: parsed.resultadoFinal.estiloId, styleName: parsed.resultadoFinal.estiloNome, journeyId: parsed.resultadoFinal.creativeDirectorJourneyId });
+          const savedFeedback = parsed.paletteFeedback;
+          const feedbackMatches = isCurrentPaletteFeedback(savedFeedback, selected, parsed.editData?.corAtiva, parsed.resultadoFinal.creativeDirectorJourneyId, lang);
+          if (selected) setSelectedPaleta(parsed.selectedPaleta); else setEditData(prev => ({ ...prev, corAtiva: null }));
+          if (feedbackMatches) { setPaletteFeedback(savedFeedback); setCustomStep(parsed.customStep === 'cor' ? 'cor' : 'cor'); }
+          else { setPaletteFeedback(null); setCustomStep(selected && parsed.customStep === 'cor' ? 'cor' : 'paleta'); }
         }
         setMoodboards(data.moodboard || []);
       } catch (e) {
-        console.error("Erro ao restaurar variações via API:", e);
+        console.error('Erro ao restaurar variações via API:', { name: e?.name || 'Error' });
       } finally {
-        if (parsed.selectedPaleta) setSelectedPaleta(parsed.selectedPaleta);
-        if (parsed.selectedTipo) setSelectedTipo(parsed.selectedTipo);
-        setLoadingVariacoes(false);
+        try {
+          if (parsed.selectedPaleta && !variationsLoaded) setSelectedPaleta(parsed.selectedPaleta);
+          if (parsed.selectedTipo) setSelectedTipo(parsed.selectedTipo);
+        } finally {
+          setLoadingVariacoes(false);
+        }
       }
     }
     if (parsed.selectedIcon) setSelectedIcon(parsed.selectedIcon);
@@ -408,7 +469,7 @@ export default function Home() {
 
   // Salva progresso automaticamente APÓS a hidratação inicial ser concluída
   useEffect(() => {
-    if (!isHydrated) return;
+    if (!isHydrated || !isPersistenceReady || showResumePrompt) return;
 
     const activeSessionId = typeof window !== 'undefined' ? localStorage.getItem('brandbox_session') : null;
 
@@ -422,7 +483,7 @@ export default function Home() {
         secondaryFontWeight: editData.secondaryFontWeight, secondaryFontStyle: editData.secondaryFontStyle, corAtiva: editData.corAtiva
       },
       patternGenerationCount, refazerAttempts,
-      resultadoFinal, selectedPaleta, selectedTipo, selectedIcon,
+      resultadoFinal, selectedPaleta, selectedTipo, selectedIcon, customStep, paletteFeedback, paletteConsultations,
       generatedPatterns, selectedPattern, papelariaSelecionada,
       sessionId: activeSessionId || undefined
     };
@@ -444,7 +505,7 @@ export default function Home() {
         }
       }
     }
-  }, [isHydrated, step, formData, selectedTagline, customTagline, editData, generatedPatterns, selectedPattern, resultadoFinal, papelariaSelecionada]);
+  }, [isHydrated, isPersistenceReady, showResumePrompt, step, formData, selectedTagline, customTagline, editData, generatedPatterns, selectedPattern, resultadoFinal, papelariaSelecionada, selectedPaleta, selectedTipo, selectedIcon, customStep, paletteFeedback, paletteConsultations, patternGenerationCount, refazerAttempts]);
 
   useEffect(() => {
     if (step !== 11.5 || !resultadoFinal || resultadoFinal?.creativeDirector?.taglineSuggestions || resultadoFinal?.taglineSuggestions) return;
@@ -580,8 +641,8 @@ export default function Home() {
     }
   };
 
-  const fetchVariacoes = async () => {
-    const id = resultadoFinal?.estiloId || 1;
+  const fetchVariacoes = async (overrideEstiloId = null) => {
+    const id = (typeof overrideEstiloId === 'number' || typeof overrideEstiloId === 'string') ? overrideEstiloId : (resultadoFinal?.estiloId || 1);
     setLoadingVariacoes(true);
     
     try {
@@ -606,7 +667,7 @@ export default function Home() {
       console.log('Dados recebidos da API:', data);
       
       if (data.variacoes && data.variacoes.length > 0) {
-         setPaletas(data.variacoes.filter(d => d.tipo === 'PALETA'));
+         setPaletas([...data.variacoes.filter(d => d.tipo === 'PALETA'), ...paletteConsultations.flatMap(consultation => consultation.palettes || [])]);
          setTipografias(data.variacoes.filter(d => d.tipo === 'TIPOGRAFIA'));
          setEstampas(data.variacoes.filter(d => d.tipo === 'ESTAMPA'));
          console.log(`Sucesso: ${data.variacoes.length} variações carregadas.`);
@@ -793,13 +854,82 @@ export default function Home() {
     }) : prev);
   };
 
-  const getRequestKey = (contentType, targetLanguage = lang) => `${aiSessionId || 'pending'}:${getAiUsageKey(contentType, targetLanguage)}`;
+  const getRequestKey = (contentType, targetLanguage = lang) => {
+    const journeyId = resultadoFinal?.creativeDirectorJourneyId;
+    return journeyId ? `journey:${journeyId}:${contentType}:${targetLanguage}` : '';
+  };
+
+  useEffect(() => {
+    if (!selectedPaleta) return;
+    if (!selectedPaletteDetails) {
+      setSelectedPaleta(null);
+      setEditData(prev => ({ ...prev, corAtiva: null }));
+      setResultadoFinal(prev => prev ? ({ ...prev, selectedPalette: null }) : prev);
+      return;
+    }
+    setResultadoFinal(prev => prev && JSON.stringify(prev.selectedPalette) !== JSON.stringify(selectedPaletteDetails) ? ({ ...prev, selectedPalette: selectedPaletteDetails }) : prev);
+  }, [selectedPaleta, paletas, resultadoFinal?.estiloId, resultadoFinal?.creativeDirectorJourneyId]);
+
+  const paletteConsultantCopy = lang === 'en' ? {
+    intro: 'These are color interpretations for your brand’s creative direction. Each one was selected to match the style found in your briefing.', button: '✨ I want other interpretations for this direction',
+    rejectionTitle: 'What was the main reason?', rejectionReasons: ['They were too colorful', 'They were too neutral', 'They were too light', 'They were too dark', 'They do not fit my brand'], mismatchReason: 'They do not fit my brand',
+    preferenceTitle: 'What would you like to feel in the new suggestions?', optional: 'Optional', preferences: ['Something more delicate', 'Something more striking'],
+    comment: 'Tell us, if you wish, what you imagined for your brand colors.', placeholder: 'E.g.: I want something softer, elegant and less childlike.', mismatchComment: 'Briefly tell us what does not fit your brand *', mismatchPlaceholder: 'E.g.: the colors feel too playful for my premium audience.', mismatchHelp: 'This comment is required to guide the new suggestions.', mismatchButtonHelp: 'Complete the required comment to enable this button.', send: 'Ask the AI Creative Director', loading: 'The AI Creative Director is creating new palettes…', loadingHelp: 'We are translating your feedback into new color interpretations.', newTitle: 'New interpretations of your creative direction', limit: 'You have already explored two new color directions for this brand. Choose your favorite from the options created or continue with one of the current palettes.', error: 'We could not create new palettes right now. Please try again; this consultation was not used.', close: 'Close'
+  } : {
+    intro: 'Estas são interpretações de cor para a direção criativa da sua marca. Todas foram selecionadas para combinar com o estilo encontrado no seu briefing.', button: '✨ Quero outras interpretações para esta direção',
+    rejectionTitle: 'Qual foi o principal motivo?', rejectionReasons: ['Estavam coloridas demais', 'Estavam neutras demais', 'Estavam claras demais', 'Estavam escuras demais', 'Não combinam com a minha marca'], mismatchReason: 'Não combinam com a minha marca',
+    preferenceTitle: 'O que você gostaria de sentir nas novas sugestões?', optional: 'Opcional', preferences: ['Algo mais delicado', 'Algo mais marcante'],
+    comment: 'Conte, se quiser, o que você imaginava para as cores da sua marca.', placeholder: 'Ex.: quero algo mais suave, elegante e menos infantil.', mismatchComment: 'Conte brevemente o que não combina com a sua marca *', mismatchPlaceholder: 'Ex.: as cores parecem infantis para o meu público premium.', mismatchHelp: 'Este comentário é necessário para orientar as novas sugestões.', mismatchButtonHelp: 'Preencha o comentário obrigatório para ativar este botão.', send: 'Consultar a Diretora IA', loading: 'A Diretora IA está criando novas paletas…', loadingHelp: 'Estamos traduzindo seu feedback em novas interpretações de cor.', newTitle: 'Novas interpretações da sua direção criativa', limit: 'Você já explorou duas novas direções de cor para esta marca. Escolha sua favorita entre as opções criadas ou siga com uma das paletas atuais.', error: 'Não foi possível criar novas paletas agora. Tente novamente; esta consulta não foi usada.', close: 'Fechar'
+  };
+
+  const submitPaletteConsultation = async () => {
+    const comment = paletteComment.trim();
+    if (isPaletteConsulting || (!primaryRejectionReason && !comment) || (primaryRejectionReason === paletteConsultantCopy.mismatchReason && !comment) || paletteConsultations.length >= PALETTE_CONSULTATION_LIMIT) return;
+    const index = paletteConsultations.length + 1;
+    const requestKey = `${resultadoFinal?.creativeDirectorJourneyId}:${index}:${lang}`;
+    if (paletteConsultationRequestRef.current === requestKey) return;
+    paletteConsultationRequestRef.current = requestKey;
+    setIsPaletteConsulting(true); setPaletteConsultationError('');
+    try {
+      const response = await fetch('/api/creative-director/palette-consultation', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ journeyId: resultadoFinal?.creativeDirectorJourneyId, consultationIndex: index, language: lang, feedback: { primaryRejectionReason, desiredDirection, comment }, formData, resultadoFinal, existingPalettes: paletas }) });
+      if (!response.ok) throw new Error('palette_consultation_failed');
+      const data = await response.json();
+      const palettes = (data.palettes || []).map(palette => ({ ...palette, id: `${palette.id}-${index}`, estilo_id: resultadoFinal?.estiloId }));
+      if (palettes.length !== 3) throw new Error('invalid_palette_response');
+      const consultation = { id: requestKey, feedback: { primaryRejectionReason, desiredDirection, comment }, palettes, language: lang, completedAt: new Date().toISOString() };
+      setPaletteConsultations(prev => [...prev, consultation]);
+      setPaletas(prev => [...prev, ...palettes]);
+      setShowPaletteConsultant(false); setPrimaryRejectionReason(''); setDesiredDirection(''); setPaletteComment('');
+    } catch (error) { setPaletteConsultationError(paletteConsultantCopy.error); }
+    finally { setIsPaletteConsulting(false); paletteConsultationRequestRef.current = null; }
+  };
+
+  const clearPaletteFeedbackForSelection = (nextPaletteId) => {
+    if (!shouldClearPaletteFeedback(selectedPaleta, nextPaletteId)) return;
+    paletteFeedbackRequestRef.current = '';
+    setIsPaletteFeedbackLoading(false);
+    setPaletteFeedback(null);
+    setEditData(prev => ({ ...prev, corAtiva: null }));
+    try {
+      const saved = JSON.parse(localStorage.getItem('brandbox_progress') || '{}');
+      localStorage.setItem('brandbox_progress', JSON.stringify({ ...saved, selectedPaleta: nextPaletteId, paletteFeedback: null, editData: { ...(saved.editData || {}), corAtiva: null }, customStep: 'paleta' }));
+    } catch {}
+  };
+
+  const selectPaletteForColor = (paletteId) => {
+    clearPaletteFeedbackForSelection(paletteId);
+    setSelectedPaleta(paletteId);
+    setEditData(prev => ({ ...prev, corAtiva: null }));
+    setTimeout(() => setCustomStep('cor'), 300);
+  };
 
   const requestPaletteFeedback = async (primaryColor, palette) => {
     const requestId = `${selectedPaleta}:${primaryColor}:${Date.now()}`;
     paletteFeedbackRequestRef.current = requestId;
     setPaletteFeedback(null);
+    setPaletteFeedbackError(null);
     setIsPaletteFeedbackLoading(true);
+    setLastPaletteParams({ primaryColor, palette });
 
     try {
       const response = await fetch('/api/creative-director/palette-feedback', {
@@ -809,45 +939,80 @@ export default function Home() {
           formData,
           resultadoFinal,
           palette,
+          selectedPalette: selectedPaletteDetails,
           primaryColor,
           idioma: lang,
-          requestKey: `${aiSessionId || 'pending'}:palette_feedback:${selectedPaleta}:${primaryColor}`
+          requestKey: `${resultadoFinal?.creativeDirectorJourneyId || 'palette'}:palette_feedback:${selectedPaletteDetails?.id || selectedPaleta}:${primaryColor}`
         })
       });
 
-      if (!response.ok || paletteFeedbackRequestRef.current !== requestId) return;
-      setPaletteFeedback(await response.json());
+      if (!response.ok || paletteFeedbackRequestRef.current !== requestId) {
+        if (!response.ok) {
+          setPaletteFeedbackError(lang === 'en'
+            ? 'AI Creative Director is temporarily unavailable for this palette.'
+            : 'A avaliação da Diretora IA está temporariamente indisponível para esta paleta.');
+        }
+        return;
+      }
+      const feedback = await response.json();
+      try { localStorage.setItem('brandbox_progress', JSON.stringify({ ...(JSON.parse(localStorage.getItem('brandbox_progress') || '{}')), paletteFeedback: { ...feedback, context: { journeyId: resultadoFinal?.creativeDirectorJourneyId || null, styleId: selectedPaletteDetails?.styleId || null, paletteId: selectedPaletteDetails?.id || null, hex: selectedPaletteDetails?.hex || [], primaryColor, language: lang } }, customStep: 'cor', selectedPaleta, editData: { ...editData, corAtiva: primaryColor }, resultadoFinal })); } catch {}
+      setPaletteFeedback({ ...feedback, context: { journeyId: resultadoFinal?.creativeDirectorJourneyId || null, styleId: selectedPaletteDetails?.styleId || null, paletteId: selectedPaletteDetails?.id || null, hex: selectedPaletteDetails?.hex || [], primaryColor, language: lang } });
     } catch (error) {
-      console.warn('Feedback de paleta indisponível; mantendo o fluxo de escolha.', error);
+      console.warn('Feedback de paleta falhou:', error);
+      setPaletteFeedbackError(lang === 'en'
+        ? 'Connection error. Please try again.'
+        : 'Erro de conexão. Por favor, tente novamente.');
     } finally {
       if (paletteFeedbackRequestRef.current === requestId) setIsPaletteFeedbackLoading(false);
     }
   };
 
   const handlePrimaryColorSelect = (hex, colors) => {
+    setPaletteFeedback(null);
     setEditData(prev => ({ ...prev, corAtiva: hex }));
     requestPaletteFeedback(hex, colors);
   };
 
   const fetchCreativeDirectorDiagnostic = async (baseResult) => {
-    const creativeResponse = await fetch('/api/creative-director', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        formData,
-        estiloId: baseResult.estiloId,
-        estiloNome: baseResult.estiloNome,
-        mensagem: baseResult.mensagem,
-        idioma: lang,
-        requestKey: getRequestKey('diagnostic')
-      })
-    });
-
-    if (!creativeResponse.ok) return null;
-
+    const requestKey = `journey:${baseResult.creativeDirectorJourneyId}:diagnostic:${lang}`;
+    const creativeResponse = await fetch('/api/creative-director', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ formData, estiloId: baseResult.estiloId, estiloNome: baseResult.estiloNome, mensagem: baseResult.mensagem, idioma: lang, requestKey }) });
+    if (!creativeResponse.ok) {
+      const payload = await creativeResponse.json().catch(() => ({}));
+      throw Object.assign(new Error(payload.error || 'creative_director_failed'), { code: payload.error || 'creative_director_failed' });
+    }
     const creativeDirector = await creativeResponse.json();
     return { ...creativeDirector, language: lang, generatedAt: new Date().toISOString() };
   };
+
+  const runCreativeDirectorDiagnostic = async (baseResult) => {
+    if (creativeDirectorRequestRef.current) return creativeDirectorRequestRef.current;
+    setIsCreativeDirectorLoading(true); setCreativeDirectorStatus('loading');
+    const request = fetchCreativeDirectorDiagnostic(baseResult).then((creativeDirector) => {
+      setResultadoFinal(prev => prev ? ({ ...prev, creativeDirector, creativeDirectorStatus: 'ready' }) : prev);
+      setCreativeDirectorStatus('ready');
+
+      return creativeDirector;
+    }).catch((error) => {
+      console.warn('Creative Director unavailable:', error.code);
+      setResultadoFinal(prev => prev ? ({ ...prev, creativeDirectorStatus: 'fallback', creativeDirectorError: error.code }) : prev);
+      setCreativeDirectorStatus('fallback');
+      return null;
+    }).finally(() => { creativeDirectorRequestRef.current = null; setIsCreativeDirectorLoading(false); });
+    creativeDirectorRequestRef.current = request;
+    return request;
+  };
+
+  useEffect(() => {
+    const journeyId = resultadoFinal?.creativeDirectorJourneyId;
+    if (step !== 9 || !journeyId || didScrollDiagnosticRef.current === journeyId) return;
+    const timer = window.setTimeout(() => requestAnimationFrame(() => requestAnimationFrame(() => {
+      const target = resultStepRef.current;
+      if (!target) return;
+      didScrollDiagnosticRef.current = journeyId;
+      window.scrollTo({ top: Math.max(0, target.getBoundingClientRect().top + window.scrollY - 160), behavior: 'smooth' });
+    })), 180);
+    return () => window.clearTimeout(timer);
+  }, [step, resultadoFinal?.creativeDirectorJourneyId]);
 
   const regenerateCreativeDirector = async () => {
     if (!resultadoFinal || isCreativeDirectorLoading || hasAiUsage('diagnostic_regeneration')) return;
@@ -855,7 +1020,7 @@ export default function Home() {
     markAiUsage('diagnostic_regeneration');
     setIsCreativeDirectorLoading(true);
     try {
-      const creativeDirector = await fetchCreativeDirectorDiagnostic(resultadoFinal);
+      const creativeDirector = await runCreativeDirectorDiagnostic(resultadoFinal);
       if (creativeDirector) {
         setResultadoFinal(prev => prev ? ({ ...prev, creativeDirector: { ...creativeDirector, refinement: prev.creativeDirector?.refinement } }) : prev);
       }
@@ -1069,15 +1234,92 @@ export default function Home() {
     }
   };
 
-  const keepCurrentDirection = () => {
-    setShowRefinement(false);
-    setRefinementStep('idle');
-    setRefinementQuestion(null);
-    setRefinementAnswer('');
+  const handleUseRefinedDirection = async () => {
+    const currentRefinement = resultadoFinal?.creativeDirector?.refinement;
+    if (!currentRefinement || isAdvancingFromRefinement) return;
+
+    setIsAdvancingFromRefinement(true);
+
+    let targetEstiloId = resultadoFinal.estiloId;
+    let targetEstiloNome = resultadoFinal.estiloNome;
+
+    if (currentRefinement.estiloAlternativoId && currentRefinement.estiloAlternativoNome) {
+      targetEstiloId = currentRefinement.estiloAlternativoId;
+      targetEstiloNome = currentRefinement.estiloAlternativoNome;
+    }
+
+    const updatedResultado = {
+      ...resultadoFinal,
+      estiloId: targetEstiloId,
+      estiloNome: targetEstiloNome,
+      refinementChoice: 'refined',
+      creativeDirector: {
+        ...resultadoFinal.creativeDirector,
+        refinementChoice: 'refined',
+        activeRefinement: currentRefinement
+      }
+    };
+
+    setResultadoFinal(updatedResultado);
+
+    setFormData(prev => ({
+      ...prev,
+      contextoExtra: [prev.contextoExtra, `[Direção Refinada]: ${currentRefinement.direcaoRefinada}`].filter(Boolean).join(' | ')
+    }));
+
+    try {
+      localStorage.setItem('brandbox_resultado_final', JSON.stringify(updatedResultado));
+    } catch (e) {
+      console.warn('Erro ao persistir resultado final refinado:', e);
+    }
+
+    setRefinementConfirmation(refineCopy.confirmRefined);
+
+    setTimeout(async () => {
+      await fetchVariacoes(targetEstiloId);
+      setIsAdvancingFromRefinement(false);
+      setShowRefinement(false);
+      setRefinementConfirmation('');
+    }, 1200);
+  };
+
+  const handleKeepOriginalDirection = async () => {
+    if (isAdvancingFromRefinement) return;
+
+    setIsAdvancingFromRefinement(true);
+
+    const updatedResultado = {
+      ...resultadoFinal,
+      refinementChoice: 'original',
+      creativeDirector: {
+        ...resultadoFinal.creativeDirector,
+        refinementChoice: 'original',
+        activeRefinement: null
+      }
+    };
+
+    setResultadoFinal(updatedResultado);
+
+    try {
+      localStorage.setItem('brandbox_resultado_final', JSON.stringify(updatedResultado));
+    } catch (e) {
+      console.warn('Erro ao persistir resultado original:', e);
+    }
+
+    setRefinementConfirmation(refineCopy.confirmOriginal);
+
+    setTimeout(async () => {
+      await fetchVariacoes(resultadoFinal?.estiloId || 1);
+      setIsAdvancingFromRefinement(false);
+      setShowRefinement(false);
+      setRefinementConfirmation('');
+    }, 1200);
   };
 
   // Aqui é onde ativamos a Mágica
   const callMatchmaker = async () => {
+    if (isMatchmakerLoading) return;
+    setIsMatchmakerLoading(true);
     setStep(8); // Vai para a tela de loading automático
     
     try {
@@ -1090,26 +1332,11 @@ export default function Home() {
       const data = await response.json();
       
       if (data.estiloNome) {
-        setIsCreativeDirectorLoading(true);
-        setResultadoFinal({
-          ...data,
-          aiUsage: {
-            [getAiUsageKey('diagnostic')]: new Date().toISOString()
-          }
-        });
+        const journeyId = window.crypto?.randomUUID?.() || `journey-${Date.now()}-${Math.random().toString(36).slice(2)}`;
+        const matchResult = { ...data, creativeDirectorJourneyId: journeyId, creativeDirectorStatus: 'loading' };
+        setResultadoFinal(matchResult);
         setStep(9); // Tela de Resultado Triunfal
-
-        try {
-          const creativeDirector = await fetchCreativeDirectorDiagnostic(data);
-
-          if (creativeDirector) {
-            setResultadoFinal(prev => prev ? ({ ...prev, creativeDirector }) : prev);
-          }
-        } catch (creativeError) {
-          console.warn('Creative Director indisponível; mantendo o fluxo antigo.', creativeError);
-        } finally {
-          setIsCreativeDirectorLoading(false);
-        }
+        await runCreativeDirectorDiagnostic(matchResult);
       } else {
         setAlertMessage("Ops, deu um pequeno tilt na IA. Refaça por favor!");
         setStep(7);
@@ -1118,6 +1345,8 @@ export default function Home() {
       console.error(error);
       setAlertMessage("Erro na conexão com o servidor mágico.");
       setStep(7);
+    } finally {
+      setIsMatchmakerLoading(false);
     }
   };
 
@@ -1370,7 +1599,7 @@ export default function Home() {
           ⚡ MODO DEV ATIVO — estampas não consomem créditos
         </div>
       )}
-      <div style={{ width: '100%', maxWidth: '700px', position: 'relative', height: '85vh', marginTop: devMode ? '22px' : 0 }}>
+      <div style={{ width: '100%', maxWidth: '700px', position: 'relative', height: step === 9 ? 'auto' : '85vh', minHeight: step === 9 ? '85vh' : undefined, marginTop: devMode ? '22px' : 0 }}>
 
         {step > 1 && step < 8 && (
            <button onClick={() => {
@@ -1470,7 +1699,34 @@ export default function Home() {
                     </span>
                   </div>
                 ) : (
-                  <input name="email" value={formData.email} onChange={handleInput} type="email" placeholder={dictionary?.onboarding?.step_2_email_placeholder || 'O seu melhor e-mail'} />
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '14px', textAlign: 'left', width: '100%' }}>
+                    <input name="email" value={formData.email} onChange={handleInput} type="email" placeholder={dictionary?.onboarding?.step_2_email_placeholder || 'O seu melhor e-mail'} />
+                    
+                    <p style={{ fontSize: '0.82rem', color: 'var(--text-secondary, #64748b)', lineHeight: '1.5', margin: 0, padding: '0 2px' }}>
+                      {dictionary?.onboarding?.step_2_privacy_notice || 'Usamos seu e-mail para salvar seu projeto e enviar mensagens essenciais sobre ele.'}{' '}
+                      <a 
+                        href={`/${lang}/politica-de-privacidade`} 
+                        target="_blank" 
+                        rel="noopener noreferrer" 
+                        style={{ color: 'var(--text-secondary, #64748b)', textDecoration: 'underline', fontWeight: 500 }}
+                      >
+                        {dictionary?.onboarding?.step_2_privacy_policy_link || 'Política de Privacidade'}
+                      </a>
+                    </p>
+
+                    <label style={{ display: 'flex', alignItems: 'flex-start', gap: '10px', fontSize: '0.82rem', color: 'var(--text-secondary, #475569)', cursor: 'pointer', margin: '2px 0 0 0', lineHeight: '1.45', textAlign: 'left' }}>
+                      <input 
+                        type="checkbox" 
+                        name="acceptsMarketing" 
+                        checked={formData.acceptsMarketing || false} 
+                        onChange={(e) => setFormData(prev => ({ ...prev, acceptsMarketing: e.target.checked }))} 
+                        style={{ width: '18px', minWidth: '18px', height: '18px', minHeight: '18px', padding: 0, margin: '2px 0 0 0', cursor: 'pointer', accentColor: 'var(--accent-turquoise, #2a897f)', flexShrink: 0 }} 
+                      />
+                      <span>
+                        {dictionary?.onboarding?.step_2_newsletter_checkbox || 'Quero receber também novidades, conteúdos e ofertas da The Brand Box. Posso cancelar quando quiser.'}
+                      </span>
+                    </label>
+                  </div>
                 )}
               </div>
               <button 
@@ -2116,7 +2372,7 @@ export default function Home() {
             </motion.div>
           )}
 
-          {step === 7.8 && (
+          {step === 7.8 && !isMatchmakerLoading && (
             <motion.div 
               key="step7_8" variants={variants} initial="initial" animate="animate" exit="exit" transition={{ duration: 0.5 }}
               className="wizard-step" style={{ position: 'absolute', width: '100%', height: '100%', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', textAlign: 'center', background: '#ffffff', borderRadius: '24px', border: '1px solid var(--border)' }}
@@ -2129,7 +2385,7 @@ export default function Home() {
                  <p style={{ margin: '8px 0', fontSize: '1.1rem' }}>✅ <strong>{dictionary?.onboarding?.summary_goals || 'Objetivos'}:</strong> Alinhados</p>
               </div>
               <p style={{ fontSize: '1rem', color: 'var(--text-secondary)', marginBottom: '1.5rem' }}>{dictionary?.onboarding?.summary_text || 'Com base nisso, estou buscando as direções visuais que melhor se encaixam na sua marca.'}</p>
-              <button onClick={callMatchmaker} className="btn-primary" style={{ background: 'var(--accent-magenta)' }}>{dictionary?.onboarding?.step_7_8_btn || 'Traduzir a essência da minha marca'}</button>
+              <button onClick={callMatchmaker} disabled={isMatchmakerLoading} className="btn-primary" style={{ background: 'var(--accent-magenta)', opacity: isMatchmakerLoading ? 0.6 : 1 }}>{dictionary?.onboarding?.step_7_8_btn || 'Traduzir a essência da minha marca'}</button>
             </motion.div>
           )}
 
@@ -2152,7 +2408,7 @@ export default function Home() {
           {step === 9 && resultadoFinal && (
             <motion.div 
               key="step9" variants={variants} initial="initial" animate="animate" exit="exit" transition={{ duration: 0.5 }}
-              className="wizard-step" style={{ position: 'absolute', width: '100%', height: '100%', display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center', background: 'var(--bg-color)', borderRadius: '24px', border: 'none', boxShadow: 'none' }}
+              ref={resultStepRef} className="wizard-step creative-diagnosis-step" aria-busy={isCreativeDirectorLoading} style={{ position: 'relative', width: '100%', minHeight: '100%', height: 'auto', display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center', background: 'var(--bg-color)', borderRadius: '24px', border: 'none', boxShadow: 'none' }}
             >
               <p style={{ fontSize: '0.9rem', color: 'var(--text-secondary)', marginBottom: '0.5rem', textTransform: 'uppercase', letterSpacing: '2px', fontWeight: 600 }}>{dictionary?.postmatch?.step_9_perfect_match || 'O MATCH PERFEITO PARA'} {formData.marca || 'SUA MARCA'}</p>
               {(() => {
@@ -2179,14 +2435,44 @@ export default function Home() {
               )}
 
               {isCreativeDirectorLoading && (
-                <p style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', marginTop: '-1rem', marginBottom: '1.25rem' }}>
-                  Preparando seu diagnóstico criativo...
-                </p>
+                <motion.div 
+                  initial={{ opacity: 0, y: 10 }} 
+                  animate={{ opacity: 1, y: 0 }} 
+                  style={{ 
+                    background: '#ffffff', 
+                    padding: '1.25rem', 
+                    borderRadius: '16px', 
+                    marginBottom: '1.25rem',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    gap: '1rem',
+                    boxShadow: '0 4px 15px rgba(0,0,0,0.04)',
+                    border: '1px solid var(--border)'
+                  }}
+                >
+                  <motion.div 
+                    animate={{ rotate: 360 }}
+                    transition={{ repeat: Infinity, duration: 1, ease: "linear" }}
+                    style={{
+                      width: '22px',
+                      height: '22px',
+                      borderRadius: '50%',
+                      border: '3px solid var(--bg-soft)',
+                      borderTopColor: 'var(--accent-magenta)',
+                      borderRightColor: 'var(--accent-magenta)'
+                    }} 
+                  />
+                  <p role="status" aria-live="polite" style={{ fontSize: '0.92rem', color: 'var(--text-primary)', fontWeight: 600, margin: 0 }}>
+                    {creativeDiagnosisCopy.loading}
+                  </p>
+                </motion.div>
               )}
+              {effectiveCreativeDirectorStatus === 'fallback' && (<div role="status" style={{ marginBottom: '1.25rem' }}><p>{creativeDiagnosisCopy.fallback}</p><button type="button" className="btn-secondary" onClick={() => runCreativeDirectorDiagnostic(resultadoFinal)} disabled={isCreativeDirectorLoading}>{creativeDiagnosisCopy.retry}</button></div>)}
 
               {resultadoFinal.creativeDirector && (
-                <div style={{ width: '100%', maxWidth: '620px', background: '#ffffff', padding: '1.5rem', borderRadius: '18px', marginBottom: '2rem', boxShadow: '0 4px 15px rgba(0,0,0,0.03)', textAlign: 'left' }}>
-                  <p style={{ fontSize: '0.78rem', color: 'var(--accent-magenta)', textTransform: 'uppercase', letterSpacing: '1.8px', fontWeight: 700, marginBottom: '0.75rem', textAlign: 'center' }}>Diagnóstico Criativo</p>
+                <div className="creative-diagnosis-anchor"><div style={{ width: '100%', maxWidth: '620px', background: '#ffffff', padding: '1.5rem', borderRadius: '18px', marginBottom: '2rem', boxShadow: '0 4px 15px rgba(0,0,0,0.03)', textAlign: 'left' }}>
+                  <p style={{ fontSize: '0.78rem', color: 'var(--accent-magenta)', textTransform: 'uppercase', letterSpacing: '1.8px', fontWeight: 700, marginBottom: '0.75rem', textAlign: 'center' }}>{creativeDiagnosisCopy.title}</p>
                   {isDifferentLanguage(resultadoFinal.creativeDirector) && (
                     <div style={{ textAlign: 'center', marginBottom: '0.85rem' }}>
                       <button type="button" onClick={regenerateCreativeDirector} disabled={isCreativeDirectorLoading || hasAiUsage('diagnostic_regeneration')} className="btn-secondary" style={{ padding: '0.65rem 0.9rem', fontSize: '0.82rem', opacity: isCreativeDirectorLoading || hasAiUsage('diagnostic_regeneration') ? 0.65 : 1 }}>
@@ -2198,48 +2484,38 @@ export default function Home() {
 
                   <div style={{ display: 'grid', gap: '0.9rem' }}>
                     <div>
-                      <strong style={{ color: 'var(--text-primary)', fontSize: '0.9rem' }}>Personalidade da marca</strong>
+                      <strong style={{ color: 'var(--text-primary)', fontSize: '0.9rem' }}>{creativeDiagnosisCopy.personality}</strong>
                       <p style={{ color: 'var(--text-secondary)', fontSize: '0.9rem', lineHeight: 1.5, marginTop: '0.25rem' }}>{resultadoFinal.creativeDirector.personalidade.join(' • ')}</p>
                     </div>
                     <div>
-                      <strong style={{ color: 'var(--text-primary)', fontSize: '0.9rem' }}>O que o público precisa sentir</strong>
+                      <strong style={{ color: 'var(--text-primary)', fontSize: '0.9rem' }}>{creativeDiagnosisCopy.audience}</strong>
                       <ul style={{ color: 'var(--text-secondary)', fontSize: '0.9rem', lineHeight: 1.5, marginTop: '0.35rem', paddingLeft: '1.1rem' }}>
                         {resultadoFinal.creativeDirector.expectativasPublico.map((item, index) => <li key={`expectativa-${index}`}>{item}</li>)}
                       </ul>
                     </div>
                     <div>
-                      <strong style={{ color: 'var(--text-primary)', fontSize: '0.9rem' }}>Objetivos emocionais</strong>
+                      <strong style={{ color: 'var(--text-primary)', fontSize: '0.9rem' }}>{creativeDiagnosisCopy.goals}</strong>
                       <ul style={{ color: 'var(--text-secondary)', fontSize: '0.9rem', lineHeight: 1.5, marginTop: '0.35rem', paddingLeft: '1.1rem' }}>
                         {resultadoFinal.creativeDirector.objetivosEmocionais.map((item, index) => <li key={`objetivo-${index}`}>{item}</li>)}
                       </ul>
                     </div>
                     <div>
-                      <strong style={{ color: 'var(--text-primary)', fontSize: '0.9rem' }}>Por que essa direção combina</strong>
+                      <strong style={{ color: 'var(--text-primary)', fontSize: '0.9rem' }}>{creativeDiagnosisCopy.why}</strong>
                       <p style={{ color: 'var(--text-secondary)', fontSize: '0.9rem', lineHeight: 1.5, marginTop: '0.25rem' }}>{resultadoFinal.creativeDirector.porqueEsseEstilo}</p>
                       <p style={{ color: 'var(--text-secondary)', fontSize: '0.9rem', lineHeight: 1.5, marginTop: '0.35rem' }}>{resultadoFinal.creativeDirector.direcaoVisual}</p>
                     </div>
                     <div>
-                      <strong style={{ color: 'var(--text-primary)', fontSize: '0.9rem' }}>Riscos criativos a evitar</strong>
+                      <strong style={{ color: 'var(--text-primary)', fontSize: '0.9rem' }}>{creativeDiagnosisCopy.risks}</strong>
                       <ul style={{ color: 'var(--text-secondary)', fontSize: '0.9rem', lineHeight: 1.5, marginTop: '0.35rem', paddingLeft: '1.1rem' }}>
                         {resultadoFinal.creativeDirector.riscosEvitar.map((item, index) => <li key={`risco-${index}`}>{item}</li>)}
                       </ul>
                     </div>
                   </div>
 
-                  <div style={{ marginTop: '1.25rem', paddingTop: '1rem', borderTop: '1px solid var(--border)', textAlign: 'center' }}>
-                    <button
-                      type="button"
-                      onClick={startCreativeRefinement}
-                      disabled={isRefinementLoading}
-                      className="btn-secondary"
-                      style={{ padding: '0.85rem 1.2rem', fontSize: '0.9rem', opacity: isRefinementLoading ? 0.65 : 1 }}
-                    >
-                      {refineCopy.button}
-                    </button>
-                  </div>
+                  {/* CTA button was moved to the bottom next to Customize */}
 
                   {showRefinement && (
-                    <div style={{ marginTop: '1rem', background: 'var(--bg-color)', borderRadius: '16px', padding: '1rem', border: '1px solid var(--border)' }}>
+                    <div style={{ marginTop: '1rem', width: '100%', maxWidth: '620px', background: 'var(--bg-color)', borderRadius: '16px', padding: '1rem', border: '1px solid var(--border)', textAlign: 'left' }}>
                       {isRefinementLoading && (
                         <p style={{ color: 'var(--text-secondary)', fontSize: '0.85rem', textAlign: 'center', margin: 0 }}>
                           {refinementStep === 'question' ? refineCopy.loadingQuestion : refineCopy.loadingResolution}
@@ -2275,14 +2551,20 @@ export default function Home() {
                             <button
                               type="button"
                               onClick={submitCreativeRefinement}
-                              disabled={!refinementAnswer.trim() || isRefinementLoading}
+                              disabled={!refinementAnswer.trim() || isRefinementLoading || isAdvancingFromRefinement}
                               className="btn-primary"
-                              style={{ padding: '0.8rem 1rem', opacity: refinementAnswer.trim() && !isRefinementLoading ? 1 : 0.55 }}
+                              style={{ padding: '0.8rem 1rem', opacity: refinementAnswer.trim() && !isRefinementLoading && !isAdvancingFromRefinement ? 1 : 0.55 }}
                             >
                               {refineCopy.analyze}
                             </button>
-                            <button type="button" onClick={keepCurrentDirection} className="btn-secondary" style={{ padding: '0.8rem 1rem' }}>
-                              {refineCopy.keepCurrent}
+                            <button
+                              type="button"
+                              onClick={handleKeepOriginalDirection}
+                              disabled={isAdvancingFromRefinement}
+                              className="btn-secondary"
+                              style={{ padding: '0.8rem 1rem' }}
+                            >
+                              {refineCopy.keepOriginalBefore}
                             </button>
                           </div>
                         </div>
@@ -2324,9 +2606,32 @@ export default function Home() {
                               </p>
                             </div>
                           )}
-                          <button type="button" onClick={keepCurrentDirection} className="btn-secondary" style={{ padding: '0.8rem 1rem', justifySelf: 'center' }}>
-                            {refineCopy.keepCurrent}
-                          </button>
+                          <div style={{ display: 'flex', gap: '0.75rem', marginTop: '0.5rem', flexWrap: 'wrap', justifyContent: 'center' }}>
+                            <button
+                              type="button"
+                              onClick={handleUseRefinedDirection}
+                              disabled={isAdvancingFromRefinement}
+                              className="btn-primary"
+                              style={{ background: 'var(--accent-magenta)', color: '#ffffff', padding: '0.85rem 1.25rem', fontWeight: 600, fontSize: '0.88rem', opacity: isAdvancingFromRefinement ? 0.65 : 1 }}
+                            >
+                              {refineCopy.useRefined}
+                            </button>
+                            <button
+                              type="button"
+                              onClick={handleKeepOriginalDirection}
+                              disabled={isAdvancingFromRefinement}
+                              className="btn-secondary"
+                              style={{ padding: '0.85rem 1.25rem', fontSize: '0.88rem', opacity: isAdvancingFromRefinement ? 0.65 : 1 }}
+                            >
+                              {refineCopy.keepOriginal}
+                            </button>
+                          </div>
+                        </div>
+                      )}
+
+                      {refinementConfirmation && (
+                        <div style={{ background: '#E1EDE7', border: '2px solid var(--accent-turquoise)', color: '#203830', padding: '1rem 1.25rem', borderRadius: '14px', textAlign: 'center', marginTop: '1rem', fontWeight: 600, fontSize: '0.92rem', boxShadow: '0 4px 12px rgba(42, 137, 127, 0.15)' }}>
+                          {refinementConfirmation}
                         </div>
                       )}
 
@@ -2339,7 +2644,7 @@ export default function Home() {
                             <button type="button" onClick={startCreativeRefinement} className="btn-primary" style={{ padding: '0.8rem 1rem' }}>
                               {refineCopy.retry}
                             </button>
-                            <button type="button" onClick={keepCurrentDirection} className="btn-secondary" style={{ padding: '0.8rem 1rem' }}>
+                            <button type="button" onClick={handleKeepOriginalDirection} className="btn-secondary" style={{ padding: '0.8rem 1rem' }}>
                               {refineCopy.close}
                             </button>
                           </div>
@@ -2347,10 +2652,28 @@ export default function Home() {
                       )}
                     </div>
                   )}
-                </div>
+                </div></div>
               )}
 
-              <button onClick={fetchVariacoes} className="btn-primary" style={{ background: 'var(--accent-magenta)', color: 'var(--text-primary)', boxShadow: 'none' }}>{dictionary?.postmatch?.step_9_btn_customize || 'Personalizar minha Identidade'}</button>
+              {effectiveCreativeDirectorStatus === 'ready' && (
+                <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '10px', width: '100%', maxWidth: '400px' }}>
+                  <button onClick={fetchVariacoes} className="btn-primary" style={{ background: 'var(--accent-magenta)', color: '#ffffff', boxShadow: 'none', width: '100%' }}>
+                    {dictionary?.postmatch?.step_9_btn_customize || 'Personalizar minha Identidade'}
+                  </button>
+
+                  {resultadoFinal.creativeDirector && (
+                    <button
+                      type="button"
+                      onClick={startCreativeRefinement}
+                      disabled={isRefinementLoading}
+                      className="btn-secondary"
+                      style={{ padding: '0.75rem 1.2rem', fontSize: '0.85rem', opacity: isRefinementLoading ? 0.65 : 1, width: '100%' }}
+                    >
+                      ✨ {refineCopy.button}
+                    </button>
+                  )}
+                </div>
+              )}
 
               {refazerAttempts < 2 ? (
                 <button
@@ -2400,6 +2723,7 @@ export default function Home() {
                         setGeneratedPatterns([]);
                         setSelectedPattern(null);
                         setSelectedPaleta(null);
+                        setEditData(prev => ({ ...prev, corAtiva: null }));
                         setSelectedTipo(null);
                         setStep(1);
                       }}
@@ -2421,7 +2745,7 @@ export default function Home() {
             >
               <h2 style={{ fontSize: '1.8rem', marginBottom: '0.5rem', textAlign: 'center' }}>{dictionary?.postmatch?.step_10_title || 'Refinamento Visual'}</h2>
               <p style={{ fontSize: '1rem', color: 'var(--text-secondary)', marginBottom: '2rem', textAlign: 'center' }}>
-                {/* customStep === 'tipo' ? (dictionary?.postmatch?.step_10_subtitle_tipo || '1. Escolha a sua Tipografia ideal') : */ customStep === 'paleta' ? (dictionary?.postmatch?.step_10_subtitle_paleta || '1. Defina sua Paleta de Cores') : <span dangerouslySetInnerHTML={{ __html: dictionary?.postmatch?.step_10_subtitle_cor || (lang === 'en' ? '3. Which color will <strong>highlight</strong> your brand?' : '2. Qual cor será o <strong>destaque</strong> da sua marca?') }} />}
+                {/* customStep === 'tipo' ? (dictionary?.postmatch?.step_10_subtitle_tipo || '1. Escolha a sua Tipografia ideal') : */ customStep === 'paleta' ? (dictionary?.postmatch?.step_10_subtitle_paleta || '1. Defina sua Paleta de Cores') : <span dangerouslySetInnerHTML={{ __html: lang === 'en' ? '3. Choose your brand’s <strong>accent color</strong>' : '3. Escolha a <strong>cor de destaque</strong> da sua marca' }} />}
               </p>
               
               <div style={{ display: 'flex', gap: '8px', justifyContent: 'center', marginBottom: '20px' }}>
@@ -2486,7 +2810,7 @@ export default function Home() {
                   {customStep === 'paleta' && (
                      <motion.div key="cpaleta" variants={slideVariants} initial="initial" animate="animate" exit="exit" transition={{ duration: 0.3 }} style={{ position: 'absolute', width: '100%', height: '100%', display: 'flex', flexDirection: 'column', gap: '12px', overflowY: 'auto', paddingBottom: '2rem' }}>
                         <div style={{ display: 'grid', gridTemplateColumns: 'minmax(0, 1fr) minmax(0, 1fr)', gap: '12px' }}>
-                          {paletas.map((p, pi) => {
+                          {paletas.filter(p => !String(p.id).startsWith('consulted-')).map((p, pi) => {
                             const cores = p.paleta_hex || p.cores_hex || [];
                             const isSelected = selectedPaleta === p.id;
                             const isAiPalette = p.source === 'openai' || p.origem === 'OPENAI' || p.isAiGenerated;
@@ -2494,7 +2818,7 @@ export default function Home() {
                               ? (dictionary?.postmatch?.creative_palette_suggested || 'Paleta sugerida {count}').replace('{count}', pi + 1)
                               : (dictionary?.postmatch?.creative_palette_curated || 'Paleta curada');
                             return (
-                              <div key={p.id} onClick={() => { setSelectedPaleta(p.id); setTimeout(() => setCustomStep('cor'), 300); }} style={{
+                              <div key={p.id} onClick={() => selectPaletteForColor(p.id)} style={{
                                 border: isSelected ? '2px solid var(--accent-magenta)' : '1px solid rgba(0,0,0,0.06)',
                                 borderRadius: '18px', padding: '0', cursor: 'pointer',
                                 display: 'flex', flexDirection: 'column', alignItems: 'stretch', justifyContent: 'stretch',
@@ -2516,13 +2840,20 @@ export default function Home() {
                                         }} />
                                       ))}
                                     </div>
-                                    <div style={{ padding: '8px 10px', background: 'rgba(255,255,255,0.92)', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '8px' }}>
-                                      <p style={{ fontSize: '0.58rem', fontWeight: 800, letterSpacing: '1.4px', textTransform: 'uppercase', color: 'var(--text-secondary)', margin: 0 }}>
-                                        {paletteLabel}
-                                      </p>
-                                      {isSelected && <span style={{ width: '7px', height: '7px', borderRadius: '999px', background: 'var(--accent-magenta)', flexShrink: 0 }} />}
+                                      <div style={{ padding: '8px 10px', background: 'rgba(255,255,255,0.92)', display: 'flex', flexDirection: 'column', gap: '4px' }}>
+                                        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '8px' }}>
+                                          <p style={{ fontSize: '0.62rem', fontWeight: 800, letterSpacing: '1px', textTransform: 'uppercase', color: 'var(--text-primary)', margin: 0 }}>
+                                            {p.nome_variacao || p.nome || paletteLabel}
+                                          </p>
+                                          {isSelected && <span style={{ width: '7px', height: '7px', borderRadius: '999px', background: 'var(--accent-magenta)', flexShrink: 0 }} />}
+                                        </div>
+                                        {(p.rationale || p.justificativa) && (
+                                          <p style={{ fontSize: '0.6rem', color: '#666', lineHeight: 1.35, margin: 0, fontFamily: 'Montserrat, sans-serif', fontWeight: 500 }}>
+                                            {p.rationale || p.justificativa}
+                                          </p>
+                                        )}
+                                      </div>
                                     </div>
-                                  </div>
                                 ) : (
                                   <img src={`${p.image_url}?t=${Date.now()}`} alt={p.nome_variacao} style={{ width: '100%', height: '158px', objectFit: 'cover' }} />
                                 )}
@@ -2531,30 +2862,38 @@ export default function Home() {
                           })}
                         </div>
 
+                        {paletteConsultations.length > 0 && (
+                          <motion.section initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.25 }} aria-labelledby="new-palette-title">
+                            <h3 id="new-palette-title" style={{ fontSize: '0.82rem', textTransform: 'uppercase', letterSpacing: '0.08em', margin: '8px 0', color: 'var(--text-primary)' }}>{paletteConsultantCopy.newTitle}</h3>
+                            <div style={{ display: 'grid', gridTemplateColumns: 'minmax(0, 1fr) minmax(0, 1fr)', gap: '12px' }}>
+                              {paletas.filter(p => String(p.id).startsWith('consulted-')).map(p => { const cores = p.paleta_hex || []; const selected = selectedPaleta === p.id; return <button type="button" key={p.id} onClick={() => selectPaletteForColor(p.id)} style={{ position: 'relative', border: selected ? '3px solid var(--accent-turquoise)' : '1px solid rgba(0,0,0,.1)', borderRadius: '20px', padding: 0, minHeight: '110px', overflow: 'hidden', cursor: 'pointer', background: '#fff', boxShadow: selected ? '0 12px 28px rgba(42, 137, 127, .35), 0 4px 10px rgba(0,0,0,.1)' : '0 8px 24px rgba(0,0,0,.1), 0 2px 6px rgba(0,0,0,.04)', transform: selected ? 'translateY(-4px) scale(1.02)' : 'none' }} aria-pressed={selected}>
+                                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(5, 1fr)', minHeight: '110px' }}>{cores.map(hex => <span key={hex} style={{ background: hex }} />)}</div><span style={{ display: 'block', padding: '7px 7px 2px', fontSize: '.62rem', fontWeight: 700 }}>{p.nome_variacao}</span><span style={{ display: 'block', padding: '0 7px 7px', fontSize: '.58rem', lineHeight: 1.35, color: '#555' }}>{p.rationale}</span>{selected && <span style={{ position: 'absolute', top: '8px', right: '8px', background: '#ffffff', color: '#1E293B', borderRadius: '50%', width: '20px', height: '20px', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '0.75rem', fontWeight: 'bold', boxShadow: '0 2px 5px rgba(0,0,0,0.15)' }}>✓</span>}</button>; })}
+                            </div>
+                          </motion.section>
+                        )}
+
                         {/* Bloco de garantia de personalização + Chamada para o Consultor IA (Gemini) */}
                         <div style={{ marginTop: '6px', padding: '12px 14px', background: '#fafafa', borderRadius: '16px', border: '1px solid #eee', display: 'flex', flexDirection: 'column', gap: '8px', textAlign: 'center' }}>
                           <p style={{ fontSize: '0.7rem', color: '#777', lineHeight: 1.4, margin: 0 }}>
-                            💡 {lang === 'en' 
-                              ? 'These color palettes were curated for your project based on your unique answers, never randomly.' 
-                              : 'Estas paletas foram criadas especialmente para o seu projeto com base nas suas respostas, nunca aleatoriamente.'}
+                            {paletteConsultantCopy.intro}
                           </p>
                           <button 
-                            onClick={() => {
-                              setShowContext(true);
-                              startCreativeRefinement();
-                            }}
+                            onClick={() => { setShowPaletteConsultant(true); setPaletteConsultationError(''); }}
+                            disabled={isPaletteConsulting || paletteConsultations.length >= PALETTE_CONSULTATION_LIMIT}
                             style={{ padding: '9px 15px', background: 'transparent', color: 'var(--accent-turquoise)', border: '1.5px solid var(--accent-turquoise)', borderRadius: '20px', fontSize: '0.73rem', fontWeight: 700, cursor: 'pointer', fontFamily: 'Montserrat, sans-serif', transition: 'all 0.2s', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: '6px' }}
                           >
-                            ✨ {lang === 'en' ? 'Did not like any? Talk to AI Creative Director' : 'Não gostou de nenhuma? Consultar a Diretora IA'}
+                            {paletteConsultations.length >= PALETTE_CONSULTATION_LIMIT ? paletteConsultantCopy.limit : paletteConsultantCopy.button}
                           </button>
                         </div>
                      </motion.div>
                   )}
 
+                        <AnimatePresence>{showPaletteConsultant && <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} role="dialog" aria-modal="true" aria-labelledby="palette-consultant-title" style={{ position: 'fixed', inset: 0, zIndex: 10000, padding: '16px', background: 'rgba(0,0,0,.5)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}><div style={{ width: '100%', maxWidth: '480px', maxHeight: '90vh', overflowY: 'auto', background: '#fff', borderRadius: '20px', padding: '20px' }}><h3 id="palette-consultant-title" style={{ fontSize: '1.05rem', lineHeight: 1.4 }}>{paletteConsultantCopy.rejectionTitle}</h3><div role="radiogroup" aria-label={paletteConsultantCopy.rejectionTitle} style={{ display: 'flex', flexWrap: 'wrap', gap: '8px', margin: '16px 0' }}>{paletteConsultantCopy.rejectionReasons.map(reason => <PaletteRadioOption key={reason} label={reason} selected={primaryRejectionReason === reason} onClick={() => setPrimaryRejectionReason(reason)} />)}</div><h4 style={{ fontSize: '.9rem', margin: '18px 0 4px' }}>{paletteConsultantCopy.preferenceTitle}</h4><p style={{ fontSize: '.75rem', color: '#667085', margin: '0 0 10px' }}>{paletteConsultantCopy.optional}</p><div role="radiogroup" aria-label={paletteConsultantCopy.preferenceTitle} style={{ display: 'flex', flexWrap: 'wrap', gap: '8px', marginBottom: '16px' }}>{paletteConsultantCopy.preferences.map(preference => <PaletteRadioOption key={preference} label={preference} selected={desiredDirection === preference} onClick={() => setDesiredDirection(preference)} />)}</div><label style={{ display: 'block', fontSize: '.78rem', fontWeight: 700 }}>{primaryRejectionReason === paletteConsultantCopy.mismatchReason ? paletteConsultantCopy.mismatchComment : paletteConsultantCopy.comment}<textarea value={paletteComment} placeholder={primaryRejectionReason === paletteConsultantCopy.mismatchReason ? paletteConsultantCopy.mismatchPlaceholder : paletteConsultantCopy.placeholder} required={primaryRejectionReason === paletteConsultantCopy.mismatchReason} aria-required={primaryRejectionReason === paletteConsultantCopy.mismatchReason} aria-describedby={primaryRejectionReason === paletteConsultantCopy.mismatchReason ? 'brand-mismatch-comment-help' : undefined} onChange={event => setPaletteComment(event.target.value.slice(0, 400))} maxLength={400} rows={3} style={{ display: 'block', width: '100%', marginTop: '6px', borderRadius: '10px', border: primaryRejectionReason === paletteConsultantCopy.mismatchReason && !paletteComment.trim() ? '2px solid #b42318' : '1px solid #ccc', padding: '8px', resize: 'vertical' }} /></label>{primaryRejectionReason === paletteConsultantCopy.mismatchReason && <p id="brand-mismatch-comment-help" role="status" aria-live="polite" style={{ margin: '6px 0 0', color: '#9a3412', fontSize: '.76rem', lineHeight: 1.4 }}>{paletteConsultantCopy.mismatchHelp}</p>}{paletteConsultationError && <p role="alert" style={{ color: '#b42318', fontSize: '.8rem' }}>{paletteConsultationError}</p>}<div style={{ display: 'flex', gap: '10px', marginTop: '16px' }}><button type="button" onClick={() => setShowPaletteConsultant(false)} disabled={isPaletteConsulting} className="btn-secondary" style={{ flex: 1 }}>{paletteConsultantCopy.close}</button><button type="button" onClick={submitPaletteConsultation} disabled={isPaletteConsulting || (!primaryRejectionReason && !paletteComment.trim()) || (primaryRejectionReason === paletteConsultantCopy.mismatchReason && !paletteComment.trim())} aria-busy={isPaletteConsulting} aria-describedby={primaryRejectionReason === paletteConsultantCopy.mismatchReason && !paletteComment.trim() ? 'brand-mismatch-button-help' : undefined} className="btn-primary" style={{ flex: 1 }}>{isPaletteConsulting ? <span role="status" aria-live="polite"><PaletteLoadingSparkle /> {paletteConsultantCopy.loading}</span> : paletteConsultantCopy.send}</button></div>{isPaletteConsulting && <p role="status" aria-live="polite" style={{ margin: '8px 0 0', color: '#667085', fontSize: '.76rem', textAlign: 'center', lineHeight: 1.4 }}>{paletteConsultantCopy.loadingHelp}</p>}{primaryRejectionReason === paletteConsultantCopy.mismatchReason && !paletteComment.trim() && <p id="brand-mismatch-button-help" role="status" aria-live="polite" style={{ margin: '8px 0 0', color: '#667085', fontSize: '.76rem', textAlign: 'center' }}>{paletteConsultantCopy.mismatchButtonHelp}</p>}</div></motion.div>}</AnimatePresence>
+
                   {customStep === 'cor' && (
                      <motion.div key="ccor" variants={slideVariants} initial="initial" animate="animate" exit="exit" transition={{ duration: 0.3 }} style={{ position: 'absolute', width: '100%', height: '100%', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: '25px', paddingBottom: '2rem' }}>
                         <p style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', textAlign: 'center', maxWidth: '320px', lineHeight: 1.5 }}>
-                          {dictionary?.postmatch?.step_10_color_desc || 'Essa cor será usada no logo, submarca e nos elementos de destaque da sua identidade visual.'}
+                          {lang === 'en' ? 'Choose below the color that will highlight your logo, sub-brand and key elements of your visual identity.' : 'Escolha abaixo a cor que será usada para dar destaque ao seu logo, submarca e elementos importantes da sua identidade visual.'}
                         </p>
                         <div style={{ display: 'flex', gap: '15px', flexWrap: 'wrap', justifyContent: 'center' }}>
                           {(() => {
@@ -2629,12 +2968,17 @@ export default function Home() {
                             {dictionary?.postmatch?.step_10_color_selected || 'Cor selecionada:'} <span style={{ color: editData.corAtiva, fontWeight: 800 }}>{editData.corAtiva}</span>
                           </p>
                         )}
+                        {!editData.corAtiva && !isPaletteFeedbackLoading && (
+                          <p role="status" style={{ fontSize: '0.8rem', color: 'var(--text-secondary)', textAlign: 'center', margin: 0 }}>
+                            {lang === 'en' ? 'Choose a color to receive the AI Creative Director’s reading.' : 'Escolha uma cor para receber a leitura da Diretora IA.'}
+                          </p>
+                        )}
                         {isPaletteFeedbackLoading && (
                           <p style={{ fontSize: '0.78rem', color: 'var(--text-secondary)', textAlign: 'center', margin: 0 }}>
                             {lang === 'en' ? 'The AI Creative Director is reading your palette...' : 'A AI Creative Director está lendo sua paleta...'}
                           </p>
                         )}
-                        {paletteFeedback && !isPaletteFeedbackLoading && (
+                        {paletteFeedback && !isPaletteFeedbackLoading && isCurrentPaletteFeedback(paletteFeedback, selectedPaletteDetails, editData.corAtiva, resultadoFinal?.creativeDirectorJourneyId, lang) && (
                           <div style={{ width: '100%', maxWidth: '420px', padding: '0.9rem 1rem', border: '1px solid var(--border)', borderRadius: '14px', background: '#fffafc', display: 'grid', gap: '0.45rem' }}>
                             <p style={{ margin: 0, fontSize: '0.72rem', fontWeight: 800, letterSpacing: '0.08em', textTransform: 'uppercase', color: 'var(--accent-magenta)' }}>
                               {lang === 'en' ? 'AI Creative Director' : 'AI Creative Director'}
@@ -2642,6 +2986,22 @@ export default function Home() {
                             <p style={{ margin: 0, fontSize: '0.84rem', color: 'var(--text-primary)', lineHeight: 1.45 }}>{paletteFeedback.summary}</p>
                             <p style={{ margin: 0, fontSize: '0.8rem', color: 'var(--text-secondary)', lineHeight: 1.4 }}><strong>{lang === 'en' ? 'Strength:' : 'Ponto forte:'}</strong> {paletteFeedback.strength}</p>
                             <p style={{ margin: 0, fontSize: '0.8rem', color: 'var(--text-secondary)', lineHeight: 1.4 }}><strong>{lang === 'en' ? 'Attention:' : 'Atenção:'}</strong> {paletteFeedback.caution}</p>
+                          </div>
+                        )}
+                        {paletteFeedbackError && !isPaletteFeedbackLoading && (
+                          <div style={{ width: '100%', maxWidth: '420px', padding: '0.8rem 1rem', border: '1.5px solid #fecaca', borderRadius: '14px', background: '#fff5f5', display: 'flex', flexDirection: 'column', gap: '0.4rem', textAlign: 'center' }}>
+                            <p style={{ margin: 0, fontSize: '0.75rem', color: '#dc2626', fontWeight: 600 }}>
+                              ⚠️ {paletteFeedbackError}
+                            </p>
+                            {lastPaletteParams && (
+                              <button
+                                type="button"
+                                onClick={() => requestPaletteFeedback(lastPaletteParams.primaryColor, lastPaletteParams.palette)}
+                                style={{ alignSelf: 'center', padding: '5px 12px', background: '#fff', border: '1px solid #fca5a5', borderRadius: '16px', fontSize: '0.7rem', fontWeight: 700, color: '#dc2626', cursor: 'pointer' }}
+                              >
+                                {lang === 'en' ? '🔄 Try again' : '🔄 Tentar novamente'}
+                              </button>
+                            )}
                           </div>
                         )}
                      </motion.div>
@@ -3335,6 +3695,7 @@ export default function Home() {
                       setFormData({ nome: '', email: '', marca: '', atuacao: '', atuacaoOutra: '', contextoExtra: '', publico: '', sentimentos: [], elementosVisuais: [], personalidade: '', primeiraImpressao: '', locais: [], inspiracoes: '', nuncaPensar: '', nuncaPensarTags: [] });
                       setShowContext(false);
                       setResultadoFinal(null);
+                      setCreativeDirectorStatus('idle');
                       setSelectedTagline('');
                       setCustomTagline('');
                     }}
@@ -3373,7 +3734,7 @@ export default function Home() {
                 </p>
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
                   <button
-                    onClick={() => { restoreProgress(savedProgress); setShowResumePrompt(false); }}
+                    onClick={async () => { await restoreProgress(savedProgress); setShowResumePrompt(false); setIsPersistenceReady(true); }}
                     className="btn-primary"
                     style={{ width: '100%', background: 'var(--accent-turquoise)' }}
                   >
@@ -3387,6 +3748,7 @@ export default function Home() {
                       });
                       setShowResumePrompt(false);
                       setSavedProgress(null);
+                      setIsPersistenceReady(true);
                       window.location.reload(); // Recarrega para garantir estado limpo
                     }}
                     className="btn-secondary"

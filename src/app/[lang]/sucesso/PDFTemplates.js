@@ -106,7 +106,7 @@ export const genPDFLogoHtml = ({ brand, editDataOverride = null, color, localSlo
 
   const _sloganColor = sloganColor || '#666';
   // Gap adaptativo baseado no tamanho da fonte do slogan e complexidade
-  const _sloganGap = (parseFloat(effectiveSloganSize) * _sloganGapMultiplier).toFixed(1);
+  const _sloganGap = _ed?.sloganGap || (parseFloat(effectiveSloganSize) * _sloganGapMultiplier).toFixed(1);
   
   const _shouldWrap = _ed?.taglineWrap !== undefined ? _ed.taglineWrap : (_sloganLenRaw > 25);
 
@@ -128,10 +128,10 @@ export const genPDFLogoHtml = ({ brand, editDataOverride = null, color, localSlo
   const _crmW_pt = _crmLen * (parseFloat(effectiveCrmSize) * 0.75);
   const _sloganMaxLineLen = (localSlogan && !hideSlogan) ? displaySloganLines.reduce((max, l) => Math.max(max, l.length), 0) : 0;
   // inclui o letter-spacing real do slogan no cálculo de largura
-  const _sloganLsFactor = _sloganLenRaw > 45 ? 1.55 : _sloganLenRaw > 30 ? 1.48 : _sloganLenRaw > 15 ? 1.40 : 1.35;
-  const _sloganW_pt = _sloganMaxLineLen * (parseFloat(effectiveSloganSize) * 0.65 * _sloganLsFactor);
+  const _lsEmVal = !isNaN(parseFloat(_ed?.taglineLetterSpacing)) ? parseFloat(_ed.taglineLetterSpacing) : (_sloganLenRaw > 45 ? 0.55 : _sloganLenRaw > 30 ? 0.48 : _sloganLenRaw > 15 ? 0.40 : 0.35);
+  const _sloganW_pt = _sloganMaxLineLen * (parseFloat(effectiveSloganSize) * (0.66 + _lsEmVal));
   const _estimatedWidthPt = Math.max(_logoW_pt, _crmW_pt, _sloganW_pt);
-  const _maxWidthPt = _maxWmm ? _maxWmm * 2.83465 : 9999;
+  const _maxWidthPt = _maxWmm ? (_maxWmm - 1.5) * 2.83465 : 9999;
   const _autoZoomW = (_estimatedWidthPt > _maxWidthPt) ? (_maxWidthPt / _estimatedWidthPt) : 1;
 
   // _autoZoom pela altura — evita overflow:hidden cortar o conteúdo

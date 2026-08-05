@@ -19,8 +19,15 @@ function cleanText(value) {
 function normalizeColors(colors) {
   if (!Array.isArray(colors) || colors.length !== 5) return null;
 
-  const normalized = colors.map(cleanText);
+  const normalized = colors.map(color => cleanText(color).toUpperCase());
   return normalized.every(color => /^#[0-9a-f]{6}$/i.test(color)) ? normalized : null;
+}
+
+function normalizeSelectedPalette(palette) {
+  if (!palette || typeof palette !== 'object') return null;
+  const hex = normalizeColors(palette.hex);
+  if (!hex) return null;
+  return { id: cleanText(palette.id) || null, name: cleanText(palette.name) || null, hex };
 }
 
 function normalizeBriefing(formData = {}) {
@@ -81,8 +88,9 @@ export async function POST(req) {
     const idioma = cleanText(body.idioma || body.lang || 'pt-BR');
     const colors = normalizeColors(body.palette);
     const primaryColor = cleanText(body.primaryColor);
+    const selectedPalette = normalizeSelectedPalette(body.selectedPalette);
 
-    if (!idioma || !colors || !colors.includes(primaryColor)) {
+    if (!idioma || !colors || !colors.includes(primaryColor) || (selectedPalette && selectedPalette.hex.join(',') !== colors.join(','))) {
       return Response.json({ error: 'invalid_palette_feedback_payload' }, { status: 400 });
     }
 
@@ -112,7 +120,7 @@ export async function POST(req) {
             role: 'system',
             content: [{
               type: 'input_text',
-              text: `Você é a AI Creative Director da The Brand Box. Responda exclusivamente no idioma ${idioma}. Faça uma leitura breve, específica e consultiva da paleta já escolhida; não sugira mudanças, não bloqueie decisões e não exponha raciocínio interno. Use somente brandName como nome público da marca e não invente fatos.`
+              text: `Você é a AI Creative Director da The Brand Box. Responda exclusivamente no idioma ${idioma}. Faça uma leitura breve, específica e consultiva da paleta atual escolhida pelo cliente; trate paletaAtualSelecionadaPeloCliente como a referência canônica, não como sugestão inicial; não sugira mudanças, não bloqueie decisões e não exponha raciocínio interno. Use somente brandName como nome público da marca e não invente fatos.`
             }]
           },
           {
@@ -128,7 +136,7 @@ export async function POST(req) {
                   mensagem: cleanText(body.resultadoFinal?.mensagem) || null,
                   creativeDirector
                 },
-                paletaEscolhida: colors,
+                paletaAtualSelecionadaPeloCliente: selectedPalette || { id: null, name: null, hex: colors },
                 corPrincipal: primaryColor,
                 formatoEsperado: {
                   language: idioma,

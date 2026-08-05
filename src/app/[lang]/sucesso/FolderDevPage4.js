@@ -120,7 +120,7 @@ export default function FolderDevPage4({ accentColor, palette = [] }) {
         
         {/* Left Col */}
         <div style={{ flex: '0 0 53%', display: 'flex', flexDirection: 'column', gap: '4px' }}>
-          <div style={{ alignSelf: 'flex-start', background: '#E67E7E', color: '#fff', fontSize: '4.8px', fontWeight: 900, fontStyle: 'italic', padding: '2px 6px', borderRadius: '8px', textTransform: 'uppercase', boxShadow: '1px 1px 0 rgba(0,0,0,0.1)' }}>
+          <div style={{ alignSelf: 'flex-start', background: '#E67E7E', color: '#fff', fontSize: '4.8px', fontWeight: 900, fontStyle: 'italic', padding: '2px 6px', borderRadius: '8px', textTransform: 'uppercase', boxShadow: 'none' }}>
             {lang === 'en' ? 'DEVELOPMENTAL LEAP:' : 'SALTO DE DESENVOLVIMENTO:'}
           </div>
           <div style={{ fontSize: '3.3px', color: '#444', lineHeight: 1.25, textAlign: 'justify', fontWeight: 500 }}>
