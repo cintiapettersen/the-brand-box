@@ -3,6 +3,14 @@ import Link from 'next/link';
 export const metadata = {
   title: 'Política de Privacidade | The Brand Box',
   description: 'Política de Privacidade e Proteção de Dados da plataforma The Brand Box.',
+  alternates: {
+    canonical: '/pt/politica-de-privacidade',
+    languages: {
+      'pt-BR': '/pt/politica-de-privacidade',
+      'en': '/en/privacy-policy',
+      'x-default': '/pt/politica-de-privacidade',
+    },
+  },
 };
 
 export default function PoliticaDePrivacidadePage() {

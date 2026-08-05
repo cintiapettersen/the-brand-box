@@ -6,44 +6,71 @@ import { LanguageProvider } from "../LanguageContext";
 
 
 
-export const metadata = {
-  metadataBase: new URL('https://thebrandbox.sonhodepapel.com'),
-  title: {
-    default: "Crie sua marca | The Brand Box",
-    template: "%s | The Brand Box"
-  },
-  description: "Transforme sua essência em uma identidade visual completa e profissional através de uma experiência guiada, dinâmica e mágica. Sem complicações e sem precisar de designer.",
-  alternates: {
-    canonical: "/crie-sua-marca",
-  },
-  openGraph: {
-    title: "Crie sua marca | The Brand Box",
-    description: "Transforme sua essência em uma identidade visual completa e profissional em minutos com a nossa experiência mágica guiada.",
-    url: "https://thebrandbox.sonhodepapel.com/crie-sua-marca/",
-    siteName: "The Brand Box / Sonho de Papel",
-    locale: "pt_BR",
-    type: "website",
-    images: [
-      {
-        url: "/og-brandbox.jpg",
-        width: 1200,
-        height: 630,
-        alt: "The Brand Box - Crie sua identidade visual completa"
-      }
-    ]
-  },
-  robots: {
-    index: true,
-    follow: true,
-    googleBot: {
+export async function generateMetadata({ params }) {
+  const resolvedParams = await params;
+  const rawLang = resolvedParams?.lang || 'pt';
+  const isEn = rawLang.startsWith('en');
+  const langPath = isEn ? 'en' : 'pt';
+  const ogLocale = isEn ? 'en_US' : 'pt_BR';
+
+  const title = isEn
+    ? 'Build Your Brand | The Brand Box'
+    : 'Crie sua marca | The Brand Box';
+
+  const description = isEn
+    ? 'Transform your essence into a complete, professional visual identity through a guided, dynamic, and magical experience. No hassle, no designer needed.'
+    : 'Transforme sua essência em uma identidade visual completa e profissional através de uma experiência guiada, dinâmica e mágica. Sem complicações e sem precisar de designer.';
+
+  return {
+    metadataBase: new URL('https://thebrandbox.sonhodepapel.com'),
+    title: {
+      default: title,
+      template: '%s | The Brand Box',
+    },
+    description: description,
+    alternates: {
+      canonical: `/${langPath}`,
+      languages: {
+        'pt-BR': '/pt',
+        'en': '/en',
+        'x-default': '/pt',
+      },
+    },
+    openGraph: {
+      title: title,
+      description: description,
+      url: `https://thebrandbox.sonhodepapel.com/${langPath}`,
+      siteName: 'The Brand Box / Sonho de Papel',
+      locale: ogLocale,
+      type: 'website',
+      images: [
+        {
+          url: '/og-brandbox.jpg',
+          width: 1200,
+          height: 630,
+          alt: isEn ? 'The Brand Box - Build your complete visual identity' : 'The Brand Box - Crie sua identidade visual completa',
+        },
+      ],
+    },
+    twitter: {
+      card: 'summary_large_image',
+      title: title,
+      description: description,
+      images: ['/og-brandbox.jpg'],
+    },
+    robots: {
       index: true,
       follow: true,
-      'max-video-preview': -1,
-      'max-image-preview': 'large',
-      'max-snippet': -1,
+      googleBot: {
+        index: true,
+        follow: true,
+        'max-video-preview': -1,
+        'max-image-preview': 'large',
+        'max-snippet': -1,
+      },
     },
-  },
-};
+  };
+}
 
 export default async function RootLayout({ children, params }) {
   const resolvedParams = await params;
