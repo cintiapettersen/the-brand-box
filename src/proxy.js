@@ -17,8 +17,21 @@ function getLocale(request) {
 }
 
 export function proxy(request) {
-  const { pathname } = request.nextUrl
+  const { pathname, search, hostname } = request.nextUrl
   
+  // 1. Domain Migration Redirection Logic
+  const migrationEnabled = process.env.DOMAIN_MIGRATION_ENABLED === 'true'
+  const oldHost = (process.env.OLD_DOMAIN || 'thebrandbox.sonhodepapel.com').toLowerCase()
+  const targetDomain = (process.env.TARGET_DOMAIN || 'https://thebrandbox.design').replace(/\/$/, '')
+  const reqHost = (hostname || request.headers.get('host') || '').split(':')[0].toLowerCase()
+
+  if (migrationEnabled && reqHost === oldHost) {
+    // Direct mapping for legacy route /crie-sua-marca to avoid 2-step redirect chain
+    const targetPath = pathname === '/crie-sua-marca' ? '/pt' : pathname
+    const destinationUrl = `${targetDomain}${targetPath}${search}`
+    return NextResponse.redirect(destinationUrl, 308)
+  }
+
   // Exclude api, _next/static, _next/image, favicon.ico, etc.
   if (
     pathname.startsWith('/api') ||
