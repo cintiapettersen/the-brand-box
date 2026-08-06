@@ -125,6 +125,11 @@ export default function Home() {
     placeholder: dictionary?.postmatch?.creative_refine_placeholder || 'Escreva sua resposta aqui...',
     analyze: dictionary?.postmatch?.creative_refine_analyze || 'Analisar minha resposta',
     keepCurrent: dictionary?.postmatch?.creative_refine_keep_current || 'Manter direção atual',
+    useRefined: dictionary?.postmatch?.creative_refine_use_refined || 'Atualizar pela nova direção',
+    keepOriginal: dictionary?.postmatch?.creative_refine_keep_original || 'Seguir com a ideia inicial',
+    keepOriginalBefore: dictionary?.postmatch?.creative_refine_keep_original_before || 'Seguir com a ideia inicial',
+    confirmRefined: dictionary?.postmatch?.creative_refine_confirm_refined || '✨ Direção refinada aplicada com sucesso!',
+    confirmOriginal: dictionary?.postmatch?.creative_refine_confirm_original || '✓ Direção inicial mantida com sucesso.',
     loadingQuestion: dictionary?.postmatch?.creative_refine_loading_question || 'Conversando com a AI Creative Director...',
     loadingResolution: dictionary?.postmatch?.creative_refine_loading_resolution || 'Analisando sua resposta...',
     decision: dictionary?.postmatch?.creative_refine_decision || 'Decisão',
@@ -2661,7 +2666,7 @@ export default function Home() {
                     {dictionary?.postmatch?.step_9_btn_customize || 'Personalizar minha Identidade'}
                   </button>
 
-                  {resultadoFinal.creativeDirector && (
+                  {resultadoFinal.creativeDirector && !resultadoFinal.creativeDirector.refinementChoice && !showRefinement && (
                     <button
                       type="button"
                       onClick={startCreativeRefinement}
@@ -3414,7 +3419,14 @@ export default function Home() {
                     dangerouslySetInnerHTML={{ __html: dictionary?.postmatch?.step_128_dont_worry || '💡 <strong>O que acontece agora?</strong> Após o pagamento, você terá acesso imediato à nossa plataforma de personalização. Nela, você poderá editar a sua marca e visualizar todas as aplicações e estampas em tempo real, sempre que quiser!' }}
                   />
                   <div style={{ marginTop: '10px', borderRadius: '12px', overflow: 'hidden', border: '1px solid #f5d9b8', boxShadow: '0 4px 15px rgba(0,0,0,0.05)' }}>
-                    <img src="/img/plataforma_mockup.jpg" alt="Plataforma de Edição BrandBox" style={{ width: '100%', display: 'block', height: 'auto' }} />
+                    <video
+                      src={isSaude ? '/Baby boom doctor.mov' : '/the-Brand-box-OliveSkin.mov'}
+                      autoPlay
+                      loop
+                      muted
+                      playsInline
+                      style={{ width: '100%', display: 'block', height: 'auto', borderRadius: '12px' }}
+                    />
                   </div>
                 </div>
 
