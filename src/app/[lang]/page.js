@@ -3206,13 +3206,13 @@ export default function Home() {
                     <p style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', textAlign: 'center' }}>
                       {dictionary?.postmatch?.step_117_tap_card || 'Toque no cartão que mais combina com a sua marca'}
                     </p>
-                    <div style={{ display: 'flex', gap: '20px', width: '100%', justifyContent: 'center' }}>
+                    <div style={{ display: 'flex', gap: '16px', width: '100%', justifyContent: 'center' }}>
                       {generatedPatterns.slice(0, 2).map((p, i) => (
                         <div
                           key={i}
                           onClick={() => setSelectedPattern(i)}
                           style={{
-                            width: '45%', aspectRatio: '0.6', borderRadius: '12px', overflow: 'hidden', cursor: 'pointer',
+                            width: '45%', aspectRatio: '1', borderRadius: '16px', overflow: 'hidden', cursor: 'pointer',
                             position: 'relative',
                             border: selectedPattern === i ? '3px solid var(--accent-magenta)' : '2px solid var(--border)',
                             boxShadow: selectedPattern === i ? '0 8px 25px rgba(210,47,90,0.3)' : '0 4px 15px rgba(0,0,0,0.1)',
@@ -3227,31 +3227,6 @@ export default function Home() {
                           ) : (
                             <img src={`data:${p.mimeType};base64,${p.base64}`} style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }} />
                           )}
-                          <div style={{
-                            position: 'absolute', bottom: '15%', left: '6%', right: '6%',
-                            background: 'rgba(255,255,255,0.92)', borderRadius: '6px',
-                            padding: '10px 8px', textAlign: 'center',
-                            backdropFilter: 'blur(4px)'
-                          }}>
-                            {(() => {
-                              const isScript = editData.fontStyle === 'script';
-                              const raw = formData.marca || 'SUA MARCA';
-                              const name = isScript 
-                                ? raw.split(' ').map(w => w.charAt(0).toUpperCase() + w.slice(1).toLowerCase()).join(' ')
-                                : raw.toUpperCase();
-                              const fontLineHeight = editData.fontFamily === 'Borel' ? 1.35 : (editData.fontLineHeight || 1.2);
-                              return (
-                                <p style={{ fontSize: '1.1rem', fontWeight: 800, letterSpacing: editData.fontLetterSpacing || '1px', color: editData.corAtiva || '#333', lineHeight: fontLineHeight, fontFamily: editData.fontFamily ? `'${editData.fontFamily}', serif` : 'inherit', marginBottom: editData.fontFamily === 'Borel' ? '2px' : '0' }}>
-                                  {editData.fontFeatureSettings ? (
-                                    <><span style={{ fontFeatureSettings: editData.fontFeatureSettings }}>{name[0]}</span><span style={{ fontFeatureSettings: 'normal' }}>{name.slice(1)}</span></>
-                                  ) : name}
-                                </p>
-                              );
-                            })()}
-                            <p style={{ fontSize: '0.36rem', color: '#736E6A', marginTop: editData.fontFamily === 'Borel' ? '6px' : '4px', letterSpacing: '0.5px', textTransform: 'uppercase', lineHeight: 1.3, maxWidth: '100%', wordBreak: 'keep-all', overflowWrap: 'break-word' }}>
-                              {editData.tagline || ''}
-                            </p>
-                          </div>
                         </div>
                       ))}
                     </div>
