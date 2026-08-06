@@ -742,13 +742,18 @@ export default function Home() {
     setGeneratedPatterns([]);
     try {
       const sel = paletas.find(p => p.id === selectedPaleta);
-      const cores = sel?.paleta_hex || sel?.cores_hex || [];
+      const rawCores = sel?.paleta_hex || sel?.cores_hex || [];
+      const primaryHex = editData?.corAtiva;
+      const cores = primaryHex 
+        ? [primaryHex, ...rawCores.filter(c => c.toLowerCase() !== primaryHex.toLowerCase())]
+        : rawCores;
       
       // Selecionar 2 estampas aleatórias diferentes como referência
       const shuffled = [...estampas].sort(() => Math.random() - 0.5);
       const refs = shuffled.slice(0, 2).map(e => e.image_url);
       console.log('🎨 Referências de estampa:', refs);
       console.log('🎨 Total estampas no banco:', estampas.length);
+      console.log('🎨 Cores enviadas para a estampa (primária primeiro):', cores);
       
       const res = await fetch('/api/generate-pattern', {
         method: 'POST',
