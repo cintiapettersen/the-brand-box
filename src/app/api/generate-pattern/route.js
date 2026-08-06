@@ -39,25 +39,30 @@ export async function POST(req) {
     const hint = styleHints[estiloNome] || 'elegant and delicate';
     const pn = paletaNomes || [];
 
+    const primaryHex = (paleta || [])[0] || '#000000';
+    const secondaryHex = (paleta || [])[1] || '#555555';
+    const thirdHex = (paleta || [])[2] || '#888888';
+    const fourthHex = (paleta || [])[3] || '#BBBBBB';
+    const fifthHex = (paleta || [])[4] || '#EEEEEE';
+
     const colorRule = `
 =========================================
 CRITICAL COLOR RESTRICTION (MANDATORY & ABSOLUTE)
 =========================================
-You are an illustrator who has ONLY 5 tubes of paint. You MUST NOT use any other colors.
-Treat the reference image ONLY as a structural/drawing technique guide. COMPLETELY DISCARD its original colors.
+You are an illustrator using ONLY the 5 specific brand paint colors listed below.
+STRICT COLOR PALETTE (EXACT HEX CODES):
+- Primary Color (Dominant Motif Color): ${primaryHex}
+- Secondary Color: ${secondaryHex}
+- Accent 3: ${thirdHex}
+- Accent 4: ${fourthHex}
+- Accent 5: ${fifthHex}
 
-YOUR 5 MANDATORY PAINT TUBES (EXACT HEX CODES ONLY):
-1. ${(paleta || [])[0] || '#000000'} (Dominant background/large shapes - MANDATORY PRIMARY)
-2. ${(paleta || [])[1] || '#555555'} (Secondary motifs)
-3. ${(paleta || [])[2] || '#888888'} (Accent details)
-4. ${(paleta || [])[3] || '#BBBBBB'} (Minor accents)
-5. ${(paleta || [])[4] || '#EEEEEE'} (Fine line details)
-
-STRICT MANDATORY RULES:
-1. Every single element, motif, line, and texture MUST be rendered using ONLY the 5 HEX codes specified above (or pure solid white/cream background if specified).
-2. ABSOLUTELY DO NOT introduce green, red, yellow, blue or any external colors from the reference image unless they match the HEX codes above.
-3. Ignore colors from the reference image completely. Replace 100% of reference colors with these exact HEX palette colors.
-4. Solid, clean color application. No default gradients using unlisted colors.
+ABSOLUTE MANDATORY COLOR REPLACEMENT INSTRUCTIONS:
+1. THE REFERENCE IMAGE CONTAINS WRONG COLORS (PINK, RED, YELLOW, MINT, TEAL, GREEN, PURPLE, ETC.). YOU MUST COMPLETELY DISCARD AND STRIP OUT EVERY SINGLE COLOR FROM THE REFERENCE IMAGE.
+2. REPLACE ALL MOTIF AND PATTERN COLORS 100% WITH THE 5 ALLOWED HEX CODES ABOVE (${primaryHex}, ${secondaryHex}, ${thirdHex}, ${fourthHex}, ${fifthHex}).
+3. DO NOT DRAW ANY PINK, RED, TEAL, MINT, YELLOW, GREEN, OR PURPLE ELEMENTS UNLESS THOSE EXACT SHADES ARE IN THE 5 ALLOWED HEX CODES ABOVE.
+4. Background must be pure solid off-white/light cream (#FAFAFA or #F7F5F0) or the primary color ${primaryHex}.
+5. Use solid flat fills of these 5 HEX colors only. No automatic multi-color rainbow gradients.
 =========================================
 `;
     const seamless = `SEAMLESS TILING RULES (CRITICAL & MANDATORY):
