@@ -127,11 +127,16 @@ export async function POST(request) {
 </html>`;
 
 
-    // InMotion SMTP
+    // SMTP configuration
+    const smtpHost = process.env.SMTP_HOST || 'mail.sonhodepapel.com';
+    const smtpPort = parseInt(process.env.SMTP_PORT || '465', 10);
+    const fromName = process.env.SMTP_FROM_NAME || 'The Brand Box';
+    const fromEmail = process.env.SMTP_FROM_EMAIL || process.env.NEXT_PUBLIC_CONTACT_EMAIL || 'hello@thebrandbox.design';
+
     const transporter = nodemailer.createTransport({
-      host: 'mail.sonhodepapel.com',
-      port: 465,
-      secure: true,
+      host: smtpHost,
+      port: smtpPort,
+      secure: smtpPort === 465,
       auth: {
         user: smtpEmail,
         pass: smtpPassword,
@@ -141,7 +146,8 @@ export async function POST(request) {
     console.log(`📧 Tentando enviar e-mail para: ${email} (Plano: ${plano}, Marca: ${marca})`);
 
     await transporter.sendMail({
-      from: `"The Brand Box" <${smtpEmail}>`,
+      from: `"${fromName}" <${fromEmail}>`,
+      replyTo: fromEmail,
       to: email,
       subject: isRename
         ? (lang === 'en' ? `Brand name updated — The Brand Box` : `Nome da marca atualizado — The Brand Box`)

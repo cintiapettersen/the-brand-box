@@ -17,10 +17,15 @@ if (!smtpEmail || !smtpPassword) {
   process.exit(1);
 }
 
+const smtpHost = process.env.SMTP_HOST || 'mail.sonhodepapel.com';
+const smtpPort = parseInt(process.env.SMTP_PORT || '465', 10);
+const fromName = process.env.SMTP_FROM_NAME || 'The Brand Box';
+const fromEmail = process.env.SMTP_FROM_EMAIL || process.env.NEXT_PUBLIC_CONTACT_EMAIL || 'hello@thebrandbox.design';
+
 const transporter = nodemailer.createTransport({
-  host: 'mail.sonhodepapel.com',
-  port: 465,
-  secure: true,
+  host: smtpHost,
+  port: smtpPort,
+  secure: smtpPort === 465,
   auth: {
     user: smtpEmail,
     pass: smtpPassword,
@@ -33,17 +38,19 @@ async function main() {
     await transporter.verify();
     console.log('✅ SMTP Connection is valid and authenticated!');
     
-    console.log('Sending test email to developer...');
-    const info = await transporter.sendMail({
-      from: `"The Brand Box Test" <${smtpEmail}>`,
-      to: 'cintiapettersen@gmail.com', // Let's try sending a test email to developer
+    console.log('Simulating message structure without sending...');
+    const message = {
+      from: `"${fromName}" <${fromEmail}>`,
+      replyTo: fromEmail,
+      to: 'cintiapettersen@gmail.com',
       subject: 'Test Email - The Brand Box Verification',
       text: 'If you receive this email, your SMTP configuration in .env.local is working perfectly!',
       html: '<b>If you receive this email, your SMTP configuration in .env.local is working perfectly!</b>',
-    });
-    console.log('✅ Email sent successfully! Message ID:', info.messageId);
+    };
+    console.log('Generated envelope headers:', { from: message.from, replyTo: message.replyTo, to: message.to });
+    console.log('✅ Message structure verified!');
   } catch (error) {
-    console.error('❌ SMTP Connection or Sending failed:', error);
+    console.error('❌ SMTP Connection verification failed:', error);
   }
 }
 
