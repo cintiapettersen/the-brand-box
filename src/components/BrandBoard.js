@@ -204,7 +204,7 @@ const BrandBoard = ({ data, palette, color, seloColor, seloTextColor, patternIma
                       fontWeight: data.fontWeight || 700,
                       fontSize,
                       color: activeColor,
-                      lineHeight: data.fontLineHeight || (isScript ? 0.9 : 1.1),
+                      lineHeight: data.fontLineHeight ? (data.fontLineHeight * 0.85) : (isScript ? 0.85 : 0.92),
                       letterSpacing: data.fontLetterSpacing || (isScript ? '0px' : '1px'),
                     }}>
                       {data.fontFeatureSettings && i === 0 ? (
