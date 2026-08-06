@@ -393,7 +393,7 @@ export function LogoPreviewHTML({ item = null, editData, color, layout = 'stacke
         fontSize,
         color: color,
         textAlign: alignLeft ? 'left' : 'center',
-        lineHeight: editData?.fontLineHeight || (isScript ? 0.9 : 1.22),
+        lineHeight: editData?.fontLineHeight ? (lines.length > 1 ? editData.fontLineHeight * 0.85 : editData.fontLineHeight) : (isScript ? 0.85 : (lines.length > 1 ? 0.95 : 1.15)),
         letterSpacing: editData?.fontLetterSpacing || (isScript ? '0px' : '1px'),
       }}>
         {lines.map((line, i) => (
