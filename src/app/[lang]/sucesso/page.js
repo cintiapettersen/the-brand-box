@@ -368,7 +368,7 @@ export function LogoPreviewHTML({ item = null, editData, color, layout = 'stacke
   const taglineVisible = taglineSizeRem >= 0.08;
   
   // Gap customizável via taglineGap (fallback para o cálculo dinâmico)
-  const gapMultiplier = editData?.taglineGap !== undefined ? editData.taglineGap : (taglineLen > 40 ? 0.10 : 0.15);
+  const gapMultiplier = editData?.taglineGap !== undefined ? editData.taglineGap : (taglineLen > 40 ? 0.05 : 0.08);
   const taglineGapPx = Math.round(taglineSizeRem * 16 * gapMultiplier);
   
   // Tracking (letter-spacing) compensatório ou manual
@@ -2774,7 +2774,7 @@ function PlacaStep({ brand, accentColor, paletteColors, estampaPatterns, estampa
             patternImage={patternImage}
             iconPath={iconPath}
             customLogoSrc={customLogoSrc}
-            logoElement={<LogoPreviewHTML editData={editData} color={logoColor || accentColor} layout={logoLayout || editData?.logoLayout || 'horizontal'} scaleFactor={0.82} maxWidth="440px" maxHeight="125px" />}
+            logoElement={<LogoPreviewHTML editData={editData} color={logoColor || accentColor} layout={logoLayout || editData?.logoLayout || 'stacked'} scaleFactor={0.82} maxWidth="440px" maxHeight="125px" />}
           />
         </div>
       </div>

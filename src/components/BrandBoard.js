@@ -181,7 +181,7 @@ const BrandBoard = ({ data, palette, color, seloColor, seloTextColor, patternIma
             })()
           : [taglineText];
 
-        const gapMultiplier = data.taglineGap !== undefined ? data.taglineGap : (words.length >= 2 ? 0.5 : (taglineText.length > 35 ? 0.6 : 0.35));
+        const gapMultiplier = data.taglineGap !== undefined ? data.taglineGap : (words.length >= 2 ? 0.25 : (taglineText.length > 35 ? 0.35 : 0.20));
         const taglineGapPx = Math.round(taglineSizeRem * 16 * gapMultiplier);
 
         return (
