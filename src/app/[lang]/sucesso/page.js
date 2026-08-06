@@ -10805,7 +10805,7 @@ function EntregaContent({ brand, plano, setBrand }) {
 
         {/* Área da estampa / componentes com ErrorBoundary pós-pagamento */}
         <PostPaymentErrorBoundary key={step} brandId={brand?.id} onResetStep={() => setStep(plano === 'avulso' ? 'papelaria' : 'placa')}>
-          {step === 'estampa' && plano !== 'avulso' && <EstampaStep brand={brand} accentColor={accentColor} marca={marca} patterns={estampaPatterns} setPatterns={setEstampaPatterns} genCount={estampaGenCount} setGenCount={setEstampaGenCount} selectedIdx={estampaSelectedIdx} setSelectedIdx={setEstampaSelectedIdx} paletteColors={paletteColors} patternScale={patternScale} setPatternScale={setPatternScale} patternOffset={patternOffset} setPatternOffset={setPatternOffset} estampasRef={estampasRef} originalPattern={estampaOriginalPattern} setOriginalPattern={setEstampaOriginalPattern} />}
+          {step === 'estampa' && plano !== 'avulso' && <EstampaStep brand={brand} accentColor={accentColor} marca={marca} patterns={estampaPatterns} setPatterns={setEstampaPatterns} genCount={estampaGenCount} setGenCount={setEstampaGenCount} selectedIdx={estampaSelectedIdx} setSelectedIdx={setEstampaSelectedIdx} paletteColors={orderedPaletteColors} patternScale={patternScale} setPatternScale={setPatternScale} patternOffset={patternOffset} setPatternOffset={setPatternOffset} estampasRef={estampasRef} originalPattern={estampaOriginalPattern} setOriginalPattern={setEstampaOriginalPattern} />}
 
           {/* Cores — prioridade/ordem */}
           {step === 'cores' && plano === 'avulso' && (
