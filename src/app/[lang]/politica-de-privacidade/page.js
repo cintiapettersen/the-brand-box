@@ -42,7 +42,7 @@ export default function PoliticaDePrivacidadePage() {
             <p style={{ background: '#F8FAFC', padding: '12px 16px', borderRadius: '8px', borderLeft: '4px solid #2A897F', fontSize: '0.9rem' }}>
               <strong>Nome legal:</strong> PETTERSEN LUNT DESIGN, responsável pela marca The Brand Box<br/>
               <strong>Organization number:</strong> 932 370 956<br/>
-              <strong>Contato para assuntos de privacidade:</strong> <a href="mailto:thebrandbox@sonhodepapel.com" style={{ color: '#2A897F', textDecoration: 'underline' }}>thebrandbox@sonhodepapel.com</a>
+              <strong>Contato para assuntos de privacidade:</strong> <a href="mailto:hello@thebrandbox.design" style={{ color: '#2A897F', textDecoration: 'underline' }}>hello@thebrandbox.design</a>
             </p>
           </section>
 
@@ -177,14 +177,14 @@ export default function PoliticaDePrivacidadePage() {
           <section>
             <h2 style={{ fontSize: '1.25rem', fontWeight: 700, color: '#0F172A', marginBottom: '10px' }}>15. Como revogar o consentimento</h2>
             <p>
-              Você pode cancelar o recebimento de e-mails de marketing clicando em &quot;Unsubscribe&quot; / &quot;Cancelar inscrição&quot; no rodapé de qualquer e-mail promocional ou enviando uma solicitação direta para o nosso contato para assuntos de privacidade: <a href="mailto:thebrandbox@sonhodepapel.com" style={{ color: '#2A897F', textDecoration: 'underline' }}>thebrandbox@sonhodepapel.com</a>.
+              Você pode cancelar o recebimento de e-mails de marketing clicando em &quot;Unsubscribe&quot; / &quot;Cancelar inscrição&quot; no rodapé de qualquer e-mail promocional ou enviando uma solicitação direta para o nosso contato para assuntos de privacidade: <a href="mailto:hello@thebrandbox.design" style={{ color: '#2A897F', textDecoration: 'underline' }}>hello@thebrandbox.design</a>.
             </p>
           </section>
 
           <section>
             <h2 style={{ fontSize: '1.25rem', fontWeight: 700, color: '#0F172A', marginBottom: '10px' }}>16. Exclusão e portabilidade dos dados</h2>
             <p>
-              Para solicitar a exclusão definitiva dos seus dados de nossa base de leads, entre em contato através do e-mail <a href="mailto:thebrandbox@sonhodepapel.com" style={{ color: '#2A897F', textDecoration: 'underline' }}>thebrandbox@sonhodepapel.com</a>.
+              Para solicitar a exclusão definitiva dos seus dados de nossa base de leads, entre em contato através do e-mail <a href="mailto:hello@thebrandbox.design" style={{ color: '#2A897F', textDecoration: 'underline' }}>hello@thebrandbox.design</a>.
             </p>
           </section>
 
@@ -209,7 +209,7 @@ export default function PoliticaDePrivacidadePage() {
             </p>
             <p>
               <strong>Nome legal:</strong> PETTERSEN LUNT DESIGN<br/>
-              <strong>Contato para assuntos de privacidade:</strong> <a href="mailto:thebrandbox@sonhodepapel.com" style={{ color: '#2A897F', textDecoration: 'underline' }}>thebrandbox@sonhodepapel.com</a><br/>
+              <strong>Contato para assuntos de privacidade:</strong> <a href="mailto:hello@thebrandbox.design" style={{ color: '#2A897F', textDecoration: 'underline' }}>hello@thebrandbox.design</a><br/>
               <strong>Marca:</strong> The Brand Box
             </p>
           </section>
@@ -217,7 +217,7 @@ export default function PoliticaDePrivacidadePage() {
           <section>
             <h2 style={{ fontSize: '1.25rem', fontWeight: 700, color: '#0F172A', marginBottom: '10px' }}>20. Direito de apresentar reclamação</h2>
             <p style={{ marginBottom: '10px' }}>
-              Se você tiver alguma dúvida ou preocupação sobre o tratamento dos seus dados pessoais, recomendamos que primeiro entre em contato conosco pelo e-mail <a href="mailto:thebrandbox@sonhodepapel.com" style={{ color: '#2A897F', textDecoration: 'underline' }}>thebrandbox@sonhodepapel.com</a>, para que possamos analisar e tentar resolver a questão.
+              Se você tiver alguma dúvida ou preocupação sobre o tratamento dos seus dados pessoais, recomendamos que primeiro entre em contato conosco pelo e-mail <a href="mailto:hello@thebrandbox.design" style={{ color: '#2A897F', textDecoration: 'underline' }}>hello@thebrandbox.design</a>, para que possamos analisar e tentar resolver a questão.
             </p>
             <p>
               Você também tem o direito de apresentar uma reclamação à <strong>Datatilsynet</strong>, autoridade norueguesa de proteção de dados, ou a outra autoridade supervisora competente, quando aplicável. Mais informações estão disponíveis no site da <a href="https://www.datatilsynet.no/en/" target="_blank" rel="noopener noreferrer" style={{ color: '#2A897F', textDecoration: 'underline' }}>Datatilsynet</a>.
