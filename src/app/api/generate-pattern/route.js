@@ -41,80 +41,80 @@ export async function POST(req) {
 
     const colorRule = `
 =========================================
-CRITICAL COLOR RESTRICTION (MANDATORY)
+CRITICAL COLOR RESTRICTION (MANDATORY & ABSOLUTE)
 =========================================
 You are an illustrator who has ONLY 5 tubes of paint. You MUST NOT use any other colors.
-Treat the reference image as a purely structural guide. COMPLETELY DISCARD its colors.
+Treat the reference image ONLY as a structural/drawing technique guide. COMPLETELY DISCARD its original colors.
 
-YOUR 5 PAINT TUBES (EXACT HEX CODES ONLY):
-- ${(paleta || [])[0] || ''} (Dominant - Use this for the largest or most frequent elements)
-- ${(paleta || [])[1] || ''} (Secondary - Use this for the second most frequent elements)
-- ${(paleta || [])[2] || ''} (Accent - Use this for medium-sized elements)
-- ${(paleta || [])[3] || ''} (Minor - Use this sparingly)
-- ${(paleta || [])[4] || ''} (Detail - Use this only for tiny details or outlines)
+YOUR 5 MANDATORY PAINT TUBES (EXACT HEX CODES ONLY):
+1. ${(paleta || [])[0] || '#000000'} (Dominant background/large shapes - MANDATORY PRIMARY)
+2. ${(paleta || [])[1] || '#555555'} (Secondary motifs)
+3. ${(paleta || [])[2] || '#888888'} (Accent details)
+4. ${(paleta || [])[3] || '#BBBBBB'} (Minor accents)
+5. ${(paleta || [])[4] || '#EEEEEE'} (Fine line details)
 
-RULES:
-1. Every single element you draw MUST be painted using ONLY one of the 5 hex codes above.
-2. DO NOT introduce new colors. The entire image must be composed strictly of these 5 colors plus the background color.
-3. DO NOT use generic or default colors. You must sample EXACTLY the hex codes provided.
-4. The background must be pure white or very light cream.
+STRICT MANDATORY RULES:
+1. Every single element, motif, line, and texture MUST be rendered using ONLY the 5 HEX codes specified above (or pure solid white/cream background if specified).
+2. ABSOLUTELY DO NOT introduce green, red, yellow, blue or any external colors from the reference image unless they match the HEX codes above.
+3. Ignore colors from the reference image completely. Replace 100% of reference colors with these exact HEX palette colors.
+4. Solid, clean color application. No default gradients using unlisted colors.
 =========================================
 `;
     const seamless = `SEAMLESS TILING RULES (CRITICAL & MANDATORY):
-- 70% STYLE DNA + 30% CREATIVE COMPOSITION: The reference image represents 70% of the style influence (use its exact drawing technique, textures, line quality, and element DNA). The remaining 30% MUST be creative freedom — distribute and arrange the elements in a completely NEW, UNIQUE, and highly distinct composition layout. Do NOT replicate the layout or placement coordinates of the reference image. Do NOT copy the exact same pattern layout.
-- ZERO BORDERS / SEAMS / LINES: Absolutely NO vertical, horizontal, or diagonal borders, margins, padding, seam lines, white/grey gaps, or division lines separating the tiles. The background must be 100% flat, solid, and uniform right up to the absolute edges. Full bleed edge-to-edge. Do not create any vignette, gradient shadows, or framing around the edges of the image.
+- 70% DRAWING STYLE + 30% CREATIVE LAYOUT: Replicate the line weight, stroke style, and drawing technique from the reference image (70%), but place elements in a COMPLETELY NEW, UNIQUE composition layout (30%).
+- ZERO BORDERS / SEAMS / LINES: Absolutely NO vertical, horizontal, or diagonal borders, margins, padding, seam lines, white/grey gaps, or division lines separating the tiles. The background must be 100% flat, solid, and uniform right up to the absolute edges. Full bleed edge-to-edge.
 - PAC-MAN EDGE WRAPPING: Elements that exit one edge must wrap around and re-enter from the exact opposite edge (Pac-Man style).
 - COMPOSITION INTEGRITY: Do NOT slice, cut, or crop main motifs/objects in half inside the tile, except for seamless wrap-around edge bleed at the absolute boundaries. Keep every motif in the middle fully formed, clear, and complete. Avoid chaotic overlaps or collision between different motifs.
-- FLAT TWO-DIMENSIONAL SURFACES ONLY: Ignore any mockups, wallpaper rolls, strips, columns, or panel divisions in the reference image. Generate ONLY a single, flat, continuous two-dimensional seamless tile.
-- NO FRAMES OR BORDERS: The generated image must be a full-bleed flat graphic going exactly to the absolute 4 corners. Absolutely no thin white margins, no grey border lines, no vignettes, and no visual framing of any kind.
-- MANDATORY SIGNATURE TEXTURE: You MUST apply a beautiful, highly visible premium watercolor paper or fine organic canvas texture across the ENTIRE image. This texture should be noticeable and rich, giving the illustration a luxurious, tactile, handcrafted feel that prevents the image from looking flat or digital, especially when scaled up.`;
+- FLAT TWO-DIMENSIONAL SURFACES ONLY: Generate ONLY a single, flat, continuous two-dimensional seamless tile.
+- NO FRAMES OR BORDERS: The generated image must be a full-bleed flat graphic going exactly to the absolute 4 corners.
+- MANDATORY SIGNATURE TEXTURE: Apply a subtle, high-end organic canvas or fine paper grain texture across the ENTIRE surface.`;
 
-    // 3 VARIAÇÕES ALTAMENTE DISTINTAS — composição completamente redesenhada
+    // 3 VARIAÇÕES VISUALMENTE DIVERSAS E DISTINTAS (LAYOUT & ESCALA)
     const variationPrompts = [
-      // Variação 1 — Composição balanceada, espaçamento elegante e original
-      `${brandContext}Look carefully at the reference image. This is your PRIMARY creative style brief — replicate its drawing technique, line quality, and illustration style as closely as possible.
+      // Variação 1 — Composição Orgânica Fluida (Densidade Média)
+      `${brandContext}Look carefully at the reference image. Replicate its drawing technique, line quality, and illustration style as closely as possible.
       
-CRITICAL MOTIF RULE: Draw ONLY the types of elements, shapes, or subjects you see in the reference image. Do NOT invent new subjects or draw literal icons of the Brand Essence (e.g., if the brand is a hospital, do not draw stethoscopes). The Brand Essence is only for the emotional vibe.
-CRITICAL NEGATIVE PROMPT: ABSOLUTELY DO NOT DRAW FLOWERS, LEAVES, OR BOTANICAL ELEMENTS unless they are explicitly the main subject of the reference image. If the reference is abstract birds, geometric shapes, or lines, draw ONLY those.
+CRITICAL MOTIF RULE: Draw ONLY the types of elements, shapes, or subjects seen in the reference image. Do NOT invent new subjects.
+CRITICAL NEGATIVE PROMPT: ABSOLUTELY DO NOT DRAW FLOWERS, LEAVES, OR BOTANICAL ELEMENTS unless explicitly present in the reference image.
 
 ${colorRule}
-Keep the background white or very light.
+Keep the background white or light cream.
 
-Create ONE TILE of a seamless repeating surface pattern using those same reference elements and drawing style, but in a COMPLETELY NEW, ORIGINAL, AND BALANCED composition.
-CRITICAL RULE: DO NOT COPY THE LAYOUT OF THE REFERENCE IMAGE. You MUST create a completely different arrangement of the elements. Shuffle their positions, sizes, and orientations so the new pattern looks like a brand new design, not a clone.
+Create ONE TILE of a seamless repeating pattern with a BALANCED ORGANIC FLOW layout.
+COMPOSITION VARIATION 1: Medium density, elegant spacing between motifs, balanced distribution across the tile.
 
 ${seamless}
-Composition Style: Balanced and elegant, moderate density. Distinct scale of elements. Style context: ${hint}.`,
+Style context: ${hint}.`,
 
-      // Variação 2 — Composição Minimalista e Extremamente Espaçada (Layout "Airy")
-      `${brandContext}Study the reference image carefully. Replicate its exact illustration style, textures, and drawing technique faithfully.
+      // Variação 2 — Composição Minimalista e Espaçada ("Airy" Negative Space)
+      `${brandContext}Study the reference image carefully. Replicate its exact illustration style, textures, and drawing technique.
       
-CRITICAL MOTIF RULE: Draw ONLY the types of elements, shapes, or subjects you see in the reference image. Do NOT invent new subjects or draw literal icons of the Brand Essence.
-CRITICAL NEGATIVE PROMPT: ABSOLUTELY DO NOT DRAW FLOWERS, LEAVES, OR BOTANICAL ELEMENTS unless they are explicitly the main subject of the reference image.
+CRITICAL MOTIF RULE: Draw ONLY the types of elements, shapes, or subjects seen in the reference image.
+CRITICAL NEGATIVE PROMPT: ABSOLUTELY DO NOT DRAW FLOWERS, LEAVES, OR BOTANICAL ELEMENTS unless explicitly present in the reference image.
 
 ${colorRule}
-Keep the background white or very light.
+Keep the background white or light cream.
 
-Create ONE TILE of a seamless repeating surface pattern. Compared to the reference and typical layouts, make this version a MINIMALIST, HIGHLY AIRY composition. Use FEWER elements per tile, scattered EVENLY across the entire canvas with large open spaces of solid color between them. 
-CRITICAL RULE: DO NOT COPY THE LAYOUT OF THE REFERENCE IMAGE. Do NOT leave a giant blank hole in the center. The elements must be distributed evenly throughout the tile, just spaced further apart than usual.
+Create ONE TILE of a seamless repeating pattern with a MINIMALIST AIRY LAYOUT.
+COMPOSITION VARIATION 2: Extremely sparse and low-density arrangement with large open spaces of solid background color between motifs. Micro-sized elements scattered far apart. HIGH NEGATIVE SPACE.
 
 ${seamless}
-Composition Style: High negative space, minimalist, evenly scattered and airy. Highly distinct from previous compositions. Very low density. Style context: ${hint}.`,
+Style context: ${hint}.`,
 
-      // Variação 3 — Composição Dinâmica com Movimento Diagonal e Diferença de Escala
-      `${brandContext}Use the reference image as your main creative direction — match its illustration style, drawing technique, and proportions faithfully.
+      // Variação 3 — Composição Dinâmica com Movimento Diagonal & Forte Contraste de Escala
+      `${brandContext}Use the reference image as your main creative direction — match its illustration style and line weight.
       
-CRITICAL MOTIF RULE: Draw ONLY the types of elements, shapes, or subjects you see in the reference image. Do NOT invent new subjects or draw literal icons of the Brand Essence.
-CRITICAL NEGATIVE PROMPT: ABSOLUTELY DO NOT DRAW FLOWERS, LEAVES, OR BOTANICAL ELEMENTS unless they are explicitly the main subject of the reference image.
+CRITICAL MOTIF RULE: Draw ONLY the types of elements, shapes, or subjects seen in the reference image.
+CRITICAL NEGATIVE PROMPT: ABSOLUTELY DO NOT DRAW FLOWERS, LEAVES, OR BOTANICAL ELEMENTS unless explicitly present in the reference image.
 
 ${colorRule}
-Keep the background white or very light.
+Keep the background white or light cream.
 
-Create ONE TILE of a seamless repeating surface pattern. Arrange the elements to create a DYNAMIC FLOWING MOVEMENT (like a soft diagonal breeze or organic waving paths). Rotate, tilt, and vary the orientations of the elements dynamically so they are NOT all standing upright. Introduce a HUGE SCALE CONTRAST (some elements very tiny, some very large).
-CRITICAL RULE: DO NOT COPY THE LAYOUT OF THE REFERENCE IMAGE. You MUST create a completely different arrangement of the elements.
+Create ONE TILE of a seamless repeating pattern with a DYNAMIC DIAGONAL & HIGH-CONTRAST SCALE LAYOUT.
+COMPOSITION VARIATION 3: Dynamic diagonal flow with dramatic scale contrast (very large focal motifs paired with tiny accent particles). Elements rotated and tilted along dynamic angles.
 
 ${seamless}
-Composition Style: Dynamic diagonal flow, varied rotations, fluid and active. Huge contrast in element sizes. Extremely different from standard upright layouts. Style context: ${hint}.`,
+Style context: ${hint}.`,
     ];
 
     const results = [];
@@ -125,9 +125,6 @@ Composition Style: Dynamic diagonal flow, varied rotations, fluid and active. Hu
       if (refs.length === 0) return null;
       return refs[(i + randomRefOffset) % refs.length];
     };
-    
-    // Offset aleatório para garantir que não pegue sempre a mesma variação ao pedir apenas 1 estampa
-    const randomPromptOffset = Math.floor(Math.random() * variationPrompts.length);
 
     for (let i = 0; i < requestCount; i++) {
       try {
@@ -139,9 +136,7 @@ Composition Style: Dynamic diagonal flow, varied rotations, fluid and active. Hu
         if (refUrl) {
           const refImage = await loadImage(refUrl);
           if (refImage) {
-            // Referência PRIMEIRO no array — o modelo dá mais peso ao que vem antes
             contents.push(refImage);
-            // Segunda referência para contexto adicional (se disponível e diferente)
             if (refs.length > 1) {
               const refUrl2 = refs[(i + 1) % refs.length];
               if (refUrl2 !== refUrl) {
@@ -152,20 +147,18 @@ Composition Style: Dynamic diagonal flow, varied rotations, fluid and active. Hu
           }
         }
 
-        // Se for geração individual (substituindo estampa), escolhe um dos 3 estilos de composição aleatoriamente
-        const promptIdx = requestCount === 1 ? Math.floor(Math.random() * 3) : i;
+        const promptIdx = requestCount === 1 ? Math.floor(Math.random() * 3) : (i % 3);
 
-        // Adiciona um leve toque criativo aleatório para evitar repetições do modelo
         const creativeTweaks = [
-          "Focus on delicate organic flows.",
-          "Emphasize a clean modern watercolor look.",
-          "Bring out a whimsical, poetic feel.",
-          "Use delicate thin-line detailing.",
-          "Arrange with a touch of elegant asymmetry.",
-          "Create a soft, dreamy overlay of elements."
+          "Composition emphasis: Soft organic scattered alignment.",
+          "Composition emphasis: Modern clean geometric balance.",
+          "Composition emphasis: Delicate thin-line contrast.",
+          "Composition emphasis: Playful asymmetric scattering.",
+          "Composition emphasis: Dynamic diagonal movement.",
+          "Composition emphasis: Ultra-minimal airy layout."
         ];
         const randomTweak = creativeTweaks[Math.floor(Math.random() * creativeTweaks.length)];
-        const promptToUse = `${variationPrompts[promptIdx]}\nCreative touch for this variation: ${randomTweak}\n\n[System note: Creative Seed ${seed}. Ensure the arrangement and distribution of elements is entirely unique and distinct from previous generations.]`;
+        const promptToUse = `${variationPrompts[promptIdx]}\nCreative touch for this variation: ${randomTweak}\n\n[System note: Creative Seed ${seed}. Ensure the composition and arrangement of motifs is 100% unique and distinct from other variations.]`;
 
         console.log(`🎨 Geração ${i + 1} (Prompt Index: ${promptIdx}, Tweak: "${randomTweak}") usando ref: ${refUrl ? refUrl.substring(0, 70) + '…' : 'nenhuma'}`);
         contents.push({ text: promptToUse });
