@@ -26,8 +26,8 @@ export function proxy(request) {
   const reqHost = (hostname || request.headers.get('host') || '').split(':')[0].toLowerCase()
 
   if (migrationEnabled && reqHost === oldHost) {
-    // Direct mapping for legacy route /crie-sua-marca to avoid 2-step redirect chain
-    const targetPath = pathname === '/crie-sua-marca' ? '/pt' : pathname
+    // Direct mapping for legacy routes / and /crie-sua-marca to avoid 2-step redirect chain
+    const targetPath = (pathname === '/' || pathname === '/crie-sua-marca') ? '/pt' : pathname
     const destinationUrl = `${targetDomain}${targetPath}${search}`
     return NextResponse.redirect(destinationUrl, 308)
   }

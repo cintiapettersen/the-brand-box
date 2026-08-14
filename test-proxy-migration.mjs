@@ -65,7 +65,12 @@ async function runTests() {
   res = proxy(req);
   console.assert(!res, 'Test 2.7 Failed: target domain should not redirect to itself');
 
-  console.log('✅ PASS: When DOMAIN_MIGRATION_ENABLED=true, old domain redirects 308 preserving path & query, single-step for /crie-sua-marca, while target domain, localhost, and Vercel preview URLs remain untouched.\n');
+  // 2.8 Legacy root route / -> direct 1-step to /pt
+  req = mockRequest('https://thebrandbox.sonhodepapel.com/?src=ig', 'thebrandbox.sonhodepapel.com');
+  res = proxy(req);
+  console.assert(res?.headers.get('location') === 'https://thebrandbox.design/pt?src=ig', `Test 2.8 Location Failed: ${res?.headers.get('location')}`);
+
+  console.log('✅ PASS: When DOMAIN_MIGRATION_ENABLED=true, old domain redirects 308 preserving path & query, single-step for / and /crie-sua-marca, while target domain, localhost, and Vercel preview URLs remain untouched.\n');
 
   // Reset env
   delete process.env.DOMAIN_MIGRATION_ENABLED;
