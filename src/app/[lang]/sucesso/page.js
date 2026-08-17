@@ -360,21 +360,8 @@ export function LogoPreviewHTML({ item = null, editData, color, layout = 'stacke
   const taglineText = editData?.tagline || '';
   const taglineLen = taglineText.length;
   
-  // Slogan dinâmico: quanto mais longo, menor a fonte e maior o espaçamento (tracking)
-  // Ajuste mais agressivo para slogans gigantes (>50 caracteres)
-  const taglineSizeBoostFactor = editData?.taglineSizeBoost !== undefined ? editData.taglineSizeBoost : 1.0;
-  const taglineScale = (taglineLen > 50 ? 0.16 : taglineLen > 40 ? 0.20 : taglineLen > 25 ? 0.26 : 0.35) * taglineSizeBoostFactor;
-  const taglineSizeRem = Math.max(logoSizeRem * taglineScale, 0.32 * effectiveScaleFactor);
-  const taglineVisible = taglineSizeRem >= 0.08;
-  
-  // Gap customizável via taglineGap (fallback para o cálculo dinâmico)
-  const gapMultiplier = editData?.taglineGap !== undefined ? editData.taglineGap : (taglineLen > 40 ? 0.05 : 0.08);
-  const taglineGapPx = Math.round(taglineSizeRem * 16 * gapMultiplier);
-  
-  // Tracking (letter-spacing) compensatório ou manual
-  const taglineLetterSpacing = editData?.taglineLetterSpacing !== undefined ? `${editData.taglineLetterSpacing}em` : (taglineLen > 45 ? '0.55em' : taglineLen > 30 ? '0.48em' : taglineLen > 15 ? '0.4em' : '0.35em');
   // Slogan wrap dinâmico ou manual
-  const shouldWrap = editData?.taglineWrap !== undefined ? editData.taglineWrap : (taglineLen > 25);
+  const shouldWrap = editData?.taglineWrap !== undefined ? editData.taglineWrap : (taglineLen > 30);
   const displaySlogan = (taglineText && taglineText.includes('\n'))
     ? taglineText.split('\n').filter(l => l.trim() !== '')
     : (taglineText && shouldWrap)
@@ -384,6 +371,29 @@ export function LogoPreviewHTML({ item = null, editData, color, layout = 'stacke
           return [words.slice(0, mid).join(' '), words.slice(mid).join(' ')];
         })()
       : [taglineText];
+
+  const isWrapped = displaySlogan.length > 1;
+  const maxLineLen = isWrapped ? Math.max(...displaySlogan.map(l => l.length), 0) : taglineLen;
+
+  // Slogan dinâmico: quando em 2 linhas, as linhas são menores, permitindo escala maior e maior legibilidade
+  const taglineSizeBoostFactor = editData?.taglineSizeBoost !== undefined ? editData.taglineSizeBoost : 1.0;
+  const taglineScale = (isWrapped
+    ? (maxLineLen > 24 ? 0.28 : maxLineLen > 18 ? 0.34 : 0.40)
+    : (taglineLen > 50 ? 0.16 : taglineLen > 40 ? 0.20 : taglineLen > 25 ? 0.26 : 0.35)
+  ) * taglineSizeBoostFactor;
+
+  const minRem = isWrapped ? (0.46 * effectiveScaleFactor) : (0.32 * effectiveScaleFactor);
+  const taglineSizeRem = Math.max(logoSizeRem * taglineScale, minRem);
+  const taglineVisible = taglineSizeRem >= 0.08;
+  
+  // Gap customizável via taglineGap (fallback para o cálculo dinâmico)
+  const gapMultiplier = editData?.taglineGap !== undefined ? editData.taglineGap : (isWrapped ? 0.12 : (taglineLen > 40 ? 0.05 : 0.08));
+  const taglineGapPx = Math.round(taglineSizeRem * 16 * gapMultiplier);
+  
+  // Tracking (letter-spacing) compensatório ou manual
+  const taglineLetterSpacing = editData?.taglineLetterSpacing !== undefined 
+    ? `${editData.taglineLetterSpacing}em` 
+    : (isWrapped ? (maxLineLen > 22 ? '0.35em' : '0.42em') : (taglineLen > 45 ? '0.55em' : taglineLen > 30 ? '0.48em' : taglineLen > 15 ? '0.4em' : '0.35em'));
 
   const innerContent = (
     <>

@@ -163,25 +163,39 @@ const BrandBoard = ({ data, palette, color, seloColor, seloTextColor, patternIma
         // Aplicar sizeBoost para fontes que renderizam menor (ex: Vellary)
         const sizeBoost = data.fontSizeBoost || 1;
         const fontSize = `${(baseFontSize * sizeBoost).toFixed(1)}rem`;
-        // Slogan proporcional ao logo: mantém a tagline como apoio visual, sem competir com a marca.
         const logoSizeRem = baseFontSize * sizeBoost;
         const taglineText = tagline || '';
-        const taglineRatio = words.length >= 2 ? 0.20 : 0.24;
-        const taglineLengthScale = taglineText.length > 32 ? 0.82 : (taglineText.length > 24 ? 0.9 : 1);
-        const taglineSizeRem = Math.max(0.42, logoSizeRem * taglineRatio * taglineLengthScale);
-        const taglineLetterSpacing = taglineText.length > 24 ? '0.26em' : '0.32em';
         
-        // Slogan wrap e gap (respeitando editData)
-        const shouldWrap = data.taglineWrap !== undefined ? data.taglineWrap : (taglineText.length > 35);
-        const displaySlogan = (taglineText && shouldWrap)
-          ? (() => {
-              const words = taglineText.split(' ');
-              const mid = Math.ceil(words.length / 2);
-              return [words.slice(0, mid).join(' '), words.slice(mid).join(' ')];
-            })()
-          : [taglineText];
+        // Slogan wrap e gap (respeitando editData ou quebrando automaticamente acima de 30 caracteres)
+        const shouldWrap = data.taglineWrap !== undefined ? data.taglineWrap : (taglineText.length > 30);
+        const displaySlogan = (taglineText && taglineText.includes('\n'))
+          ? taglineText.split('\n').filter(l => l.trim() !== '')
+          : (taglineText && shouldWrap)
+            ? (() => {
+                const words = taglineText.split(' ');
+                const mid = Math.ceil(words.length / 2);
+                return [words.slice(0, mid).join(' '), words.slice(mid).join(' ')];
+              })()
+            : [taglineText];
 
-        const gapMultiplier = data.taglineGap !== undefined ? data.taglineGap : (words.length >= 2 ? 0.25 : (taglineText.length > 35 ? 0.35 : 0.20));
+        const isWrapped = displaySlogan.length > 1;
+        const maxLineLength = isWrapped ? Math.max(...displaySlogan.map(l => l.length), 0) : taglineText.length;
+
+        // Quando dividido em 2 linhas, as linhas são mais curtas, permitindo fonte maior e visualmente equilibrada
+        const taglineRatio = isWrapped ? (words.length >= 2 ? 0.34 : 0.38) : (words.length >= 2 ? 0.20 : 0.24);
+        const taglineLengthScale = isWrapped
+          ? (maxLineLength > 24 ? 0.88 : (maxLineLength > 18 ? 0.95 : 1.05))
+          : (taglineText.length > 32 ? 0.82 : (taglineText.length > 24 ? 0.9 : 1));
+        const taglineSizeBoost = data.taglineSizeBoost !== undefined ? parseFloat(data.taglineSizeBoost) : 1.0;
+        const minTaglineRem = isWrapped ? 0.62 : 0.46;
+        const taglineSizeRem = Math.max(minTaglineRem, logoSizeRem * taglineRatio * taglineLengthScale * taglineSizeBoost);
+        const taglineLetterSpacing = isWrapped
+          ? (maxLineLength > 22 ? '0.20em' : '0.26em')
+          : (taglineText.length > 24 ? '0.26em' : '0.32em');
+
+        const gapMultiplier = data.taglineGap !== undefined 
+          ? data.taglineGap 
+          : (isWrapped ? 0.30 : (words.length >= 2 ? 0.25 : (taglineText.length > 35 ? 0.35 : 0.20)));
         const taglineGapPx = Math.round(taglineSizeRem * 16 * gapMultiplier);
 
         return (

@@ -58,13 +58,31 @@ export const genPDFLogoHtml = ({ brand, editDataOverride = null, color, localSlo
     lines = words;
   }
 
-  // Slogan dinâmico: quanto mais longo, menor a fonte e maior o espaçamento (tracking)
   const _sloganLenRaw = (localSlogan && !hideSlogan) ? localSlogan.length : 0;
-  // Ajuste mais agressivo para slogans gigantes (>50 caracteres) para não travar a logo
   const _taglineSizeBoost = _ed?.taglineSizeBoost !== undefined ? parseFloat(_ed.taglineSizeBoost) : 1.0;
-  const _sloganScale = (_sloganLenRaw > 50 ? 0.16 : _sloganLenRaw > 40 ? 0.20 : _sloganLenRaw > 25 ? 0.26 : 0.35) * _taglineSizeBoost;
+  const _shouldWrap = _ed?.taglineWrap !== undefined ? _ed.taglineWrap : (_sloganLenRaw > 30);
+
+  const displaySloganLines = (localSlogan && localSlogan.includes('\n'))
+    ? localSlogan.split('\n').filter(l => l.trim() !== '')
+    : (localSlogan && _shouldWrap)
+      ? (() => {
+          const words = localSlogan.split(' ');
+          const mid = Math.ceil(words.length / 2);
+          return [words.slice(0, mid).join(' '), words.slice(mid).join(' ')];
+        })()
+      : [localSlogan];
+
+  const _isWrapped = displaySloganLines.length > 1;
+  const _maxLineLen = _isWrapped ? Math.max(...displaySloganLines.map(l => l.length), 0) : _sloganLenRaw;
+
+  // Slogan dinâmico: quando quebra em 2 linhas, as linhas são menores, permitindo escala proporcionalmente maior
+  const _sloganScale = (_isWrapped
+    ? (_maxLineLen > 24 ? 0.28 : _maxLineLen > 18 ? 0.34 : 0.40)
+    : (_sloganLenRaw > 50 ? 0.16 : _sloganLenRaw > 40 ? 0.20 : _sloganLenRaw > 25 ? 0.26 : 0.35)
+  ) * _taglineSizeBoost;
+
   // Gap customizável via taglineGap (fallback para o cálculo dinâmico)
-  const _sloganGapMultiplier = _ed?.taglineGap !== undefined ? parseFloat(_ed.taglineGap) : (_sloganLenRaw > 40 ? 0.06 : 0.10);
+  const _sloganGapMultiplier = _ed?.taglineGap !== undefined ? parseFloat(_ed.taglineGap) : (_isWrapped ? 0.12 : (_sloganLenRaw > 40 ? 0.06 : 0.10));
   
   const _scaleMultiplier = finalLogoScale / 100;
   const effectiveCrmSize = crmSize.includes('pt') ? (parseFloat(crmSize) * _scaleMultiplier).toFixed(1) + 'pt' : crmSize;
@@ -84,7 +102,7 @@ export const genPDFLogoHtml = ({ brand, editDataOverride = null, color, localSlo
     const _bgPadVmm = withBackground
       ? (parseFloat((withBackgroundPadding || '2px 4px').split(' ')[0]) * (withBackgroundPadding?.includes('mm') ? 1 : 0.264583)) * 2
       : 0;
-    const _sloganLinesCount = (localSlogan && !hideSlogan) ? (localSlogan.length > 25 ? 2 : 1) : 0;
+    const _sloganLinesCount = (localSlogan && !hideSlogan) ? displaySloganLines.length : 0;
     const _scriptHeightMul = _isScript ? 1.4 : 1.0;
 
     // O tamanho do CRM no HTML é fixado por effectiveCrmSize (não escala com _baseFontPt).
@@ -98,27 +116,18 @@ export const genPDFLogoHtml = ({ brand, editDataOverride = null, color, localSlo
   }
 
   const _finalFontPt = _baseFontPt.toFixed(1);
-  const effectiveSloganSize = sloganSize || Math.max(parseFloat((_baseFontPt * _sloganScale).toFixed(1)), 5.0) + 'pt';
+  const minSloganPt = _isWrapped ? 5.8 : 5.0;
+  const effectiveSloganSize = sloganSize || Math.max(parseFloat((_baseFontPt * _sloganScale).toFixed(1)), minSloganPt) + 'pt';
   const isStacked = true; // slogan sempre embaixo
   
   // Tracking (letter-spacing) compensatório para slogans longos
-  const _sloganLs = _ed?.taglineLetterSpacing !== undefined ? `${_ed.taglineLetterSpacing}em` : (_sloganLenRaw > 45 ? '0.55em' : _sloganLenRaw > 30 ? '0.48em' : _sloganLenRaw > 15 ? '0.4em' : '0.35em');
+  const _sloganLs = _ed?.taglineLetterSpacing !== undefined 
+    ? `${_ed.taglineLetterSpacing}em` 
+    : (_isWrapped ? (_maxLineLen > 22 ? '0.35em' : '0.42em') : (_sloganLenRaw > 45 ? '0.55em' : _sloganLenRaw > 30 ? '0.48em' : _sloganLenRaw > 15 ? '0.4em' : '0.35em'));
 
   const _sloganColor = sloganColor || '#666';
   // Gap adaptativo baseado no tamanho da fonte do slogan e complexidade
   const _sloganGap = _ed?.sloganGap || (parseFloat(effectiveSloganSize) * _sloganGapMultiplier).toFixed(1);
-  
-  const _shouldWrap = _ed?.taglineWrap !== undefined ? _ed.taglineWrap : (_sloganLenRaw > 25);
-
-  const displaySloganLines = (localSlogan && localSlogan.includes('\n'))
-    ? localSlogan.split('\n').filter(l => l.trim() !== '')
-    : (localSlogan && _shouldWrap)
-      ? (() => {
-          const words = localSlogan.split(' ');
-          const mid = Math.ceil(words.length / 2);
-          return [words.slice(0, mid).join(' '), words.slice(mid).join(' ')];
-        })()
-      : [localSlogan];
 
   const _sloganLen = (localSlogan && !hideSlogan) ? localSlogan.length : 0;
   const _crmLen = crmLine ? crmLine.length : 0;
