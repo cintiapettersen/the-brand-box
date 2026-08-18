@@ -10,6 +10,114 @@ function sanitizeError(msg) {
   return String(msg).replace(/api[-_]?key=[^&\s]+/gi, 'api_key=REDACTED');
 }
 
+/**
+ * Fallback inteligente e diverso quando o parsing de IA falha.
+ * Garante que NUNCA haja 3 itens da mesma família semântica (ex: folha/broto/semente).
+ */
+function getDiverseFallbackMotifs(areaAtuacao, estiloNome) {
+  const areaLower = (areaAtuacao || '').toLowerCase();
+  const estiloLower = (estiloNome || '').toLowerCase();
+
+  if (areaLower.includes('pediat') || areaLower.includes('infant') || areaLower.includes('crian') || areaLower.includes('baby')) {
+    return [
+      {
+        title: "Estrela Suave",
+        origin: "Inspirado no ritmo lúdico e pontilhado observado na sua estampa",
+        visualDescription: "a single minimal clean vector outline sparkle star icon, centered on pure white background, fine lineart"
+      },
+      {
+        title: "Arco Protetor",
+        origin: "Síntese geométrica das curvas acolhedoras da sua identidade visual",
+        visualDescription: "a single refined minimal vector lineart protective arc shape, centered on pure white background"
+      },
+      {
+        title: "Coração Acolhedor",
+        origin: "Emblema contextual desenhado para o cuidado afetivo do seu nicho",
+        visualDescription: "a single clean modern vector outline heart emblem, centered on pure white background"
+      }
+    ];
+  }
+
+  if (areaLower.includes('odonto') || areaLower.includes('dente') || areaLower.includes('sorriso')) {
+    return [
+      {
+        title: "Curva Harmoniosa",
+        origin: "Inspirado nas linhas fluidas e espaçamento observado na sua estampa",
+        visualDescription: "a single clean minimal vector lineart curved arc icon, centered on pure white background"
+      },
+      {
+        title: "Ponto Radiante",
+        origin: "Síntese geométrica minimalista da luminosidade da sua marca",
+        visualDescription: "a single refined vector outline four-point starburst icon, centered on pure white background"
+      },
+      {
+        title: "Selo de Precisão",
+        origin: "Emblema atemporal de apoio profissional ao seu universo visual",
+        visualDescription: "a single clean geometric shield seal vector icon, centered on pure white background"
+      }
+    ];
+  }
+
+  if (areaLower.includes('nutri') || areaLower.includes('aliment')) {
+    return [
+      {
+        title: "Forma Orgânica",
+        origin: "Inspirado no contorno fluido e natural observado na sua estampa",
+        visualDescription: "a single clean minimal vector outline organic pebble leaf curve, centered on pure white background"
+      },
+      {
+        title: "Círculo de Equilíbrio",
+        origin: "Síntese geométrica do ritmo e harmonia da sua estampa",
+        visualDescription: "a single refined minimal vector lineart balance circle emblem, centered on pure white background"
+      },
+      {
+        title: "Emblema Vital",
+        origin: "Elemento contextual desenhado em sintonia com a saúde integral",
+        visualDescription: "a single modern clean vector geometric sunburst emblem, centered on pure white background"
+      }
+    ];
+  }
+
+  if (areaLower.includes('psi') || areaLower.includes('terap') || areaLower.includes('mente')) {
+    return [
+      {
+        title: "Onda Serena",
+        origin: "Inspirado na cadência fluida e suave observada na sua estampa",
+        visualDescription: "a single clean minimal vector lineart gentle wave curve icon, centered on pure white background"
+      },
+      {
+        title: "Arco de Encontro",
+        origin: "Síntese geométrica do diálogo e conexão visual da sua marca",
+        visualDescription: "a single refined vector lineart overlapping twin arcs icon, centered on pure white background"
+      },
+      {
+        title: "Selo de Presença",
+        origin: "Emblema atemporal desenhado para a escuta e acolhimento",
+        visualDescription: "a single serene minimal vector circular sun emblem, centered on pure white background"
+      }
+    ];
+  }
+
+  // Fallback padrão para Medicina Geral / Adulto / Negócios / Essência Atemporal
+  return [
+    {
+      title: "Linha Atemporal",
+      origin: "Inspirado no ritmo equilibrado e na linguagem visual observada na sua estampa",
+      visualDescription: "a single clean minimal vector lineart fluid contour curve, centered on pure white background, elegant hairline aesthetic"
+    },
+    {
+      title: "Síntese Geométrica",
+      origin: "Redução minimalista da estrutura e harmonia espacial da sua estampa",
+      visualDescription: "a single refined geometric minimalist vector emblem with interlocking clean lines, centered on pure white background"
+    },
+    {
+      title: "Emblema de Cuidado",
+      origin: "Elemento contextual refinado e atemporal desenhado para a solidez da sua marca",
+      visualDescription: "a single sophisticated modern vector seal icon with subtle clinical elegance, centered on pure white background"
+    }
+  ];
+}
+
 export async function POST(request) {
   let currentPhase = 'initialization';
   let motifsFound = 0;
@@ -45,64 +153,72 @@ export async function POST(request) {
     const cleanBase64 = patternBase64.replace(/^data:image\/[a-z]+;base64,/, '');
     const mimeType = patternMimeType || 'image/png';
 
-    // Phase 1: Multimodal Brand & Pattern Analysis (4-Step Evaluation)
+    // Phase 1: Multimodal Brand & Pattern Analysis
     currentPhase = 'analysis';
 
     const sensacoesText = Array.isArray(sensacoes) ? sensacoes.join(', ') : (sensacoes || '');
     const elementosText = Array.isArray(elementosVisuais) ? elementosVisuais.join(', ') : (elementosVisuais || '');
 
     const analysisPrompt = `
-You are a Senior Brand Identity Director and Graphic Designer.
+You are a World-Class Brand Identity Creative Director specialized in luxury, healthcare, and contemporary visual identities.
 Analyze this brand pattern image in the context of this brand:
 - Brand Name: "${marca || 'Brand'}"
 - Business Area / Niche: "${areaAtuacao || 'Profissional / Empresa'}"
-- Brand Style: "${estiloNome || 'Elegante e Moderno'}"
+- Brand Style: "${estiloNome || 'Essência Atemporal'}"
 - Feelings / Sensations: "${sensacoesText}"
 - Visual Elements Reference: "${elementosText}"
 
 YOUR GOAL:
-Generate exactly 3 distinct, cohesive BRAND GRAPHIC ELEMENTS / ICONS derived from this pattern and brand context.
+Generate exactly 3 DISTINCT, HIGHLY REFINED BRAND GRAPHIC ELEMENTS / ICONS born from this pattern and brand context.
 
-FOLLOW THIS 4-STEP REASONING LOGIC:
-1. STEP 1 (Pattern Classification):
-   Detect whether the attached pattern contains:
-   A) Clear figurative motifs (e.g. stars, leaves, clouds, flowers, hearts, toys, fruits, baby items, smiles, botanical branches, etc.).
-   OR
-   B) Abstract, geometric, minimalist, watercolor, terrazzo, or texture-based language without a single clear recognizable object.
+STRICT MANDATORY RULES & GUARDRAILS:
 
-2. STEP 2 (If Figurative Motifs Present):
-   Derive 3 simplified, elegant vector elements directly inspired by those recognizable motifs.
+1. PATTERN-FIRST INTERPRETATION (CRITICAL):
+   - Inspect the pattern image deeply.
+   - If the pattern has clear figurative motifs (e.g. stars, flowers, arches, hearts), translate them into clean vector elements.
+   - If the pattern is abstract, geometric, terrazzo, linear, watercolor, or texture-based:
+     PRIORITIZE: dominant shape language, contours, rhythm, line weight, spacing, and visual cadence.
+     Create symbols that look like they were naturally extracted from the pattern's DNA.
 
-3. STEP 3 (If Abstract / Geometric / No Clear Object):
-   DO NOT crop pieces or patches of the pattern.
-   Instead, interpret the rhythm, dominant shape curves/lines, mood, and repetition style into 3 original graphic symbols belonging to the same visual family.
+2. DISTRIBUTION OF THE 3 OUTPUTS (MANDATORY DIVERSITY):
+   You must produce EXACTLY 3 DIFFERENT CONCEPTUAL ROLES:
+   - OPTION 1 (Pattern Direct Language): Directly derived from the pattern's dominant visual shape, rhythm, or primary graphic motif.
+   - OPTION 2 (Pattern Symbolic Synthesis): A distilled, minimalist geometric or emblematic interpretation of the pattern's lines, curvature, or spatial structure.
+   - OPTION 3 (Contextual Complement): A refined emblem or supporting mark harmonized with the brand style ("${estiloNome}") and niche ("${areaAtuacao}"), providing an elevated contextual accent.
 
-4. STEP 4 (Semantic Fallback using Business Area):
-   If the pattern alone does not yield 3 sufficiently strong, recognizable options, use the client's business area ("${areaAtuacao}") for subtle conceptual support while preserving the visual style:
-   - Pediatric / baby / child: gentle stars, crescent moon, soft heart, baby items, tender caring symbol
-   - Dentist: subtle smile arc, sparkle, tooth silhouette, dental care motif
-   - Nutritionist: organic leaf, seed, clean fruit silhouette, botanical sprout
-   - Psychologist / Therapy: soft cloud, embracing heart, dialogue/speech mark, gentle sun
-   - Photographer: frame, lens sparkle, minimal camera contour, focus mark
-   - Lawyer / Consultant: refined seal, minimal shield, monogram support element, balance form
-   - General / Creative: harmonic geometric emblem, elegant starburst, signature flourish
+3. STRICT ANTI-CLUSTERING RULE (NO MONOCULTURE):
+   - NEVER generate 3 options from the same semantic family.
+   - FORBIDDEN EXAMPLES:
+     * leaf / sprout / seed (INVALID)
+     * flower / leaf / petal (INVALID)
+     * moon / star / sparkle (INVALID if all 3 are night sky items)
+   - The 3 options MUST feel distinctly different in shape silhouette, concept, and functional role, while sharing the same elevated brand elegance.
 
-OUTPUT DISTRIBUTION (EXACTLY 3 ROLES):
-1. Option 1: Directly derived from the pattern's dominant visual motif or primary shape language.
-2. Option 2: A more simplified, minimal symbolic mark (distilled icon).
-3. Option 3: A contextual or decorative element harmonized with the business area and pattern atmosphere.
+4. NICHE & STYLE GUARDRAILS:
+   - For "${estiloNome}" (e.g., "Essência Atemporal", "Elegante", "Minimalista"):
+     Skew toward refined, minimal, calm, timeless, sophisticated vector marks with elegant line weights.
+   - DO NOT default to generic "nature/botanical" tropes (leaves, herbs, seedlings) for broad niches like adult medical health, medicine, psychology, or corporate consulting, unless the pattern itself is visibly made of leaves.
+   - Prefer timeless geometric harmony, serene monoline curves, balanced architectural seals, or subtle care arcs.
 
-STYLE CONSTRAINTS:
-- Preferred style: Clean vector outline / lineart style (or clean filled vector silhouette if the brand style is explicitly bold/playful).
-- Isolated single element per option on pure white (#FFFFFF) background.
-- Simple, elegant, legible at small icon sizes (like inside a circular sub-brand seal).
+5. GROUNDED, TRUTHFUL EXPLANATIONS:
+   - Explanations must cite real visual reasons observed in the pattern (e.g., "Inspirado no ritmo das curvas fluidas e no espaçamento observado na sua estampa", "Síntese geométrica minimalista da estrutura linear da estampa", "Emblema atemporal e equilibrado desenhado para o contexto da sua marca").
+   - DO NOT claim figurative motifs are "present in the pattern" if the pattern is abstract.
 
-For each of the 3 elements, provide:
-1. "title": A short Portuguese title (e.g. "Folha Orgânica", "Estrela Guia", "Símbolo de Acolhimento", "Arco Minimalista", "Brilho Sutil").
-2. "origin": A short sentence in Portuguese explaining where it came from (e.g. "Inspirado nas estrelas presentes na sua estampa", "Derivado das curvas orgânicas da sua identidade", "Criado a partir da harmonia da sua estampa com seu nicho").
-3. "visualDescription": A precise English prompt to generate ONE SINGLE ISOLATED vector icon (e.g. "a single clean black vector outline icon of a four-point sparkle star, centered on pure white background, minimal lineart").
+OUTPUT FORMAT:
+Provide a valid JSON array of exactly 3 objects. Each object must have:
+- "title": Short, elegant title in Portuguese (e.g., "Curva Atemporal", "Selo Geométrico", "Arco de Harmonia", "Símbolo de Precisão").
+- "origin": One concise sentence in Portuguese referencing true visual qualities of the pattern or brand context.
+- "visualDescription": Precise English prompt for generating ONE isolated black vector lineart icon on pure solid white (#FFFFFF) background.
 
-Return strictly a valid JSON array of exactly 3 objects with keys "title", "origin", and "visualDescription".
+Example JSON structure:
+[
+  {
+    "title": "...",
+    "origin": "...",
+    "visualDescription": "a single clean minimal black vector lineart icon of ..., centered on pure solid white background, elegant line weight, no text, no frame"
+  },
+  ...
+]
 `;
 
     let motifs = [];
@@ -131,39 +247,17 @@ Return strictly a valid JSON array of exactly 3 objects with keys "title", "orig
         textRes = textRes.substring(firstBracket, lastBracket + 1);
       }
 
-      motifs = JSON.parse(textRes);
+      const parsed = JSON.parse(textRes);
+      if (Array.isArray(parsed) && parsed.length >= 3) {
+        motifs = parsed.slice(0, 3);
+      }
     } catch (analysisErr) {
       console.warn(`[Telemetry] Analysis JSON parse failed: ${sanitizeError(analysisErr.message)}`);
     }
 
+    // Se a IA não retornou 3 motivos válidos ou falhou, aciona o fallback diverso inteligente
     if (!Array.isArray(motifs) || motifs.length < 3) {
-      // Fallback semântico inteligente baseado na área de atuação
-      const areaLower = (areaAtuacao || '').toLowerCase();
-      if (areaLower.includes('pediat') || areaLower.includes('infant') || areaLower.includes('crian') || areaLower.includes('baby')) {
-        motifs = [
-          { title: "Estrela Guia", origin: "Inspirado nos elementos lúdicos presentes na sua estampa", visualDescription: "a single clean vector outline icon of a gentle sparkle star, centered on pure white background" },
-          { title: "Coração Acolhedor", origin: "Derivado das formas afetuosas da sua identidade visual", visualDescription: "a single minimal clean vector lineart heart icon, centered on pure white background" },
-          { title: "Crescente Suave", origin: "Criado em harmonia com o cuidado e carinho do seu nicho", visualDescription: "a single minimal clean vector outline crescent moon icon, centered on pure white background" }
-        ];
-      } else if (areaLower.includes('odonto') || areaLower.includes('dente') || areaLower.includes('sorriso')) {
-        motifs = [
-          { title: "Sorriso Sutil", origin: "Inspirado nas curvas elegantes presentes na sua estampa", visualDescription: "a single minimal vector lineart smile curve icon, centered on pure white background" },
-          { title: "Brilho Radiante", origin: "Derivado da luminosidade da sua identidade de marca", visualDescription: "a single clean vector outline sparkle star icon, centered on pure white background" },
-          { title: "Selo Odontológico", origin: "Elemento moderno e profissional de apoio à sua marca", visualDescription: "a minimal abstract dental vector icon silhouette, centered on pure white background" }
-        ];
-      } else if (areaLower.includes('nutri') || areaLower.includes('saúde') || areaLower.includes('saude') || areaLower.includes('bio')) {
-        motifs = [
-          { title: "Folha Orgânica", origin: "Inspirado nos traços botânicos presentes na sua estampa", visualDescription: "a single clean vector outline organic leaf icon, centered on pure white background" },
-          { title: "Broto Vital", origin: "Derivado do dinamismo natural da sua identidade visual", visualDescription: "a single minimal vector lineart botanical sprout icon, centered on pure white background" },
-          { title: "Elemento Semente", origin: "Criado em harmonia com o bem-estar do seu nicho", visualDescription: "a single minimal vector seed icon, centered on pure white background" }
-        ];
-      } else {
-        motifs = [
-          { title: "Forma Orgânica", origin: "Inspirado no ritmo visual e nas curvas da sua estampa", visualDescription: "a single clean minimal vector outline organic curved shape, centered on pure white background" },
-          { title: "Símbolo Essencial", origin: "Derivado da essência e equilíbrio da sua identidade", visualDescription: "a single elegant minimalist vector icon emblem, centered on pure white background" },
-          { title: "Elemento Harmônico", origin: "Criado em harmonia com a atmosfera da sua marca", visualDescription: "a single refined geometric vector lineart emblem, centered on pure white background" }
-        ];
-      }
+      motifs = getDiverseFallbackMotifs(areaAtuacao, estiloNome);
     }
 
     motifsFound = motifs.length;
