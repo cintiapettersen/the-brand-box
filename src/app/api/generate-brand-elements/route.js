@@ -12,9 +12,11 @@ function sanitizeError(msg) {
 
 /**
  * Fallback robusto e conceitualmente diverso com 3 papéis funcionais estritos:
- * 1. Motivo Visual Primário
- * 2. Construção Formal / Geometria
- * 3. Apoio Contextual da Marca
+ * 1. Motivo Visual Principal (derivado da forma visível da estampa)
+ * 2. Síntese Estrutural (geometria e ritmo da estampa)
+ * 3. Apoio Contextual da Marca (atributos abstratos: serenidade, precisão, cuidado)
+ * 
+ * PROIBIDO: emblemas, brasões, escudos, cruzes, dentes, estetoscópios ou clipart de profissão.
  */
 function getDiverseFallbackMotifs(areaAtuacao, estiloNome) {
   const areaLower = (areaAtuacao || '').toLowerCase();
@@ -25,19 +27,19 @@ function getDiverseFallbackMotifs(areaAtuacao, estiloNome) {
         title: "Elemento 01",
         label: "Motivo Principal",
         origin: "Inspirado nas formas principais e no ritmo lúdico da sua estampa",
-        visualDescription: "a bold clean black vector outline four-point sparkle star icon, solid medium stroke, centered on pure white background, minimal icon glyph"
+        visualDescription: "a bold clean black vector outline four-point starburst graphic mark, solid medium stroke, centered on pure white background, minimal brand symbol"
       },
       {
         title: "Elemento 02",
         label: "Síntese Estrutural",
         origin: "Inspirado no equilíbrio geométrico e nas curvas acolhedoras da sua identidade",
-        visualDescription: "a bold clean black vector lineart protective arch emblem, solid medium stroke, centered on pure white background, iconic symmetry"
+        visualDescription: "a bold clean black vector lineart upward protective arch curve mark, solid medium stroke, centered on pure white background, balanced minimal identity mark"
       },
       {
         title: "Elemento 03",
-        label: "Emblema Contextual",
-        origin: "Inspirado no contexto de cuidado e afeto do seu universo visual",
-        visualDescription: "a bold clean black vector outline heart seal emblem, solid medium stroke, centered on pure white background, timeless minimal logo mark"
+        label: "Apoio Contextual",
+        origin: "Inspirado no tom de afeto, acolhimento e presença da sua marca",
+        visualDescription: "a bold clean black vector minimalist continuous ribbon contour symbol, solid medium stroke, centered on pure white background, modern identity mark"
       }
     ];
   }
@@ -48,19 +50,19 @@ function getDiverseFallbackMotifs(areaAtuacao, estiloNome) {
         title: "Elemento 01",
         label: "Motivo Principal",
         origin: "Inspirado nas linhas fluidas e curvas da sua estampa",
-        visualDescription: "a bold clean black vector outline harmonious smile curve icon, solid medium stroke, centered on pure white background, modern minimalist glyph"
+        visualDescription: "a bold clean black vector outline dynamic upward curve mark, solid medium stroke, centered on pure white background, minimalist brand glyph"
       },
       {
         title: "Elemento 02",
         label: "Síntese Estrutural",
         origin: "Inspirado no equilíbrio espacial e na precisão geométrica da sua estampa",
-        visualDescription: "a bold clean black vector four-point radiant starburst emblem, solid medium stroke, centered on pure white background, balanced geometric mark"
+        visualDescription: "a bold clean black vector four-point radiant starburst symbol, solid medium stroke, centered on pure white background, balanced geometric mark"
       },
       {
         title: "Elemento 03",
-        label: "Emblema Contextual",
-        origin: "Inspirado no contexto profissional e na excelência da sua marca",
-        visualDescription: "a bold clean black vector modern shield seal icon, solid medium stroke, centered on pure white background, elegant professional mark"
+        label: "Apoio Contextual",
+        origin: "Inspirado no tom de precisão, harmonia e luminosidade da sua marca",
+        visualDescription: "a bold clean black vector geometric intersecting arcs brand symbol, solid medium stroke, centered on pure white background, refined modern mark"
       }
     ];
   }
@@ -71,19 +73,19 @@ function getDiverseFallbackMotifs(areaAtuacao, estiloNome) {
         title: "Elemento 01",
         label: "Motivo Principal",
         origin: "Inspirado nos contornos orgânicos e formas fluidas da sua estampa",
-        visualDescription: "a bold clean black vector outline organic curved leaf pebble shape, solid medium stroke, centered on pure white background, minimal icon glyph"
+        visualDescription: "a bold clean black vector outline organic pebble curve contour, solid medium stroke, centered on pure white background, minimal brand glyph"
       },
       {
         title: "Elemento 02",
         label: "Síntese Estrutural",
         origin: "Inspirado na harmonia geométrica e no ritmo equilibrado da sua estampa",
-        visualDescription: "a bold clean black vector interlocking circle balance emblem, solid medium stroke, centered on pure white background, geometric harmony mark"
+        visualDescription: "a bold clean black vector interlocking circle balance symbol, solid medium stroke, centered on pure white background, geometric harmony mark"
       },
       {
         title: "Elemento 03",
-        label: "Emblema Contextual",
-        origin: "Inspirado no contexto de vitalidade e saúde integral da sua marca",
-        visualDescription: "a bold clean black vector geometric sunburst emblem, solid medium stroke, centered on pure white background, vibrant minimal icon"
+        label: "Apoio Contextual",
+        origin: "Inspirado no tom de vitalidade, energia e equilíbrio integral da sua marca",
+        visualDescription: "a bold clean black vector radiant burst symbol, solid medium stroke, centered on pure white background, vibrant minimal brand mark"
       }
     ];
   }
@@ -94,19 +96,19 @@ function getDiverseFallbackMotifs(areaAtuacao, estiloNome) {
         title: "Elemento 01",
         label: "Motivo Principal",
         origin: "Inspirado na cadência fluida e linhas serenas da sua estampa",
-        visualDescription: "a bold clean black vector lineart gentle wave curve icon, solid medium stroke, centered on pure white background, serene minimal glyph"
+        visualDescription: "a bold clean black vector lineart gentle wave curve mark, solid medium stroke, centered on pure white background, serene minimal glyph"
       },
       {
         title: "Elemento 02",
         label: "Síntese Estrutural",
         origin: "Inspirado no diálogo visual e na conexão geométrica da sua estampa",
-        visualDescription: "a bold clean black vector overlapping twin arcs icon, solid medium stroke, centered on pure white background, balanced union emblem"
+        visualDescription: "a bold clean black vector overlapping twin arcs symbol, solid medium stroke, centered on pure white background, balanced union brand mark"
       },
       {
         title: "Elemento 03",
-        label: "Emblema Contextual",
-        origin: "Inspirado no contexto de escuta, acolhimento e presença da sua marca",
-        visualDescription: "a bold clean black vector circular sun seal emblem, solid medium stroke, centered on pure white background, calm iconic seal"
+        label: "Apoio Contextual",
+        origin: "Inspirado no tom de escuta, acolhimento e presença da sua marca",
+        visualDescription: "a bold clean black vector harmonious concentric circular arc symbol, solid medium stroke, centered on pure white background, calm iconic brand mark"
       }
     ];
   }
@@ -117,19 +119,19 @@ function getDiverseFallbackMotifs(areaAtuacao, estiloNome) {
       title: "Elemento 01",
       label: "Motivo Principal",
       origin: "Inspirado nas formas curvas e no ritmo da sua estampa",
-      visualDescription: "a bold clean black vector lineart fluid contour curve icon, solid medium stroke, centered on pure white background, modern elegant icon glyph"
+      visualDescription: "a bold clean black vector lineart fluid contour curve mark, solid medium stroke, centered on pure white background, modern elegant icon glyph"
     },
     {
       title: "Elemento 02",
       label: "Síntese Estrutural",
       origin: "Inspirado no equilíbrio estrutural e na geometria da sua estampa",
-      visualDescription: "a bold clean black vector geometric interlocking arcs emblem, solid medium stroke, centered on pure white background, balanced timeless mark"
+      visualDescription: "a bold clean black vector geometric interlocking arcs symbol, solid medium stroke, centered on pure white background, balanced timeless mark"
     },
     {
       title: "Elemento 03",
-      label: "Emblema Contextual",
+      label: "Apoio Contextual",
       origin: "Inspirado no contexto da sua marca e no seu universo visual",
-      visualDescription: "a bold clean black vector modern circular seal emblem with subtle health care curve, solid medium stroke, centered on pure white background, clinical elegance mark"
+      visualDescription: "a bold clean black vector harmonious twin archway brand symbol conveying serenity and trust, solid medium stroke, centered on pure white background, custom luxury mark"
     }
   ];
 }
@@ -178,7 +180,7 @@ export async function POST(request) {
     const elementosText = Array.isArray(elementosVisuais) ? elementosVisuais.join(', ') : (elementosVisuais || '');
 
     const analysisPrompt = `
-You are a World-Class Brand Identity Creative Director specialized in high-end vector icons, submarks, and brand identity systems.
+You are a World-Class Brand Identity Creative Director specialized in bespoke visual identity systems, submarks, and minimalist luxury brand symbols.
 Analyze this brand pattern image in the context of this brand:
 - Brand Name: "${marca || 'Brand'}"
 - Business Area / Niche: "${areaAtuacao || 'Profissional / Empresa'}"
@@ -187,30 +189,50 @@ Analyze this brand pattern image in the context of this brand:
 - Visual Elements Reference: "${elementosText}"
 
 YOUR GOAL:
-Define exactly 3 DISTINCT, HIGH-IMPACT, HIGHLY LEGIBLE BRAND GRAPHIC ELEMENTS / ICONS born from this pattern and brand context.
+Define exactly 3 DISTINCT, HIGH-IMPACT, CUSTOM BRAND GRAPHIC ELEMENTS / ICONS born from this pattern and brand context.
 
-CRITICAL QUALITY & LEGIBILITY REQUIREMENTS:
-1. SMALL-SIZE LEGIBILITY TEST:
-   Every symbol must be immediately recognizable in under 1 second when scaled down to 24px–32px (submark seal size).
-   - Avoid wireframe tangles, scribbles, pencil textures, micro-lines, or ambiguous complex drawings.
+CRITICAL RULES & ABSOLUTE PROHIBITIONS (DO NOT VIOLATE):
+
+1. NEVER GENERATE EMBLEMS, SHIELDS, CRESTS, OR BADGES:
+   - Absolutely NO heraldic shields, crests, coat of arms, or badge-style container frames.
+   - Absolutely NO institutional seals or generic organizational badges.
+   - Every element must be an open, modern, standalone vector graphic mark.
+
+2. NEVER GENERATE LITERAL PROFESSION PICTOGRAMS OR STOCK INDUSTRY ICONS:
+   The client's business area must NOT directly dictate the object drawn.
+   - For Healthcare/Medicine: NO caduceus, NO medical cross, NO stethoscope, NO pills, NO heart with ECG/pulse line, NO hands holding a heart.
+   - For Dentistry: NO tooth silhouette.
+   - For Psychology/Therapy: NO brain/head silhouette, NO speech bubbles.
+   - For Nutrition: NO apple, NO leaf/sprout clipart.
+   - For Law: NO balance scale, NO gavel.
+   - For Photography: NO camera.
+   - For Pediatrics: NO teddy bear, NO baby bottle.
+
+3. HOW TO USE THE BUSINESS AREA (ABSTRACT BRAND ATTRIBUTES ONLY):
+   Use the niche ("${areaAtuacao}") ONLY to infer abstract qualities, emotional tone, and symbolic meaning:
+   - e.g. For healthcare/medicine: care, trust, balance, calm, precision, continuity, protection, serenity.
+   - Translate these attributes into custom, subtle, abstract geometric or organic brand marks derived from the pattern's visual language.
+
+4. MANDATORY 3 FUNCTIONAL ROLES (STRICT DIVERSITY):
+   - OPTION 1 (Visual Motif):
+     Derived from the most relevant visible motif or dominant form in the pattern (e.g., specific curved stroke, geometric starburst, or prominent contour from the pattern).
+   - OPTION 2 (Formal Construction):
+     Derived from the pattern's geometry, rhythm, symmetry, or structural composition. Abstract is encouraged, but it MUST be a crisp, bold, identifiable geometric/linear symbol.
+   - OPTION 3 (Contextual Brand Support):
+     Derived from abstract brand attributes (care, trust, serenity, precision) harmonized with the pattern's aesthetic. A supportive brand symbol, NOT a literal industry pictogram.
+
+5. STRICT ANTI-CLUSTERING (NO MONOCULTURE):
+   - The 3 options MUST have noticeably distinct silhouettes and concepts (e.g., Option 1 = fluid curved contour, Option 2 = balanced geometric quatrefoil/interlocking arcs, Option 3 = serene archway/continuous ribbon).
+   - NEVER generate 3 variations of the same item.
+
+6. SMALL-SIZE LEGIBILITY TEST:
+   - Every symbol must be immediately recognizable in under 1 second when scaled down to 24px–32px (submark seal size).
    - Use clean, confident medium-weight lines or bold solid silhouettes.
    - Single strong central symbol with high visual contrast.
 
-2. MANDATORY 3 FUNCTIONAL ROLES (STRICT DIVERSITY):
-   - OPTION 1 (Visual Motif):
-     Directly derived from the strongest, clearest visible shape or contour in the approved pattern (e.g., specific curve, geometric unit, starburst, or botanical contour if explicitly in the pattern).
-   - OPTION 2 (Formal Construction):
-     Derived from the pattern's geometry, rhythm, symmetry, or structural balance. Abstract is allowed, but it MUST be a crisp, bold, identifiable geometric / structural mark.
-   - OPTION 3 (Contextual Brand Support):
-     Derived from the brand's business area ("${areaAtuacao}") and style ("${estiloNome}"). For adult medical/healthcare or corporate, prefer serene clinical elegance, arch of care, or architectural seal (NEVER default to leaf/sprout/seed unless the pattern clearly has leaves).
-
-3. STRICT ANTI-CLUSTERING (NO MONOCULTURE):
-   - NEVER generate 3 variations of the same semantic family (NO leaf + sprout + seed, NO 3 abstract squiggles).
-   - The 3 options must have noticeably distinct silhouettes and concepts.
-
-4. GROUNDED, SIMPLE EXPLANATIONS:
+7. GROUNDED, SIMPLE EXPLANATIONS:
    - "title": Use "Elemento 01", "Elemento 02", "Elemento 03"
-   - "label": Short role description in Portuguese: "Motivo Principal", "Síntese Estrutural", "Emblema Contextual"
+   - "label": "Motivo Principal", "Síntese Estrutural", "Apoio Contextual"
    - "origin": Short, objective sentence in Portuguese:
      * Option 1: "Inspirado nas formas curvas e no ritmo da sua estampa"
      * Option 2: "Inspirado no equilíbrio estrutural e na geometria da sua estampa"
@@ -224,19 +246,19 @@ Provide strictly a valid JSON array of exactly 3 objects:
     "title": "Elemento 01",
     "label": "Motivo Principal",
     "origin": "Inspirado nas formas curvas e no ritmo da sua estampa",
-    "visualDescription": "a bold clean black vector lineart icon of ..., solid medium stroke weight, single centered symbol filling 70% of frame, pure white background, no text, no frame"
+    "visualDescription": "a bold clean black vector lineart icon of ..., solid medium stroke weight, single centered symbol filling 70% of frame, pure white background, no text, no frame, no shield"
   },
   {
     "title": "Elemento 02",
     "label": "Síntese Estrutural",
     "origin": "Inspirado no equilíbrio estrutural e na geometria da sua estampa",
-    "visualDescription": "a bold clean black vector geometric emblem of ..., solid medium stroke weight, single centered symbol filling 70% of frame, pure white background, no text, no frame"
+    "visualDescription": "a bold clean black vector geometric mark of ..., solid medium stroke weight, single centered symbol filling 70% of frame, pure white background, no text, no frame, no shield"
   },
   {
     "title": "Elemento 03",
-    "label": "Emblema Contextual",
+    "label": "Apoio Contextual",
     "origin": "Inspirado no contexto da sua marca e no seu universo visual",
-    "visualDescription": "a bold clean black vector modern seal icon of ..., solid medium stroke weight, single centered symbol filling 70% of frame, pure white background, no text, no frame"
+    "visualDescription": "a bold clean black vector supportive brand symbol of ..., solid medium stroke weight, single centered symbol filling 70% of frame, pure white background, no text, no frame, no shield"
   }
 ]
 `;
@@ -271,7 +293,7 @@ Provide strictly a valid JSON array of exactly 3 objects:
       if (Array.isArray(parsed) && parsed.length >= 3) {
         motifs = parsed.slice(0, 3).map((item, idx) => ({
           title: item.title || `Elemento 0${idx + 1}`,
-          label: item.label || (idx === 0 ? 'Motivo Principal' : idx === 1 ? 'Síntese Estrutural' : 'Emblema Contextual'),
+          label: item.label || (idx === 0 ? 'Motivo Principal' : idx === 1 ? 'Síntese Estrutural' : 'Apoio Contextual'),
           origin: item.origin || (idx === 0 ? 'Inspirado nas formas curvas e no ritmo da sua estampa' : idx === 1 ? 'Inspirado no equilíbrio estrutural e na geometria da sua estampa' : 'Inspirado no contexto da sua marca e no seu universo visual'),
           visualDescription: item.visualDescription || ''
         }));
@@ -293,9 +315,8 @@ Provide strictly a valid JSON array of exactly 3 objects:
     imagesAttempted = targetMotifs.length;
 
     const elementsPromises = targetMotifs.map(async (motif, index) => {
-      // Prompt com regras de arte rigorosas para legibilidade e presença
       const genPrompt = `
-Generate ONE SINGLE ISOLATED PROFESSIONAL BRAND ICON GLYPH: ${motif.visualDescription}.
+Generate ONE SINGLE ISOLATED BESPOKE BRAND GRAPHIC MARK: ${motif.visualDescription}.
 
 STRICT MANDATORY ART DIRECTION:
 - SINGLE STANDALONE ICON ONLY: Exactly ONE central icon glyph positioned directly in the center of the frame.
@@ -304,6 +325,8 @@ STRICT MANDATORY ART DIRECTION:
 - LINE WEIGHT: Confident solid medium-weight vector stroke. Sharp, clean, antialiased edges.
 - INSTANT LEGIBILITY: Must be instantly recognizable and clear at small icon size (24px).
 - ABSOLUTE PROHIBITIONS:
+  * NO shields, crests, emblems, coat of arms, or badges
+  * NO literal profession clipart (no medical crosses, no teeth, no stethoscopes, no brain icons)
   * NO background patterns, textures, or repeating tiles
   * NO frames, boxes, cards, circular borders, or bounding rectangles
   * NO pencil sketch lines, wireframe scribbles, or hairy edges
