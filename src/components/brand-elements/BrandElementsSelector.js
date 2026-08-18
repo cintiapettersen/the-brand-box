@@ -134,12 +134,17 @@ const BrandElementsSelector = ({
                   ✓
                 </span>
               )}
-              <BrandElement element={el} size={48} color={primaryColor} secondaryColor={secondaryColor} />
-              <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', width: '100%' }}>
-                <span style={{ fontSize: '0.7rem', fontWeight: 700, color: '#1E293B', textAlign: 'center', lineHeight: 1.2 }}>
-                  {el.title || `Opção ${idx + 1}`}
+              <BrandElement element={el} size={54} color={primaryColor} secondaryColor={secondaryColor} />
+              <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', width: '100%', gap: '2px' }}>
+                <span style={{ fontSize: '0.72rem', fontWeight: 700, color: '#1E293B', textAlign: 'center', lineHeight: 1.2 }}>
+                  {el.title || `Elemento 0${idx + 1}`}
                 </span>
-                <span style={{ fontSize: '0.58rem', color: '#64748B', textAlign: 'center', marginTop: '3px', lineHeight: 1.25 }}>
+                {el.label && (
+                  <span style={{ fontSize: '0.6rem', fontWeight: 600, color: 'var(--accent-turquoise, #2A897F)', textTransform: 'uppercase', letterSpacing: '0.04em' }}>
+                    {el.label}
+                  </span>
+                )}
+                <span style={{ fontSize: '0.58rem', color: '#64748B', textAlign: 'center', marginTop: '2px', lineHeight: 1.25 }}>
                   {el.origin}
                 </span>
               </div>
