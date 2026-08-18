@@ -5,6 +5,8 @@ import { motion, AnimatePresence, useReducedMotion } from 'framer-motion';
 // Libraries dynamically imported for performance
 import BrandTemplateSVG from '../../components/BrandTemplateSVG';
 import BrandBoard from '../../components/BrandBoard';
+import BrandElementsSelector from '../../components/brand-elements/BrandElementsSelector';
+import { removeWhiteBackground } from '../../lib/transparentImage';
 import LanguageSwitcher from '../../components/LanguageSwitcher';
 import { useTranslation } from '../LanguageContext';
 import { createClient } from '@supabase/supabase-js';
@@ -334,6 +336,10 @@ export default function Home() {
   const [marcaSugestaoAceita, setMarcaSugestaoAceita] = useState(false);
   const [showContext, setShowContext] = useState(false);
   const [selectedIcon, setSelectedIcon] = useState(null);
+  const [generatedBrandElements, setGeneratedBrandElements] = useState([]);
+  const [selectedBrandElementId, setSelectedBrandElementId] = useState(null);
+  const [isElementsLoading, setIsElementsLoading] = useState(false);
+  const [elementsGenerationCount, setElementsGenerationCount] = useState(0);
   const [showResumePrompt, setShowResumePrompt] = useState(false);
   const [savedProgress, setSavedProgress] = useState(null);
   const [loadingCheckout, setLoadingCheckout] = useState(false);
@@ -430,6 +436,9 @@ export default function Home() {
     if (parsed.selectedPattern !== undefined) setSelectedPattern(parsed.selectedPattern);
     if (parsed.papelariaSelecionada) setPapelariaSelecionada(parsed.papelariaSelecionada);
     if (Array.isArray(parsed.paletteConsultations)) setPaletteConsultations(parsed.paletteConsultations);
+    if (parsed.generatedBrandElements) setGeneratedBrandElements(parsed.generatedBrandElements);
+    if (parsed.selectedBrandElementId) setSelectedBrandElementId(parsed.selectedBrandElementId);
+    if (parsed.elementsGenerationCount) setElementsGenerationCount(parsed.elementsGenerationCount);
 
     if (parsed.sessionId) {
       try { localStorage.setItem('brandbox_session', parsed.sessionId); } catch {}
@@ -490,6 +499,7 @@ export default function Home() {
       patternGenerationCount, refazerAttempts,
       resultadoFinal, selectedPaleta, selectedTipo, selectedIcon, customStep, paletteFeedback, paletteConsultations,
       generatedPatterns, selectedPattern, papelariaSelecionada,
+      generatedBrandElements, selectedBrandElementId, elementsGenerationCount,
       sessionId: activeSessionId || undefined
     };
     try {
@@ -510,7 +520,7 @@ export default function Home() {
         }
       }
     }
-  }, [isHydrated, isPersistenceReady, showResumePrompt, step, formData, selectedTagline, customTagline, editData, generatedPatterns, selectedPattern, resultadoFinal, papelariaSelecionada, selectedPaleta, selectedTipo, selectedIcon, customStep, paletteFeedback, paletteConsultations, patternGenerationCount, refazerAttempts]);
+  }, [isHydrated, isPersistenceReady, showResumePrompt, step, formData, selectedTagline, customTagline, editData, generatedPatterns, selectedPattern, resultadoFinal, papelariaSelecionada, selectedPaleta, selectedTipo, selectedIcon, customStep, paletteFeedback, paletteConsultations, patternGenerationCount, refazerAttempts, generatedBrandElements, selectedBrandElementId, elementsGenerationCount]);
 
   useEffect(() => {
     if (step !== 11.5 || !resultadoFinal || resultadoFinal?.creativeDirector?.taglineSuggestions || resultadoFinal?.taglineSuggestions) return;
@@ -780,6 +790,71 @@ export default function Home() {
       setAlertMessage('Erro de conexão. Verifique se o servidor está rodando.');
     }
     setPatternLoading(false);
+  };
+
+  const generateBrandElements = async () => {
+    if (selectedPattern === null || !generatedPatterns[selectedPattern] || isElementsLoading) return;
+    
+    setIsElementsLoading(true);
+    try {
+      const activePattern = generatedPatterns[selectedPattern];
+      const selPaleta = paletas.find(p => p.id === selectedPaleta);
+      const cores = selPaleta?.paleta_hex || selPaleta?.cores_hex || [];
+      const primaryColor = editData.corAtiva || cores[0] || '#2A897F';
+
+      const res = await fetch('/api/generate-brand-elements', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          patternBase64: activePattern.base64,
+          patternMimeType: activePattern.mimeType || 'image/png',
+          primaryColor,
+          marca: formData.marca || editData.marca || 'Sua Marca',
+          areaAtuacao: formData.atuacao === 'Outra' ? formData.atuacaoOutra : (formData.atuacao || ''),
+          estiloNome: ESTILO_NOME_BY_ID[resultadoFinal?.estiloId] || resultadoFinal?.estiloNome || '',
+          sensacoes: formData.sentimentos || [],
+          elementosVisuais: formData.elementosVisuais || []
+        })
+      });
+
+      if (!res.ok) {
+        const errJson = await res.json().catch(() => ({}));
+        throw new Error(errJson.error || 'Falha ao criar elementos gráficos.');
+      }
+
+      const data = await res.json();
+      if (Array.isArray(data.elements) && data.elements.length === 3) {
+        const transparentElements = await Promise.all(
+          data.elements.map(async (el) => {
+            if (el.base64) {
+              const transUri = await removeWhiteBackground(el.base64);
+              return {
+                ...el,
+                base64: transUri,
+                mimeType: 'image/png'
+              };
+            }
+            return el;
+          })
+        );
+
+        setGeneratedBrandElements(transparentElements);
+        setSelectedBrandElementId(transparentElements[0].id);
+        setSelectedIcon(null);
+        setFormData(prev => ({ 
+          ...prev, 
+          brandElement: transparentElements[0], 
+          generatedBrandElements: transparentElements, 
+          selectedBrandElementId: transparentElements[0].id 
+        }));
+        setElementsGenerationCount(c => c + 1);
+      }
+    } catch (err) {
+      console.error('generateBrandElements error:', err);
+      setAlertMessage(err.message || 'Ops! Não conseguimos criar os elementos gráficos da estampa. Tente novamente.');
+    } finally {
+      setIsElementsLoading(false);
+    }
   };
 
   const nextStep = () => setStep((s) => s + 1);
@@ -1517,14 +1592,26 @@ export default function Home() {
         ? { mimeType: generatedPatterns[selectedPattern].mimeType, base64: generatedPatterns[selectedPattern].base64 }
         : null;
 
+      const selectedBrandElementObj = selectedBrandElementId 
+        ? (generatedBrandElements.find(e => e.id === selectedBrandElementId) || formData.brandElement)
+        : (formData.brandElement || null);
+
       const brandState = {
-        editData, formData, resultadoFinal,
+        editData: {
+          ...editData,
+          brandElement: selectedBrandElementObj || null
+        },
+        formData, resultadoFinal,
         selectedPaleta, selectedIcon, selectedTipo,
         paletas, tipografias,
         activeColor: editData.corAtiva,
         pattern: patternObj,
         iconPath: getIconById(ESTILO_NOME_BY_ID[resultadoFinal?.estiloId] || resultadoFinal?.estiloNome, selectedIcon)?.path || null,
+        brandElement: selectedBrandElementObj || null,
+        generatedBrandElements: generatedBrandElements || [],
+        selectedBrandElementId: selectedBrandElementId || null,
         patternGenerationCount,
+        elementsGenerationCount,
         estampas,
         papelariaSelecionada,
       };
@@ -3236,6 +3323,28 @@ export default function Home() {
                       ))}
                     </div>
                     <button onClick={generatePatterns} style={{ fontSize: '0.75rem', color: 'var(--accent-magenta)', background: 'none', border: 'none', cursor: 'pointer', textDecoration: 'underline', marginTop: '5px' }}>{dictionary?.postmatch?.step_117_btn_regenerate || '🔄 Gerar novas opções'}</button>
+
+                    {/* Elementos Gráficos Exclusivos da Estampa */}
+                    {selectedPattern !== null && (
+                      <BrandElementsSelector
+                        generatedElements={generatedBrandElements}
+                        selectedElementId={selectedBrandElementId}
+                        onSelect={(el) => {
+                          setSelectedBrandElementId(el.id);
+                          setSelectedIcon(null);
+                          setFormData(prev => ({ 
+                            ...prev, 
+                            brandElement: el, 
+                            selectedBrandElementId: el.id 
+                          }));
+                        }}
+                        onGenerate={generateBrandElements}
+                        isLoading={isElementsLoading}
+                        hasGenerated={generatedBrandElements.length > 0}
+                        hasPattern={selectedPattern !== null && generatedPatterns[selectedPattern] !== undefined}
+                        primaryColor={editData.corAtiva || (paletas.find(p => p.id === selectedPaleta)?.paleta_hex?.[0]) || '#2A897F'}
+                      />
+                    )}
                   </>
                 )}
               </div>
@@ -3281,7 +3390,8 @@ export default function Home() {
                     })()} 
                     color={editData.corAtiva || '#d22f5a'}
                     patternImage={selectedPattern !== null && generatedPatterns[selectedPattern] && !generatedPatterns[selectedPattern]._devPlaceholder ? `data:${generatedPatterns[selectedPattern].mimeType};base64,${generatedPatterns[selectedPattern].base64}` : null}
-                    iconPath={getIconById(ESTILO_NOME_BY_ID[resultadoFinal?.estiloId] || resultadoFinal?.estiloNome, selectedIcon)?.path || null}
+                    iconPath={selectedBrandElementId ? null : (getIconById(ESTILO_NOME_BY_ID[resultadoFinal?.estiloId] || resultadoFinal?.estiloNome, selectedIcon)?.path || null)}
+                    brandElement={selectedBrandElementId ? (generatedBrandElements.find(e => e.id === selectedBrandElementId) || formData.brandElement) : null}
                   />
                 </div>
               </div>
@@ -3314,50 +3424,111 @@ export default function Home() {
               {/* Seletor de ícone da submarca */}
               {(() => {
                 const styleIcons = STYLE_ICONS[ESTILO_NOME_BY_ID[resultadoFinal?.estiloId] || resultadoFinal?.estiloNome] || [];
-                if (styleIcons.length === 0) return null;
+                const hasGeneratedElements = generatedBrandElements.length > 0;
+                if (styleIcons.length === 0 && !hasGeneratedElements) return null;
                 const activeColor = editData.corAtiva || '#d22f5a';
                 return (
-                  <div style={{ padding: '10px 20px', background: '#fff', borderTop: '1px solid #f0f0f0', display: 'flex', alignItems: 'center', gap: '10px', justifyContent: 'center' }}>
+                  <div style={{ padding: '10px 20px', background: '#fff', borderTop: '1px solid #f0f0f0', display: 'flex', alignItems: 'center', gap: '10px', justifyContent: 'center', flexWrap: 'wrap' }}>
                     <p style={{ fontSize: '0.65rem', color: 'var(--text-secondary)', textTransform: 'uppercase', letterSpacing: '1px', fontWeight: 600, whiteSpace: 'nowrap' }}>{dictionary?.postmatch?.step_12_icon || 'Ícone:'}</p>
-                    {/* opção nenhum */}
+                    
+                    {/* Se houver elementos gráficos gerados a partir da estampa, exibe-os prioritariamente */}
+                    {hasGeneratedElements && (
+                      generatedBrandElements.map(el => {
+                        const isSelected = selectedBrandElementId === el.id;
+                        const elSrc = el.base64 ? (el.base64.startsWith('data:') ? el.base64 : `data:${el.mimeType || 'image/png'};base64,${el.base64}`) : null;
+                        return (
+                          <div
+                            key={el.id}
+                            onClick={() => {
+                              setSelectedBrandElementId(el.id);
+                              setSelectedIcon(null);
+                              setFormData(prev => ({ ...prev, brandElement: el, selectedBrandElementId: el.id }));
+                            }}
+                            title={el.title || 'Elemento da Estampa'}
+                            style={{
+                              width: '38px', height: '38px', borderRadius: '50%', cursor: 'pointer',
+                              background: isSelected ? activeColor : '#f5f5f5',
+                              border: isSelected ? '3px solid #333' : '2px solid #ddd',
+                              display: 'flex', alignItems: 'center', justifyContent: 'center',
+                              transition: 'all 0.15s ease', flexShrink: 0,
+                              transform: isSelected ? 'scale(1.15)' : 'scale(1)',
+                              boxShadow: isSelected ? '0 0 0 1px #333' : 'none',
+                              padding: '4px'
+                            }}
+                          >
+                            {elSrc ? (
+                              <img 
+                                src={elSrc} 
+                                alt={el.title}
+                                style={{ width: '22px', height: '22px', objectFit: 'contain', filter: isSelected ? 'brightness(0) invert(1)' : 'none' }} 
+                              />
+                            ) : (
+                              <span style={{ fontSize: '0.6rem', color: isSelected ? '#fff' : '#666' }}>✨</span>
+                            )}
+                          </div>
+                        );
+                      })
+                    )}
+
+                    {/* Opção Nenhum */}
                     <div
-                      onClick={() => setSelectedIcon(null)}
+                      onClick={() => {
+                        setSelectedIcon(null);
+                        setSelectedBrandElementId(null);
+                        setFormData(prev => ({ ...prev, brandElement: null, selectedBrandElementId: null }));
+                      }}
                       title="Nenhum"
                       style={{
                         width: '38px', height: '38px', borderRadius: '50%', cursor: 'pointer',
-                        background: selectedIcon === null ? activeColor : '#f5f5f5',
-                        border: selectedIcon === null ? `3px solid #333` : '2px solid #ddd',
+                        background: (selectedIcon === null && selectedBrandElementId === null) ? activeColor : '#f5f5f5',
+                        border: (selectedIcon === null && selectedBrandElementId === null) ? `3px solid #333` : '2px solid #ddd',
                         display: 'flex', alignItems: 'center', justifyContent: 'center',
                         transition: 'all 0.15s ease', flexShrink: 0,
-                        fontSize: '0.55rem', color: selectedIcon === null ? '#fff' : '#aaa', fontWeight: 700, letterSpacing: '0.5px'
+                        fontSize: '0.55rem', color: (selectedIcon === null && selectedBrandElementId === null) ? '#fff' : '#aaa', fontWeight: 700, letterSpacing: '0.5px'
                       }}
                     >—</div>
-                    {styleIcons.slice(0, 5).map(icon => (
-                      <div
-                        key={icon.id}
-                        onClick={() => setSelectedIcon(icon.id)}
-                        title={icon.label}
-                        style={{
-                          width: '38px', height: '38px', borderRadius: '50%', cursor: 'pointer',
-                          background: selectedIcon === icon.id ? activeColor : '#f5f5f5',
-                          border: selectedIcon === icon.id ? '3px solid #333' : '2px solid #ddd',
-                          display: 'flex', alignItems: 'center', justifyContent: 'center',
-                          transition: 'all 0.15s ease', flexShrink: 0,
-                          transform: selectedIcon === icon.id ? 'scale(1.15)' : 'scale(1)',
-                          boxShadow: selectedIcon === icon.id ? '0 0 0 1px #333' : 'none'
-                        }}
-                      >
-                        <img src={icon.path} alt={icon.label}
-                          style={{ width: '22px', height: '22px', objectFit: 'contain',
-                            filter: selectedIcon === icon.id ? 'brightness(0) invert(1)' : 'none' }} />
-                      </div>
-                    ))}
+
+                    {/* Ícones de estilo padrão */}
+                    {styleIcons.slice(0, 5).map(icon => {
+                      const isSelected = selectedIcon === icon.id && selectedBrandElementId === null;
+                      return (
+                        <div
+                          key={icon.id}
+                          onClick={() => {
+                            setSelectedIcon(icon.id);
+                            setSelectedBrandElementId(null);
+                            setFormData(prev => ({ ...prev, brandElement: null, selectedBrandElementId: null }));
+                          }}
+                          title={icon.label}
+                          style={{
+                            width: '38px', height: '38px', borderRadius: '50%', cursor: 'pointer',
+                            background: isSelected ? activeColor : '#f5f5f5',
+                            border: isSelected ? '3px solid #333' : '2px solid #ddd',
+                            display: 'flex', alignItems: 'center', justifyContent: 'center',
+                            transition: 'all 0.15s ease', flexShrink: 0,
+                            transform: isSelected ? 'scale(1.15)' : 'scale(1)',
+                            boxShadow: isSelected ? '0 0 0 1px #333' : 'none'
+                          }}
+                        >
+                          <img src={icon.path} alt={icon.label}
+                            style={{ width: '22px', height: '22px', objectFit: 'contain',
+                              filter: isSelected ? 'brightness(0) invert(1)' : 'none' }} />
+                        </div>
+                      );
+                    })}
                   </div>
                 );
               })()}
 
-              <div style={{ padding: '1.2rem', background: '#fff', borderTop: '1px solid var(--border)', zIndex: 10, display: 'flex', flexDirection: 'column', gap: '10px' }}>
+              <div style={{ padding: '1.2rem', background: '#fff', borderTop: '1px solid var(--border)', zIndex: 10, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '8px' }}>
                  <button onClick={() => { setApprovalChecked(false); setStep(12.8); }} className="btn-primary" style={{ width: '100%', background: 'var(--accent-magenta)', padding: '12px 20px', borderRadius: '14px', fontSize: '0.92rem', fontWeight: 600, height: '46px', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: 'none' }}>{dictionary?.postmatch?.step_12_btn_packages || 'Ver pacotes disponíveis ✨'}</button>
+                 <button 
+                   type="button"
+                   onClick={() => setStep(11.7)} 
+                   style={{ background: 'none', border: 'none', color: 'var(--text-secondary)', fontSize: '0.78rem', cursor: 'pointer', textDecoration: 'underline', padding: '4px 8px' }}
+                 >
+                   {dictionary?.postmatch?.step_12_btn_back_pattern || '← Voltar à estampa'}
+                 </button>
               </div>
             </motion.div>
           )}
@@ -3494,14 +3665,26 @@ export default function Home() {
                             ? { mimeType: generatedPatterns[selectedPattern].mimeType, base64: generatedPatterns[selectedPattern].base64 }
                             : null;
 
+                          const selectedBrandElementObj = selectedBrandElementId 
+                            ? (generatedBrandElements.find(e => e.id === selectedBrandElementId) || formData.brandElement)
+                            : (formData.brandElement || null);
+
                           const brandState = {
-                            editData, formData, resultadoFinal,
+                            editData: {
+                              ...editData,
+                              brandElement: selectedBrandElementObj || null
+                            },
+                            formData, resultadoFinal,
                             selectedPaleta, selectedIcon, selectedTipo,
                             paletas, tipografias,
                             activeColor: editData.corAtiva,
                             pattern: patternObj,
                             iconPath: getIconById(ESTILO_NOME_BY_ID[resultadoFinal?.estiloId] || resultadoFinal?.estiloNome, selectedIcon)?.path || null,
+                            brandElement: selectedBrandElementObj || null,
+                            generatedBrandElements: generatedBrandElements || [],
+                            selectedBrandElementId: selectedBrandElementId || null,
                             patternGenerationCount,
+                            elementsGenerationCount,
                             estampas,
                           };
 

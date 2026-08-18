@@ -2730,7 +2730,7 @@ function ManifestoStep({ accentColor, marca, tagline, brand, isSaude, editData }
   );
 }
 
-function PlacaStep({ brand, accentColor, paletteColors, estampaPatterns, estampaSelectedIdx, editData, logoColor, logoLayout, iconPath, submarcaColor, submarcaTextColor }) {
+function PlacaStep({ brand, accentColor, paletteColors, estampaPatterns, estampaSelectedIdx, editData, logoColor, logoLayout, iconPath, submarcaColor, submarcaTextColor, brandElement }) {
   const { dictionary } = useTranslation();
   const t = dictionary?.placa || {};
 
@@ -2783,6 +2783,7 @@ function PlacaStep({ brand, accentColor, paletteColors, estampaPatterns, estampa
             seloTextColor={submarcaTextColor}
             patternImage={patternImage}
             iconPath={iconPath}
+            brandElement={brandElement || editData?.brandElement}
             customLogoSrc={customLogoSrc}
             logoElement={<LogoPreviewHTML editData={editData} color={logoColor || accentColor} layout={logoLayout || editData?.logoLayout || 'stacked'} scaleFactor={0.82} maxWidth="440px" maxHeight="125px" />}
           />
@@ -10323,12 +10324,13 @@ function EntregaContent({ brand, plano, setBrand }) {
     tagline: sloganEnabled ? tagline : '',
     ...(fontOverride ? { fontFamily: fontOverride.fontFamily, fontWeight: fontOverride.weight || 700, fontStyle: fontOverride.style || 'serif', fontSizeBoost: fontOverride.sizeBoost || 1, fontLetterSpacing: fontOverride.letterSpacing || null } : {}),
     ...(customLogoSrc ? { customLogoSrc, customLogoScale } : {}),
+    brandElement: selectedBrandElement,
     taglineGap,
     taglineWrap,
     fontLineHeight,
     taglineSizeBoost,
     taglineLetterSpacing,
-  }), [marca, brand.editData, tagline, customLogoSrc, customLogoScale, fontOverride, taglineGap, taglineWrap, fontLineHeight, taglineSizeBoost, taglineLetterSpacing]);
+  }), [marca, brand.editData, tagline, customLogoSrc, customLogoScale, fontOverride, taglineGap, taglineWrap, fontLineHeight, taglineSizeBoost, taglineLetterSpacing, selectedBrandElement]);
   
   const currentIdx = estampaSelectedIdx || 0;
   const patternSrc = estampaPatterns?.[currentIdx]
@@ -10603,14 +10605,72 @@ function EntregaContent({ brand, plano, setBrand }) {
   const { paletas } = brand;
   const estiloNome = ESTILO_NOME_BY_ID[brand.resultadoFinal?.estiloId] || brand.resultadoFinal?.estiloNome || '';
   const styleIcons = STYLE_ICONS[estiloNome] || [];
+
+  const generatedBrandElements = brand.generatedBrandElements || brand.brand_data?.generatedBrandElements || brand.formData?.generatedBrandElements || [];
+
+  const [selectedBrandElementId, setSelectedBrandElementIdState] = useState(() => {
+    try {
+      const stored = localStorage.getItem(`brandbox_selected_brand_element_${brand.id}`);
+      if (stored !== null) return stored === 'none' ? null : stored;
+      return brand.selectedBrandElementId || brand.brand_data?.selectedBrandElementId || (brand.brandElement ? brand.brandElement.id : (generatedBrandElements[0]?.id || null));
+    } catch {
+      return brand.selectedBrandElementId || brand.brand_data?.selectedBrandElementId || (brand.brandElement ? brand.brandElement.id : (generatedBrandElements[0]?.id || null));
+    }
+  });
+
+  const selectedBrandElement = selectedBrandElementId 
+    ? (generatedBrandElements.find(e => e.id === selectedBrandElementId) || brand.brandElement || brand.brand_data?.brandElement || null)
+    : null;
+
+  const setSelectedBrandElementId = (id) => {
+    setSelectedBrandElementIdState(id);
+    const chosen = id ? (generatedBrandElements.find(e => e.id === id) || null) : null;
+    try {
+      if (id) localStorage.setItem(`brandbox_selected_brand_element_${brand.id}`, id);
+      else localStorage.setItem(`brandbox_selected_brand_element_${brand.id}`, 'none');
+    } catch {}
+
+    if (setBrand) {
+      setBrand(prev => {
+        const updated = {
+          ...prev,
+          selectedBrandElementId: id,
+          brandElement: chosen,
+          editData: {
+            ...prev.editData,
+            brandElement: chosen
+          },
+          brand_data: {
+            ...(prev.brand_data || {}),
+            selectedBrandElementId: id,
+            brandElement: chosen
+          }
+        };
+
+        if (brand.id) {
+          fetch('/api/get-entrega', {
+            method: 'PATCH',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              sessionId: brand.id,
+              brandState: updated.brand_data || updated
+            })
+          }).catch(err => console.warn('Falha ao sincronizar elemento no Supabase:', err));
+        }
+
+        return updated;
+      });
+    }
+  };
+
   const [selectedIcon, setSelectedIconState] = useState(() => { try { return localStorage.getItem(`brandbox_selected_icon_${brand.id}`) || brand.selectedIcon || null; } catch { return brand.selectedIcon || null; } });
   const setSelectedIcon = (v) => { setSelectedIconState(v); try { if (v) localStorage.setItem(`brandbox_selected_icon_${brand.id}`, v); else localStorage.removeItem(`brandbox_selected_icon_${brand.id}`); } catch {} };
-  const currentIconPath = styleIcons.find(i => i.id === selectedIcon)?.path || null;
+  const currentIconPath = selectedBrandElement ? null : (styleIcons.find(i => i.id === selectedIcon)?.path || null);
 
-  const editData = { ...brand.editData, marca, tagline };
+  const editData = { ...brand.editData, marca, tagline, brandElement: selectedBrandElement };
   const seloData = editData.fontStyle === 'script'
-    ? { ...editData, fontFamily: 'Montserrat', fontWeight: 700, fontStyle: 'display', submarcaTextType }
-    : { ...editData, submarcaTextType };
+    ? { ...editData, fontFamily: 'Montserrat', fontWeight: 700, fontStyle: 'display', submarcaTextType, brandElement: selectedBrandElement }
+    : { ...editData, submarcaTextType, brandElement: selectedBrandElement };
 
   // Espera a fonte da marca estar disponível antes de renderizar o logo.
   // fontReady começa false e volta a false sempre que fontFamily muda —
@@ -10843,7 +10903,7 @@ function EntregaContent({ brand, plano, setBrand }) {
           {step === 'assinatura-email' && (plano === 'avulso' ? <AvulsoUpgradeCard accentColor={accentColor} titulo="Assinatura de E-mail" desc="Assinatura profissional com sua logo, dados de contato e links para usar no Gmail ou Outlook. Disponível no Plano Completo." /> : <AssinaturaEmailPreview brand={brand} editData={editDataWithLogo} accentColor={accentColor} logoColor={logoColor} logoLayout={logoLayout} cartaoContacts={cartaoContacts} crmLine={crmLine} localSlogan={localSlogan} clinicaNome={clinicaNome} storyTemplateIdx={storyTemplateIdx} setStoryTemplateIdx={setStoryTemplateIdx} storyFormatIdx={storyFormatIdx} setStoryFormatIdx={setStoryFormatIdx} setCartaoContacts={setCartaoContacts} setClinicaNome={setClinicaNome} setLocalSlogan={setLocalSlogan} />)}
 
           {/* Placa da marca */}
-          {step === 'placa' && plano !== 'avulso' && <PlacaStep brand={brand} accentColor={accentColor} paletteColors={orderedPaletteColors} estampaPatterns={estampaPatterns} estampaSelectedIdx={estampaSelectedIdx} editData={editDataWithLogo} logoColor={logoColor} logoLayout={logoLayout} iconPath={currentIconPath} submarcaColor={submarcaColor} submarcaTextColor={submarcaTextColor} />}
+          {step === 'placa' && plano !== 'avulso' && <PlacaStep brand={brand} accentColor={accentColor} paletteColors={orderedPaletteColors} estampaPatterns={estampaPatterns} estampaSelectedIdx={estampaSelectedIdx} editData={editDataWithLogo} logoColor={logoColor} logoLayout={logoLayout} iconPath={currentIconPath} brandElement={selectedBrandElement} submarcaColor={submarcaColor} submarcaTextColor={submarcaTextColor} />}
 
           {/* Manifesto */}
           {step === 'manifesto' && plano !== 'avulso' && <ManifestoStep accentColor={accentColor} marca={marca} tagline={tagline} brand={brand} isSaude={isSaude} editData={editDataWithLogo} />}
@@ -11183,7 +11243,7 @@ function EntregaContent({ brand, plano, setBrand }) {
               }}
             >
               <div style={{ width: '85%', height: '58%', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                <BrandTemplateSVG data={seloData} color={submarcaColor || accentColor} textColor={submarcaTextColor} side="verso" hideBackground={true} iconPath={currentIconPath} />
+                <BrandTemplateSVG data={seloData} color={submarcaColor || accentColor} textColor={submarcaTextColor} side="verso" hideBackground={true} iconPath={currentIconPath} brandElement={selectedBrandElement} />
               </div>
             </div>
           )
@@ -11688,11 +11748,11 @@ function EntregaContent({ brand, plano, setBrand }) {
           )}
 
           {/* Ícone da submarca (só aparece na etapa submarca) */}
-          {step === 'submarca' && styleIcons.length > 0 && (
+          {step === 'submarca' && (generatedBrandElements.length > 0 || styleIcons.length > 0) && (
             <div style={{
               display: 'flex',
               flexDirection: 'column',
-              gap: '10px',
+              gap: '12px',
               padding: '16px',
               background: '#fcfcfc',
               borderRadius: '16px',
@@ -11701,42 +11761,105 @@ function EntregaContent({ brand, plano, setBrand }) {
               marginTop: '4px',
               marginBottom: '4px'
             }}>
-              <span style={{ fontSize: '0.78rem', fontWeight: 800, fontFamily: 'Montserrat, sans-serif', color: '#333', letterSpacing: '0.3px', display: 'flex', alignItems: 'center', gap: '6px' }}>
-                {dictionary?.seal_tab?.icon || '🌸 Ícone'}
-              </span>
-              <div style={{ display: 'flex', gap: '10px', alignItems: 'center', flexWrap: 'wrap', marginTop: '4px' }}>
-                <div
-                  onClick={() => setSelectedIcon(null)}
-                  style={{
-                    width: 38, height: 38, borderRadius: '50%', cursor: 'pointer',
-                    background: selectedIcon === null ? logoColor : '#f5f5f5',
-                    border: selectedIcon === null ? '3px solid #333' : '2px solid #ddd',
-                    display: 'flex', alignItems: 'center', justifyContent: 'center',
-                    fontSize: '0.6rem', color: selectedIcon === null ? '#fff' : '#aaa', fontWeight: 700,
-                    flexShrink: 0, transition: 'all 0.15s ease',
-                    transform: selectedIcon === null ? 'scale(1.15)' : 'scale(1)',
-                  }}
-                >—</div>
-                {styleIcons.slice(0, 5).map(icon => (
-                  <div
-                    key={icon.id}
-                    onClick={() => setSelectedIcon(icon.id)}
-                    title={icon.label}
-                    style={{
-                      width: 38, height: 38, borderRadius: '50%', cursor: 'pointer',
-                      background: selectedIcon === icon.id ? logoColor : '#f5f5f5',
-                      border: selectedIcon === icon.id ? '3px solid #333' : '2px solid #ddd',
-                      display: 'flex', alignItems: 'center', justifyContent: 'center',
-                      flexShrink: 0, transition: 'all 0.15s ease',
-                      transform: selectedIcon === icon.id ? 'scale(1.15)' : 'scale(1)',
-                    }}
-                  >
-                    <img src={icon.path} alt={icon.label}
-                      style={{ width: 22, height: 22, objectFit: 'contain',
-                        filter: selectedIcon === icon.id ? 'brightness(0) invert(1)' : 'none' }} />
+              {/* Se houver elementos gráficos gerados da estampa */}
+              {generatedBrandElements.length > 0 && (
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                  <span style={{ fontSize: '0.78rem', fontWeight: 800, fontFamily: 'Montserrat, sans-serif', color: '#333', letterSpacing: '0.3px', display: 'flex', alignItems: 'center', gap: '6px' }}>
+                    ✨ Elementos da sua Estampa
+                  </span>
+                  <div style={{ display: 'flex', gap: '10px', alignItems: 'center', flexWrap: 'wrap' }}>
+                    {generatedBrandElements.map(el => {
+                      const isSelected = selectedBrandElementId === el.id;
+                      const elSrc = el.base64 ? (el.base64.startsWith('data:') ? el.base64 : `data:${el.mimeType || 'image/png'};base64,${el.base64}`) : null;
+                      return (
+                        <div
+                          key={el.id}
+                          onClick={() => {
+                            setSelectedBrandElementId(el.id);
+                            setSelectedIcon(null);
+                          }}
+                          title={el.title || 'Elemento da Estampa'}
+                          style={{
+                            width: 42, height: 42, borderRadius: '50%', cursor: 'pointer',
+                            background: isSelected ? (submarcaColor || logoColor || accentColor) : '#f5f5f5',
+                            border: isSelected ? '3px solid #333' : '2px solid #ddd',
+                            display: 'flex', alignItems: 'center', justifyContent: 'center',
+                            flexShrink: 0, transition: 'all 0.15s ease',
+                            transform: isSelected ? 'scale(1.15)' : 'scale(1)',
+                            boxShadow: isSelected ? '0 0 0 1px #333' : 'none',
+                            padding: '4px'
+                          }}
+                        >
+                          {elSrc ? (
+                            <img 
+                              src={elSrc} 
+                              alt={el.title} 
+                              style={{ 
+                                width: 24, height: 24, objectFit: 'contain',
+                                filter: isSelected ? 'brightness(0) invert(1)' : 'none' 
+                              }} 
+                            />
+                          ) : (
+                            <span style={{ fontSize: '0.65rem' }}>✨</span>
+                          )}
+                        </div>
+                      );
+                    })}
                   </div>
-                ))}
-              </div>
+                </div>
+              )}
+
+              {/* Ícones do catálogo */}
+              {styleIcons.length > 0 && (
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                  <span style={{ fontSize: '0.78rem', fontWeight: 800, fontFamily: 'Montserrat, sans-serif', color: '#333', letterSpacing: '0.3px', display: 'flex', alignItems: 'center', gap: '6px' }}>
+                    {generatedBrandElements.length > 0 ? '🌸 Ícones da Coleção' : (dictionary?.seal_tab?.icon || '🌸 Ícone')}
+                  </span>
+                  <div style={{ display: 'flex', gap: '10px', alignItems: 'center', flexWrap: 'wrap' }}>
+                    <div
+                      onClick={() => {
+                        setSelectedIcon(null);
+                        setSelectedBrandElementId(null);
+                      }}
+                      title="Nenhum"
+                      style={{
+                        width: 38, height: 38, borderRadius: '50%', cursor: 'pointer',
+                        background: (selectedIcon === null && selectedBrandElementId === null) ? (submarcaColor || logoColor || accentColor) : '#f5f5f5',
+                        border: (selectedIcon === null && selectedBrandElementId === null) ? '3px solid #333' : '2px solid #ddd',
+                        display: 'flex', alignItems: 'center', justifyContent: 'center',
+                        fontSize: '0.6rem', color: (selectedIcon === null && selectedBrandElementId === null) ? '#fff' : '#aaa', fontWeight: 700,
+                        flexShrink: 0, transition: 'all 0.15s ease',
+                        transform: (selectedIcon === null && selectedBrandElementId === null) ? 'scale(1.15)' : 'scale(1)',
+                      }}
+                    >—</div>
+                    {styleIcons.slice(0, 5).map(icon => {
+                      const isSelected = selectedIcon === icon.id && selectedBrandElementId === null;
+                      return (
+                        <div
+                          key={icon.id}
+                          onClick={() => {
+                            setSelectedIcon(icon.id);
+                            setSelectedBrandElementId(null);
+                          }}
+                          title={icon.label}
+                          style={{
+                            width: 38, height: 38, borderRadius: '50%', cursor: 'pointer',
+                            background: isSelected ? (submarcaColor || logoColor || accentColor) : '#f5f5f5',
+                            border: isSelected ? '3px solid #333' : '2px solid #ddd',
+                            display: 'flex', alignItems: 'center', justifyContent: 'center',
+                            flexShrink: 0, transition: 'all 0.15s ease',
+                            transform: isSelected ? 'scale(1.15)' : 'scale(1)',
+                          }}
+                        >
+                          <img src={icon.path} alt={icon.label}
+                            style={{ width: 22, height: 22, objectFit: 'contain',
+                              filter: isSelected ? 'brightness(0) invert(1)' : 'none' }} />
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
+              )}
             </div>
           )}
 
