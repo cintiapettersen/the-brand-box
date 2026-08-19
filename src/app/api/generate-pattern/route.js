@@ -1,5 +1,5 @@
 import { GoogleGenAI } from "@google/genai";
-import { validatePatternCoverage } from "../../../lib/patternCoverageValidator";
+import { validatePatternCoverage } from "../../../lib/patternCoverageValidator.js";
 
 export const maxDuration = 60;
 

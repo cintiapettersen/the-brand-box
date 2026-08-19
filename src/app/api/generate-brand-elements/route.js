@@ -1,8 +1,8 @@
 import { GoogleGenAI } from '@google/genai';
 import fs from 'fs';
 import path from 'path';
-import { STYLE_ICONS } from '../../../lib/styleIcons';
-import { validatePatternCoverage } from '../../../lib/patternCoverageValidator';
+import { STYLE_ICONS } from '../../../lib/styleIcons.js';
+import { validatePatternCoverage } from '../../../lib/patternCoverageValidator.js';
 
 export const maxDuration = 60; // Permite até 60 segundos para processamento de IA
 
@@ -14,16 +14,77 @@ function sanitizeError(msg) {
   return String(msg).replace(/api[-_]?key=[^&\s]+/gi, 'api_key=REDACTED');
 }
 
+/**
+ * Extrai texto com segurança de qualquer formato de resposta do @google/genai
+ */
+function extractTextFromResponse(response) {
+  if (!response) return '';
+  if (typeof response.text === 'string') return response.text;
+  if (typeof response.text === 'function') {
+    try {
+      const res = response.text();
+      if (typeof res === 'string') return res;
+    } catch (_) {}
+  }
+  if (response.candidates?.[0]?.content?.parts?.[0]?.text) {
+    return response.candidates[0].content.parts[0].text;
+  }
+  if (response.response?.candidates?.[0]?.content?.parts?.[0]?.text) {
+    return response.response.candidates[0].content.parts[0].text;
+  }
+  return '';
+}
+
+/**
+ * Normaliza e faz parse seguro de JSON retornado pelo Gemini
+ */
+function parseJsonSafely(rawText) {
+  if (!rawText || typeof rawText !== 'string') return null;
+  let clean = rawText.trim();
+  if (clean.startsWith("```json")) {
+    clean = clean.replace(/^```json\s*/, '').replace(/\s*```$/, '');
+  } else if (clean.startsWith("```")) {
+    clean = clean.replace(/^```\s*/, '').replace(/\s*```$/, '');
+  }
+  clean = clean.trim();
+
+  // Tenta parse direto
+  try {
+    return JSON.parse(clean);
+  } catch (_) {}
+
+  // Tenta encontrar o bloco delimitador { ... } ou [ ... ]
+  const firstBrace = clean.indexOf('{');
+  const lastBrace = clean.lastIndexOf('}');
+  if (firstBrace !== -1 && lastBrace > firstBrace) {
+    try {
+      return JSON.parse(clean.substring(firstBrace, lastBrace + 1));
+    } catch (_) {}
+  }
+
+  const firstBracket = clean.indexOf('[');
+  const lastBracket = clean.lastIndexOf(']');
+  if (firstBracket !== -1 && lastBracket > firstBracket) {
+    try {
+      return JSON.parse(clean.substring(firstBracket, lastBracket + 1));
+    } catch (_) {}
+  }
+
+  return null;
+}
+
 export async function POST(request) {
   const startTime = Date.now();
   let currentPhase = 'initialization';
   let elementsFound = 0;
   let imagesAttempted = 0;
   let imagesValid = 0;
-  let debugTelemetry = {};
+
+  console.log('--- [Brand Elements] Nova requisição recebida ---');
 
   try {
     if (!ai) {
+      console.error('[Brand Elements] GEMINI_API_KEY não configurada');
       return Response.json({
         error: "GEMINI_API_KEY não configurada no servidor.",
         telemetry: { phase: 'initialization', rejectionReason: 'missing_api_key' }
@@ -42,6 +103,7 @@ export async function POST(request) {
     } = await request.json();
 
     if (!patternBase64) {
+      console.error('[Brand Elements] patternBase64 ausente');
       return Response.json({
         error: "patternBase64 é obrigatório para extrair elementos da estampa.",
         telemetry: { phase: 'initialization', rejectionReason: 'missing_pattern_data' }
@@ -53,17 +115,22 @@ export async function POST(request) {
 
     // Phase 1.1: Validação de Qualidade Técnica da Estampa de Entrada
     currentPhase = 'pattern_quality_gate';
-    const patternCheck = await validatePatternCoverage(cleanBase64);
-    if (!patternCheck.valid && patternCheck.backgroundRatio > 0.85) {
-      console.warn(`⚠️ [Quality Gate] Estampa rejeitada na entrada de Brand Elements: ${patternCheck.reason}`);
-      return Response.json({
-        error: "A estampa selecionada possui área vazia excessiva para extração de elementos gráficos. Gere uma nova estampa com motivos distribuídos.",
-        telemetry: {
-          phase: currentPhase,
-          rejectionReason: patternCheck.reason,
-          backgroundRatio: patternCheck.backgroundRatio
-        }
-      }, { status: 400 });
+    try {
+      const patternCheck = await validatePatternCoverage(cleanBase64);
+      if (!patternCheck.valid && patternCheck.backgroundRatio > 0.85) {
+        console.warn(`⚠️ [Brand Elements Quality Gate] Estampa rejeitada: ${patternCheck.reason} (Fundo: ${Math.round(patternCheck.backgroundRatio * 100)}%)`);
+        return Response.json({
+          error: "A estampa selecionada possui área vazia excessiva para extração de elementos gráficos. Gere uma nova estampa com motivos distribuídos.",
+          telemetry: {
+            phase: currentPhase,
+            rejectionReason: patternCheck.reason,
+            backgroundRatio: patternCheck.backgroundRatio
+          }
+        }, { status: 400 });
+      }
+      console.log(`✅ [Brand Elements Quality Gate] Estampa aprovada (Fundo: ${Math.round(patternCheck.backgroundRatio * 100)}%)`);
+    } catch (valErr) {
+      console.warn('[Brand Elements] Quality Gate bypass due to error:', valErr.message);
     }
 
     // Phase 1.2: Análise Multimodal (Classificação: Figurativo, Abstrato ou Misto)
@@ -89,14 +156,15 @@ export async function POST(request) {
           }
         }
       }
+      console.log(`[Brand Elements] ${styleRefParts.length} referências de estilo carregadas para "${estiloNome}".`);
     } catch (fsErr) {
-      console.warn('[Telemetry] Could not load visual style references from disk:', sanitizeError(fsErr.message));
+      console.warn('[Brand Elements] Could not load visual style references from disk:', sanitizeError(fsErr.message));
     }
 
     const sensacoesText = Array.isArray(sensacoes) ? sensacoes.join(', ') : (sensacoes || '');
     const elementosText = Array.isArray(elementosVisuais) ? elementosVisuais.join(', ') : (elementosVisuais || '');
 
-    const buildAnalysisPrompt = () => `
+    const analysisPrompt = `
 You are a World-Class Brand Identity Creative Director specialized in bespoke visual identity submarks, seals, and minimalist luxury brand symbols.
 
 INPUT CONTEXT:
@@ -112,9 +180,9 @@ ${styleRefParts.length > 0 ? `- IMAGES 2+: STYLE REFERENCE IMAGES (Visual condit
 
 YOUR GOAL:
 1. CLASSIFY THE PATTERN TYPE:
-   - "figurative": The pattern contains clearly identifiable figurative objects or botanical elements (e.g. flowers, leaves, birds, stars, shells, fruits).
-   - "abstract": The pattern is purely non-figurative (e.g. geometric arches, modular grids, rhythmic waves, linear intersections, abstract contours, or pure spatial forms). In this case, figurative motifs are legitimately absent, and you MUST derive concepts from formal visual properties (geometry, curves, rhythm, line weight, symmetry, negative space, modular repetition).
-   - "mixed": The pattern combines recognizable motifs with abstract geometric or linear structures.
+   - "figurative": Clearly identifiable figurative objects or botanical elements.
+   - "abstract": Purely non-figurative (e.g. geometric arches, modular grids, rhythmic waves, linear intersections, abstract contours, or pure spatial forms). In this case, figurative motifs are legitimately absent, and you MUST derive concepts from formal visual properties (geometry, curves, rhythm, line weight, symmetry, negative space, modular repetition).
+   - "mixed": Combines recognizable motifs with abstract geometric or linear structures.
 
 2. EXTRACT 3 DISTINCT BRAND GRAPHIC ELEMENTS / SUBMARKS:
    - For FIGURATIVE patterns:
@@ -178,57 +246,52 @@ Provide strictly a JSON object with:
 
     let elements = [];
     let patternTypeDetected = 'unknown';
-    let rawMultimodalResponse = '';
 
     const contents = [
       { inlineData: { mimeType, data: cleanBase64 } },
       ...styleRefParts,
-      { text: buildAnalysisPrompt() }
+      { text: analysisPrompt }
     ];
 
     // Tentativa 1 de Análise Multimodal
     try {
+      console.log('[Brand Elements] Enviando prompt de análise multimodal para Gemini 2.5 Flash...');
       const analysisResponse = await ai.models.generateContent({
         model: 'gemini-2.5-flash',
         contents,
         config: { responseMimeType: 'application/json' }
       });
 
-      rawMultimodalResponse = analysisResponse.response?.text ? analysisResponse.response.text().trim() : (analysisResponse.text ? analysisResponse.text().trim() : '');
-      console.log(`[Telemetry] Raw Multimodal Response (Attempt 1):`, rawMultimodalResponse);
+      const rawText = extractTextFromResponse(analysisResponse);
+      console.log(`[Brand Elements] Resposta bruta da IA (Tentativa 1, ${rawText.length} chars):`, rawText.substring(0, 200) + '...');
 
-      let textRes = rawMultimodalResponse;
-      if (textRes.startsWith("```json")) {
-        textRes = textRes.replace(/^```json\s*/, '').replace(/\s*```$/, '');
-      } else if (textRes.startsWith("```")) {
-        textRes = textRes.replace(/^```\s*/, '').replace(/\s*```$/, '');
-      }
+      const parsed = parseJsonSafely(rawText);
+      if (parsed) {
+        patternTypeDetected = parsed.patternType || (Array.isArray(parsed) ? 'mixed' : 'abstract');
+        const rawElements = Array.isArray(parsed) ? parsed : (Array.isArray(parsed.elements) ? parsed.elements : []);
 
-      const parsed = JSON.parse(textRes);
-      console.log(`[Telemetry] Parsed JSON Response:`, parsed);
-
-      patternTypeDetected = parsed.patternType || (Array.isArray(parsed) ? 'mixed' : 'abstract');
-      const rawElements = Array.isArray(parsed) ? parsed : (Array.isArray(parsed.elements) ? parsed.elements : []);
-
-      if (rawElements.length >= 3) {
-        elements = rawElements.slice(0, 3).map((item, idx) => ({
-          title: item.title || `Elemento 0${idx + 1}`,
-          label: item.label || (idx === 0 ? (patternTypeDetected === 'abstract' ? 'Forma Principal' : 'Motivo Principal') : idx === 1 ? 'Estrutura Geométrica' : 'Composição Ornamental'),
-          sourceType: item.sourceType || (idx === 0 ? 'primary_form_or_motif' : idx === 1 ? 'geometric_structure' : 'compositional_harmony'),
-          origin: item.origin || (idx === 0 ? 'Inspirado na forma e no ritmo visual da sua estampa' : idx === 1 ? 'Inspirado na estrutura geométrica da sua estampa' : 'Inspirado na composição visual da sua estampa'),
-          visualDescription: item.visualDescription || ''
-        }));
+        if (rawElements.length >= 3) {
+          elements = rawElements.slice(0, 3).map((item, idx) => ({
+            title: item.title || `Elemento 0${idx + 1}`,
+            label: item.label || (idx === 0 ? (patternTypeDetected === 'abstract' ? 'Forma Principal' : 'Motivo Principal') : idx === 1 ? 'Estrutura Geométrica' : 'Composição Ornamental'),
+            sourceType: item.sourceType || (idx === 0 ? 'primary_form_or_motif' : idx === 1 ? 'geometric_structure' : 'compositional_harmony'),
+            origin: item.origin || (idx === 0 ? 'Inspirado na forma e no ritmo visual da sua estampa' : idx === 1 ? 'Inspirado na estrutura geométrica da sua estampa' : 'Inspirado na composição visual da sua estampa'),
+            visualDescription: item.visualDescription || ''
+          }));
+          console.log(`✅ [Brand Elements] 3 conceitos extraídos com sucesso na Tentativa 1 (Tipo: ${patternTypeDetected}).`);
+        }
       }
     } catch (parseErr1) {
-      console.warn(`[Telemetry] Analysis parsing attempt 1 failed: ${sanitizeError(parseErr1.message)}. Tentando retry controlado...`);
+      console.warn(`[Brand Elements] Análise multimodal tentativa 1 falhou: ${sanitizeError(parseErr1.message)}. Tentando retry...`);
     }
 
     // Tentativa 2 de Análise (Retry Controlado se necessário)
     if (!Array.isArray(elements) || elements.length < 3) {
       try {
+        console.log('[Brand Elements] Executando retry controlado da análise multimodal...');
         const retryContents = [
           { inlineData: { mimeType, data: cleanBase64 } },
-          { text: "Return strictly a JSON object with 3 distinct brand submark symbols derived from this pattern (whether abstract, geometric or figurative): {\"patternType\":\"abstract\",\"elements\":[{\"title\":\"Elemento 01\",\"label\":\"Forma Principal\",\"origin\":\"Inspirado na forma principal da sua estampa\",\"visualDescription\":\"...\"},{\"title\":\"Elemento 02\",\"label\":\"Estrutura Geométrica\",\"origin\":\"Inspirado na estrutura geométrica da sua estampa\",\"visualDescription\":\"...\"},{\"title\":\"Elemento 03\",\"label\":\"Composição Ornamental\",\"origin\":\"Inspirado na composição da sua estampa\",\"visualDescription\":\"...\"}]}" }
+          { text: "Return strictly a JSON object with 3 distinct brand submark symbols derived from this pattern: {\"patternType\":\"abstract\",\"elements\":[{\"title\":\"Elemento 01\",\"label\":\"Forma Principal\",\"origin\":\"Inspirado na forma principal da sua estampa\",\"visualDescription\":\"...\"},{\"title\":\"Elemento 02\",\"label\":\"Estrutura Geométrica\",\"origin\":\"Inspirado na estrutura geométrica da sua estampa\",\"visualDescription\":\"...\"},{\"title\":\"Elemento 03\",\"label\":\"Composição Ornamental\",\"origin\":\"Inspirado na composição da sua estampa\",\"visualDescription\":\"...\"}]}" }
         ];
 
         const retryResponse = await ai.models.generateContent({
@@ -237,37 +300,30 @@ Provide strictly a JSON object with:
           config: { responseMimeType: 'application/json' }
         });
 
-        let retryText = retryResponse.response?.text ? retryResponse.response.text().trim() : (retryResponse.text ? retryResponse.text().trim() : '');
-        console.log(`[Telemetry] Raw Multimodal Response (Attempt 2 Retry):`, retryText);
+        const retryRaw = extractTextFromResponse(retryResponse);
+        const parsedRetry = parseJsonSafely(retryRaw);
+        if (parsedRetry) {
+          patternTypeDetected = parsedRetry.patternType || (Array.isArray(parsedRetry) ? 'mixed' : 'abstract');
+          const rawRetryElements = Array.isArray(parsedRetry) ? parsedRetry : (Array.isArray(parsedRetry.elements) ? parsedRetry.elements : []);
 
-        if (retryText.startsWith("```json")) {
-          retryText = retryText.replace(/^```json\s*/, '').replace(/\s*```$/, '');
-        } else if (retryText.startsWith("```")) {
-          retryText = retryText.replace(/^```\s*/, '').replace(/\s*```$/, '');
-        }
-
-        const parsedRetry = JSON.parse(retryText);
-        patternTypeDetected = parsedRetry.patternType || (Array.isArray(parsedRetry) ? 'mixed' : 'abstract');
-        const rawRetryElements = Array.isArray(parsedRetry) ? parsedRetry : (Array.isArray(parsedRetry.elements) ? parsedRetry.elements : []);
-
-        if (rawRetryElements.length >= 3) {
-          elements = rawRetryElements.slice(0, 3).map((item, idx) => ({
-            title: item.title || `Elemento 0${idx + 1}`,
-            label: item.label || (idx === 0 ? (patternTypeDetected === 'abstract' ? 'Forma Principal' : 'Motivo Principal') : idx === 1 ? 'Estrutura Geométrica' : 'Composição Ornamental'),
-            sourceType: item.sourceType || (idx === 0 ? 'primary_form_or_motif' : idx === 1 ? 'geometric_structure' : 'compositional_harmony'),
-            origin: item.origin || (idx === 0 ? 'Inspirado na forma e no ritmo visual da sua estampa' : idx === 1 ? 'Inspirado na estrutura geométrica da sua estampa' : 'Inspirado na composição visual da sua estampa'),
-            visualDescription: item.visualDescription || ''
-          }));
+          if (rawRetryElements.length >= 3) {
+            elements = rawRetryElements.slice(0, 3).map((item, idx) => ({
+              title: item.title || `Elemento 0${idx + 1}`,
+              label: item.label || (idx === 0 ? (patternTypeDetected === 'abstract' ? 'Forma Principal' : 'Motivo Principal') : idx === 1 ? 'Estrutura Geométrica' : 'Composição Ornamental'),
+              sourceType: item.sourceType || (idx === 0 ? 'primary_form_or_motif' : idx === 1 ? 'geometric_structure' : 'compositional_harmony'),
+              origin: item.origin || (idx === 0 ? 'Inspirado na forma e no ritmo visual da sua estampa' : idx === 1 ? 'Inspirado na estrutura geométrica da sua estampa' : 'Inspirado na composição visual da sua estampa'),
+              visualDescription: item.visualDescription || ''
+            }));
+            console.log(`✅ [Brand Elements] 3 conceitos extraídos com sucesso na Tentativa 2.`);
+          }
         }
       } catch (retryErr) {
-        console.error(`[Telemetry] Analysis retry attempt 2 failed: ${sanitizeError(retryErr.message)}`);
+        console.error(`[Brand Elements] Retry da análise multimodal falhou: ${sanitizeError(retryErr.message)}`);
       }
     }
 
-    // Validação de prosseguimento mandatória:
-    // Se a análise estruturada falhar completamente após retry, retorna erro técnico neutro.
     if (!Array.isArray(elements) || elements.length < 3) {
-      console.error(`[Telemetry] Multimodal analysis aborted: Could not obtain 3 elements from pattern.`);
+      console.error(`❌ [Brand Elements] Análise multimodal abortada: Não foi possível obter 3 elementos estruturados.`);
       return Response.json({
         error: "Não foi possível processar a estrutura visual da sua estampa no momento. Por favor, tente novamente.",
         telemetry: {
@@ -279,15 +335,13 @@ Provide strictly a JSON object with:
     }
 
     elementsFound = elements.length;
-    debugTelemetry.elements = elements;
-    debugTelemetry.patternType = patternTypeDetected;
-
-    console.log(`[Telemetry] Proceeding to Image Generation for 3 elements (Pattern Type: ${patternTypeDetected}).`);
 
     // Phase 2: Generation of 3 High-Presence Vector Submarks
     currentPhase = 'generation';
     const targetElements = elements.slice(0, 3);
     imagesAttempted = targetElements.length;
+
+    console.log(`[Brand Elements] Iniciando geração de 3 imagens vetoriais com gemini-2.5-flash-image / imagen-4.0...`);
 
     const elementsPromises = targetElements.map(async (elem, index) => {
       const genPrompt = `
@@ -325,6 +379,7 @@ STRICT MANDATORY ART DIRECTION:
         const candidates = genRes.candidates || genRes.response?.candidates;
         for (const part of candidates?.[0]?.content?.parts || []) {
           if (part.inlineData?.data) {
+            console.log(`✅ [Brand Elements] Imagem ${index + 1} gerada com sucesso via gemini-2.5-flash-image.`);
             return {
               id: `gen-elem-${index + 1}`,
               title: elem.title || `Elemento 0${index + 1}`,
@@ -338,16 +393,14 @@ STRICT MANDATORY ART DIRECTION:
           }
         }
       } catch (err1) {
-        console.warn(`[Telemetry] gemini-2.5-flash-image failed for element ${index + 1}: ${sanitizeError(err1.message)}`);
+        console.warn(`⚠️ [Brand Elements] gemini-2.5-flash-image falhou para elemento ${index + 1}: ${sanitizeError(err1.message)}. Acionando fallback Imagen 4...`);
       }
 
-      // Tentativa 2: fallback com imagen-3.0-generate-002
+      // Tentativa 2: fallback com imagen-4.0-generate-001 usando ai.models.generateImages
       try {
-        const fallbackRes = await ai.models.generateContent({
-          model: 'imagen-3.0-generate-002',
-          contents: [
-            { text: genPrompt }
-          ],
+        const fallbackRes = await ai.models.generateImages({
+          model: 'imagen-4.0-generate-001',
+          prompt: `Single isolated minimalist brand submark glyph: ${elem.visualDescription}. Solid black vector silhouette on pure solid white background. No borders, no shields, no text. Clean 2D icon.`,
           config: {
             numberOfImages: 1,
             outputMimeType: 'image/png',
@@ -355,9 +408,9 @@ STRICT MANDATORY ART DIRECTION:
           }
         });
 
-        const candidate = fallbackRes?.response?.candidates?.[0] || fallbackRes?.candidates?.[0];
-        const imagePart = candidate?.content?.parts?.find(p => p.inlineData);
-        if (imagePart?.inlineData?.data) {
+        const imagePart = fallbackRes?.generatedImages?.[0];
+        if (imagePart?.image?.imageBytes) {
+          console.log(`✅ [Brand Elements] Imagem ${index + 1} gerada com sucesso via fallback Imagen 4.`);
           return {
             id: `gen-elem-${index + 1}`,
             title: elem.title || `Elemento 0${index + 1}`,
@@ -365,12 +418,12 @@ STRICT MANDATORY ART DIRECTION:
             sourceType: elem.sourceType || '',
             origin: elem.origin || 'Inspirado na sua estampa',
             visualDescription: elem.visualDescription || '',
-            base64: imagePart.inlineData.data,
-            mimeType: imagePart.inlineData.mimeType || 'image/png'
+            base64: imagePart.image.imageBytes,
+            mimeType: 'image/png'
           };
         }
       } catch (err2) {
-        console.warn(`[Telemetry] imagen-3.0-generate-002 failed for element ${index + 1}: ${sanitizeError(err2.message)}`);
+        console.error(`❌ [Brand Elements] Fallback Imagen 4 falhou para elemento ${index + 1}: ${sanitizeError(err2.message)}`);
       }
 
       return null;
@@ -385,14 +438,7 @@ STRICT MANDATORY ART DIRECTION:
 
     if (imagesValid !== 3) {
       const rejectionReason = `insufficient_valid_elements_count_${imagesValid}_of_3`;
-      console.error(`[Telemetry] Brand Elements generation rejected: ${rejectionReason}`, {
-        phase: currentPhase,
-        elementsFound,
-        imagesAttempted,
-        imagesValid,
-        rejectionReason,
-        durationMs: Date.now() - startTime
-      });
+      console.error(`❌ [Brand Elements] Geração rejeitada: ${rejectionReason} (${imagesValid}/3 válidos)`);
 
       return Response.json({
         error: "Não foi possível gerar os 3 elementos gráficos com a qualidade exigida. Tente novamente sem custo.",
@@ -409,7 +455,7 @@ STRICT MANDATORY ART DIRECTION:
     }
 
     const durationMs = Date.now() - startTime;
-    console.log(`[Telemetry] Brand Elements generation success: 3/3 valid elements created in ${durationMs}ms (Pattern Type: ${patternTypeDetected}).`);
+    console.log(`🎉 [Brand Elements] SUCESSO TOTAL: 3/3 elementos gerados e validados em ${durationMs}ms (Tipo: ${patternTypeDetected}).`);
 
     return Response.json({
       elements: validElements,
@@ -427,7 +473,7 @@ STRICT MANDATORY ART DIRECTION:
   } catch (error) {
     const errorId = `err_fatal_${Date.now()}`;
     const sanitizedMsg = sanitizeError(error.message);
-    console.error(`[Telemetry] Fatal error in /api/generate-brand-elements:`, { phase: currentPhase, errorId, sanitizedMsg });
+    console.error(`❌ [Brand Elements] Erro fatal em /api/generate-brand-elements:`, { phase: currentPhase, errorId, sanitizedMsg });
 
     return Response.json({
       error: error.message || "Falha ao gerar elementos gráficos da marca",
