@@ -14,12 +14,10 @@ function sanitizeError(msg) {
 }
 
 /**
- * Fallback robusto e conceitualmente diverso com 3 papéis funcionais estritos:
- * 1. Motivo Visual Principal (derivado da forma visível da estampa)
- * 2. Síntese Estrutural (geometria e ritmo da estampa)
- * 3. Apoio Contextual da Marca (atributos abstratos: serenidade, precisão, cuidado)
- * 
- * PROIBIDO: emblemas, brasões, escudos, cruzes, dentes, estetoscópios ou clipart de profissão.
+ * Fallback robusto baseado em 3 famílias de fontes visuais distintas:
+ * 1. Motivo Visual Principal (forma/figura dominante)
+ * 2. Estrutura Geométrica (organização espacial/módulos)
+ * 3. Composição Ornamental (motivo focal decorativo ou dinâmica de formas)
  */
 function getDiverseFallbackMotifs(areaAtuacao, estiloNome) {
   const areaLower = (areaAtuacao || '').toLowerCase();
@@ -29,20 +27,23 @@ function getDiverseFallbackMotifs(areaAtuacao, estiloNome) {
       {
         title: "Elemento 01",
         label: "Motivo Principal",
-        origin: "Inspirado nas formas principais e no ritmo lúdico da sua estampa",
-        visualDescription: "a bold clean black vector outline four-point starburst graphic mark, solid medium stroke, centered on pure white background, minimal brand symbol"
+        sourceFamily: "figurative_botanical",
+        origin: "Inspirado nas formas de estrela radiante presentes na sua estampa",
+        visualDescription: "a solid bold clean black vector four-point starburst icon, thick confident vector strokes, single centered symbol filling 75% of frame, pure white background, minimal submark glyph"
       },
       {
         title: "Elemento 02",
-        label: "Síntese Estrutural",
-        origin: "Inspirado no equilíbrio geométrico e nas curvas acolhedoras da sua identidade",
-        visualDescription: "a bold clean black vector lineart upward protective arch curve mark, solid medium stroke, centered on pure white background, balanced minimal identity mark"
+        label: "Estrutura Geométrica",
+        sourceFamily: "geometric_structure",
+        origin: "Inspirado na estrutura geométrica e nos módulos circulares da sua estampa",
+        visualDescription: "a solid bold clean black vector interlocking geometric circular arc mark, bold vector mass, single centered symbol filling 75% of frame, pure white background, balanced submark"
       },
       {
         title: "Elemento 03",
-        label: "Apoio Contextual",
-        origin: "Inspirado no tom de afeto, acolhimento e presença da sua marca",
-        visualDescription: "a bold clean black vector minimalist continuous ribbon contour symbol, solid medium stroke, centered on pure white background, modern identity mark"
+        label: "Composição Ornamental",
+        sourceFamily: "ornamental_central_motif",
+        origin: "Inspirado na composição ornamental e no ritmo visual da sua estampa",
+        visualDescription: "a solid bold clean black vector protective archway icon with gentle curved symmetry, solid confident line weight, single centered symbol filling 75% of frame, pure white background, modern submark"
       }
     ];
   }
@@ -52,89 +53,49 @@ function getDiverseFallbackMotifs(areaAtuacao, estiloNome) {
       {
         title: "Elemento 01",
         label: "Motivo Principal",
-        origin: "Inspirado nas linhas fluidas e curvas da sua estampa",
-        visualDescription: "a bold clean black vector outline dynamic upward curve mark, solid medium stroke, centered on pure white background, minimalist brand glyph"
+        sourceFamily: "figurative_botanical",
+        origin: "Inspirado no contorno fluido e nas curvas dinâmicas da sua estampa",
+        visualDescription: "a solid bold clean black vector upward dynamic curve mark, confident solid vector silhouette, single centered symbol filling 75% of frame, pure white background, minimalist brand glyph"
       },
       {
         title: "Elemento 02",
-        label: "Síntese Estrutural",
-        origin: "Inspirado no equilíbrio espacial e na precisão geométrica da sua estampa",
-        visualDescription: "a bold clean black vector four-point radiant starburst symbol, solid medium stroke, centered on pure white background, balanced geometric mark"
+        label: "Estrutura Geométrica",
+        sourceFamily: "geometric_structure",
+        origin: "Inspirado na precisão geométrica e no alinhamento espacial da sua estampa",
+        visualDescription: "a solid bold clean black vector radiant four-point geometric starburst, bold symmetrical strokes, single centered symbol filling 75% of frame, pure white background, balanced geometric mark"
       },
       {
         title: "Elemento 03",
-        label: "Apoio Contextual",
-        origin: "Inspirado no tom de precisão, harmonia e luminosidade da sua marca",
-        visualDescription: "a bold clean black vector geometric intersecting arcs brand symbol, solid medium stroke, centered on pure white background, refined modern mark"
+        label: "Composição Ornamental",
+        sourceFamily: "ornamental_central_motif",
+        origin: "Inspirado no motivo ornamental central e no equilíbrio visual da sua estampa",
+        visualDescription: "a solid bold clean black vector geometric intersecting arcs mark, solid confident line weight, single centered symbol filling 75% of frame, pure white background, refined submark"
       }
     ];
   }
 
-  if (areaLower.includes('nutri') || areaLower.includes('aliment')) {
-    return [
-      {
-        title: "Elemento 01",
-        label: "Motivo Principal",
-        origin: "Inspirado nos contornos orgânicos e formas fluidas da sua estampa",
-        visualDescription: "a bold clean black vector outline organic pebble curve contour, solid medium stroke, centered on pure white background, minimal brand glyph"
-      },
-      {
-        title: "Elemento 02",
-        label: "Síntese Estrutural",
-        origin: "Inspirado na harmonia geométrica e no ritmo equilibrado da sua estampa",
-        visualDescription: "a bold clean black vector interlocking circle balance symbol, solid medium stroke, centered on pure white background, geometric harmony mark"
-      },
-      {
-        title: "Elemento 03",
-        label: "Apoio Contextual",
-        origin: "Inspirado no tom de vitalidade, energia e equilíbrio integral da sua marca",
-        visualDescription: "a bold clean black vector radiant burst symbol, solid medium stroke, centered on pure white background, vibrant minimal brand mark"
-      }
-    ];
-  }
-
-  if (areaLower.includes('psi') || areaLower.includes('terap') || areaLower.includes('mente')) {
-    return [
-      {
-        title: "Elemento 01",
-        label: "Motivo Principal",
-        origin: "Inspirado na cadência fluida e linhas serenas da sua estampa",
-        visualDescription: "a bold clean black vector lineart gentle wave curve mark, solid medium stroke, centered on pure white background, serene minimal glyph"
-      },
-      {
-        title: "Elemento 02",
-        label: "Síntese Estrutural",
-        origin: "Inspirado no diálogo visual e na conexão geométrica da sua estampa",
-        visualDescription: "a bold clean black vector overlapping twin arcs symbol, solid medium stroke, centered on pure white background, balanced union brand mark"
-      },
-      {
-        title: "Elemento 03",
-        label: "Apoio Contextual",
-        origin: "Inspirado no tom de escuta, acolhimento e presença da sua marca",
-        visualDescription: "a bold clean black vector harmonious concentric circular arc symbol, solid medium stroke, centered on pure white background, calm iconic brand mark"
-      }
-    ];
-  }
-
-  // Padrão Geral / Saúde Adulto / Medicina / Essência Atemporal
+  // Padrão Geral / Saúde Adulto / Medicina Geral / Essência Atemporal
   return [
     {
       title: "Elemento 01",
       label: "Motivo Principal",
-      origin: "Inspirado nas formas curvas e no ritmo da sua estampa",
-      visualDescription: "a bold clean black vector lineart fluid contour curve mark, solid medium stroke, centered on pure white background, modern elegant icon glyph"
+      sourceFamily: "figurative_botanical",
+      origin: "Inspirado no motivo visual dominante e nas formas curvas da sua estampa",
+      visualDescription: "a solid bold clean black vector continuous fluid contour mark with strong visual mass, confident medium-thick vector stroke, single centered symbol filling 75% of frame, pure white background, modern submark mark"
     },
     {
       title: "Elemento 02",
-      label: "Síntese Estrutural",
-      origin: "Inspirado no equilíbrio estrutural e na geometria da sua estampa",
-      visualDescription: "a bold clean black vector geometric interlocking arcs symbol, solid medium stroke, centered on pure white background, balanced timeless mark"
+      label: "Estrutura Geométrica",
+      sourceFamily: "geometric_structure",
+      origin: "Inspirado na estrutura geométrica e na simetria modular da sua estampa",
+      visualDescription: "a solid bold clean black vector interlocking geometric arcs symbol, bold symmetrical silhouette, single centered symbol filling 75% of frame, pure white background, timeless submark mark"
     },
     {
       title: "Elemento 03",
-      label: "Apoio Contextual",
-      origin: "Inspirado no contexto da sua marca e no seu universo visual",
-      visualDescription: "a bold clean black vector harmonious twin archway brand symbol conveying serenity and trust, solid medium stroke, centered on pure white background, custom luxury mark"
+      label: "Composição Ornamental",
+      sourceFamily: "ornamental_central_motif",
+      origin: "Inspirado na composição ornamental e no equilíbrio espacial da sua estampa",
+      visualDescription: "a solid bold clean black vector architectural twin archway mark, solid confident line weight, single centered symbol filling 75% of frame, pure white background, custom luxury submark"
     }
   ];
 }
@@ -176,7 +137,7 @@ export async function POST(request) {
     const cleanBase64 = patternBase64.replace(/^data:image\/[a-z]+;base64,/, '');
     const mimeType = patternMimeType || 'image/png';
 
-    // Phase 1: Multimodal Brand & Pattern Analysis with Style Conditioning References
+    // Phase 1: Multimodal Brand & Pattern Analysis with 3 Distinct Source Families
     currentPhase = 'analysis';
 
     // Carrega até 2 referências visuais do estilo para condicionamento de estilo
@@ -207,7 +168,7 @@ export async function POST(request) {
     const elementosText = Array.isArray(elementosVisuais) ? elementosVisuais.join(', ') : (elementosVisuais || '');
 
     const analysisPrompt = `
-You are a World-Class Brand Identity Creative Director specialized in bespoke visual identity systems, submarks, and minimalist luxury brand symbols.
+You are a World-Class Brand Identity Creative Director specialized in bespoke visual identity submarks, seals, and minimalist luxury brand symbols.
 
 INPUT CONTEXT:
 - Brand Name: "${marca || 'Brand'}"
@@ -221,79 +182,63 @@ IMAGE INPUTS IN THIS REQUEST:
 ${styleRefParts.length > 0 ? `- IMAGES 2+: STYLE REFERENCE IMAGES (Visual conditioning ONLY: showing stroke weight, level of simplification, vector finish, line confidence, and visual weight. DO NOT COPY WHAT IS DRAWN IN THESE REFERENCES. ONLY USE HOW THEY ARE DRAWN).` : ''}
 
 YOUR GOAL:
-Define exactly 3 DISTINCT, HIGH-IMPACT, CUSTOM BRAND GRAPHIC ELEMENTS / ICONS born from this pattern and brand context.
+Define exactly 3 DISTINCT, HIGH-IMPACT, HIGH-CONFIDENCE BRAND GRAPHIC ELEMENTS / SUBMARKS derived from 3 DIFFERENT VISUAL SOURCE FAMILIES inside the approved pattern.
 
-CRITICAL RULES & ABSOLUTE PROHIBITIONS:
+CONCEPT SELECTION WORKFLOW (MANDATORY 3 STEPS):
 
-1. GENERATE NEW, ORIGINAL BRAND ELEMENTS:
-   - Invent 3 NEW, bespoke brand graphic symbols specifically tailored to this brand's approved pattern.
-   - DO NOT copy, reproduce, or select the subject matter of the style reference images. (For example, if reference has a shell or flower, DO NOT draw a shell or flower unless the approved pattern itself is made of shells or flowers).
-   - The subject matter MUST come primarily from the APPROVED PATTERN.
+STEP 1 — ANALYZE THE APPROVED PATTERN & IDENTIFY VISUAL SOURCE FAMILIES:
+Inspect the pattern and extract candidate visual source families:
+- "figurative_botanical": Visible motifs (e.g. leaf, petal, branch, star, droplet, shell, floral form).
+- "geometric_structure": Layout logic, circular modules, interlocking arcs, grid modules, symmetry, lattice.
+- "ornamental_central_motif": A distinct focal shape, central decorative shape, diamond/starburst/rosette.
+- "repeated_modules": Repeating modular shapes or clustered units.
+- "negative_space_contrast": Dynamic interaction between solid shapes and open spatial forms.
 
-2. NEVER GENERATE EMBLEMS, SHIELDS, CRESTS, OR BADGES:
-   - Absolutely NO heraldic shields, crests, coat of arms, or badge-style container frames.
-   - Absolutely NO institutional seals or generic organizational badges.
-   - Every element must be an open, modern, standalone vector graphic mark.
+STEP 2 — CHOOSE 3 DISTINCT SOURCE FAMILIES:
+Select the 3 STRONGEST and MOST DISTINCT source families available in the pattern.
+CRITICAL RULE: DO NOT allow multiple options to originate primarily from the same visual source type!
+(e.g., If Option 1 is based on curves/arcs, Option 2 must be geometric structure/modules, and Option 3 must be an ornamental focal mark or modular cluster).
 
-3. NEVER GENERATE LITERAL PROFESSION PICTOGRAMS OR STOCK INDUSTRY ICONS:
-   The client's business area must NOT directly dictate the object drawn.
-   - For Healthcare/Medicine: NO caduceus, NO medical cross, NO stethoscope, NO pills, NO heart with ECG/pulse line, NO hands holding a heart.
-   - For Dentistry: NO tooth silhouette.
-   - For Psychology/Therapy: NO brain/head silhouette, NO speech bubbles.
-   - For Nutrition: NO apple, NO leaf/sprout clipart.
-   - For Law: NO balance scale, NO gavel.
-   - For Photography: NO camera.
-   - For Pediatrics: NO teddy bear, NO baby bottle.
+STEP 3 — GENERATE ONE STRONG SUBMARK SYMBOL PER SOURCE FAMILY:
+1. "Elemento 01" (Motivo Principal):
+   - Derived from the strongest visible motif or primary contour in the pattern.
+   - Simplified into a strong, confident, iconic brand symbol.
+2. "Elemento 02" (Estrutura Geométrica):
+   - Derived from geometric organization, circular modules, interlocking symmetry, or layout logic in the pattern.
+   - A bold, clear, intentional geometric symbol.
+3. "Elemento 03" (Composição Ornamental):
+   - Derived from a third distinct source family in the pattern (focal decorative shape, modular cluster, or shape dynamic).
+   - Brand context helps guide tone, but does not dominate the object choice.
 
-4. HOW TO USE THE BUSINESS AREA (ABSTRACT BRAND ATTRIBUTES ONLY):
-   Use the niche ("${areaAtuacao}") ONLY to infer abstract brand attributes: care, trust, balance, calm, precision, continuity, protection, serenity.
-   - Translate these attributes into custom, subtle, abstract geometric or organic brand marks derived from the pattern's visual language.
+VISUAL STRENGTH & SUBMARK QUALITY REQUIREMENTS:
+- ONE CLEAR CENTRAL SHAPE occupying 70% to 80% of canvas area.
+- SOLID VISUAL PRESENCE: Confident medium-bold stroke weight or solid vector mass (NEVER thin, timid, or hairline).
+- 1-SECOND SMALL SIZE TEST: Viewer must recognize a designed, intentional symbol in under 1 second at 24px (submark seal size).
+- NO EMBLEMS, SHIELDS, CRESTS, OR BADGES: Absolutely NO heraldic shields, crests, or container borders.
+- NO LITERAL PROFESSION PICTOGRAMS: NO medical crosses, NO teeth, NO stethoscopes, NO generic clipart.
 
-5. MANDATORY 3 FUNCTIONAL ROLES (STRICT DIVERSITY):
-   - OPTION 1 (Visual Motif):
-     Derived directly from the most relevant visible motif or dominant form in the approved pattern.
-   - OPTION 2 (Formal Construction):
-     Derived from the pattern's geometry, rhythm, symmetry, or structural composition. Abstract is encouraged, but it MUST be a crisp, bold, identifiable geometric/linear symbol.
-   - OPTION 3 (Contextual Brand Support):
-     Derived from abstract brand attributes (care, trust, serenity, precision) harmonized with the pattern's aesthetic. A supportive brand symbol, NOT a literal industry pictogram.
-
-6. STRICT ANTI-CLUSTERING (NO MONOCULTURE):
-   - The 3 options MUST have noticeably distinct silhouettes and concepts.
-   - NEVER generate 3 variations of the same item.
-
-7. SMALL-SIZE LEGIBILITY TEST:
-   - Every symbol must be immediately recognizable in under 1 second when scaled down to 24px–32px (submark seal size).
-   - Use clean, confident medium-weight lines or bold solid silhouettes.
-   - Single strong central symbol with high visual contrast.
-
-8. GROUNDED, SIMPLE EXPLANATIONS:
-   - "title": Use "Elemento 01", "Elemento 02", "Elemento 03"
-   - "label": "Motivo Principal", "Síntese Estrutural", "Apoio Contextual"
-   - "origin": Short, objective sentence in Portuguese:
-     * Option 1: "Inspirado nas formas curvas e no ritmo da sua estampa"
-     * Option 2: "Inspirado no equilíbrio estrutural e na geometria da sua estampa"
-     * Option 3: "Inspirado no contexto da sua marca e no seu universo visual"
-   - "visualDescription": Exact English prompt for a bold, clean black vector icon centered on pure white background.
-
-OUTPUT FORMAT (STRICT JSON ARRAY):
+OUTPUT FORMAT (STRICT JSON ARRAY OF EXACTLY 3 OBJECTS):
 [
   {
     "title": "Elemento 01",
     "label": "Motivo Principal",
-    "origin": "Inspirado nas formas curvas e no ritmo da sua estampa",
-    "visualDescription": "a bold clean black vector lineart icon of ..., solid medium stroke weight, single centered symbol filling 70% of frame, pure white background, no text, no frame, no shield"
+    "sourceFamily": "figurative_botanical",
+    "origin": "Inspirado no motivo visual dominante e nas formas presentes na sua estampa",
+    "visualDescription": "a solid bold clean black vector mark of ..., confident solid stroke weight, single centered symbol filling 75% of frame, pure white background, no text, no frame, no shield"
   },
   {
     "title": "Elemento 02",
-    "label": "Síntese Estrutural",
-    "origin": "Inspirado no equilíbrio estrutural e na geometria da sua estampa",
-    "visualDescription": "a bold clean black vector geometric mark of ..., solid medium stroke weight, single centered symbol filling 70% of frame, pure white background, no text, no frame, no shield"
+    "label": "Estrutura Geométrica",
+    "sourceFamily": "geometric_structure",
+    "origin": "Inspirado na estrutura geométrica e na simetria modular da sua estampa",
+    "visualDescription": "a solid bold clean black vector geometric mark of ..., confident solid stroke weight, single centered symbol filling 75% of frame, pure white background, no text, no frame, no shield"
   },
   {
     "title": "Elemento 03",
-    "label": "Apoio Contextual",
-    "origin": "Inspirado no contexto da sua marca e no seu universo visual",
-    "visualDescription": "a bold clean black vector supportive brand symbol of ..., solid medium stroke weight, single centered symbol filling 70% of frame, pure white background, no text, no frame, no shield"
+    "label": "Composição Ornamental",
+    "sourceFamily": "ornamental_central_motif",
+    "origin": "Inspirado na composição ornamental e no equilíbrio visual da sua estampa",
+    "visualDescription": "a solid bold clean black vector decorative brand symbol of ..., confident solid stroke weight, single centered symbol filling 75% of frame, pure white background, no text, no frame, no shield"
   }
 ]
 `;
@@ -331,8 +276,9 @@ OUTPUT FORMAT (STRICT JSON ARRAY):
       if (Array.isArray(parsed) && parsed.length >= 3) {
         motifs = parsed.slice(0, 3).map((item, idx) => ({
           title: item.title || `Elemento 0${idx + 1}`,
-          label: item.label || (idx === 0 ? 'Motivo Principal' : idx === 1 ? 'Síntese Estrutural' : 'Apoio Contextual'),
-          origin: item.origin || (idx === 0 ? 'Inspirado nas formas curvas e no ritmo da sua estampa' : idx === 1 ? 'Inspirado no equilíbrio estrutural e na geometria da sua estampa' : 'Inspirado no contexto da sua marca e no seu universo visual'),
+          label: item.label || (idx === 0 ? 'Motivo Principal' : idx === 1 ? 'Estrutura Geométrica' : 'Composição Ornamental'),
+          sourceFamily: item.sourceFamily || (idx === 0 ? 'figurative_botanical' : idx === 1 ? 'geometric_structure' : 'ornamental_central_motif'),
+          origin: item.origin || (idx === 0 ? 'Inspirado no motivo visual dominante da sua estampa' : idx === 1 ? 'Inspirado na estrutura geométrica da sua estampa' : 'Inspirado na composição ornamental da sua estampa'),
           visualDescription: item.visualDescription || ''
         }));
       }
@@ -347,20 +293,20 @@ OUTPUT FORMAT (STRICT JSON ARRAY):
     motifsFound = motifs.length;
     debugTelemetry.motifs = motifs;
 
-    // Phase 2: Generation of 3 High-Clarity Vector Elements
+    // Phase 2: Generation of 3 High-Presence Vector Submarks
     currentPhase = 'generation';
     const targetMotifs = motifs.slice(0, 3);
     imagesAttempted = targetMotifs.length;
 
     const elementsPromises = targetMotifs.map(async (motif, index) => {
       const genPrompt = `
-Generate ONE SINGLE ISOLATED BESPOKE BRAND GRAPHIC MARK: ${motif.visualDescription}.
+Generate ONE SINGLE ISOLATED BESPOKE BRAND SUBMARK ICON: ${motif.visualDescription}.
 
 STRICT MANDATORY ART DIRECTION:
 - SINGLE STANDALONE ICON ONLY: Exactly ONE central icon glyph positioned directly in the center of the frame.
-- CANVAS PROPORTION: The symbol must be prominent and bold, occupying 70% of the canvas area.
+- CANVAS PROPORTION: The symbol must be prominent and bold, occupying 75% of the canvas area.
 - STYLE & CONTRAST: Clean vector lineart or solid vector silhouette in pure solid black (#000000) on pure solid white (#FFFFFF) background.
-- LINE WEIGHT: Confident solid medium-weight vector stroke. Sharp, clean, antialiased edges.
+- VISUAL MASS: Confident solid medium-bold vector strokes with clean, antialiased edges. Must NOT be thin, hairline, or faint.
 - INSTANT LEGIBILITY: Must be instantly recognizable and clear at small icon size (24px).
 - ABSOLUTE PROHIBITIONS:
   * NO shields, crests, emblems, coat of arms, or badges
@@ -392,6 +338,7 @@ STRICT MANDATORY ART DIRECTION:
               id: `gen-elem-${index + 1}`,
               title: motif.title || `Elemento 0${index + 1}`,
               label: motif.label || '',
+              sourceFamily: motif.sourceFamily || '',
               origin: motif.origin || 'Inspirado na sua estampa',
               visualDescription: motif.visualDescription || '',
               base64: part.inlineData.data,
@@ -424,6 +371,7 @@ STRICT MANDATORY ART DIRECTION:
             id: `gen-elem-${index + 1}`,
             title: motif.title || `Elemento 0${index + 1}`,
             label: motif.label || '',
+            sourceFamily: motif.sourceFamily || '',
             origin: motif.origin || 'Inspirado na sua estampa',
             visualDescription: motif.visualDescription || '',
             base64: imagePart.inlineData.data,
