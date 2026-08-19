@@ -2,6 +2,7 @@ import { GoogleGenAI } from '@google/genai';
 import fs from 'fs';
 import path from 'path';
 import { STYLE_ICONS } from '../../../lib/styleIcons';
+import { validatePatternCoverage } from '../../../lib/patternCoverageValidator';
 
 export const maxDuration = 60; // Permite até 60 segundos para processamento de IA
 
@@ -11,93 +12,6 @@ const ai = apiKey ? new GoogleGenAI({ apiKey }) : null;
 function sanitizeError(msg) {
   if (!msg) return 'unknown_error';
   return String(msg).replace(/api[-_]?key=[^&\s]+/gi, 'api_key=REDACTED');
-}
-
-/**
- * Fallback robusto baseado em 3 famílias de fontes visuais distintas:
- * 1. Motivo Visual Principal (forma/figura dominante)
- * 2. Estrutura Geométrica (organização espacial/módulos)
- * 3. Composição Ornamental (motivo focal decorativo ou dinâmica de formas)
- */
-function getDiverseFallbackMotifs(areaAtuacao, estiloNome) {
-  const areaLower = (areaAtuacao || '').toLowerCase();
-
-  if (areaLower.includes('pediat') || areaLower.includes('infant') || areaLower.includes('crian') || areaLower.includes('baby')) {
-    return [
-      {
-        title: "Elemento 01",
-        label: "Motivo Principal",
-        sourceFamily: "figurative_botanical",
-        origin: "Inspirado nas formas de estrela radiante presentes na sua estampa",
-        visualDescription: "a solid bold clean black vector four-point starburst icon, thick confident vector strokes, single centered symbol filling 75% of frame, pure white background, minimal submark glyph"
-      },
-      {
-        title: "Elemento 02",
-        label: "Estrutura Geométrica",
-        sourceFamily: "geometric_structure",
-        origin: "Inspirado na estrutura geométrica e nos módulos circulares da sua estampa",
-        visualDescription: "a solid bold clean black vector interlocking geometric circular arc mark, bold vector mass, single centered symbol filling 75% of frame, pure white background, balanced submark"
-      },
-      {
-        title: "Elemento 03",
-        label: "Composição Ornamental",
-        sourceFamily: "ornamental_central_motif",
-        origin: "Inspirado na composição ornamental e no ritmo visual da sua estampa",
-        visualDescription: "a solid bold clean black vector protective archway icon with gentle curved symmetry, solid confident line weight, single centered symbol filling 75% of frame, pure white background, modern submark"
-      }
-    ];
-  }
-
-  if (areaLower.includes('odonto') || areaLower.includes('dente') || areaLower.includes('sorriso')) {
-    return [
-      {
-        title: "Elemento 01",
-        label: "Motivo Principal",
-        sourceFamily: "figurative_botanical",
-        origin: "Inspirado no contorno fluido e nas curvas dinâmicas da sua estampa",
-        visualDescription: "a solid bold clean black vector upward dynamic curve mark, confident solid vector silhouette, single centered symbol filling 75% of frame, pure white background, minimalist brand glyph"
-      },
-      {
-        title: "Elemento 02",
-        label: "Estrutura Geométrica",
-        sourceFamily: "geometric_structure",
-        origin: "Inspirado na precisão geométrica e no alinhamento espacial da sua estampa",
-        visualDescription: "a solid bold clean black vector radiant four-point geometric starburst, bold symmetrical strokes, single centered symbol filling 75% of frame, pure white background, balanced geometric mark"
-      },
-      {
-        title: "Elemento 03",
-        label: "Composição Ornamental",
-        sourceFamily: "ornamental_central_motif",
-        origin: "Inspirado no motivo ornamental central e no equilíbrio visual da sua estampa",
-        visualDescription: "a solid bold clean black vector geometric intersecting arcs mark, solid confident line weight, single centered symbol filling 75% of frame, pure white background, refined submark"
-      }
-    ];
-  }
-
-  // Padrão Geral / Saúde Adulto / Medicina Geral / Essência Atemporal
-  return [
-    {
-      title: "Elemento 01",
-      label: "Motivo Principal",
-      sourceFamily: "figurative_botanical",
-      origin: "Inspirado no motivo visual dominante e nas formas curvas da sua estampa",
-      visualDescription: "a solid bold clean black vector continuous fluid contour mark with strong visual mass, confident medium-thick vector stroke, single centered symbol filling 75% of frame, pure white background, modern submark mark"
-    },
-    {
-      title: "Elemento 02",
-      label: "Estrutura Geométrica",
-      sourceFamily: "geometric_structure",
-      origin: "Inspirado na estrutura geométrica e na simetria modular da sua estampa",
-      visualDescription: "a solid bold clean black vector interlocking geometric arcs symbol, bold symmetrical silhouette, single centered symbol filling 75% of frame, pure white background, timeless submark mark"
-    },
-    {
-      title: "Elemento 03",
-      label: "Composição Ornamental",
-      sourceFamily: "ornamental_central_motif",
-      origin: "Inspirado na composição ornamental e no equilíbrio espacial da sua estampa",
-      visualDescription: "a solid bold clean black vector architectural twin archway mark, solid confident line weight, single centered symbol filling 75% of frame, pure white background, custom luxury submark"
-    }
-  ];
 }
 
 export async function POST(request) {
@@ -137,10 +51,25 @@ export async function POST(request) {
     const cleanBase64 = patternBase64.replace(/^data:image\/[a-z]+;base64,/, '');
     const mimeType = patternMimeType || 'image/png';
 
-    // Phase 1: Multimodal Brand & Pattern Analysis with 3 Distinct Source Families
+    // Phase 1.1: Validação de Qualidade da Estampa de Entrada
+    currentPhase = 'pattern_quality_gate';
+    const patternCheck = await validatePatternCoverage(cleanBase64);
+    if (!patternCheck.valid && patternCheck.backgroundRatio > 0.85) {
+      console.warn(`⚠️ [Quality Gate] Estampa rejeitada na entrada de Brand Elements: ${patternCheck.reason}`);
+      return Response.json({
+        error: "A estampa selecionada possui área vazia excessiva para extração de elementos gráficos. Gere uma nova estampa com motivos distribuídos.",
+        telemetry: {
+          phase: currentPhase,
+          rejectionReason: patternCheck.reason,
+          backgroundRatio: patternCheck.backgroundRatio
+        }
+      }, { status: 400 });
+    }
+
+    // Phase 1.2: Multimodal Brand & Pattern Analysis with 3 Distinct Source Families
     currentPhase = 'analysis';
 
-    // Carrega até 2 referências visuais do estilo para condicionamento de estilo
+    // Carrega referências visuais do estilo para condicionamento de estilo
     const styleRefParts = [];
     try {
       const styleIconsList = STYLE_ICONS[estiloNome] || [];
@@ -167,7 +96,7 @@ export async function POST(request) {
     const sensacoesText = Array.isArray(sensacoes) ? sensacoes.join(', ') : (sensacoes || '');
     const elementosText = Array.isArray(elementosVisuais) ? elementosVisuais.join(', ') : (elementosVisuais || '');
 
-    const analysisPrompt = `
+    const buildAnalysisPrompt = () => `
 You are a World-Class Brand Identity Creative Director specialized in bespoke visual identity submarks, seals, and minimalist luxury brand symbols.
 
 INPUT CONTEXT:
@@ -184,59 +113,38 @@ ${styleRefParts.length > 0 ? `- IMAGES 2+: STYLE REFERENCE IMAGES (Visual condit
 YOUR GOAL:
 Define exactly 3 DISTINCT, HIGH-IMPACT, HIGH-CONFIDENCE BRAND GRAPHIC ELEMENTS / SUBMARKS derived from 3 DIFFERENT VISUAL SOURCE FAMILIES inside the approved pattern.
 
-CONCEPT SELECTION WORKFLOW (MANDATORY 3 STEPS):
+CRITICAL RULES:
+1. STRICT VISUAL FACTUALITY:
+   Analyze ONLY what is actually visible in the pattern image. NEVER invent or hallucinate objects (stars, leaves, crosses, etc.) that do not visibly exist in the pattern.
 
-STEP 1 — ANALYZE THE APPROVED PATTERN & IDENTIFY VISUAL SOURCE FAMILIES:
-Inspect the pattern and extract candidate visual source families:
-- "figurative_botanical": Visible motifs (e.g. leaf, petal, branch, star, droplet, shell, floral form).
-- "geometric_structure": Layout logic, circular modules, interlocking arcs, grid modules, symmetry, lattice.
-- "ornamental_central_motif": A distinct focal shape, central decorative shape, diamond/starburst/rosette.
-- "repeated_modules": Repeating modular shapes or clustered units.
-- "negative_space_contrast": Dynamic interaction between solid shapes and open spatial forms.
+2. CHOOSE 3 DISTINCT SOURCE FAMILIES (NO MONOCULTURE):
+   - Option 1 (Motivo Principal): Derived from the strongest visible motif or primary contour in the pattern.
+   - Option 2 (Estrutura Geométrica): Derived from geometric organization, circular modules, interlocking symmetry, or layout logic in the pattern.
+   - Option 3 (Composição Ornamental): Derived from a third distinct source family in the pattern (focal decorative shape, modular cluster, or shape dynamic).
 
-STEP 2 — CHOOSE 3 DISTINCT SOURCE FAMILIES:
-Select the 3 STRONGEST and MOST DISTINCT source families available in the pattern.
-CRITICAL RULE: DO NOT allow multiple options to originate primarily from the same visual source type!
-(e.g., If Option 1 is based on curves/arcs, Option 2 must be geometric structure/modules, and Option 3 must be an ornamental focal mark or modular cluster).
+3. NO EMBLEMS, SHIELDS, CRESTS, OR BADGES: Absolutely NO heraldic shields, crests, or container borders.
+4. NO LITERAL PROFESSION PICTOGRAMS: NO medical crosses, NO teeth, NO stethoscopes, NO generic clipart.
 
-STEP 3 — GENERATE ONE STRONG SUBMARK SYMBOL PER SOURCE FAMILY:
-1. "Elemento 01" (Motivo Principal):
-   - Derived from the strongest visible motif or primary contour in the pattern.
-   - Simplified into a strong, confident, iconic brand symbol.
-2. "Elemento 02" (Estrutura Geométrica):
-   - Derived from geometric organization, circular modules, interlocking symmetry, or layout logic in the pattern.
-   - A bold, clear, intentional geometric symbol.
-3. "Elemento 03" (Composição Ornamental):
-   - Derived from a third distinct source family in the pattern (focal decorative shape, modular cluster, or shape dynamic).
-   - Brand context helps guide tone, but does not dominate the object choice.
-
-VISUAL STRENGTH & SUBMARK QUALITY REQUIREMENTS:
-- ONE CLEAR CENTRAL SHAPE occupying 70% to 80% of canvas area.
-- SOLID VISUAL PRESENCE: Confident medium-bold stroke weight or solid vector mass (NEVER thin, timid, or hairline).
-- 1-SECOND SMALL SIZE TEST: Viewer must recognize a designed, intentional symbol in under 1 second at 24px (submark seal size).
-- NO EMBLEMS, SHIELDS, CRESTS, OR BADGES: Absolutely NO heraldic shields, crests, or container borders.
-- NO LITERAL PROFESSION PICTOGRAMS: NO medical crosses, NO teeth, NO stethoscopes, NO generic clipart.
-
-OUTPUT FORMAT (STRICT JSON ARRAY OF EXACTLY 3 OBJECTS):
+5. OUTPUT FORMAT: Strictly valid JSON array of exactly 3 objects:
 [
   {
     "title": "Elemento 01",
     "label": "Motivo Principal",
-    "sourceFamily": "figurative_botanical",
-    "origin": "Inspirado no motivo visual dominante e nas formas presentes na sua estampa",
+    "sourceFamily": "...",
+    "origin": "Inspirado no motivo visual dominante da sua estampa",
     "visualDescription": "a solid bold clean black vector mark of ..., confident solid stroke weight, single centered symbol filling 75% of frame, pure white background, no text, no frame, no shield"
   },
   {
     "title": "Elemento 02",
     "label": "Estrutura Geométrica",
-    "sourceFamily": "geometric_structure",
+    "sourceFamily": "...",
     "origin": "Inspirado na estrutura geométrica e na simetria modular da sua estampa",
     "visualDescription": "a solid bold clean black vector geometric mark of ..., confident solid stroke weight, single centered symbol filling 75% of frame, pure white background, no text, no frame, no shield"
   },
   {
     "title": "Elemento 03",
     "label": "Composição Ornamental",
-    "sourceFamily": "ornamental_central_motif",
+    "sourceFamily": "...",
     "origin": "Inspirado na composição ornamental e no equilíbrio visual da sua estampa",
     "visualDescription": "a solid bold clean black vector decorative brand symbol of ..., confident solid stroke weight, single centered symbol filling 75% of frame, pure white background, no text, no frame, no shield"
   }
@@ -244,19 +152,18 @@ OUTPUT FORMAT (STRICT JSON ARRAY OF EXACTLY 3 OBJECTS):
 `;
 
     let motifs = [];
-    try {
-      const contents = [
-        { inlineData: { mimeType, data: cleanBase64 } },
-        ...styleRefParts,
-        { text: analysisPrompt }
-      ];
+    const contents = [
+      { inlineData: { mimeType, data: cleanBase64 } },
+      ...styleRefParts,
+      { text: buildAnalysisPrompt() }
+    ];
 
+    // Tentativa 1 de Análise Multimodal
+    try {
       const analysisResponse = await ai.models.generateContent({
         model: 'gemini-2.5-flash',
         contents,
-        config: {
-          responseMimeType: 'application/json'
-        }
+        config: { responseMimeType: 'application/json' }
       });
 
       let textRes = analysisResponse.response?.text ? analysisResponse.response.text().trim() : (analysisResponse.text ? analysisResponse.text().trim() : '');
@@ -277,17 +184,60 @@ OUTPUT FORMAT (STRICT JSON ARRAY OF EXACTLY 3 OBJECTS):
         motifs = parsed.slice(0, 3).map((item, idx) => ({
           title: item.title || `Elemento 0${idx + 1}`,
           label: item.label || (idx === 0 ? 'Motivo Principal' : idx === 1 ? 'Estrutura Geométrica' : 'Composição Ornamental'),
-          sourceFamily: item.sourceFamily || (idx === 0 ? 'figurative_botanical' : idx === 1 ? 'geometric_structure' : 'ornamental_central_motif'),
+          sourceFamily: item.sourceFamily || '',
           origin: item.origin || (idx === 0 ? 'Inspirado no motivo visual dominante da sua estampa' : idx === 1 ? 'Inspirado na estrutura geométrica da sua estampa' : 'Inspirado na composição ornamental da sua estampa'),
           visualDescription: item.visualDescription || ''
         }));
       }
-    } catch (analysisErr) {
-      console.warn(`[Telemetry] Analysis JSON parse failed: ${sanitizeError(analysisErr.message)}`);
+    } catch (parseErr1) {
+      console.warn(`[Telemetry] Analysis parsing attempt 1 failed: ${sanitizeError(parseErr1.message)}. Tentando retry controlado...`);
     }
 
+    // Tentativa 2 de Análise (Retry Controlado sem fabricar dados)
     if (!Array.isArray(motifs) || motifs.length < 3) {
-      motifs = getDiverseFallbackMotifs(areaAtuacao, estiloNome);
+      try {
+        const retryContents = [
+          { inlineData: { mimeType, data: cleanBase64 } },
+          { text: "Return strictly a valid JSON array with 3 objects defining 3 distinct brand submark symbols observed in this pattern: [{\"title\":\"Elemento 01\",\"label\":\"Motivo Principal\",\"origin\":\"Inspirado no motivo dominante da sua estampa\",\"visualDescription\":\"...\"},{\"title\":\"Elemento 02\",\"label\":\"Estrutura Geométrica\",\"origin\":\"Inspirado na estrutura da sua estampa\",\"visualDescription\":\"...\"},{\"title\":\"Elemento 03\",\"label\":\"Composição Ornamental\",\"origin\":\"Inspirado no equilíbrio da sua estampa\",\"visualDescription\":\"...\"}]" }
+        ];
+
+        const retryResponse = await ai.models.generateContent({
+          model: 'gemini-2.5-flash',
+          contents: retryContents,
+          config: { responseMimeType: 'application/json' }
+        });
+
+        let retryText = retryResponse.response?.text ? retryResponse.response.text().trim() : (retryResponse.text ? retryResponse.text().trim() : '');
+        const firstB = retryText.indexOf('[');
+        const lastB = retryText.lastIndexOf(']');
+        if (firstB !== -1 && lastB > firstB) {
+          retryText = retryText.substring(firstB, lastB + 1);
+        }
+        const parsedRetry = JSON.parse(retryText);
+        if (Array.isArray(parsedRetry) && parsedRetry.length >= 3) {
+          motifs = parsedRetry.slice(0, 3).map((item, idx) => ({
+            title: item.title || `Elemento 0${idx + 1}`,
+            label: item.label || (idx === 0 ? 'Motivo Principal' : idx === 1 ? 'Estrutura Geométrica' : 'Composição Ornamental'),
+            sourceFamily: item.sourceFamily || '',
+            origin: item.origin || (idx === 0 ? 'Inspirado no motivo visual dominante da sua estampa' : idx === 1 ? 'Inspirado na estrutura geométrica da sua estampa' : 'Inspirado na composição ornamental da sua estampa'),
+            visualDescription: item.visualDescription || ''
+          }));
+        }
+      } catch (retryErr) {
+        console.error(`[Telemetry] Analysis retry attempt 2 failed: ${sanitizeError(retryErr.message)}`);
+      }
+    }
+
+    // Se após o retry a análise estruturada falhar, retornamos erro técnico em vez de inventar motivos falsos
+    if (!Array.isArray(motifs) || motifs.length < 3) {
+      return Response.json({
+        error: "Não foi possível analisar os motivos da sua estampa com precisão suficiente. Por favor, tente novamente.",
+        telemetry: {
+          phase: currentPhase,
+          rejectionReason: 'multimodal_analysis_parsing_failed',
+          durationMs: Date.now() - startTime
+        }
+      }, { status: 502 });
     }
 
     motifsFound = motifs.length;
