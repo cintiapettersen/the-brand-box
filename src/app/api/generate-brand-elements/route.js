@@ -1,4 +1,7 @@
 import { GoogleGenAI } from '@google/genai';
+import fs from 'fs';
+import path from 'path';
+import { STYLE_ICONS } from '../../../lib/styleIcons';
 
 export const maxDuration = 60; // Permite até 60 segundos para processamento de IA
 
@@ -173,32 +176,66 @@ export async function POST(request) {
     const cleanBase64 = patternBase64.replace(/^data:image\/[a-z]+;base64,/, '');
     const mimeType = patternMimeType || 'image/png';
 
-    // Phase 1: Multimodal Brand & Pattern Analysis
+    // Phase 1: Multimodal Brand & Pattern Analysis with Style Conditioning References
     currentPhase = 'analysis';
+
+    // Carrega até 2 referências visuais do estilo para condicionamento de estilo
+    const styleRefParts = [];
+    try {
+      const styleIconsList = STYLE_ICONS[estiloNome] || [];
+      const sampleIcons = styleIconsList.slice(0, 2);
+      for (const icon of sampleIcons) {
+        if (icon.path) {
+          const relPath = icon.path.replace(/^\//, '');
+          const fullPath = path.join(process.cwd(), 'public', relPath);
+          if (fs.existsSync(fullPath)) {
+            const buf = fs.readFileSync(fullPath);
+            styleRefParts.push({
+              inlineData: {
+                mimeType: 'image/png',
+                data: buf.toString('base64')
+              }
+            });
+          }
+        }
+      }
+    } catch (fsErr) {
+      console.warn('[Telemetry] Could not load visual style references from disk:', sanitizeError(fsErr.message));
+    }
 
     const sensacoesText = Array.isArray(sensacoes) ? sensacoes.join(', ') : (sensacoes || '');
     const elementosText = Array.isArray(elementosVisuais) ? elementosVisuais.join(', ') : (elementosVisuais || '');
 
     const analysisPrompt = `
 You are a World-Class Brand Identity Creative Director specialized in bespoke visual identity systems, submarks, and minimalist luxury brand symbols.
-Analyze this brand pattern image in the context of this brand:
+
+INPUT CONTEXT:
 - Brand Name: "${marca || 'Brand'}"
 - Business Area / Niche: "${areaAtuacao || 'Profissional / Empresa'}"
 - Brand Style: "${estiloNome || 'Essência Atemporal'}"
 - Feelings / Sensations: "${sensacoesText}"
 - Visual Elements Reference: "${elementosText}"
 
+IMAGE INPUTS IN THIS REQUEST:
+- IMAGE 1: THE APPROVED PATTERN (The visual raw material and source of motifs, geometry, curves, rhythm, and contours).
+${styleRefParts.length > 0 ? `- IMAGES 2+: STYLE REFERENCE IMAGES (Visual conditioning ONLY: showing stroke weight, level of simplification, vector finish, line confidence, and visual weight. DO NOT COPY WHAT IS DRAWN IN THESE REFERENCES. ONLY USE HOW THEY ARE DRAWN).` : ''}
+
 YOUR GOAL:
 Define exactly 3 DISTINCT, HIGH-IMPACT, CUSTOM BRAND GRAPHIC ELEMENTS / ICONS born from this pattern and brand context.
 
-CRITICAL RULES & ABSOLUTE PROHIBITIONS (DO NOT VIOLATE):
+CRITICAL RULES & ABSOLUTE PROHIBITIONS:
 
-1. NEVER GENERATE EMBLEMS, SHIELDS, CRESTS, OR BADGES:
+1. GENERATE NEW, ORIGINAL BRAND ELEMENTS:
+   - Invent 3 NEW, bespoke brand graphic symbols specifically tailored to this brand's approved pattern.
+   - DO NOT copy, reproduce, or select the subject matter of the style reference images. (For example, if reference has a shell or flower, DO NOT draw a shell or flower unless the approved pattern itself is made of shells or flowers).
+   - The subject matter MUST come primarily from the APPROVED PATTERN.
+
+2. NEVER GENERATE EMBLEMS, SHIELDS, CRESTS, OR BADGES:
    - Absolutely NO heraldic shields, crests, coat of arms, or badge-style container frames.
    - Absolutely NO institutional seals or generic organizational badges.
    - Every element must be an open, modern, standalone vector graphic mark.
 
-2. NEVER GENERATE LITERAL PROFESSION PICTOGRAMS OR STOCK INDUSTRY ICONS:
+3. NEVER GENERATE LITERAL PROFESSION PICTOGRAMS OR STOCK INDUSTRY ICONS:
    The client's business area must NOT directly dictate the object drawn.
    - For Healthcare/Medicine: NO caduceus, NO medical cross, NO stethoscope, NO pills, NO heart with ECG/pulse line, NO hands holding a heart.
    - For Dentistry: NO tooth silhouette.
@@ -208,29 +245,28 @@ CRITICAL RULES & ABSOLUTE PROHIBITIONS (DO NOT VIOLATE):
    - For Photography: NO camera.
    - For Pediatrics: NO teddy bear, NO baby bottle.
 
-3. HOW TO USE THE BUSINESS AREA (ABSTRACT BRAND ATTRIBUTES ONLY):
-   Use the niche ("${areaAtuacao}") ONLY to infer abstract qualities, emotional tone, and symbolic meaning:
-   - e.g. For healthcare/medicine: care, trust, balance, calm, precision, continuity, protection, serenity.
+4. HOW TO USE THE BUSINESS AREA (ABSTRACT BRAND ATTRIBUTES ONLY):
+   Use the niche ("${areaAtuacao}") ONLY to infer abstract brand attributes: care, trust, balance, calm, precision, continuity, protection, serenity.
    - Translate these attributes into custom, subtle, abstract geometric or organic brand marks derived from the pattern's visual language.
 
-4. MANDATORY 3 FUNCTIONAL ROLES (STRICT DIVERSITY):
+5. MANDATORY 3 FUNCTIONAL ROLES (STRICT DIVERSITY):
    - OPTION 1 (Visual Motif):
-     Derived from the most relevant visible motif or dominant form in the pattern (e.g., specific curved stroke, geometric starburst, or prominent contour from the pattern).
+     Derived directly from the most relevant visible motif or dominant form in the approved pattern.
    - OPTION 2 (Formal Construction):
      Derived from the pattern's geometry, rhythm, symmetry, or structural composition. Abstract is encouraged, but it MUST be a crisp, bold, identifiable geometric/linear symbol.
    - OPTION 3 (Contextual Brand Support):
      Derived from abstract brand attributes (care, trust, serenity, precision) harmonized with the pattern's aesthetic. A supportive brand symbol, NOT a literal industry pictogram.
 
-5. STRICT ANTI-CLUSTERING (NO MONOCULTURE):
-   - The 3 options MUST have noticeably distinct silhouettes and concepts (e.g., Option 1 = fluid curved contour, Option 2 = balanced geometric quatrefoil/interlocking arcs, Option 3 = serene archway/continuous ribbon).
+6. STRICT ANTI-CLUSTERING (NO MONOCULTURE):
+   - The 3 options MUST have noticeably distinct silhouettes and concepts.
    - NEVER generate 3 variations of the same item.
 
-6. SMALL-SIZE LEGIBILITY TEST:
+7. SMALL-SIZE LEGIBILITY TEST:
    - Every symbol must be immediately recognizable in under 1 second when scaled down to 24px–32px (submark seal size).
    - Use clean, confident medium-weight lines or bold solid silhouettes.
    - Single strong central symbol with high visual contrast.
 
-7. GROUNDED, SIMPLE EXPLANATIONS:
+8. GROUNDED, SIMPLE EXPLANATIONS:
    - "title": Use "Elemento 01", "Elemento 02", "Elemento 03"
    - "label": "Motivo Principal", "Síntese Estrutural", "Apoio Contextual"
    - "origin": Short, objective sentence in Portuguese:
@@ -239,8 +275,7 @@ CRITICAL RULES & ABSOLUTE PROHIBITIONS (DO NOT VIOLATE):
      * Option 3: "Inspirado no contexto da sua marca e no seu universo visual"
    - "visualDescription": Exact English prompt for a bold, clean black vector icon centered on pure white background.
 
-OUTPUT FORMAT:
-Provide strictly a valid JSON array of exactly 3 objects:
+OUTPUT FORMAT (STRICT JSON ARRAY):
 [
   {
     "title": "Elemento 01",
@@ -265,18 +300,21 @@ Provide strictly a valid JSON array of exactly 3 objects:
 
     let motifs = [];
     try {
+      const contents = [
+        { inlineData: { mimeType, data: cleanBase64 } },
+        ...styleRefParts,
+        { text: analysisPrompt }
+      ];
+
       const analysisResponse = await ai.models.generateContent({
         model: 'gemini-2.5-flash',
-        contents: [
-          { inlineData: { mimeType, data: cleanBase64 } },
-          { text: analysisPrompt }
-        ],
+        contents,
         config: {
           responseMimeType: 'application/json'
         }
       });
 
-      let textRes = analysisResponse.response?.text ? analysisResponse.response.text().trim() : '';
+      let textRes = analysisResponse.response?.text ? analysisResponse.response.text().trim() : (analysisResponse.text ? analysisResponse.text().trim() : '');
       if (textRes.startsWith("```json")) {
         textRes = textRes.replace(/^```json\s*/, '').replace(/\s*```$/, '');
       } else if (textRes.startsWith("```")) {
@@ -347,7 +385,8 @@ STRICT MANDATORY ART DIRECTION:
           }
         });
 
-        for (const part of genRes.candidates?.[0]?.content?.parts || []) {
+        const candidates = genRes.candidates || genRes.response?.candidates;
+        for (const part of candidates?.[0]?.content?.parts || []) {
           if (part.inlineData?.data) {
             return {
               id: `gen-elem-${index + 1}`,
@@ -378,7 +417,7 @@ STRICT MANDATORY ART DIRECTION:
           }
         });
 
-        const candidate = fallbackRes?.response?.candidates?.[0];
+        const candidate = fallbackRes?.response?.candidates?.[0] || fallbackRes?.candidates?.[0];
         const imagePart = candidate?.content?.parts?.find(p => p.inlineData);
         if (imagePart?.inlineData?.data) {
           return {
