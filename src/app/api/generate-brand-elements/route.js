@@ -139,7 +139,7 @@ YOUR GOAL:
 4. GROUNDED, SIMPLE EXPLANATIONS:
    - "title": "Elemento 01", "Elemento 02", "Elemento 03"
    - "label": "Forma Principal" (or "Motivo Principal" if figurative), "Estrutura Geométrica", "Composição Ornamental"
-   - "origin": Short objective sentence in Portuguese stating the actual visual origin (e.g. "Inspirado nas curvas fluidas e no ritmo visual da sua estampa" for abstract, or "Inspirado na forma floral da sua estampa" for figurative).
+   - "origin": Short objective sentence in Portuguese stating the actual visual origin.
 
 OUTPUT FORMAT:
 Provide strictly a JSON object with:
@@ -178,6 +178,7 @@ Provide strictly a JSON object with:
 
     let elements = [];
     let patternTypeDetected = 'unknown';
+    let rawMultimodalResponse = '';
 
     const contents = [
       { inlineData: { mimeType, data: cleanBase64 } },
@@ -193,7 +194,10 @@ Provide strictly a JSON object with:
         config: { responseMimeType: 'application/json' }
       });
 
-      let textRes = analysisResponse.response?.text ? analysisResponse.response.text().trim() : (analysisResponse.text ? analysisResponse.text().trim() : '');
+      rawMultimodalResponse = analysisResponse.response?.text ? analysisResponse.response.text().trim() : (analysisResponse.text ? analysisResponse.text().trim() : '');
+      console.log(`[Telemetry] Raw Multimodal Response (Attempt 1):`, rawMultimodalResponse);
+
+      let textRes = rawMultimodalResponse;
       if (textRes.startsWith("```json")) {
         textRes = textRes.replace(/^```json\s*/, '').replace(/\s*```$/, '');
       } else if (textRes.startsWith("```")) {
@@ -201,6 +205,8 @@ Provide strictly a JSON object with:
       }
 
       const parsed = JSON.parse(textRes);
+      console.log(`[Telemetry] Parsed JSON Response:`, parsed);
+
       patternTypeDetected = parsed.patternType || (Array.isArray(parsed) ? 'mixed' : 'abstract');
       const rawElements = Array.isArray(parsed) ? parsed : (Array.isArray(parsed.elements) ? parsed.elements : []);
 
@@ -217,7 +223,7 @@ Provide strictly a JSON object with:
       console.warn(`[Telemetry] Analysis parsing attempt 1 failed: ${sanitizeError(parseErr1.message)}. Tentando retry controlado...`);
     }
 
-    // Tentativa 2 de Análise (Retry Controlado)
+    // Tentativa 2 de Análise (Retry Controlado se necessário)
     if (!Array.isArray(elements) || elements.length < 3) {
       try {
         const retryContents = [
@@ -232,6 +238,8 @@ Provide strictly a JSON object with:
         });
 
         let retryText = retryResponse.response?.text ? retryResponse.response.text().trim() : (retryResponse.text ? retryResponse.text().trim() : '');
+        console.log(`[Telemetry] Raw Multimodal Response (Attempt 2 Retry):`, retryText);
+
         if (retryText.startsWith("```json")) {
           retryText = retryText.replace(/^```json\s*/, '').replace(/\s*```$/, '');
         } else if (retryText.startsWith("```")) {
@@ -256,8 +264,10 @@ Provide strictly a JSON object with:
       }
     }
 
-    // Se após o retry a análise estruturada falhar, retornamos erro técnico neutro
+    // Validação de prosseguimento mandatória:
+    // Se a análise estruturada falhar completamente após retry, retorna erro técnico neutro.
     if (!Array.isArray(elements) || elements.length < 3) {
+      console.error(`[Telemetry] Multimodal analysis aborted: Could not obtain 3 elements from pattern.`);
       return Response.json({
         error: "Não foi possível processar a estrutura visual da sua estampa no momento. Por favor, tente novamente.",
         telemetry: {
@@ -271,6 +281,8 @@ Provide strictly a JSON object with:
     elementsFound = elements.length;
     debugTelemetry.elements = elements;
     debugTelemetry.patternType = patternTypeDetected;
+
+    console.log(`[Telemetry] Proceeding to Image Generation for 3 elements (Pattern Type: ${patternTypeDetected}).`);
 
     // Phase 2: Generation of 3 High-Presence Vector Submarks
     currentPhase = 'generation';
