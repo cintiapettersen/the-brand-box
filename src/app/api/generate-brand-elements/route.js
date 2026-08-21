@@ -133,7 +133,7 @@ export async function POST(request) {
       console.warn('[Brand Elements] Quality Gate bypass due to error:', valErr.message);
     }
 
-    // Phase 1.2: Análise Multimodal (Classificação: Figurativo, Abstrato ou Misto)
+    // Phase 1.2: Análise Multimodal de Alta Precisão (Diretor de Criação de Identidade Visual)
     currentPhase = 'analysis';
 
     // Carrega referências visuais do estilo para condicionamento de estilo
@@ -165,49 +165,52 @@ export async function POST(request) {
     const elementosText = Array.isArray(elementosVisuais) ? elementosVisuais.join(', ') : (elementosVisuais || '');
 
     const analysisPrompt = `
-You are a World-Class Brand Identity Creative Director specialized in bespoke visual identity submarks, seals, and minimalist luxury brand symbols.
+You are a World-Class Brand Identity Creative Director specialized in bespoke visual identity submarks, seals, and minimalist luxury brand marks.
 
 INPUT CONTEXT:
 - Brand Name: "${marca || 'Brand'}"
-- Business Area / Niche: "${areaAtuacao || 'Profissional / Empresa'}"
+- Business Area / Niche: "${areaAtuacao || 'Profissional / Empresa'}" (Contextual tone ONLY — NEVER draw literal niche objects)
 - Brand Style: "${estiloNome || 'Essência Atemporal'}"
 - Feelings / Sensations: "${sensacoesText}"
 - Visual Elements Reference: "${elementosText}"
 
 IMAGE INPUTS IN THIS REQUEST:
-- IMAGE 1: THE APPROVED PATTERN (The visual raw material and foundation of the brand's visual identity).
+- IMAGE 1: THE APPROVED PATTERN (The visual raw material and soul of the brand's graphic vocabulary).
 ${styleRefParts.length > 0 ? `- IMAGES 2+: STYLE REFERENCE IMAGES (Visual conditioning ONLY: showing stroke weight, level of simplification, vector finish, line confidence, and visual weight. DO NOT COPY WHAT IS DRAWN IN THESE REFERENCES. ONLY USE HOW THEY ARE DRAWN).` : ''}
 
 YOUR GOAL:
 1. CLASSIFY THE PATTERN TYPE:
    - "figurative": Clearly identifiable figurative objects or botanical elements.
-   - "abstract": Purely non-figurative (e.g. geometric arches, modular grids, rhythmic waves, linear intersections, abstract contours, or pure spatial forms). In this case, figurative motifs are legitimately absent, and you MUST derive concepts from formal visual properties (geometry, curves, rhythm, line weight, symmetry, negative space, modular repetition).
+   - "abstract": Purely non-figurative (geometric arches, modular grids, rhythmic waves, linear intersections, abstract contours, or pure spatial forms). Figurative motifs are legitimately absent — derive concepts from formal properties (geometry, curves, rhythm, line weight, symmetry, negative space, modular repetition).
    - "mixed": Combines recognizable motifs with abstract geometric or linear structures.
 
-2. EXTRACT 3 DISTINCT BRAND GRAPHIC ELEMENTS / SUBMARKS:
-   - For FIGURATIVE patterns:
-     * Option 1: Derived from the dominant recognizable motif.
-     * Option 2: Derived from the geometric framework or layout rhythm.
-     * Option 3: Derived from an ornamental composition or secondary visual feature.
-   - For ABSTRACT patterns (LACK OF FIGURATIVE MOTIFS IS EXPECTED AND FULLY SUPPORTED):
-     * Option 1: Derived from the primary shape language, dominant curve, or primary contour.
-     * Option 2: Derived from the geometric structure, modular symmetry, or spatial intersections.
-     * Option 3: Derived from the rhythmic flow, negative space balance, or compositional harmony.
-   - For MIXED patterns:
-     * Combine the strongest motif with formal geometric and compositional features.
+2. DEFINE 3 DISTINCT, HIGH-IMPACT, HIGH-CONFIDENCE BRAND SUBMARKS BORN DIRECTLY FROM THIS SPECIFIC PATTERN:
+   
+   * OPTION 1 (BENCHMARK - FORMA PRINCIPAL):
+     - Focus: The dominant organic/focal shape language, primary contour, or central emblem-glyph of the pattern.
+     - Goal: Solid, balanced, highly memorable central brand mark with great presence and organic relation to the pattern.
+   
+   * OPTION 2 (ESTRUTURA GEOMÉTRICA & MODULAR DISTINTIVA):
+     - Focus: The unique architectural geometry, interlocking nodes, radial intersection, or modular cadence of the pattern.
+     - Goal: MUST BE DISTINCTIVE AND IDENTITY-SPECIFIC. Avoid generic single loops or basic wellness circles. Build a bespoke geometric mark with clear internal structural character born from this exact pattern grid.
+   
+   * OPTION 3 (SUBMARCA FOCAL DE ALTO IMPACTO / SÍNTESE ESPACIAL):
+     - Focus: Bold figure-ground synthesis, high-contrast silhouette mass, or spatial harmony between positive and negative shapes.
+     - Goal: MUST BE A REAL, POWERFUL SUBMARK CANDIDATE (NOT a fragile decorative ornament or flimsy accent). Confident, solid, bold silhouette that commands visual space and works perfectly as an iconic seal mark.
 
-3. STRICT QUALITY & ANTI-CLUSTERING RULES:
-   - The 3 options MUST come from 3 DIFFERENT visual observations (no monoculture).
-   - ONE CLEAR CENTRAL SHAPE occupying 75% of canvas area.
-   - Solid, confident medium-bold vector line weight or solid mass (NEVER thin hairline or random scribble).
-   - Instant legibility in under 1 second at 24px (submark seal size).
-   - NO shields, crests, emblems, coat of arms, or badges.
-   - NO literal profession clipart (no medical crosses, no teeth, no stethoscopes).
+3. STRICT QUALITY, IDENTITY-SPECIFICITY & EXECUTION RULES:
+   - The 3 options MUST come from 3 DIFFERENT visual observations inside the pattern (no monoculture).
+   - Every symbol must feel born from THIS specific identity, not a generic clipart library.
+   - ONE CLEAR CENTRAL SYMBOL occupying 75% of canvas area.
+   - Confident solid medium-bold vector line weight or solid mass (NEVER thin hairline, never pencil scribble, never fragile ornamental flourish).
+   - Instant legibility and high silhouette presence at small size (24px).
+   - ABSOLUTELY NO shields, crests, heraldic badges, container frames, or circular border enclosures.
+   - ABSOLUTELY NO literal profession pictograms (no medical crosses, no teeth, no stethoscopes).
 
-4. GROUNDED, SIMPLE EXPLANATIONS:
+4. GROUNDED, CLEAR ORIGIN DESCRIPTIONS (in Portuguese):
    - "title": "Elemento 01", "Elemento 02", "Elemento 03"
-   - "label": "Forma Principal" (or "Motivo Principal" if figurative), "Estrutura Geométrica", "Composição Ornamental"
-   - "origin": Short objective sentence in Portuguese stating the actual visual origin.
+   - "label": "Forma Principal", "Estrutura Geométrica", "Submarca de Alto Impacto" (or "Motivo Principal" if figurative)
+   - "origin": Short objective sentence explaining how the symbol derives from the specific pattern shapes.
 
 OUTPUT FORMAT:
 Provide strictly a JSON object with:
@@ -223,22 +226,22 @@ Provide strictly a JSON object with:
       "title": "Elemento 01",
       "label": "Forma Principal",
       "sourceType": "primary_form_or_motif",
-      "origin": "Inspirado na forma contínua e no ritmo visual da sua estampa",
+      "origin": "Inspirado na forma central fluida e no contorno dominante da sua estampa",
       "visualDescription": "a solid bold clean black vector mark of ..., confident solid stroke weight, single centered symbol filling 75% of frame, pure white background, no text, no frame, no shield"
     },
     {
       "title": "Elemento 02",
       "label": "Estrutura Geométrica",
       "sourceType": "geometric_structure",
-      "origin": "Inspirado na estrutura geométrica e na simetria modular da sua estampa",
-      "visualDescription": "a solid bold clean black vector geometric mark of ..., confident solid stroke weight, single centered symbol filling 75% of frame, pure white background, no text, no frame, no shield"
+      "origin": "Inspirado na geometria modular e na intersecção estrutural dos arcos da sua estampa",
+      "visualDescription": "a distinctive bold bespoke black vector geometric mark of ..., confident solid stroke weight and intentional internal structure, single centered symbol filling 75% of frame, pure white background, no text, no frame, no shield"
     },
     {
       "title": "Elemento 03",
-      "label": "Composição Ornamental",
+      "label": "Submarca de Alto Impacto",
       "sourceType": "compositional_harmony",
-      "origin": "Inspirado no equilíbrio de formas e na composição da sua estampa",
-      "visualDescription": "a solid bold clean black vector decorative brand symbol of ..., confident solid stroke weight, single centered symbol filling 75% of frame, pure white background, no text, no frame, no shield"
+      "origin": "Inspirado na síntese de formas e no equilíbrio de cheios e vazios da sua estampa",
+      "visualDescription": "a high-impact solid bold black vector submark symbol of ..., powerful solid silhouette presence, single centered symbol filling 75% of frame, pure white background, no text, no frame, no shield"
     }
   ]
 }
@@ -273,9 +276,9 @@ Provide strictly a JSON object with:
         if (rawElements.length >= 3) {
           elements = rawElements.slice(0, 3).map((item, idx) => ({
             title: item.title || `Elemento 0${idx + 1}`,
-            label: item.label || (idx === 0 ? (patternTypeDetected === 'abstract' ? 'Forma Principal' : 'Motivo Principal') : idx === 1 ? 'Estrutura Geométrica' : 'Composição Ornamental'),
+            label: item.label || (idx === 0 ? (patternTypeDetected === 'abstract' ? 'Forma Principal' : 'Motivo Principal') : idx === 1 ? 'Estrutura Geométrica' : 'Submarca de Alto Impacto'),
             sourceType: item.sourceType || (idx === 0 ? 'primary_form_or_motif' : idx === 1 ? 'geometric_structure' : 'compositional_harmony'),
-            origin: item.origin || (idx === 0 ? 'Inspirado na forma e no ritmo visual da sua estampa' : idx === 1 ? 'Inspirado na estrutura geométrica da sua estampa' : 'Inspirado na composição visual da sua estampa'),
+            origin: item.origin || (idx === 0 ? 'Inspirado na forma e no ritmo visual da sua estampa' : idx === 1 ? 'Inspirado na estrutura geométrica da sua estampa' : 'Inspirado na síntese visual da sua estampa'),
             visualDescription: item.visualDescription || ''
           }));
           console.log(`✅ [Brand Elements] 3 conceitos extraídos com sucesso na Tentativa 1 (Tipo: ${patternTypeDetected}).`);
@@ -291,7 +294,7 @@ Provide strictly a JSON object with:
         console.log('[Brand Elements] Executando retry controlado da análise multimodal...');
         const retryContents = [
           { inlineData: { mimeType, data: cleanBase64 } },
-          { text: "Return strictly a JSON object with 3 distinct brand submark symbols derived from this pattern: {\"patternType\":\"abstract\",\"elements\":[{\"title\":\"Elemento 01\",\"label\":\"Forma Principal\",\"origin\":\"Inspirado na forma principal da sua estampa\",\"visualDescription\":\"...\"},{\"title\":\"Elemento 02\",\"label\":\"Estrutura Geométrica\",\"origin\":\"Inspirado na estrutura geométrica da sua estampa\",\"visualDescription\":\"...\"},{\"title\":\"Elemento 03\",\"label\":\"Composição Ornamental\",\"origin\":\"Inspirado na composição da sua estampa\",\"visualDescription\":\"...\"}]}" }
+          { text: "Return strictly a JSON object with 3 distinct brand submark symbols derived from this pattern: {\"patternType\":\"abstract\",\"elements\":[{\"title\":\"Elemento 01\",\"label\":\"Forma Principal\",\"origin\":\"Inspirado na forma principal da sua estampa\",\"visualDescription\":\"...\"},{\"title\":\"Elemento 02\",\"label\":\"Estrutura Geométrica\",\"origin\":\"Inspirado na estrutura geométrica distintiva da sua estampa\",\"visualDescription\":\"...\"},{\"title\":\"Elemento 03\",\"label\":\"Submarca de Alto Impacto\",\"origin\":\"Inspirado na síntese de alto impacto da sua estampa\",\"visualDescription\":\"...\"}]}" }
         ];
 
         const retryResponse = await ai.models.generateContent({
@@ -309,9 +312,9 @@ Provide strictly a JSON object with:
           if (rawRetryElements.length >= 3) {
             elements = rawRetryElements.slice(0, 3).map((item, idx) => ({
               title: item.title || `Elemento 0${idx + 1}`,
-              label: item.label || (idx === 0 ? (patternTypeDetected === 'abstract' ? 'Forma Principal' : 'Motivo Principal') : idx === 1 ? 'Estrutura Geométrica' : 'Composição Ornamental'),
+              label: item.label || (idx === 0 ? (patternTypeDetected === 'abstract' ? 'Forma Principal' : 'Motivo Principal') : idx === 1 ? 'Estrutura Geométrica' : 'Submarca de Alto Impacto'),
               sourceType: item.sourceType || (idx === 0 ? 'primary_form_or_motif' : idx === 1 ? 'geometric_structure' : 'compositional_harmony'),
-              origin: item.origin || (idx === 0 ? 'Inspirado na forma e no ritmo visual da sua estampa' : idx === 1 ? 'Inspirado na estrutura geométrica da sua estampa' : 'Inspirado na composição visual da sua estampa'),
+              origin: item.origin || (idx === 0 ? 'Inspirado na forma e no ritmo visual da sua estampa' : idx === 1 ? 'Inspirado na estrutura geométrica da sua estampa' : 'Inspirado na síntese visual da sua estampa'),
               visualDescription: item.visualDescription || ''
             }));
             console.log(`✅ [Brand Elements] 3 conceitos extraídos com sucesso na Tentativa 2.`);
@@ -341,7 +344,7 @@ Provide strictly a JSON object with:
     const targetElements = elements.slice(0, 3);
     imagesAttempted = targetElements.length;
 
-    console.log(`[Brand Elements] Iniciando geração de 3 imagens vetoriais com gemini-2.5-flash-image / imagen-4.0...`);
+    console.log(`[Brand Elements] Iniciando geração de 3 imagens vetoriais de alto impacto com gemini-2.5-flash-image / imagen-4.0...`);
 
     const elementsPromises = targetElements.map(async (elem, index) => {
       const genPrompt = `
@@ -349,15 +352,16 @@ Generate ONE SINGLE ISOLATED BESPOKE BRAND SUBMARK ICON: ${elem.visualDescriptio
 
 STRICT MANDATORY ART DIRECTION:
 - SINGLE STANDALONE ICON ONLY: Exactly ONE central icon glyph positioned directly in the center of the frame.
-- CANVAS PROPORTION: The symbol must be prominent and bold, occupying 75% of the canvas area.
+- CANVAS PROPORTION: The symbol must be prominent, bold, and confident, occupying 75% of the canvas area.
 - STYLE & CONTRAST: Clean vector lineart or solid vector silhouette in pure solid black (#000000) on pure solid white (#FFFFFF) background.
-- VISUAL MASS: Confident solid medium-bold vector strokes with clean, antialiased edges. Must NOT be thin, hairline, or faint.
+- VISUAL MASS: Confident solid medium-bold vector strokes with clean, antialiased edges and strong silhouette presence. Must NOT be thin, hairline, fragile, or faint.
 - INSTANT LEGIBILITY: Must be instantly recognizable and clear at small icon size (24px).
 - ABSOLUTE PROHIBITIONS:
   * NO shields, crests, emblems, coat of arms, or badges
-  * NO literal profession clipart (no medical crosses, no teeth, no stethoscopes, no brain icons)
+  * NO container borders, outer circles, outer squares, boxes, or cards
+  * NO fragile decorative flourishes, thin whiskers, or ornamental scribbles
+  * NO literal profession clipart (no medical crosses, no teeth, no stethoscopes, no popcorn boxes)
   * NO background patterns, textures, or repeating tiles
-  * NO frames, boxes, cards, circular borders, or bounding rectangles
   * NO pencil sketch lines, wireframe scribbles, or hairy edges
   * NO gradients, shading, or 3D effects
   * NO secondary floating dust/dots
@@ -400,7 +404,7 @@ STRICT MANDATORY ART DIRECTION:
       try {
         const fallbackRes = await ai.models.generateImages({
           model: 'imagen-4.0-generate-001',
-          prompt: `Single isolated minimalist brand submark glyph: ${elem.visualDescription}. Solid black vector silhouette on pure solid white background. No borders, no shields, no text. Clean 2D icon.`,
+          prompt: `Single isolated bespoke minimalist brand submark glyph: ${elem.visualDescription}. Solid bold black vector silhouette on pure solid white background. High contrast, strong silhouette presence. No borders, no shields, no text. Clean 2D icon.`,
           config: {
             numberOfImages: 1,
             outputMimeType: 'image/png',
