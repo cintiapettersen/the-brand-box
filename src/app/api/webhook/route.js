@@ -122,6 +122,32 @@ export async function POST(request) {
     return Response.json({ received: true, error: 'Entrega não encontrada' });
   }
 
+  // 🔒 IDEMPOTÊNCIA DE EVENTOS DO STRIPE
+  // Se este mesmo evento já foi registrado ou se a entrega já consta como paga com esta mesma sessão,
+  // retorna sucesso imediatamente sem reprocessar ou reenviar notificações.
+  if (entrega.stripe_event_id === event.id || (entrega.paid && entrega.stripe_session_id === session.id && (event.type === 'checkout.session.completed' || event.type === 'checkout.session.async_payment_succeeded'))) {
+    console.log(`ℹ️ Evento ${event.id} (Sessão ${session.id}) já foi processado para entrega ${sessionId}. Idempotência garantida.`);
+    return Response.json({ received: true, idempotent: true });
+  }
+
+  // Função auxiliar para limpeza escopada de rascunhos anteriores pertencentes à MESMA jornada/projeto
+  const markEarlierJourneyDraftsSuperseded = async () => {
+    if (entrega.email && entrega.marca) {
+      try {
+        await supabase
+          .from('entregas')
+          .update({ payment_status: 'superseded' })
+          .ilike('email', entrega.email.trim())
+          .ilike('marca', entrega.marca.trim())
+          .eq('paid', false)
+          .eq('payment_status', 'pending')
+          .neq('id', sessionId);
+      } catch (cleanErr) {
+        console.warn('⚠️ Erro não-crítico ao marcar rascunho anterior como superseded:', cleanErr);
+      }
+    }
+  };
+
   switch (event.type) {
     case 'checkout.session.completed': {
       const isPaid = session.payment_status === 'paid';
@@ -139,6 +165,9 @@ export async function POST(request) {
             stripe_event_id: event.id,
           })
           .eq('id', sessionId);
+
+        // Marca como 'superseded' apenas rascunhos anteriores pendentes DA MESMA JORNADA (mesmo email + mesma marca)
+        await markEarlierJourneyDraftsSuperseded();
 
         await sendAccessEmailIdempotent(entrega, sessionId, session.locale === 'en' ? 'en' : 'pt-BR');
       } else if (session.payment_status === 'unpaid') {
@@ -167,6 +196,9 @@ export async function POST(request) {
           stripe_event_id: event.id,
         })
         .eq('id', sessionId);
+
+      // Marca como 'superseded' apenas rascunhos anteriores pendentes DA MESMA JORNADA
+      await markEarlierJourneyDraftsSuperseded();
 
       await sendAccessEmailIdempotent(entrega, sessionId, session.locale === 'en' ? 'en' : 'pt-BR');
       break;

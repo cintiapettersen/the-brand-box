@@ -1633,6 +1633,10 @@ export default function Home() {
         if (saveData.sessionId) {
           sessionIdPro = saveData.sessionId;
           localStorage.setItem('brandbox_session', sessionIdPro);
+          try {
+            const curProg = JSON.parse(localStorage.getItem('brandbox_progress') || '{}');
+            localStorage.setItem('brandbox_progress', JSON.stringify({ ...curProg, sessionId: sessionIdPro }));
+          } catch {}
         }
       } catch (e) { console.warn('Supabase save failed:', e); }
 
@@ -3705,6 +3709,10 @@ export default function Home() {
                             if (saveData.sessionId) {
                               sessionIdExp = saveData.sessionId;
                               localStorage.setItem('brandbox_session', sessionIdExp);
+                              try {
+                                const curProg = JSON.parse(localStorage.getItem('brandbox_progress') || '{}');
+                                localStorage.setItem('brandbox_progress', JSON.stringify({ ...curProg, sessionId: sessionIdExp }));
+                              } catch {}
                             }
                           } catch (e) {
                             console.warn('Supabase save failed, continuando sem sessionId:', e);
@@ -3866,6 +3874,7 @@ export default function Home() {
                   <button
                     onClick={() => {
                       localStorage.removeItem('brandbox_progress');
+                      localStorage.removeItem('brandbox_session');
                       setStep(1);
                       setFormData({ nome: '', email: '', marca: '', atuacao: '', atuacaoOutra: '', contextoExtra: '', publico: '', sentimentos: [], elementosVisuais: [], personalidade: '', primeiraImpressao: '', locais: [], inspiracoes: '', nuncaPensar: '', nuncaPensarTags: [] });
                       setShowContext(false);

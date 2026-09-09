@@ -12509,6 +12509,8 @@ function SucessoContent() {
             const data = json.data;
 
             if (res.ok && data && data.brand_data) {
+              // Limpa o rascunho de progresso do wizard pois o projeto foi pago e entregue com sucesso
+              try { localStorage.removeItem('brandbox_progress'); } catch {}
               let brandFromDb = typeof data.brand_data === 'string' ? (() => { try { return JSON.parse(data.brand_data); } catch { return data.brand_data; } })() : data.brand_data;
 
               // Garante fallback seguro de objetos internos para evitar runtime crashes em marcas legadas

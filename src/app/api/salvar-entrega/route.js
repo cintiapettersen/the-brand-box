@@ -14,15 +14,22 @@ export async function POST(request) {
       return Response.json({ error: 'Dados da marca ausentes.' }, { status: 400 });
     }
 
-    // Se um sessionId de rascunho foi fornecido, verifica se a entrega existe e ainda é rascunho (não paga)
+    // 1. Se um sessionId de rascunho foi fornecido, verifica se a entrega existe e ainda é rascunho pendente
     if (sessionId) {
       const { data: existing } = await supabase
         .from('entregas')
-        .select('id, paid, payment_status')
+        .select('id, paid, payment_status, marca')
         .eq('id', sessionId)
         .maybeSingle();
 
-      if (existing && !existing.paid && existing.payment_status !== 'paid') {
+      // Garante que:
+      // - Registro existente ainda não foi pago e está como 'pending' (não reutiliza registros superseded, abandoned ou paid)
+      // - Não sobrescreve um projeto genuinamente novo se o nome da marca foi alterado
+      const existingMarca = (existing?.marca || '').trim().toLowerCase();
+      const currentMarca = (marca || '').trim().toLowerCase();
+      const brandMatches = !existingMarca || !currentMarca || existingMarca === currentMarca;
+
+      if (existing && !existing.paid && existing.payment_status === 'pending' && brandMatches) {
         const { data: updatedData, error: updateError } = await supabase
           .from('entregas')
           .update({
@@ -32,6 +39,40 @@ export async function POST(request) {
             brand_data: brandState,
           })
           .eq('id', sessionId)
+          .select('id')
+          .single();
+
+        if (!updateError && updatedData) {
+          return Response.json({ sessionId: updatedData.id });
+        }
+      }
+    }
+
+    // 2. Fallback escopado: se nenhum sessionId foi passado ou se não encontrou pelo ID,
+    // busca rascunho pendente do MESMO cliente E DA MESMA MARCA (escopo estrito por email + marca + pending).
+    // Jamais reutiliza rascunhos de marcas diferentes do mesmo cliente.
+    if (email && marca) {
+      const { data: draft } = await supabase
+        .from('entregas')
+        .select('id, paid, payment_status, marca')
+        .ilike('email', email.trim())
+        .ilike('marca', marca.trim())
+        .eq('paid', false)
+        .eq('payment_status', 'pending')
+        .order('created_at', { ascending: false })
+        .limit(1)
+        .maybeSingle();
+
+      if (draft && !draft.paid && draft.payment_status === 'pending') {
+        const { data: updatedData, error: updateError } = await supabase
+          .from('entregas')
+          .update({
+            plano: plano || 'experience',
+            email: email || null,
+            marca: marca || null,
+            brand_data: brandState,
+          })
+          .eq('id', draft.id)
           .select('id')
           .single();
 

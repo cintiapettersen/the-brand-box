@@ -21,6 +21,7 @@ export async function GET(request) {
     let data = null;
     let error = null;
 
+    // 1. Método de acesso preferencial: UUID direto da entrega
     if (isUUID) {
       const res = await supabase
         .from('entregas')
@@ -31,13 +32,27 @@ export async function GET(request) {
       error = res.error;
     }
 
+    // 2. Fallback de compatibilidade (busca por email ou session_id legado)
+    // CRUCIAL: Ordena com precedência máxima para registros confirmados pagos (paid DESC)
+    // e mais recentes (created_at DESC) para que rascunhos pendentes/abandonados nunca impeçam o acesso
     if (!data) {
-      const res = await supabase
+      const isEmail = sessionId.includes('@');
+      let query = supabase
         .from('entregas')
-        .select('id, brand_data, plano, email, marca, email_enviado, paid, payment_status')
-        .or(`session_id.eq.${sessionId},email.eq.${sessionId}`)
+        .select('id, brand_data, plano, email, marca, email_enviado, paid, payment_status');
+
+      if (isEmail) {
+        query = query.ilike('email', sessionId.trim());
+      } else {
+        query = query.or(`session_id.eq.${sessionId},email.eq.${sessionId}`);
+      }
+
+      const res = await query
+        .order('paid', { ascending: false })
+        .order('created_at', { ascending: false })
         .limit(1)
         .maybeSingle();
+
       if (res.data) {
         data = res.data;
         error = null;
@@ -52,7 +67,7 @@ export async function GET(request) {
     // Permite se payment_status for paid/complete/succeeded ou null/undefined (antigos), ou se paid != false
     const status = (data.payment_status || '').toLowerCase();
     const isPaidStatus = !status || status === 'paid' || status === 'complete' || status === 'completed' || status === 'succeeded';
-    const isNotExplicitlyFailed = data.paid !== false && status !== 'failed' && status !== 'unpaid';
+    const isNotExplicitlyFailed = data.paid !== false && status !== 'failed' && status !== 'unpaid' && status !== 'superseded' && status !== 'abandoned';
 
     if (!isPaidStatus && !isNotExplicitlyFailed) {
       return Response.json({
