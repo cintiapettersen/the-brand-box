@@ -1129,7 +1129,8 @@
     "priority_order": "Ordem de Prioridade das Cores",
     "drag_reorder": "Arraste para reordenar. A cor no topo aparece mais nas suas artes — a última, menos.",
     "save_order": "Salvar ordem das cores →",
-    "order_saved": "✓ Ordem salva! Os impressos já foram atualizados."
+    "order_saved": "✓ Ordem salva! Os impressos já foram atualizados.",
+    "edit_color": "Clique para editar esta cor"
   },
   "palette_tab": {
     "main": "Principal",

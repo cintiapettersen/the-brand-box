@@ -24,6 +24,7 @@ import PrenatalPage3 from './PrenatalPage3';
 import PrenatalPage4 from './PrenatalPage4';
 import { STYLE_ICONS, ESTILO_NOME_BY_ID } from '../../../lib/styleIcons';
 import FONT_MAP from '../../../lib/fontMap';
+import { sanitizeHex } from '../../../lib/paletteValidation.js';
 import FolderVacinaPage1 from './FolderVacinaPage1';
 import FolderVacinaPage2 from './FolderVacinaPage2';
 import FolderVacinaPage3 from './FolderVacinaPage3';
@@ -602,16 +603,27 @@ function formatPaletaNome(nome, dictionary) {
   return `${dictionary?.palette_words?.Paleta?.toUpperCase() || 'PALETA'} ${phrase.toUpperCase()}`;
 }
 
-function CoresSalvarButton({ colorOrder, accentColor }) {
+function CoresSalvarButton({ colorOrder, accentColor, onSave }) {
   const { dictionary } = useTranslation();
   const [saved, setSaved] = React.useState(false);
-  const handleSave = () => {
+  const [saving, setSaving] = React.useState(false);
+  const handleSave = async () => {
+    if (onSave) {
+      setSaving(true);
+      try {
+        await onSave();
+      } catch (e) {
+        console.warn('Erro ao salvar cores:', e);
+      } finally {
+        setSaving(false);
+      }
+    }
     setSaved(true);
     setTimeout(() => setSaved(false), 2500);
   };
   return (
-    <button onClick={handleSave} style={{ width: '100%', padding: '14px', background: saved ? '#4CAF50' : '#fff', color: saved ? '#fff' : '#555', border: '1.5px solid #eaeaea', borderRadius: '30px', fontWeight: 700, fontSize: '0.95rem', cursor: 'pointer', transition: 'all 0.3s' }}>
-      {saved ? (dictionary?.color_tab?.order_saved || '✓ Ordem salva! Os impressos já foram atualizados.') : (dictionary?.color_tab?.save_order || 'Salvar ordem das cores →')}
+    <button onClick={handleSave} disabled={saving} style={{ width: '100%', padding: '14px', background: saved ? '#4CAF50' : '#fff', color: saved ? '#fff' : '#555', border: '1.5px solid #eaeaea', borderRadius: '30px', fontWeight: 700, fontSize: '0.95rem', cursor: saving ? 'wait' : 'pointer', transition: 'all 0.3s' }}>
+      {saved ? (dictionary?.color_tab?.order_saved || '✓ Ordem salva! Os impressos já foram atualizados.') : saving ? 'Salvando...' : (dictionary?.color_tab?.save_order || 'Salvar ordem das cores →')}
     </button>
   );
 }
@@ -668,15 +680,31 @@ function CoresPrioridadeStep({ paletteColors, colorOrder, setColorOrder, accentC
               userSelect: 'none',
             }}
           >
-            <div style={{ position: 'relative', width: `${sizes[i] || 40}px`, height: `${sizes[i] || 40}px`, flexShrink: 0 }}>
-              <div style={{ width: '100%', height: '100%', borderRadius: '50%', background: item.color, boxShadow: '0 2px 8px rgba(0,0,0,0.15)', cursor: onColorChange ? 'pointer' : 'default' }}
-                onClick={() => onColorChange && document.getElementById(`avulso-color-${i}`)?.click()} />
+            <div
+              style={{ position: 'relative', width: `${sizes[i] || 40}px`, height: `${sizes[i] || 40}px`, flexShrink: 0 }}
+              onMouseDown={(e) => e.stopPropagation()}
+            >
+              <div
+                style={{ width: '100%', height: '100%', borderRadius: '50%', background: item.color, boxShadow: '0 2px 8px rgba(0,0,0,0.15)', cursor: onColorChange ? 'pointer' : 'default' }}
+                onClick={() => onColorChange && document.getElementById(`palette-color-${item.idx}`)?.click()}
+                title={dictionary?.color_tab?.edit_color || 'Clique para editar esta cor'}
+                aria-label={dictionary?.color_tab?.edit_color || 'Editar cor'}
+              />
               {onColorChange && (
-                <input id={`avulso-color-${i}`} type="color" value={item.color || '#ffffff'}
+                <input
+                  id={`palette-color-${item.idx}`}
+                  type="color"
+                  value={item.color || '#ffffff'}
                   onChange={e => onColorChange(item.idx, e.target.value)}
-                  style={{ position: 'absolute', opacity: 0, width: 0, height: 0, pointerEvents: 'none' }} />
+                  style={{ position: 'absolute', opacity: 0, width: 0, height: 0, pointerEvents: 'none' }}
+                  aria-label={`${labels[i] || `Cor ${i+1}`}: ${item.color}`}
+                />
               )}
-              {onColorChange && <div style={{ position: 'absolute', bottom: 0, right: 0, background: '#fff', borderRadius: '50%', width: '16px', height: '16px', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 1px 3px rgba(0,0,0,0.2)', fontSize: '9px', pointerEvents: 'none' }}>✏️</div>}
+              {onColorChange && (
+                <div
+                  style={{ position: 'absolute', bottom: 0, right: 0, background: '#fff', borderRadius: '50%', width: '16px', height: '16px', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 1px 3px rgba(0,0,0,0.2)', fontSize: '9px', pointerEvents: 'none' }}
+                >✏️</div>
+              )}
             </div>
             <div style={{ flex: 1 }}>
               <div style={{ fontSize: '0.75rem', fontWeight: 700, color: '#333', fontFamily: 'Montserrat,sans-serif' }}>{labels[i] || `${i+1}ª cor`}</div>
@@ -10144,8 +10172,28 @@ function EntregaContent({ brand, plano, setBrand }) {
     }
   }, [estampaPatterns, estampaSelectedIdx, isInitialized, setBrand]);
   const coresRef = useRef(null);
-  const [colorOrder, setColorOrderState] = useState(() => { try { const s = localStorage.getItem(`brandbox_color_order_${brand.id}`); return s ? JSON.parse(s) : null; } catch { return null; } });
-  const setColorOrder = (v) => { setColorOrderState(v); try { localStorage.setItem(`brandbox_color_order_${brand.id}`, JSON.stringify(v)); } catch {} };
+  const [colorOrder, setColorOrderState] = useState(() => {
+    if (brand?.colorOrder && Array.isArray(brand.colorOrder)) return brand.colorOrder;
+    if (brand?.brand_data?.colorOrder && Array.isArray(brand.brand_data.colorOrder)) return brand.brand_data.colorOrder;
+    try { const s = localStorage.getItem(`brandbox_color_order_${brand?.id}`); return s ? JSON.parse(s) : null; } catch { return null; }
+  });
+  const setColorOrder = (v) => {
+    setColorOrderState(v);
+    try { if (brand?.id) localStorage.setItem(`brandbox_color_order_${brand.id}`, JSON.stringify(v)); } catch {}
+    if (setBrand) {
+      setBrand(prev => {
+        if (!prev) return prev;
+        return {
+          ...prev,
+          colorOrder: v,
+          brand_data: {
+            ...(prev.brand_data || {}),
+            colorOrder: v,
+          }
+        };
+      });
+    }
+  };
   const [downloadingCores, setDownloadingCores] = useState(false);
   const [comBorda, setComBordaState] = useState(() => {
     try {
@@ -10361,9 +10409,14 @@ function EntregaContent({ brand, plano, setBrand }) {
         if (brand.id) {
           fetch('/api/get-entrega', {
             method: 'PATCH',
-            headers: { 'Content-Type': 'application/json' },
+            headers: {
+              'Content-Type': 'application/json',
+              'Authorization': `Bearer ${sessionParam || brand.id}`,
+            },
             body: JSON.stringify({
+              deliveryId: brand.id,
               sessionId: brand.id,
+              accessCredential: sessionParam || brand.id,
               brandState: updated.brand_data || updated
             })
           }).catch(err => console.warn('Falha ao sincronizar elemento no Supabase:', err));
@@ -10813,6 +10866,117 @@ function EntregaContent({ brand, plano, setBrand }) {
   // accentColor = cor principal: respeita a ordem definida na aba Cores, senão usa logoColor
   const accentColor = orderedPaletteColors[0] || logoColor || '#C3CEDB';
 
+  const handlePaletteColorChange = (canonicalIdx, newHex) => {
+    const validHex = sanitizeHex(newHex);
+    if (!validHex) return;
+
+    const updated = [...paletteColors];
+    updated[canonicalIdx] = validHex;
+
+    const primaryIdx = colorOrder ? colorOrder[0] : 0;
+    const newActiveColor = canonicalIdx === primaryIdx ? validHex : (brand?.activeColor || paletteColors[primaryIdx]);
+
+    const newBrand = {
+      ...brand,
+      currentPaletteColors: updated,
+      activeColor: newActiveColor,
+      colorOrder: colorOrder,
+      editData: {
+        ...(brand?.editData || {}),
+        colors: updated,
+      },
+      brand_data: {
+        ...(brand?.brand_data || {}),
+        currentPaletteColors: updated,
+        activeColor: newActiveColor,
+        colorOrder: colorOrder,
+        editData: {
+          ...(brand?.brand_data?.editData || {}),
+          colors: updated,
+        },
+      },
+    };
+
+    setBrand(newBrand);
+
+    if (plano === 'avulso') {
+      try { localStorage.setItem('brandbox_avulso_' + avulsoParam, JSON.stringify(newBrand)); } catch {}
+    } else {
+      try {
+        if (brand?.id) {
+          localStorage.setItem(`brandbox_palette_colors_${brand.id}`, JSON.stringify(updated));
+          localStorage.setItem(`brandbox_color_order_${brand.id}`, JSON.stringify(colorOrder));
+        }
+        try {
+          localStorage.setItem('brandbox_delivery', JSON.stringify(newBrand));
+        } catch (_qe) {
+          const _slim = { ...newBrand };
+          if (_slim.estampaPatterns) {
+            _slim.estampaPatterns = _slim.estampaPatterns.map(p => p.base64 ? { ...p, base64: null } : p);
+          }
+          try { localStorage.setItem('brandbox_delivery', JSON.stringify(_slim)); } catch {}
+        }
+      } catch {}
+
+      if (brand?.id) {
+        fetch('/api/get-entrega', {
+          method: 'PATCH',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${sessionParam || brand.id}`,
+          },
+          body: JSON.stringify({
+            deliveryId: brand.id,
+            sessionId: brand.id,
+            accessCredential: sessionParam || brand.id,
+            paletteUpdate: {
+              currentPaletteColors: updated,
+              colorOrder: colorOrder,
+              activeColor: newActiveColor,
+            }
+          })
+        }).catch(err => console.warn('Falha ao sincronizar cores no Supabase:', err));
+      }
+    }
+  };
+
+  const handleSaveColorsAndOrder = async () => {
+    if (!brand?.id || plano === 'avulso') return;
+    const primaryIdx = colorOrder ? colorOrder[0] : 0;
+    const currentActiveColor = brand?.activeColor || (paletteColors && paletteColors[primaryIdx]) || '#C3CEDB';
+
+    try {
+      if (brand?.id) {
+        localStorage.setItem(`brandbox_color_order_${brand.id}`, JSON.stringify(colorOrder));
+        localStorage.setItem(`brandbox_palette_colors_${brand.id}`, JSON.stringify(paletteColors));
+      }
+    } catch {}
+
+    try {
+      const res = await fetch('/api/get-entrega', {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${sessionParam || brand.id}`,
+        },
+        body: JSON.stringify({
+          deliveryId: brand.id,
+          sessionId: brand.id,
+          accessCredential: sessionParam || brand.id,
+          paletteUpdate: {
+            currentPaletteColors: paletteColors,
+            colorOrder: colorOrder,
+            activeColor: currentActiveColor,
+          }
+        })
+      });
+      const data = await res.json();
+      if (!res.ok) console.warn('[sucesso] PATCH salvar cores failed:', data.error);
+    } catch (e) {
+      console.warn('[sucesso] Erro de rede ao salvar cores:', e);
+    }
+  };
+
   return (
     <div style={{ minHeight: '100vh', background: '#faf9f7', fontFamily: 'Montserrat, sans-serif', paddingBottom: '3rem' }}>
 
@@ -10884,15 +11048,15 @@ function EntregaContent({ brand, plano, setBrand }) {
               Para personalizar suas cores, clique no ícone de edição no círculo.
             </div>
           )}
-          {step === 'cores' && <CoresPrioridadeStep paletteColors={paletteColors} colorOrder={colorOrder} setColorOrder={setColorOrder} accentColor={accentColor}
-            onColorChange={plano === 'avulso' ? (idx, hex) => {
-              const updated = [...paletteColors];
-              updated[idx] = hex;
-              const newBrand = { ...brand, currentPaletteColors: updated, activeColor: updated[0] };
-              setBrand(newBrand);
-              try { localStorage.setItem('brandbox_avulso_' + avulsoParam, JSON.stringify(newBrand)); } catch {}
-            } : undefined}
-          />}
+          {step === 'cores' && (
+            <CoresPrioridadeStep
+              paletteColors={paletteColors}
+              colorOrder={colorOrder}
+              setColorOrder={setColorOrder}
+              accentColor={accentColor}
+              onColorChange={handlePaletteColorChange}
+            />
+          )}
 
           {/* Paleta — visualização completa */}
           {step === 'paleta' && plano !== 'avulso' && <CoresStep paletteColors={paletteColors} accentColor={accentColor} paletaNome={paletas?.find(p => p.id === brand.selectedPaleta)?.nome_variacao} coresRef={coresRef} />}
@@ -12033,7 +12197,7 @@ function EntregaContent({ brand, plano, setBrand }) {
           {/* BOTÕES DE DOWNLOAD (AÇÃO PRO) - MAIS SUTIS */}
 
 
-          {step === 'cores' && <CoresSalvarButton colorOrder={colorOrder} accentColor={accentColor} />}
+          {step === 'cores' && <CoresSalvarButton colorOrder={colorOrder} accentColor={accentColor} onSave={handleSaveColorsAndOrder} />}
 
           {step === 'pack-instagram' && (
             <button onClick={async () => {
@@ -12514,14 +12678,21 @@ function SucessoContent() {
               let brandFromDb = typeof data.brand_data === 'string' ? (() => { try { return JSON.parse(data.brand_data); } catch { return data.brand_data; } })() : data.brand_data;
 
               // Garante fallback seguro de objetos internos para evitar runtime crashes em marcas legadas
+              const canonicalColorsFromDb = brandFromDb?.currentPaletteColors?.length > 0
+                ? brandFromDb.currentPaletteColors
+                : (brandFromDb?.editData?.colors?.length > 0
+                    ? brandFromDb.editData.colors
+                    : ['#D4C5B0', '#C3CEDB', '#C4A882', '#6B8CAE', '#E2894D']);
+
               brandFromDb = {
                 id: data.id || sessionParam,
                 plano: data.plano || brandFromDb?.plano || 'pro',
                 ...brandFromDb,
+                currentPaletteColors: canonicalColorsFromDb,
                 editData: {
                   marca: data.marca || brandFromDb?.marca || brandFromDb?.editData?.marca || 'Sua Marca',
                   tagline: brandFromDb?.editData?.tagline || '',
-                  colors: brandFromDb?.editData?.colors || ['#D4C5B0', '#C3CEDB', '#C4A882', '#6B8CAE', '#E2894D'],
+                  colors: canonicalColorsFromDb,
                   ...(brandFromDb?.editData || {})
                 },
                 formData: {
@@ -12552,6 +12723,10 @@ function SucessoContent() {
               }
 
               try {
+                if (brandFromDb.id) {
+                  localStorage.setItem(`brandbox_palette_colors_${brandFromDb.id}`, JSON.stringify(canonicalColorsFromDb));
+                  if (brandFromDb.colorOrder) localStorage.setItem(`brandbox_color_order_${brandFromDb.id}`, JSON.stringify(brandFromDb.colorOrder));
+                }
                 // Tenta salvar versão completa; se exceder quota, salva versão enxuta (sem base64 de estampas)
                 const _deliveryStr = JSON.stringify(brandFromDb);
                 try {
@@ -12586,8 +12761,16 @@ function SucessoContent() {
                 }).then(() => {
                   fetch('/api/get-entrega', {
                     method: 'PATCH',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ sessionId: sessionParam }),
+                    headers: {
+                      'Content-Type': 'application/json',
+                      'Authorization': `Bearer ${sessionParam || data.id}`,
+                    },
+                    body: JSON.stringify({
+                      deliveryId: data.id || sessionParam,
+                      sessionId: sessionParam,
+                      accessCredential: sessionParam || data.id,
+                      emailEnviado: true,
+                    }),
                   }).catch(() => {});
                 }).catch(() => {});
               }
