@@ -176,17 +176,34 @@ export async function PATCH(request) {
       updates.email_enviado = true;
     }
 
-    const { error: updateErr } = await supabase
+    const { data: updatedRows, error: updateErr } = await supabase
       .from('entregas')
       .update(updates)
-      .eq('id', existing.id);
+      .eq('id', existing.id)
+      .select('id, brand_data');
 
     if (updateErr) {
       console.error('PATCH get-entrega Supabase error:', updateErr);
       return Response.json({ error: 'Erro ao atualizar dados da entrega.' }, { status: 500 });
     }
 
-    return Response.json({ ok: true });
+    if (!updatedRows || updatedRows.length === 0) {
+      return Response.json({ error: 'Nenhum registro de entrega atualizado no banco.' }, { status: 404 });
+    }
+
+    const savedRecord = updatedRows[0];
+    let persistedColors = null;
+    if (savedRecord.brand_data) {
+      const parsed = typeof savedRecord.brand_data === 'string' ? JSON.parse(savedRecord.brand_data) : savedRecord.brand_data;
+      persistedColors = parsed?.currentPaletteColors || parsed?.editData?.colors || null;
+    }
+
+    return Response.json({
+      ok: true,
+      updated: true,
+      deliveryId: savedRecord.id,
+      currentPaletteColors: persistedColors,
+    });
   } catch (err) {
     console.error('PATCH get-entrega unexpected error:', err);
     return Response.json({ error: 'Erro inesperado ao processar requisição.' }, { status: 500 });
