@@ -10316,6 +10316,63 @@ function EntregaContent({ brand, plano, setBrand }) {
   // para aba logo (sem item específico) usa default geral
   const customLogoScale = getCustomLogoScale('Cartão de Visita');
   const [customLogoWarn, setCustomLogoWarn] = useState(null);
+
+  const generatedBrandElements = brand.generatedBrandElements || brand.brand_data?.generatedBrandElements || brand.formData?.generatedBrandElements || [];
+
+  const [selectedBrandElementId, setSelectedBrandElementIdState] = useState(() => {
+    try {
+      const stored = localStorage.getItem(`brandbox_selected_brand_element_${brand.id}`);
+      if (stored !== null) return stored === 'none' ? null : stored;
+      return brand.selectedBrandElementId || brand.brand_data?.selectedBrandElementId || (brand.brandElement ? brand.brandElement.id : (generatedBrandElements[0]?.id || null));
+    } catch {
+      return brand.selectedBrandElementId || brand.brand_data?.selectedBrandElementId || (brand.brandElement ? brand.brandElement.id : (generatedBrandElements[0]?.id || null));
+    }
+  });
+
+  const selectedBrandElement = selectedBrandElementId 
+    ? (generatedBrandElements.find(e => e.id === selectedBrandElementId) || brand.brandElement || brand.brand_data?.brandElement || null)
+    : null;
+
+  const setSelectedBrandElementId = (id) => {
+    setSelectedBrandElementIdState(id);
+    const chosen = id ? (generatedBrandElements.find(e => e.id === id) || null) : null;
+    try {
+      if (id) localStorage.setItem(`brandbox_selected_brand_element_${brand.id}`, id);
+      else localStorage.setItem(`brandbox_selected_brand_element_${brand.id}`, 'none');
+    } catch {}
+
+    if (setBrand) {
+      setBrand(prev => {
+        const updated = {
+          ...prev,
+          selectedBrandElementId: id,
+          brandElement: chosen,
+          editData: {
+            ...prev.editData,
+            brandElement: chosen
+          },
+          brand_data: {
+            ...(prev.brand_data || {}),
+            selectedBrandElementId: id,
+            brandElement: chosen
+          }
+        };
+
+        if (brand.id) {
+          fetch('/api/get-entrega', {
+            method: 'PATCH',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              sessionId: brand.id,
+              brandState: updated.brand_data || updated
+            })
+          }).catch(err => console.warn('Falha ao sincronizar elemento no Supabase:', err));
+        }
+
+        return updated;
+      });
+    }
+  };
   
   // editData enriquecido com logo customizada — flui automaticamente para LogoPreviewHTML via editData
   const editDataWithLogo = React.useMemo(() => ({
@@ -10605,63 +10662,6 @@ function EntregaContent({ brand, plano, setBrand }) {
   const { paletas } = brand;
   const estiloNome = ESTILO_NOME_BY_ID[brand.resultadoFinal?.estiloId] || brand.resultadoFinal?.estiloNome || '';
   const styleIcons = STYLE_ICONS[estiloNome] || [];
-
-  const generatedBrandElements = brand.generatedBrandElements || brand.brand_data?.generatedBrandElements || brand.formData?.generatedBrandElements || [];
-
-  const [selectedBrandElementId, setSelectedBrandElementIdState] = useState(() => {
-    try {
-      const stored = localStorage.getItem(`brandbox_selected_brand_element_${brand.id}`);
-      if (stored !== null) return stored === 'none' ? null : stored;
-      return brand.selectedBrandElementId || brand.brand_data?.selectedBrandElementId || (brand.brandElement ? brand.brandElement.id : (generatedBrandElements[0]?.id || null));
-    } catch {
-      return brand.selectedBrandElementId || brand.brand_data?.selectedBrandElementId || (brand.brandElement ? brand.brandElement.id : (generatedBrandElements[0]?.id || null));
-    }
-  });
-
-  const selectedBrandElement = selectedBrandElementId 
-    ? (generatedBrandElements.find(e => e.id === selectedBrandElementId) || brand.brandElement || brand.brand_data?.brandElement || null)
-    : null;
-
-  const setSelectedBrandElementId = (id) => {
-    setSelectedBrandElementIdState(id);
-    const chosen = id ? (generatedBrandElements.find(e => e.id === id) || null) : null;
-    try {
-      if (id) localStorage.setItem(`brandbox_selected_brand_element_${brand.id}`, id);
-      else localStorage.setItem(`brandbox_selected_brand_element_${brand.id}`, 'none');
-    } catch {}
-
-    if (setBrand) {
-      setBrand(prev => {
-        const updated = {
-          ...prev,
-          selectedBrandElementId: id,
-          brandElement: chosen,
-          editData: {
-            ...prev.editData,
-            brandElement: chosen
-          },
-          brand_data: {
-            ...(prev.brand_data || {}),
-            selectedBrandElementId: id,
-            brandElement: chosen
-          }
-        };
-
-        if (brand.id) {
-          fetch('/api/get-entrega', {
-            method: 'PATCH',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-              sessionId: brand.id,
-              brandState: updated.brand_data || updated
-            })
-          }).catch(err => console.warn('Falha ao sincronizar elemento no Supabase:', err));
-        }
-
-        return updated;
-      });
-    }
-  };
 
   const [selectedIcon, setSelectedIconState] = useState(() => { try { return localStorage.getItem(`brandbox_selected_icon_${brand.id}`) || brand.selectedIcon || null; } catch { return brand.selectedIcon || null; } });
   const setSelectedIcon = (v) => { setSelectedIconState(v); try { if (v) localStorage.setItem(`brandbox_selected_icon_${brand.id}`, v); else localStorage.removeItem(`brandbox_selected_icon_${brand.id}`); } catch {} };
