@@ -618,8 +618,11 @@ function CoresSalvarButton({ colorOrder, accentColor, onSave }) {
       setSaved(true);
       setTimeout(() => setSaved(false), 3000);
     } catch (e) {
-      console.error('Erro ao salvar cores:', e);
-      setSaveError(e.message || 'Erro ao salvar cores no servidor.');
+      if (process.env.NODE_ENV !== 'production') {
+        console.error('[sucesso] Erro ao salvar cores:', e?.message || e);
+      }
+      const userFriendlyMsg = e?.userMessage || dictionary?.color_tab?.save_error || 'Não foi possível salvar as alterações. Tente novamente.';
+      setSaveError(userFriendlyMsg);
       setTimeout(() => setSaveError(null), 5000);
     } finally {
       setSaving(false);
@@ -9928,11 +9931,12 @@ class PostPaymentErrorBoundary extends React.Component {
   }
 }
 
-function EntregaContent({ brand, plano, setBrand }) {
+function EntregaContent({ brand, plano, setBrand, sessionParam: propSessionParam }) {
   const { dictionary, lang } = useTranslation();
   const tLogo = dictionary?.logo_tab || {};
   const _params = useSearchParams();
   const avulsoParam = _params.has('avulso') ? (_params.get('avulso') || 'inicio') : null;
+  const sessionParam = propSessionParam || _params.get('session') || _params.get('id') || _params.get('session_id') || _params.get('project') || _params.get('b') || _params.get('entrega') || _params.get('p') || (typeof window !== 'undefined' ? localStorage.getItem('brandbox_session') : null) || null;
   const [step, setStepState] = useState('placa');
   const setStep = (s) => { setStepState(s); try { if (brand?.id) localStorage.setItem(`brandbox_step_${brand.id}`, s); } catch {} };
   // Avulso começa nos impressos, não no brand board
@@ -10955,36 +10959,66 @@ function EntregaContent({ brand, plano, setBrand }) {
   };
 
   const handleSaveColorsAndOrder = async () => {
-    if (!brand?.id || plano === 'avulso') return;
+    if (plano === 'avulso') return;
+
+    const deliveryId = brand?.id;
+    const accessCredential = sessionParam || deliveryId;
+
+    if (!deliveryId || !accessCredential) {
+      if (process.env.NODE_ENV !== 'production') {
+        console.error('[sucesso] Salvamento de paleta bloqueado: deliveryId ou accessCredential ausente.');
+      }
+      const err = new Error('Identificador da entrega ou credencial de acesso ausente.');
+      err.userMessage = dictionary?.color_tab?.save_auth_error || 'Não foi possível autenticar o projeto para salvar. Recarregue a página pelo link de acesso recebido.';
+      throw err;
+    }
+
     const primaryIdx = colorOrder ? colorOrder[0] : 0;
     const currentActiveColor = brand?.activeColor || (paletteColors && paletteColors[primaryIdx]) || '#C3CEDB';
 
-    const res = await fetch('/api/get-entrega', {
-      method: 'PATCH',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${sessionParam || brand.id}`,
-      },
-      body: JSON.stringify({
-        deliveryId: brand.id,
-        sessionId: brand.id,
-        accessCredential: sessionParam || brand.id,
-        paletteUpdate: {
-          currentPaletteColors: paletteColors,
-          colorOrder: colorOrder,
-          activeColor: currentActiveColor,
-        }
-      })
-    });
-
-    const data = await res.json().catch(() => ({}));
-    if (!res.ok) {
-      console.error('[sucesso] PATCH salvar cores failed:', data?.error || res.status);
-      throw new Error(data?.error || 'Erro ao salvar alterações no servidor.');
+    let res;
+    let data;
+    try {
+      res = await fetch('/api/get-entrega', {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${accessCredential}`,
+        },
+        body: JSON.stringify({
+          deliveryId: deliveryId,
+          sessionId: deliveryId,
+          accessCredential: accessCredential,
+          paletteUpdate: {
+            currentPaletteColors: paletteColors,
+            colorOrder: colorOrder,
+            activeColor: currentActiveColor,
+          }
+        })
+      });
+      data = await res.json().catch(() => ({}));
+    } catch (netErr) {
+      if (process.env.NODE_ENV !== 'production') {
+        console.error('[sucesso] Falha de rede ao chamar PATCH /api/get-entrega:', netErr?.message);
+      }
+      const err = new Error('Falha de conexão com o servidor.');
+      err.userMessage = dictionary?.color_tab?.save_network_error || 'Erro de conexão ao salvar alterações. Verifique sua internet e tente novamente.';
+      throw err;
     }
 
-    if (data.deliveryId && data.deliveryId !== brand.id) {
-      throw new Error('ID de entrega retornado pelo servidor não confere com o projeto atual.');
+    if (!res.ok) {
+      if (process.env.NODE_ENV !== 'production') {
+        console.error('[sucesso] PATCH salvar cores retornou status:', res.status, data?.error);
+      }
+      const err = new Error(data?.error || `Erro HTTP ${res.status}`);
+      err.userMessage = dictionary?.color_tab?.save_error || 'Não foi possível salvar as alterações no servidor. Tente novamente.';
+      throw err;
+    }
+
+    if (data.deliveryId && data.deliveryId !== deliveryId) {
+      const err = new Error('ID de entrega retornado pelo servidor não confere com o projeto atual.');
+      err.userMessage = dictionary?.color_tab?.save_error || 'Erro de sincronização com o projeto. Recarregue a página.';
+      throw err;
     }
 
     if (Array.isArray(data.currentPaletteColors)) {
@@ -10992,7 +11026,9 @@ function EntregaContent({ brand, plano, setBrand }) {
         paletteColors.length === data.currentPaletteColors.length &&
         paletteColors.every((c, i) => c.toLowerCase() === data.currentPaletteColors[i].toLowerCase());
       if (!isMatched) {
-        throw new Error('A paleta persistida retornada pelo servidor diverge da paleta enviada.');
+        const err = new Error('A paleta persistida retornada pelo servidor diverge da paleta enviada.');
+        err.userMessage = dictionary?.color_tab?.save_error || 'Divergência ao persistir paleta no servidor. Tente novamente.';
+        throw err;
       }
     }
 
@@ -13188,7 +13224,7 @@ function SucessoContent() {
     );
   }
 
-  return <EntregaContent brand={brand} plano={plano} setBrand={setBrand} />;
+  return <EntregaContent brand={brand} plano={plano} setBrand={setBrand} sessionParam={sessionParam} />;
 }
 
 export default function Sucesso() {
