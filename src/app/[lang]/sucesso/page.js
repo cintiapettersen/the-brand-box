@@ -184,13 +184,14 @@ export const ITEM_CUSTOM_BASE_SCALES = {
   'Atestado Médico': 2.0, 'Recibo': 2.0,
   'Ficha de Cadastro': 2.0, 'Prontuário Médico': 2.0,
   'Certificado de Coragem': 1.0,
-  // Folders and other standardized items
+  'Papel Timbrado': 2.0,
   'Guia Alimentar': 2.0,
   'Guia de Cuidados': 2.0,
   'Guia de Desenvolvimento': 2.0,
   'Cartão de Exame Pré-Natal': 2.0,
   'Guia do Sono': 2.0,
   'Guia de Amamentação': 2.0,
+  'Guia de Vacinação': 2.0,
   'Guia de Vacina c/ Calendário': 2.0,
   'Cartão de Vacina': 2.0,
   'Diário do Xixi': 2.0,
@@ -3708,24 +3709,45 @@ function A5ItemPreview({ item, accentColor, patternSrc, editData, logoColor, log
       {/* Área branca com recorte casinha (funciona em ambos os modos) */}
       <div style={{ position: 'absolute', top: BORDER, left: BORDER, right: BORDER, bottom: BORDER, background: '#fff', clipPath: roofClip }} />
       {/* Logo no topo */}
-      <div style={{ position: 'absolute', top: BORDER + 18, left: '50%', transform: 'translateX(-50%)', width: '140px', height: '44px', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
-        <LogoPreviewHTML item={item} editData={editData} color={logoColor} layout={logoLayout} scaleFactor={0.65} crm={crmLine} hideTagline={hideTagline} withBackground={false} maxWidth="140px" maxHeight="44px" />
+      <div style={{ position: 'absolute', top: BORDER + 16, left: '50%', transform: 'translateX(-50%)', width: '130px', height: '38px', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
+        <LogoPreviewHTML item={item} editData={editData} color={logoColor} layout={logoLayout} scaleFactor={0.58} crm={crmLine} hideTagline={hideTagline} withBackground={false} maxWidth="130px" maxHeight="38px" />
       </div>
-      {/* Rodapé — linha 1: clínica · telefones  /  linha 2: @ig · email · site · endereço */}
-      <div style={{ position: 'absolute', bottom: BORDER + 3, left: BORDER + 4, right: BORDER + 4, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '2px' }}>
-        {(clinicaNome || phones) && (
-          <div style={{ fontFamily: "'Montserrat',sans-serif", fontSize: '4.5px', color: '#555', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', maxWidth: '100%', textAlign: 'center' }}>
-            {[clinicaNome, phones].filter(Boolean).join('  ·  ')}
-          </div>
-        )}
-        {(instagram || email || site || endereco) && (
-          <div style={{ fontFamily: "'Montserrat',sans-serif", fontSize: '4.5px', color: '#888', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', maxWidth: '100%', textAlign: 'center' }}>
-            {[instagram ? `@${instagram}` : '', email, site, endereco].filter(Boolean).join('  ·  ')}
-          </div>
-        )}
-      </div>
-      {/* Linha separadora rodapé */}
-      <div style={{ position: 'absolute', bottom: BORDER + (clinicaNome || phones ? 12 : 6) + (instagram || site || endereco ? 8 : 0), left: BORDER + 8, right: BORDER + 8, height: '0.5px', background: '#e0e0e0' }} />
+
+      {/* Rodapé Padronizado em 4 linhas */}
+      {!!(clinicaNome || whatsapp || telefone || telefone2 || email || site || instagram || endereco) && <>
+        <div style={{ position: 'absolute', bottom: BORDER + 2, left: BORDER + 4, right: BORDER + 4, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '1.5px', textAlign: 'center' }}>
+          {clinicaNome && (
+            <div style={{ fontFamily: "'Montserrat',sans-serif", fontSize: '4.2px', fontWeight: 800, color: accentColor, textTransform: 'uppercase', letterSpacing: '0.4px', marginBottom: '0.5px' }}>
+              {clinicaNome}
+            </div>
+          )}
+          {(whatsapp || telefone || telefone2) && (
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '3px', flexWrap: 'wrap', maxWidth: '100%' }}>
+              {whatsapp && (
+                <span style={{ display: 'inline-flex', alignItems: 'center', gap: '1.5px', fontFamily: "'Montserrat',sans-serif", fontSize: '4.2px', fontWeight: 600, color: '#444' }}>
+                  <svg viewBox="0 0 24 24" width="5.5" height="5.5" fill="#25D366" style={{ flexShrink: 0 }}><path d={ICON_PATHS.whatsapp}/></svg>
+                  {whatsapp}
+                </span>
+              )}
+              {[telefone, telefone2].filter(Boolean).map((phone, idx) => (
+                <span key={idx} style={{ fontFamily: "'Montserrat',sans-serif", fontSize: '4.2px', color: '#555' }}>
+                  {(whatsapp || idx > 0) ? ' · ' : ''}{phone}
+                </span>
+              ))}
+            </div>
+          )}
+          {(instagram || email || site) && (
+            <div style={{ fontFamily: "'Montserrat',sans-serif", fontSize: '3.8px', color: '#777', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', maxWidth: '100%' }}>
+              {[instagram ? `@${instagram.replace(/^@/, '')}` : '', email, site].filter(Boolean).join('  ·  ')}
+            </div>
+          )}
+          {endereco && (
+            <div style={{ fontFamily: "'Montserrat',sans-serif", fontSize: '3.8px', color: '#999', lineHeight: 1.1, maxWidth: '100%' }}>
+              {endereco}
+            </div>
+          )}
+        </div>
+      </>}
     </div>
     </div>
   );
@@ -4577,16 +4599,20 @@ function GuiaCuidadosPreview({ brand, logoColor, logoLayout, comBorda, setComBor
   );
 }
 
-function FolderTrifoldPreview({ brand, editData, logoColor, logoLayout, comBorda, setComBorda, patternSrc, patternScale, setPatternScale, accentColor, borderColor, setBorderColor, paletteColors, title, subtitle, cartaoContacts, folderRoof, setFolderRoof, crmLine , patternOffset, setPatternOffset}) {
+function FolderTrifoldPreview({ brand, editData, logoColor, logoLayout, comBorda, setComBorda, patternSrc, patternScale, setPatternScale, accentColor, borderColor, setBorderColor, paletteColors, title, subtitle, cartaoContacts, folderRoof, setFolderRoof, crmLine , patternOffset, setPatternOffset, clinicaNome: clinicaNomeProp }) {
   const { dictionary, lang } = useTranslation();
   const mainColor = paletteColors?.[0] || accentColor;
   const _brandData = editData || brand.editData || {};
   const instagram = cartaoContacts?.instagram || brand?.instagram || '';
   const site = cartaoContacts?.site || brand?.site || '';
-  const clinicaNome = brand?.clinicaNome || brand?.editData?.clinicaNome || '';
+  const clinicaNome = clinicaNomeProp || brand?.clinicaNome || brand?.editData?.clinicaNome || '';
   const endereco = cartaoContacts?.endereco || brand?.endereco || brand?.editData?.endereco || '';
+  const whatsapp = cartaoContacts?.whatsapp || '';
+  const telefone = cartaoContacts?.telefone || '';
+  const telefone2 = cartaoContacts?.telefone2 || '';
+  const email = cartaoContacts?.email || brand?.email || '';
 
-  const allPhones = [cartaoContacts?.whatsapp, cartaoContacts?.telefone].filter(Boolean).join(' · ');
+  const allPhones = [whatsapp, telefone, telefone2].filter(Boolean).join(' · ');
   const logoHtml = <div style={{ display: "flex", alignItems: "center", justifyContent: "center"}}><LogoPreviewHTML item={title} editData={_brandData} color={logoColor} layout={logoLayout} scaleFactor={1} crm={crmLine} maxWidth="70px" maxHeight="35px" hideTagline /></div>;
   const _borderColor = borderColor || accentColor;
   
@@ -4765,23 +4791,33 @@ function FolderTrifoldPreview({ brand, editData, logoColor, logoLayout, comBorda
             </div>
 
             {/* ETIQUETA DE DADOS NO RODAPÉ (DISCRETA E ELEGANTE) */}
-            {!!(clinicaNome || endereco || allPhones || brand.email || site || instagram) ? (
+            {!!(clinicaNome || endereco || whatsapp || telefone || telefone2 || email || site || instagram) ? (
               <div style={{ position: 'absolute', bottom: '10px', left: '12px', right: '12px', background: '#fff', border: `0.5px solid ${mainColor}15`, borderRadius: '3px', padding: '4px 10px', zIndex: 4, boxShadow: 'none', textAlign: 'center', display: 'flex', flexDirection: 'column', gap: '1px' }}>
                   {clinicaNome && <div style={{ fontSize: '5.2px', fontWeight: 800, color: mainColor, marginBottom: '0.5px' }}>{clinicaNome}</div>}
-                  {endereco && <div style={{ fontSize: '4.2px', color: '#999', fontWeight: 500, lineHeight: 1.1 }}>{endereco}</div>}
                   
-                  {allPhones && (
-                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '2px', marginTop: '0.5px' }}>
-                       <svg viewBox="0 0 24 24" width="7" height="7" fill="#25D366" style={{ flexShrink: 0 }}><path d={ICON_PATHS.whatsapp}/></svg>
-                       <div style={{ fontSize: '5.5px', fontWeight: 800, color: '#444' }}>{allPhones}</div>
+                  {(whatsapp || telefone || telefone2) && (
+                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '3px', marginTop: '0.5px', flexWrap: 'wrap' }}>
+                       {whatsapp && (
+                         <span style={{ display: 'inline-flex', alignItems: 'center', gap: '2px', fontSize: '5.5px', fontWeight: 800, color: '#444' }}>
+                           <svg viewBox="0 0 24 24" width="7" height="7" fill="#25D366" style={{ flexShrink: 0 }}><path d={ICON_PATHS.whatsapp}/></svg>
+                           {whatsapp}
+                         </span>
+                       )}
+                       {[telefone, telefone2].filter(Boolean).map((phone, idx) => (
+                         <span key={idx} style={{ fontSize: '5.5px', fontWeight: 800, color: '#444' }}>
+                           {(whatsapp || idx > 0) ? ' · ' : ''}{phone}
+                         </span>
+                       ))}
                     </div>
                   )}
 
-                  {(brand.email || site || instagram) && (
+                  {(email || site || instagram) && (
                     <div style={{ fontSize: '4px', color: '#aaa', marginTop: '0.5px' }}>
-                       {[brand.email, site, instagram ? `@${instagram}` : ''].filter(Boolean).join('  ·  ')}
+                       {[instagram ? `@${instagram.replace(/^@/, '')}` : '', email, site].filter(Boolean).join('  ·  ')}
                     </div>
                   )}
+
+                  {endereco && <div style={{ fontSize: '4.2px', color: '#999', fontWeight: 500, lineHeight: 1.1, marginTop: '0.5px' }}>{endereco}</div>}
               </div>
             ) : null}
           </Page>
@@ -5016,17 +5052,17 @@ function AtestadoPreview({ accentColor, patternSrc, editData, logoColor, logoLay
       <div style={{ position: 'absolute', top: BORDER, left: BORDER, right: BORDER, bottom: BORDER, background: '#fff', clipPath: roofClip }} />
 
       {/* Logo no topo */}
-      <div style={{ position: 'absolute', top: `${BORDER + 18}px`, left: '50%', transform: 'translateX(-50%)', width: '140px', height: '44px', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
+      <div style={{ position: 'absolute', top: `${BORDER + 10}px`, left: '50%', transform: 'translateX(-50%)', width: '140px', height: '44px', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
         <LogoPreviewHTML item="Atestado Médico" editData={editData} color={logoColor} layout={logoLayout} scaleFactor={0.65} crm={crmLine} hideTagline={hideTagline} withBackground={false} maxWidth="140px" maxHeight="44px" />
       </div>
 
       {/* Título */}
-      <div style={{ position: 'absolute', top: '110px', left: 0, right: 0, fontFamily: "'Montserrat',sans-serif", fontWeight: 800, fontSize: '7.5px', letterSpacing: '1.2px', textAlign: 'center', color: '#1a1a2e' }}>{dictionary?.atestado?.titulo?.toUpperCase() || 'ATESTADO MÉDICO'}</div>
+      <div style={{ position: 'absolute', top: '94px', left: 0, right: 0, fontFamily: "'Montserrat',sans-serif", fontWeight: 800, fontSize: '7.5px', letterSpacing: '1.2px', textAlign: 'center', color: '#1a1a2e' }}>{dictionary?.atestado?.titulo?.toUpperCase() || 'ATESTADO MÉDICO'}</div>
 
       {atestadoModelo === 2 ? (
       <>
       {/* Texto: padding horizontal de 9mm → ~25px */}
-      <div style={{ position: 'absolute', top: '135px', left: '25px', right: '22px', fontFamily: "'Montserrat',sans-serif", fontSize: '5.5px', color: '#333', display: 'flex', flexDirection: 'column', gap: '8px', lineHeight: 1.2 }}>
+      <div style={{ position: 'absolute', top: '122px', left: '25px', right: '22px', fontFamily: "'Montserrat',sans-serif", fontSize: '5.5px', color: '#333', display: 'flex', flexDirection: 'column', gap: '8px', lineHeight: 1.2 }}>
         {[
           [[dictionary?.atestado?.declaracao || 'Declaro para os devidos fins, que', false], ['', true]],
           [['', true], [dictionary?.atestado?.esteve_em_consulta || ', esteve em consulta, das', false], ['', 'fixed:14px'], [dictionary?.atestado?.hs_as || 'hs às', false], ['', 'fixed:14px'], [',', false]],
@@ -5046,17 +5082,17 @@ function AtestadoPreview({ accentColor, patternSrc, editData, logoColor, logoLay
       </div>
 
       {/* Data/cidade: SVG y=222.64 → 216px */}
-      <div style={{ position: 'absolute', top: '216px', left: 0, right: 0, textAlign: 'center', fontFamily: "'Montserrat',sans-serif", fontSize: '4.5px', color: '#555' }}>
+      <div style={{ position: 'absolute', top: '202px', left: 0, right: 0, textAlign: 'center', fontFamily: "'Montserrat',sans-serif", fontSize: '4.5px', color: '#555' }}>
         <B w="26px" />, <B w="9px" /> de <B w="16px" /> de <B w="9px" />
       </div>
 
       {/* Assinatura: SVG y=251.6 → 244px */}
-      <div style={{ position: 'absolute', top: '244px', left: '20%', right: '20%', borderTop: '0.5px solid #555' }} />
+      <div style={{ position: 'absolute', top: '232px', left: '20%', right: '20%', borderTop: '0.5px solid #555' }} />
       </>
       ) : (
       <>
       {/* Modelo 2: declaração curta + checkboxes + CID + Local/Data + Assinatura */}
-      <div style={{ position: 'absolute', top: '128px', left: '25px', right: '22px', fontFamily: "'Montserrat',sans-serif", fontSize: '5.5px', color: '#333', display: 'flex', flexDirection: 'column', gap: '5px', lineHeight: 1.2 }}>
+      <div style={{ position: 'absolute', top: '122px', left: '25px', right: '22px', fontFamily: "'Montserrat',sans-serif", fontSize: '5.5px', color: '#333', display: 'flex', flexDirection: 'column', gap: '5px', lineHeight: 1.2 }}>
         <div style={{ display: 'flex', alignItems: 'flex-end', gap: '1px' }}>
           <span style={{ whiteSpace: 'nowrap' }}>{dictionary?.atestado?.atesto_que || 'Atesto que o(a) Sr.(a)'}</span>
           <span style={{ flex: 1, borderBottom: '0.6px solid #555' }}>&nbsp;</span>
@@ -5093,33 +5129,60 @@ function AtestadoPreview({ accentColor, patternSrc, editData, logoColor, logoLay
       </div>
 
       {/* CID */}
-      <div style={{ position: 'absolute', top: '208px', left: '22px', right: '22px', display: 'flex', alignItems: 'flex-end', gap: '3px', fontFamily: "'Montserrat',sans-serif", fontSize: '5.5px', color: '#333' }}>
+      <div style={{ position: 'absolute', top: '196px', left: '22px', right: '22px', display: 'flex', alignItems: 'flex-end', gap: '3px', fontFamily: "'Montserrat',sans-serif", fontSize: '5.5px', color: '#333' }}>
         <span style={{ whiteSpace: 'nowrap' }}>{dictionary?.atestado?.cid_label || 'CID:'}</span>
         <span style={{ width: '40px', borderBottom: '0.6px solid #555', display: 'inline-block' }}>&nbsp;</span>
         <span style={{ whiteSpace: 'nowrap', fontSize: '4px', color: '#999' }}>({dictionary?.atestado?.cid_caption || 'preenchimento com autorização do paciente'})</span>
       </div>
 
       {/* Local e Data */}
-      <div style={{ position: 'absolute', top: '232px', left: '22px', right: '22px', borderBottom: '0.6px solid #555' }} />
-      <div style={{ position: 'absolute', top: '234px', left: '22px', right: '22px', textAlign: 'center', fontFamily: "'Montserrat',sans-serif", fontSize: '4px', color: '#555' }}>
+      <div style={{ position: 'absolute', top: '218px', left: '22px', right: '22px', borderBottom: '0.6px solid #555' }} />
+      <div style={{ position: 'absolute', top: '220px', left: '22px', right: '22px', textAlign: 'center', fontFamily: "'Montserrat',sans-serif", fontSize: '4px', color: '#555' }}>
         {dictionary?.atestado?.local_data || 'Local e Data'}
       </div>
 
       {/* Assinatura do Médico */}
-      <div style={{ position: 'absolute', top: '256px', left: '60px', right: '60px', borderBottom: '0.6px solid #555' }} />
-      <div style={{ position: 'absolute', top: '258px', left: '60px', right: '60px', textAlign: 'center', fontFamily: "'Montserrat',sans-serif", fontSize: '4px', color: '#555' }}>
+      <div style={{ position: 'absolute', top: '242px', left: '60px', right: '60px', borderBottom: '0.6px solid #555' }} />
+      <div style={{ position: 'absolute', top: '244px', left: '60px', right: '60px', textAlign: 'center', fontFamily: "'Montserrat',sans-serif", fontSize: '4px', color: '#555' }}>
         {dictionary?.atestado?.assinatura_medico || 'Assinatura do Médico'}
       </div>
       </>
       )}
 
       {/* Rodapé: SVG y=309 → bottom */}
-      {(footerLine1 || footerLine2) && <>
-        <div style={{ position: 'absolute', bottom: BORDER + 3, left: BORDER + 4, right: BORDER + 4, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '2px' }}>
-          {footerLine1 && <div style={{ fontFamily: "'Montserrat',sans-serif", fontSize: '4.5px', color: '#555', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', maxWidth: '100%', textAlign: 'center' }}>{footerLine1}</div>}
-          {footerLine2 && <div style={{ fontFamily: "'Montserrat',sans-serif", fontSize: '4.5px', color: '#888', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', maxWidth: '100%', textAlign: 'center' }}>{footerLine2}</div>}
+      {!!(clinicaNome || whatsapp || telefone || telefone2 || email || site || instagram || endereco) && <>
+        <div style={{ position: 'absolute', bottom: BORDER + 2, left: BORDER + 4, right: BORDER + 4, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '1.5px', textAlign: 'center' }}>
+          {clinicaNome && (
+            <div style={{ fontFamily: "'Montserrat',sans-serif", fontSize: '4.2px', fontWeight: 800, color: accentColor, textTransform: 'uppercase', letterSpacing: '0.4px', marginBottom: '0.5px' }}>
+              {clinicaNome}
+            </div>
+          )}
+          {(whatsapp || telefone || telefone2) && (
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '3px', flexWrap: 'wrap', maxWidth: '100%' }}>
+              {whatsapp && (
+                <span style={{ display: 'inline-flex', alignItems: 'center', gap: '1.5px', fontFamily: "'Montserrat',sans-serif", fontSize: '4.2px', fontWeight: 600, color: '#444' }}>
+                  <svg viewBox="0 0 24 24" width="5.5" height="5.5" fill="#25D366" style={{ flexShrink: 0 }}><path d={ICON_PATHS.whatsapp}/></svg>
+                  {whatsapp}
+                </span>
+              )}
+              {[telefone, telefone2].filter(Boolean).map((phone, idx) => (
+                <span key={idx} style={{ fontFamily: "'Montserrat',sans-serif", fontSize: '4.2px', color: '#555' }}>
+                  {(whatsapp || idx > 0) ? ' · ' : ''}{phone}
+                </span>
+              ))}
+            </div>
+          )}
+          {(instagram || email || site) && (
+            <div style={{ fontFamily: "'Montserrat',sans-serif", fontSize: '3.8px', color: '#777', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', maxWidth: '100%' }}>
+              {[instagram ? `@${instagram.replace(/^@/, '')}` : '', email, site].filter(Boolean).join('  ·  ')}
+            </div>
+          )}
+          {endereco && (
+            <div style={{ fontFamily: "'Montserrat',sans-serif", fontSize: '3.8px', color: '#999', lineHeight: 1.1, maxWidth: '100%' }}>
+              {endereco}
+            </div>
+          )}
         </div>
-        <div style={{ position: 'absolute', bottom: BORDER + (footerLine1 && footerLine2 ? 18 : 11), left: BORDER + 8, right: BORDER + 8, height: '0.5px', background: '#e0e0e0' }} />
       </>}
     </div>
     </div>
@@ -5152,6 +5215,7 @@ function PapelTimbradoPreview({ brand, editData, accentColor, patternSrc, logoCo
   const effectiveSrc = comBorda ? patternSrc : null;
   const solidColor = borderColor || paletteColors[0] || accentColor;
   const roofClip = folderRoof ? 'polygon(0% 8%, 50% 0%, 100% 8%, 100% 100%, 0% 100%)' : 'none';
+  const { whatsapp, telefone, telefone2, email, instagram, site, endereco } = cartaoContacts || {};
   
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', alignItems: 'center' }}>
@@ -5175,17 +5239,41 @@ function PapelTimbradoPreview({ brand, editData, accentColor, patternSrc, logoCo
         </div>
 
         {/* Central Watermark */}
-        <div style={{ position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%)', opacity: 0.15, width: '160px', display: 'flex', justifyContent: 'center', pointerEvents: 'none', overflow: 'hidden' }}>
-           <LogoPreviewHTML editData={editData} color={logoColor} layout={logoLayout} scaleFactor={0.65} hideTagline maxWidth="160px" maxHeight="100px" />
+        <div style={{ position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%)', opacity: 0.12, width: '125px', display: 'flex', justifyContent: 'center', pointerEvents: 'none', overflow: 'hidden' }}>
+           <LogoPreviewHTML editData={editData} color={logoColor} layout={logoLayout} scaleFactor={0.50} hideTagline maxWidth="125px" maxHeight="65px" />
         </div>
 
         {/* Footer */}
-        <div style={{ position: 'absolute', bottom: BORDER + 15, left: BORDER + 10, right: BORDER + 10, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '3px' }}>
-           <div style={{ fontSize: '4.5px', fontWeight: 800, color: accentColor, textAlign: 'center' }}>{clinicaNome}</div>
-           <div style={{ fontSize: '4px', color: '#888', textAlign: 'center' }}>
-              {[cartaoContacts.whatsapp, cartaoContacts.telefone, cartaoContacts.email, cartaoContacts.site].filter(Boolean).join('  ·  ')}
-           </div>
-        </div>
+        {!!(clinicaNome || whatsapp || telefone || telefone2 || email || site || instagram || endereco) && (
+          <div style={{ position: 'absolute', bottom: BORDER + 15, left: BORDER + 10, right: BORDER + 10, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '2px', textAlign: 'center' }}>
+            {clinicaNome && <div style={{ fontSize: '4.8px', fontWeight: 800, color: accentColor, textTransform: 'uppercase', letterSpacing: '0.4px', marginBottom: '1px' }}>{clinicaNome}</div>}
+            {(whatsapp || telefone || telefone2) && (
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '3px', flexWrap: 'wrap', maxWidth: '100%' }}>
+                {whatsapp && (
+                  <span style={{ display: 'inline-flex', alignItems: 'center', gap: '1.5px', fontFamily: "'Montserrat',sans-serif", fontSize: '4.2px', fontWeight: 600, color: '#444' }}>
+                    <svg viewBox="0 0 24 24" width="5.5" height="5.5" fill="#25D366" style={{ flexShrink: 0 }}><path d={ICON_PATHS.whatsapp}/></svg>
+                    {whatsapp}
+                  </span>
+                )}
+                {[telefone, telefone2].filter(Boolean).map((phone, idx) => (
+                  <span key={idx} style={{ fontFamily: "'Montserrat',sans-serif", fontSize: '4.2px', color: '#555' }}>
+                    {(whatsapp || idx > 0) ? ' · ' : ''}{phone}
+                  </span>
+                ))}
+              </div>
+            )}
+            {(instagram || email || site) && (
+              <div style={{ fontFamily: "'Montserrat',sans-serif", fontSize: '3.8px', color: '#777', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', maxWidth: '100%' }}>
+                {[instagram ? `@${instagram.replace(/^@/, '')}` : '', email, site].filter(Boolean).join('  ·  ')}
+              </div>
+            )}
+            {endereco && (
+              <div style={{ fontFamily: "'Montserrat',sans-serif", fontSize: '3.8px', color: '#999', lineHeight: 1.1, maxWidth: '100%' }}>
+                {endereco}
+              </div>
+            )}
+          </div>
+        )}
       </div>
     </div>
   );
@@ -5816,7 +5904,7 @@ export const PAPELARIA_MEDICA = [
 // Digitais/clínicos médicos: sempre inclusos se isSaude
 export const DIGITAIS_MEDICOS = [
   "Guia Alimentar", "Guia de Cuidados", "Guia de Desenvolvimento",
-  "Guia de Vacina c/ Calendário", "Cartão de Exame Pré-Natal",
+  "Guia de Vacinação", "Guia de Vacina c/ Calendário", "Cartão de Exame Pré-Natal",
   "Gráfico de Crescimento", "Checklist Maternidade", "Guia do Sono",
   "Orientações p/ Recém Nascidos", "Certificado de Coragem",
   "Diário do Xixi", "Meu Pratinho", "Guia de Amamentação",
@@ -5827,6 +5915,7 @@ export const LEGACY_NAMES = {
   'Pasta A4 Exclusiva': 'Pasta A4',
   'Papel Timbrado': 'Papel Timbrado', // Fix: keep full name to match PAPELARIA_GERAL!
   'Arte para Caneca/Brindes': 'Caneca',
+  'Guia de Vacina c/ Calendário': 'Guia de Vacinação',
   'Arte para Caneca': 'Caneca',
   'Recibo Comercial': 'Recibo', // Map to general Recibo
   'Cartão de Retorno/Fidelidade': 'Cartão de Retorno', // Map to general Cartão de Retorno
@@ -6155,7 +6244,7 @@ function PapelariaStep({ brand, accentColor, paletteColors, estampaPatterns, est
     'Papel Timbrado': 'A4', 'Prontuário Médico': 'A4',
     'Checklist Maternidade': 'A4', 'Ficha de Cadastro': 'A4',
     'Guia Alimentar': 'FolderA5-6pag', 'Guia de Cuidados': 'FolderA5-6pag',
-    'Guia de Desenvolvimento': 'FolderA5-6pag', 'Guia de Vacina': 'FolderA5-6pag',
+    'Guia de Desenvolvimento': 'FolderA5-6pag', 'Guia de Vacinação': 'FolderA5-6pag', 'Guia de Vacina': 'FolderA5-6pag', 'Guia de Vacina c/ Calendário': 'FolderA5-6pag',
     'Gráfico de Crescimento': 'A4-4pag', 'Guia do Sono': 'FolderA5-6pag',
     'Guia de Amamentação': 'FolderDL-8pag', 'Orientação': 'A4',
     'Pré-Natal': 'FolderA5-4pag',
@@ -6375,8 +6464,10 @@ function PapelariaStep({ brand, accentColor, paletteColors, estampaPatterns, est
     const _psLower = (paperSize || '').toLowerCase();
     const _isA4Global = _psLower.includes('a4') || ['Receita de Alta', 'Timbrado', 'Diário', 'Ficha', 'Cadastro', 'Prontuário', 'Checklist', 'Orientação'].some(n => item.includes(n));
     const _isReceituario = item.includes('Receituário');
-    const _globalBoost = (['Receituário', 'Recibo', 'Ficha', 'Prontuário', 'Certificado', 'Atestado'].some(n => item.includes(n)) || _isA4Global) ? 1.0 : 1.0;
-    const _logoWidthMmGlobal = _isReceituario ? (_isA4Global ? 150 : 110) : 100; // padronizado: A4 e A5 usam mesma caixa de logo
+    const _receituarioScale = _isA4Global ? 1.0 : 0.75;
+    const _receituarioFontMult = _isA4Global ? 1.4 : 1.0;
+    const _logoWidthMmGlobal = _isReceituario ? (_isA4Global ? 95 : 68) : 100;
+    const _logoHeightMmGlobal = _isReceituario ? (_isA4Global ? '30mm' : '22mm') : '36mm';
 
     const logoHtmlWithCrm = genPDFLogoHtml({
       brand,
@@ -6385,13 +6476,13 @@ function PapelariaStep({ brand, accentColor, paletteColors, estampaPatterns, est
       layout: logoLayout,
       localSlogan,
       crmLine,
-      fontPt: (parseFloat(_fontPt) * (_isReceituario ? (_isA4Global ? 3.0 : 2.2) : _globalBoost)).toFixed(1),
+      fontPt: (parseFloat(_fontPt) * (_isReceituario ? _receituarioFontMult : (_isA4Global ? 2.2 : 1.0))).toFixed(1),
       lineH: _lineH,
       letterSp: _letterSp,
       customLogoSrc,
-      customLogoScale: customLogoSrc ? getCustomLogoScale(item) * (ITEM_CUSTOM_BASE_SCALES[item] || 1) : 100,
+      customLogoScale: customLogoSrc ? getCustomLogoScale(item) * (_isReceituario ? _receituarioScale : (ITEM_CUSTOM_BASE_SCALES[item] || 1)) : 100,
       maxWidth: `${_logoWidthMmGlobal}mm`,
-      maxHeight: _isReceituario ? (_isA4Global ? '80mm' : '60mm') : '36mm'
+      maxHeight: _logoHeightMmGlobal
     });
     const logoHtml = logoHtmlWithCrm;
 
@@ -6509,7 +6600,7 @@ function PapelariaStep({ brand, accentColor, paletteColors, estampaPatterns, est
               <div style="text-align:right;">
                 <div style="font-size:11pt;font-weight:900;color:#fff;font-family:'Montserrat',sans-serif;line-height:1.2;">${clinicaNome || marca}</div>
                 ${crmLine ? `<div style="font-size:7pt;color:rgba(255,255,255,0.7);font-family:'Montserrat',sans-serif;">${crmLine}</div>` : ''}
-                ${mainPhone ? `<div style="font-size:7pt;color:rgba(255,255,255,0.65);font-family:'Montserrat',sans-serif;">${mainPhone}</div>` : ''}
+                ${(site || instagram) ? `<div style="font-size:7pt;color:rgba(255,255,255,0.65);font-family:'Montserrat',sans-serif;">${[site, instagram ? `@${instagram.replace(/^@/, '')}` : ''].filter(Boolean).join(' · ')}</div>` : ''}
               </div>
             </div>
             <!-- Linha de dobra + campos -->
@@ -7564,16 +7655,20 @@ body { width: 220mm; height: 307mm; background: #fff; }
       const _pat2 = (comBorda && patternSrc)
         ? `<div style="position:absolute;inset:0;background-image:url(${patternSrc});background-size:${getPatternTileMm(patternScale).toFixed(1)}mm;background-repeat:repeat;"></div><div style="position:absolute;top:${_bw};left:${_bw};right:${_bw};bottom:${_bw};background:#fff;clip-path:${_clipAt};"></div>`
         : `<div style="position:absolute;inset:0;background:${_bc2};"></div><div style="position:absolute;top:${_bw};left:${_bw};right:${_bw};bottom:${_bw};background:#fff;clip-path:${_clipAt};"></div>`;
-      const _atFooter1 = [clinicaNome, mainPhone].filter(Boolean).join(' · ');
-      const _atFooter2 = [instagram ? `@${instagram}` : '', site, endereco].filter(Boolean).join(' · ');
-      const _hasFooter = !!(  _atFooter1 || _atFooter2);
-      const _footerH = _atFooter1 && _atFooter2 ? 13 : 8; 
-      const _atFooterHtml = _hasFooter ? `
-        <div style="position:absolute;bottom:10mm;left:${_bw};right:${_bw};text-align:center;font-family:'Montserrat',sans-serif;color:#555;line-height:1.7;">
-          ${_atFooter1 ? `<div style="font-size:6pt;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${_atFooter1}</div>` : ''}
-          ${_atFooter2 ? `<div style="font-size:5.5pt;color:#888;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${_atFooter2}</div>` : ''}
-        </div>
-        <div style="position:absolute;bottom:${7 + _footerH}mm;left:12mm;right:12mm;border-top:0.5px solid #e0e0e0;"></div>` : '';
+      const _hasFooter = !!(clinicaNome || whatsapp || telefone || telefone2 || email || site || instagram || endereco);
+      const _footerH = _hasFooter ? (endereco ? 16 : 11) : 0;
+      const _atFooterHtml = _hasFooter ? genPDFSimpleFooter({
+        whatsapp,
+        telefone,
+        telefone2,
+        email: cartaoContacts?.email || brand?.email || '',
+        site,
+        instagram,
+        clinicaNome,
+        endereco,
+        accentColor: '#333',
+        showDivider: false
+      }) : '';
       const _atBottom = _hasFooter ? `${7 + _footerH + 2}mm` : _bw;
       const _atHtml = `<!DOCTYPE html><html lang="pt-BR"><head><meta charset="UTF-8"><title>Atestado Médico - ${marca}</title>${fi2}
 <style>* { box-sizing:border-box; margin:0; padding:0; print-color-adjust:exact !important; -webkit-print-color-adjust:exact !important; }
@@ -7593,12 +7688,12 @@ body { width: 220mm; height: 307mm; background: #fff; }
   ${_atFooterHtml}
   <div style="position:absolute;top:${BLEED + 8}mm;left:${BLEED + 8}mm;right:${BLEED + 8}mm;bottom:${BLEED + _footerH + 10}mm;font-family:'Montserrat',sans-serif;">
 
-    <div style="position:absolute;top:${_isA4 ? 12 : 11}mm;left:50%;transform:translateX(-50%);width:${Math.round((_pw - 2 * BLEED) * 0.90)}mm;display:flex;align-items:center;justify-content:center;">${genPDFLogoHtml({ brand, editDataOverride: editData, color: logoColor, layout: logoLayout, localSlogan, crmLine, fontPt: (parseFloat(_fontPt) * 2.2).toFixed(1), lineH: _lineH, letterSp: _letterSp, customLogoSrc, customLogoScale: customLogoSrc ? getCustomLogoScale(item) * (ITEM_CUSTOM_BASE_SCALES[item] || 1) * 1.3 : 100, maxWidth: '110mm', maxHeight: '40mm', withBackground: false, hideSlogan: false })}</div>
+    <div style="position:absolute;top:${_isA4 ? 8 : 7}mm;left:50%;transform:translateX(-50%);width:${Math.round((_pw - 2 * BLEED) * 0.90)}mm;display:flex;align-items:center;justify-content:center;">${genPDFLogoHtml({ brand, editDataOverride: editData, color: logoColor, layout: logoLayout, localSlogan, crmLine, fontPt: (parseFloat(_fontPt) * (_isA4 ? 2.2 : 1.4)).toFixed(1), lineH: _lineH, letterSp: _letterSp, customLogoSrc, customLogoScale: customLogoSrc ? getCustomLogoScale(item) * (ITEM_CUSTOM_BASE_SCALES[item] || 1) : 100, maxWidth: _isA4 ? '110mm' : '85mm', maxHeight: _isA4 ? '40mm' : '30mm', withBackground: false, hideSlogan: false })}</div>
 
-    <div style="position:absolute;top:${_isA4 ? 76 : 52}mm;left:0;right:0;text-align:center;font-size:${_isA4 ? 18 : 14}pt;font-weight:800;letter-spacing:2.5pt;color:#1a1a2e;">${dictionary?.atestado?.titulo?.toUpperCase() || 'ATESTADO MÉDICO'}</div>
+    <div style="position:absolute;top:${_isA4 ? 64 : 44}mm;left:0;right:0;text-align:center;font-size:${_isA4 ? 18 : 14}pt;font-weight:800;letter-spacing:2.5pt;color:#1a1a2e;">${dictionary?.atestado?.titulo?.toUpperCase() || 'ATESTADO MÉDICO'}</div>
 
     ${atestadoModelo === 2 ? `
-    <div style="position:absolute;top:${_isA4 ? 96 : 66}mm;left:9mm;right:9mm;font-size:${_isA4 ? 13 : 10}pt;color:#222;display:flex;flex-direction:column;gap:${_isA4 ? 8 : 5}mm;line-height:1.3;">
+    <div style="position:absolute;top:${_isA4 ? 86 : 58}mm;left:9mm;right:9mm;font-size:${_isA4 ? 13 : 10}pt;color:#222;display:flex;flex-direction:column;gap:${_isA4 ? 8 : 5}mm;line-height:1.3;">
       <div style="display:flex;align-items:flex-end;gap:1mm;">
         <span style="white-space:nowrap;">${dictionary?.atestado?.declaracao || 'Declaro para os devidos fins, que'}</span>
       </div>
@@ -7630,14 +7725,14 @@ body { width: 220mm; height: 307mm; background: #fff; }
       </div>
     </div>
 
-    <div style="position:absolute;top:${_isA4 ? 235 : 152}mm;left:0;right:0;text-align:center;font-size:${_isA4 ? 11 : 9}pt;color:#555;">
+    <div style="position:absolute;top:${_isA4 ? 206 : 138}mm;left:0;right:0;text-align:center;font-size:${_isA4 ? 11 : 9}pt;color:#555;">
       <span class="blank" style="width:${_isA4 ? 52 : 38}mm;">&nbsp;</span>, <span class="blank" style="width:${_isA4 ? 14 : 10}mm;">&nbsp;</span>
       de <span class="blank" style="width:${_isA4 ? 30 : 22}mm;">&nbsp;</span> de <span class="blank" style="width:${_isA4 ? 16 : 12}mm;">&nbsp;</span>
     </div>
 
-    <div style="position:absolute;top:${_isA4 ? 260 : 172}mm;left:20%;right:20%;border-top:0.7px solid #555;"></div>
+    <div style="position:absolute;top:${_isA4 ? 232 : 156}mm;left:20%;right:20%;border-top:0.7px solid #555;"></div>
     ` : `
-    <div style="position:absolute;top:${_isA4 ? 96 : 66}mm;left:9mm;right:9mm;font-size:${_isA4 ? 13 : 10}pt;color:#222;display:flex;flex-direction:column;gap:${_isA4 ? 8 : 5}mm;line-height:1.3;">
+    <div style="position:absolute;top:${_isA4 ? 86 : 58}mm;left:9mm;right:9mm;font-size:${_isA4 ? 13 : 10}pt;color:#222;display:flex;flex-direction:column;gap:${_isA4 ? 8 : 5}mm;line-height:1.3;">
       <div style="display:flex;align-items:flex-end;gap:1mm;">
         <span style="white-space:nowrap;">${dictionary?.atestado?.atesto_que || 'Atesto que o(a) Sr.(a)'}</span>
         <span class="blank" style="flex:1;">&nbsp;</span>
@@ -7671,16 +7766,16 @@ body { width: 220mm; height: 307mm; background: #fff; }
       </div>
     </div>
 
-    <div style="position:absolute;top:${_isA4 ? 200 : 128}mm;left:9mm;right:9mm;display:flex;align-items:flex-end;gap:2mm;font-size:${_isA4 ? 13 : 10}pt;color:#222;">
+    <div style="position:absolute;top:${_isA4 ? 174 : 116}mm;left:9mm;right:9mm;display:flex;align-items:flex-end;gap:2mm;font-size:${_isA4 ? 13 : 10}pt;color:#222;">
       <span style="white-space:nowrap;">${dictionary?.atestado?.cid_label || 'CID:'}</span>
       <span class="blank" style="width:${_isA4 ? 50 : 36}mm;">&nbsp;</span>
     </div>
 
-    <div style="position:absolute;top:${_isA4 ? 235 : 152}mm;left:9mm;right:9mm;border-bottom:0.7px solid #555;"></div>
-    <div style="position:absolute;top:${_isA4 ? 238 : 154}mm;left:9mm;right:9mm;text-align:center;font-size:${_isA4 ? 9 : 7}pt;color:#555;">${dictionary?.atestado?.local_data || 'Local e Data'}</div>
+    <div style="position:absolute;top:${_isA4 ? 206 : 138}mm;left:9mm;right:9mm;border-bottom:0.7px solid #555;"></div>
+    <div style="position:absolute;top:${_isA4 ? 209 : 140}mm;left:9mm;right:9mm;text-align:center;font-size:${_isA4 ? 9 : 7}pt;color:#555;">${dictionary?.atestado?.local_data || 'Local e Data'}</div>
 
-    <div style="position:absolute;top:${_isA4 ? 260 : 172}mm;left:20%;right:20%;border-bottom:0.7px solid #555;"></div>
-    <div style="position:absolute;top:${_isA4 ? 263 : 174}mm;left:20%;right:20%;text-align:center;font-size:${_isA4 ? 9 : 7}pt;color:#555;">${dictionary?.atestado?.assinatura_medico || 'Assinatura do Médico'}</div>
+    <div style="position:absolute;top:${_isA4 ? 232 : 156}mm;left:20%;right:20%;border-bottom:0.7px solid #555;"></div>
+    <div style="position:absolute;top:${_isA4 ? 235 : 158}mm;left:20%;right:20%;text-align:center;font-size:${_isA4 ? 9 : 7}pt;color:#555;">${dictionary?.atestado?.assinatura_medico || 'Assinatura do Médico'}</div>
     `}
 
   </div>
@@ -8513,7 +8608,7 @@ td { padding: 2.5mm 2mm; border: 0.2mm solid #eee; font-size: 6pt; color: #555; 
         return exportHTMLAsPDF(html, item, mode);
       }
 
-      if (['Guia Alimentar', 'Guia de Cuidados', 'Guia de Desenvolvimento', 'Guia de Vacina c/ Calendário', 'Cartão de Vacina', 'Cartão de Exame Pré-Natal', 'Cartão de Exames Pré-Natal', 'Guia de Amamentação', 'Guia do Sono'].includes(item)) {
+      if (['Guia Alimentar', 'Guia de Cuidados', 'Guia de Desenvolvimento', 'Guia de Vacinação', 'Guia de Vacina c/ Calendário', 'Cartão de Vacina', 'Cartão de Exame Pré-Natal', 'Cartão de Exames Pré-Natal', 'Guia de Amamentação', 'Guia do Sono'].includes(item)) {
         const isPrenatal = item.includes('Pré-Natal');
         const isAmamentacao = item.includes('Amamentação');
         const isEn = lang === 'en';
@@ -8801,17 +8896,40 @@ body { font-family:'Montserrat',sans-serif; }
                ${Array.from({length: 8}).map((_, i) => `<div style="width:2.5mm;height:2.5mm;background:${accentColor};border-radius:50%;"></div>`).join('')}
             </div>
 
-            <div style="width:100%; margin-top:auto;">
-                ${genPDFSimpleFooter({ 
-                  allPhones,
-                  email: brand.email || '',
-                  site: site || '',
-                  instagram: instagram || '',
-                  clinicaNome: clinicaNome || brand.clinicaNome || marca || '',
-                  endereco: endereco || '',
-                  accentColor
-                })}
-            </div>
+            {/* ETIQUETA DE DADOS NO RODAPÉ (DISCRETA E ELEGANTE - IDÊNTICA AO PREVIEW) */}
+            ${!!(clinicaNome || endereco || whatsapp || telefone || telefone2 || email || site || instagram) ? `
+              <div style="position:absolute; bottom:8mm; left:10mm; right:10mm; background:#fff; border:0.4mm solid ${(paletteColors[0] || accentColor)}25; border-radius:3mm; padding:3.5mm 6mm; z-index:4; text-align:center; display:flex; flex-direction:column; gap:1mm; box-shadow:0 1mm 3mm rgba(0,0,0,0.04);">
+                  ${clinicaNome ? `<div style="font-family:'Montserrat',sans-serif; font-size:7.5pt; font-weight:800; color:${(paletteColors[0] || accentColor)}; margin-bottom:0.5mm; text-transform:uppercase; letter-spacing:0.4px;">${clinicaNome}</div>` : ''}
+                  
+                  ${(whatsapp || telefone || telefone2) ? `
+                    <div style="font-family:'Montserrat',sans-serif; display:flex; align-items:center; justify-content:center; gap:2mm; flex-wrap:wrap;">
+                      ${whatsapp ? `
+                        <span style="display:inline-flex; align-items:center; gap:1.2mm; font-size:7pt; font-weight:800; color:#333;">
+                          <svg viewBox="0 0 24 24" width="3.2mm" height="3.2mm" fill="#25D366" style="vertical-align:middle;display:inline-block;"><path d="M12.01 2.01C6.48 2.01 2 6.48 2 12.01c0 2.17.69 4.19 1.86 5.83l-1.38 5.12 5.24-1.38c1.64 1.17 3.66 1.86 5.83 1.86 5.53 0 10.01-4.48 10.01-10.01S17.54 2.01 12.01 2.01zm4.12 13.91c-.24.69-1.23 1.25-1.71 1.33-.48.08-1.11.13-3.23-.74-2.7-1.12-4.44-3.86-4.57-4.04-.13-.18-1.11-1.48-1.11-2.82 0-1.34.7-2.01.95-2.29.24-.28.53-.35.71-.35.18 0 .35 0 .5.01.16.01.37-.06.58.45.22.53.75 1.84.81 1.97.06.13.11.29.02.46-.09.18-.14.29-.27.46-.13.18-.28.4-.39.54-.13.15-.27.32-.12.58.15.26.65 1.07 1.39 1.74.96.85 1.76 1.12 2.02 1.25.26.13.41.11.56-.06.15-.17.65-.75.82-.95.17-.2.35-.17.58-.08.24.08 1.5.71 1.76.84.26.13.44.2.5.31.06.11.06.66-.18 1.35z"/></svg>
+                          ${whatsapp}
+                        </span>
+                      ` : ''}
+                      ${[telefone, telefone2].filter(Boolean).map((phone, idx) => `
+                        <span style="font-size:7pt; font-weight:800; color:#444;">
+                          ${(whatsapp || idx > 0) ? ' · ' : ''}${phone}
+                        </span>
+                      `).join('')}
+                    </div>
+                  ` : ''}
+
+                  ${(instagram || email || site) ? `
+                    <div style="font-family:'Montserrat',sans-serif; font-size:6.5pt; color:#777; font-weight:500; letter-spacing:0.2px;">
+                      ${[instagram ? `@${instagram.replace(/^@/, '')}` : '', cartaoContacts?.email || brand?.email, site].filter(Boolean).join('  ·  ')}
+                    </div>
+                  ` : ''}
+
+                  ${endereco ? `
+                    <div style="font-family:'Montserrat',sans-serif; font-size:5.8pt; color:#999; font-weight:500; line-height:1.2;">
+                      ${endereco}
+                    </div>
+                  ` : ''}
+              </div>
+            ` : ''}
           </div>`;
 
         // Conteúdo da Pág 1 (Capa)
@@ -9139,23 +9257,27 @@ body { background:#eee; }
   <div style="position:absolute; top:${BLEED + BORDER}mm; left:${BLEED + BORDER}mm; right:${BLEED + BORDER}mm; bottom:${BLEED + BORDER}mm; background:#fff; clip-path:${_clipRoof}; -webkit-clip-path:${_clipRoof};"></div>
 
   <div style="position:absolute; top:${BLEED + BORDER + (folderRoof ? 22 : 14)}mm; left:50%; transform:translateX(-50%); width:120mm; display:flex; justify-content:center;">
-    ${genPDFLogoHtml({ brand, editDataOverride: editData, color: logoColor, layout: logoLayout, localSlogan, crmLine, fontPt: _fontPt, lineH: _lineH, letterSp: _letterSp, customLogoSrc, customLogoScale: customLogoSrc ? getCustomLogoScale(item) * (ITEM_CUSTOM_BASE_SCALES[item] || 1) : 100, maxWidth: '120mm', maxHeight: '45mm', withBackground: comBorda && patternSrc })}
+    ${genPDFLogoHtml({ brand, editDataOverride: editData, color: logoColor, layout: logoLayout, localSlogan, crmLine, fontPt: (parseFloat(_fontPt) * 2.2).toFixed(1), lineH: _lineH, letterSp: _letterSp, customLogoSrc, customLogoScale: customLogoSrc ? getCustomLogoScale(item) * (ITEM_CUSTOM_BASE_SCALES[item] || 1) : 100, maxWidth: '120mm', maxHeight: '45mm', withBackground: comBorda && patternSrc })}
   </div>
 
-  <div style="position:absolute; top:50%; left:50%; transform:translate(-50%, -50%); opacity:0.15; width:170mm; display:flex; justify-content:center; pointer-events:none;">
-    ${genPDFLogoHtml({ brand, editDataOverride: editData, color: logoColor, layout: logoLayout, localSlogan, crmLine, fontPt: 72, lineH: _lineH, letterSp: _letterSp, hideSlogan: true, customLogoSrc, customLogoScale: getCustomLogoScale(item) * (ITEM_CUSTOM_BASE_SCALES[item] || 1), maxWidth: '160mm', maxHeight: '80mm', withBackground: comBorda && patternSrc })}
+  <div style="position:absolute; top:50%; left:50%; transform:translate(-50%, -50%); opacity:0.12; width:120mm; display:flex; justify-content:center; pointer-events:none;">
+    ${genPDFLogoHtml({ brand, editDataOverride: editData, color: logoColor, layout: logoLayout, localSlogan, crmLine, fontPt: 46, lineH: _lineH, letterSp: _letterSp, hideSlogan: true, customLogoSrc, customLogoScale: getCustomLogoScale(item) * 1.15, maxWidth: '110mm', maxHeight: '55mm', withBackground: false })}
   </div>
 
-  <div style="position:absolute; bottom:${BLEED + 6}mm; left:0; right:0; text-align:center;">
-    ${genPDFSimpleFooter({ 
-      clinicaNome,
-      endereco,
-      allPhones,
-      email: brand.email || '',
-      site: site || '',
-      instagram: instagram || ''
-    })}
-  </div>
+  ${genPDFSimpleFooter({ 
+    clinicaNome,
+    endereco,
+    whatsapp,
+    telefone,
+    telefone2,
+    allPhones,
+    email: cartaoContacts?.email || brand?.email || '',
+    site: site || '',
+    instagram: instagram || '',
+    accentColor,
+    showDivider: false,
+    bottom: `${BLEED + BORDER + 4}mm`
+  })}
 </div>
 <div class="cm cm-tl"></div><div class="cm cm-tr"></div><div class="cm cm-bl"></div><div class="cm cm-br"></div>
 </div></body></html>`;
@@ -9266,19 +9388,25 @@ body { width:${W + BLEED*2}mm; height:${H + BLEED*2}mm; position:relative; overf
     const _fsP = _pw >= 200 ? '6' : _pw >= 140 ? '5.5' : '5'; // phone font
     const _pad = _pw >= 200 ? '3.5mm 6mm' : '2.5mm 5mm'; // padding
     const _waIco2 = `<svg viewBox="0 0 24 24" width="7" height="7" style="display:inline;vertical-align:middle;margin-right:1.5pt;" fill="#25D366"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>`;
-    const _hasFooterData = !!(clinicaNome || mainPhone || instagram || site || endereco || email);
+    const _hasFooterData = !!(clinicaNome || whatsapp || telefone || telefone2 || instagram || site || endereco || email);
     const _fH = _pw >= 200 ? 18 : 14;
-    const footerHtml = _hasFooterData ? `
-      <div style="position:absolute; bottom:10mm; left:12mm; right:12mm; border-top:0.5px solid #e0e0e0; padding-top:4mm; text-align:center; z-index:4;">
-          <div style="font-family:'Montserrat',sans-serif; font-size:7.5pt; font-weight:700; color:#444; margin-bottom:1mm;">${allPhones}</div>
-          <div style="font-family:'Montserrat',sans-serif; font-size:6.5pt; color:#999; font-weight:500; letter-spacing:0.2px;">
-              ${[instagram ? `@${instagram}` : '', email, site].filter(Boolean).join('  ·  ')}
-          </div>
-      </div>` : '';
+    const footerHtml = _hasFooterData ? genPDFSimpleFooter({
+      whatsapp,
+      telefone,
+      telefone2,
+      allPhones,
+      email: cartaoContacts?.email || brand?.email || '',
+      site: site || '',
+      instagram: instagram || '',
+      clinicaNome,
+      endereco,
+      accentColor,
+      showDivider: false
+    }) : '';
 
-    const _logoWidthMm = logoLayout === 'horizontal'
-      ? Math.round(ps.w * 0.72)
-      : Math.round(ps.w * 0.57);
+    const _logoWidthMm = _isReceituario
+      ? (_isA4Global ? 95 : 68)
+      : (logoLayout === 'horizontal' ? Math.round(ps.w * 0.72) : Math.round(ps.w * 0.57));
     const pageHtml = `
       <div style="position:relative;width:${totalW_gen}mm;height:${totalH_gen}mm;overflow:hidden;">
         <div class="cm-tl-h"></div><div class="cm-tl-v"></div>
@@ -9379,6 +9507,7 @@ ${fontImports2}
             'Guia Alimentar': 'guia_alimentar',
             'Guia de Cuidados': 'guia_cuidados',
             'Guia de Desenvolvimento': 'guia_desenvolvimento',
+            'Guia de Vacinação': 'guia_vacina',
             'Guia de Vacina c/ Calendário': 'guia_vacina',
             'Guia de Vacina': 'guia_vacina',
             'Cartão de Vacina': 'cartao_vacina',
@@ -9488,7 +9617,7 @@ ${fontImports2}
             : currentItem === 'Guia de Amamentação'
               ? <GuiaAmamentacaoPreview brand={brand} editData={itemEditData} logoColor={logoColor} logoLayout={logoLayout} comBorda={comBorda} setComBorda={setComBorda} patternSrc={patternSrc} patternScale={patternScale} setPatternScale={setPatternScale} patternOffset={typeof patternOffset !== 'undefined' ? patternOffset : 0} setPatternOffset={typeof setPatternOffset !== 'undefined' ? setPatternOffset : undefined} accentColor={accentColor} borderColor={borderColor} setBorderColor={setBorderColor} paletteColors={paletteColors} cartaoContacts={cartaoContacts} crmLine={crmLine} illustrationsSrc="/breastfeeding-guide.png" folderRoof={folderRoof} setFolderRoof={setFolderRoof} />
             : currentItem === 'Guia de Cuidados'
-              ? <FolderTrifoldPreview brand={brand} editData={itemEditData} logoColor={logoColor} logoLayout={logoLayout} comBorda={comBorda} setComBorda={setComBorda} patternSrc={patternSrc} patternScale={patternScale} setPatternScale={setPatternScale} patternOffset={typeof patternOffset !== 'undefined' ? patternOffset : 0} setPatternOffset={typeof setPatternOffset !== 'undefined' ? setPatternOffset : undefined} accentColor={accentColor} borderColor={borderColor} setBorderColor={setBorderColor} paletteColors={paletteColors} title={currentItem} cartaoContacts={cartaoContacts} folderRoof={folderRoof} setFolderRoof={setFolderRoof} crmLine={crmLine} />
+              ? <FolderTrifoldPreview brand={brand} editData={itemEditData} logoColor={logoColor} logoLayout={logoLayout} comBorda={comBorda} setComBorda={setComBorda} patternSrc={patternSrc} patternScale={patternScale} setPatternScale={setPatternScale} patternOffset={typeof patternOffset !== 'undefined' ? patternOffset : 0} setPatternOffset={typeof setPatternOffset !== 'undefined' ? setPatternOffset : undefined} accentColor={accentColor} borderColor={borderColor} setBorderColor={setBorderColor} paletteColors={paletteColors} title={currentItem} cartaoContacts={cartaoContacts} folderRoof={folderRoof} setFolderRoof={setFolderRoof} crmLine={crmLine} clinicaNome={clinicaNome} />
             : currentItem === 'Orientações p/ Recém Nascidos'
               ? <OrientacoesRNPreview accentColor={accentColor} patternSrc={patternSrc} editData={itemEditData} logoColor={logoColor} logoLayout={logoLayout} cartaoContacts={cartaoContacts} crmLine={crmLine} clinicaNome={clinicaNome} comBorda={comBorda} setComBorda={setComBorda} paletteColors={paletteColors} borderColor={borderColor} setBorderColor={setBorderColor} patternScale={patternScale} setPatternScale={setPatternScale} patternOffset={typeof patternOffset !== 'undefined' ? patternOffset : 0} setPatternOffset={typeof setPatternOffset !== 'undefined' ? setPatternOffset : undefined}
                   rnFields={{ nomeBebe: rnNomeBebe, dataNasc: rnDataNasc, peso: rnPeso, altura: rnAltura, umbigo: rnUmbigo, soro: rnSoro, med1: rnMed1, dose1: rnDose1, int1: rnInt1, med2: rnMed2, dose2: rnDose2, int2: rnInt2, pomada: rnPomada, vitDMed: rnVitDMed, vitDDose: rnVitDDose, bcgData: rnBcgData, hepBData: rnHepBData, consultaData: rnConsultaData, consultaHora: rnConsultaHora, urgencia: rnUrgencia }}
@@ -9500,8 +9629,8 @@ ${fontImports2}
               ? <GuiaAlimentarPreview brand={brand} editData={itemEditData} logoColor={logoColor} logoLayout={logoLayout} comBorda={comBorda} setComBorda={setComBorda} patternSrc={patternSrc} patternScale={patternScale} setPatternScale={setPatternScale} patternOffset={typeof patternOffset !== 'undefined' ? patternOffset : 0} setPatternOffset={typeof setPatternOffset !== 'undefined' ? setPatternOffset : undefined} accentColor={accentColor} borderColor={borderColor} setBorderColor={setBorderColor} paletteColors={paletteColors} cartaoContacts={cartaoContacts} folderRoof={folderRoof} setFolderRoof={setFolderRoof} crmLine={crmLine} horarios={guiaHorarios} setHorarios={setGuiaHorarios} introducao={guiaIntroducao} setIntroducao={setGuiaIntroducao} localSlogan={localSlogan} />
             : currentItem === 'Caderneta de Saúde'
               ? <CadernetaPreview brand={brand} editData={itemEditData} logoColor={logoColor} logoLayout={logoLayout} comBorda={comBorda} setComBorda={setComBorda} patternSrc={patternSrc} patternScale={patternScale} setPatternScale={setPatternScale} patternOffset={typeof patternOffset !== 'undefined' ? patternOffset : 0} setPatternOffset={typeof setPatternOffset !== 'undefined' ? setPatternOffset : undefined} accentColor={accentColor} borderColor={borderColor} setBorderColor={setBorderColor} paletteColors={paletteColors} cartaoContacts={cartaoContacts} crmLine={crmLine} localSlogan={localSlogan} setLocalSlogan={setLocalSlogan} clinicaNome={clinicaNome} setClinicaNome={setClinicaNome} crmData={crmData} setCrmData={setCrmData} setCartaoContacts={setCartaoContacts} isSaude={isSaude} />
-            : ['Guia de Desenvolvimento', 'Guia de Vacina c/ Calendário', 'Cartão de Vacina', 'Guia do Sono'].some(n => currentItem === n)
-              ? <FolderTrifoldPreview brand={brand} editData={itemEditData} logoColor={logoColor} logoLayout={logoLayout} comBorda={comBorda} setComBorda={setComBorda} patternSrc={patternSrc} patternScale={patternScale} setPatternScale={setPatternScale} patternOffset={typeof patternOffset !== 'undefined' ? patternOffset : 0} setPatternOffset={typeof setPatternOffset !== 'undefined' ? setPatternOffset : undefined} accentColor={accentColor} borderColor={borderColor} setBorderColor={setBorderColor} paletteColors={paletteColors} title={currentItem} cartaoContacts={cartaoContacts} folderRoof={folderRoof} setFolderRoof={setFolderRoof} crmLine={crmLine} />
+            : ['Guia de Desenvolvimento', 'Guia de Vacinação', 'Guia de Vacina c/ Calendário', 'Cartão de Vacina', 'Guia do Sono'].some(n => currentItem === n)
+              ? <FolderTrifoldPreview brand={brand} editData={itemEditData} logoColor={logoColor} logoLayout={logoLayout} comBorda={comBorda} setComBorda={setComBorda} patternSrc={patternSrc} patternScale={patternScale} setPatternScale={setPatternScale} patternOffset={typeof patternOffset !== 'undefined' ? patternOffset : 0} setPatternOffset={typeof setPatternOffset !== 'undefined' ? setPatternOffset : undefined} accentColor={accentColor} borderColor={borderColor} setBorderColor={setBorderColor} paletteColors={paletteColors} title={currentItem} cartaoContacts={cartaoContacts} folderRoof={folderRoof} setFolderRoof={setFolderRoof} crmLine={crmLine} clinicaNome={clinicaNome} />
             : currentItem.includes('Atestado Médico')
               ? <AtestadoPreview accentColor={accentColor} patternSrc={patternSrc} editData={{ ...itemEditData, tagline: localSlogan }} logoColor={logoColor} logoLayout={logoLayout} crmLine={crmLine} clinicaNome={clinicaNome} marca={marca} cartaoContacts={cartaoContacts} comBorda={comBorda} setComBorda={setComBorda} paletteColors={paletteColors} borderColor={borderColor} setBorderColor={setBorderColor} patternScale={patternScale} setPatternScale={setPatternScale} patternOffset={typeof patternOffset !== 'undefined' ? patternOffset : 0} setPatternOffset={typeof setPatternOffset !== 'undefined' ? setPatternOffset : undefined} folderRoof={folderRoof} setFolderRoof={setFolderRoof} paperSize={paperSize} setPaperSize={setPaperSize} atestadoModelo={atestadoModelo} setAtestadoModelo={setAtestadoModelo} />
             : currentItem.includes('Pasta')
@@ -9577,7 +9706,12 @@ ${fontImports2}
                 { key: 'email', label: 'E-mail' },
                 { key: 'site', label: dictionary?.ui?.website || 'Site' },
                 { key: 'endereco', label: dictionary?.ui?.address || 'Endereço' },
-              ].map(({ key, label }) => (
+              ].filter(({ key }) => {
+                if (currentItem === 'Gráfico de Crescimento') {
+                  return key === 'instagram' || key === 'site';
+                }
+                return true;
+              }).map(({ key, label }) => (
                 <div key={key} style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
                   <span style={{ fontSize: '0.72rem', color: '#888', width: '74px', flexShrink: 0 }}>{label}</span>
                   <input
@@ -12625,7 +12759,7 @@ function SucessoContent() {
           'guia-alimentar': 'Guia Alimentar',
           'guia-cuidados': 'Guia de Cuidados',
           'guia-desenvolvimento': 'Guia de Desenvolvimento',
-          'guia-vacina': 'Guia de Vacina c/ Calendário',
+          'guia-vacina': 'Guia de Vacinação',
           'prenatal': 'Cartão de Exame Pré-Natal',
           'checklist': 'Checklist Maternidade',
           'guia-sono': 'Guia do Sono',

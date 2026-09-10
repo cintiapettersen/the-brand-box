@@ -9,35 +9,35 @@ export default function FolderVacinaPage4({ accentColor, palette = [] }) {
   const otherVaccines = Array.from({ length: 6 }); // Reduced from 11
 
   const availability = lang === 'en' ? [
-    { label: "BCG / Hepatitis B", ubs: "YES", private: "YES" },
-    { label: "Hexavalent / Pentavalent", ubs: "Pentavalent", private: "Hexavalent (Fewer side effects)" },
-    { label: "VIP / VOP (Polio)", ubs: "YES", private: "YES (Inactivated)" },
-    { label: "Rotavirus", ubs: "Monovalent", private: "Pentavalent (5 types)" },
-    { label: "Pneumococcal", ubs: "PCV10", private: "PCV13 or PCV15" },
-    { label: "Meningococcal ACWY / C", ubs: "MenC & ACWY (11-14y)", private: "MenACWY (From 3 months)" },
-    { label: "Meningococcal B", ubs: "NO", private: "YES" },
-    { label: "Influenza (Flu)", ubs: "Trivalent", private: "Quadrivalent" },
-    { label: "MMR / Varicella", ubs: "YES", private: "YES" },
-    { label: "Hepatitis A / HPV", ubs: "YES", private: "YES" },
-    { label: "Yellow Fever", ubs: "YES", private: "YES" },
-    { label: "Dengue (Qdenga)", ubs: "YES (Target public)", private: "YES" },
-    { label: "COVID-19", ubs: "YES", private: "YES" },
-    { label: "Nirsevimab (RSV)", ubs: "YES (Specific groups)", private: "YES" },
+    { label: "BCG / Hepatitis B", publico: "YES", private: "YES" },
+    { label: "Hexavalent / Pentavalent", publico: "Pentavalent", private: "Hexavalent (Fewer reactions)" },
+    { label: "Polio (IPV / OPV)", publico: "YES", private: "YES (Inactivated)" },
+    { label: "Rotavirus", publico: "Monovalent", private: "Pentavalent (5 types)" },
+    { label: "Pneumococcal", publico: "PCV10", private: "PCV13 or PCV15" },
+    { label: "Meningococcal ACWY / C", publico: "MenC & ACWY (Adolescent)", private: "MenACWY (From 3 months)" },
+    { label: "Meningococcal B", publico: "NO", private: "YES" },
+    { label: "Influenza (Flu)", publico: "Trivalent", private: "Quadrivalent" },
+    { label: "MMR / Varicella", publico: "YES", private: "YES" },
+    { label: "Hepatitis A / HPV", publico: "YES", private: "YES" },
+    { label: "Yellow Fever", publico: "YES", private: "YES" },
+    { label: "Dengue", publico: "YES (Target groups)", private: "YES" },
+    { label: "COVID-19", publico: "YES", private: "YES" },
+    { label: "Nirsevimab (RSV)", publico: "YES (Specific groups)", private: "YES" },
   ] : [
-    { label: "BCG / Hepatite B", ubs: "SIM", private: "SIM" },
-    { label: "Hexavalente / Pentavalente", ubs: "Pentavalente", private: "Hexavalente (Menos reações)" },
-    { label: "VIP / VOP (Pólio)", ubs: "SIM", private: "SIM (Inativada)" },
-    { label: "Rotavírus", ubs: "Monovalente", private: "Pentavalente (5 tipos)" },
-    { label: "Pneumocócica", ubs: "VPC10", private: "VPC13 ou VPC15" },
-    { label: "Meningocócica ACWY / C", ubs: "MenC e ACWY (11-14a)", private: "MenACWY (Desde 3 meses)" },
-    { label: "Meningocócica B", ubs: "NÃO", private: "SIM" },
-    { label: "Influenza (Gripe)", ubs: "Trivalente", private: "Tetravalente" },
-    { label: "Tríplice Viral / Varicela", ubs: "SIM", private: "SIM" },
-    { label: "Hepatite A / HPV", ubs: "SIM", private: "SIM" },
-    { label: "Febre Amarela", ubs: "SIM", private: "SIM" },
-    { label: "Dengue (Qdenga)", ubs: "SIM (Público alvo)", private: "SIM" },
-    { label: "COVID-19", ubs: "SIM", private: "SIM" },
-    { label: "Nirsevimabe (VSR)", ubs: "SIM (Grupos específicos)", private: "SIM" },
+    { label: "BCG / Hepatite B", publico: "SIM", private: "SIM" },
+    { label: "Hexavalente / Pentavalente", publico: "Pentavalente", private: "Hexavalente (Menos reações)" },
+    { label: "VIP / VOP (Pólio)", publico: "SIM", private: "SIM (Inativada)" },
+    { label: "Rotavírus", publico: "Monovalente", private: "Pentavalente (5 tipos)" },
+    { label: "Pneumocócica", publico: "VPC10", private: "VPC13 ou VPC15" },
+    { label: "Meningocócica ACWY / C", publico: "MenC e ACWY (11-14a)", private: "MenACWY (Desde 3 meses)" },
+    { label: "Meningocócica B", publico: "NÃO", private: "SIM" },
+    { label: "Influenza (Gripe)", publico: "Trivalente", private: "Tetravalente" },
+    { label: "Tríplice Viral / Varicela", publico: "SIM", private: "SIM" },
+    { label: "Hepatite A / HPV", publico: "SIM", private: "SIM" },
+    { label: "Febre Amarela", publico: "SIM", private: "SIM" },
+    { label: "Dengue (Qdenga)", publico: "SIM (Público alvo)", private: "SIM" },
+    { label: "COVID-19", publico: "SIM", private: "SIM" },
+    { label: "Nirsevimabe (VSR)", publico: "SIM (Grupos específicos)", private: "SIM" },
   ];
 
   return (
@@ -104,10 +104,10 @@ export default function FolderVacinaPage4({ accentColor, palette = [] }) {
             {lang === 'en' ? "VACCINE" : "VACINA"}
           </div>
           <div style={{ flex: 1, padding: '1.2px', fontSize: '2.8px', fontWeight: 800, color: '#fff', textAlign: 'center', borderRight: '0.15px solid #fff' }}>
-            {lang === 'en' ? "Free at UBS*" : "Gratuitas nas UBS*"}
+            {lang === 'en' ? "Public Healthcare" : "Rede Pública"}
           </div>
           <div style={{ flex: 1, padding: '1.2px', fontSize: '2.8px', fontWeight: 800, color: '#fff', textAlign: 'center' }}>
-            {lang === 'en' ? "Private clinics" : "Clínicas privadas"}
+            {lang === 'en' ? "Private Clinics" : "Rede Privada"}
           </div>
         </div>
 
@@ -115,7 +115,7 @@ export default function FolderVacinaPage4({ accentColor, palette = [] }) {
           {availability.map((a, i) => (
             <div key={i} style={{ display: 'flex', background: i % 2 === 0 ? '#FDF8EA' : '#fff', borderBottom: '0.15px solid #EEE' }}>
               <div style={{ flex: 1, padding: '1px 2px', fontSize: '2.6px', fontWeight: 700, color: '#555', display: 'flex', alignItems: 'center' }}>{a.label}</div>
-              <div style={{ flex: 1, padding: '1px 2px', fontSize: '2.4px', color: '#666', textAlign: 'center', display: 'flex', alignItems: 'center', justifyContent: 'center', borderLeft: '0.15px solid #eee', lineHeight: 1 }}>{a.ubs}</div>
+              <div style={{ flex: 1, padding: '1px 2px', fontSize: '2.4px', color: '#666', textAlign: 'center', display: 'flex', alignItems: 'center', justifyContent: 'center', borderLeft: '0.15px solid #eee', lineHeight: 1 }}>{a.publico}</div>
               <div style={{ flex: 1, padding: '1px 2px', fontSize: '2.4px', color: '#666', textAlign: 'center', display: 'flex', alignItems: 'center', justifyContent: 'center', borderLeft: '0.15px solid #eee', lineHeight: 1 }}>{a.private}</div>
             </div>
           ))}

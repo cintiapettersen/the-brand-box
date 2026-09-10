@@ -64,6 +64,7 @@ export async function POST(request) {
         'Guia Alimentar': 'guia-alimentar',
         'Guia de Cuidados': 'guia-cuidados',
         'Guia de Desenvolvimento': 'guia-desenvolvimento',
+        'Guia de Vacinação': 'guia-vacina',
         'Guia de Vacina c/ Calendário': 'guia-vacina',
         'Cartão de Exame Pré-Natal': 'prenatal',
         'Checklist Maternidade': 'checklist',
