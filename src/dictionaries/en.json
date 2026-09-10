@@ -1129,7 +1129,8 @@
     "priority_order": "Color Priority Order",
     "drag_reorder": "Drag to reorder. The top color appears more in your arts — the last one, less.",
     "save_order": "Save color order →",
-    "order_saved": "✓ Order saved! Prints have been updated."
+    "order_saved": "✓ Order saved! Prints have been updated.",
+    "edit_color": "Click to edit this color"
   },
   "palette_tab": {
     "main": "Main",
