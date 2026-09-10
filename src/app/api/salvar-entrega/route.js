@@ -1,4 +1,5 @@
 import { createClient } from '@supabase/supabase-js';
+import { linkJourneyToDelivery } from '../../../lib/aiTelemetry.js';
 
 // Usa a service role key (segura, só roda no servidor)
 const supabase = createClient(
@@ -8,11 +9,23 @@ const supabase = createClient(
 
 export async function POST(request) {
   try {
-    const { brandState, plano, email, marca, sessionId } = await request.json();
+    const { brandState, plano, email, marca, sessionId, journeyId: explicitJourneyId } = await request.json();
+    const journeyId = explicitJourneyId || brandState?.resultadoFinal?.creativeDirectorJourneyId || null;
 
     if (!brandState) {
       return Response.json({ error: 'Dados da marca ausentes.' }, { status: 400 });
     }
+
+    const finishWithSession = async (resId) => {
+      if (journeyId && resId) {
+        try {
+          await linkJourneyToDelivery(journeyId, resId);
+        } catch (linkErr) {
+          console.warn('[salvar-entrega] Could not link journey to delivery:', linkErr);
+        }
+      }
+      return Response.json({ sessionId: resId });
+    };
 
     // 1. Se um sessionId de rascunho foi fornecido, verifica se a entrega existe e ainda é rascunho pendente
     if (sessionId) {
@@ -43,7 +56,7 @@ export async function POST(request) {
           .single();
 
         if (!updateError && updatedData) {
-          return Response.json({ sessionId: updatedData.id });
+          return await finishWithSession(updatedData.id);
         }
       }
     }
@@ -77,7 +90,7 @@ export async function POST(request) {
           .single();
 
         if (!updateError && updatedData) {
-          return Response.json({ sessionId: updatedData.id });
+          return await finishWithSession(updatedData.id);
         }
       }
     }
@@ -102,7 +115,7 @@ export async function POST(request) {
       return Response.json({ error: error.message }, { status: 500 });
     }
 
-    return Response.json({ sessionId: data.id });
+    return await finishWithSession(data.id);
   } catch (err) {
     console.error('salvar-entrega error:', err);
     return Response.json({ error: err.message }, { status: 500 });

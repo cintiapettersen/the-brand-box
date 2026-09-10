@@ -1,4 +1,5 @@
 import { getOrCreateCreativeDirector } from './requestGuards.js';
+import { logAiUsage, extractOpenAIUsage } from '../../../lib/aiTelemetry.js';
 
 const REQUIRED_ARRAY_FIELDS = ['personalidade', 'objetivosEmocionais', 'expectativasPublico', 'riscosEvitar'];
 const REQUIRED_STRING_FIELDS = ['diagnostico', 'porqueEsseEstilo', 'direcaoVisual'];
@@ -92,6 +93,10 @@ function buildBriefing(formData = {}) {
 }
 
 export async function POST(req) {
+  let journeyId = null;
+  let idioma = 'pt';
+  let estiloNome = '';
+  const startTime = Date.now();
   try {
     const apiKey = process.env.OPENAI_API_KEY ? process.env.OPENAI_API_KEY.replace(/["']/g, '') : '';
     const model = process.env.OPENAI_MODEL ? process.env.OPENAI_MODEL.trim() : '';
@@ -103,7 +108,11 @@ export async function POST(req) {
     const body = await req.json();
     const briefing = buildBriefing(body.formData);
     const estiloId = body.estiloId;
-    const estiloNome = cleanText(body.estiloNome);
+    estiloNome = cleanText(body.estiloNome);
+    idioma = cleanText(body.idioma || body.lang || 'pt');
+    const requestKey = cleanText(body.requestKey);
+    journeyId = cleanText(body.journeyId || body.creativeDirectorJourneyId || (requestKey ? requestKey.split(':')[1] : null));
+
     const identityContext = {
       brandName: briefing.brandName,
       styleName: estiloNome,
@@ -112,13 +121,11 @@ export async function POST(req) {
       styleNamePolicy: 'styleName é o nome da direção criativa selecionada, nunca é nome de marca. Diferenças entre brandName e styleName não são contradições.'
     };
     const mensagemGemini = cleanText(body.mensagem);
-    const idioma = cleanText(body.idioma || body.lang || 'pt');
 
     if (!estiloId || !estiloNome || !mensagemGemini) {
       return Response.json({ error: 'invalid_creative_director_payload' }, { status: 400 });
     }
 
-    const requestKey = cleanText(body.requestKey);
     const generated = await getOrCreateCreativeDirector(requestKey, async () => {
     const openAIResponse = await fetch('https://api.openai.com/v1/responses', {
       method: 'POST',
@@ -178,7 +185,26 @@ export async function POST(req) {
       throw Object.assign(new Error('creative_director_openai_error'), { publicCode: 'creative_director_openai_error' });
     }
 
+    const latencyMs = Date.now() - startTime;
     const response = await openAIResponse.json();
+    const usage = extractOpenAIUsage(response);
+
+    if (journeyId) {
+      logAiUsage({
+        journeyId,
+        operationType: 'creative_director',
+        provider: 'openai',
+        exactModel: usage.resolvedModel || model,
+        inputTokens: usage.inputTokens,
+        cachedInputTokens: usage.cachedInputTokens,
+        outputTokens: usage.outputTokens,
+        providerRequestId: usage.providerRequestId,
+        latencyMs,
+        success: true,
+        metadata: { language: idioma, styleName: estiloNome }
+      });
+    }
+
     const outputText = response.output_text || response.output?.flatMap(item => item.content || []).find(content => content.type === 'output_text')?.text || '';
 
     if (!outputText) {
@@ -217,6 +243,19 @@ export async function POST(req) {
     return Response.json(generated.value, { headers: { 'X-Creative-Director-Cache': generated.cache } });
   } catch (error) {
     console.error('Creative Director AI error:', { errorId: errorId(error) });
+    const latencyMs = Date.now() - startTime;
+    if (journeyId) {
+      logAiUsage({
+        journeyId,
+        operationType: 'creative_director',
+        provider: 'openai',
+        exactModel: process.env.OPENAI_MODEL?.trim() || 'openai-unspecified',
+        latencyMs,
+        success: false,
+        errorCode: errorId(error),
+        metadata: { language: idioma, styleName: estiloNome }
+      });
+    }
     return Response.json({ error: error.publicCode || 'creative_director_failed' }, { status: 502 });
   }
 }

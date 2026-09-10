@@ -1,8 +1,14 @@
 import { GoogleGenerativeAI } from "@google/generative-ai";
+import { logAiUsage, extractGoogleUsage } from "../../../lib/aiTelemetry.js";
 
 export async function POST(req) {
+  const startTime = Date.now();
+  let journeyId = null;
+  let lang = 'pt';
   try {
     const body = await req.json();
+    journeyId = body.journeyId || body.creativeDirectorJourneyId || null;
+    lang = body.lang || 'pt';
     
     // O Next.js pega a chave no arquivo que você acabou de salvar
     const genAI = new GoogleGenerativeAI((process.env.GEMINI_API_KEY ? process.env.GEMINI_API_KEY.replace(/['"]/g, '') : undefined));
@@ -74,12 +80,44 @@ export async function POST(req) {
     `;
 
     const result = await model.generateContent(systemPrompt);
+    const latencyMs = Date.now() - startTime;
     const responseText = result.response.text();
+    const usage = extractGoogleUsage(result.response);
+
+    if (journeyId) {
+      logAiUsage({
+        journeyId,
+        operationType: 'matchmaker',
+        provider: 'google',
+        exactModel: 'gemini-2.5-flash',
+        inputTokens: usage.inputTokens,
+        cachedInputTokens: usage.cachedInputTokens,
+        outputTokens: usage.outputTokens,
+        latencyMs,
+        success: true,
+        metadata: { language: lang }
+      });
+    }
     
     return Response.json(JSON.parse(responseText));
 
   } catch (error) {
     console.error("Erro fatal no Matchmaker AI:", error);
+    const latencyMs = Date.now() - startTime;
+
+    if (journeyId) {
+      logAiUsage({
+        journeyId,
+        operationType: 'matchmaker',
+        provider: 'google',
+        exactModel: 'gemini-2.5-flash',
+        success: false,
+        errorCode: error?.code || error?.name || 'matchmaker_error',
+        fallbackUsed: true,
+        latencyMs,
+        metadata: { language: lang }
+      });
+    }
     
     // SISTEMA DE ALTA DISPONIBILIDADE: Se o Google cair, o app NÃO CAI.
     // Retornamos um Match "Coringa" (Escandinavo, ID 3) para a cliente não ficar travada.

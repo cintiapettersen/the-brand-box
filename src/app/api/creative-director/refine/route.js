@@ -197,7 +197,7 @@ function buildResolutionPrompt({ formData, resultadoFinal, pergunta, respostaUsu
   });
 }
 
-async function callOpenAI({ schema, schemaName, prompt, idioma, requestKey }) {
+async function callOpenAI({ schema, schemaName, prompt, idioma, requestKey, journeyId }) {
   const apiKey = process.env.OPENAI_API_KEY ? process.env.OPENAI_API_KEY.replace(/["']/g, '') : '';
   const model = process.env.OPENAI_MODEL ? process.env.OPENAI_MODEL.trim() : '';
 
@@ -210,6 +210,7 @@ async function callOpenAI({ schema, schemaName, prompt, idioma, requestKey }) {
     return { errorResponse: Response.json({ error: requestGuard.reason }, { status: 429 }) };
   }
 
+  const startTime = Date.now();
   const openAIResponse = await fetch('https://api.openai.com/v1/responses', {
     method: 'POST',
     headers: {
@@ -224,7 +225,7 @@ async function callOpenAI({ schema, schemaName, prompt, idioma, requestKey }) {
           content: [
             {
               type: 'input_text',
-              text: `Você é a AI Creative Director da The Brand Box. Responda exclusivamente no idioma ${idioma}. Use somente os dados recebidos, não invente fatos, não exponha raciocínio interno e preserve o fluxo atual do produto. Nomes pessoais/de contato não são nomes de marca; use apenas identityContext.brandName como nome público da marca. identityContext.styleName é a direção criativa selecionada e nunca deve ser tratada como marca. REGRA DE PRIORIDADE: O campo de público (briefing.publico) é a verdade absoluta sobre a faixa etária. Se a área de atuação for Moda/Roupa e o público for Adulto, não escreva absolutamente nada sobre crianças, moda infantil ou infância. `
+              text: `Você é a AI Creative Director da The Brand Box. Responda exclusivamente no idioma ${idioma}.`
             }
           ]
         },
@@ -246,20 +247,55 @@ async function callOpenAI({ schema, schemaName, prompt, idioma, requestKey }) {
 
   if (!openAIResponse.ok) {
     const error = await readOpenAIError(openAIResponse);
+    const latencyMs = Date.now() - startTime;
     console.error('OpenAI Creative Director refinement request failed:', {
       phase: schemaName,
       status: openAIResponse.status,
       error
     });
+    if (journeyId) {
+      logAiUsage({
+        journeyId,
+        operationType: schemaName === 'creative_director_refinement_question' ? 'refine_question' : 'refine_resolution',
+        provider: 'openai',
+        exactModel: model || 'openai-unspecified',
+        latencyMs,
+        success: false,
+        errorCode: 'creative_director_refine_openai_error',
+        metadata: { language: idioma, phase: schemaName }
+      });
+    }
     requestGuard.release({ completed: true });
     return { errorResponse: Response.json({ error: 'creative_director_refine_openai_error' }, { status: 502 }) };
   }
 
+  const latencyMs = Date.now() - startTime;
   const response = await openAIResponse.json();
+  const usage = extractOpenAIUsage(response);
+
+  if (journeyId) {
+    logAiUsage({
+      journeyId,
+      operationType: schemaName === 'creative_director_refinement_question' ? 'refine_question' : 'refine_resolution',
+      provider: 'openai',
+      exactModel: usage.resolvedModel || model,
+      inputTokens: usage.inputTokens,
+      cachedInputTokens: usage.cachedInputTokens,
+      outputTokens: usage.outputTokens,
+      providerRequestId: usage.providerRequestId,
+      latencyMs,
+      success: true,
+      metadata: { language: idioma, phase: schemaName }
+    });
+  }
+
   const outputText = extractOutputText(response);
 
   if (!outputText) {
-    console.error('OpenAI Creative Director refinement missing output_text:', { phase: schemaName, status: openAIResponse.status });
+    console.error('OpenAI Creative Director refinement missing output_text:', {
+      phase: schemaName,
+      status: openAIResponse.status
+    });
     requestGuard.release({ completed: true });
     return { errorResponse: Response.json({ error: 'missing_creative_director_refine_output' }, { status: 502 }) };
   }
@@ -284,6 +320,8 @@ export async function POST(req) {
     const body = await req.json();
     const phase = cleanText(body.phase);
     const idioma = cleanText(body.idioma || body.lang || 'pt-BR');
+    const requestKey = cleanText(body.requestKey);
+    const journeyId = cleanText(body.journeyId || body.creativeDirectorJourneyId || (requestKey ? requestKey.split(':')[1] : null));
 
     if (phase === 'resolution' && !cleanText(body.respostaUsuario)) {
       return Response.json({ error: 'empty_refinement_answer' }, { status: 400 });
@@ -295,7 +333,8 @@ export async function POST(req) {
         schemaName: 'creative_director_refinement_question',
         prompt: buildQuestionPrompt({ formData: body.formData, resultadoFinal: body.resultadoFinal, idioma }),
         idioma,
-        requestKey: cleanText(body.requestKey)
+        requestKey,
+        journeyId
       });
       if (errorResponse) return errorResponse;
 
@@ -319,7 +358,8 @@ export async function POST(req) {
           idioma
         }),
         idioma,
-        requestKey: cleanText(body.requestKey)
+        requestKey,
+        journeyId
       });
       if (errorResponse) return errorResponse;
 

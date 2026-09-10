@@ -773,7 +773,8 @@ export default function Home() {
           estiloNome: ESTILO_NOME_BY_ID[resultadoFinal?.estiloId] || resultadoFinal?.estiloNome || 'Elegante',
           marca: formData.marca || 'Marca',
           descricao: resultadoFinal?.mensagem || '',
-          referenceUrls: refs
+          referenceUrls: refs,
+          journeyId: resultadoFinal?.creativeDirectorJourneyId || null
         })
       });
       
@@ -813,7 +814,8 @@ export default function Home() {
           areaAtuacao: formData.atuacao === 'Outra' ? formData.atuacaoOutra : (formData.atuacao || ''),
           estiloNome: ESTILO_NOME_BY_ID[resultadoFinal?.estiloId] || resultadoFinal?.estiloNome || '',
           sensacoes: formData.sentimentos || [],
-          elementosVisuais: formData.elementosVisuais || []
+          elementosVisuais: formData.elementosVisuais || [],
+          journeyId: resultadoFinal?.creativeDirectorJourneyId || null
         })
       });
 
@@ -1407,17 +1409,18 @@ export default function Home() {
     setIsMatchmakerLoading(true);
     setStep(8); // Vai para a tela de loading automático
     
+    const journeyId = resultadoFinal?.creativeDirectorJourneyId || (typeof window !== 'undefined' && window.crypto?.randomUUID?.()) || `journey-${Date.now()}-${Math.random().toString(36).slice(2)}`;
+
     try {
       const response = await fetch('/api/matchmaker', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ ...formData, lang })
+        body: JSON.stringify({ ...formData, lang, journeyId })
       });
       
       const data = await response.json();
       
       if (data.estiloNome) {
-        const journeyId = window.crypto?.randomUUID?.() || `journey-${Date.now()}-${Math.random().toString(36).slice(2)}`;
         const matchResult = { ...data, creativeDirectorJourneyId: journeyId, creativeDirectorStatus: 'loading' };
         setResultadoFinal(matchResult);
         setStep(9); // Tela de Resultado Triunfal
@@ -1627,7 +1630,7 @@ export default function Home() {
         const saveRes = await fetch('/api/salvar-entrega', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ brandState: cleanState, plano: 'pro', email: formData.email, marca: formData.marca, sessionId: existingSessionId || undefined }),
+          body: JSON.stringify({ brandState: cleanState, plano: 'pro', email: formData.email, marca: formData.marca, sessionId: existingSessionId || undefined, journeyId: resultadoFinal?.creativeDirectorJourneyId || undefined }),
         });
         const saveData = await saveRes.json();
         if (saveData.sessionId) {
@@ -1669,7 +1672,7 @@ export default function Home() {
       const res = await fetch('/api/checkout', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ plano: 'pro', marca: formData.marca, email: formData.email, extrasCount, papelaria: papelariaSelecionada, sessionId: sessionIdPro, lang }),
+        body: JSON.stringify({ plano: 'pro', marca: formData.marca, email: formData.email, extrasCount, papelaria: papelariaSelecionada, sessionId: sessionIdPro, lang, journeyId: resultadoFinal?.creativeDirectorJourneyId || undefined }),
       });
       const data = await res.json();
       if (data.url) {
@@ -3703,7 +3706,7 @@ export default function Home() {
                             const saveRes = await fetch('/api/salvar-entrega', {
                               method: 'POST',
                               headers: { 'Content-Type': 'application/json' },
-                              body: JSON.stringify({ brandState: cleanState, plano: 'starter', email: formData.email, marca: formData.marca, sessionId: existingSessionId || undefined }),
+                              body: JSON.stringify({ brandState: cleanState, plano: 'starter', email: formData.email, marca: formData.marca, sessionId: existingSessionId || undefined, journeyId: resultadoFinal?.creativeDirectorJourneyId || undefined }),
                             });
                             const saveData = await saveRes.json();
                             if (saveData.sessionId) {
@@ -3743,7 +3746,7 @@ export default function Home() {
                           const res = await fetch('/api/checkout', {
                             method: 'POST',
                             headers: { 'Content-Type': 'application/json' },
-                            body: JSON.stringify({ plano: 'starter', marca: formData.marca, email: formData.email, sessionId: sessionIdExp, lang }),
+                            body: JSON.stringify({ plano: 'starter', marca: formData.marca, email: formData.email, sessionId: sessionIdExp, lang, journeyId: resultadoFinal?.creativeDirectorJourneyId || undefined }),
                           });
                           const data = await res.json();
                           if (data.url) {

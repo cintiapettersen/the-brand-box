@@ -1,11 +1,12 @@
 import { GoogleGenAI } from "@google/genai";
 import { validatePatternCoverage } from "../../../lib/patternCoverageValidator.js";
+import { logAiUsage, extractGoogleUsage } from "../../../lib/aiTelemetry.js";
 
 export const maxDuration = 60;
 
 export async function POST(req) {
   try {
-    const { paleta, paletaNomes, estiloNome, marca, descricao, referenceUrls, count } = await req.json();
+    const { paleta, paletaNomes, estiloNome, marca, descricao, referenceUrls, count, journeyId } = await req.json();
     const requestCount = typeof count === 'number' ? count : 2;
 
     const ai = new GoogleGenAI({ apiKey: (process.env.GEMINI_API_KEY ? process.env.GEMINI_API_KEY.replace(/['"]/g, '') : undefined) });
@@ -147,6 +148,7 @@ Style context: ${hint}.`,
 
       while (!acceptedImage && attempts < maxAttemptsPerVariation) {
         attempts++;
+        const attemptStart = Date.now();
         try {
           const contents = [];
           const refUrl = pickRef(i + attempts - 1);
@@ -181,6 +183,8 @@ Style context: ${hint}.`,
             }
           });
 
+          const latencyMs = Date.now() - attemptStart;
+          const usage = extractGoogleUsage(response);
           const candidate = response.candidates?.[0] || response.response?.candidates?.[0];
           const part = candidate?.content?.parts?.find(p => p.inlineData?.data);
 
@@ -193,18 +197,87 @@ Style context: ${hint}.`,
 
             if (!coverageCheck.valid) {
               console.warn(`⚠️ [Quality Gate] Variação ${i + 1} rejeitada na tentativa ${attempts}: ${coverageCheck.reason}. Regenerando automaticamente...`);
+              if (journeyId) {
+                logAiUsage({
+                  journeyId,
+                  operationType: 'pattern_generation',
+                  provider: 'google',
+                  exactModel: 'gemini-2.5-flash-image',
+                  inputTokens: usage.inputTokens,
+                  cachedInputTokens: usage.cachedInputTokens,
+                  outputTokens: usage.outputTokens,
+                  outputImageCount: 1,
+                  attemptNumber: attempts,
+                  providerSuccess: true, // Provider succeeded and charged for generation
+                  outputAccepted: false, // Internal quality gate rejected the output
+                  retryReason: coverageCheck.reason,
+                  latencyMs,
+                  metadata: { coverageScore: coverageCheck.backgroundRatio, styleName: estiloNome, internalQualityGate: true }
+                });
+              }
             } else {
               console.log(`✅ [Quality Gate] Variação ${i + 1} aprovada com ${Math.round((1 - coverageCheck.backgroundRatio) * 100)}% de densidade de motivos.`);
+              if (journeyId) {
+                logAiUsage({
+                  journeyId,
+                  operationType: 'pattern_generation',
+                  provider: 'google',
+                  exactModel: 'gemini-2.5-flash-image',
+                  inputTokens: usage.inputTokens,
+                  cachedInputTokens: usage.cachedInputTokens,
+                  outputTokens: usage.outputTokens,
+                  outputImageCount: 1,
+                  attemptNumber: attempts,
+                  providerSuccess: true,
+                  outputAccepted: true,
+                  retryReason: null,
+                  latencyMs,
+                  metadata: { coverageScore: coverageCheck.backgroundRatio, styleName: estiloNome }
+                });
+              }
               acceptedImage = {
                 id: results.length,
                 base64: rawBase64,
                 mimeType
               };
             }
+          } else {
+            if (journeyId) {
+              logAiUsage({
+                journeyId,
+                operationType: 'pattern_generation',
+                provider: 'google',
+                exactModel: 'gemini-2.5-flash-image',
+                inputTokens: usage.inputTokens,
+                outputTokens: usage.outputTokens,
+                attemptNumber: attempts,
+                providerSuccess: false,
+                outputAccepted: false,
+                errorCode: 'no_image_returned',
+                latencyMs,
+                metadata: { styleName: estiloNome }
+              });
+            }
           }
         } catch (err) {
+          const latencyMs = Date.now() - attemptStart;
           console.error(`❌ Variação ${i + 1} (tentativa ${attempts}) falhou:`, err.message?.substring(0, 120));
+          if (journeyId) {
+            logAiUsage({
+              journeyId,
+              operationType: 'pattern_generation',
+              provider: 'google',
+              exactModel: 'gemini-2.5-flash-image',
+              attemptNumber: attempts,
+              providerSuccess: false,
+              outputAccepted: false,
+              errorCode: err.message?.slice(0, 80),
+              latencyMs,
+              metadata: { styleName: estiloNome }
+            });
+          }
         }
+
       }
 
       if (acceptedImage) {
@@ -223,6 +296,7 @@ Style context: ${hint}.`,
       try {
         const remaining = requestCount - results.length;
         for (let j = 0; j < remaining; j++) {
+          const fallbackStart = Date.now();
           const compIdx = (results.length + j) % fallbackCompositions.length;
           const seed = Math.floor(Math.random() * 1000000);
           const response = await ai.models.generateImages({
@@ -230,6 +304,22 @@ Style context: ${hint}.`,
             prompt: `A single seamless repeating tile for a premium brand surface pattern. Style DNA: ${estiloNome} — ${hint}. SEAMLESS TILING: Must tile perfectly seamlessly. Elements exiting one edge wrap around and re-enter from the exact opposite edge. Absolutely NO vertical or horizontal seams, NO white borders, NO margins, NO vignettes, and NO grid lines. Background must be 100% solid, flat, and uniform right up to the absolute edges. COMPOSITION: Balanced all-over coverage across all four quadrants. Absolutely no large empty voids. Replicate the drawing technique and elements of style references (70% style influence) with a complete, usable arrangement. Composition layout style: ${fallbackCompositions[compIdx]}. Colors ONLY from palette: ${coresStr}. STRICT COLOR HIERARCHY: Dominant color ${(paleta || [])[0] || ''}, secondary ${(paleta || [])[1] || ''}, accent ${(paleta || [])[2] || ''}, minor ${(paleta || [])[3] || ''}, detail ${(paleta || [])[4] || ''}. White background. Flat illustration. [Creative Seed: ${seed}]`,
             config: { numberOfImages: 1 },
           });
+          const latencyMs = Date.now() - fallbackStart;
+
+          if (journeyId) {
+            logAiUsage({
+              journeyId,
+              operationType: 'pattern_generation',
+              provider: 'google',
+              exactModel: 'imagen-4.0-generate-001',
+              outputImageCount: 1,
+              fallbackUsed: true,
+              attemptNumber: 1,
+              success: true,
+              latencyMs,
+              metadata: { styleName: estiloNome }
+            });
+          }
 
           for (const img of response.generatedImages || []) {
             const rawBase64 = img.image.imageBytes;
@@ -245,6 +335,18 @@ Style context: ${hint}.`,
         }
       } catch (e) {
         console.error('Imagen 4 fallback falhou:', e.message?.substring(0, 100));
+        if (journeyId) {
+          logAiUsage({
+            journeyId,
+            operationType: 'pattern_generation',
+            provider: 'google',
+            exactModel: 'imagen-4.0-generate-001',
+            fallbackUsed: true,
+            success: false,
+            errorCode: e.message?.slice(0, 80),
+            metadata: { styleName: estiloNome }
+          });
+        }
       }
     }
 

@@ -1,4 +1,5 @@
 import { acquireCreativeDirectorRequest } from '../requestGuards.js';
+import { logAiUsage, extractOpenAIUsage } from '../../../../lib/aiTelemetry.js';
 
 const PALETTE_FEEDBACK_SCHEMA = {
   type: 'object',
@@ -105,8 +106,10 @@ export async function POST(req) {
       return Response.json({ error: requestGuard.reason }, { status: 429 });
     }
 
+    const journeyId = cleanText(body.journeyId || body.creativeDirectorJourneyId || (body.requestKey ? body.requestKey.split(':')[1] : null));
     const briefing = normalizeBriefing(body.formData);
     const creativeDirector = normalizeCreativeDirector(body.resultadoFinal?.creativeDirector);
+    const startTime = Date.now();
     const response = await fetch('https://api.openai.com/v1/responses', {
       method: 'POST',
       headers: {
@@ -160,12 +163,45 @@ export async function POST(req) {
     });
 
     if (!response.ok) {
+      const latencyMs = Date.now() - startTime;
       console.error('OpenAI Creative Director palette feedback request failed:', { status: response.status, error: await readOpenAIError(response) });
+      if (journeyId) {
+        logAiUsage({
+          journeyId,
+          operationType: 'palette_feedback',
+          provider: 'openai',
+          exactModel: model || 'openai-unspecified',
+          latencyMs,
+          success: false,
+          errorCode: 'creative_director_palette_feedback_openai_error',
+          metadata: { language: idioma }
+        });
+      }
       requestGuard.release({ completed: true });
       return Response.json({ error: 'creative_director_palette_feedback_openai_error' }, { status: 502 });
     }
 
-    const outputText = extractOutputText(await response.json());
+    const latencyMs = Date.now() - startTime;
+    const resJson = await response.json();
+    const usage = extractOpenAIUsage(resJson);
+
+    if (journeyId) {
+      logAiUsage({
+        journeyId,
+        operationType: 'palette_feedback',
+        provider: 'openai',
+        exactModel: usage.resolvedModel || model,
+        inputTokens: usage.inputTokens,
+        cachedInputTokens: usage.cachedInputTokens,
+        outputTokens: usage.outputTokens,
+        providerRequestId: usage.providerRequestId,
+        latencyMs,
+        success: true,
+        metadata: { language: idioma }
+      });
+    }
+
+    const outputText = extractOutputText(resJson);
     if (!outputText) {
       requestGuard.release({ completed: true });
       return Response.json({ error: 'missing_palette_feedback_output' }, { status: 502 });

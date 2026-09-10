@@ -13,7 +13,7 @@ export async function POST(request) {
 
     const stripe = new Stripe(stripeSecretKey);
 
-    const { plano, marca, email, extrasCount = 0, sessionId, avulsoParam, itensSelecionados, papelaria, lang = 'pt' } = await request.json();
+    const { plano, marca, email, extrasCount = 0, sessionId, avulsoParam, itensSelecionados, papelaria, lang = 'pt', journeyId } = await request.json();
 
     const origin = request.headers.get('origin') || 'http://localhost:3000';
     const isEn = lang === 'en';
@@ -122,7 +122,7 @@ export async function POST(request) {
         mode: 'payment',
         locale,
         customer_email: email || undefined,
-        metadata: { plano: 'avulso', marca: (marca || '').slice(0, 100), sessionId: sessionId || '', qtd_itens: String(itensSelecionados.length), tem_caderneta: String(temCaderneta) },
+        metadata: { plano: 'avulso', marca: (marca || '').slice(0, 100), sessionId: sessionId || '', qtd_itens: String(itensSelecionados.length), tem_caderneta: String(temCaderneta), journeyId: journeyId || '' },
         success_url: successUrl,
         cancel_url: avulsoParam
           ? (sessionId ? `${origin}/sucesso?session=${sessionId}&avulso=${avulsoParam}&cancelado=1&lang=${lang}` : `${origin}/sucesso?avulso=${avulsoParam}&cancelado=1&lang=${lang}`)
@@ -192,7 +192,7 @@ export async function POST(request) {
       mode: 'payment',
       locale,
       customer_email: email || undefined,
-      metadata: { plano, marca: marca || '', sessionId: sessionId || '' },
+      metadata: { plano, marca: marca || '', sessionId: sessionId || '', journeyId: journeyId || '' },
       success_url: successUrl,
       cancel_url: `${origin}/?canceled=1&lang=${lang}`,
     });

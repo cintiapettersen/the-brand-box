@@ -2471,7 +2471,7 @@ const QUIZ_PERGUNTAS_SAUDE = [
   },
 ];
 
-function ManifestoQuiz({ accentColor, marca, tagline, estiloNome, atuacao, contextoExtra, isSaude, onManifestoGerado }) {
+function ManifestoQuiz({ accentColor, marca, tagline, estiloNome, atuacao, contextoExtra, isSaude, onManifestoGerado, deliveryId, journeyId }) {
   const { dictionary, lang } = useTranslation();
   const tMan = dictionary?.manifesto || {};
   const tQuiz = dictionary?.quiz || {};
@@ -2491,7 +2491,7 @@ function ManifestoQuiz({ accentColor, marca, tagline, estiloNome, atuacao, conte
       const res = await fetch('/api/generate-manifesto', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ marca, tagline, estiloNome, atuacao, contextoExtra, respostas: respostasArr, lang }),
+        body: JSON.stringify({ marca, tagline, estiloNome, atuacao, contextoExtra, respostas: respostasArr, lang, deliveryId, journeyId }),
       });
       const data = await res.json();
       if (data.success) {
@@ -2711,7 +2711,7 @@ function ManifestoStep({ accentColor, marca, tagline, brand, isSaude, editData }
     return <ManifestoDisplay manifesto={manifesto} accentColor={accentColor} marca={marca} tagline={tagline} fontFamily={fontFamily} fontWeight={fontWeight} isScript={isScript} onRegerar={handleRegerar} podeRefazer={geracoes < LIMITE} geracoes={geracoes} limite={LIMITE} />;
   }
   if (showQuiz) {
-    return <ManifestoQuiz accentColor={accentColor} marca={marca} tagline={tagline} estiloNome={estiloNome} atuacao={brand.formData?.atuacao === 'Outra' ? brand.formData?.atuacaoOutra : brand.formData?.atuacao} contextoExtra={brand.formData?.contextoExtra} isSaude={isSaude} onManifestoGerado={handleManifestoGerado} />;
+    return <ManifestoQuiz accentColor={accentColor} marca={marca} tagline={tagline} estiloNome={estiloNome} atuacao={brand.formData?.atuacao === 'Outra' ? brand.formData?.atuacaoOutra : brand.formData?.atuacao} contextoExtra={brand.formData?.contextoExtra} isSaude={isSaude} onManifestoGerado={handleManifestoGerado} deliveryId={brand.sessionId || brand.id} journeyId={brand.resultadoFinal?.creativeDirectorJourneyId || null} />;
   }
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem', paddingTop: '0.5rem' }}>
@@ -2822,7 +2822,7 @@ const TOMDEVOZ_PERGUNTAS = [
   },
 ];
 
-function TomDeVozQuiz({ accentColor, marca, tagline, estiloNome, atuacao, contextoExtra, onTomDeVozGerado }) {
+function TomDeVozQuiz({ accentColor, marca, tagline, estiloNome, atuacao, contextoExtra, onTomDeVozGerado, deliveryId, journeyId }) {
   const { dictionary, lang } = useTranslation();
   const tTom = dictionary?.tom_de_voz || {};
   const tQuiz = dictionary?.quiz || {};
@@ -2843,7 +2843,7 @@ function TomDeVozQuiz({ accentColor, marca, tagline, estiloNome, atuacao, contex
       const res = await fetch('/api/generate-tomdevoz', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ marca, tagline, estiloNome, atuacao, contextoExtra, respostas: respostasArr, lang }),
+        body: JSON.stringify({ marca, tagline, estiloNome, atuacao, contextoExtra, respostas: respostasArr, lang, deliveryId, journeyId }),
       });
       const data = await res.json();
       if (data.success) {
@@ -3041,7 +3041,7 @@ function TomDeVozStep({ accentColor, marca, tagline, brand, editData }) {
     return <TomDeVozDisplay tomDeVoz={tomDeVoz} accentColor={accentColor} marca={marca} onRegerar={handleRegerar} podeRefazer={geracoes < LIMITE} geracoes={geracoes} limite={LIMITE} />;
   }
   if (showQuiz) {
-    return <TomDeVozQuiz accentColor={accentColor} marca={marca} tagline={tagline} estiloNome={estiloNome} atuacao={brand.formData?.atuacao === 'Outra' ? brand.formData?.atuacaoOutra : brand.formData?.atuacao} contextoExtra={brand.formData?.contextoExtra} onTomDeVozGerado={handleTomDeVozGerado} />;
+    return <TomDeVozQuiz accentColor={accentColor} marca={marca} tagline={tagline} estiloNome={estiloNome} atuacao={brand.formData?.atuacao === 'Outra' ? brand.formData?.atuacaoOutra : brand.formData?.atuacao} contextoExtra={brand.formData?.contextoExtra} onTomDeVozGerado={handleTomDeVozGerado} deliveryId={brand.sessionId || brand.id} journeyId={brand.resultadoFinal?.creativeDirectorJourneyId || null} />;
   }
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem', paddingTop: '0.5rem' }}>

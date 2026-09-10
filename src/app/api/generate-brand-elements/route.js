@@ -3,6 +3,7 @@ import fs from 'fs';
 import path from 'path';
 import { STYLE_ICONS } from '../../../lib/styleIcons.js';
 import { validatePatternCoverage } from '../../../lib/patternCoverageValidator.js';
+import { logAiUsage, extractGoogleUsage } from '../../../lib/aiTelemetry.js';
 
 export const maxDuration = 60; // Permite até 60 segundos para processamento de IA
 
@@ -99,7 +100,9 @@ export async function POST(request) {
       areaAtuacao = '',
       estiloNome = '',
       sensacoes = [],
-      elementosVisuais = []
+      elementosVisuais = [],
+      journeyId = null,
+      deliveryId = null
     } = await request.json();
 
     if (!patternBase64) {
@@ -274,6 +277,7 @@ Provide strictly a JSON object with:
     ];
 
     // Tentativa 1 de Análise Multimodal
+    const p1Start = Date.now();
     try {
       console.log('[Brand Elements] Enviando prompt de análise multimodal com regra híbrida para Gemini 2.5 Flash...');
       const analysisResponse = await ai.models.generateContent({
@@ -281,6 +285,8 @@ Provide strictly a JSON object with:
         contents,
         config: { responseMimeType: 'application/json' }
       });
+      const p1Latency = Date.now() - p1Start;
+      const usage1 = extractGoogleUsage(analysisResponse);
 
       const rawText = extractTextFromResponse(analysisResponse);
       console.log(`[Brand Elements] Resposta bruta da IA (Tentativa 1, ${rawText.length} chars):`, rawText.substring(0, 200) + '...');
@@ -301,12 +307,47 @@ Provide strictly a JSON object with:
           console.log(`✅ [Brand Elements] 3 conceitos extraídos com sucesso na Tentativa 1 (Tipo: ${patternTypeDetected}, Fontes: ${parsed.patternSourceCount || 'N/A'}).`);
         }
       }
+
+      if (journeyId) {
+        logAiUsage({
+          journeyId,
+          deliveryId,
+          operationType: 'brand_elements_analysis',
+          provider: 'google',
+          exactModel: 'gemini-2.5-flash',
+          inputTokens: usage1.inputTokens,
+          cachedInputTokens: usage1.cachedInputTokens,
+          outputTokens: usage1.outputTokens,
+          latencyMs: p1Latency,
+          attemptNumber: 1,
+          providerSuccess: true,
+          outputAccepted: elements.length >= 3,
+          retryReason: elements.length < 3 ? 'insufficient_elements_extracted' : null,
+          metadata: { patternType: patternTypeDetected, estiloNome, internalQualityGate: elements.length < 3 }
+        });
+      }
     } catch (parseErr1) {
       console.warn(`[Brand Elements] Análise multimodal tentativa 1 falhou: ${sanitizeError(parseErr1.message)}. Tentando retry...`);
+      if (journeyId) {
+        logAiUsage({
+          journeyId,
+          deliveryId,
+          operationType: 'brand_elements_analysis',
+          provider: 'google',
+          exactModel: 'gemini-2.5-flash',
+          latencyMs: Date.now() - p1Start,
+          attemptNumber: 1,
+          providerSuccess: false,
+          outputAccepted: false,
+          retryReason: sanitizeError(parseErr1.message),
+          metadata: { estiloNome }
+        });
+      }
     }
 
     // Tentativa 2 de Análise (Retry Controlado se necessário)
     if (!Array.isArray(elements) || elements.length < 3) {
+      const p2Start = Date.now();
       try {
         console.log('[Brand Elements] Executando retry controlado da análise multimodal com regra híbrida...');
         const retryContents = [
@@ -320,6 +361,8 @@ Provide strictly a JSON object with:
           contents: retryContents,
           config: { responseMimeType: 'application/json' }
         });
+        const p2Latency = Date.now() - p2Start;
+        const usage2 = extractGoogleUsage(retryResponse);
 
         const retryRaw = extractTextFromResponse(retryResponse);
         const parsedRetry = parseJsonSafely(retryRaw);
@@ -338,10 +381,46 @@ Provide strictly a JSON object with:
             console.log(`✅ [Brand Elements] 3 conceitos extraídos com sucesso na Tentativa 2.`);
           }
         }
+
+        if (journeyId) {
+          logAiUsage({
+            journeyId,
+            deliveryId,
+            operationType: 'brand_elements_analysis',
+            provider: 'google',
+            exactModel: 'gemini-2.5-flash',
+            inputTokens: usage2.inputTokens,
+            cachedInputTokens: usage2.cachedInputTokens,
+            outputTokens: usage2.outputTokens,
+            latencyMs: p2Latency,
+            attemptNumber: 2,
+            retryReason: 'attempt_1_insufficient_elements',
+            providerSuccess: true,
+            outputAccepted: elements.length >= 3,
+            metadata: { patternType: patternTypeDetected, estiloNome, internalQualityGate: true }
+          });
+        }
       } catch (retryErr) {
         console.error(`[Brand Elements] Retry da análise multimodal falhou: ${sanitizeError(retryErr.message)}`);
+        if (journeyId) {
+          logAiUsage({
+            journeyId,
+            deliveryId,
+            operationType: 'brand_elements_analysis',
+            provider: 'google',
+            exactModel: 'gemini-2.5-flash',
+            latencyMs: Date.now() - p2Start,
+            attemptNumber: 2,
+            retryReason: 'attempt_1_insufficient_elements',
+            providerSuccess: false,
+            outputAccepted: false,
+            errorCode: sanitizeError(retryErr.message),
+            metadata: { estiloNome, internalQualityGate: true }
+          });
+        }
       }
     }
+
 
     if (!Array.isArray(elements) || elements.length < 3) {
       console.error(`❌ [Brand Elements] Análise multimodal abortada: Não foi possível obter 3 elementos estruturados.`);
@@ -387,6 +466,8 @@ STRICT MANDATORY ART DIRECTION:
 `;
 
       // Tentativa 1: gemini-2.5-flash-image
+      const t1Start = Date.now();
+      let t1Success = false;
       try {
         const genRes = await ai.models.generateContent({
           model: 'gemini-2.5-flash-image',
@@ -397,10 +478,30 @@ STRICT MANDATORY ART DIRECTION:
             responseModalities: ['image']
           }
         });
+        const t1Latency = Date.now() - t1Start;
 
         const candidates = genRes.candidates || genRes.response?.candidates;
         for (const part of candidates?.[0]?.content?.parts || []) {
           if (part.inlineData?.data) {
+            t1Success = true;
+            if (journeyId) {
+              logAiUsage({
+                journeyId,
+                deliveryId,
+                operationType: 'brand_elements_render',
+                provider: 'google',
+                exactModel: 'gemini-2.5-flash-image',
+                outputImageCount: 1,
+                imageResolution: '1024x1024',
+                imageQuality: 'standard',
+                latencyMs: t1Latency,
+                attemptNumber: 1,
+                fallbackUsed: false,
+                providerSuccess: true,
+                outputAccepted: true,
+                metadata: { elementTitle: elem.title, sourceType: elem.sourceType }
+              });
+            }
             console.log(`✅ [Brand Elements] Imagem ${index + 1} gerada com sucesso via gemini-2.5-flash-image.`);
             return {
               id: `gen-elem-${index + 1}`,
@@ -414,11 +515,47 @@ STRICT MANDATORY ART DIRECTION:
             };
           }
         }
+
+        if (!t1Success && journeyId) {
+          logAiUsage({
+            journeyId,
+            deliveryId,
+            operationType: 'brand_elements_render',
+            provider: 'google',
+            exactModel: 'gemini-2.5-flash-image',
+            outputImageCount: 0,
+            latencyMs: t1Latency,
+            attemptNumber: 1,
+            fallbackUsed: false,
+            providerSuccess: false,
+            outputAccepted: false,
+            retryReason: 'no_image_in_parts',
+            metadata: { elementTitle: elem.title }
+          });
+        }
       } catch (err1) {
         console.warn(`⚠️ [Brand Elements] gemini-2.5-flash-image falhou para elemento ${index + 1}: ${sanitizeError(err1.message)}. Acionando fallback Imagen 4...`);
+        if (journeyId) {
+          logAiUsage({
+            journeyId,
+            deliveryId,
+            operationType: 'brand_elements_render',
+            provider: 'google',
+            exactModel: 'gemini-2.5-flash-image',
+            outputImageCount: 0,
+            latencyMs: Date.now() - t1Start,
+            attemptNumber: 1,
+            fallbackUsed: false,
+            providerSuccess: false,
+            outputAccepted: false,
+            retryReason: sanitizeError(err1.message),
+            metadata: { elementTitle: elem.title }
+          });
+        }
       }
 
       // Tentativa 2: fallback com imagen-4.0-generate-001 usando ai.models.generateImages
+      const t2Start = Date.now();
       try {
         const fallbackRes = await ai.models.generateImages({
           model: 'imagen-4.0-generate-001',
@@ -429,9 +566,28 @@ STRICT MANDATORY ART DIRECTION:
             aspectRatio: '1:1',
           }
         });
+        const t2Latency = Date.now() - t2Start;
 
         const imagePart = fallbackRes?.generatedImages?.[0];
         if (imagePart?.image?.imageBytes) {
+          if (journeyId) {
+            logAiUsage({
+              journeyId,
+              deliveryId,
+              operationType: 'brand_elements_render',
+              provider: 'google',
+              exactModel: 'imagen-4.0-generate-001',
+              outputImageCount: 1,
+              imageResolution: '1024x1024',
+              imageQuality: 'standard',
+              latencyMs: t2Latency,
+              attemptNumber: 2,
+              fallbackUsed: true,
+              providerSuccess: true,
+              outputAccepted: true,
+              metadata: { elementTitle: elem.title, sourceType: elem.sourceType }
+            });
+          }
           console.log(`✅ [Brand Elements] Imagem ${index + 1} gerada com sucesso via fallback Imagen 4.`);
           return {
             id: `gen-elem-${index + 1}`,
@@ -443,9 +599,43 @@ STRICT MANDATORY ART DIRECTION:
             base64: imagePart.image.imageBytes,
             mimeType: 'image/png'
           };
+        } else if (journeyId) {
+          logAiUsage({
+            journeyId,
+            deliveryId,
+            operationType: 'brand_elements_render',
+            provider: 'google',
+            exactModel: 'imagen-4.0-generate-001',
+            outputImageCount: 0,
+            latencyMs: t2Latency,
+            attemptNumber: 2,
+            fallbackUsed: true,
+            providerSuccess: false,
+            outputAccepted: false,
+            retryReason: 'no_image_in_fallback_response',
+            metadata: { elementTitle: elem.title }
+          });
         }
       } catch (err2) {
         console.error(`❌ [Brand Elements] Fallback Imagen 4 falhou para elemento ${index + 1}: ${sanitizeError(err2.message)}`);
+        if (journeyId) {
+          logAiUsage({
+            journeyId,
+            deliveryId,
+            operationType: 'brand_elements_render',
+            provider: 'google',
+            exactModel: 'imagen-4.0-generate-001',
+            outputImageCount: 0,
+            latencyMs: Date.now() - t2Start,
+            attemptNumber: 2,
+            fallbackUsed: true,
+            providerSuccess: false,
+            outputAccepted: false,
+            errorCode: sanitizeError(err2.message),
+            retryReason: sanitizeError(err2.message),
+            metadata: { elementTitle: elem.title }
+          });
+        }
       }
 
       return null;

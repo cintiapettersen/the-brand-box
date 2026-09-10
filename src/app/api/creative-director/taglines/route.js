@@ -176,24 +176,32 @@ function buildPrompt({ formData, resultadoFinal, idioma, maxWords, maxCharacters
     regras: [
       'Responda exclusivamente no idioma informado.',
       'Use somente identityContext.brandName como nome público da marca.',
-      'Nunca use o nome pessoal/de contato; ele foi removido do briefing.',
-      'identityContext.styleName é nome da direção criativa, não nome da marca.',
-      'Não trate diferenças entre brandName e styleName como conflito.',
-      'Não repita o nome da marca na tagline.',
-      'Não use frases explicativas, clichês, promessas genéricas ou slogans longos.',
-      'Não use pontuação desnecessária.',
-      'Priorize sempre a frase mais curta quando duas opções comunicarem a mesma ideia.',
-      'Cada sugestão deve respeitar maxWords e maxCharacters.'
-    ]
+      'Nunca use o nome pessoal/de contato; ele foi removido do briefing.'
+    ],
+    creativeDirection: {
+      estiloNome: cleanText(resultadoFinal.estiloNome),
+      diagnostico: resultadoFinal.creativeDirector?.diagnostico || null,
+      refinement: resultadoFinal.creativeDirector?.refinement?.direcaoRefinada || null
+    },
+    constraints: {
+      idioma,
+      maxWords: limits.maxWords,
+      maxCharacters: limits.maxCharacters,
+      brandNamePolicy: 'Se usar o nome da marca, use no máximo uma vez e apenas se soar natural junto à logo.',
+      contactNamePolicy: 'Nunca use o nome pessoal/de contato da usuária na tagline.',
+      styleNamePolicy: 'Nunca use o nome da direção criativa como nome de marca.',
+      outputExpectation: 'Gere exatamente 3 sugestões: 1 emotional, 1 strategic e 1 direct.'
+    }
   });
 }
 
-async function callOpenAI({ apiKey, model, prompt, idioma, requestKey }) {
+async function callOpenAI({ apiKey, model, prompt, idioma, requestKey, journeyId }) {
   const requestGuard = acquireCreativeDirectorRequest(requestKey);
   if (!requestGuard.ok) {
     return { errorResponse: Response.json({ error: requestGuard.reason }, { status: 429 }) };
   }
 
+  const startTime = Date.now();
   const openAIResponse = await fetch('https://api.openai.com/v1/responses', {
     method: 'POST',
     headers: {
@@ -202,21 +210,7 @@ async function callOpenAI({ apiKey, model, prompt, idioma, requestKey }) {
     },
     body: JSON.stringify({
       model,
-      input: [
-        {
-          role: 'system',
-          content: [
-            {
-              type: 'input_text',
-              text: `Você é a AI Creative Director da The Brand Box. Gere taglines curtas, específicas e utilizáveis junto à logo. Responda no idioma ${idioma}. Nunca exponha raciocínio interno, nunca use nomes pessoais/de contato e nunca trate o nome da direção criativa como nome de marca. REGRA DE PRIORIDADE: O campo de público (briefing.publico) é a verdade absoluta sobre a faixa etária. Se a área de atuação for Moda/Roupa e o público for Adulto, não escreva absolutamente nada sobre crianças, moda infantil ou infância. `
-            }
-          ]
-        },
-        {
-          role: 'user',
-          content: [{ type: 'input_text', text: prompt }]
-        }
-      ],
+      input: [{ role: 'user', content: [{ type: 'input_text', text: prompt }] }],
       text: {
         format: {
           type: 'json_schema',
@@ -230,15 +224,47 @@ async function callOpenAI({ apiKey, model, prompt, idioma, requestKey }) {
 
   if (!openAIResponse.ok) {
     const error = await readOpenAIError(openAIResponse);
+    const latencyMs = Date.now() - startTime;
     console.error('OpenAI Creative Director tagline request failed:', {
       status: openAIResponse.status,
       error
     });
+    if (journeyId) {
+      logAiUsage({
+        journeyId,
+        operationType: 'taglines',
+        provider: 'openai',
+        exactModel: model || 'openai-unspecified',
+        latencyMs,
+        success: false,
+        errorCode: 'creative_director_taglines_openai_error',
+        metadata: { language: idioma }
+      });
+    }
     requestGuard.release({ completed: true });
     return { errorResponse: Response.json({ error: 'creative_director_taglines_openai_error' }, { status: 502 }) };
   }
 
+  const latencyMs = Date.now() - startTime;
   const response = await openAIResponse.json();
+  const usage = extractOpenAIUsage(response);
+
+  if (journeyId) {
+    logAiUsage({
+      journeyId,
+      operationType: 'taglines',
+      provider: 'openai',
+      exactModel: usage.resolvedModel || model,
+      inputTokens: usage.inputTokens,
+      cachedInputTokens: usage.cachedInputTokens,
+      outputTokens: usage.outputTokens,
+      providerRequestId: usage.providerRequestId,
+      latencyMs,
+      success: true,
+      metadata: { language: idioma }
+    });
+  }
+
   const outputText = extractOutputText(response);
 
   if (!outputText) {
@@ -275,6 +301,7 @@ export async function POST(req) {
     const resultadoFinal = body.resultadoFinal || {};
     const idioma = cleanText(body.idioma || body.lang || 'pt-BR');
     const requestKey = cleanText(body.requestKey);
+    const journeyId = cleanText(body.journeyId || body.creativeDirectorJourneyId || (requestKey ? requestKey.split(':')[1] : null));
     const brandName = cleanText(formData.marca);
     const contactName = cleanText(formData.nome);
 
@@ -283,14 +310,14 @@ export async function POST(req) {
     }
 
     const { maxWords, maxCharacters } = calculateLimits(brandName);
-    const validationContext = { idioma, brandName, contactName, maxWords, maxCharacters };
-    const firstPrompt = buildPrompt({ formData, resultadoFinal, idioma, maxWords, maxCharacters });
-    const firstAttempt = await callOpenAI({ apiKey, model, prompt: firstPrompt, idioma, requestKey });
+    const limits = { maxWords, maxCharacters };
+    const firstPrompt = buildPrompt({ formData, resultadoFinal, limits, idioma, brandName, contactName });
+    const firstAttempt = await callOpenAI({ apiKey, model, prompt: firstPrompt, idioma, requestKey, journeyId });
 
     if (firstAttempt.errorResponse) return firstAttempt.errorResponse;
 
-    const validated = validateTaglines(firstAttempt.payload, validationContext);
-    if (validated) return Response.json(validated);
+    const validated = normalizeTaglines(firstAttempt.payload?.suggestions, limits, brandName, contactName);
+    if (validated.length === 3) return Response.json({ suggestions: validated });
 
     console.error('OpenAI Creative Director taglines validation failed; retrying once:', {
       receivedFields: Object.keys(firstAttempt.payload || {})
@@ -299,26 +326,24 @@ export async function POST(req) {
     const repairPrompt = buildPrompt({
       formData,
       resultadoFinal,
+      limits,
       idioma,
-      maxWords,
-      maxCharacters,
-      invalidReasons: [
-        'A resposta anterior não passou na validação: pode haver idioma incorreto, limite excedido, repetição, uso do nome da marca ou tipo ausente.'
-      ]
+      brandName,
+      contactName
     });
-    const repairAttempt = await callOpenAI({ apiKey, model, prompt: repairPrompt, idioma, requestKey: `${requestKey}:repair` });
+    const repairAttempt = await callOpenAI({ apiKey, model, prompt: repairPrompt, idioma, requestKey: `${requestKey}:repair`, journeyId });
 
     if (repairAttempt.errorResponse) return repairAttempt.errorResponse;
 
-    const repaired = validateTaglines(repairAttempt.payload, validationContext);
-    if (!repaired) {
+    const repaired = normalizeTaglines(repairAttempt.payload?.suggestions, limits, brandName, contactName);
+    if (repaired.length !== 3) {
       console.error('OpenAI Creative Director taglines schema validation failed:', {
         receivedFields: Object.keys(repairAttempt.payload || {})
       });
       return Response.json({ error: 'invalid_creative_director_taglines_response' }, { status: 502 });
     }
 
-    return Response.json(repaired);
+    return Response.json({ suggestions: repaired });
   } catch (error) {
     console.error('Creative Director taglines error:', { message: error.message });
     return Response.json({ error: 'creative_director_taglines_failed' }, { status: 502 });

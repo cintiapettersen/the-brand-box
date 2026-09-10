@@ -1,8 +1,19 @@
 import { GoogleGenAI } from "@google/genai";
+import { logAiUsage, extractGoogleUsage } from "../../../lib/aiTelemetry.js";
 
 export async function POST(req) {
+  const startTime = Date.now();
+  let journeyId = null;
+  let deliveryId = null;
+  let marcaName = '';
+  let language = 'pt-BR';
+
   try {
-    const { marca, tagline, estiloNome, atuacao, contextoExtra, respostas, lang = 'pt-BR' } = await req.json();
+    const { marca, tagline, estiloNome, atuacao, contextoExtra, respostas = [], lang = 'pt-BR', journeyId: reqJourneyId, deliveryId: reqDeliveryId, sessionId } = await req.json();
+    journeyId = reqJourneyId || null;
+    deliveryId = reqDeliveryId || sessionId || null;
+    marcaName = marca || '';
+    language = lang;
 
     const ai = new GoogleGenAI({ apiKey: (process.env.GEMINI_API_KEY ? process.env.GEMINI_API_KEY.replace(/['"]/g, '') : undefined) });
     const isEng = lang === 'en';
@@ -36,16 +47,62 @@ ${isEng ? `Return ONLY the text of the manifesto, no title, no introduction, no 
       contents: [{ text: prompt }],
     });
 
+    const latencyMs = Date.now() - startTime;
+    const usage = extractGoogleUsage(response);
     const text = response.candidates?.[0]?.content?.parts?.[0]?.text || '';
 
     if (!text) {
+      if (journeyId || deliveryId) {
+        logAiUsage({
+          journeyId: journeyId || `delivery-${deliveryId}`,
+          deliveryId,
+          operationType: 'brand_manifesto',
+          provider: 'google',
+          exactModel: 'gemini-2.5-flash',
+          latencyMs,
+          success: false,
+          errorCode: 'missing_model_response',
+          metadata: { lang: language, marca: marcaName }
+        });
+      }
       return Response.json({ success: false, error: 'Sem resposta do modelo' }, { status: 500 });
+    }
+
+    if (journeyId || deliveryId) {
+      logAiUsage({
+        journeyId: journeyId || `delivery-${deliveryId}`,
+        deliveryId,
+        operationType: 'brand_manifesto',
+        provider: 'google',
+        exactModel: 'gemini-2.5-flash',
+        inputTokens: usage.inputTokens,
+        cachedInputTokens: usage.cachedInputTokens,
+        outputTokens: usage.outputTokens,
+        latencyMs,
+        success: true,
+        metadata: { lang: language, marca: marcaName }
+      });
     }
 
     return Response.json({ success: true, manifesto: text.trim() });
 
   } catch (error) {
+    const latencyMs = Date.now() - startTime;
     console.error("Erro ao gerar manifesto:", error.message);
+    if (journeyId || deliveryId) {
+      logAiUsage({
+        journeyId: journeyId || `delivery-${deliveryId}`,
+        deliveryId,
+        operationType: 'brand_manifesto',
+        provider: 'google',
+        exactModel: 'gemini-2.5-flash',
+        latencyMs,
+        success: false,
+        errorCode: error.message || 'generate_manifesto_failed',
+        metadata: { lang: language, marca: marcaName }
+      });
+    }
     return Response.json({ success: false, error: error.message }, { status: 500 });
   }
 }
+

@@ -1,5 +1,6 @@
 import Stripe from 'stripe';
 import { createClient } from '@supabase/supabase-js';
+import { linkJourneyToDelivery } from '../../../lib/aiTelemetry.js';
 
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL || 'https://dummy.supabase.co',
@@ -168,6 +169,16 @@ export async function POST(request) {
 
         // Marca como 'superseded' apenas rascunhos anteriores pendentes DA MESMA JORNADA (mesmo email + mesma marca)
         await markEarlierJourneyDraftsSuperseded();
+
+        // Vincula telemetria de IA da jornada ao ID final da entrega paga
+        const journeyId = session.metadata?.journeyId || entrega.brand_data?.resultadoFinal?.creativeDirectorJourneyId;
+        if (journeyId && sessionId) {
+          try {
+            await linkJourneyToDelivery(journeyId, sessionId);
+          } catch (linkErr) {
+            console.warn('⚠️ Erro ao vincular telemetria de IA à entrega:', linkErr);
+          }
+        }
 
         await sendAccessEmailIdempotent(entrega, sessionId, session.locale === 'en' ? 'en' : 'pt-BR');
       } else if (session.payment_status === 'unpaid') {

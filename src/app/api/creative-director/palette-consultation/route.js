@@ -1,5 +1,6 @@
 import { getOrCreateCreativeDirector } from '../requestGuards.js';
 import { PALETTE_CONSULTATION_LIMIT, validateConsultedPalettesDetailed } from '../../../../lib/paletteConsultant.js';
+import { logAiUsage, extractOpenAIUsage } from '../../../../lib/aiTelemetry.js';
 
 const SCHEMA = {
   type: 'object', additionalProperties: false, required: ['palettes'],
@@ -50,6 +51,7 @@ export async function POST(request) {
     }
     const requestKey = `journey:${journeyId}:palette-consultation:${consultationIndex}:${language}`;
     const generated = await getOrCreateCreativeDirector(requestKey, async () => {
+      const startTime = Date.now();
       const response = await fetch('https://api.openai.com/v1/responses', {
         method: 'POST', headers: { Authorization: `Bearer ${apiKey}`, 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -59,10 +61,37 @@ export async function POST(request) {
         })
       });
       if (!response.ok) {
+        const latencyMs = Date.now() - startTime;
         const meta = await openAIErrorMeta(response);
+        logAiUsage({
+          journeyId,
+          operationType: 'palette_consultation',
+          provider: 'openai',
+          exactModel: model || 'openai-unspecified',
+          latencyMs,
+          success: false,
+          errorCode: 'palette_consultation_openai_error',
+          metadata: { language }
+        });
         throw Object.assign(new Error('openai_failed'), { publicCode: 'palette_consultation_openai_error', phase: 'openai', ...meta });
       }
-      let payload; try { payload = JSON.parse(outputText(await response.json())); } catch { throw Object.assign(new Error('invalid_json'), { publicCode: 'palette_consultation_invalid_json', phase: 'json', errorId: 'invalid_json' }); }
+      const latencyMs = Date.now() - startTime;
+      const resJson = await response.json();
+      const usage = extractOpenAIUsage(resJson);
+      logAiUsage({
+        journeyId,
+        operationType: 'palette_consultation',
+        provider: 'openai',
+        exactModel: usage.resolvedModel || model,
+        inputTokens: usage.inputTokens,
+        cachedInputTokens: usage.cachedInputTokens,
+        outputTokens: usage.outputTokens,
+        providerRequestId: usage.providerRequestId,
+        latencyMs,
+        success: true,
+        metadata: { language }
+      });
+      let payload; try { payload = JSON.parse(outputText(resJson)); } catch { throw Object.assign(new Error('invalid_json'), { publicCode: 'palette_consultation_invalid_json', phase: 'json', errorId: 'invalid_json' }); }
       const validation = validateConsultedPalettesDetailed(payload, existingPalettes);
       if (!validation.palettes) {
         const isHexError = validation.reason === 'hex';
