@@ -238,15 +238,20 @@ export async function logAiUsage(params = {}) {
 
     const activeSignal = abortSignal || (typeof AbortSignal !== 'undefined' && typeof AbortSignal.timeout === 'function' ? AbortSignal.timeout(3000) : null);
 
+    let res;
     if (activeSignal) {
-      await Promise.race([
+      res = await Promise.race([
         insertPromise,
         new Promise((_, reject) => {
           activeSignal.addEventListener('abort', () => reject(new Error('AI telemetry insert timed out')), { once: true });
         })
       ]);
     } else {
-      await insertPromise;
+      res = await insertPromise;
+    }
+
+    if (res?.error) {
+      console.warn('[AI Telemetry] Insert warning:', res.error.message);
     }
   } catch (err) {
     // Non-blocking telemetry guarantee: do not fail customer request

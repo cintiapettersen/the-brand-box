@@ -39,10 +39,10 @@ CREATE TABLE IF NOT EXISTS public.ai_usage_logs (
     pricing_version VARCHAR(32) NOT NULL DEFAULT '2026-09-01',
     pricing_status VARCHAR(32) NOT NULL DEFAULT 'exact', -- 'exact', 'unknown', 'free_tier'
     cost_confidence VARCHAR(32) NOT NULL DEFAULT 'high', -- 'high', 'medium', 'none'
-    unit_price_input_per_m NUMERIC(12, 6) NOT NULL DEFAULT 0.000000,
-    unit_price_cached_input_per_m NUMERIC(12, 6) NOT NULL DEFAULT 0.000000,
-    unit_price_output_per_m NUMERIC(12, 6) NOT NULL DEFAULT 0.000000,
-    unit_price_per_image NUMERIC(10, 6) NOT NULL DEFAULT 0.000000,
+    unit_price_input_per_m NUMERIC(12, 6),
+    unit_price_cached_input_per_m NUMERIC(12, 6),
+    unit_price_output_per_m NUMERIC(12, 6),
+    unit_price_per_image NUMERIC(10, 6),
     estimated_cost_usd NUMERIC(12, 6), -- NULLABLE: null indicates unknown/unverified model pricing, 0 means proven zero-cost
     created_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now()) NOT NULL,
     metadata JSONB DEFAULT '{}'::jsonb
