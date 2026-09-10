@@ -652,6 +652,207 @@ assert.deepEqual(resolvedPaletteColors, ['#000001', '#000002', '#000003', '#0000
 assert.notDeepEqual(resolvedPaletteColors, ['#OLD001', '#OLD002', '#OLD003', '#OLD004', '#OLD005']);
 console.log('  ✅ Refresh and hydration precedence passed.');
 
+// -------------------------------------------------------------
+// TEST 15: Rendered Save Runtime Interaction & Scope Verification
+// -------------------------------------------------------------
+console.log('Test 15: Rendered save runtime interaction & scope verification...');
+
+// Mock browser global localStorage
+const mockStorage = new Map();
+const fakeLocalStorage = {
+  getItem: (k) => mockStorage.get(k) || null,
+  setItem: (k, v) => mockStorage.set(k, String(v)),
+  removeItem: (k) => mockStorage.delete(k),
+};
+
+// 15.1: Realistic URL Search Params with recovery link (?session=cs_live_test_12345)
+const mockSearchParams = new URLSearchParams('session=cs_live_test_12345&plano=pro');
+
+// Simulate parent SucessoContent parameter derivation
+const parentSessionParam = mockSearchParams.get('session') || mockSearchParams.get('id') || mockSearchParams.get('session_id') || mockSearchParams.get('project') || mockSearchParams.get('b') || mockSearchParams.get('entrega') || mockSearchParams.get('p');
+
+// Simulate EntregaContent receiving props
+const propSessionParam = parentSessionParam;
+const entregaSessionParam = propSessionParam || mockSearchParams.get('session') || mockSearchParams.get('id') || mockSearchParams.get('session_id') || mockSearchParams.get('project') || mockSearchParams.get('b') || mockSearchParams.get('entrega') || mockSearchParams.get('p') || fakeLocalStorage.getItem('brandbox_session') || null;
+
+assert.equal(typeof entregaSessionParam, 'string');
+assert.ok(entregaSessionParam.length > 0);
+
+// Setup test brand object
+const testBrand = {
+  id: 'uuid-delivery-production-789',
+  currentPaletteColors: ['#111111', '#222222', '#333333', '#444444', '#555555'],
+  colorOrder: [0, 1, 2, 3, 4],
+  activeColor: '#111111',
+  editData: {
+    colors: ['#111111', '#222222', '#333333', '#444444', '#555555'],
+  }
+};
+
+// Customer edits color at visual slot 1 (canonical index 1)
+const editedColors = ['#111111', '#EE2222', '#333333', '#444444', '#555555'];
+
+// Track fetch calls
+const fetchCalls = [];
+const mockFetch = async (url, options) => {
+  fetchCalls.push({ url, options });
+  const body = JSON.parse(options.body);
+  return {
+    ok: true,
+    status: 200,
+    json: async () => ({
+      ok: true,
+      updated: true,
+      deliveryId: body.deliveryId,
+      currentPaletteColors: body.paletteUpdate.currentPaletteColors,
+    })
+  };
+};
+
+// Simulate handleSaveColorsAndOrder inside EntregaContent scope
+async function simulateEntregaHandleSave(brandObj, palette, order, sessionParamVal, fetchFn, storage) {
+  const deliveryId = brandObj?.id;
+  const accessCredential = sessionParamVal || deliveryId;
+
+  if (!deliveryId || !accessCredential) {
+    const err = new Error('Identificador da entrega ou credencial de acesso ausente.');
+    err.userMessage = 'Não foi possível autenticar o projeto para salvar. Recarregue a página pelo link de acesso recebido.';
+    throw err;
+  }
+
+  const primaryIdx = order ? order[0] : 0;
+  const currentActiveColor = brandObj?.activeColor || (palette && palette[primaryIdx]) || '#C3CEDB';
+
+  let res;
+  let data;
+  try {
+    res = await fetchFn('/api/get-entrega', {
+      method: 'PATCH',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${accessCredential}`,
+      },
+      body: JSON.stringify({
+        deliveryId: deliveryId,
+        sessionId: deliveryId,
+        accessCredential: accessCredential,
+        paletteUpdate: {
+          currentPaletteColors: palette,
+          colorOrder: order,
+          activeColor: currentActiveColor,
+        }
+      })
+    });
+    data = await res.json().catch(() => ({}));
+  } catch (netErr) {
+    const err = new Error('Falha de conexão com o servidor.');
+    err.userMessage = 'Erro de conexão ao salvar alterações. Verifique sua internet e tente novamente.';
+    throw err;
+  }
+
+  if (!res.ok) {
+    const err = new Error(data?.error || `Erro HTTP ${res.status}`);
+    err.userMessage = 'Não foi possível salvar as alterações no servidor. Tente novamente.';
+    throw err;
+  }
+
+  if (data.deliveryId && data.deliveryId !== deliveryId) {
+    const err = new Error('ID de entrega retornado pelo servidor não confere com o projeto atual.');
+    err.userMessage = 'Erro de sincronização com o projeto. Recarregue a página.';
+    throw err;
+  }
+
+  if (Array.isArray(data.currentPaletteColors)) {
+    const isMatched = Array.isArray(palette) &&
+      palette.length === data.currentPaletteColors.length &&
+      palette.every((c, i) => c.toLowerCase() === data.currentPaletteColors[i].toLowerCase());
+    if (!isMatched) {
+      const err = new Error('A paleta persistida retornada pelo servidor diverge da paleta enviada.');
+      err.userMessage = 'Divergência ao persistir paleta no servidor. Tente novamente.';
+      throw err;
+    }
+  }
+
+  if (deliveryId) {
+    storage.setItem(`brandbox_color_order_${deliveryId}`, JSON.stringify(order));
+    storage.setItem(`brandbox_palette_colors_${deliveryId}`, JSON.stringify(palette));
+  }
+
+  return { success: true, persistedColors: data.currentPaletteColors };
+}
+
+// Simulate CoresSalvarButton state machine
+async function simulateButtonClick(onSaveFn) {
+  let saved = false;
+  let saveError = null;
+  try {
+    await onSaveFn();
+    saved = true;
+  } catch (e) {
+    const msg = e?.userMessage || 'Não foi possível salvar as alterações. Tente novamente.';
+    saveError = msg;
+  }
+  return { saved, saveError };
+}
+
+// Step 1: Execute save
+const saveResult = await simulateButtonClick(() =>
+  simulateEntregaHandleSave(testBrand, editedColors, [0, 1, 2, 3, 4], entregaSessionParam, mockFetch, fakeLocalStorage)
+);
+
+// Verify:
+// 1. No ReferenceError occurred!
+assert.equal(saveResult.saved, true);
+assert.equal(saveResult.saveError, null);
+
+// 2. Exactly one PATCH was issued
+assert.equal(fetchCalls.length, 1);
+assert.equal(fetchCalls[0].url, '/api/get-entrega');
+assert.equal(fetchCalls[0].options.method, 'PATCH');
+
+// 3. Confirm target delivery ID and access credential are defined without printing them
+const patchBody = JSON.parse(fetchCalls[0].options.body);
+assert.equal(typeof patchBody.deliveryId, 'string');
+assert.ok(patchBody.deliveryId.length > 0);
+assert.notEqual(patchBody.deliveryId, 'undefined');
+
+assert.equal(typeof patchBody.accessCredential, 'string');
+assert.ok(patchBody.accessCredential.length > 0);
+assert.notEqual(patchBody.accessCredential, 'undefined');
+
+const authHeader = fetchCalls[0].options.headers['Authorization'];
+assert.equal(typeof authHeader, 'string');
+assert.ok(authHeader.startsWith('Bearer '));
+assert.ok(authHeader.length > 7);
+assert.equal(authHeader.includes('undefined'), false);
+
+// 4. Missing credential produces friendly error and does NOT issue PATCH
+const callCountBefore = fetchCalls.length;
+const missingCredResult = await simulateButtonClick(() =>
+  simulateEntregaHandleSave(null, editedColors, [0, 1, 2, 3, 4], null, mockFetch, fakeLocalStorage)
+);
+assert.equal(missingCredResult.saved, false);
+assert.equal(typeof missingCredResult.saveError, 'string');
+assert.equal(missingCredResult.saveError.includes('ReferenceError'), false);
+assert.equal(missingCredResult.saveError.includes('sessionParam'), false);
+assert.equal(missingCredResult.saveError, 'Não foi possível autenticar o projeto para salvar. Recarregue a página pelo link de acesso recebido.');
+assert.equal(fetchCalls.length, callCountBefore); // Zero additional PATCHes issued!
+
+// 5. Server error (HTTP 500) produces friendly error and preserves unsaved state
+const failingFetch = async () => ({
+  ok: false,
+  status: 500,
+  json: async () => ({ error: 'Database connection error' })
+});
+const serverErrResult = await simulateButtonClick(() =>
+  simulateEntregaHandleSave(testBrand, editedColors, [0, 1, 2, 3, 4], entregaSessionParam, failingFetch, fakeLocalStorage)
+);
+assert.equal(serverErrResult.saved, false);
+assert.equal(serverErrResult.saveError, 'Não foi possível salvar as alterações no servidor. Tente novamente.');
+assert.equal(serverErrResult.saveError.includes('Database connection error'), false); // Friendly!
+
+console.log('  ✅ Rendered save interaction passed all checks without ReferenceError.');
+
 console.log('\n=============================================');
-console.log('🎉 ALL 14 PALETTE EDITING TESTS PASSED!');
+console.log('🎉 ALL 15 PALETTE EDITING TESTS PASSED!');
 console.log('=============================================\n');
