@@ -305,15 +305,36 @@ export const genPDFFooter = ({ clinicaNome, endereco, allPhones, email, site, in
 };
 
 /**
- * Gera o Rodapé Minimalista (Apenas texto e linha)
+ * Gera o Rodapé Minimalista Padronizado (Apenas texto, linha e ícone discreto do WhatsApp)
  */
-export const genPDFSimpleFooter = ({ allPhones, email, site, instagram, clinicaNome = null, endereco = null, accentColor = '#444' }) => `
-  <div style="position:absolute; bottom:12mm; left:30mm; right:30mm; border-top:0.5px solid #e0e0e0; padding-top:4mm; text-align:center; z-index:4;">
-      ${clinicaNome ? `<div style="${PDFStyles.montserrat} font-size:8.5pt; font-weight:800; color:${accentColor}; margin-bottom:1.5mm; text-transform:uppercase; letter-spacing:0.5px;">${clinicaNome}</div>` : ''}
-      ${endereco ? `<div style="${PDFStyles.montserrat} font-size:6.5pt; color:#666; font-weight:500; line-height:1.4; margin-bottom:2mm;">${endereco}</div>` : ''}
-      ${allPhones ? `<div style="${PDFStyles.montserrat} font-size:7.5pt; font-weight:700; color:#444; margin-bottom:1mm;">${allPhones}</div>` : ''}
-      <div style="${PDFStyles.montserrat} font-size:6.5pt; color:#999; font-weight:500; letter-spacing:0.2px;">
-          ${[instagram ? `@${instagram}` : '', email, site].filter(Boolean).join('  ·  ')}
-      </div>
+export const genPDFSimpleFooter = ({ whatsapp = null, telefone = null, telefone2 = null, allPhones = null, email = '', site = '', instagram = '', clinicaNome = null, endereco = null, accentColor = '#444', showDivider = true, bottom = '10mm' }) => {
+  const waNumber = whatsapp || (allPhones && !telefone ? allPhones : null);
+  const otherPhones = [telefone, telefone2].filter(Boolean).join('  ·  ');
+  const waIcon = `<svg viewBox="0 0 24 24" width="3.2mm" height="3.2mm" fill="#25D366" style="vertical-align:middle;display:inline-block;"><path d="M12.01 2.01C6.48 2.01 2 6.48 2 12.01c0 2.17.69 4.19 1.86 5.83l-1.38 5.12 5.24-1.38c1.64 1.17 3.66 1.86 5.83 1.86 5.53 0 10.01-4.48 10.01-10.01S17.54 2.01 12.01 2.01zm4.12 13.91c-.24.69-1.23 1.25-1.71 1.33-.48.08-1.11.13-3.23-.74-2.7-1.12-4.44-3.86-4.57-4.04-.13-.18-1.11-1.48-1.11-2.82 0-1.34.7-2.01.95-2.29.24-.28.53-.35.71-.35.18 0 .35 0 .5.01.16.01.37-.06.58.45.22.53.75 1.84.81 1.97.06.13.11.29.02.46-.09.18-.14.29-.27.46-.13.18-.28.4-.39.54-.13.15-.27.32-.12.58.15.26.65 1.07 1.39 1.74.96.85 1.76 1.12 2.02 1.25.26.13.41.11.56-.06.15-.17.65-.75.82-.95.17-.2.35-.17.58-.08.24.08 1.5.71 1.76.84.26.13.44.2.5.31.06.11.06.66-.18 1.35z"/></svg>`;
+  
+  const phoneParts = [];
+  if (waNumber) {
+    phoneParts.push(`<span style="display:inline-flex;align-items:center;gap:1.2mm;">${waIcon}<span style="font-weight:700;color:#333;">${waNumber}</span></span>`);
+  }
+  if (otherPhones) {
+    phoneParts.push(`<span>${otherPhones}</span>`);
+  } else if (!waNumber && allPhones) {
+    phoneParts.push(`<span>${allPhones}</span>`);
+  }
+  const phonesHtml = phoneParts.join('  <span style="color:#ccc;margin:0 1.5mm;">·</span>  ');
+
+  const digitalParts = [
+    instagram ? `@${instagram.replace(/^@/, '')}` : '',
+    email || '',
+    site || ''
+  ].filter(Boolean).join('  ·  ');
+
+  return `
+  <div style="position:absolute; bottom:${bottom}; left:18mm; right:18mm; ${showDivider ? 'border-top:0.5px solid #e0e0e0; padding-top:3.5mm;' : ''} text-align:center; z-index:4; font-family:'Montserrat',sans-serif;">
+      ${clinicaNome ? `<div style="font-size:8pt; font-weight:800; color:${accentColor}; margin-bottom:1.2mm; text-transform:uppercase; letter-spacing:0.5px;">${clinicaNome}</div>` : ''}
+      ${phonesHtml ? `<div style="font-size:7pt; color:#444; margin-bottom:1.2mm; display:flex; align-items:center; justify-content:center; flex-wrap:wrap; gap:2mm;">${phonesHtml}</div>` : ''}
+      ${digitalParts ? `<div style="font-size:6.5pt; color:#777; font-weight:500; letter-spacing:0.2px; margin-bottom:${endereco ? '1.2mm' : '0'};">${digitalParts}</div>` : ''}
+      ${endereco ? `<div style="font-size:6pt; color:#999; font-weight:500; line-height:1.3;">${endereco}</div>` : ''}
   </div>
 `;
+};

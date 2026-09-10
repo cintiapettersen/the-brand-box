@@ -21,7 +21,7 @@ import { PALETTE_CONSULTATION_LIMIT } from '../../lib/paletteConsultant';
 const PAPELARIA_CLINICA = [
   "Cartão de Visita", "Papel Timbrado", "Receituário Padrão (A4 e A5)", "Atestado Médico (A4 e A5)", "Cartão de Retorno", "Pasta A4 Exclusiva",
   "Envelope Ofício (23x11,5cm)", "Envelope Saco (24x34cm)", "Recibo", "Receituário de Controle Especial", 
-  "Dicas de Introdução Alimentar", "Guia de Vacina c/ Calendário", "Guia de Desenvolvimento", "Orientação Pré-Natal",
+  "Dicas de Introdução Alimentar", "Guia de Vacinação", "Guia de Desenvolvimento", "Orientação Pré-Natal",
   "Cartão de Exame Pré-Natal", "Checklist Maternidade", "Guia do Sono", "Orientações p/ Recém Nascidos",
   "Prontuário Médico", "Receita de Alta", "Ficha de Cadastro",
   "Certificado de Coragem", "Quadro de Incentivo",
