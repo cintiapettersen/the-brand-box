@@ -607,24 +607,57 @@ function CoresSalvarButton({ colorOrder, accentColor, onSave }) {
   const { dictionary } = useTranslation();
   const [saved, setSaved] = React.useState(false);
   const [saving, setSaving] = React.useState(false);
+  const [saveError, setSaveError] = React.useState(null);
+
   const handleSave = async () => {
-    if (onSave) {
-      setSaving(true);
-      try {
-        await onSave();
-      } catch (e) {
-        console.warn('Erro ao salvar cores:', e);
-      } finally {
-        setSaving(false);
-      }
+    if (!onSave) return;
+    setSaving(true);
+    setSaveError(null);
+    try {
+      await onSave();
+      setSaved(true);
+      setTimeout(() => setSaved(false), 3000);
+    } catch (e) {
+      console.error('Erro ao salvar cores:', e);
+      setSaveError(e.message || 'Erro ao salvar cores no servidor.');
+      setTimeout(() => setSaveError(null), 5000);
+    } finally {
+      setSaving(false);
     }
-    setSaved(true);
-    setTimeout(() => setSaved(false), 2500);
   };
+
   return (
-    <button onClick={handleSave} disabled={saving} style={{ width: '100%', padding: '14px', background: saved ? '#4CAF50' : '#fff', color: saved ? '#fff' : '#555', border: '1.5px solid #eaeaea', borderRadius: '30px', fontWeight: 700, fontSize: '0.95rem', cursor: saving ? 'wait' : 'pointer', transition: 'all 0.3s' }}>
-      {saved ? (dictionary?.color_tab?.order_saved || '✓ Ordem salva! Os impressos já foram atualizados.') : saving ? 'Salvando...' : (dictionary?.color_tab?.save_order || 'Salvar ordem das cores →')}
-    </button>
+    <div style={{ width: '100%', display: 'flex', flexDirection: 'column', gap: '8px' }}>
+      <button
+        onClick={handleSave}
+        disabled={saving}
+        style={{
+          width: '100%',
+          padding: '14px',
+          background: saveError ? '#fef2f2' : saved ? '#4CAF50' : '#fff',
+          color: saveError ? '#dc2626' : saved ? '#fff' : '#555',
+          border: saveError ? '1.5px solid #dc2626' : '1.5px solid #eaeaea',
+          borderRadius: '30px',
+          fontWeight: 700,
+          fontSize: '0.95rem',
+          cursor: saving ? 'wait' : 'pointer',
+          transition: 'all 0.3s'
+        }}
+      >
+        {saving
+          ? 'Salvando alterações...'
+          : saveError
+            ? '✕ Não foi possível salvar (Tente novamente)'
+            : saved
+              ? (dictionary?.color_tab?.order_saved || '✓ Ordem salva! Os impressos já foram atualizados.')
+              : (dictionary?.color_tab?.save_order || 'Salvar ordem das cores →')}
+      </button>
+      {saveError && (
+        <p style={{ margin: 0, fontSize: '0.75rem', color: '#dc2626', textAlign: 'center', lineHeight: 1.4 }}>
+          {saveError}
+        </p>
+      )}
+    </div>
   );
 }
 
@@ -10771,16 +10804,17 @@ function EntregaContent({ brand, plano, setBrand }) {
   }, [editData?.fontFamily, editData?.fontWeight]);
 
   const paletteColors = (() => {
-    if (brand.editData?.colors?.length > 0) return brand.editData.colors;
-    // 1. Prioridade total: cores salvas diretamente no objeto da marca
+    // 1. Prioridade total e canônica: cores salvas diretamente no objeto da marca
     if (brand.currentPaletteColors?.length > 0) return brand.currentPaletteColors;
+    // 2. Cores sincronizadas no editData
+    if (brand.editData?.colors?.length > 0) return brand.editData.colors;
 
-    // 2. Fallback: buscar na lista global pelo ID
+    // 3. Fallback: buscar na lista global pelo ID
     const sel = paletas?.find(p => p.id === brand.selectedPaleta);
     const hex = sel?.paleta_hex || sel?.cores_hex || [];
     if (hex.length > 0) return hex;
 
-    // 3. Fallback de emergência: qualquer paleta carregada ou a cor ativa
+    // 4. Fallback de emergência: qualquer paleta carregada ou a cor ativa
     const any = paletas?.find(p => p.paleta_hex?.length > 0);
     return any?.paleta_hex || [brand.activeColor || '#C3CEDB'];
   })();
@@ -10917,26 +10951,6 @@ function EntregaContent({ brand, plano, setBrand }) {
           try { localStorage.setItem('brandbox_delivery', JSON.stringify(_slim)); } catch {}
         }
       } catch {}
-
-      if (brand?.id) {
-        fetch('/api/get-entrega', {
-          method: 'PATCH',
-          headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${sessionParam || brand.id}`,
-          },
-          body: JSON.stringify({
-            deliveryId: brand.id,
-            sessionId: brand.id,
-            accessCredential: sessionParam || brand.id,
-            paletteUpdate: {
-              currentPaletteColors: updated,
-              colorOrder: colorOrder,
-              activeColor: newActiveColor,
-            }
-          })
-        }).catch(err => console.warn('Falha ao sincronizar cores no Supabase:', err));
-      }
     }
   };
 
@@ -10945,36 +10959,61 @@ function EntregaContent({ brand, plano, setBrand }) {
     const primaryIdx = colorOrder ? colorOrder[0] : 0;
     const currentActiveColor = brand?.activeColor || (paletteColors && paletteColors[primaryIdx]) || '#C3CEDB';
 
+    const res = await fetch('/api/get-entrega', {
+      method: 'PATCH',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${sessionParam || brand.id}`,
+      },
+      body: JSON.stringify({
+        deliveryId: brand.id,
+        sessionId: brand.id,
+        accessCredential: sessionParam || brand.id,
+        paletteUpdate: {
+          currentPaletteColors: paletteColors,
+          colorOrder: colorOrder,
+          activeColor: currentActiveColor,
+        }
+      })
+    });
+
+    const data = await res.json().catch(() => ({}));
+    if (!res.ok) {
+      console.error('[sucesso] PATCH salvar cores failed:', data?.error || res.status);
+      throw new Error(data?.error || 'Erro ao salvar alterações no servidor.');
+    }
+
+    if (data.deliveryId && data.deliveryId !== brand.id) {
+      throw new Error('ID de entrega retornado pelo servidor não confere com o projeto atual.');
+    }
+
+    if (Array.isArray(data.currentPaletteColors)) {
+      const isMatched = Array.isArray(paletteColors) &&
+        paletteColors.length === data.currentPaletteColors.length &&
+        paletteColors.every((c, i) => c.toLowerCase() === data.currentPaletteColors[i].toLowerCase());
+      if (!isMatched) {
+        throw new Error('A paleta persistida retornada pelo servidor diverge da paleta enviada.');
+      }
+    }
+
+    // Persiste cache local apenas após confirmação do servidor
     try {
       if (brand?.id) {
         localStorage.setItem(`brandbox_color_order_${brand.id}`, JSON.stringify(colorOrder));
         localStorage.setItem(`brandbox_palette_colors_${brand.id}`, JSON.stringify(paletteColors));
       }
-    } catch {}
-
-    try {
-      const res = await fetch('/api/get-entrega', {
-        method: 'PATCH',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${sessionParam || brand.id}`,
+      const updatedDelivery = {
+        ...brand,
+        currentPaletteColors: paletteColors,
+        activeColor: currentActiveColor,
+        colorOrder: colorOrder,
+        editData: {
+          ...(brand?.editData || {}),
+          colors: paletteColors,
         },
-        body: JSON.stringify({
-          deliveryId: brand.id,
-          sessionId: brand.id,
-          accessCredential: sessionParam || brand.id,
-          paletteUpdate: {
-            currentPaletteColors: paletteColors,
-            colorOrder: colorOrder,
-            activeColor: currentActiveColor,
-          }
-        })
-      });
-      const data = await res.json();
-      if (!res.ok) console.warn('[sucesso] PATCH salvar cores failed:', data.error);
-    } catch (e) {
-      console.warn('[sucesso] Erro de rede ao salvar cores:', e);
-    }
+      };
+      localStorage.setItem('brandbox_delivery', JSON.stringify(updatedDelivery));
+    } catch {}
   };
 
   return (
@@ -12690,16 +12729,16 @@ function SucessoContent() {
                 ...brandFromDb,
                 currentPaletteColors: canonicalColorsFromDb,
                 editData: {
+                  ...(brandFromDb?.editData || {}),
                   marca: data.marca || brandFromDb?.marca || brandFromDb?.editData?.marca || 'Sua Marca',
                   tagline: brandFromDb?.editData?.tagline || '',
                   colors: canonicalColorsFromDb,
-                  ...(brandFromDb?.editData || {})
                 },
                 formData: {
+                  ...(brandFromDb?.formData || {}),
                   nome: data.marca || brandFromDb?.marca || brandFromDb?.formData?.nome || '',
                   marca: data.marca || brandFromDb?.marca || brandFromDb?.formData?.marca || '',
                   email: data.email || brandFromDb?.email || brandFromDb?.formData?.email || '',
-                  ...(brandFromDb?.formData || {})
                 }
               };
 

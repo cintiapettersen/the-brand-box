@@ -256,30 +256,38 @@ console.log('  ✅ Semantic activeColor behavior passed.');
 // -------------------------------------------------------------
 console.log('Test 10: Server-side authorization invariant & security suite...');
 
-// 10.1: Explicit Payment Status Verification (No Permissive !status)
-console.log('  10.1: Explicit payment status verification (fail-closed)...');
+// 10.1: Explicit Payment Status Verification
+console.log('  10.1: Explicit payment status verification...');
 assert.equal(isExplicitlyPaid({ paid: true, payment_status: 'paid' }), true);
 assert.equal(isExplicitlyPaid({ paid: true, payment_status: 'complete' }), true);
 assert.equal(isExplicitlyPaid({ paid: true, payment_status: 'completed' }), true);
 assert.equal(isExplicitlyPaid({ paid: true, payment_status: 'succeeded' }), true);
 assert.equal(isExplicitlyPaid({ paid: true, payment_status: 'PAID' }), true); // case-insensitive
 
-// Reject permissive legacy / null / undefined / empty statuses:
-assert.equal(isExplicitlyPaid({ paid: true, payment_status: null }), false);
-assert.equal(isExplicitlyPaid({ paid: true, payment_status: undefined }), false);
-assert.equal(isExplicitlyPaid({ paid: true, payment_status: '' }), false);
-assert.equal(isExplicitlyPaid({ paid: true, payment_status: '   ' }), false);
+// Legitimate older completed deliveries created before the payment_status column (paid === true):
+assert.equal(isExplicitlyPaid({ paid: true, payment_status: null }), true);
+assert.equal(isExplicitlyPaid({ paid: true, payment_status: undefined }), true);
+assert.equal(isExplicitlyPaid({ paid: true, payment_status: '' }), true);
+assert.equal(isExplicitlyPaid({ paid: true, payment_status: '   ' }), true);
 
-// Reject unpaid / pending / failed / superseded statuses:
+// Reject unpaid / pending / failed / superseded statuses (even if status is null when paid === false):
+assert.equal(isExplicitlyPaid({ paid: false, payment_status: null }), false);
+assert.equal(isExplicitlyPaid({ paid: false, payment_status: undefined }), false);
+assert.equal(isExplicitlyPaid({ paid: false, payment_status: '' }), false);
 assert.equal(isExplicitlyPaid({ paid: false, payment_status: 'paid' }), false);
 assert.equal(isExplicitlyPaid({ paid: false, payment_status: 'pending' }), false);
 assert.equal(isExplicitlyPaid({ paid: false, payment_status: 'unpaid' }), false);
 assert.equal(isExplicitlyPaid({ paid: false, payment_status: 'failed' }), false);
 assert.equal(isExplicitlyPaid({ paid: false, payment_status: 'superseded' }), false);
 assert.equal(isExplicitlyPaid({ paid: false, payment_status: 'abandoned' }), false);
+// If explicitly marked failed or canceled, even paid: true is rejected:
+assert.equal(isExplicitlyPaid({ paid: true, payment_status: 'failed' }), false);
+assert.equal(isExplicitlyPaid({ paid: true, payment_status: 'unpaid' }), false);
+assert.equal(isExplicitlyPaid({ paid: true, payment_status: 'superseded' }), false);
+assert.equal(isExplicitlyPaid({ paid: true, payment_status: 'abandoned' }), false);
 assert.equal(isExplicitlyPaid(null), false);
 assert.equal(isExplicitlyPaid({}), false);
-console.log('    ✅ isExplicitlyPaid correctly rejects all non-explicitly paid records.');
+console.log('    ✅ isExplicitlyPaid correctly authorizes paid records and rejects all non-paid/failed records.');
 
 // 10.2: Authorization Credential Matching & Fail-Closed Behavior
 console.log('  10.2: Authorization credential matching & fail-closed checks...');
@@ -314,12 +322,15 @@ const deliveryC_unpaid = {
   brand_data: {},
 };
 
-const deliveryD_nullStatus = {
+const deliveryD_legacyPaid = {
   id: 'uuid-customer-D-legacy',
   stripe_session_id: 'cs_test_session_D',
   paid: true,
-  payment_status: null, // Legacy unverified status
-  brand_data: {},
+  payment_status: null, // Legacy completed delivery
+  brand_data: {
+    currentPaletteColors: ['#001122', '#002233', '#003344', '#004455', '#005566'],
+    editData: { colors: ['#001122', '#002233', '#003344', '#004455', '#005566'] },
+  },
 };
 
 // Check 1: Missing credential fails with 401
@@ -334,8 +345,8 @@ assert.equal(verifyDeliveryAuthorization(null, 'uuid-customer-A').status, 404);
 // Check 3: Unpaid delivery fails with 402
 assert.equal(verifyDeliveryAuthorization(deliveryC_unpaid, 'uuid-customer-C-unpaid').status, 402);
 
-// Check 4: Permissive legacy/null status fails with 402
-assert.equal(verifyDeliveryAuthorization(deliveryD_nullStatus, 'uuid-customer-D-legacy').status, 402);
+// Check 4: Valid older completed delivery (paid: true, payment_status: null) authorizes securely
+assert.equal(verifyDeliveryAuthorization(deliveryD_legacyPaid, 'uuid-customer-D-legacy').authorized, true);
 
 // Check 5: Valid credential for delivery A authorizes delivery A
 assert.equal(verifyDeliveryAuthorization(deliveryA, 'uuid-customer-A').authorized, true);
@@ -386,7 +397,17 @@ function simulatePatchDeliveryRoute(database, body, authHeader = null) {
     }
   }
 
-  return { status: 200, body: { ok: true } };
+  const persistedColors = existing.brand_data?.currentPaletteColors || existing.brand_data?.editData?.colors || null;
+
+  return {
+    status: 200,
+    body: {
+      ok: true,
+      updated: true,
+      deliveryId: existing.id,
+      currentPaletteColors: persistedColors,
+    }
+  };
 }
 
 // Set up mock DB with deep clones
@@ -394,7 +415,7 @@ const mockDb = {
   'uuid-A': JSON.parse(JSON.stringify(deliveryA)),
   'uuid-B': JSON.parse(JSON.stringify(deliveryB)),
   'uuid-C': JSON.parse(JSON.stringify(deliveryC_unpaid)),
-  'uuid-D': JSON.parse(JSON.stringify(deliveryD_nullStatus)),
+  'uuid-D': JSON.parse(JSON.stringify(deliveryD_legacyPaid)),
 };
 
 // Scenario 1: Attacker knows delivery B's ID, passes NO credential
@@ -421,13 +442,18 @@ const res3 = simulatePatchDeliveryRoute(mockDb, {
 });
 assert.equal(res3.status, 402);
 
-// Scenario 4: Caller tries to update legacy delivery D (null status)
+// Scenario 4: Legitimate older completed delivery D saves securely
+const updatedPaletteD = ['#990000', '#AA1111', '#BB2222', '#CC3333', '#DD4444'];
 const res4 = simulatePatchDeliveryRoute(mockDb, {
   deliveryId: 'uuid-D',
   accessCredential: 'uuid-customer-D-legacy',
-  paletteUpdate: { currentPaletteColors: ['#8B7355', '#C4A882', '#D4C5B0', '#6B8CAE', '#333333'] }
+  paletteUpdate: { currentPaletteColors: updatedPaletteD, colorOrder: [0, 1, 2, 3, 4], activeColor: '#990000' }
 });
-assert.equal(res4.status, 402);
+assert.equal(res4.status, 200);
+assert.equal(res4.body.ok, true);
+// Verify delivery D's palette was updated in database:
+assert.deepEqual(mockDb['uuid-D'].brand_data.currentPaletteColors, updatedPaletteD);
+assert.deepEqual(mockDb['uuid-D'].brand_data.editData.colors, updatedPaletteD);
 
 // Scenario 5: Valid customer updates delivery A with Bearer header
 const updatedPaletteA = ['#8B7355', '#C4A882', '#D4C5B0', '#6B8CAE', '#333333'];
@@ -493,6 +519,139 @@ assert.deepEqual(upgradedInMemoryBrand.editData.colors, ['#A1A1A1', '#B2B2B2', '
 assert.equal(olderDeliveryData.brand_data.currentPaletteColors, undefined);
 console.log('  ✅ In-memory safe upgrade passed.');
 
+// -------------------------------------------------------------
+// TEST 12: Server Response Confirmation & Zero-Row Detection
+// -------------------------------------------------------------
+console.log('Test 12: Server response confirmation & zero-row update detection...');
+// When updates succeed, verify the payload shape:
+const resSucc = simulatePatchDeliveryRoute(mockDb, {
+  deliveryId: 'uuid-A',
+  accessCredential: 'uuid-customer-A',
+  paletteUpdate: {
+    currentPaletteColors: ['#123456', '#234567', '#345678', '#456789', '#567890'],
+    colorOrder: [0, 1, 2, 3, 4],
+    activeColor: '#123456',
+  }
+});
+assert.equal(resSucc.status, 200);
+assert.equal(resSucc.body.ok, true);
+assert.equal(resSucc.body.updated, true);
+assert.equal(resSucc.body.deliveryId, 'uuid-customer-A');
+assert.deepEqual(resSucc.body.currentPaletteColors, ['#123456', '#234567', '#345678', '#456789', '#567890']);
+
+// If delivery ID does not exist in DB (0 rows updated), return 404
+const res404 = simulatePatchDeliveryRoute(mockDb, {
+  deliveryId: 'uuid-nonexistent',
+  accessCredential: 'some-credential',
+  paletteUpdate: { currentPaletteColors: ['#123456', '#234567', '#345678', '#456789', '#567890'] }
+});
+assert.equal(res404.status, 404);
+console.log('  ✅ Server response confirmation and zero-row detection passed.');
+
+// -------------------------------------------------------------
+// TEST 13: Client-Side handleSaveColorsAndOrder Verification
+// -------------------------------------------------------------
+console.log('Test 13: Client-side handleSaveColorsAndOrder validation logic...');
+function simulateClientSaveVerification(brandId, submittedColors, serverResponse, httpStatus = 200) {
+  if (httpStatus < 200 || httpStatus >= 300) {
+    throw new Error(serverResponse?.error || 'Erro ao salvar alterações no servidor.');
+  }
+  if (serverResponse.deliveryId && serverResponse.deliveryId !== brandId) {
+    throw new Error('ID de entrega retornado pelo servidor não confere com o projeto atual.');
+  }
+  if (Array.isArray(serverResponse.currentPaletteColors)) {
+    const isMatched = Array.isArray(submittedColors) &&
+      submittedColors.length === serverResponse.currentPaletteColors.length &&
+      submittedColors.every((c, i) => c.toLowerCase() === serverResponse.currentPaletteColors[i].toLowerCase());
+    if (!isMatched) {
+      throw new Error('A paleta persistida retornada pelo servidor diverge da paleta enviada.');
+    }
+  }
+  return true;
+}
+
+const currentBrandId = 'uuid-customer-123';
+const myColors = ['#111111', '#222222', '#333333', '#444444', '#555555'];
+
+// Case A: Perfect match -> succeeds
+assert.equal(simulateClientSaveVerification(currentBrandId, myColors, {
+  ok: true,
+  updated: true,
+  deliveryId: 'uuid-customer-123',
+  currentPaletteColors: ['#111111', '#222222', '#333333', '#444444', '#555555']
+}), true);
+
+// Case B: HTTP 500 error -> throws
+assert.throws(() => {
+  simulateClientSaveVerification(currentBrandId, myColors, { error: 'Database timeout' }, 500);
+}, /Database timeout/);
+
+// Case C: Mismatched deliveryId -> throws
+assert.throws(() => {
+  simulateClientSaveVerification(currentBrandId, myColors, {
+    ok: true,
+    updated: true,
+    deliveryId: 'uuid-DIFFERENT-PROJECT',
+    currentPaletteColors: myColors
+  });
+}, /ID de entrega retornado pelo servidor não confere/);
+
+// Case D: Server persisted a different palette -> throws
+assert.throws(() => {
+  simulateClientSaveVerification(currentBrandId, myColors, {
+    ok: true,
+    updated: true,
+    deliveryId: currentBrandId,
+    currentPaletteColors: ['#AAAAAA', '#BBBBBB', '#CCCCCC', '#DDDDDD', '#EEEEEE']
+  });
+}, /A paleta persistida retornada pelo servidor diverge/);
+console.log('  ✅ Client-side save verification correctly validates server response and catches failures.');
+
+// -------------------------------------------------------------
+// TEST 14: Refresh & Hydration Precedence in loadData
+// -------------------------------------------------------------
+console.log('Test 14: Refresh and hydration precedence in loadData...');
+// Simulate database record where brand_data has canonical currentPaletteColors:
+const dbDelivery = {
+  id: 'uuid-test-refresh',
+  brand_data: {
+    currentPaletteColors: ['#000001', '#000002', '#000003', '#000004', '#000005'],
+    colorOrder: [0, 1, 2, 3, 4],
+    activeColor: '#000001',
+    editData: {
+      // Stale or legacy editData colors:
+      colors: ['#OLD001', '#OLD002', '#OLD003', '#OLD004', '#OLD005'],
+      marca: 'TESTE REFRESH',
+    }
+  }
+};
+
+// Simulate loadData() logic in sucesso/page.js:
+const brandFromDb = dbDelivery.brand_data;
+const canonicalColorsFromDb = brandFromDb.currentPaletteColors || brandFromDb.editData?.colors;
+
+// Object spread must NOT overwrite canonical colors:
+const hydratedEditData = {
+  ...(brandFromDb?.editData || {}),
+  colors: canonicalColorsFromDb,
+};
+
+const hydratedBrand = {
+  ...brandFromDb,
+  currentPaletteColors: canonicalColorsFromDb,
+  editData: hydratedEditData,
+};
+
+// Simulate paletteColors getter precedence:
+const resolvedPaletteColors = hydratedBrand.currentPaletteColors || hydratedBrand.editData?.colors;
+
+assert.deepEqual(hydratedBrand.currentPaletteColors, ['#000001', '#000002', '#000003', '#000004', '#000005']);
+assert.deepEqual(hydratedBrand.editData.colors, ['#000001', '#000002', '#000003', '#000004', '#000005']);
+assert.deepEqual(resolvedPaletteColors, ['#000001', '#000002', '#000003', '#000004', '#000005']);
+// Verify stale colors were completely superseded:
+assert.notDeepEqual(resolvedPaletteColors, ['#OLD001', '#OLD002', '#OLD003', '#OLD004', '#OLD005']);
+console.log('  ✅ Refresh and hydration precedence passed.');
+
 console.log('\n=============================================');
-console.log('🎉 ALL 11 PALETTE EDITING TESTS PASSED!');
+console.log('🎉 ALL 14 PALETTE EDITING TESTS PASSED!');
 console.log('=============================================\n');

@@ -115,14 +115,30 @@ export function mergePaletteIntoBrandData(existingBrandData, paletteUpdate) {
 
 /**
  * Strict verification that a delivery record has confirmed, completed payment.
- * Fails closed: rejects missing, null, pending, failed, or arbitrary legacy states.
+ * Fails closed: rejects missing, unpaid, pending, failed, or superseded records.
+ * Authorizes:
+ * - Records explicitly confirmed as paid by Stripe (payment_status in ['paid', 'complete', 'completed', 'succeeded'] and paid === true)
+ * - Legitimate older completed deliveries created prior to the payment_status column where paid === true
  */
 export function isExplicitlyPaid(delivery) {
   if (!delivery || typeof delivery !== 'object') return false;
+  // 1. O registro DEVE ter paid === true comprovado no banco
   if (delivery.paid !== true) return false;
+
   const status = (delivery.payment_status || '').toLowerCase().trim();
+
+  // 2. Status explicitamente não-pagos, falhos, pendentes ou cancelados NUNCA são autorizados
+  const nonPaidStatuses = ['failed', 'unpaid', 'pending', 'superseded', 'abandoned'];
+  if (nonPaidStatuses.includes(status)) return false;
+
+  // 3. Status confirmados e explícitos
   const validPaidStatuses = ['paid', 'complete', 'completed', 'succeeded'];
-  return validPaidStatuses.includes(status);
+  if (validPaidStatuses.includes(status)) return true;
+
+  // 4. Entregas legadas concluídas anteriores à coluna payment_status (onde paid === true)
+  if (!status) return true;
+
+  return false;
 }
 
 /**
