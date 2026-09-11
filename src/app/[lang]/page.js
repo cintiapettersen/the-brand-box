@@ -1740,6 +1740,10 @@ export default function Home() {
       const data = await res.json();
       if (data.url) {
         window.location.href = data.url;
+      } else if (data.error === 'payment_configuration_error' && (devMode || (typeof window !== 'undefined' && (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1')))) {
+        // Modo local de desenvolvimento: simula sucesso para testes visuais sem exigir chave Stripe no localhost
+        console.warn('Simulando checkout Pro no localhost/dev...');
+        window.location.href = `/${lang}/sucesso?plano=pro&lang=${lang}${sessionIdPro ? `&session=${sessionIdPro}` : ''}&dev=1`;
       } else {
         console.error('Checkout error:', data.error);
         const userMsg = lang === 'en'
@@ -3861,6 +3865,10 @@ export default function Home() {
                           const data = await res.json();
                           if (data.url) {
                             window.location.href = data.url;
+                          } else if (data.error === 'payment_configuration_error' && (devMode || (typeof window !== 'undefined' && (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1')))) {
+                            // Modo local de desenvolvimento: simula sucesso para testes visuais sem exigir chave Stripe no localhost
+                            console.warn('Simulando checkout Starter no localhost/dev...');
+                            window.location.href = `/${lang}/sucesso?plano=starter&lang=${lang}${sessionIdExp ? `&session=${sessionIdExp}` : ''}&dev=1`;
                           } else {
                             console.error('Checkout error:', data.error);
                             const userMsg = lang === 'en'
