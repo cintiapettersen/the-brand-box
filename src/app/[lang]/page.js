@@ -5,7 +5,7 @@ import { motion, AnimatePresence, useReducedMotion } from 'framer-motion';
 // Libraries dynamically imported for performance
 import BrandTemplateSVG from '../../components/BrandTemplateSVG';
 import BrandBoard from '../../components/BrandBoard';
-import BrandElementsSelector from '../../components/brand-elements/BrandElementsSelector';
+import SubmarkSealStep from '../../components/brand-elements/SubmarkSealStep';
 import { removeWhiteBackground } from '../../lib/transparentImage';
 import LanguageSwitcher from '../../components/LanguageSwitcher';
 import { useTranslation } from '../LanguageContext';
@@ -732,6 +732,36 @@ export default function Home() {
     }
   };
 
+  const jumpToDevStep = async (targetStep) => {
+    const mockResultado = {
+      estiloId: 2,
+      estiloNome: 'Jardim Encantado',
+      mensagem: 'Sua marca reflete sensibilidade floral, elegância atemporal e um toque mágico acolhedor.'
+    };
+    if (!resultadoFinal || resultadoFinal.estiloId === 1) {
+      setResultadoFinal(mockResultado);
+      setFormData(prev => ({
+        ...prev,
+        marca: prev.marca || 'TEDDY',
+        atuacao: prev.atuacao || 'Moda Infantil',
+        sentimentos: prev.sentimentos?.length ? prev.sentimentos : ['Elegância', 'Afeto']
+      }));
+    }
+    if (targetStep >= 10 && (!paletas || paletas.length === 0 || resultadoFinal?.estiloId === 1)) {
+      await fetchVariacoes(2);
+    }
+    if (targetStep >= 11.7) {
+      setEditData(prev => ({
+        ...prev,
+        marca: prev.marca || 'TEDDY',
+        corAtiva: prev.corAtiva || '#2A897F',
+        fontFamily: prev.fontFamily || 'Cinzel',
+        secondaryFontFamily: prev.secondaryFontFamily || 'Montserrat'
+      }));
+    }
+    setStep(targetStep);
+  };
+
   const MAX_PATTERN_GENERATIONS = 5;
 
   const generatePatterns = async () => {
@@ -794,11 +824,25 @@ export default function Home() {
   };
 
   const generateBrandElements = async () => {
-    if (selectedPattern === null || !generatedPatterns[selectedPattern] || isElementsLoading) return;
+    if (isElementsLoading) return;
+    if (elementsGenerationCount >= 1 && !devMode) {
+      setAlertMessage(dictionary?.postmatch?.step_118_ai_limit_used || 'Você já utilizou sua geração de demonstração. Desbloqueie mais opções nos pacotes!');
+      return;
+    }
     
+    const activePattern = (selectedPattern !== null && generatedPatterns[selectedPattern] && generatedPatterns[selectedPattern].base64)
+      ? generatedPatterns[selectedPattern]
+      : null;
+
+    if (!activePattern || !activePattern.base64) {
+      setAlertMessage(lang === 'en'
+        ? 'Please select an approved pattern in Step 11.7 to extract brand elements with AI.'
+        : 'Por favor, selecione uma estampa no Passo 11.7 para a IA extrair novos elementos gráficos dela.');
+      return;
+    }
+
     setIsElementsLoading(true);
     try {
-      const activePattern = generatedPatterns[selectedPattern];
       const selPaleta = paletas.find(p => p.id === selectedPaleta);
       const cores = selPaleta?.paleta_hex || selPaleta?.cores_hex || [];
       const primaryColor = editData.corAtiva || cores[0] || '#2A897F';
@@ -846,14 +890,14 @@ export default function Home() {
         setFormData(prev => ({ 
           ...prev, 
           brandElement: transparentElements[0], 
-          generatedBrandElements: transparentElements, 
-          selectedBrandElementId: transparentElements[0].id 
+          selectedBrandElementId: transparentElements[0].id,
+          selectedIcon: null
         }));
         setElementsGenerationCount(c => c + 1);
       }
     } catch (err) {
-      console.error('generateBrandElements error:', err);
-      setAlertMessage(err.message || 'Ops! Não conseguimos criar os elementos gráficos da estampa. Tente novamente.');
+      console.error('Erro ao gerar elementos gráficos:', err);
+      setAlertMessage(err.message || 'Erro ao gerar novos elementos gráficos.');
     } finally {
       setIsElementsLoading(false);
     }
@@ -1699,11 +1743,39 @@ export default function Home() {
     <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '100vh', padding: '2rem', background: '#ffffff', position: 'relative' }}>
       {devMode && <LanguageSwitcher style={{ position: 'absolute', top: '12px', right: '20px' }} />}
       {devMode && (
-        <div style={{ position: 'fixed', top: 0, left: 0, right: 0, background: '#1a1a1a', color: '#f90', textAlign: 'center', fontSize: '0.7rem', fontWeight: 700, padding: '4px', zIndex: 9999, letterSpacing: '1px' }}>
-          ⚡ MODO DEV ATIVO — estampas não consomem créditos
+        <div style={{ position: 'fixed', top: 0, left: 0, right: 0, background: '#1a1a1a', color: '#f90', display: 'flex', alignItems: 'center', justifyContent: 'center', flexWrap: 'wrap', gap: '6px', fontSize: '0.72rem', fontWeight: 700, padding: '6px 12px', zIndex: 9999, letterSpacing: '0.5px', boxShadow: '0 2px 10px rgba(0,0,0,0.3)' }}>
+          <span>⚡ MODO DEV:</span>
+          {[
+            { label: '1: Início', step: 1 },
+            { label: '9: Matchmaker', step: 9 },
+            { label: '10: Paletas', step: 10 },
+            { label: '11: Moodboard', step: 11 },
+            { label: '11.5: Tagline', step: 11.5 },
+            { label: '11.7: Estampa', step: 11.7 },
+            { label: '👑 11.8: Submarca & Selo', step: 11.8 },
+            { label: '12: Placa da Marca', step: 12 },
+          ].map(btn => (
+            <button
+              key={btn.step}
+              type="button"
+              onClick={() => jumpToDevStep(btn.step)}
+              style={{
+                background: step === btn.step ? 'var(--accent-magenta)' : '#333',
+                color: '#fff',
+                border: '1px solid #555',
+                borderRadius: '6px',
+                padding: '3px 8px',
+                fontSize: '0.68rem',
+                cursor: 'pointer',
+                fontWeight: step === btn.step ? 700 : 500
+              }}
+            >
+              {btn.label}
+            </button>
+          ))}
         </div>
       )}
-      <div style={{ width: '100%', maxWidth: '700px', position: 'relative', height: step === 9 ? 'auto' : '85vh', minHeight: step === 9 ? '85vh' : undefined, marginTop: devMode ? '22px' : 0 }}>
+      <div style={{ width: '100%', maxWidth: '700px', position: 'relative', height: step === 9 ? 'auto' : '85vh', minHeight: step === 9 ? '85vh' : undefined, marginTop: devMode ? '34px' : 0 }}>
 
         {step > 1 && step < 8 && (
            <button onClick={() => {
@@ -1728,10 +1800,10 @@ export default function Home() {
               key="step1" variants={variants} initial="initial" animate="animate" exit="exit" transition={{ duration: 0.5 }}
               className="wizard-step" style={{ position: 'absolute', width: '100%', height: '100%', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', textAlign: 'center', background: 'var(--bg-color)', borderRadius: '24px', border: 'none', boxShadow: 'none' }}
             >
-              <p style={{ fontSize: '0.75rem', letterSpacing: '4px', textTransform: 'uppercase', color: 'var(--accent-turquoise)', marginBottom: '2rem', fontWeight: 600 }}>{dictionary?.landing?.apresenta || 'THE BRAND BOX.'}</p>
+              <p onClick={handleDevTap} style={{ fontSize: '0.75rem', letterSpacing: '4px', textTransform: 'uppercase', color: 'var(--accent-turquoise)', marginBottom: '2rem', fontWeight: 600, cursor: 'pointer', userSelect: 'none' }}>{dictionary?.landing?.apresenta || 'THE BRAND BOX.'}</p>
               
               {/* Logo com fonte Golden Blast */}
-              <Image src="/the-brand-box-logo.png" alt="the brand box." width={1024} height={225} priority={true} style={{ width: '80%', maxWidth: '380px', height: 'auto', marginBottom: '1.5rem', mixBlendMode: 'multiply', opacity: 0.9 }} />
+              <Image onClick={handleDevTap} src="/the-brand-box-logo.png" alt="the brand box." width={1024} height={225} priority={true} style={{ width: '80%', maxWidth: '380px', height: 'auto', marginBottom: '1.5rem', mixBlendMode: 'multiply', opacity: 0.9, cursor: 'pointer' }} />
               
               <h1 style={{ fontSize: '1.4rem', color: 'var(--text-primary)', marginBottom: '1.2rem', lineHeight: 1.35, maxWidth: '90%', fontWeight: 700, letterSpacing: '-0.5px' }}>{dictionary?.landing?.marca_ja_existe || 'Sua marca já existe dentro de você.'}</h1>
               
@@ -1746,9 +1818,23 @@ export default function Home() {
 
               {/* DEV SHORTCUTS - só aparece em desenvolvimento */}
               {process.env.NODE_ENV === 'development' && (
-                <div style={{ marginTop: '30px', padding: '15px', background: 'transparent', border: '1px dashed var(--border)', borderRadius: '12px', width: '100%' }}>
-                  <p style={{ fontSize: '0.65rem', fontWeight: 600, color: 'var(--text-secondary)', marginBottom: '10px', letterSpacing: '1px', textTransform: 'uppercase' }}>⚡ Atalho Dev</p>
-                  <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px', justifyContent: 'center' }}>
+                <div style={{ marginTop: '20px', padding: '12px', background: 'transparent', border: '1px dashed var(--border)', borderRadius: '12px', width: '100%' }}>
+                  <p style={{ fontSize: '0.65rem', fontWeight: 600, color: 'var(--text-secondary)', marginBottom: '8px', letterSpacing: '1px', textTransform: 'uppercase' }}>⚡ Atalhos de Teste Rápido</p>
+                  <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px', justifyContent: 'center' }}>
+                    <button onClick={() => jumpToDevStep(9)} style={{ padding: '5px 10px', fontSize: '0.65rem', borderRadius: '20px', border: '1px solid var(--border)', background: 'var(--bg-soft)', color: 'var(--text-secondary)', cursor: 'pointer' }}>
+                      Passo 9 (Matchmaker)
+                    </button>
+                    <button onClick={() => jumpToDevStep(11.7)} style={{ padding: '5px 10px', fontSize: '0.65rem', borderRadius: '20px', border: '1px solid var(--accent-turquoise)', background: '#E1EDE7', color: '#203830', cursor: 'pointer', fontWeight: 600 }}>
+                      Passo 11.7 (Estampa)
+                    </button>
+                    <button onClick={() => jumpToDevStep(11.8)} style={{ padding: '5px 10px', fontSize: '0.65rem', borderRadius: '20px', border: '1px solid var(--accent-magenta)', background: '#FCE7F3', color: '#831843', cursor: 'pointer', fontWeight: 700 }}>
+                      👑 Passo 11.8 (Submarca & Selo)
+                    </button>
+                    <button onClick={() => jumpToDevStep(12)} style={{ padding: '5px 10px', fontSize: '0.65rem', borderRadius: '20px', border: '1px solid var(--border)', background: 'var(--bg-soft)', color: 'var(--text-secondary)', cursor: 'pointer' }}>
+                      Passo 12 (Placa da Marca)
+                    </button>
+                    <div style={{ width: '100%', height: '1px', background: 'var(--border)', margin: '4px 0' }} />
+                    <p style={{ fontSize: '0.62rem', color: 'var(--text-secondary)', width: '100%', textAlign: 'center', margin: '2px 0' }}>Ou testar estilo no Passo 9:</p>
                     {[
                       { id: 2, nome: 'Jardim Encantado' },
                       { id: 3, nome: 'Escandinavo Acolhedor' },
@@ -1758,10 +1844,10 @@ export default function Home() {
                       { id: 11, nome: 'Estético Editorial' },
                     ].map(e => (
                       <button key={e.id} onClick={() => {
-                        setFormData(prev => ({ ...prev, marca: prev.marca || 'Minha Marca', nome: prev.nome || 'Dev' }));
+                        setFormData(prev => ({ ...prev, marca: prev.marca || 'TEDDY', nome: prev.nome || 'Dev' }));
                         setResultadoFinal({ estiloId: e.id, estiloNome: e.nome, mensagem: `Teste direto do estilo ${e.nome}` });
                         setStep(9);
-                      }} style={{ padding: '6px 12px', fontSize: '0.65rem', borderRadius: '30px', border: '1px solid var(--border)', background: 'var(--bg-soft)', color: 'var(--text-secondary)', cursor: 'pointer', transition: 'all 0.2s ease' }}>
+                      }} style={{ padding: '4px 8px', fontSize: '0.62rem', borderRadius: '20px', border: '1px solid var(--border)', background: 'var(--bg-soft)', color: 'var(--text-secondary)', cursor: 'pointer' }}>
                         {e.nome}
                       </button>
                     ))}
@@ -2514,7 +2600,7 @@ export default function Home() {
               key="step9" variants={variants} initial="initial" animate="animate" exit="exit" transition={{ duration: 0.5 }}
               ref={resultStepRef} className="wizard-step creative-diagnosis-step" aria-busy={isCreativeDirectorLoading} style={{ position: 'relative', width: '100%', minHeight: '100%', height: 'auto', display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center', background: 'var(--bg-color)', borderRadius: '24px', border: 'none', boxShadow: 'none' }}
             >
-              <p style={{ fontSize: '0.9rem', color: 'var(--text-secondary)', marginBottom: '0.5rem', textTransform: 'uppercase', letterSpacing: '2px', fontWeight: 600 }}>{dictionary?.postmatch?.step_9_perfect_match || 'O MATCH PERFEITO PARA'} {formData.marca || 'SUA MARCA'}</p>
+              <p onClick={handleDevTap} style={{ fontSize: '0.9rem', color: 'var(--text-secondary)', marginBottom: '0.5rem', textTransform: 'uppercase', letterSpacing: '2px', fontWeight: 600, cursor: 'pointer', userSelect: 'none' }}>{dictionary?.postmatch?.step_9_perfect_match || 'O MATCH PERFEITO PARA'} {formData.marca || 'SUA MARCA'}</p>
               {(() => {
                 const styleColors = {
                   'Jardim Encantado': '#C492B1', // Dusty magical lilac/pink
@@ -2759,7 +2845,7 @@ export default function Home() {
                 </div></div>
               )}
 
-              {effectiveCreativeDirectorStatus === 'ready' && (
+              {!isCreativeDirectorLoading && (
                 <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '10px', width: '100%', maxWidth: '400px' }}>
                   <button onClick={fetchVariacoes} className="btn-primary" style={{ background: 'var(--accent-magenta)', color: '#ffffff', boxShadow: 'none', width: '100%' }}>
                     {dictionary?.postmatch?.step_9_btn_customize || 'Personalizar minha Identidade'}
@@ -3330,28 +3416,6 @@ export default function Home() {
                       ))}
                     </div>
                     <button onClick={generatePatterns} style={{ fontSize: '0.75rem', color: 'var(--accent-magenta)', background: 'none', border: 'none', cursor: 'pointer', textDecoration: 'underline', marginTop: '5px' }}>{dictionary?.postmatch?.step_117_btn_regenerate || '🔄 Gerar novas opções'}</button>
-
-                    {/* Elementos Gráficos Exclusivos da Estampa */}
-                    {selectedPattern !== null && (
-                      <BrandElementsSelector
-                        generatedElements={generatedBrandElements}
-                        selectedElementId={selectedBrandElementId}
-                        onSelect={(el) => {
-                          setSelectedBrandElementId(el.id);
-                          setSelectedIcon(null);
-                          setFormData(prev => ({ 
-                            ...prev, 
-                            brandElement: el, 
-                            selectedBrandElementId: el.id 
-                          }));
-                        }}
-                        onGenerate={generateBrandElements}
-                        isLoading={isElementsLoading}
-                        hasGenerated={generatedBrandElements.length > 0}
-                        hasPattern={selectedPattern !== null && generatedPatterns[selectedPattern] !== undefined}
-                        primaryColor={editData.corAtiva || (paletas.find(p => p.id === selectedPaleta)?.paleta_hex?.[0]) || '#2A897F'}
-                      />
-                    )}
                   </>
                 )}
               </div>
@@ -3359,10 +3423,70 @@ export default function Home() {
               <div style={{ padding: '1.2rem', background: '#fff', borderTop: '1px solid var(--border)', zIndex: 10, display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '10px' }}>
                 <button onClick={() => setStep(11.5)} className="btn-secondary" style={{ padding: '12px 20px', borderRadius: '14px', fontSize: '0.92rem', fontWeight: 600, flex: '0 0 auto', height: '46px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>{dictionary?.onboarding?.btn_back || 'Voltar'}</button>
                 <button 
-                  onClick={() => setStep(12)} 
+                  onClick={() => {
+                    const availableCurated = STYLE_ICONS[ESTILO_NOME_BY_ID[resultadoFinal?.estiloId] || resultadoFinal?.estiloNome] || [];
+                    if (!selectedIcon && !selectedBrandElementId && availableCurated.length > 0) {
+                      setSelectedIcon(availableCurated[0].id);
+                      setFormData(prev => ({ ...prev, selectedIcon: availableCurated[0].id }));
+                    }
+                    setStep(11.8);
+                  }} 
                   className="btn-primary" 
                   style={{ flex: 1, background: selectedPattern !== null ? 'var(--accent-turquoise)' : '#cbd5e1', color: selectedPattern !== null ? '#fff' : '#64748b', pointerEvents: selectedPattern !== null ? 'auto' : 'none', padding: '12px 20px', borderRadius: '14px', fontSize: '0.92rem', fontWeight: 600, height: '46px', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: 'none', transition: 'all 0.2s ease' }}
-                >{dictionary?.postmatch?.step_117_btn_board || 'Ver Minha Placa ✨'}</button>
+                >{dictionary?.postmatch?.step_117_btn_submark || 'Escolher Submarca & Selo ✨'}</button>
+              </div>
+            </motion.div>
+          )}
+
+          {/* STEP 11.8: ESCOLHA DE SUBMARCA E SELO OFICIAL */}
+          {step === 11.8 && (
+            <motion.div 
+              key="step118" variants={variants} initial="initial" animate="animate" exit="exit" transition={{ duration: 0.5 }}
+              style={{ position: 'absolute', width: '100%', height: '100%', display: 'flex', flexDirection: 'column', background: '#ffffff', borderRadius: '24px', overflow: 'hidden', border: '1px solid var(--border)' }}
+            >
+              <div style={{ padding: '1.8rem 2rem 0.5rem', textAlign: 'center' }}>
+                <p onClick={handleDevTap} style={{ fontSize: '0.65rem', fontWeight: 600, letterSpacing: '3px', textTransform: 'uppercase', color: 'var(--accent-magenta)', marginBottom: '6px', cursor: 'default', userSelect: 'none' }}>THE BRAND BOX</p>
+                <h2 style={{ fontSize: '1.6rem', marginBottom: '0.3rem' }}>{dictionary?.postmatch?.step_118_title || 'Submarca e Selo'}</h2>
+                <p style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', margin: 0 }}>{dictionary?.postmatch?.step_118_subtitle || 'Escolha um símbolo para completar sua identidade.'}</p>
+              </div>
+
+              <div style={{ flex: 1, overflowY: 'auto', padding: '0.8rem 2rem 1.2rem', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+                <SubmarkSealStep
+                  formData={formData}
+                  editData={editData}
+                  activeColor={editData.corAtiva || (paletas.find(p => p.id === selectedPaleta)?.paleta_hex?.[0]) || '#2A897F'}
+                  estiloNome={ESTILO_NOME_BY_ID[resultadoFinal?.estiloId] || resultadoFinal?.estiloNome || 'Essência Atemporal'}
+                  curatedIcons={STYLE_ICONS[ESTILO_NOME_BY_ID[resultadoFinal?.estiloId] || resultadoFinal?.estiloNome] || []}
+                  generatedElements={generatedBrandElements}
+                  selectedIconId={selectedIcon}
+                  selectedElementId={selectedBrandElementId}
+                  onSelectCurated={(icon) => {
+                    setSelectedIcon(icon.id);
+                    setSelectedBrandElementId(null);
+                    setFormData(prev => ({ ...prev, brandElement: null, selectedBrandElementId: null, selectedIcon: icon.id }));
+                  }}
+                  onSelectGenerated={(el) => {
+                    setSelectedBrandElementId(el.id);
+                    setSelectedIcon(null);
+                    setFormData(prev => ({ ...prev, brandElement: el, selectedBrandElementId: el.id, selectedIcon: null }));
+                  }}
+                  onGenerateAi={generateBrandElements}
+                  isAiLoading={isElementsLoading}
+                  aiRoundsUsed={elementsGenerationCount}
+                  maxPrePaymentRounds={1}
+                  hasPattern={selectedPattern !== null && Boolean(generatedPatterns[selectedPattern]?.base64)}
+                  onBackToPattern={() => setStep(11.7)}
+                  dictionary={dictionary}
+                />
+              </div>
+
+              <div style={{ padding: '1.2rem', background: '#fff', borderTop: '1px solid var(--border)', zIndex: 10, display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '10px' }}>
+                <button onClick={() => setStep(11.7)} className="btn-secondary" style={{ padding: '12px 20px', borderRadius: '14px', fontSize: '0.92rem', fontWeight: 600, flex: '0 0 auto', height: '46px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>{dictionary?.onboarding?.btn_back || 'Voltar'}</button>
+                <button 
+                  onClick={() => setStep(12)} 
+                  className="btn-primary" 
+                  style={{ flex: 1, background: (selectedIcon !== null || selectedBrandElementId !== null) ? 'var(--accent-turquoise)' : '#cbd5e1', color: (selectedIcon !== null || selectedBrandElementId !== null) ? '#fff' : '#64748b', pointerEvents: (selectedIcon !== null || selectedBrandElementId !== null) ? 'auto' : 'none', padding: '12px 20px', borderRadius: '14px', fontSize: '0.92rem', fontWeight: 600, height: '46px', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: 'none', transition: 'all 0.2s ease' }}
+                >{dictionary?.postmatch?.step_118_btn_board || 'Ver Minha Placa ✨'}</button>
               </div>
             </motion.div>
           )}
@@ -3428,113 +3552,43 @@ export default function Home() {
                 })()}
               </div>
 
-              {/* Seletor de ícone da submarca */}
-              {(() => {
-                const styleIcons = STYLE_ICONS[ESTILO_NOME_BY_ID[resultadoFinal?.estiloId] || resultadoFinal?.estiloNome] || [];
-                const hasGeneratedElements = generatedBrandElements.length > 0;
-                if (styleIcons.length === 0 && !hasGeneratedElements) return null;
-                const activeColor = editData.corAtiva || '#d22f5a';
-                return (
-                  <div style={{ padding: '10px 20px', background: '#fff', borderTop: '1px solid #f0f0f0', display: 'flex', alignItems: 'center', gap: '10px', justifyContent: 'center', flexWrap: 'wrap' }}>
-                    <p style={{ fontSize: '0.65rem', color: 'var(--text-secondary)', textTransform: 'uppercase', letterSpacing: '1px', fontWeight: 600, whiteSpace: 'nowrap' }}>{dictionary?.postmatch?.step_12_icon || 'Ícone:'}</p>
-                    
-                    {/* Se houver elementos gráficos gerados a partir da estampa, exibe-os prioritariamente */}
-                    {hasGeneratedElements && (
-                      generatedBrandElements.map(el => {
-                        const isSelected = selectedBrandElementId === el.id;
-                        const elSrc = el.base64 ? (el.base64.startsWith('data:') ? el.base64 : `data:${el.mimeType || 'image/png'};base64,${el.base64}`) : null;
-                        return (
-                          <div
-                            key={el.id}
-                            onClick={() => {
-                              setSelectedBrandElementId(el.id);
-                              setSelectedIcon(null);
-                              setFormData(prev => ({ ...prev, brandElement: el, selectedBrandElementId: el.id }));
-                            }}
-                            title={el.title || 'Elemento da Estampa'}
-                            style={{
-                              width: '38px', height: '38px', borderRadius: '50%', cursor: 'pointer',
-                              background: isSelected ? activeColor : '#f5f5f5',
-                              border: isSelected ? '3px solid #333' : '2px solid #ddd',
-                              display: 'flex', alignItems: 'center', justifyContent: 'center',
-                              transition: 'all 0.15s ease', flexShrink: 0,
-                              transform: isSelected ? 'scale(1.15)' : 'scale(1)',
-                              boxShadow: isSelected ? '0 0 0 1px #333' : 'none',
-                              padding: '4px'
-                            }}
-                          >
-                            {elSrc ? (
-                              <img 
-                                src={elSrc} 
-                                alt={el.title}
-                                style={{ width: '22px', height: '22px', objectFit: 'contain', filter: isSelected ? 'brightness(0) invert(1)' : 'none' }} 
-                              />
-                            ) : (
-                              <span style={{ fontSize: '0.6rem', color: isSelected ? '#fff' : '#666' }}>✨</span>
-                            )}
-                          </div>
-                        );
-                      })
-                    )}
-
-                    {/* Opção Nenhum */}
-                    <div
-                      onClick={() => {
-                        setSelectedIcon(null);
-                        setSelectedBrandElementId(null);
-                        setFormData(prev => ({ ...prev, brandElement: null, selectedBrandElementId: null }));
-                      }}
-                      title="Nenhum"
-                      style={{
-                        width: '38px', height: '38px', borderRadius: '50%', cursor: 'pointer',
-                        background: (selectedIcon === null && selectedBrandElementId === null) ? activeColor : '#f5f5f5',
-                        border: (selectedIcon === null && selectedBrandElementId === null) ? `3px solid #333` : '2px solid #ddd',
-                        display: 'flex', alignItems: 'center', justifyContent: 'center',
-                        transition: 'all 0.15s ease', flexShrink: 0,
-                        fontSize: '0.55rem', color: (selectedIcon === null && selectedBrandElementId === null) ? '#fff' : '#aaa', fontWeight: 700, letterSpacing: '0.5px'
-                      }}
-                    >—</div>
-
-                    {/* Ícones de estilo padrão */}
-                    {styleIcons.slice(0, 5).map(icon => {
-                      const isSelected = selectedIcon === icon.id && selectedBrandElementId === null;
-                      return (
-                        <div
-                          key={icon.id}
-                          onClick={() => {
-                            setSelectedIcon(icon.id);
-                            setSelectedBrandElementId(null);
-                            setFormData(prev => ({ ...prev, brandElement: null, selectedBrandElementId: null }));
-                          }}
-                          title={icon.label}
-                          style={{
-                            width: '38px', height: '38px', borderRadius: '50%', cursor: 'pointer',
-                            background: isSelected ? activeColor : '#f5f5f5',
-                            border: isSelected ? '3px solid #333' : '2px solid #ddd',
-                            display: 'flex', alignItems: 'center', justifyContent: 'center',
-                            transition: 'all 0.15s ease', flexShrink: 0,
-                            transform: isSelected ? 'scale(1.15)' : 'scale(1)',
-                            boxShadow: isSelected ? '0 0 0 1px #333' : 'none'
-                          }}
-                        >
-                          <img src={icon.path} alt={icon.label}
-                            style={{ width: '22px', height: '22px', objectFit: 'contain',
-                              filter: isSelected ? 'brightness(0) invert(1)' : 'none' }} />
-                        </div>
-                      );
-                    })}
-                  </div>
-                );
-              })()}
+              {/* Resumo da submarca ativa e ação discreta de troca */}
+              <div style={{ padding: '10px 20px', background: '#fff', borderTop: '1px solid #f0f0f0', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                  <span style={{ fontSize: '0.68rem', color: 'var(--text-secondary)', textTransform: 'uppercase', letterSpacing: '1px', fontWeight: 600 }}>
+                    {dictionary?.postmatch?.step_12_active_submark || 'Submarca Selecionada'}
+                  </span>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => setStep(11.8)}
+                  style={{
+                    background: 'none',
+                    border: '1px solid #CBD5E1',
+                    borderRadius: '12px',
+                    padding: '6px 14px',
+                    fontSize: '0.72rem',
+                    fontWeight: 600,
+                    color: 'var(--text-primary)',
+                    cursor: 'pointer',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '5px',
+                    transition: 'all 0.15s ease'
+                  }}
+                >
+                  <span>✏️</span> {dictionary?.postmatch?.step_12_change_submark || 'Trocar submarca'}
+                </button>
+              </div>
 
               <div style={{ padding: '1.2rem', background: '#fff', borderTop: '1px solid var(--border)', zIndex: 10, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '8px' }}>
                  <button onClick={() => { setApprovalChecked(false); setStep(12.8); }} className="btn-primary" style={{ width: '100%', background: 'var(--accent-magenta)', padding: '12px 20px', borderRadius: '14px', fontSize: '0.92rem', fontWeight: 600, height: '46px', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: 'none' }}>{dictionary?.postmatch?.step_12_btn_packages || 'Ver pacotes disponíveis ✨'}</button>
                  <button 
                    type="button"
-                   onClick={() => setStep(11.7)} 
+                   onClick={() => setStep(11.8)} 
                    style={{ background: 'none', border: 'none', color: 'var(--text-secondary)', fontSize: '0.78rem', cursor: 'pointer', textDecoration: 'underline', padding: '4px 8px' }}
                  >
-                   {dictionary?.postmatch?.step_12_btn_back_pattern || '← Voltar à estampa'}
+                   {dictionary?.postmatch?.step_12_btn_back_submark || '← Voltar à submarca'}
                  </button>
               </div>
             </motion.div>

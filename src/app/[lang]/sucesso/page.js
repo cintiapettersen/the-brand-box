@@ -12205,7 +12205,7 @@ function EntregaContent({ brand, plano, setBrand, sessionParam: propSessionParam
                         transform: (selectedIcon === null && selectedBrandElementId === null) ? 'scale(1.15)' : 'scale(1)',
                       }}
                     >—</div>
-                    {styleIcons.slice(0, 5).map(icon => {
+                    {styleIcons.slice(0, 3).map(icon => {
                       const isSelected = selectedIcon === icon.id && selectedBrandElementId === null;
                       return (
                         <div

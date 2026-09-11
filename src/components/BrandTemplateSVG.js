@@ -9,9 +9,12 @@ const BrandTemplateSVG = ({ data = {}, color, side = 'frente', hideBackground = 
   const elementSrc = (() => {
     const el = brandElement || safeData.brandElement;
     if (!el) return null;
-    if (typeof el === 'string') return el.startsWith('data:') ? el : `data:image/png;base64,${el}`;
+    if (typeof el === 'string') return el.startsWith('data:') || el.startsWith('/') ? el : `data:image/png;base64,${el}`;
     if (typeof el === 'object' && el.base64) {
       return el.base64.startsWith('data:') ? el.base64 : `data:${el.mimeType || 'image/png'};base64,${el.base64}`;
+    }
+    if (typeof el === 'object' && el.path) {
+      return el.path;
     }
     return null;
   })();
