@@ -1,0 +1,90 @@
+[
+  {
+    "id": "icon-estetico-organico",
+    "label": "estetico organico",
+    "file": "1.icon-estetico-organico.png",
+    "featured": true,
+    "order": 1,
+    "status": "active",
+    "legacyPath": "/icons/icon-estetico-organico.png",
+    "reviewRequired": false,
+    "reviewNote": ""
+  },
+  {
+    "id": "icon-estetico-natural",
+    "label": "estetico natural",
+    "file": "2.icon-estetico-natural.png",
+    "featured": true,
+    "order": 2,
+    "status": "active",
+    "legacyPath": "/icons/icon-estetico-natural.png",
+    "reviewRequired": false,
+    "reviewNote": ""
+  },
+  {
+    "id": "icon-estetico-flexibilidade",
+    "label": "estetico flexibilidade",
+    "file": "3.icon-estetico-flexibilidade.png",
+    "featured": true,
+    "order": 3,
+    "status": "active",
+    "legacyPath": "/icons/icon-estetico-flexibilidade.png",
+    "reviewRequired": false,
+    "reviewNote": ""
+  },
+  {
+    "id": "icon-estetico-flexibilidade-2",
+    "label": "estetico flexibilidade 2",
+    "file": "4.icon-estetico-flexibilidade-2.png",
+    "featured": false,
+    "order": 4,
+    "status": "active",
+    "legacyPath": "/icons/icon-estetico-flexibilidade-2.png",
+    "reviewRequired": false,
+    "reviewNote": ""
+  },
+  {
+    "id": "icon-estetico-abstract 2",
+    "label": "estetico abstract 2",
+    "file": "5.icon-estetico-abstract 2.png",
+    "featured": false,
+    "order": 5,
+    "status": "active",
+    "legacyPath": "/icons/icon-estetico-abstract 2.png",
+    "reviewRequired": false,
+    "reviewNote": ""
+  },
+  {
+    "id": "icon-estetico-abstract 1",
+    "label": "estetico abstract 1",
+    "file": "6.icon-estetico-abstract 1.png",
+    "featured": false,
+    "order": 6,
+    "status": "active",
+    "legacyPath": "/icons/icon-estetico-abstract 1.png",
+    "reviewRequired": false,
+    "reviewNote": ""
+  },
+  {
+    "id": "icon-estetico-uniao",
+    "label": "estetico uniao",
+    "file": "7.icon-estetico-uniao.png",
+    "featured": false,
+    "order": 7,
+    "status": "active",
+    "legacyPath": "/icons/icon-estetico-uniao.png",
+    "reviewRequired": false,
+    "reviewNote": ""
+  },
+  {
+    "id": "icon-estetico-igualidade",
+    "label": "estetico igualidade",
+    "file": "icon-estetico-igualidade.png",
+    "featured": false,
+    "order": 8,
+    "status": "active",
+    "legacyPath": "/icons/icon-estetico-igualidade.png",
+    "reviewRequired": false,
+    "reviewNote": ""
+  }
+]

@@ -1,0 +1,79 @@
+[
+  {
+    "id": "icon-_icon-essencia-florr-de-sal",
+    "label": "essencia florr de sal",
+    "file": "1.icon-_icon-essencia-florr-de-sal.png",
+    "featured": true,
+    "order": 1,
+    "status": "active",
+    "legacyPath": "/icons/icon-_icon-essencia-florr-de-sal.png",
+    "reviewRequired": false,
+    "reviewNote": ""
+  },
+  {
+    "id": "icon-_icon-essencia-floral-do-mar",
+    "label": "essencia floral do mar",
+    "file": "2.icon-_icon-essencia-floral-do-mar.png",
+    "featured": true,
+    "order": 2,
+    "status": "active",
+    "legacyPath": "/icons/icon-_icon-essencia-floral-do-mar.png",
+    "reviewRequired": false,
+    "reviewNote": ""
+  },
+  {
+    "id": "icon-_icon-essencia-concha",
+    "label": "essencia concha",
+    "file": "3.icon-_icon-essencia-concha.png",
+    "featured": true,
+    "order": 3,
+    "status": "active",
+    "legacyPath": "/icons/icon-_icon-essencia-concha.png",
+    "reviewRequired": false,
+    "reviewNote": ""
+  },
+  {
+    "id": "icon-_icon-essencia-organico-feminine",
+    "label": "essencia organico feminine",
+    "file": "4.icon-_icon-essencia-organico-feminine.png",
+    "featured": false,
+    "order": 4,
+    "status": "active",
+    "legacyPath": "/icons/icon-_icon-essencia-organico-feminine.png",
+    "reviewRequired": false,
+    "reviewNote": ""
+  },
+  {
+    "id": "icon-_icon-essencia-folhas-trevo",
+    "label": "essencia folhas trevo",
+    "file": "5.icon-_icon-essencia-folhas-trevo.png",
+    "featured": false,
+    "order": 5,
+    "status": "active",
+    "legacyPath": "/icons/icon-_icon-essencia-folhas-trevo.png",
+    "reviewRequired": false,
+    "reviewNote": ""
+  },
+  {
+    "id": "icon-_icon-essencia-floral-feminino",
+    "label": "essencia floral feminino",
+    "file": "6.icon-_icon-essencia-floral-feminino.png",
+    "featured": false,
+    "order": 6,
+    "status": "active",
+    "legacyPath": "/icons/icon-_icon-essencia-floral-feminino.png",
+    "reviewRequired": false,
+    "reviewNote": ""
+  },
+  {
+    "id": "icon-_icon-essencia-organico-masculino",
+    "label": "essencia organico masculino",
+    "file": "7.icon-_icon-essencia-organico-masculino.png",
+    "featured": false,
+    "order": 7,
+    "status": "active",
+    "legacyPath": "/icons/icon-_icon-essencia-organico-masculino.png",
+    "reviewRequired": false,
+    "reviewNote": ""
+  }
+]

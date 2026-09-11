@@ -1,0 +1,112 @@
+[
+  {
+    "id": "icon-_icon-scandi-barco-minimal",
+    "label": "scandi barco minimal",
+    "file": "1.icon-_icon-scandi-barco-minimal.png",
+    "featured": true,
+    "order": 1,
+    "status": "active",
+    "legacyPath": "/icons/icon-_icon-scandi-barco-minimal.png",
+    "reviewRequired": false,
+    "reviewNote": ""
+  },
+  {
+    "id": "icon-_icon-scandi-casa-minimal",
+    "label": "scandi casa minimal",
+    "file": "2.icon-_icon-scandi-casa-minimal.png",
+    "featured": true,
+    "order": 2,
+    "status": "active",
+    "legacyPath": "/icons/icon-_icon-scandi-casa-minimal.png",
+    "reviewRequired": false,
+    "reviewNote": ""
+  },
+  {
+    "id": "icon-_icon-scandi-heart-minimal",
+    "label": "scandi heart minimal",
+    "file": "3.icon-_icon-scandi-heart-minimal.png",
+    "featured": true,
+    "order": 3,
+    "status": "active",
+    "legacyPath": "/icons/icon-_icon-scandi-heart-minimal.png",
+    "reviewRequired": false,
+    "reviewNote": ""
+  },
+  {
+    "id": "icon-_icon-scandi-passarro-minimal",
+    "label": "scandi passarro minimal",
+    "file": "4.icon-_icon-scandi-passarro-minimal.png",
+    "featured": false,
+    "order": 4,
+    "status": "active",
+    "legacyPath": "/icons/icon-_icon-scandi-passarro-minimal.png",
+    "reviewRequired": false,
+    "reviewNote": ""
+  },
+  {
+    "id": "icon-scandi-bird-1",
+    "label": "scandi bird 1",
+    "file": "5.icon-scandi-bird-1.png",
+    "featured": false,
+    "order": 5,
+    "status": "active",
+    "legacyPath": "/icons/icon-scandi-bird-1.png",
+    "reviewRequired": false,
+    "reviewNote": ""
+  },
+  {
+    "id": "icon-scandi-estrela-delicada",
+    "label": "scandi estrela delicada",
+    "file": "7.icon-scandi-estrela-delicada.png",
+    "featured": false,
+    "order": 6,
+    "status": "active",
+    "legacyPath": "/icons/icon-scandi-estrela-delicada.png",
+    "reviewRequired": false,
+    "reviewNote": ""
+  },
+  {
+    "id": "icon-escandinavo-acolhedor-icon-01",
+    "label": "escandinavo acolhedor icon 01",
+    "file": "_.icon-01.png",
+    "featured": false,
+    "order": 7,
+    "status": "active",
+    "legacyPath": null,
+    "reviewRequired": false,
+    "reviewNote": "Ícone novo adicionado na curadoria manual."
+  },
+  {
+    "id": "icon-escandinavo-acolhedor-icon-02",
+    "label": "escandinavo acolhedor icon 02",
+    "file": "_.icon-02.png",
+    "featured": false,
+    "order": 8,
+    "status": "active",
+    "legacyPath": null,
+    "reviewRequired": false,
+    "reviewNote": "Ícone novo adicionado na curadoria manual."
+  },
+  {
+    "id": "icon-escandinavo-acolhedor-icon-03",
+    "label": "escandinavo acolhedor icon 03",
+    "file": "_.icon-03.png",
+    "featured": false,
+    "order": 9,
+    "status": "active",
+    "legacyPath": null,
+    "reviewRequired": false,
+    "reviewNote": "Ícone novo adicionado na curadoria manual."
+  },
+  {
+    "id": "icon-escandinavo-acolhedor-icon-08",
+    "label": "escandinavo acolhedor icon 08",
+    "file": "_.icon-08.png",
+    "featured": false,
+    "order": 10,
+    "status": "active",
+    "legacyPath": null,
+    "reviewRequired": false,
+    "reviewNote": "Ícone novo adicionado na curadoria manual."
+  }
+]

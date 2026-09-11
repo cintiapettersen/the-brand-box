@@ -1,0 +1,68 @@
+[
+  {
+    "id": "icon-_icon-flor-delicadeza_suave",
+    "label": "flor delicadeza suave",
+    "file": "1.icon-_icon-flor-delicadeza_suave.png",
+    "featured": true,
+    "order": 1,
+    "status": "active",
+    "legacyPath": "/icons/icon-_icon-flor-delicadeza_suave.png",
+    "reviewRequired": false,
+    "reviewNote": ""
+  },
+  {
+    "id": "icon-_icon-passaro-fofura_amigavel",
+    "label": "passaro fofura amigavel",
+    "file": "2.icon-_icon-passaro-fofura_amigavel.png",
+    "featured": true,
+    "order": 2,
+    "status": "active",
+    "legacyPath": "/icons/icon-_icon-passaro-fofura_amigavel.png",
+    "reviewRequired": false,
+    "reviewNote": ""
+  },
+  {
+    "id": "icon-_icon-flor-de-tulips",
+    "label": "flor de tulips",
+    "file": "3.icon-_icon-flor-de-tulips.png",
+    "featured": true,
+    "order": 3,
+    "status": "active",
+    "legacyPath": "/icons/icon-_icon-flor-de-tulips.png",
+    "reviewRequired": false,
+    "reviewNote": ""
+  },
+  {
+    "id": "icon-_icon-flor-ludico_divertido",
+    "label": "flor ludico divertido",
+    "file": "4.icon-_icon-flor-ludico_divertido.png",
+    "featured": false,
+    "order": 4,
+    "status": "active",
+    "legacyPath": "/icons/icon-_icon-flor-ludico_divertido.png",
+    "reviewRequired": false,
+    "reviewNote": ""
+  },
+  {
+    "id": "icon-_icon-flor-simplicidade_feliz",
+    "label": "flor simplicidade feliz",
+    "file": "5.icon-_icon-flor-simplicidade_feliz.png",
+    "featured": false,
+    "order": 5,
+    "status": "active",
+    "legacyPath": "/icons/icon-_icon-flor-simplicidade_feliz.png",
+    "reviewRequired": false,
+    "reviewNote": ""
+  },
+  {
+    "id": "icon-_icon-flor-amor_infantil",
+    "label": "flor amor infantil",
+    "file": "6..icon-_icon-flor-amor_infantil.png",
+    "featured": false,
+    "order": 6,
+    "status": "active",
+    "legacyPath": "/icons/icon-_icon-flor-amor_infantil.png",
+    "reviewRequired": false,
+    "reviewNote": ""
+  }
+]

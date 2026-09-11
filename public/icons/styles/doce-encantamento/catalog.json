@@ -1,0 +1,123 @@
+[
+  {
+    "id": "icon-_icon-doce-bird-47",
+    "label": "doce bird 47",
+    "file": "1.icon-_icon-doce-bird-47.png",
+    "featured": true,
+    "order": 1,
+    "status": "active",
+    "legacyPath": "/icons/icon-_icon-doce-bird-47.png",
+    "reviewRequired": false,
+    "reviewNote": ""
+  },
+  {
+    "id": "icon-_icon-doce-bird-50",
+    "label": "doce bird 50",
+    "file": "2.icon-_icon-doce-bird-50.png",
+    "featured": true,
+    "order": 2,
+    "status": "active",
+    "legacyPath": "/icons/icon-_icon-doce-bird-50.png",
+    "reviewRequired": false,
+    "reviewNote": ""
+  },
+  {
+    "id": "icon-_icon-doce-sol",
+    "label": "doce sol",
+    "file": "3.icon-_icon-doce-sol.png",
+    "featured": true,
+    "order": 3,
+    "status": "active",
+    "legacyPath": "/icons/icon-_icon-doce-sol.png",
+    "reviewRequired": false,
+    "reviewNote": ""
+  },
+  {
+    "id": "icon-_icon-doce-rainbow",
+    "label": "doce rainbow",
+    "file": "4.icon-_icon-doce-rainbow.png",
+    "featured": false,
+    "order": 4,
+    "status": "active",
+    "legacyPath": "/icons/icon-_icon-doce-rainbow.png",
+    "reviewRequired": false,
+    "reviewNote": ""
+  },
+  {
+    "id": "icon-_icon-doce-bee",
+    "label": "doce bee",
+    "file": "5.icon-_icon-doce-bee.png",
+    "featured": false,
+    "order": 5,
+    "status": "active",
+    "legacyPath": "/icons/icon-_icon-doce-bee.png",
+    "reviewRequired": false,
+    "reviewNote": ""
+  },
+  {
+    "id": "icon--51",
+    "label": " 51",
+    "file": "6.icon--51.png",
+    "featured": false,
+    "order": 6,
+    "status": "active",
+    "legacyPath": "/icons/icon--51.png",
+    "reviewRequired": false,
+    "reviewNote": ""
+  },
+  {
+    "id": "icon-doce-encantamento-doce-e-07",
+    "label": "doce encantamento doce e 07",
+    "file": "7.icon.png",
+    "featured": false,
+    "order": 7,
+    "status": "active",
+    "legacyPath": null,
+    "reviewRequired": false,
+    "reviewNote": "Ícone novo adicionado na curadoria manual."
+  },
+  {
+    "id": "icon-doce-encantamento-doce-e-08",
+    "label": "doce encantamento doce e 08",
+    "file": "8.icon.png",
+    "featured": false,
+    "order": 8,
+    "status": "active",
+    "legacyPath": null,
+    "reviewRequired": false,
+    "reviewNote": "Ícone novo adicionado na curadoria manual."
+  },
+  {
+    "id": "icon-doce-encantamento-doce-e-09",
+    "label": "doce encantamento doce e 09",
+    "file": "9.icon.png",
+    "featured": false,
+    "order": 9,
+    "status": "active",
+    "legacyPath": null,
+    "reviewRequired": false,
+    "reviewNote": "Ícone novo adicionado na curadoria manual."
+  },
+  {
+    "id": "icon-doce-encantamento-doce-e-10",
+    "label": "doce encantamento doce e 10",
+    "file": "10.icon.png",
+    "featured": false,
+    "order": 10,
+    "status": "active",
+    "legacyPath": null,
+    "reviewRequired": false,
+    "reviewNote": "Ícone novo adicionado na curadoria manual."
+  },
+  {
+    "id": "icon-doce-encantamento-doce-e-11",
+    "label": "doce encantamento doce e 11",
+    "file": "11.icon.png",
+    "featured": false,
+    "order": 11,
+    "status": "active",
+    "legacyPath": null,
+    "reviewRequired": false,
+    "reviewNote": "Ícone novo adicionado na curadoria manual."
+  }
+]

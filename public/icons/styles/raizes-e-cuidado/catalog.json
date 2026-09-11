@@ -1,0 +1,90 @@
+[
+  {
+    "id": "icon-raiz-organico",
+    "label": "raiz organico",
+    "file": "1.icon-raiz-organico.png",
+    "featured": true,
+    "order": 1,
+    "status": "active",
+    "legacyPath": "/icons/icon-raiz-organico.png",
+    "reviewRequired": false,
+    "reviewNote": ""
+  },
+  {
+    "id": "icon-_icon-raiz-naturral-organico-caule",
+    "label": "raiz naturral organico caule",
+    "file": "2.icon-raiz-naturral-organico-caule.png",
+    "featured": true,
+    "order": 2,
+    "status": "active",
+    "legacyPath": "/icons/icon-_icon-raiz-naturral-organico-caule.png",
+    "reviewRequired": false,
+    "reviewNote": ""
+  },
+  {
+    "id": "icon-_icon-raiz-naturral-organico-flor-mdoerno-bold",
+    "label": "raiz naturral organico flor mdoerno bold",
+    "file": "3.icon-raiz-naturral-organico-flor-mdoerno-bold.png",
+    "featured": true,
+    "order": 3,
+    "status": "active",
+    "legacyPath": "/icons/icon-_icon-raiz-naturral-organico-flor-mdoerno-bold.png",
+    "reviewRequired": false,
+    "reviewNote": ""
+  },
+  {
+    "id": "icon-_icon-raiz-naturral-organico-abstratoo",
+    "label": "raiz naturral organico abstratoo",
+    "file": "4.icon-raiz-naturral-organico-abstratoo.png",
+    "featured": false,
+    "order": 4,
+    "status": "active",
+    "legacyPath": "/icons/icon-_icon-raiz-naturral-organico-abstratoo.png",
+    "reviewRequired": false,
+    "reviewNote": ""
+  },
+  {
+    "id": "icon-_icon-raiz-naturral-flor-de-sal",
+    "label": "raiz naturral flor de sal",
+    "file": "5.icon-raiz-naturral-flor-de-sal.png",
+    "featured": false,
+    "order": 5,
+    "status": "active",
+    "legacyPath": "/icons/icon-_icon-raiz-naturral-flor-de-sal.png",
+    "reviewRequired": false,
+    "reviewNote": ""
+  },
+  {
+    "id": "icon-raiz-naturral-organico",
+    "label": "raiz naturral organico",
+    "file": "6.icon-raiz-naturral-organico.png",
+    "featured": false,
+    "order": 6,
+    "status": "active",
+    "legacyPath": "/icons/icon-raiz-naturral-organico.png",
+    "reviewRequired": false,
+    "reviewNote": ""
+  },
+  {
+    "id": "icon-raizes-e-cuidado-untitled-1",
+    "label": "raizes e cuidado Untitled 1",
+    "file": "Untitled-1.png",
+    "featured": false,
+    "order": 7,
+    "status": "active",
+    "legacyPath": null,
+    "reviewRequired": false,
+    "reviewNote": "Ícone novo adicionado na curadoria manual."
+  },
+  {
+    "id": "icon-_icon-raiz-naturral-organico-circular",
+    "label": "raiz naturral organico circular",
+    "file": "icon-_icon-raiz-naturral-organico-circular.png",
+    "featured": false,
+    "order": 8,
+    "status": "active",
+    "legacyPath": "/icons/icon-_icon-raiz-naturral-organico-circular.png",
+    "reviewRequired": false,
+    "reviewNote": ""
+  }
+]
