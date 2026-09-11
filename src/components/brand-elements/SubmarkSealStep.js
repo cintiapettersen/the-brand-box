@@ -1,19 +1,23 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import BrandTemplateSVG from '../BrandTemplateSVG';
 import { STYLE_ICONS } from '../../lib/styleIcons';
+import { getContrastingPaletteColors, isColorTooLightForWhiteText } from '../../lib/paletteValidation';
 
 /**
  * SubmarkSealStep
  * 
- * Exibe a escolha de submarca e selo oficial com:
- * 1. 3 opções curadas do banco no estilo da marca aplicadas dentro do selo circular real.
- * 2. Seção opcional para gerar 3 novas opções com IA (com controle de limites e telemetria).
- * 3. Apresentação em cards elevados com feedback visual consistente do Design System.
+ * Configurador interativo de submarca e selo oficial:
+ * 1. Um preview central e de grande destaque do selo circular em tempo real.
+ * 2. Seletor horizontal compacto de ícones (opções curadas + opções geradas por IA).
+ * 3. Seletor de cores da paleta (filtrando cores muito claras para legibilidade do texto e ícone brancos).
+ * 4. Botão secundário sutil para gerar 2 novas opções com IA (oculto após gerar).
  */
 const SubmarkSealStep = ({
   formData = {},
   editData = {},
   activeColor = '#2A897F',
+  paletteColors = [],
+  onSelectColor,
   estiloNome = 'Essência Atemporal',
   curatedIcons = [],
   generatedElements = [],
@@ -31,10 +35,24 @@ const SubmarkSealStep = ({
 }) => {
   const d = dictionary?.postmatch || {};
 
-  // Resolve as 3 melhores opções curadas para o estilo
+  // Resolve as opções curadas para o estilo
   const availableCurated = (curatedIcons && curatedIcons.length > 0)
     ? curatedIcons.slice(0, 3)
     : (STYLE_ICONS[estiloNome] || STYLE_ICONS['Essência Atemporal'] || []).slice(0, 3);
+
+  // Filtra cores muito claras da paleta para garantir contraste impecável com tipografia e ícone brancos
+  const colorsList = getContrastingPaletteColors(paletteColors, '#2A897F');
+
+  // Se a cor atual for excessivamente clara, comuta automaticamente para a primeira cor com contraste seguro
+  const effectiveColor = isColorTooLightForWhiteText(activeColor)
+    ? colorsList[0]
+    : (colorsList.some(c => c.toLowerCase() === activeColor.toLowerCase()) ? activeColor : colorsList[0]);
+
+  useEffect(() => {
+    if (activeColor && isColorTooLightForWhiteText(activeColor) && onSelectColor && colorsList[0]) {
+      onSelectColor(colorsList[0]);
+    }
+  }, [activeColor, colorsList, onSelectColor]);
 
   const brandDataForSeal = {
     ...formData,
@@ -50,303 +68,338 @@ const SubmarkSealStep = ({
   const hasGeneratedElements = Array.isArray(generatedElements) && generatedElements.length > 0;
   const canGenerateAi = aiRoundsUsed < maxPrePaymentRounds;
 
-  return (
-    <div style={{ width: '100%', display: 'flex', flexDirection: 'column', gap: '20px', paddingBottom: '20px' }}>
-      
-      {/* 1. SEÇÃO DE OPÇÕES CURADAS DO BANCO */}
-      <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-          <label style={{ fontSize: '0.75rem', fontWeight: 700, letterSpacing: '0.08em', textTransform: 'uppercase', color: 'var(--text-secondary, #475569)' }}>
-            {d.step_118_curated_title || 'Opções Recomendadas para o seu Estilo'}
-          </label>
-          <span style={{ fontSize: '0.65rem', background: '#E1EDE7', color: '#203830', padding: '3px 9px', borderRadius: '12px', fontWeight: 700 }}>
-            {d.step_118_curated_badge || '3 Opções Curadas'}
-          </span>
-        </div>
+  // Determina o elemento ativo para exibição no selo central
+  const activeBrandElement = selectedElementId
+    ? (generatedElements.find(e => e.id === selectedElementId) || formData.brandElement || null)
+    : null;
 
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '12px' }}>
+  const activeCuratedIcon = !activeBrandElement
+    ? (availableCurated.find(i => i.id === selectedIconId) || availableCurated[0] || null)
+    : null;
+
+  const activeIconPath = activeBrandElement ? null : (activeCuratedIcon?.path || null);
+
+  // Helper para extrair imagem de elemento gerado por IA
+  const getElementThumbSrc = (el) => {
+    if (!el) return null;
+    if (typeof el === 'string') return el.startsWith('data:') || el.startsWith('/') ? el : `data:image/png;base64,${el}`;
+    if (typeof el === 'object' && el.base64) {
+      return el.base64.startsWith('data:') ? el.base64 : `data:${el.mimeType || 'image/png'};base64,${el.base64}`;
+    }
+    if (typeof el === 'object' && el.path) return el.path;
+    return null;
+  };
+
+  return (
+    <div style={{
+      width: '100%',
+      maxWidth: '480px',
+      margin: '0 auto',
+      display: 'flex',
+      flexDirection: 'column',
+      alignItems: 'center',
+      gap: '16px',
+      padding: '0 0 12px'
+    }}>
+
+      {/* 1. PREVIEW CENTRAL ÚNICO E DE DESTAQUE DO SELO (AMPLIADO) */}
+      <div style={{
+        position: 'relative',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        padding: '6px'
+      }}>
+        <div style={{
+          width: '230px',
+          height: '230px',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          filter: 'drop-shadow(0 14px 28px rgba(0, 0, 0, 0.09))',
+          transition: 'all 0.3s ease'
+        }}>
+          <BrandTemplateSVG
+            data={brandDataForSeal}
+            color={effectiveColor}
+            textColor="#ffffff"
+            side="verso"
+            hideBackground={true}
+            iconPath={activeIconPath}
+            brandElement={activeBrandElement}
+          />
+        </div>
+      </div>
+
+      {/* 2. SELETOR DE ÍCONES / SÍMBOLOS (Curados + IA) */}
+      <div style={{ width: '100%', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '8px' }}>
+        <span style={{
+          fontSize: '0.72rem',
+          fontWeight: 700,
+          letterSpacing: '0.08em',
+          textTransform: 'uppercase',
+          color: 'var(--text-secondary, #64748B)'
+        }}>
+          {d.step_118_icon_selector_title || 'Símbolo'}
+        </span>
+
+        <div style={{
+          display: 'flex',
+          gap: '10px',
+          justifyContent: 'center',
+          alignItems: 'center',
+          flexWrap: 'wrap'
+        }}>
+          {/* Opções Curadas */}
           {availableCurated.map((icon, idx) => {
-            const isSelected = selectedIconId === icon.id && selectedElementId === null;
+            const isSelected = selectedElementId === null && (selectedIconId === icon.id || (!selectedIconId && idx === 0));
             return (
-              <div
+              <button
+                type="button"
                 key={icon.id || idx}
                 onClick={() => onSelectCurated && onSelectCurated(icon)}
                 style={{
-                  borderRadius: '20px',
-                  minHeight: '130px',
-                  padding: '14px 10px',
-                  background: isSelected ? '#F0FDFA' : '#FAFAFA',
-                  border: isSelected ? '3px solid var(--accent-turquoise, #2A897F)' : '1px solid #E2E8F0',
-                  boxShadow: isSelected 
-                    ? '0 12px 28px rgba(42, 137, 127, 0.35), 0 4px 10px rgba(0, 0, 0, 0.1)'
-                    : '0 8px 24px rgba(0, 0, 0, 0.08), 0 2px 6px rgba(0, 0, 0, 0.04)',
-                  cursor: 'pointer',
+                  width: '54px',
+                  height: '54px',
+                  borderRadius: '14px',
+                  background: isSelected ? '#FFFFFF' : '#F8FAFC',
+                  border: isSelected ? '2px solid var(--accent-turquoise, #2A897F)' : '1.5px solid #E2E8F0',
+                  boxShadow: isSelected ? '0 4px 12px rgba(42, 137, 127, 0.18)' : '0 2px 4px rgba(0,0,0,0.02)',
                   display: 'flex',
-                  flexDirection: 'column',
                   alignItems: 'center',
                   justifyContent: 'center',
-                  gap: '8px',
+                  cursor: 'pointer',
                   position: 'relative',
-                  transform: isSelected ? 'translateY(-4px) scale(1.02)' : 'none',
-                  transition: 'all 0.25s cubic-bezier(0.16, 1, 0.3, 1)',
-                  userSelect: 'none'
+                  padding: '8px',
+                  transform: isSelected ? 'scale(1.06)' : 'scale(1)',
+                  transition: 'all 0.2s cubic-bezier(0.16, 1, 0.3, 1)'
                 }}
+                title={icon.label || `Opção ${idx + 1}`}
               >
                 {isSelected && (
                   <span style={{
                     position: 'absolute',
-                    top: '8px',
-                    right: '8px',
-                    background: '#ffffff',
-                    color: '#1E293B',
+                    top: '-4px',
+                    right: '-4px',
+                    background: 'var(--accent-turquoise, #2A897F)',
+                    color: '#ffffff',
                     borderRadius: '50%',
-                    width: '20px',
-                    height: '20px',
+                    width: '15px',
+                    height: '15px',
                     display: 'flex',
                     alignItems: 'center',
                     justifyContent: 'center',
-                    fontSize: '0.75rem',
+                    fontSize: '0.55rem',
                     fontWeight: 'bold',
-                    boxShadow: '0 2px 5px rgba(0,0,0,0.15)'
+                    boxShadow: '0 2px 4px rgba(0,0,0,0.2)'
                   }}>
                     ✓
                   </span>
                 )}
+                <img
+                  src={icon.path}
+                  alt={icon.label || `Ícone ${idx + 1}`}
+                  style={{
+                    width: '28px',
+                    height: '28px',
+                    objectFit: 'contain',
+                    filter: isSelected ? 'brightness(0.3)' : 'brightness(0.5) opacity(0.75)'
+                  }}
+                />
+              </button>
+            );
+          })}
 
-                {/* Selo circular real com o ícone em harmonia */}
-                <div style={{ width: '84px', height: '84px', pointerEvents: 'none' }}>
-                  <BrandTemplateSVG
-                    data={brandDataForSeal}
-                    color={activeColor}
-                    textColor="#ffffff"
-                    side="verso"
-                    hideBackground={true}
-                    iconPath={icon.path}
-                    brandElement={null}
-                  />
-                </div>
-
+          {/* Opções Geradas por IA (adicionadas ao mesmo seletor) */}
+          {hasGeneratedElements && generatedElements.map((elem, idx) => {
+            const isSelected = selectedElementId === elem.id;
+            const thumbSrc = getElementThumbSrc(elem);
+            return (
+              <button
+                type="button"
+                key={elem.id || idx}
+                onClick={() => onSelectGenerated && onSelectGenerated(elem)}
+                style={{
+                  width: '54px',
+                  height: '54px',
+                  borderRadius: '14px',
+                  background: isSelected ? '#FFFFFF' : '#F8FAFC',
+                  border: isSelected ? '2px solid var(--accent-turquoise, #2A897F)' : '1.5px solid #E2E8F0',
+                  boxShadow: isSelected ? '0 4px 12px rgba(42, 137, 127, 0.18)' : '0 2px 4px rgba(0,0,0,0.02)',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  cursor: 'pointer',
+                  position: 'relative',
+                  padding: '8px',
+                  transform: isSelected ? 'scale(1.06)' : 'scale(1)',
+                  transition: 'all 0.2s cubic-bezier(0.16, 1, 0.3, 1)'
+                }}
+                title={elem.title || `Elemento IA ${idx + 1}`}
+              >
+                {isSelected && (
+                  <span style={{
+                    position: 'absolute',
+                    top: '-4px',
+                    right: '-4px',
+                    background: 'var(--accent-turquoise, #2A897F)',
+                    color: '#ffffff',
+                    borderRadius: '50%',
+                    width: '15px',
+                    height: '15px',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    fontSize: '0.55rem',
+                    fontWeight: 'bold',
+                    boxShadow: '0 2px 4px rgba(0,0,0,0.2)'
+                  }}>
+                    ✓
+                  </span>
+                )}
                 <span style={{
-                  fontFamily: "'Cinzel', 'Montserrat', -apple-system, sans-serif",
-                  letterSpacing: '0.08em',
-                  textTransform: 'uppercase',
-                  fontSize: '0.68rem',
-                  fontWeight: 600,
-                  color: isSelected ? 'var(--accent-turquoise, #2A897F)' : '#334155',
-                  textAlign: 'center',
-                  lineHeight: 1.2
+                  position: 'absolute',
+                  bottom: '2px',
+                  left: '50%',
+                  transform: 'translateX(-50%)',
+                  fontSize: '0.5rem',
+                  fontWeight: 700,
+                  color: isSelected ? 'var(--accent-turquoise, #2A897F)' : '#94A3B8',
+                  letterSpacing: '0.04em'
                 }}>
-                  {icon.label || `Opção 0${idx + 1}`}
+                  IA
                 </span>
-              </div>
+                {thumbSrc ? (
+                  <img
+                    src={thumbSrc}
+                    alt={elem.title || `Elemento ${idx + 1}`}
+                    style={{
+                      width: '28px',
+                      height: '28px',
+                      objectFit: 'contain',
+                      marginBottom: '4px',
+                      filter: isSelected ? 'brightness(0.3)' : 'brightness(0.5) opacity(0.75)'
+                    }}
+                  />
+                ) : (
+                  <span style={{ fontSize: '0.7rem' }}>✨</span>
+                )}
+              </button>
             );
           })}
         </div>
       </div>
 
-      {/* 2. OPÇÕES GERADAS COM IA (SE EXISTIREM) */}
-      {hasGeneratedElements && (
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', marginTop: '6px' }}>
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-            <label style={{ fontSize: '0.75rem', fontWeight: 700, letterSpacing: '0.08em', textTransform: 'uppercase', color: 'var(--text-secondary, #475569)' }}>
-              {d.step_118_ai_generated_title || 'Opções Geradas com IA'}
-            </label>
-            <span style={{ fontSize: '0.65rem', background: '#F4E8DC', color: '#4A3A30', padding: '3px 9px', borderRadius: '12px', fontWeight: 700 }}>
-              {d.step_118_ai_generated_badge || '3 Opções Exclusivas'}
-            </span>
-          </div>
+      {/* 3. SELETOR DE COR DA PALETA */}
+      <div style={{ width: '100%', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '8px', marginTop: '2px' }}>
+        <span style={{
+          fontSize: '0.72rem',
+          fontWeight: 700,
+          letterSpacing: '0.08em',
+          textTransform: 'uppercase',
+          color: 'var(--text-secondary, #64748B)'
+        }}>
+          {d.step_118_color_selector_title || 'Cor do Selo'}
+        </span>
 
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '12px' }}>
-            {generatedElements.map((elem, idx) => {
-              const isSelected = selectedElementId === elem.id;
-              return (
-                <div
-                  key={elem.id || idx}
-                  onClick={() => onSelectGenerated && onSelectGenerated(elem)}
+        <div style={{
+          display: 'flex',
+          gap: '10px',
+          justifyContent: 'center',
+          alignItems: 'center'
+        }}>
+          {colorsList.map((hex, i) => {
+            const isSelected = (activeColor || '').toLowerCase() === (hex || '').toLowerCase();
+            return (
+              <button
+                type="button"
+                key={i}
+                onClick={() => onSelectColor && onSelectColor(hex)}
+                style={{
+                  width: '32px',
+                  height: '32px',
+                  borderRadius: '50%',
+                  background: hex,
+                  border: isSelected ? '2px solid #FFFFFF' : '1px solid rgba(0,0,0,0.12)',
+                  boxShadow: isSelected ? '0 0 0 2.5px var(--accent-turquoise, #2A897F), 0 3px 8px rgba(0,0,0,0.15)' : '0 1px 3px rgba(0,0,0,0.08)',
+                  cursor: 'pointer',
+                  transform: isSelected ? 'scale(1.18)' : 'scale(1)',
+                  transition: 'all 0.2s ease',
+                  padding: 0
+                }}
+                title={hex}
+              />
+            );
+          })}
+        </div>
+      </div>
+
+      {/* 4. OPÇÃO SECUNDÁRIA E SUTIL DE GERAÇÃO COM IA (Apenas antes de gerar) */}
+      {!hasGeneratedElements && (
+        <div style={{ marginTop: '4px', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '6px' }}>
+          {!hasPattern ? (
+            <div style={{ textAlign: 'center' }}>
+              <p style={{ fontSize: '0.72rem', color: '#94A3B8', margin: 0 }}>
+                {d.step_118_no_pattern_desc || 'Para extrair símbolos exclusivos com IA, escolha uma estampa primeiro.'}
+              </p>
+              {onBackToPattern && (
+                <button
+                  type="button"
+                  onClick={onBackToPattern}
                   style={{
-                    borderRadius: '20px',
-                    minHeight: '130px',
-                    padding: '14px 10px',
-                    background: isSelected ? '#F0FDFA' : '#FAFAFA',
-                    border: isSelected ? '3px solid var(--accent-turquoise, #2A897F)' : '1px solid #E2E8F0',
-                    boxShadow: isSelected 
-                      ? '0 12px 28px rgba(42, 137, 127, 0.35), 0 4px 10px rgba(0, 0, 0, 0.1)'
-                      : '0 8px 24px rgba(0, 0, 0, 0.08), 0 2px 6px rgba(0, 0, 0, 0.04)',
+                    background: 'none',
+                    border: 'none',
+                    color: 'var(--accent-turquoise, #2A897F)',
+                    fontSize: '0.72rem',
+                    fontWeight: 600,
                     cursor: 'pointer',
-                    display: 'flex',
-                    flexDirection: 'column',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    gap: '8px',
-                    position: 'relative',
-                    transform: isSelected ? 'translateY(-4px) scale(1.02)' : 'none',
-                    transition: 'all 0.25s cubic-bezier(0.16, 1, 0.3, 1)',
-                    userSelect: 'none'
+                    textDecoration: 'underline',
+                    padding: '4px'
                   }}
                 >
-                  {isSelected && (
-                    <span style={{
-                      position: 'absolute',
-                      top: '8px',
-                      right: '8px',
-                      background: '#ffffff',
-                      color: '#1E293B',
-                      borderRadius: '50%',
-                      width: '20px',
-                      height: '20px',
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                      fontSize: '0.75rem',
-                      fontWeight: 'bold',
-                      boxShadow: '0 2px 5px rgba(0,0,0,0.15)'
-                    }}>
-                      ✓
-                    </span>
-                  )}
-
-                  {/* Selo circular real com o elemento gerado por IA */}
-                  <div style={{ width: '84px', height: '84px', pointerEvents: 'none' }}>
-                    <BrandTemplateSVG
-                      data={brandDataForSeal}
-                      color={activeColor}
-                      textColor="#ffffff"
-                      side="verso"
-                      hideBackground={true}
-                      iconPath={null}
-                      brandElement={elem}
-                    />
-                  </div>
-
-                  <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', width: '100%', gap: '2px' }}>
-                    <span style={{
-                      fontFamily: "'Cinzel', 'Montserrat', -apple-system, sans-serif",
-                      letterSpacing: '0.06em',
-                      textTransform: 'uppercase',
-                      fontSize: '0.68rem',
-                      fontWeight: 700,
-                      color: isSelected ? 'var(--accent-turquoise, #2A897F)' : '#1E293B',
-                      textAlign: 'center',
-                      lineHeight: 1.2
-                    }}>
-                      {elem.title || `Elemento 0${idx + 1}`}
-                    </span>
-                    {elem.label && (
-                      <span style={{ fontSize: '0.58rem', fontWeight: 600, color: 'var(--accent-turquoise, #2A897F)', textTransform: 'uppercase', letterSpacing: '0.04em' }}>
-                        {elem.label}
-                      </span>
-                    )}
-                  </div>
-                </div>
-              );
-            })}
-          </div>
+                  {d.step_118_btn_back_choose_pattern || '← Voltar à estampa'}
+                </button>
+              )}
+            </div>
+          ) : canGenerateAi ? (
+            <button
+              type="button"
+              onClick={onGenerateAi}
+              disabled={isAiLoading}
+              className="btn-secondary"
+              style={{
+                fontSize: '0.76rem',
+                padding: '6px 14px',
+                borderRadius: '12px',
+                fontWeight: 600,
+                display: 'flex',
+                alignItems: 'center',
+                gap: '6px',
+                color: 'var(--accent-turquoise, #2A897F)',
+                borderColor: '#CBD5E1',
+                background: '#FFFFFF',
+                cursor: isAiLoading ? 'not-allowed' : 'pointer',
+                opacity: isAiLoading ? 0.7 : 1,
+                boxShadow: '0 1px 3px rgba(0,0,0,0.04)',
+                transition: 'all 0.2s ease'
+              }}
+            >
+              {isAiLoading ? (
+                <>
+                  <span style={{ display: 'inline-block', width: '11px', height: '11px', border: '2px solid var(--accent-turquoise, #2A897F)', borderTopColor: 'transparent', borderRadius: '50%', animation: 'spin 1s linear infinite' }} />
+                  {d.step_118_ai_btn_loading || 'Gerando 3 opções com IA...'}
+                </>
+              ) : (
+                d.step_118_ai_btn_subtle || '✨ Quer mais opções? Gerar 3 com IA'
+              )}
+            </button>
+          ) : null}
         </div>
       )}
-
-      {/* 3. SEÇÃO DE GERADOR DE IA SOB DEMANDA */}
-      <div style={{
-        width: '100%',
-        padding: '16px 20px',
-        borderRadius: '20px',
-        background: 'linear-gradient(135deg, #F8FAFC 0%, #F1F5F9 100%)',
-        border: '1px solid #E2E8F0',
-        display: 'flex',
-        flexDirection: 'column',
-        alignItems: 'center',
-        textAlign: 'center',
-        gap: '10px',
-        boxShadow: '0 4px 14px rgba(0,0,0,0.03)'
-      }}>
-        {!hasPattern ? (
-          <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '8px' }}>
-            <h4 style={{ fontSize: '0.85rem', fontWeight: 700, color: '#475569', margin: 0 }}>
-              {d.step_118_no_pattern_title || 'Estampa necessária para geração com IA'}
-            </h4>
-            <p style={{ fontSize: '0.74rem', color: '#64748B', margin: 0, lineHeight: 1.45, maxWidth: '420px' }}>
-              {d.step_118_no_pattern_desc || 'Para extrair elementos visuais exclusivos da sua estampa com inteligência artificial, você precisa selecionar uma estampa primeiro.'}
-            </p>
-            {onBackToPattern && (
-              <button
-                type="button"
-                onClick={onBackToPattern}
-                className="btn-secondary"
-                style={{
-                  fontSize: '0.76rem',
-                  padding: '6px 14px',
-                  borderRadius: '12px',
-                  marginTop: '4px',
-                  color: 'var(--text-primary)',
-                  fontWeight: 600
-                }}
-              >
-                {d.step_118_btn_back_choose_pattern || '← Voltar e escolher estampa'}
-              </button>
-            )}
-          </div>
-        ) : (
-          <>
-            <div>
-              <h4 style={{ fontSize: '0.85rem', fontWeight: 700, color: '#1E293B', margin: 0, letterSpacing: '0.02em' }}>
-                {d.step_118_ai_box_title || 'Não encontrou o símbolo ideal?'}
-              </h4>
-              <p style={{ fontSize: '0.72rem', color: '#64748B', margin: '4px 0 0 0', lineHeight: 1.45, maxWidth: '440px' }}>
-                {d.step_118_ai_box_desc || 'A inteligência artificial pode analisar a sua estampa aprovada e extrair 3 novos elementos visuais exclusivos para a sua submarca.'}
-              </p>
-            </div>
-
-            {canGenerateAi ? (
-              <button
-                type="button"
-                onClick={onGenerateAi}
-                disabled={isAiLoading}
-                className="btn-primary"
-                style={{
-                  fontSize: '0.8rem',
-                  padding: '10px 22px',
-                  borderRadius: '20px',
-                  background: 'var(--accent-turquoise, #2A897F)',
-                  color: '#FFF',
-                  border: 'none',
-                  cursor: isAiLoading ? 'not-allowed' : 'pointer',
-                  opacity: isAiLoading ? 0.8 : 1,
-                  marginTop: '4px',
-                  fontWeight: 600,
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: '8px',
-                  boxShadow: '0 4px 12px rgba(42, 137, 127, 0.25)',
-                  transition: 'all 0.2s ease'
-                }}
-              >
-                {isAiLoading ? (
-                  <>
-                    <span className="spinner" style={{ width: '14px', height: '14px', border: '2px solid #fff', borderTopColor: 'transparent', borderRadius: '50%', display: 'inline-block', animation: 'spin 1s linear infinite' }} />
-                    {d.step_118_ai_btn_loading || 'Criando elementos gráficos exclusivos...'}
-                  </>
-                ) : (
-                  d.step_118_ai_btn || '✨ Gerar 3 novas opções com IA'
-                )}
-              </button>
-            ) : (
-              <div style={{
-                fontSize: '0.72rem',
-                color: '#475569',
-                background: '#F1F5F9',
-                padding: '8px 16px',
-                borderRadius: '12px',
-                border: '1px solid #CBD5E1',
-                lineHeight: 1.4
-              }}>
-                {d.step_118_ai_limit_used || '✓ Geração da demonstração utilizada (3 opções criadas). Você terá mais 2 rodadas completas após a compra!'}
-              </div>
-            )}
-          </>
-        )}
-      </div>
 
     </div>
   );
 };
 
 export default SubmarkSealStep;
+

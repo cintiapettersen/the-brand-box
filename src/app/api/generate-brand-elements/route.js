@@ -102,8 +102,11 @@ export async function POST(request) {
       sensacoes = [],
       elementosVisuais = [],
       journeyId = null,
-      deliveryId = null
+      deliveryId = null,
+      count = 2
     } = await request.json();
+
+    const targetCount = count === 3 ? 3 : 2;
 
     if (!patternBase64) {
       console.error('[Brand Elements] patternBase64 ausente');
@@ -296,15 +299,15 @@ Provide strictly a JSON object with:
         patternTypeDetected = parsed.patternType || (Array.isArray(parsed) ? 'mixed' : 'abstract');
         const rawElements = Array.isArray(parsed) ? parsed : (Array.isArray(parsed.elements) ? parsed.elements : []);
 
-        if (rawElements.length >= 3) {
-          elements = rawElements.slice(0, 3).map((item, idx) => ({
+        if (rawElements.length >= targetCount) {
+          elements = rawElements.slice(0, targetCount).map((item, idx) => ({
             title: item.title || `Elemento 0${idx + 1}`,
             label: item.label || (idx === 0 ? (patternTypeDetected === 'abstract' ? 'Forma Principal' : 'Motivo Principal') : idx === 1 ? 'Estrutura Geométrica' : 'Submarca de Alto Impacto'),
             sourceType: item.sourceType || (idx === 0 ? 'pattern_primary_form' : idx === 1 ? 'pattern_geometric_structure' : 'style_guided_submark'),
             origin: item.origin || (idx === 0 ? 'Inspirado na forma e no ritmo visual da sua estampa' : idx === 1 ? 'Inspirado na estrutura da sua estampa' : 'Composto a partir da identidade visual da marca em harmonia com a estampa'),
             visualDescription: item.visualDescription || ''
           }));
-          console.log(`✅ [Brand Elements] 3 conceitos extraídos com sucesso na Tentativa 1 (Tipo: ${patternTypeDetected}, Fontes: ${parsed.patternSourceCount || 'N/A'}).`);
+          console.log(`✅ [Brand Elements] ${elements.length} conceitos extraídos com sucesso na Tentativa 1 (Tipo: ${patternTypeDetected}, Fontes: ${parsed.patternSourceCount || 'N/A'}).`);
         }
       }
 
@@ -321,9 +324,9 @@ Provide strictly a JSON object with:
           latencyMs: p1Latency,
           attemptNumber: 1,
           providerSuccess: true,
-          outputAccepted: elements.length >= 3,
-          retryReason: elements.length < 3 ? 'insufficient_elements_extracted' : null,
-          metadata: { patternType: patternTypeDetected, estiloNome, internalQualityGate: elements.length < 3 }
+          outputAccepted: elements.length >= targetCount,
+          retryReason: elements.length < targetCount ? 'insufficient_elements_extracted' : null,
+          metadata: { patternType: patternTypeDetected, estiloNome, internalQualityGate: elements.length < targetCount }
         });
       }
     } catch (parseErr1) {
@@ -346,20 +349,14 @@ Provide strictly a JSON object with:
     }
 
     // Tentativa 2 de Análise (Retry Controlado se necessário)
-    if (!Array.isArray(elements) || elements.length < 3) {
+    if (!Array.isArray(elements) || elements.length < targetCount) {
       const p2Start = Date.now();
       try {
-        console.log('[Brand Elements] Executando retry controlado da análise multimodal com regra híbrida...');
-        const retryContents = [
-          { inlineData: { mimeType, data: cleanBase64 } },
-          ...styleRefParts,
-          { text: "Return strictly a JSON object with 3 distinct brand submark symbols following the Hybrid Rule (Pattern First, Style-Reference Support Second for Element 02/03): {\"patternType\":\"abstract\",\"patternSourceCount\":2,\"elements\":[{\"title\":\"Elemento 01\",\"label\":\"Forma Principal\",\"sourceType\":\"pattern_primary_form\",\"origin\":\"Inspirado na forma principal da sua estampa\",\"visualDescription\":\"a solid bold clean black vector mark...\"},{\"title\":\"Elemento 02\",\"label\":\"Estrutura Geométrica\",\"sourceType\":\"pattern_geometric_structure\",\"origin\":\"Inspirado na estrutura geométrica distintiva da sua estampa\",\"visualDescription\":\"a distinctive bold bespoke black vector mark...\"},{\"title\":\"Elemento 03\",\"label\":\"Submarca de Alto Impacto\",\"sourceType\":\"style_guided_submark\",\"origin\":\"Composto a partir da identidade visual da marca em harmonia com a estampa\",\"visualDescription\":\"a high-impact solid bold black vector submark symbol...\"}]}" }
-        ];
-
+        console.log('[Brand Elements] Executando retry simplificado da análise multimodal...');
         const retryResponse = await ai.models.generateContent({
           model: 'gemini-2.5-flash',
-          contents: retryContents,
-          config: { responseMimeType: 'application/json' }
+          contents,
+          config: { responseMimeType: 'application/json', temperature: 0.3 }
         });
         const p2Latency = Date.now() - p2Start;
         const usage2 = extractGoogleUsage(retryResponse);
@@ -370,15 +367,15 @@ Provide strictly a JSON object with:
           patternTypeDetected = parsedRetry.patternType || (Array.isArray(parsedRetry) ? 'mixed' : 'abstract');
           const rawRetryElements = Array.isArray(parsedRetry) ? parsedRetry : (Array.isArray(parsedRetry.elements) ? parsedRetry.elements : []);
 
-          if (rawRetryElements.length >= 3) {
-            elements = rawRetryElements.slice(0, 3).map((item, idx) => ({
+          if (rawRetryElements.length >= targetCount) {
+            elements = rawRetryElements.slice(0, targetCount).map((item, idx) => ({
               title: item.title || `Elemento 0${idx + 1}`,
               label: item.label || (idx === 0 ? (patternTypeDetected === 'abstract' ? 'Forma Principal' : 'Motivo Principal') : idx === 1 ? 'Estrutura Geométrica' : 'Submarca de Alto Impacto'),
               sourceType: item.sourceType || (idx === 0 ? 'pattern_primary_form' : idx === 1 ? 'pattern_geometric_structure' : 'style_guided_submark'),
               origin: item.origin || (idx === 0 ? 'Inspirado na forma e no ritmo visual da sua estampa' : idx === 1 ? 'Inspirado na estrutura da sua estampa' : 'Composto a partir da identidade visual da marca em harmonia com a estampa'),
               visualDescription: item.visualDescription || ''
             }));
-            console.log(`✅ [Brand Elements] 3 conceitos extraídos com sucesso na Tentativa 2.`);
+            console.log(`✅ [Brand Elements] ${elements.length} conceitos extraídos com sucesso na Tentativa 2.`);
           }
         }
 
@@ -396,7 +393,7 @@ Provide strictly a JSON object with:
             attemptNumber: 2,
             retryReason: 'attempt_1_insufficient_elements',
             providerSuccess: true,
-            outputAccepted: elements.length >= 3,
+            outputAccepted: elements.length >= targetCount,
             metadata: { patternType: patternTypeDetected, estiloNome, internalQualityGate: true }
           });
         }
@@ -422,8 +419,8 @@ Provide strictly a JSON object with:
     }
 
 
-    if (!Array.isArray(elements) || elements.length < 3) {
-      console.error(`❌ [Brand Elements] Análise multimodal abortada: Não foi possível obter 3 elementos estruturados.`);
+    if (!Array.isArray(elements) || elements.length < targetCount) {
+      console.error(`❌ [Brand Elements] Análise multimodal abortada: Não foi possível obter ${targetCount} elementos estruturados.`);
       return Response.json({
         error: "Não foi possível processar a estrutura visual da sua estampa no momento. Por favor, tente novamente.",
         telemetry: {
@@ -436,12 +433,12 @@ Provide strictly a JSON object with:
 
     elementsFound = elements.length;
 
-    // Phase 2: Generation of 3 High-Presence Vector Submarks
+    // Phase 2: Generation of High-Presence Vector Submarks
     currentPhase = 'generation';
-    const targetElements = elements.slice(0, 3);
+    const targetElements = elements.slice(0, targetCount);
     imagesAttempted = targetElements.length;
 
-    console.log(`[Brand Elements] Iniciando geração de 3 imagens vetoriais de alto impacto com gemini-2.5-flash-image / imagen-4.0...`);
+    console.log(`[Brand Elements] Iniciando geração de ${targetElements.length} imagens vetoriais de alto impacto com gemini-2.5-flash-image / imagen-4.0...`);
 
     const elementsPromises = targetElements.map(async (elem, index) => {
       const genPrompt = `

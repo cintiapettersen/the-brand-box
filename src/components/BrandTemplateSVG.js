@@ -152,16 +152,18 @@ const BrandTemplateSVG = ({ data = {}, color, side = 'frente', hideBackground = 
             {elementSrc ? (
               <image
                 href={elementSrc}
-                x={-60} y={-60}
-                width={120} height={120}
-                style={{ filter: 'brightness(0) invert(1) opacity(0.92)' }}
+                x={-80} y={-80}
+                width={160} height={160}
+                preserveAspectRatio="xMidYMid meet"
+                style={{ filter: 'brightness(0) invert(1) opacity(0.95)' }}
               />
             ) : iconPath ? (
               <image
                 href={iconPath}
-                x={-65} y={-65}
-                width={130} height={130}
-                style={{ filter: 'brightness(0) invert(1) opacity(0.85)' }}
+                x={-70} y={-70}
+                width={140} height={140}
+                preserveAspectRatio="xMidYMid meet"
+                style={{ filter: 'brightness(0) invert(1) opacity(0.90)' }}
               />
             ) : null}
           </g>

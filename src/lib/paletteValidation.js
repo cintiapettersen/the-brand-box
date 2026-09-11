@@ -184,3 +184,38 @@ export function verifyDeliveryAuthorization(delivery, accessCredential) {
 
   return { authorized: true };
 }
+
+/**
+ * Checks if a hex color is too light (high perceived luminance) to provide adequate contrast
+ * with pure white text or icons.
+ */
+export function isColorTooLightForWhiteText(hex, threshold = 185) {
+  const sanitized = sanitizeHex(hex);
+  if (!sanitized) return false;
+  const r = parseInt(sanitized.slice(1, 3), 16);
+  const g = parseInt(sanitized.slice(3, 5), 16);
+  const b = parseInt(sanitized.slice(5, 7), 16);
+  const brightness = (r * 299 + g * 587 + b * 114) / 1000;
+  return brightness > threshold;
+}
+
+/**
+ * Filters a list of hex colors to only keep contrasting (non-overly-light) colors.
+ * If all colors in the palette are light, falls back to the darkest color in the input.
+ */
+export function getContrastingPaletteColors(colors = [], fallback = '#2A897F') {
+  if (!Array.isArray(colors) || colors.length === 0) return [fallback];
+  const valid = colors.filter(c => sanitizeHex(c));
+  if (valid.length === 0) return [fallback];
+  const contrasting = valid.filter(c => !isColorTooLightForWhiteText(c));
+  if (contrasting.length > 0) return contrasting;
+  // If all are above threshold, pick the darkest one
+  const sorted = [...valid].sort((a, b) => {
+    const sA = sanitizeHex(a);
+    const sB = sanitizeHex(b);
+    const brightA = (parseInt(sA.slice(1, 3), 16) * 299 + parseInt(sA.slice(3, 5), 16) * 587 + parseInt(sA.slice(5, 7), 16) * 114) / 1000;
+    const brightB = (parseInt(sB.slice(1, 3), 16) * 299 + parseInt(sB.slice(3, 5), 16) * 587 + parseInt(sB.slice(5, 7), 16) * 114) / 1000;
+    return brightA - brightB;
+  });
+  return [sorted[0]];
+}

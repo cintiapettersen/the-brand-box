@@ -17,6 +17,7 @@ import { getCreativeDiagnosisCopy } from '../../lib/creativeDiagnosisCopy';
 import { findSelectedPalette } from '../../lib/selectedPalette';
 import { isCurrentPaletteFeedback, shouldClearPaletteFeedback } from '../../lib/paletteFeedbackState';
 import { PALETTE_CONSULTATION_LIMIT } from '../../lib/paletteConsultant';
+import { getContrastingPaletteColors } from '../../lib/paletteValidation';
 
 const PAPELARIA_CLINICA = [
   "Cartão de Visita", "Papel Timbrado", "Receituário Padrão (A4 e A5)", "Atestado Médico (A4 e A5)", "Cartão de Retorno", "Pasta A4 Exclusiva",
@@ -109,6 +110,7 @@ export default function Home() {
   const didScrollDiagnosticRef = useRef('');
   const [isMatchmakerLoading, setIsMatchmakerLoading] = useState(false);
   const [isTaglineLoading, setIsTaglineLoading] = useState(false);
+  const taglineRequestRef = useRef(null);
   const [aiSessionId, setAiSessionId] = useState('');
   const [selectedTagline, setSelectedTagline] = useState('');
   const [customTagline, setCustomTagline] = useState('');
@@ -305,6 +307,7 @@ export default function Home() {
   const [generatedPatterns, setGeneratedPatterns] = useState([]);
   const [selectedPattern, setSelectedPattern] = useState(null);
   const [patternLoading, setPatternLoading] = useState(false);
+  const [patternError, setPatternError] = useState(null);
   const [patternPhraseIndex, setPatternPhraseIndex] = useState(0);
   const [loadingVariacoes, setLoadingVariacoes] = useState(false);
   
@@ -765,29 +768,36 @@ export default function Home() {
   const MAX_PATTERN_GENERATIONS = 5;
 
   const generatePatterns = async () => {
-    if (devMode) {
-      setGeneratedPatterns([
-        { base64: null, mimeType: null, _devPlaceholder: true },
-        { base64: null, mimeType: null, _devPlaceholder: true },
-        { base64: null, mimeType: null, _devPlaceholder: true },
-      ]);
+    if (patternLoading) return;
+
+    const sel = paletas.find(p => p.id === selectedPaleta);
+    const rawCores = sel?.paleta_hex || sel?.cores_hex || [];
+    const primaryHex = editData?.corAtiva;
+    const cores = primaryHex 
+      ? [primaryHex, ...rawCores.filter(c => c.toLowerCase() !== primaryHex.toLowerCase())]
+      : rawCores;
+
+    if (!resultadoFinal?.estiloNome && !resultadoFinal?.estiloId) {
+      setAlertMessage('Informações do estilo visual ausentes. Por favor, volte ao diagnóstico ou selecione um estilo antes de criar sua estampa.');
       return;
     }
+
+    if (cores.length === 0) {
+      setAlertMessage('Nenhuma paleta de cores selecionada. Por favor, volte à etapa de Cores para escolher uma paleta.');
+      return;
+    }
+
     if (patternGenerationCount >= MAX_PATTERN_GENERATIONS) {
       setAlertMessage('Você atingiu o limite de 5 gerações de estampa na demonstração.');
       return;
     }
+
     setPatternGenerationCount(c => c + 1);
     setPatternLoading(true);
     setGeneratedPatterns([]);
+    setPatternError(null);
+
     try {
-      const sel = paletas.find(p => p.id === selectedPaleta);
-      const rawCores = sel?.paleta_hex || sel?.cores_hex || [];
-      const primaryHex = editData?.corAtiva;
-      const cores = primaryHex 
-        ? [primaryHex, ...rawCores.filter(c => c.toLowerCase() !== primaryHex.toLowerCase())]
-        : rawCores;
-      
       // Selecionar 2 estampas aleatórias diferentes como referência
       const shuffled = [...estampas].sort(() => Math.random() - 0.5);
       const refs = shuffled.slice(0, 2).map(e => e.image_url);
@@ -809,18 +819,28 @@ export default function Home() {
       });
       
       const data = await res.json();
-      if (data.success && data.images) {
-        setGeneratedPatterns(data.images);
+      const validImages = Array.isArray(data.images) ? data.images.filter(img => img && img.base64) : [];
+
+      if (data.success && validImages.length > 0) {
+        setGeneratedPatterns(validImages);
         setSelectedPattern(0);
+        setPatternError(null);
       } else {
-        console.error('Erro na geração:', data.error);
-        setAlertMessage('Ops! Não conseguimos gerar as estampas. Tente novamente.');
+        console.error('Erro na geração de estampa:', data.error);
+        setGeneratedPatterns([]);
+        setSelectedPattern(null);
+        setPatternError('Não foi possível gerar a estampa neste momento.');
+        setAlertMessage('Ops! Não conseguimos gerar as estampas agora. Por favor, tente novamente.');
       }
     } catch (err) {
-      console.error('Erro chamando API:', err);
-      setAlertMessage('Erro de conexão. Verifique se o servidor está rodando.');
+      console.error('Erro chamando API de estampa:', err);
+      setGeneratedPatterns([]);
+      setSelectedPattern(null);
+      setPatternError('Erro de conexão ao gerar a estampa.');
+      setAlertMessage('Erro de conexão. Verifique se o servidor está rodando e tente novamente.');
+    } finally {
+      setPatternLoading(false);
     }
-    setPatternLoading(false);
   };
 
   const generateBrandElements = async () => {
@@ -1183,8 +1203,9 @@ export default function Home() {
   };
 
   const generateCreativeTaglines = async () => {
-    if (!resultadoFinal || isTaglineLoading || hasAiUsage('taglines')) return;
+    if (!resultadoFinal || isTaglineLoading || hasAiUsage('taglines') || taglineRequestRef.current) return;
 
+    taglineRequestRef.current = true;
     markAiUsage('taglines');
     setIsTaglineLoading(true);
     try {
@@ -1202,14 +1223,12 @@ export default function Home() {
               ...prev,
               taglineSuggestions: taglines
             }) : prev);
-        if (selectedTagline && !taglines.suggestions.some(suggestion => suggestion.text === selectedTagline)) {
-          setSelectedTagline('');
-        }
       }
     } catch (error) {
       console.warn('Sugestões de tagline indisponíveis; usando sugestões curadas.', error);
     } finally {
       setIsTaglineLoading(false);
+      taglineRequestRef.current = false;
     }
   };
 
@@ -1635,7 +1654,7 @@ export default function Home() {
     setLoadingCheckout('pro');
     setShowPediatriaModal(false);
     try {
-      const patternObj = selectedPattern !== null && generatedPatterns[selectedPattern] && !generatedPatterns[selectedPattern]._devPlaceholder
+      const patternObj = selectedPattern !== null && generatedPatterns[selectedPattern]?.base64
         ? { mimeType: generatedPatterns[selectedPattern].mimeType, base64: generatedPatterns[selectedPattern].base64 }
         : null;
 
@@ -3270,33 +3289,61 @@ export default function Home() {
                   )}
                 </div>
 
-                {isTaglineLoading && (
-                  <p style={{ fontSize: '0.78rem', color: 'var(--text-secondary)', lineHeight: 1.4, marginBottom: '2px' }}>
-                    {dictionary?.postmatch?.step_115_loading || 'Gerando sugestões personalizadas...'}
-                  </p>
+                {isTaglineLoading && getCreativeTaglineSuggestions().length === 0 ? (
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                    <p style={{ fontSize: '0.78rem', color: 'var(--text-secondary)', lineHeight: 1.4, marginBottom: '2px', display: 'flex', alignItems: 'center', gap: '6px' }}>
+                      <span style={{ display: 'inline-block', width: '12px', height: '12px', border: '2px solid var(--accent-turquoise)', borderTopColor: 'transparent', borderRadius: '50%', animation: 'spin 1s linear infinite' }} />
+                      {dictionary?.postmatch?.step_115_loading || 'Gerando sugestões personalizadas para sua marca...'}
+                    </p>
+                    {[1, 2, 3].map((idx) => (
+                      <div
+                        key={idx}
+                        style={{
+                          padding: '18px 20px',
+                          borderRadius: '14px',
+                          border: '1.5px solid var(--border)',
+                          background: 'linear-gradient(90deg, #f8f9fa 25%, #f0f2f5 50%, #f8f9fa 75%)',
+                          backgroundSize: '200% 100%',
+                          minHeight: '56px',
+                          display: 'flex',
+                          alignItems: 'center'
+                        }}
+                      >
+                        <div style={{ width: `${55 + (idx * 15)}%`, height: '14px', background: '#e2e8f0', borderRadius: '6px', opacity: 0.7 }} />
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <>
+                    {isTaglineLoading && (
+                      <p style={{ fontSize: '0.78rem', color: 'var(--text-secondary)', lineHeight: 1.4, marginBottom: '2px', display: 'flex', alignItems: 'center', gap: '6px' }}>
+                        <span style={{ display: 'inline-block', width: '12px', height: '12px', border: '2px solid var(--accent-turquoise)', borderTopColor: 'transparent', borderRadius: '50%', animation: 'spin 1s linear infinite' }} />
+                        {dictionary?.postmatch?.step_115_loading || 'Gerando sugestões personalizadas...'}
+                      </p>
+                    )}
+                    {getVisibleTaglineSuggestions().map((opt) => (
+                      <button
+                        key={opt}
+                        onClick={() => { setSelectedTagline(opt); setCustomTagline(''); }}
+                        style={{
+                          padding: '16px 18px',
+                          borderRadius: '14px',
+                          border: selectedTagline === opt ? '2px solid var(--accent-turquoise)' : '1.5px solid var(--border)',
+                          background: selectedTagline === opt ? 'rgba(60,204,191,0.07)' : '#fafafa',
+                          color: selectedTagline === opt ? 'var(--accent-turquoise)' : 'var(--text-primary)',
+                          textAlign: 'left',
+                          cursor: 'pointer',
+                          fontSize: '1rem',
+                          fontWeight: selectedTagline === opt ? 600 : 400,
+                          transition: 'all 0.2s ease',
+                          lineHeight: 1.4,
+                        }}
+                      >
+                        {selectedTagline === opt ? '✓  ' : ''}{opt}
+                      </button>
+                    ))}
+                  </>
                 )}
-
-                {getVisibleTaglineSuggestions().map((opt) => (
-                  <button
-                    key={opt}
-                    onClick={() => { setSelectedTagline(opt); setCustomTagline(''); }}
-                    style={{
-                      padding: '16px 18px',
-                      borderRadius: '14px',
-                      border: selectedTagline === opt ? '2px solid var(--accent-turquoise)' : '1.5px solid var(--border)',
-                      background: selectedTagline === opt ? 'rgba(60,204,191,0.07)' : '#fafafa',
-                      color: selectedTagline === opt ? 'var(--accent-turquoise)' : 'var(--text-primary)',
-                      textAlign: 'left',
-                      cursor: 'pointer',
-                      fontSize: '1rem',
-                      fontWeight: selectedTagline === opt ? 600 : 400,
-                      transition: 'all 0.2s ease',
-                      lineHeight: 1.4,
-                    }}
-                  >
-                    {selectedTagline === opt ? '✓  ' : ''}{opt}
-                  </button>
-                ))}
 
                 <div style={{ borderTop: '1px solid var(--border)', paddingTop: '16px', marginTop: '4px' }}>
                   <p style={{ fontSize: '0.72rem', fontWeight: 700, letterSpacing: '2px', textTransform: 'uppercase', color: 'var(--text-secondary)', marginBottom: '10px' }}>
@@ -3351,7 +3398,7 @@ export default function Home() {
               <div style={{ flex: 1, overflowY: 'auto', padding: '0 2rem', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '15px' }}>
                 
                 {/* Estado inicial: botão gerar */}
-                {generatedPatterns.length === 0 && !patternLoading && (
+                {generatedPatterns.length === 0 && !patternLoading && !patternError && (
                   <div style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: '20px' }}>
                     <p style={{ fontSize: '0.9rem', color: 'var(--text-secondary)', textAlign: 'center', maxWidth: '320px', lineHeight: 1.6 }}>
                       {dictionary?.postmatch?.step_117_magic || 'Agora a mágica acontece! ✨'}<br/>
@@ -3374,6 +3421,24 @@ export default function Home() {
                   </div>
                 )}
 
+                {/* Estado de Erro amigável */}
+                {patternError && !patternLoading && generatedPatterns.length === 0 && (
+                  <div style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: '16px', textAlign: 'center', padding: '1rem' }}>
+                    <div style={{ width: '48px', height: '48px', borderRadius: '50%', background: 'rgba(239, 68, 68, 0.1)', color: '#ef4444', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '1.4rem' }}>
+                      ⚠️
+                    </div>
+                    <p style={{ fontSize: '0.95rem', fontWeight: 600, color: 'var(--text-primary)', maxWidth: '340px' }}>
+                      {patternError}
+                    </p>
+                    <p style={{ fontSize: '0.8rem', color: 'var(--text-secondary)', maxWidth: '300px', lineHeight: 1.4 }}>
+                      Não se preocupe, você pode tentar gerar novamente agora mesmo.
+                    </p>
+                    <button onClick={generatePatterns} className="btn-primary" style={{ background: 'var(--accent-turquoise)', padding: '10px 22px', borderRadius: '12px', fontSize: '0.9rem', fontWeight: 600 }}>
+                      🔄 Tentar novamente
+                    </button>
+                  </div>
+                )}
+
                 {/* Loading */}
                 {patternLoading && (
                   <div style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: '20px' }}>
@@ -3385,7 +3450,7 @@ export default function Home() {
                   </div>
                 )}
 
-                {/* Resultado: 2 cartões mockup */}
+                {/* Resultado: cartões reais de estampa */}
                 {generatedPatterns.length > 0 && !patternLoading && (
                   <>
                     <p style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', textAlign: 'center' }}>
@@ -3397,7 +3462,11 @@ export default function Home() {
                           key={i}
                           onClick={() => setSelectedPattern(i)}
                           style={{
-                            width: '45%', aspectRatio: '1', borderRadius: '16px', overflow: 'hidden', cursor: 'pointer',
+                            width: generatedPatterns.length === 1 ? '70%' : '45%',
+                            aspectRatio: '1',
+                            borderRadius: '16px',
+                            overflow: 'hidden',
+                            cursor: 'pointer',
                             position: 'relative',
                             border: selectedPattern === i ? '3px solid var(--accent-magenta)' : '2px solid var(--border)',
                             boxShadow: selectedPattern === i ? '0 8px 25px rgba(210,47,90,0.3)' : '0 4px 15px rgba(0,0,0,0.1)',
@@ -3405,13 +3474,7 @@ export default function Home() {
                             transition: 'all 0.2s ease'
                           }}
                         >
-                          {p._devPlaceholder ? (
-                            <div style={{ width: '100%', height: '100%', background: `hsl(${i * 60 + 200}, 30%, 85%)`, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                              <span style={{ fontSize: '0.65rem', color: '#666', fontWeight: 700 }}>DEV PLACEHOLDER {i + 1}</span>
-                            </div>
-                          ) : (
-                            <img src={`data:${p.mimeType};base64,${p.base64}`} style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }} />
-                          )}
+                          <img src={`data:${p.mimeType};base64,${p.base64}`} alt={`Estampa ${i + 1}`} style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }} />
                         </div>
                       ))}
                     </div>
@@ -3432,7 +3495,23 @@ export default function Home() {
                     setStep(11.8);
                   }} 
                   className="btn-primary" 
-                  style={{ flex: 1, background: selectedPattern !== null ? 'var(--accent-turquoise)' : '#cbd5e1', color: selectedPattern !== null ? '#fff' : '#64748b', pointerEvents: selectedPattern !== null ? 'auto' : 'none', padding: '12px 20px', borderRadius: '14px', fontSize: '0.92rem', fontWeight: 600, height: '46px', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: 'none', transition: 'all 0.2s ease' }}
+                  disabled={selectedPattern === null || !generatedPatterns[selectedPattern]?.base64}
+                  style={{
+                    flex: 1,
+                    background: (selectedPattern !== null && generatedPatterns[selectedPattern]?.base64) ? 'var(--accent-turquoise)' : '#cbd5e1',
+                    color: (selectedPattern !== null && generatedPatterns[selectedPattern]?.base64) ? '#fff' : '#64748b',
+                    pointerEvents: (selectedPattern !== null && generatedPatterns[selectedPattern]?.base64) ? 'auto' : 'none',
+                    padding: '12px 20px',
+                    borderRadius: '14px',
+                    fontSize: '0.92rem',
+                    fontWeight: 600,
+                    height: '46px',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    boxShadow: 'none',
+                    transition: 'all 0.2s ease'
+                  }}
                 >{dictionary?.postmatch?.step_117_btn_submark || 'Escolher Submarca & Selo ✨'}</button>
               </div>
             </motion.div>
@@ -3444,17 +3523,22 @@ export default function Home() {
               key="step118" variants={variants} initial="initial" animate="animate" exit="exit" transition={{ duration: 0.5 }}
               style={{ position: 'absolute', width: '100%', height: '100%', display: 'flex', flexDirection: 'column', background: '#ffffff', borderRadius: '24px', overflow: 'hidden', border: '1px solid var(--border)' }}
             >
-              <div style={{ padding: '1.8rem 2rem 0.5rem', textAlign: 'center' }}>
-                <p onClick={handleDevTap} style={{ fontSize: '0.65rem', fontWeight: 600, letterSpacing: '3px', textTransform: 'uppercase', color: 'var(--accent-magenta)', marginBottom: '6px', cursor: 'default', userSelect: 'none' }}>THE BRAND BOX</p>
-                <h2 style={{ fontSize: '1.6rem', marginBottom: '0.3rem' }}>{dictionary?.postmatch?.step_118_title || 'Submarca e Selo'}</h2>
-                <p style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', margin: 0 }}>{dictionary?.postmatch?.step_118_subtitle || 'Escolha um símbolo para completar sua identidade.'}</p>
+              <div style={{ padding: '1.25rem 1.5rem 0.25rem', textAlign: 'center' }}>
+                <p onClick={handleDevTap} style={{ fontSize: '0.65rem', fontWeight: 600, letterSpacing: '3px', textTransform: 'uppercase', color: 'var(--accent-magenta)', marginBottom: '4px', cursor: 'default', userSelect: 'none' }}>THE BRAND BOX</p>
+                <h2 style={{ fontSize: '1.5rem', marginBottom: '0.2rem' }}>{dictionary?.postmatch?.step_118_title || 'Submarca e Selo'}</h2>
+                <p style={{ fontSize: '0.82rem', color: 'var(--text-secondary)', margin: 0 }}>{dictionary?.postmatch?.step_118_subtitle || 'Escolha um símbolo para completar sua identidade.'}</p>
               </div>
 
-              <div style={{ flex: 1, overflowY: 'auto', padding: '0.8rem 2rem 1.2rem', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+              <div style={{ flex: 1, overflowY: 'auto', padding: '0.5rem 1.5rem 1rem', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
                 <SubmarkSealStep
                   formData={formData}
                   editData={editData}
                   activeColor={editData.corAtiva || (paletas.find(p => p.id === selectedPaleta)?.paleta_hex?.[0]) || '#2A897F'}
+                  paletteColors={(() => {
+                    const sel = paletas.find(p => p.id === selectedPaleta);
+                    return sel?.paleta_hex || sel?.cores_hex || (paletas.find(p => p.paleta_hex?.length > 0)?.paleta_hex) || ['#2A897F', '#D22F5A', '#E1EDE7', '#F4E8DC', '#515361'];
+                  })()}
+                  onSelectColor={(hex) => setEditData(prev => ({ ...prev, corAtiva: hex }))}
                   estiloNome={ESTILO_NOME_BY_ID[resultadoFinal?.estiloId] || resultadoFinal?.estiloNome || 'Essência Atemporal'}
                   curatedIcons={STYLE_ICONS[ESTILO_NOME_BY_ID[resultadoFinal?.estiloId] || resultadoFinal?.estiloNome] || []}
                   generatedElements={generatedBrandElements}
@@ -3520,21 +3604,22 @@ export default function Home() {
                       return ['#eee','#ddd','#ccc','#bbb','#aaa'];
                     })()} 
                     color={editData.corAtiva || '#d22f5a'}
-                    patternImage={selectedPattern !== null && generatedPatterns[selectedPattern] && !generatedPatterns[selectedPattern]._devPlaceholder ? `data:${generatedPatterns[selectedPattern].mimeType};base64,${generatedPatterns[selectedPattern].base64}` : null}
+                    patternImage={selectedPattern !== null && generatedPatterns[selectedPattern]?.base64 ? `data:${generatedPatterns[selectedPattern].mimeType};base64,${generatedPatterns[selectedPattern].base64}` : null}
                     iconPath={selectedBrandElementId ? null : (getIconById(ESTILO_NOME_BY_ID[resultadoFinal?.estiloId] || resultadoFinal?.estiloNome, selectedIcon)?.path || null)}
                     brandElement={selectedBrandElementId ? (generatedBrandElements.find(e => e.id === selectedBrandElementId) || formData.brandElement) : null}
                   />
                 </div>
               </div>
 
-              {/* Seletor de cor ao vivo */}
+              {/* Seletor de cor ao vivo (filtrando cores muito claras para preservar contraste e legibilidade) */}
               <div style={{ padding: '10px 20px', background: '#fff', borderTop: '1px solid #f0f0f0', display: 'flex', alignItems: 'center', gap: '12px', justifyContent: 'center' }}>
                 <p style={{ fontSize: '0.65rem', color: 'var(--text-secondary)', textTransform: 'uppercase', letterSpacing: '1px', fontWeight: 600, whiteSpace: 'nowrap' }}>{dictionary?.postmatch?.step_12_main_color || 'Cor Principal:'}</p>
                 {(() => {
                   const sel = paletas.find(p => p.id === selectedPaleta);
                   const cores = sel?.paleta_hex || sel?.cores_hex || [];
                   const todasCores = cores.length > 0 ? cores : (paletas.find(p => p.paleta_hex?.length > 0)?.paleta_hex || []);
-                  return todasCores.map((hex, i) => (
+                  const coresContraste = getContrastingPaletteColors(todasCores, '#2A897F');
+                  return coresContraste.map((hex, i) => (
                     <div
                       key={i}
                       onClick={() => setEditData(prev => ({ ...prev, corAtiva: hex }))}
@@ -3550,35 +3635,6 @@ export default function Home() {
                     />
                   ));
                 })()}
-              </div>
-
-              {/* Resumo da submarca ativa e ação discreta de troca */}
-              <div style={{ padding: '10px 20px', background: '#fff', borderTop: '1px solid #f0f0f0', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                  <span style={{ fontSize: '0.68rem', color: 'var(--text-secondary)', textTransform: 'uppercase', letterSpacing: '1px', fontWeight: 600 }}>
-                    {dictionary?.postmatch?.step_12_active_submark || 'Submarca Selecionada'}
-                  </span>
-                </div>
-                <button
-                  type="button"
-                  onClick={() => setStep(11.8)}
-                  style={{
-                    background: 'none',
-                    border: '1px solid #CBD5E1',
-                    borderRadius: '12px',
-                    padding: '6px 14px',
-                    fontSize: '0.72rem',
-                    fontWeight: 600,
-                    color: 'var(--text-primary)',
-                    cursor: 'pointer',
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: '5px',
-                    transition: 'all 0.15s ease'
-                  }}
-                >
-                  <span>✏️</span> {dictionary?.postmatch?.step_12_change_submark || 'Trocar submarca'}
-                </button>
               </div>
 
               <div style={{ padding: '1.2rem', background: '#fff', borderTop: '1px solid var(--border)', zIndex: 10, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '8px' }}>
@@ -3722,7 +3778,7 @@ export default function Home() {
                         setLoadingCheckout('starter');
                         console.log('🚀 Iniciando checkout Starter...');
                         try {
-                          const patternObj = selectedPattern !== null && generatedPatterns[selectedPattern] && !generatedPatterns[selectedPattern]._devPlaceholder
+                          const patternObj = selectedPattern !== null && generatedPatterns[selectedPattern]?.base64
                             ? { mimeType: generatedPatterns[selectedPattern].mimeType, base64: generatedPatterns[selectedPattern].base64 }
                             : null;
 

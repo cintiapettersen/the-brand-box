@@ -1,8 +1,10 @@
+import { GoogleGenerativeAI } from '@google/generative-ai';
 import { acquireCreativeDirectorRequest } from '../requestGuards.js';
+import { logAiUsage, extractOpenAIUsage, extractGoogleUsage } from '../../../../lib/aiTelemetry.js';
 
-const TAGLINE_TYPES = ['emotional', 'strategic', 'direct'];
+export const TAGLINE_TYPES = ['emotional', 'strategic', 'direct'];
 
-const TAGLINE_SCHEMA = {
+export const TAGLINE_SCHEMA = {
   type: 'object',
   additionalProperties: false,
   required: ['language', 'brandName', 'maxWords', 'maxCharacters', 'suggestions'],
@@ -28,23 +30,23 @@ const TAGLINE_SCHEMA = {
   }
 };
 
-function cleanText(value) {
+export function cleanText(value) {
   return typeof value === 'string' ? value.trim() : '';
 }
 
-function normalizeForCompare(value) {
+export function normalizeForCompare(value) {
   return cleanText(value).toLocaleLowerCase('pt-BR').normalize('NFD').replace(/[\u0300-\u036f]/g, '');
 }
 
-function countWords(value) {
+export function countWords(value) {
   return cleanText(value).split(/\s+/).filter(Boolean).length;
 }
 
-function countCharacters(value) {
+export function countCharacters(value) {
   return Array.from(cleanText(value)).length;
 }
 
-function calculateLimits(brandName) {
+export function calculateLimits(brandName) {
   const length = Array.from(cleanText(brandName)).length;
 
   if (length <= 8) return { maxWords: 6, maxCharacters: 45 };
@@ -52,7 +54,7 @@ function calculateLimits(brandName) {
   return { maxWords: 4, maxCharacters: 30 };
 }
 
-function normalizeBriefing(formData = {}) {
+export function normalizeBriefing(formData = {}) {
   return {
     brandName: cleanText(formData.marca) || null,
     areaAtuacao: [formData.atuacao, formData.atuacaoOutra].map(cleanText).filter(Boolean).join(' - ') || null,
@@ -69,7 +71,7 @@ function normalizeBriefing(formData = {}) {
   };
 }
 
-function normalizeCreativeDirector(creativeDirector = {}) {
+export function normalizeCreativeDirector(creativeDirector = {}) {
   return {
     diagnostico: cleanText(creativeDirector.diagnostico) || null,
     personalidade: Array.isArray(creativeDirector.personalidade) ? creativeDirector.personalidade.map(cleanText).filter(Boolean) : [],
@@ -90,7 +92,7 @@ function normalizeCreativeDirector(creativeDirector = {}) {
   };
 }
 
-function buildIdentityContext(formData = {}, resultadoFinal = {}) {
+export function buildIdentityContext(formData = {}, resultadoFinal = {}) {
   return {
     brandName: cleanText(formData.marca) || null,
     styleName: cleanText(resultadoFinal.estiloNome) || null,
@@ -117,7 +119,7 @@ function extractOutputText(response) {
   return response.output_text || response.output?.flatMap(item => item.content || []).find(content => content.type === 'output_text')?.text || '';
 }
 
-function validateTaglines(payload, { idioma, brandName, contactName, maxWords, maxCharacters }) {
+export function validateTaglines(payload, { idioma, brandName, contactName, maxWords, maxCharacters }) {
   if (!payload || typeof payload !== 'object' || Array.isArray(payload)) return null;
   if (cleanText(payload.language) !== idioma) return null;
   if (cleanText(payload.brandName) !== brandName) return null;
@@ -151,7 +153,7 @@ function validateTaglines(payload, { idioma, brandName, contactName, maxWords, m
   return { language: idioma, brandName, maxWords, maxCharacters, suggestions };
 }
 
-function buildPrompt({ formData, resultadoFinal, idioma, maxWords, maxCharacters, invalidReasons = [] }) {
+export function buildPrompt({ formData, resultadoFinal, idioma, maxWords, maxCharacters, invalidReasons = [] }) {
   const briefing = normalizeBriefing(formData);
   const creativeDirector = normalizeCreativeDirector(resultadoFinal.creativeDirector);
 
@@ -185,8 +187,8 @@ function buildPrompt({ formData, resultadoFinal, idioma, maxWords, maxCharacters
     },
     constraints: {
       idioma,
-      maxWords: limits.maxWords,
-      maxCharacters: limits.maxCharacters,
+      maxWords,
+      maxCharacters,
       brandNamePolicy: 'Se usar o nome da marca, use no máximo uma vez e apenas se soar natural junto à logo.',
       contactNamePolicy: 'Nunca use o nome pessoal/de contato da usuária na tagline.',
       styleNamePolicy: 'Nunca use o nome da direção criativa como nome de marca.',
@@ -195,13 +197,7 @@ function buildPrompt({ formData, resultadoFinal, idioma, maxWords, maxCharacters
   });
 }
 
-async function callOpenAI({ apiKey, model, prompt, idioma, requestKey, journeyId }) {
-  const requestGuard = acquireCreativeDirectorRequest(requestKey);
-  if (!requestGuard.ok) {
-    return { errorResponse: Response.json({ error: requestGuard.reason }, { status: 429 }) };
-  }
-
-  const startTime = Date.now();
+async function callOpenAITaglines({ apiKey, model, prompt, idioma, journeyId, startTime }) {
   const openAIResponse = await fetch('https://api.openai.com/v1/responses', {
     method: 'POST',
     headers: {
@@ -224,35 +220,24 @@ async function callOpenAI({ apiKey, model, prompt, idioma, requestKey, journeyId
 
   if (!openAIResponse.ok) {
     const error = await readOpenAIError(openAIResponse);
-    const latencyMs = Date.now() - startTime;
-    console.error('OpenAI Creative Director tagline request failed:', {
-      status: openAIResponse.status,
-      error
-    });
-    if (journeyId) {
-      logAiUsage({
-        journeyId,
-        operationType: 'taglines',
-        provider: 'openai',
-        exactModel: model || 'openai-unspecified',
-        latencyMs,
-        success: false,
-        errorCode: 'creative_director_taglines_openai_error',
-        metadata: { language: idioma }
-      });
-    }
-    requestGuard.release({ completed: true });
-    return { errorResponse: Response.json({ error: 'creative_director_taglines_openai_error' }, { status: 502 }) };
+    throw new Error(`OpenAI HTTP ${openAIResponse.status}: ${JSON.stringify(error)}`);
   }
 
-  const latencyMs = Date.now() - startTime;
   const response = await openAIResponse.json();
   const usage = extractOpenAIUsage(response);
 
+  const outputText = extractOutputText(response);
+  if (!outputText) {
+    throw new Error('missing_creative_director_taglines_output');
+  }
+
+  const payload = JSON.parse(outputText);
+
+  const latencyMs = Date.now() - startTime;
   if (journeyId) {
     logAiUsage({
       journeyId,
-      operationType: 'taglines',
+      operationType: 'tagline_generation',
       provider: 'openai',
       exactModel: usage.resolvedModel || model,
       inputTokens: usage.inputTokens,
@@ -261,47 +246,94 @@ async function callOpenAI({ apiKey, model, prompt, idioma, requestKey, journeyId
       providerRequestId: usage.providerRequestId,
       latencyMs,
       success: true,
+      fallbackUsed: false,
       metadata: { language: idioma }
     });
   }
 
-  const outputText = extractOutputText(response);
+  return payload;
+}
 
-  if (!outputText) {
-    console.error('OpenAI Creative Director taglines missing output_text:', { status: openAIResponse.status });
-    requestGuard.release({ completed: true });
-    return { errorResponse: Response.json({ error: 'missing_creative_director_taglines_output' }, { status: 502 }) };
+async function callGeminiTaglines({ apiKey, prompt, idioma, brandName, maxWords, maxCharacters, journeyId, startTime, fallbackReason }) {
+  const genAI = new GoogleGenerativeAI(apiKey);
+  const model = genAI.getGenerativeModel({
+    model: 'gemini-2.5-flash',
+    generationConfig: {
+      responseMimeType: 'application/json'
+    }
+  });
+
+  const fullPrompt = `Você é a AI Creative Director da The Brand Box. Responda exclusivamente no idioma: ${idioma}.
+Gere 3 sugestões de tagline curtas para a marca "${brandName}".
+
+REGRAS:
+1. Máximo de ${maxWords} palavras por tagline.
+2. Máximo de ${maxCharacters} caracteres por tagline.
+3. Não use ponto final no término das frases.
+4. Gere exatamente 3 sugestões: 1 "emotional", 1 "strategic" e 1 "direct".
+5. Nunca use nome de contato ou termos genéricos proibidos.
+
+DADOS DA TAREFA:
+${prompt}
+
+Você DEVE responder EXCLUSIVAMENTE em formato JSON com o formato:
+{
+  "language": "${idioma}",
+  "brandName": "${brandName}",
+  "maxWords": ${maxWords},
+  "maxCharacters": ${maxCharacters},
+  "suggestions": [
+    { "type": "emotional", "text": "Texto da tagline emocional" },
+    { "type": "strategic", "text": "Texto da tagline estratégica" },
+    { "type": "direct", "text": "Texto da tagline direta" }
+  ]
+}`;
+
+  const result = await model.generateContent(fullPrompt);
+  const responseText = result.response.text();
+  if (!responseText) {
+    throw new Error('missing_gemini_taglines_output');
   }
 
-  try {
-    const payload = JSON.parse(outputText);
-    requestGuard.release({ completed: true });
-    return { payload };
-  } catch (error) {
-    console.error('OpenAI Creative Director taglines returned invalid JSON:', {
-      status: openAIResponse.status,
-      error: error.message
+  const cleanJson = responseText.replace(/^```json\s*/i, '').replace(/^```\s*/i, '').replace(/```\s*$/i, '').trim();
+  const payload = JSON.parse(cleanJson);
+
+  const latencyMs = Date.now() - startTime;
+  const usage = extractGoogleUsage(result.response);
+
+  if (journeyId) {
+    logAiUsage({
+      journeyId,
+      operationType: 'tagline_generation',
+      provider: 'google',
+      exactModel: 'gemini-2.5-flash',
+      inputTokens: usage.inputTokens,
+      cachedInputTokens: usage.cachedInputTokens,
+      outputTokens: usage.outputTokens,
+      latencyMs,
+      success: true,
+      fallbackUsed: true,
+      retryReason: fallbackReason || 'openai_fallback',
+      metadata: { language: idioma }
     });
-    requestGuard.release({ completed: true });
-    return { errorResponse: Response.json({ error: 'invalid_creative_director_taglines_json' }, { status: 502 }) };
   }
+
+  return payload;
 }
 
 export async function POST(req) {
+  let requestGuard;
+  const startTime = Date.now();
+  let journeyId = null;
+  let idioma = 'pt-BR';
+
   try {
-    const apiKey = process.env.OPENAI_API_KEY ? process.env.OPENAI_API_KEY.replace(/["']/g, '') : '';
-    const model = process.env.OPENAI_MODEL ? process.env.OPENAI_MODEL.trim() : '';
-
-    if (!apiKey || !model) {
-      return Response.json({ error: 'creative_director_taglines_unavailable' }, { status: 503 });
-    }
-
     const body = await req.json();
     const formData = body.formData || {};
     const resultadoFinal = body.resultadoFinal || {};
-    const idioma = cleanText(body.idioma || body.lang || 'pt-BR');
+    idioma = cleanText(body.idioma || body.lang || 'pt-BR');
     const requestKey = cleanText(body.requestKey);
-    const journeyId = cleanText(body.journeyId || body.creativeDirectorJourneyId || (requestKey ? requestKey.split(':')[1] : null));
+    journeyId = cleanText(body.journeyId || body.creativeDirectorJourneyId || (requestKey ? requestKey.split(':')[1] : null));
     const brandName = cleanText(formData.marca);
     const contactName = cleanText(formData.nome);
 
@@ -309,43 +341,94 @@ export async function POST(req) {
       return Response.json({ error: 'invalid_creative_director_taglines_payload' }, { status: 400 });
     }
 
-    const { maxWords, maxCharacters } = calculateLimits(brandName);
-    const limits = { maxWords, maxCharacters };
-    const firstPrompt = buildPrompt({ formData, resultadoFinal, limits, idioma, brandName, contactName });
-    const firstAttempt = await callOpenAI({ apiKey, model, prompt: firstPrompt, idioma, requestKey, journeyId });
+    const openAIApiKey = process.env.OPENAI_API_KEY ? process.env.OPENAI_API_KEY.replace(/["']/g, '').trim() : '';
+    const openAIModel = process.env.OPENAI_MODEL ? process.env.OPENAI_MODEL.trim() : '';
+    const geminiApiKey = process.env.GEMINI_API_KEY ? process.env.GEMINI_API_KEY.replace(/["']/g, '').trim() : '';
 
-    if (firstAttempt.errorResponse) return firstAttempt.errorResponse;
-
-    const validated = normalizeTaglines(firstAttempt.payload?.suggestions, limits, brandName, contactName);
-    if (validated.length === 3) return Response.json({ suggestions: validated });
-
-    console.error('OpenAI Creative Director taglines validation failed; retrying once:', {
-      receivedFields: Object.keys(firstAttempt.payload || {})
-    });
-
-    const repairPrompt = buildPrompt({
-      formData,
-      resultadoFinal,
-      limits,
-      idioma,
-      brandName,
-      contactName
-    });
-    const repairAttempt = await callOpenAI({ apiKey, model, prompt: repairPrompt, idioma, requestKey: `${requestKey}:repair`, journeyId });
-
-    if (repairAttempt.errorResponse) return repairAttempt.errorResponse;
-
-    const repaired = normalizeTaglines(repairAttempt.payload?.suggestions, limits, brandName, contactName);
-    if (repaired.length !== 3) {
-      console.error('OpenAI Creative Director taglines schema validation failed:', {
-        receivedFields: Object.keys(repairAttempt.payload || {})
-      });
-      return Response.json({ error: 'invalid_creative_director_taglines_response' }, { status: 502 });
+    if ((!openAIApiKey || !openAIModel) && !geminiApiKey) {
+      return Response.json({ error: 'creative_director_taglines_unavailable' }, { status: 503 });
     }
 
-    return Response.json({ suggestions: repaired });
+    requestGuard = acquireCreativeDirectorRequest(requestKey);
+    if (!requestGuard.ok) {
+      return Response.json({ error: requestGuard.reason }, { status: 429 });
+    }
+
+    const { maxWords, maxCharacters } = calculateLimits(brandName);
+    const firstPrompt = buildPrompt({ formData, resultadoFinal, idioma, maxWords, maxCharacters });
+
+    let payload = null;
+    let openAiError = null;
+
+    // 1. Primary provider: OpenAI
+    if (openAIApiKey && openAIModel) {
+      try {
+        payload = await callOpenAITaglines({
+          apiKey: openAIApiKey,
+          model: openAIModel,
+          prompt: firstPrompt,
+          idioma,
+          journeyId,
+          startTime
+        });
+        const validated = validateTaglines(payload, { idioma, brandName, contactName, maxWords, maxCharacters });
+        if (validated) {
+          requestGuard.release({ completed: true });
+          return Response.json(validated);
+        }
+        openAiError = new Error('invalid_openai_taglines_schema');
+      } catch (err) {
+        openAiError = err;
+        console.warn('OpenAI Creative Director taglines failed, falling over to Gemini:', err.message);
+      }
+    } else {
+      openAiError = new Error('openai_not_configured');
+    }
+
+    // 2. Fallback provider: Google Gemini
+    if (geminiApiKey) {
+      try {
+        payload = await callGeminiTaglines({
+          apiKey: geminiApiKey,
+          prompt: firstPrompt,
+          idioma,
+          brandName,
+          maxWords,
+          maxCharacters,
+          journeyId,
+          startTime,
+          fallbackReason: openAiError?.message || 'openai_fallback'
+        });
+        const validated = validateTaglines(payload, { idioma, brandName, contactName, maxWords, maxCharacters });
+        if (validated) {
+          requestGuard.release({ completed: true });
+          return Response.json(validated);
+        }
+        console.error('Gemini Creative Director taglines returned invalid schema');
+      } catch (geminiErr) {
+        console.error('Gemini Creative Director taglines fallback failed:', geminiErr.message);
+      }
+    }
+
+    if (journeyId) {
+      logAiUsage({
+        journeyId,
+        operationType: 'tagline_generation',
+        provider: 'fallback',
+        exactModel: 'none',
+        latencyMs: Date.now() - startTime,
+        success: false,
+        errorCode: 'creative_director_taglines_failed',
+        metadata: { language: idioma }
+      });
+    }
+
+    requestGuard.release({ completed: true });
+    return Response.json({ error: 'creative_director_taglines_failed' }, { status: 502 });
   } catch (error) {
     console.error('Creative Director taglines error:', { message: error.message });
     return Response.json({ error: 'creative_director_taglines_failed' }, { status: 502 });
+  } finally {
+    requestGuard?.release?.();
   }
 }
