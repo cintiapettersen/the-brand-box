@@ -201,21 +201,21 @@ const BrandBoard = ({ data = {}, palette, color, seloColor, seloTextColor, patte
         const isWrapped = displaySlogan.length > 1;
         const maxLineLength = isWrapped ? Math.max(...displaySlogan.map(l => l.length), 0) : taglineText.length;
 
-        // Proporção do tagline calibrada
-        const taglineRatio = isWrapped ? (lines.length >= 2 ? 0.28 : 0.32) : (lines.length >= 2 ? 0.16 : 0.18);
+        // Proporção do tagline calibrada para acompanhar a nova escala da logo
+        const taglineRatio = isWrapped ? (lines.length >= 2 ? 0.32 : 0.36) : (lines.length >= 2 ? 0.24 : 0.26);
         const taglineLengthScale = isWrapped
-          ? (maxLineLength > 24 ? 0.88 : (maxLineLength > 18 ? 0.95 : 1.05))
-          : (taglineText.length > 32 ? 0.82 : (taglineText.length > 24 ? 0.9 : 1));
+          ? (maxLineLength > 24 ? 0.90 : 1.0)
+          : (taglineText.length > 32 ? 0.85 : (taglineText.length > 24 ? 0.92 : 1.0));
         const taglineSizeBoost = data.taglineSizeBoost !== undefined ? parseFloat(data.taglineSizeBoost) : 1.0;
-        const minTaglineRem = isWrapped ? 0.58 : 0.48;
-        const maxTaglineRem = isWrapped ? 0.72 : 0.62;
+        const minTaglineRem = isWrapped ? 0.68 : 0.64;
+        const maxTaglineRem = isWrapped ? 0.95 : 0.88;
         const calculatedTaglineRem = logoSizeRem * taglineRatio * taglineLengthScale * taglineSizeBoost;
         const taglineSizeRem = Math.min(maxTaglineRem, Math.max(minTaglineRem, calculatedTaglineRem));
         const taglineLetterSpacing = isWrapped
           ? (maxLineLength > 22 ? '0.20em' : '0.26em')
           : (taglineText.length > 24 ? '0.26em' : '0.32em');
 
-        const defaultGap = isScript ? 4 : 6;
+        const defaultGap = isScript ? 2 : 0;
         const taglineGapPx = data.taglineGap !== undefined ? data.taglineGap : defaultGap;
 
         return (
@@ -238,7 +238,7 @@ const BrandBoard = ({ data = {}, palette, color, seloColor, seloTextColor, patte
                       fontWeight: data.fontWeight || (isScript ? 400 : 700),
                       fontSize,
                       color: activeColor,
-                      lineHeight: data.fontLineHeight ? (data.fontLineHeight * 0.85) : (isScript ? 0.88 : 0.95),
+                      lineHeight: data.fontLineHeight ? (data.fontLineHeight * 0.85) : (isScript ? 0.85 : 0.90),
                       letterSpacing: data.fontLetterSpacing || (isScript ? '0px' : '1px'),
                       margin: 0,
                     }}>
@@ -255,7 +255,7 @@ const BrandBoard = ({ data = {}, palette, color, seloColor, seloTextColor, patte
                   fontSize,
                   color: activeColor,
                   textAlign: 'center',
-                  lineHeight: data.fontLineHeight || (isScript ? 0.95 : 1.1),
+                  lineHeight: data.fontLineHeight || (isScript ? 0.88 : 0.92),
                   letterSpacing: data.fontLetterSpacing || (isScript ? '0px' : '1px'),
                   margin: 0,
                 }}>
@@ -270,7 +270,7 @@ const BrandBoard = ({ data = {}, palette, color, seloColor, seloTextColor, patte
                 fontSize: `${taglineSizeRem.toFixed(2)}rem`,
                 letterSpacing: taglineLetterSpacing,
                 textTransform: 'uppercase',
-                color: '#666',
+                color: '#555',
                 marginTop: `${taglineGapPx}px`,
                 textAlign: 'center',
                 lineHeight: 1.2
