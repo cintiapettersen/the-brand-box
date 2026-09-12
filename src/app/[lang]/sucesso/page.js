@@ -2850,7 +2850,11 @@ function PlacaStep({ brand, accentColor, paletteColors, estampaPatterns, estampa
             iconPath={iconPath}
             brandElement={brandElement || editData?.brandElement}
             customLogoSrc={customLogoSrc}
-            logoElement={<LogoPreviewHTML editData={editData} color={logoColor || accentColor} layout={logoLayout || editData?.logoLayout || 'stacked'} scaleFactor={0.82} maxWidth="440px" maxHeight="125px" />}
+            logoElement={
+              (logoLayout && logoLayout !== 'stacked')
+                ? <LogoPreviewHTML editData={editData} color={logoColor || accentColor} layout={logoLayout} scaleFactor={1} maxWidth="450px" maxHeight="160px" />
+                : undefined
+            }
           />
         </div>
       </div>

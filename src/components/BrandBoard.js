@@ -277,20 +277,35 @@ const BrandBoard = ({ data, palette, color, seloColor, seloTextColor, patternIma
 
       {/* TIPOGRAFIA */}
       <SectionHeader title={t.tipografia || "Tipografia"} />
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '30px', width: '100%', marginTop: '10px' }}>
-         <div style={{ display: 'flex', flexDirection: 'column', justifyContent: 'flex-start', textAlign: 'center', borderRight: '1px solid #eee' }}>
-            <h5 style={{ fontFamily: `'${data.fontFamily || 'Playfair Display'}', serif`, fontSize: `${(1.3 * (data.fontSizeBoost || 1)).toFixed(1)}rem`, marginBottom: '12px', fontWeight: data.fontWeight || 400 }}>{data.fontFamily || 'Playfair Display'}</h5>
-            <p style={{ fontFamily: `'${data.fontFamily || 'Playfair Display'}', serif`, fontSize: `${(0.85 * (data.fontSizeBoost || 1)).toFixed(1)}rem`, lineHeight: '1.8', color: '#666', fontWeight: data.fontWeight || 400 }}>
-               Aa Bb Cc Dd<br/>Ee Ff Gg Hh<br/>1234567890
-            </p>
-         </div>
-         <div style={{ display: 'flex', flexDirection: 'column', justifyContent: 'flex-start', textAlign: 'center' }}>
-            <h5 style={{ fontSize: '1.3rem', fontWeight: secondaryFontWeight, marginBottom: '12px', fontFamily: `'${secondaryFontFamily}', sans-serif` }}>{secondaryFontFamily}</h5>
-            <p style={{ fontSize: '0.85rem', lineHeight: '1.8', color: '#666', fontWeight: secondaryFontWeight, fontFamily: `'${secondaryFontFamily}', sans-serif` }}>
-               Aa Bb Cc Dd<br/>Ee Ff Gg Hh<br/>1234567890
-            </p>
-         </div>
-      </div>
+      {(() => {
+        const isScriptFont = data.fontStyle === 'script' || ['amelie', 'vellary', 'brittany', 'billie', 'crocante', 'montecarlo', 'mistral', 'playtime'].includes((data.fontFamily || '').toLowerCase());
+        const primaryTitleSize = isScriptFont ? '1.35rem' : '1.22rem';
+        const primarySampleSize = isScriptFont ? '0.78rem' : '0.80rem';
+        return (
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '30px', width: '100%', marginTop: '6px' }}>
+             <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center', borderRight: '1px solid #eee', paddingRight: '15px' }}>
+                <div style={{ minHeight: '32px', display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: '8px' }}>
+                  <h5 style={{ fontFamily: `'${data.fontFamily || 'Playfair Display'}', serif`, fontSize: primaryTitleSize, fontWeight: data.fontWeight || (isScriptFont ? 400 : 600), margin: 0, color: '#222' }}>
+                    {data.fontFamily || 'Playfair Display'}
+                  </h5>
+                </div>
+                <p style={{ fontFamily: `'${data.fontFamily || 'Playfair Display'}', serif`, fontSize: primarySampleSize, lineHeight: '1.6', color: '#555', fontWeight: data.fontWeight || 400, margin: 0 }}>
+                   Aa Bb Cc Dd<br/>Ee Ff Gg Hh<br/>1234567890
+                </p>
+             </div>
+             <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center', paddingLeft: '15px' }}>
+                <div style={{ minHeight: '32px', display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: '8px' }}>
+                  <h5 style={{ fontSize: '1.15rem', fontWeight: 600, letterSpacing: '0.5px', margin: 0, fontFamily: `'${secondaryFontFamily}', sans-serif`, color: '#222' }}>
+                    {secondaryFontFamily}
+                  </h5>
+                </div>
+                <p style={{ fontSize: '0.80rem', lineHeight: '1.6', color: '#555', fontWeight: secondaryFontWeight || 400, fontFamily: `'${secondaryFontFamily}', sans-serif`, margin: 0 }}>
+                   Aa Bb Cc Dd<br/>Ee Ff Gg Hh<br/>1234567890
+                </p>
+             </div>
+          </div>
+        );
+      })()}
 
       {/* SUBMARCA E ESTAMPA */}
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px', width: '100%', flex: 1, marginTop: '20px' }}>
