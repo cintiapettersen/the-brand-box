@@ -159,25 +159,25 @@ const BrandBoard = ({ data = {}, palette, color, seloColor, seloTextColor, patte
         const effectiveLayout = logoLayout || data.logoLayout || data.layout || (marca && marca.includes(',') ? 'balanced' : (words.length >= 2 ? 'stacked' : 'horizontal'));
 
         let lines;
-        let baseFontSize = 2.2;
+        let baseFontSize = 3.2;
         if (effectiveLayout === 'horizontal') {
           lines = [words.join(' ')];
           if (isScript) {
-            baseFontSize = (marca || '').length > 20 ? 1.4 : (marca || '').length > 15 ? 1.6 : (marca || '').length > 10 ? 1.85 : 2.1;
+            baseFontSize = (marca || '').length > 20 ? 2.2 : (marca || '').length > 15 ? 2.6 : (marca || '').length > 10 ? 3.0 : 3.4;
           } else {
-            baseFontSize = (marca || '').length > 20 ? 1.3 : (marca || '').length > 15 ? 1.5 : (marca || '').length > 10 ? 1.75 : 2.0;
+            baseFontSize = (marca || '').length > 20 ? 2.0 : (marca || '').length > 15 ? 2.4 : (marca || '').length > 10 ? 2.8 : 3.2;
           }
         } else if (effectiveLayout === 'balanced' && words.length >= 3) {
           const mid = Math.ceil(words.length / 2);
           lines = [words.slice(0, mid).join(' '), words.slice(mid).join(' ')];
-          baseFontSize = (marca || '').length > 15 ? 1.3 : 1.6;
+          baseFontSize = (marca || '').length > 15 ? 2.2 : 2.7;
         } else {
           // stacked
           lines = words;
-          if (words.length === 2) baseFontSize = 2.2;
-          else if (words.length >= 3) baseFontSize = (marca || '').length > 20 ? 1.3 : 1.6;
-          else if (marca && marca.length > 15) baseFontSize = 1.8;
-          else baseFontSize = 2.4;
+          if (words.length === 2) baseFontSize = 3.2;
+          else if (words.length >= 3) baseFontSize = (marca || '').length > 20 ? 2.0 : 2.5;
+          else if (marca && marca.length > 15) baseFontSize = 2.8;
+          else baseFontSize = 3.5;
         }
 
         // Aplicar sizeBoost para fontes que renderizam menor (ex: Vellary)
@@ -201,22 +201,22 @@ const BrandBoard = ({ data = {}, palette, color, seloColor, seloTextColor, patte
         const isWrapped = displaySlogan.length > 1;
         const maxLineLength = isWrapped ? Math.max(...displaySlogan.map(l => l.length), 0) : taglineText.length;
 
-        // Quando dividido em 2 linhas, as linhas são mais curtas, permitindo fonte maior e visualmente equilibrada
-        const taglineRatio = isWrapped ? (lines.length >= 2 ? 0.34 : 0.38) : (lines.length >= 2 ? 0.20 : 0.24);
+        // Proporção do tagline calibrada
+        const taglineRatio = isWrapped ? (lines.length >= 2 ? 0.28 : 0.32) : (lines.length >= 2 ? 0.16 : 0.18);
         const taglineLengthScale = isWrapped
           ? (maxLineLength > 24 ? 0.88 : (maxLineLength > 18 ? 0.95 : 1.05))
           : (taglineText.length > 32 ? 0.82 : (taglineText.length > 24 ? 0.9 : 1));
         const taglineSizeBoost = data.taglineSizeBoost !== undefined ? parseFloat(data.taglineSizeBoost) : 1.0;
-        const minTaglineRem = isWrapped ? 0.62 : 0.46;
-        const taglineSizeRem = Math.max(minTaglineRem, logoSizeRem * taglineRatio * taglineLengthScale * taglineSizeBoost);
+        const minTaglineRem = isWrapped ? 0.58 : 0.48;
+        const maxTaglineRem = isWrapped ? 0.72 : 0.62;
+        const calculatedTaglineRem = logoSizeRem * taglineRatio * taglineLengthScale * taglineSizeBoost;
+        const taglineSizeRem = Math.min(maxTaglineRem, Math.max(minTaglineRem, calculatedTaglineRem));
         const taglineLetterSpacing = isWrapped
           ? (maxLineLength > 22 ? '0.20em' : '0.26em')
           : (taglineText.length > 24 ? '0.26em' : '0.32em');
 
-        const gapMultiplier = data.taglineGap !== undefined 
-          ? data.taglineGap 
-          : (isWrapped ? 0.30 : (lines.length >= 2 ? 0.25 : (taglineText.length > 35 ? 0.35 : 0.20)));
-        const taglineGapPx = Math.round(taglineSizeRem * 16 * gapMultiplier);
+        const defaultGap = isScript ? 4 : 6;
+        const taglineGapPx = data.taglineGap !== undefined ? data.taglineGap : defaultGap;
 
         return (
           <div style={{ minHeight: '130px', width: '450px', display: 'flex', alignItems: 'center', justifyContent: 'center', position: 'relative', padding: '10px 0' }}>
@@ -238,8 +238,9 @@ const BrandBoard = ({ data = {}, palette, color, seloColor, seloTextColor, patte
                       fontWeight: data.fontWeight || (isScript ? 400 : 700),
                       fontSize,
                       color: activeColor,
-                      lineHeight: data.fontLineHeight ? (data.fontLineHeight * 0.85) : (isScript ? 0.85 : 0.92),
+                      lineHeight: data.fontLineHeight ? (data.fontLineHeight * 0.85) : (isScript ? 0.88 : 0.95),
                       letterSpacing: data.fontLetterSpacing || (isScript ? '0px' : '1px'),
+                      margin: 0,
                     }}>
                       {data.fontFeatureSettings && i === 0 ? (
                         <><span style={{ fontFeatureSettings: data.fontFeatureSettings, fontFamily: 'inherit', fontWeight: 'inherit' }}>{line[0]}</span><span style={{ fontFeatureSettings: 'normal', fontFamily: 'inherit', fontWeight: 'inherit' }}>{line.slice(1)}</span></>
@@ -254,8 +255,9 @@ const BrandBoard = ({ data = {}, palette, color, seloColor, seloTextColor, patte
                   fontSize,
                   color: activeColor,
                   textAlign: 'center',
-                  lineHeight: data.fontLineHeight || (isScript ? 0.95 : 1.15),
+                  lineHeight: data.fontLineHeight || (isScript ? 0.95 : 1.1),
                   letterSpacing: data.fontLetterSpacing || (isScript ? '0px' : '1px'),
+                  margin: 0,
                 }}>
                   {data.fontFeatureSettings ? (
                     <><span style={{ fontFeatureSettings: data.fontFeatureSettings, fontFamily: 'inherit', fontWeight: 'inherit' }}>{lines[0][0]}</span><span style={{ fontFeatureSettings: 'normal', fontFamily: 'inherit', fontWeight: 'inherit' }}>{lines[0].slice(1)}</span></>
