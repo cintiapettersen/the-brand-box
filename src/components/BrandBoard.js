@@ -91,7 +91,7 @@ const SectionHeader = ({ title }) => (
   </div>
 );
 
-const BrandBoard = ({ data, palette, color, seloColor, seloTextColor, patternImage, iconPath, customLogoSrc, logoElement, brandElement }) => {
+const BrandBoard = ({ data = {}, palette, color, seloColor, seloTextColor, patternImage, iconPath, customLogoSrc, logoElement, brandElement, logoLayout }) => {
   const { dictionary } = useTranslation();
   const t = dictionary?.placa || {};
 
@@ -119,7 +119,7 @@ const BrandBoard = ({ data, palette, color, seloColor, seloTextColor, patternIma
     });
     obs.observe(el);
     return () => obs.disconnect();
-  }, [marca, tagline, data, logoElement, customLogoSrc]);
+  }, [marca, tagline, data, logoElement, customLogoSrc, logoLayout]);
 
   return (
     <div id="brand-board-canvas" style={{ 
@@ -155,14 +155,34 @@ const BrandBoard = ({ data, palette, color, seloColor, seloTextColor, patternIma
           ? w.charAt(0).toUpperCase() + w.slice(1).toLowerCase() 
           : w.toUpperCase();
         const words = rawWords.map(formatWord);
-        // Tamanho adaptável
-        let baseFontSize = 2.4;
-        if (words.length === 2) baseFontSize = 2.2;
-        if (words.length >= 3) baseFontSize = (marca || '').length > 20 ? 1.3 : 1.6;
-        if (marca && marca.length > 15 && words.length <= 2) baseFontSize = 1.8;
+        
+        const effectiveLayout = logoLayout || data.logoLayout || data.layout || (marca && marca.includes(',') ? 'balanced' : (words.length >= 2 ? 'stacked' : 'horizontal'));
+
+        let lines;
+        let baseFontSize = 2.2;
+        if (effectiveLayout === 'horizontal') {
+          lines = [words.join(' ')];
+          if (isScript) {
+            baseFontSize = (marca || '').length > 20 ? 1.4 : (marca || '').length > 15 ? 1.6 : (marca || '').length > 10 ? 1.85 : 2.1;
+          } else {
+            baseFontSize = (marca || '').length > 20 ? 1.3 : (marca || '').length > 15 ? 1.5 : (marca || '').length > 10 ? 1.75 : 2.0;
+          }
+        } else if (effectiveLayout === 'balanced' && words.length >= 3) {
+          const mid = Math.ceil(words.length / 2);
+          lines = [words.slice(0, mid).join(' '), words.slice(mid).join(' ')];
+          baseFontSize = (marca || '').length > 15 ? 1.3 : 1.6;
+        } else {
+          // stacked
+          lines = words;
+          if (words.length === 2) baseFontSize = 2.2;
+          else if (words.length >= 3) baseFontSize = (marca || '').length > 20 ? 1.3 : 1.6;
+          else if (marca && marca.length > 15) baseFontSize = 1.8;
+          else baseFontSize = 2.4;
+        }
+
         // Aplicar sizeBoost para fontes que renderizam menor (ex: Vellary)
         const sizeBoost = data.fontSizeBoost || 1;
-        const fontSize = `${(baseFontSize * sizeBoost).toFixed(1)}rem`;
+        const fontSize = `${(baseFontSize * sizeBoost).toFixed(2)}rem`;
         const logoSizeRem = baseFontSize * sizeBoost;
         const taglineText = tagline || '';
         
@@ -182,7 +202,7 @@ const BrandBoard = ({ data, palette, color, seloColor, seloTextColor, patternIma
         const maxLineLength = isWrapped ? Math.max(...displaySlogan.map(l => l.length), 0) : taglineText.length;
 
         // Quando dividido em 2 linhas, as linhas são mais curtas, permitindo fonte maior e visualmente equilibrada
-        const taglineRatio = isWrapped ? (words.length >= 2 ? 0.34 : 0.38) : (words.length >= 2 ? 0.20 : 0.24);
+        const taglineRatio = isWrapped ? (lines.length >= 2 ? 0.34 : 0.38) : (lines.length >= 2 ? 0.20 : 0.24);
         const taglineLengthScale = isWrapped
           ? (maxLineLength > 24 ? 0.88 : (maxLineLength > 18 ? 0.95 : 1.05))
           : (taglineText.length > 32 ? 0.82 : (taglineText.length > 24 ? 0.9 : 1));
@@ -195,7 +215,7 @@ const BrandBoard = ({ data, palette, color, seloColor, seloTextColor, patternIma
 
         const gapMultiplier = data.taglineGap !== undefined 
           ? data.taglineGap 
-          : (isWrapped ? 0.30 : (words.length >= 2 ? 0.25 : (taglineText.length > 35 ? 0.35 : 0.20)));
+          : (isWrapped ? 0.30 : (lines.length >= 2 ? 0.25 : (taglineText.length > 35 ? 0.35 : 0.20)));
         const taglineGapPx = Math.round(taglineSizeRem * 16 * gapMultiplier);
 
         return (
@@ -210,36 +230,36 @@ const BrandBoard = ({ data, palette, color, seloColor, seloTextColor, patternIma
               justifyContent: 'center',
               whiteSpace: 'nowrap'
             }}>
-              {words.length === 2 ? (
+              {lines.length > 1 ? (
                 <div style={{ textAlign: 'center' }}>
-                  {words.map((word, i) => (
+                  {lines.map((line, i) => (
                     <h1 key={i} style={{
                       fontFamily: `'${data.fontFamily || 'Playfair Display'}', serif`,
-                      fontWeight: data.fontWeight || 700,
+                      fontWeight: data.fontWeight || (isScript ? 400 : 700),
                       fontSize,
                       color: activeColor,
                       lineHeight: data.fontLineHeight ? (data.fontLineHeight * 0.85) : (isScript ? 0.85 : 0.92),
                       letterSpacing: data.fontLetterSpacing || (isScript ? '0px' : '1px'),
                     }}>
                       {data.fontFeatureSettings && i === 0 ? (
-                        <><span style={{ fontFeatureSettings: data.fontFeatureSettings, fontFamily: 'inherit', fontWeight: 'inherit' }}>{word[0]}</span><span style={{ fontFeatureSettings: 'normal', fontFamily: 'inherit', fontWeight: 'inherit' }}>{word.slice(1)}</span></>
-                      ) : word}
+                        <><span style={{ fontFeatureSettings: data.fontFeatureSettings, fontFamily: 'inherit', fontWeight: 'inherit' }}>{line[0]}</span><span style={{ fontFeatureSettings: 'normal', fontFamily: 'inherit', fontWeight: 'inherit' }}>{line.slice(1)}</span></>
+                      ) : line}
                     </h1>
                   ))}
                 </div>
               ) : (
                 <h1 style={{
                   fontFamily: `'${data.fontFamily || 'Playfair Display'}', serif`,
-                  fontWeight: data.fontWeight || 700,
+                  fontWeight: data.fontWeight || (isScript ? 400 : 700),
                   fontSize,
                   color: activeColor,
                   textAlign: 'center',
-                  lineHeight: data.fontLineHeight || (isScript ? 0.9 : 1.15),
+                  lineHeight: data.fontLineHeight || (isScript ? 0.95 : 1.15),
                   letterSpacing: data.fontLetterSpacing || (isScript ? '0px' : '1px'),
                 }}>
                   {data.fontFeatureSettings ? (
-                    <><span style={{ fontFeatureSettings: data.fontFeatureSettings, fontFamily: 'inherit', fontWeight: 'inherit' }}>{words.join(' ')[0]}</span><span style={{ fontFeatureSettings: 'normal', fontFamily: 'inherit', fontWeight: 'inherit' }}>{words.join(' ').slice(1)}</span></>
-                  ) : words.join(' ')}
+                    <><span style={{ fontFeatureSettings: data.fontFeatureSettings, fontFamily: 'inherit', fontWeight: 'inherit' }}>{lines[0][0]}</span><span style={{ fontFeatureSettings: 'normal', fontFamily: 'inherit', fontWeight: 'inherit' }}>{lines[0].slice(1)}</span></>
+                  ) : lines[0]}
                 </h1>
               )}
               <div style={{

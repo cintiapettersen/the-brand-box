@@ -2850,6 +2850,7 @@ function PlacaStep({ brand, accentColor, paletteColors, estampaPatterns, estampa
             iconPath={iconPath}
             brandElement={brandElement || editData?.brandElement}
             customLogoSrc={customLogoSrc}
+            logoLayout={logoLayout}
           />
         </div>
       </div>
