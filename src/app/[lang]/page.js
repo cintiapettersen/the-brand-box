@@ -128,6 +128,11 @@ export default function Home() {
     question: dictionary?.postmatch?.creative_refine_question || 'Pergunta da diretora criativa',
     placeholder: dictionary?.postmatch?.creative_refine_placeholder || 'Escreva sua resposta aqui...',
     analyze: dictionary?.postmatch?.creative_refine_analyze || 'Analisar minha resposta',
+    keepOriginalBefore: dictionary?.postmatch?.creative_refine_keep_original_before || (lang === 'en' ? 'Proceed with original direction' : 'Seguir com a direção original'),
+    useRefined: dictionary?.postmatch?.creative_refine_use_refined || (lang === 'en' ? 'Use this refined direction' : 'Usar esta direção refinada'),
+    keepOriginal: dictionary?.postmatch?.creative_refine_keep_original || (lang === 'en' ? 'I prefer the original direction' : 'Prefiro a direção original'),
+    confirmRefined: dictionary?.postmatch?.creative_refine_confirm_refined || (lang === 'en' ? '✨ Refined direction applied! Loading your palettes...' : '✨ Direção refinada aplicada com sucesso! Carregando suas paletas...'),
+    confirmOriginal: dictionary?.postmatch?.creative_refine_confirm_original || (lang === 'en' ? '✨ Original direction retained! Loading your palettes...' : '✨ Direção original mantida! Carregando suas paletas...'),
     keepCurrent: dictionary?.postmatch?.creative_refine_keep_current || 'Manter direção atual',
     useRefined: dictionary?.postmatch?.creative_refine_use_refined || 'Atualizar pela nova direção',
     keepOriginal: dictionary?.postmatch?.creative_refine_keep_original || 'Seguir com a ideia inicial',
@@ -718,7 +723,7 @@ export default function Home() {
           ...prev, 
           marca: formData.marca, 
           tagline: editData.tagline || 'Identidade Visual',
-          instagram: formData.marca.toLowerCase().replace(/\s/g, ''),
+          instagram: (formData.marca || '').toLowerCase().replace(/\s/g, ''),
           whatsapp: prev.whatsapp || '(11) 99999-9999',
           fontFamily: fontProps.fontFamily || selectedFontFamily || prev.fontFamily,
           fontWeight: fontProps.fontWeight || prev.fontWeight,
@@ -1430,6 +1435,7 @@ export default function Home() {
       setIsAdvancingFromRefinement(false);
       setShowRefinement(false);
       setRefinementConfirmation('');
+      setStep(10);
     }, 1200);
   };
 
@@ -1463,6 +1469,7 @@ export default function Home() {
       setIsAdvancingFromRefinement(false);
       setShowRefinement(false);
       setRefinementConfirmation('');
+      setStep(10);
     }, 1200);
   };
 
