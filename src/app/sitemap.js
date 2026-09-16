@@ -28,6 +28,18 @@ export default function sitemap() {
       priority: 0.9,
     },
     {
+      url: `${baseUrl}/pt/identidade-visual-para-pequenos-negocios`,
+      lastModified: now,
+      changeFrequency: 'weekly',
+      priority: 0.9,
+    },
+    {
+      url: `${baseUrl}/en/visual-identity-for-small-businesses`,
+      lastModified: now,
+      changeFrequency: 'weekly',
+      priority: 0.9,
+    },
+    {
       url: `${baseUrl}/pt/politica-de-privacidade`,
       lastModified: now,
       changeFrequency: 'monthly',
