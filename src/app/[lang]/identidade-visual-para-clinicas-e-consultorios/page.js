@@ -474,11 +474,11 @@ export default function ClinicasLandingPage() {
 
           <div style={{ display: 'flex', alignItems: 'center', gap: '18px', flexWrap: 'wrap' }}>
             <Link href="/pt/politica-de-privacidade" style={{ fontSize: '0.82rem', color: '#5A5855', textDecoration: 'none' }}>
-              Política de Privacidade
+              Privacidade
             </Link>
             <span style={{ color: '#E2DDD5' }}>•</span>
-            <Link href="/pt/politica-de-reembolso" style={{ fontSize: '0.82rem', color: '#5A5855', textDecoration: 'none' }}>
-              Política de Reembolso
+            <Link href="/pt/politica-de-reembolso" style={{ fontSize: '0.82rem', color: '#94A3B8', textDecoration: 'none' }}>
+              Termos & Suporte
             </Link>
           </div>
         </div>

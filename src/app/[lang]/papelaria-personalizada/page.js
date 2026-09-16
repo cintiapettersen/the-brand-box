@@ -563,8 +563,8 @@ export default function PapelariaPersonalizadaPage() {
           <Link href="/pt" style={{ color: "#E1EDE7", textDecoration: "none" }}>Início</Link>
           <Link href="/pt/identidade-visual-para-clinicas-e-consultorios" style={{ color: "#E1EDE7", textDecoration: "none" }}>Clínicas & Médicos</Link>
           <Link href="/pt/identidade-visual-para-pequenos-negocios" style={{ color: "#E1EDE7", textDecoration: "none" }}>Pequenos Negócios</Link>
-          <Link href="/pt/politica-de-reembolso" style={{ color: "#E1EDE7", textDecoration: "none" }}>Política de Reembolso</Link>
           <Link href="/pt/politica-de-privacidade" style={{ color: "#E1EDE7", textDecoration: "none" }}>Privacidade</Link>
+          <Link href="/pt/politica-de-reembolso" style={{ color: "#94A3B8", textDecoration: "none" }}>Termos & Suporte</Link>
         </div>
       </footer>
     </div>

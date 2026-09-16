@@ -310,11 +310,11 @@ export default function SmallBusinessesPageEn() {
 
           <div style={{ display: 'flex', alignItems: 'center', gap: '18px', flexWrap: 'wrap' }}>
             <Link href="/en/privacy-policy" style={{ fontSize: '0.82rem', color: '#5A5855', textDecoration: 'none' }}>
-              Privacy Policy
+              Privacy
             </Link>
             <span style={{ color: '#E2DDD5' }}>•</span>
-            <Link href="/en/refund-policy" style={{ fontSize: '0.82rem', color: '#5A5855', textDecoration: 'none' }}>
-              Refund Policy
+            <Link href="/en/refund-policy" style={{ fontSize: '0.82rem', color: '#94A3B8', textDecoration: 'none' }}>
+              Terms & Support
             </Link>
           </div>
         </div>

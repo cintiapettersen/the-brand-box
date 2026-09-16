@@ -597,12 +597,12 @@ export default function LandingPage({ onStart, lang = 'pt', dictionary }) {
               {isEn ? 'Pricing' : 'Preços'}
             </a>
             <span style={{ color: 'var(--border)' }}>•</span>
-            <a href={`/${isEn ? 'en/refund-policy' : 'pt/politica-de-reembolso'}`} style={{ fontSize: '0.82rem', color: 'var(--text-secondary)', textDecoration: 'none' }}>
-              {isEn ? 'Refund Policy' : 'Reembolso'}
-            </a>
-            <span style={{ color: 'var(--border)' }}>•</span>
             <a href={`/${isEn ? 'en/privacy-policy' : 'pt/politica-de-privacidade'}`} style={{ fontSize: '0.82rem', color: 'var(--text-secondary)', textDecoration: 'none' }}>
               {isEn ? 'Privacy' : 'Privacidade'}
+            </a>
+            <span style={{ color: 'var(--border)' }}>•</span>
+            <a href={`/${isEn ? 'en/refund-policy' : 'pt/politica-de-reembolso'}`} style={{ fontSize: '0.82rem', color: '#94A3B8', textDecoration: 'none' }}>
+              {isEn ? 'Terms & Support' : 'Termos & Suporte'}
             </a>
           </div>
         </div>

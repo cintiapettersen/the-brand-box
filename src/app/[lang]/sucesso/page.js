@@ -2064,6 +2064,17 @@ function AjudaStep({ brand, accentColor, onResendEmail, resendingEmail, resendSt
         </div>
       )}
 
+      <div style={{ marginTop: '36px', borderTop: '1px solid #EFECE3', paddingTop: '16px', textAlign: 'center' }}>
+        <a
+          href="/pt/politica-de-reembolso"
+          target="_blank"
+          rel="noopener noreferrer"
+          style={{ fontSize: '0.72rem', color: '#94A3B8', textDecoration: 'none' }}
+        >
+          Termos de Uso, Garantia & Suporte
+        </a>
+      </div>
+
     </div>
   );
 }

@@ -563,8 +563,8 @@ export default function CustomStationeryPage() {
           <Link href="/en" style={{ color: "#E1EDE7", textDecoration: "none" }}>Home</Link>
           <Link href="/en/visual-identity-for-clinics-and-medical-offices" style={{ color: "#E1EDE7", textDecoration: "none" }}>Clinics & Doctors</Link>
           <Link href="/en/visual-identity-for-small-businesses" style={{ color: "#E1EDE7", textDecoration: "none" }}>Small Businesses</Link>
-          <Link href="/en/refund-policy" style={{ color: "#E1EDE7", textDecoration: "none" }}>Refund Policy</Link>
           <Link href="/en/privacy-policy" style={{ color: "#E1EDE7", textDecoration: "none" }}>Privacy</Link>
+          <Link href="/en/refund-policy" style={{ color: "#94A3B8", textDecoration: "none" }}>Terms & Support</Link>
         </div>
       </footer>
     </div>
