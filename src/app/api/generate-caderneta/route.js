@@ -30,7 +30,8 @@ export async function POST(request) {
     // 1. Resolve booklet path
     const pdfPath = path.join(
       process.cwd(),
-      'public',
+      'src',
+      'templates',
       'Caderneta-EBOOK_ MAMAES & GESTANTES_sonho-de-papel designb(sem contorno) - Cintia P. Pettersen.pdf'
     );
 

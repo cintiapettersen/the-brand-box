@@ -13,6 +13,7 @@ import { createClient } from '@supabase/supabase-js';
 import FONT_MAP from '../../lib/fontMap';
 import { STYLE_ICONS, getIconById, ESTILO_NOME_BY_ID } from '../../lib/styleIcons';
 import Image from 'next/image';
+import LandingPage from '../../components/landing/LandingPage';
 import { getCreativeDiagnosisCopy } from '../../lib/creativeDiagnosisCopy';
 import { findSelectedPalette } from '../../lib/selectedPalette';
 import { isCurrentPaletteFeedback, shouldClearPaletteFeedback } from '../../lib/paletteFeedbackState';
@@ -1762,6 +1763,47 @@ export default function Home() {
     }
   };
 
+  if (step === 1) {
+    return (
+      <>
+        {devMode && (
+          <div style={{ position: 'fixed', top: 0, left: 0, right: 0, background: '#1a1a1a', color: '#f90', display: 'flex', alignItems: 'center', justifyContent: 'center', flexWrap: 'wrap', gap: '6px', fontSize: '0.72rem', fontWeight: 700, padding: '6px 12px', zIndex: 9999, letterSpacing: '0.5px', boxShadow: '0 2px 10px rgba(0,0,0,0.3)' }}>
+            <span>⚡ MODO DEV:</span>
+            {[
+              { label: '1: Início', step: 1 },
+              { label: '9: Matchmaker', step: 9 },
+              { label: '10: Paletas', step: 10 },
+              { label: '11: Moodboard', step: 11 },
+              { label: '11.5: Tagline', step: 11.5 },
+              { label: '11.7: Estampa', step: 11.7 },
+              { label: '👑 11.8: Submarca & Selo', step: 11.8 },
+              { label: '12: Placa da Marca', step: 12 },
+            ].map(btn => (
+              <button
+                key={btn.step}
+                type="button"
+                onClick={() => jumpToDevStep(btn.step)}
+                style={{
+                  background: step === btn.step ? 'var(--accent-magenta)' : '#333',
+                  color: '#fff',
+                  border: '1px solid #555',
+                  borderRadius: '6px',
+                  padding: '3px 8px',
+                  fontSize: '0.68rem',
+                  cursor: 'pointer',
+                  fontWeight: step === btn.step ? 700 : 500
+                }}
+              >
+                {btn.label}
+              </button>
+            ))}
+          </div>
+        )}
+        <LandingPage onStart={nextStep} lang={lang} dictionary={dictionary} />
+      </>
+    );
+  }
+
   return (
     <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '100vh', padding: '2rem', background: '#ffffff', position: 'relative' }}>
       {devMode && <LanguageSwitcher style={{ position: 'absolute', top: '12px', right: '20px' }} />}
@@ -1817,68 +1859,6 @@ export default function Home() {
         )}
         
         <AnimatePresence mode="wait">
-          
-          {step === 1 && (
-            <motion.div 
-              key="step1" variants={variants} initial="initial" animate="animate" exit="exit" transition={{ duration: 0.5 }}
-              className="wizard-step" style={{ position: 'absolute', width: '100%', height: '100%', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', textAlign: 'center', background: 'var(--bg-color)', borderRadius: '24px', border: 'none', boxShadow: 'none' }}
-            >
-              <p onClick={handleDevTap} style={{ fontSize: '0.75rem', letterSpacing: '4px', textTransform: 'uppercase', color: 'var(--accent-turquoise)', marginBottom: '2rem', fontWeight: 600, cursor: 'pointer', userSelect: 'none' }}>{dictionary?.landing?.apresenta || 'THE BRAND BOX.'}</p>
-              
-              {/* Logo com fonte Golden Blast */}
-              <Image onClick={handleDevTap} src="/the-brand-box-logo.png" alt="the brand box." width={1024} height={225} priority={true} style={{ width: '80%', maxWidth: '380px', height: 'auto', marginBottom: '1.5rem', mixBlendMode: 'multiply', opacity: 0.9, cursor: 'pointer' }} />
-              
-              <h1 style={{ fontSize: '1.4rem', color: 'var(--text-primary)', marginBottom: '1.2rem', lineHeight: 1.35, maxWidth: '90%', fontWeight: 700, letterSpacing: '-0.5px' }}>{dictionary?.landing?.marca_ja_existe || 'Sua marca já existe dentro de você.'}</h1>
-              
-              <p style={{ fontSize: '1.05rem', color: 'var(--text-secondary)', marginBottom: '2.5rem', lineHeight: 1.6, maxWidth: '90%', fontWeight: 400 }}>
-                {dictionary?.landing?.ajuda_aparecer || 'Nós apenas ajudamos a revelá-la ao mundo.'}
-                {dictionary?.landing?.experiencia_guiada && (
-                  <><br/>{dictionary.landing.experiencia_guiada}</>
-                )}
-              </p>
-              
-              <button onClick={nextStep} className="btn-primary" style={{ padding: '1rem 3rem', fontSize: '0.95rem', letterSpacing: '1px', textTransform: 'uppercase', fontWeight: 600 }}>{dictionary?.landing?.criar_marca || 'CRIAR MINHA MARCA AGORA'}</button>
-
-              {/* DEV SHORTCUTS - só aparece em desenvolvimento */}
-              {process.env.NODE_ENV === 'development' && (
-                <div style={{ marginTop: '20px', padding: '12px', background: 'transparent', border: '1px dashed var(--border)', borderRadius: '12px', width: '100%' }}>
-                  <p style={{ fontSize: '0.65rem', fontWeight: 600, color: 'var(--text-secondary)', marginBottom: '8px', letterSpacing: '1px', textTransform: 'uppercase' }}>⚡ Atalhos de Teste Rápido</p>
-                  <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px', justifyContent: 'center' }}>
-                    <button onClick={() => jumpToDevStep(9)} style={{ padding: '5px 10px', fontSize: '0.65rem', borderRadius: '20px', border: '1px solid var(--border)', background: 'var(--bg-soft)', color: 'var(--text-secondary)', cursor: 'pointer' }}>
-                      Passo 9 (Matchmaker)
-                    </button>
-                    <button onClick={() => jumpToDevStep(11.7)} style={{ padding: '5px 10px', fontSize: '0.65rem', borderRadius: '20px', border: '1px solid var(--accent-turquoise)', background: '#E1EDE7', color: '#203830', cursor: 'pointer', fontWeight: 600 }}>
-                      Passo 11.7 (Estampa)
-                    </button>
-                    <button onClick={() => jumpToDevStep(11.8)} style={{ padding: '5px 10px', fontSize: '0.65rem', borderRadius: '20px', border: '1px solid var(--accent-magenta)', background: '#FCE7F3', color: '#831843', cursor: 'pointer', fontWeight: 700 }}>
-                      👑 Passo 11.8 (Submarca & Selo)
-                    </button>
-                    <button onClick={() => jumpToDevStep(12)} style={{ padding: '5px 10px', fontSize: '0.65rem', borderRadius: '20px', border: '1px solid var(--border)', background: 'var(--bg-soft)', color: 'var(--text-secondary)', cursor: 'pointer' }}>
-                      Passo 12 (Placa da Marca)
-                    </button>
-                    <div style={{ width: '100%', height: '1px', background: 'var(--border)', margin: '4px 0' }} />
-                    <p style={{ fontSize: '0.62rem', color: 'var(--text-secondary)', width: '100%', textAlign: 'center', margin: '2px 0' }}>Ou testar estilo no Passo 9:</p>
-                    {[
-                      { id: 2, nome: 'Jardim Encantado' },
-                      { id: 3, nome: 'Escandinavo Acolhedor' },
-                      { id: 5, nome: 'Essência Atemporal' },
-                      { id: 6, nome: 'Raízes & Cuidado' },
-                      { id: 8, nome: 'Doce Encantamento' },
-                      { id: 11, nome: 'Estético Editorial' },
-                    ].map(e => (
-                      <button key={e.id} onClick={() => {
-                        setFormData(prev => ({ ...prev, marca: prev.marca || 'TEDDY', nome: prev.nome || 'Dev' }));
-                        setResultadoFinal({ estiloId: e.id, estiloNome: e.nome, mensagem: `Teste direto do estilo ${e.nome}` });
-                        setStep(9);
-                      }} style={{ padding: '4px 8px', fontSize: '0.62rem', borderRadius: '20px', border: '1px solid var(--border)', background: 'var(--bg-soft)', color: 'var(--text-secondary)', cursor: 'pointer' }}>
-                        {e.nome}
-                      </button>
-                    ))}
-                  </div>
-                </div>
-              )}
-            </motion.div>
-          )}
 
           {step === 2 && (
             <motion.div 

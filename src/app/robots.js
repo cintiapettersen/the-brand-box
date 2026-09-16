@@ -1,10 +1,21 @@
 export default function robots() {
+  const baseUrl = (process.env.SITE_URL || process.env.NEXT_PUBLIC_SITE_URL || 'https://thebrandbox.sonhodepapel.com').replace(/\/$/, '');
+
   return {
     rules: {
       userAgent: '*',
       allow: '/',
-      disallow: ['/api/', '/sucesso'], // Protege links de entregas de marca e endpoints de API interna
+      disallow: [
+        '/api/',
+        '/sucesso',
+        '/pt/sucesso',
+        '/en/sucesso',
+        '/atelier',
+        '/pt/atelier',
+        '/en/atelier',
+      ],
     },
-    sitemap: 'https://thebrandbox.sonhodepapel.com/sitemap.xml',
-  }
+    sitemap: `${baseUrl}/sitemap.xml`,
+  };
 }
+

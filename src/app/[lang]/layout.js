@@ -16,12 +16,16 @@ export async function generateMetadata({ params }) {
   const baseUrl = (process.env.SITE_URL || process.env.NEXT_PUBLIC_SITE_URL || 'https://thebrandbox.sonhodepapel.com').replace(/\/$/, '');
 
   const title = isEn
-    ? 'Build Your Brand | The Brand Box'
-    : 'Crie sua marca | The Brand Box';
+    ? 'The Brand Box | Build Your Complete Visual Identity with AI & Art Direction'
+    : 'The Brand Box | Crie sua Identidade Visual Completa com IA e Direção de Arte';
 
   const description = isEn
-    ? 'Transform your essence into a complete, professional visual identity through a guided, dynamic, and magical experience. No hassle, no designer needed.'
-    : 'Transforme sua essência em uma identidade visual completa e profissional através de uma experiência guiada, dinâmica e mágica. Sem complicações e sem precisar de designer.';
+    ? 'Transform your business essence into a complete, high-end visual identity in minutes. Brand visual signature (logo system), submark seal, calibrated color palette, bespoke pattern, and print-ready stationery.'
+    : 'Transforme a essência do seu negócio em uma identidade visual completa e profissional em minutos. Assinatura visual de marca, submarca/selo, paleta cromática calibrada, estampa exclusiva e papelaria técnica pronta para gráfica.';
+
+  const keywords = isEn
+    ? ['visual identity', 'brand visual signature', 'logo system', 'brand board', 'clinic stationery', 'art direction ai', 'the brand box']
+    : ['identidade visual', 'assinatura visual de marca', 'logo system', 'brand board', 'identidade visual para clinicas', 'papelaria personalizada', 'direcao de arte ia', 'the brand box'];
 
   return {
     metadataBase: new URL(baseUrl),
@@ -30,6 +34,7 @@ export async function generateMetadata({ params }) {
       template: '%s | The Brand Box',
     },
     description: description,
+    keywords: keywords,
     alternates: {
       canonical: `/${langPath}`,
       languages: {
@@ -42,7 +47,7 @@ export async function generateMetadata({ params }) {
       title: title,
       description: description,
       url: `${baseUrl}/${langPath}`,
-      siteName: 'The Brand Box / Sonho de Papel',
+      siteName: 'The Brand Box',
       locale: ogLocale,
       type: 'website',
       images: [
@@ -50,7 +55,7 @@ export async function generateMetadata({ params }) {
           url: '/og-brandbox.jpg',
           width: 1200,
           height: 630,
-          alt: isEn ? 'The Brand Box - Build your complete visual identity' : 'The Brand Box - Crie sua identidade visual completa',
+          alt: isEn ? 'The Brand Box - Complete Visual Identity Generator' : 'The Brand Box - Criação de Identidade Visual Completa',
         },
       ],
     },
