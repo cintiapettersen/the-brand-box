@@ -76,6 +76,18 @@ export default function sitemap() {
       priority: 0.8,
     },
     {
+      url: `${baseUrl}/pt/guia/o-que-deve-conter-um-manual-de-identidade-visual`,
+      lastModified: now,
+      changeFrequency: 'weekly',
+      priority: 0.8,
+    },
+    {
+      url: `${baseUrl}/en/guide/what-a-brand-style-guide-must-include`,
+      lastModified: now,
+      changeFrequency: 'weekly',
+      priority: 0.8,
+    },
+    {
       url: `${baseUrl}/pt/politica-de-privacidade`,
       lastModified: now,
       changeFrequency: 'monthly',
