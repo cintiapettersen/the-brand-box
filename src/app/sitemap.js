@@ -88,6 +88,18 @@ export default function sitemap() {
       priority: 0.8,
     },
     {
+      url: `${baseUrl}/pt/guia/checklist-papelaria-medica-consultorios`,
+      lastModified: now,
+      changeFrequency: 'weekly',
+      priority: 0.8,
+    },
+    {
+      url: `${baseUrl}/en/guide/medical-stationery-checklist`,
+      lastModified: now,
+      changeFrequency: 'weekly',
+      priority: 0.8,
+    },
+    {
       url: `${baseUrl}/pt/politica-de-privacidade`,
       lastModified: now,
       changeFrequency: 'monthly',
