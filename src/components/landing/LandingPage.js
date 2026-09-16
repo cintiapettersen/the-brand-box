@@ -580,13 +580,29 @@ export default function LandingPage({ onStart, lang = 'pt', dictionary }) {
             © {new Date().getFullYear()} The Brand Box. {isEn ? 'All rights reserved.' : 'Todos os direitos reservados.'}
           </div>
 
-          <div style={{ display: 'flex', alignItems: 'center', gap: '18px', flexWrap: 'wrap' }}>
-            <a href={`/${isEn ? 'en/privacy-policy' : 'pt/politica-de-privacidade'}`} style={{ fontSize: '0.82rem', color: 'var(--text-secondary)', textDecoration: 'none' }}>
-              {isEn ? 'Privacy Policy' : 'Política de Privacidade'}
+          <div style={{ display: 'flex', alignItems: 'center', gap: '14px', flexWrap: 'wrap', justifyContent: 'center' }}>
+            <a href={`/${isEn ? 'en/visual-identity-for-clinics-and-medical-offices' : 'pt/identidade-visual-para-clinicas-e-consultorios'}`} style={{ fontSize: '0.82rem', color: 'var(--text-secondary)', textDecoration: 'none' }}>
+              {isEn ? 'Clinics & Doctors' : 'Clínicas & Médicos'}
+            </a>
+            <span style={{ color: 'var(--border)' }}>•</span>
+            <a href={`/${isEn ? 'en/visual-identity-for-small-businesses' : 'pt/identidade-visual-para-pequenos-negocios'}`} style={{ fontSize: '0.82rem', color: 'var(--text-secondary)', textDecoration: 'none' }}>
+              {isEn ? 'Small Businesses' : 'Pequenos Negócios'}
+            </a>
+            <span style={{ color: 'var(--border)' }}>•</span>
+            <a href={`/${isEn ? 'en/custom-stationery' : 'pt/papelaria-personalizada'}`} style={{ fontSize: '0.82rem', color: 'var(--text-secondary)', textDecoration: 'none' }}>
+              {isEn ? 'Custom Stationery' : 'Papelaria Personalizada'}
+            </a>
+            <span style={{ color: 'var(--border)' }}>•</span>
+            <a href={`/${isEn ? 'en/pricing' : 'pt/precos'}`} style={{ fontSize: '0.82rem', color: 'var(--text-secondary)', textDecoration: 'none' }}>
+              {isEn ? 'Pricing' : 'Preços'}
             </a>
             <span style={{ color: 'var(--border)' }}>•</span>
             <a href={`/${isEn ? 'en/refund-policy' : 'pt/politica-de-reembolso'}`} style={{ fontSize: '0.82rem', color: 'var(--text-secondary)', textDecoration: 'none' }}>
-              {isEn ? 'Refund Policy' : 'Política de Reembolso'}
+              {isEn ? 'Refund Policy' : 'Reembolso'}
+            </a>
+            <span style={{ color: 'var(--border)' }}>•</span>
+            <a href={`/${isEn ? 'en/privacy-policy' : 'pt/politica-de-privacidade'}`} style={{ fontSize: '0.82rem', color: 'var(--text-secondary)', textDecoration: 'none' }}>
+              {isEn ? 'Privacy' : 'Privacidade'}
             </a>
           </div>
         </div>

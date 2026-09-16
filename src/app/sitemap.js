@@ -40,6 +40,30 @@ export default function sitemap() {
       priority: 0.9,
     },
     {
+      url: `${baseUrl}/pt/papelaria-personalizada`,
+      lastModified: now,
+      changeFrequency: 'weekly',
+      priority: 0.9,
+    },
+    {
+      url: `${baseUrl}/en/custom-stationery`,
+      lastModified: now,
+      changeFrequency: 'weekly',
+      priority: 0.9,
+    },
+    {
+      url: `${baseUrl}/pt/precos`,
+      lastModified: now,
+      changeFrequency: 'weekly',
+      priority: 0.9,
+    },
+    {
+      url: `${baseUrl}/en/pricing`,
+      lastModified: now,
+      changeFrequency: 'weekly',
+      priority: 0.9,
+    },
+    {
       url: `${baseUrl}/pt/politica-de-privacidade`,
       lastModified: now,
       changeFrequency: 'monthly',
