@@ -100,6 +100,30 @@ export default function sitemap() {
       priority: 0.8,
     },
     {
+      url: `${baseUrl}/pt/contato`,
+      lastModified: now,
+      changeFrequency: 'weekly',
+      priority: 0.7,
+    },
+    {
+      url: `${baseUrl}/en/contact`,
+      lastModified: now,
+      changeFrequency: 'weekly',
+      priority: 0.7,
+    },
+    {
+      url: `${baseUrl}/pt/termos-de-uso`,
+      lastModified: now,
+      changeFrequency: 'monthly',
+      priority: 0.3,
+    },
+    {
+      url: `${baseUrl}/en/terms-of-service`,
+      lastModified: now,
+      changeFrequency: 'monthly',
+      priority: 0.3,
+    },
+    {
       url: `${baseUrl}/pt/politica-de-privacidade`,
       lastModified: now,
       changeFrequency: 'monthly',
