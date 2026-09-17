@@ -3,7 +3,7 @@ import Image from "next/image";
 
 export const metadata = {
   title: "Brand Identity Pricing & Plans | The Brand Box",
-  description: "How much does a complete brand identity cost? Discover our transparent one-time pricing without subscriptions. Complete kit for $67 with vectors, brand book, and pattern.",
+  description: "How much does a complete brand identity cost? Discover our transparent one-time pricing without subscriptions. Complete kit for $98 with vectors, brand book, and pattern.",
   keywords: [
     "brand identity pricing",
     "how much does branding cost",
@@ -50,7 +50,7 @@ export default function PricingPage() {
         offers: {
           "@type": "Offer",
           priceCurrency: "USD",
-          price: "67.00",
+          price: "98.00",
           priceValidUntil: "2027-12-31",
           availability: "https://schema.org/InStock",
           url: "https://thebrandbox.sonhodepapel.com/en/pricing",
@@ -64,7 +64,7 @@ export default function PricingPage() {
             name: "How much does the complete The Brand Box kit cost?",
             acceptedAnswer: {
               "@type": "Answer",
-              text: "The complete digital package is a one-time payment of $67.00 USD. We never charge monthly fees or hidden licensing costs.",
+              text: "The complete digital package is a one-time payment of $98.00 USD. We never charge monthly fees or hidden licensing costs.",
             },
           },
           {
@@ -72,7 +72,7 @@ export default function PricingPage() {
             name: "How does The Brand Box compare to traditional design agencies?",
             acceptedAnswer: {
               "@type": "Answer",
-              text: "Traditional branding agencies charge between $2,500 and $10,000+ with turnarounds of 4 to 8 weeks. The Brand Box delivers identical technical rigor and luxury aesthetic in minutes for $67 thanks to our guided creative intelligence engine.",
+              text: "Traditional branding agencies charge between $2,500 and $10,000+ with turnarounds of 4 to 8 weeks. The Brand Box delivers identical technical rigor and luxury aesthetic in minutes for $98 thanks to our guided creative intelligence engine.",
             },
           },
           {
@@ -254,7 +254,7 @@ export default function PricingPage() {
               color: "#2A2A2A",
               lineHeight: 1
             }}>
-              67
+              98
             </span>
             <span style={{ fontSize: "0.9rem", color: "#8D9A87" }}>USD flat fee</span>
           </div>
@@ -407,7 +407,7 @@ export default function PricingPage() {
               <tbody>
                 <tr style={{ borderBottom: "1px solid #EFECE3" }}>
                   <td style={{ padding: "16px", fontWeight: 600 }}>Investment</td>
-                  <td style={{ padding: "16px", fontWeight: 700, color: "#1F8A80", backgroundColor: "rgba(225, 237, 231, 0.4)" }}>$67 (one-time)</td>
+                  <td style={{ padding: "16px", fontWeight: 700, color: "#1F8A80", backgroundColor: "rgba(225, 237, 231, 0.4)" }}>$98 (one-time)</td>
                   <td style={{ padding: "16px", color: "#515361" }}>$2,500 – $10,000+</td>
                   <td style={{ padding: "16px", color: "#515361" }}>$500 – $2,000</td>
                   <td style={{ padding: "16px", color: "#515361" }}>$20 – $50</td>
@@ -512,7 +512,7 @@ export default function PricingPage() {
               boxShadow: "0 8px 24px rgba(31, 138, 128, 0.35)"
             }}
           >
-            Start My Brand Project for $67
+            Start My Brand Project for $98
           </Link>
         </div>
       </section>

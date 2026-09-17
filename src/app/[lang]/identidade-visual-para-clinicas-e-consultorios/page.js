@@ -127,7 +127,7 @@ export default function ClinicasLandingPage() {
     serviceType: 'Design e Papelaria Médica',
     offers: {
       '@type': 'Offer',
-      price: '197.00',
+      price: '497.00',
       priceCurrency: 'BRL',
     },
   };

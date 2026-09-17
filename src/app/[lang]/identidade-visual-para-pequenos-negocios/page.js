@@ -126,7 +126,7 @@ export default function PequenosNegociosPage() {
     serviceType: 'Branding e Design de Embalagens',
     offers: {
       '@type': 'Offer',
-      price: '197.00',
+      price: '497.00',
       priceCurrency: 'BRL',
     },
   };

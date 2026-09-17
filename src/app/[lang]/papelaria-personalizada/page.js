@@ -52,7 +52,7 @@ export default function PapelariaPersonalizadaPage() {
         offers: {
           "@type": "Offer",
           priceCurrency: "BRL",
-          price: "347.00",
+          price: "497.00",
           availability: "https://schema.org/InStock",
           url: "https://thebrandbox.sonhodepapel.com/pt/papelaria-personalizada",
         },

@@ -52,7 +52,7 @@ export default function CustomStationeryPage() {
         offers: {
           "@type": "Offer",
           priceCurrency: "USD",
-          price: "67.00",
+          price: "98.00",
           availability: "https://schema.org/InStock",
           url: "https://thebrandbox.sonhodepapel.com/en/custom-stationery",
         },

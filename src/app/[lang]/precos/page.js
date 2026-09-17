@@ -3,14 +3,13 @@ import Image from "next/image";
 
 export const metadata = {
   title: "Preços & Planos de Identidade Visual | The Brand Box",
-  description: "Quanto custa criar uma identidade visual completa? Conheça nossos preços transparentes sem mensalidades. Pacote completo por R$ 347 com vetores, manual e estampa.",
+  description: "Quanto custa criar uma identidade visual completa? Conheça nossos preços transparentes sem mensalidades. Pacote completo por R$ 497 com vetores, manual e estampa.",
   keywords: [
-    "quanto custa identidade visual",
-    "preco identidade visual",
-    "valor criacao de marca",
-    "preco manual de marca",
-    "identidade visual completa preco",
+    "quanto custa uma identidade visual",
+    "preço identidade visual completa",
+    "valor manual de marca",
     "custo branding clinicas pequenas empresas",
+    "tabela de precos identidade visual",
     "the brand box precos"
   ],
   alternates: {
@@ -21,15 +20,15 @@ export const metadata = {
     },
   },
   openGraph: {
-    title: "Preços & Planos de Identidade Visual | The Brand Box",
-    description: "Investimento transparente e acessível. Identidade visual completa de alto padrão por valor único, sem mensalidades.",
+    title: "Preços e Planos de Identidade Visual | The Brand Box",
+    description: "Investimento transparente e acessível. Crie um sistema visual de alto padrão em minutos com pagamento único, sem mensalidades.",
     url: "https://thebrandbox.sonhodepapel.com/pt/precos",
     images: [
       {
         url: "https://thebrandbox.sonhodepapel.com/og-precos.jpg",
         width: 1200,
         height: 630,
-        alt: "Preços e Entregáveis The Brand Box",
+        alt: "Entregáveis e Tabela de Preços The Brand Box",
       },
     ],
   },
@@ -41,8 +40,8 @@ export default function PrecosPage() {
     "@graph": [
       {
         "@type": "Product",
-        name: "The Brand Box — Sistema Completo de Identidade Visual & Branding",
-        description: "Pacote de identidade visual com manual de marca, vetores profissionais, paleta de cores, tipografia, estampa de marca e templates.",
+        name: "The Brand Box — Criação de Identidade Visual e Branding Completo",
+        description: "Pacote completo de identidade visual com manual de marca, arquivos vetoriais, paleta de cores, tipografia, estampa contínua e gabaritos.",
         image: "https://thebrandbox.sonhodepapel.com/og-precos.jpg",
         brand: {
           "@type": "Brand",
@@ -51,7 +50,7 @@ export default function PrecosPage() {
         offers: {
           "@type": "Offer",
           priceCurrency: "BRL",
-          price: "347.00",
+          price: "497.00",
           priceValidUntil: "2027-12-31",
           availability: "https://schema.org/InStock",
           url: "https://thebrandbox.sonhodepapel.com/pt/precos",
@@ -62,18 +61,18 @@ export default function PrecosPage() {
         mainEntity: [
           {
             "@type": "Question",
-            name: "Quanto custa o pacote completo de identidade visual The Brand Box?",
+            name: "Quanto custa o kit completo The Brand Box?",
             acceptedAnswer: {
               "@type": "Answer",
-              text: "O pacote completo digital custa taxa única de R$ 347,00 (podendo ser parcelado no cartão de crédito). Não cobramos mensalidades nem taxas ocultas de licenciamento.",
+              text: "O pacote completo digital custa taxa única de R$ 497,00 (podendo ser parcelado no cartão de crédito). Não cobramos mensalidades nem taxas ocultas de licenciamento.",
             },
           },
           {
             "@type": "Question",
-            name: "Qual a diferença de preço entre a The Brand Box e uma agência de publicidade?",
+            name: "Qual a diferença de preço entre a The Brand Box e uma agência tradicional?",
             acceptedAnswer: {
               "@type": "Answer",
-              text: "Agências tradicionais costumam cobrar entre R$ 4.500 e R$ 15.000 com prazos de 30 a 60 dias. A The Brand Box entrega a mesma sofisticação e rigor técnico em poucos minutos por R$ 347 graças ao nosso sistema de inteligência criativa guiada.",
+              text: "Agências tradicionais costumam cobrar entre R$ 4.500 e R$ 15.000 com prazos de 30 a 60 dias. A The Brand Box entrega a mesma sofisticação e rigor técnico em poucos minutos por R$ 497 graças ao nosso sistema de inteligência criativa guiada.",
             },
           },
           {
@@ -255,7 +254,7 @@ export default function PrecosPage() {
               color: "#2A2A2A",
               lineHeight: 1
             }}>
-              347
+              497
             </span>
             <span style={{ fontSize: "0.9rem", color: "#8D9A87" }}>à vista ou em até 12x</span>
           </div>
@@ -408,7 +407,7 @@ export default function PrecosPage() {
               <tbody>
                 <tr style={{ borderBottom: "1px solid #EFECE3" }}>
                   <td style={{ padding: "16px", fontWeight: 600 }}>Investimento</td>
-                  <td style={{ padding: "16px", fontWeight: 700, color: "#1F8A80", backgroundColor: "rgba(225, 237, 231, 0.4)" }}>R$ 347 (único)</td>
+                  <td style={{ padding: "16px", fontWeight: 700, color: "#1F8A80", backgroundColor: "rgba(225, 237, 231, 0.4)" }}>R$ 497 (único)</td>
                   <td style={{ padding: "16px", color: "#515361" }}>R$ 4.500 a R$ 15.000</td>
                   <td style={{ padding: "16px", color: "#515361" }}>R$ 1.200 a R$ 3.500</td>
                   <td style={{ padding: "16px", color: "#515361" }}>R$ 50 a R$ 100</td>
@@ -513,7 +512,7 @@ export default function PrecosPage() {
               boxShadow: "0 8px 24px rgba(31, 138, 128, 0.35)"
             }}
           >
-            Começar Meu Projeto por R$ 347
+            Começar Meu Projeto por R$ 497
           </Link>
         </div>
       </section>

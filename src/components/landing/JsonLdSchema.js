@@ -28,8 +28,8 @@ export default function JsonLdSchema({ lang = 'pt' }) {
       : 'Crie sua identidade visual completa e profissional em minutos. Inclui Assinatura Visual de Marca, Submarca/Selo, Paleta Cromática, Estampa Exclusiva, Tipografia e Papelaria Técnica para Clínicas e Empresas.',
     offers: {
       '@type': 'Offer',
-      price: '197.00',
-      priceCurrency: 'BRL',
+      price: isEn ? '98.00' : '497.00',
+      priceCurrency: isEn ? 'USD' : 'BRL',
       availability: 'https://schema.org/InStock',
       url: `${baseUrl}/${isEn ? 'en' : 'pt'}`,
     },
