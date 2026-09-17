@@ -68,10 +68,12 @@ CREATE POLICY "Service role full access on ai_usage_logs"
     USING (true)
     WITH CHECK (true);
 
--- Step 5: Reporting Views
+-- Step 5: Reporting Views (Protected with security_invoker = true and restricted to service_role)
 
 -- 5.1 Real AI cost per delivery
-CREATE OR REPLACE VIEW public.v_delivery_ai_costs AS
+CREATE OR REPLACE VIEW public.v_delivery_ai_costs
+WITH (security_invoker = true)
+AS
 SELECT
     e.id AS delivery_id,
     e.journey_id,
@@ -92,7 +94,9 @@ LEFT JOIN public.ai_usage_logs l ON e.id = l.delivery_id
 GROUP BY e.id, e.journey_id, e.marca, e.plano, e.paid, e.payment_status, e.created_at;
 
 -- 5.2 Performance and reliability by operation and exact runtime model
-CREATE OR REPLACE VIEW public.v_cost_by_operation AS
+CREATE OR REPLACE VIEW public.v_cost_by_operation
+WITH (security_invoker = true)
+AS
 SELECT
     operation_type,
     provider,
@@ -112,7 +116,9 @@ GROUP BY operation_type, provider, exact_model, pricing_status
 ORDER BY total_known_cost_usd DESC NULLS LAST;
 
 -- 5.3 Quality gate telemetry and retries
-CREATE OR REPLACE VIEW public.v_quality_gate_telemetry AS
+CREATE OR REPLACE VIEW public.v_quality_gate_telemetry
+WITH (security_invoker = true)
+AS
 SELECT
     operation_type,
     exact_model,
@@ -127,3 +133,13 @@ FROM public.ai_usage_logs
 WHERE attempt_number > 1 OR NOT output_accepted OR retry_reason IS NOT NULL
 GROUP BY operation_type, exact_model, attempt_number, provider_success, output_accepted, retry_reason, fallback_used
 ORDER BY occurrences DESC;
+
+-- Step 6: Revoke all privileges from public API roles (anon and authenticated)
+REVOKE ALL ON TABLE public.v_delivery_ai_costs FROM anon, authenticated, public;
+REVOKE ALL ON TABLE public.v_cost_by_operation FROM anon, authenticated, public;
+REVOKE ALL ON TABLE public.v_quality_gate_telemetry FROM anon, authenticated, public;
+
+-- Step 7: Grant SELECT strictly to service_role
+GRANT SELECT ON TABLE public.v_delivery_ai_costs TO service_role;
+GRANT SELECT ON TABLE public.v_cost_by_operation TO service_role;
+GRANT SELECT ON TABLE public.v_quality_gate_telemetry TO service_role;
