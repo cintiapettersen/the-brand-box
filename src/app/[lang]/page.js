@@ -167,14 +167,15 @@ export default function Home() {
       setIsDemoMode(false);
     }
 
-    // Pular landing page e iniciar briefing direto se vier com parâmetro start/step=2
+    // Pular landing page e ir para a capa de boas-vindas do briefing direto se vier com parâmetro start
     if (
       params.get('start') === 'true' || 
       params.get('start') === '1' || 
-      params.get('step') === '2' || 
       params.get('briefing') === '1' || 
       params.get('app') === '1'
     ) {
+      setStep(1.5);
+    } else if (params.get('step') === '2') {
       setStep(2);
     }
   }, []);
@@ -1810,7 +1811,7 @@ export default function Home() {
             ))}
           </div>
         )}
-        <LandingPage onStart={nextStep} lang={lang} dictionary={dictionary} />
+        <LandingPage onStart={() => setStep(1.5)} lang={lang} dictionary={dictionary} />
       </>
     );
   }
@@ -1822,7 +1823,7 @@ export default function Home() {
         <div style={{ position: 'fixed', top: 0, left: 0, right: 0, background: '#1a1a1a', color: '#f90', display: 'flex', alignItems: 'center', justifyContent: 'center', flexWrap: 'wrap', gap: '6px', fontSize: '0.72rem', fontWeight: 700, padding: '6px 12px', zIndex: 9999, letterSpacing: '0.5px', boxShadow: '0 2px 10px rgba(0,0,0,0.3)' }}>
           <span>⚡ MODO DEV:</span>
           {[
-            { label: '1: Início', step: 1 },
+            { label: '1: Início', step: 1.5 },
             { label: '9: Matchmaker', step: 9 },
             { label: '10: Paletas', step: 10 },
             { label: '11: Moodboard', step: 11 },
@@ -1853,7 +1854,7 @@ export default function Home() {
       )}
       <div style={{ width: '100%', maxWidth: '700px', position: 'relative', height: step === 9 ? 'auto' : '85vh', minHeight: step === 9 ? '85vh' : undefined, marginTop: devMode ? '34px' : 0 }}>
 
-        {step > 1 && step < 8 && (
+        {step > 1.5 && step < 8 && (
            <button onClick={() => {
              if (step === 7.8) setStep(7.5);
              else if (step === 7.5) setStep(7.2);
@@ -1861,8 +1862,8 @@ export default function Home() {
              else if (step === 7) setStep(6.5);
              else if (step === 6.5) setStep(6);
              else if (step === 6) setStep(5);
-             
              else if (step === 5.2) setStep(5);
+             else if (step === 2) setStep(1.5);
              else setStep(s => s - 1);
            }} style={{ position: 'absolute', top: '10px', left: '10px', background: 'var(--bg-soft)', border: '1px solid var(--border)', borderRadius: '30px', padding: '6px 14px', color: 'var(--text-secondary)', cursor: 'pointer', zIndex: 100, fontSize: '0.85rem', fontWeight: 500, transition: 'all 0.2s ease', display: 'flex', alignItems: 'center', gap: '5px' }}>
              ← {dictionary?.onboarding?.btn_back || 'Voltar'}
@@ -1870,6 +1871,28 @@ export default function Home() {
         )}
         
         <AnimatePresence mode="wait">
+
+          {step === 1.5 && (
+            <motion.div 
+              key="step1_5" variants={variants} initial="initial" animate="animate" exit="exit" transition={{ duration: 0.5 }}
+              className="wizard-step" style={{ position: 'absolute', width: '100%', height: '100%', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', textAlign: 'center', background: 'var(--bg-color)', borderRadius: '24px', border: 'none', boxShadow: 'none' }}
+            >
+              <p onClick={handleDevTap} style={{ fontSize: '0.75rem', letterSpacing: '4px', textTransform: 'uppercase', color: 'var(--accent-turquoise)', marginBottom: '2rem', fontWeight: 600, cursor: 'pointer', userSelect: 'none' }}>{dictionary?.landing?.apresenta || 'THE BRAND BOX.'}</p>
+              
+              <Image onClick={handleDevTap} src="/the-brand-box-logo.png" alt="the brand box." width={1024} height={225} priority={true} style={{ width: '80%', maxWidth: '380px', height: 'auto', marginBottom: '1.5rem', mixBlendMode: 'multiply', opacity: 0.9, cursor: 'pointer' }} />
+              
+              <h1 style={{ fontSize: '1.4rem', color: 'var(--text-primary)', marginBottom: '1.2rem', lineHeight: 1.35, maxWidth: '90%', fontWeight: 700, letterSpacing: '-0.5px' }}>{dictionary?.landing?.marca_ja_existe || 'Sua marca já existe dentro de você.'}</h1>
+              
+              <p style={{ fontSize: '1.05rem', color: 'var(--text-secondary)', marginBottom: '2.5rem', lineHeight: 1.6, maxWidth: '90%', fontWeight: 400 }}>
+                {dictionary?.landing?.ajuda_aparecer || 'Nós apenas ajudamos a revelá-la ao mundo.'}
+                {dictionary?.landing?.experiencia_guiada && (
+                  <><br/>{dictionary.landing.experiencia_guiada}</>
+                )}
+              </p>
+              
+              <button onClick={() => setStep(2)} className="btn-primary" style={{ padding: '1rem 3rem', fontSize: '0.95rem', letterSpacing: '1px', textTransform: 'uppercase', fontWeight: 600 }}>{dictionary?.landing?.criar_marca || 'CRIAR MINHA MARCA AGORA'}</button>
+            </motion.div>
+          )}
 
           {step === 2 && (
             <motion.div 
