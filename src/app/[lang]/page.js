@@ -166,6 +166,17 @@ export default function Home() {
       localStorage.removeItem('brandbox_demo_mode');
       setIsDemoMode(false);
     }
+
+    // Pular landing page e iniciar briefing direto se vier com parâmetro start/step=2
+    if (
+      params.get('start') === 'true' || 
+      params.get('start') === '1' || 
+      params.get('step') === '2' || 
+      params.get('briefing') === '1' || 
+      params.get('app') === '1'
+    ) {
+      setStep(2);
+    }
   }, []);
 
 
