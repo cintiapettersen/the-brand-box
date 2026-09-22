@@ -501,6 +501,17 @@ export default function Home() {
   useEffect(() => {
     if (!isHydrated || !isPersistenceReady || showResumePrompt) return;
 
+    // Só salva se o usuário tiver preenchido dados ou avançado no briefing
+    const hasData = (step > 1.5) || !!formData.nome || !!formData.email || !!formData.marca || !!resultadoFinal;
+    if (!hasData) {
+      try {
+        localStorage.removeItem('brandbox_progress');
+      } catch (e) {
+        // Ignora erro ao limpar
+      }
+      return;
+    }
+
     const activeSessionId = typeof window !== 'undefined' ? localStorage.getItem('brandbox_session') : null;
 
     const dataToSave = {
@@ -4061,14 +4072,47 @@ export default function Home() {
                   </button>
                   <button
                     onClick={() => {
-                      // Limpeza total de qualquer rastro de projetos anteriores
-                      Object.keys(localStorage).forEach(key => {
-                        if (key.startsWith('brandbox_')) localStorage.removeItem(key);
+                      try {
+                        Object.keys(localStorage).forEach(key => {
+                          if (key.startsWith('brandbox_') && key !== 'brandbox_demo_mode') {
+                            localStorage.removeItem(key);
+                          }
+                        });
+                      } catch (e) {
+                        console.warn('Erro ao limpar localStorage:', e);
+                      }
+                      setFormData({
+                        nome: '', email: '', acceptsMarketing: false, marca: '', atuacao: '', atuacaoOutra: '', contextoExtra: '', publico: '', sentimentos: [], elementosVisuais: [], personalidade: '', primeiraImpressao: '', locais: [], inspiracoes: '', inspiracoesTags: [], nuncaPensar: '', nuncaPensarTags: []
                       });
-                      setShowResumePrompt(false);
+                      setResultadoFinal(null);
+                      setSelectedPaleta(null);
+                      setSelectedTipo(null);
+                      setSelectedIcon(null);
+                      setSelectedTagline('');
+                      setCustomTagline('');
+                      setGeneratedPatterns([]);
+                      setSelectedPattern(null);
+                      setPapelariaSelecionada([]);
+                      setGeneratedBrandElements([]);
+                      setSelectedBrandElementId(null);
+                      setPaletteFeedback(null);
+                      setPaletteConsultations([]);
+                      setEditData({
+                        marca: '',
+                        tagline: '',
+                        whatsapp: '',
+                        instagram: '',
+                        corAtiva: '',
+                        secondaryFontFamily: 'Montserrat',
+                        secondaryFontWeight: 500,
+                        secondaryFontStyle: 'sans',
+                        itemSelecionado: 'cartao',
+                        viewType: 'itens'
+                      });
                       setSavedProgress(null);
+                      setShowResumePrompt(false);
                       setIsPersistenceReady(true);
-                      window.location.reload(); // Recarrega para garantir estado limpo
+                      setStep(1.5);
                     }}
                     className="btn-secondary"
                     style={{ width: '100%' }}
